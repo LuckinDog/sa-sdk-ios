@@ -7,48 +7,12 @@
 //
 
 #import "AppDelegate.h"
-#include <objc/runtime.h>
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
 @interface AppDelegate ()
 
 @end
 @implementation AppDelegate
-
-- (NSString *)getParseBundleIdString:(NSString *)description
-{
-    NSString * ret = @"";
-    NSString * target = [description description];
-    
-    // iOS8.0 "LSApplicationProxy: com.apple.videos",
-    // iOS8.1 "<LSApplicationProxy: 0x898787998> com.apple.videos",
-    // iOS9.0 "<LSApplicationProxy: 0x145efbb0> com.apple.PhotosViewService <file:///Applications/PhotosViewService.app>"
-    
-    if (target == nil)
-    {
-        return ret;
-    }
-    NSArray * arrObj = [target componentsSeparatedByString:@" "];
-    switch ([arrObj count])
-    {
-        case 2: // [iOS7.0 ~ iOS8.1)
-        case 3: // [iOS8.1 ~ iOS9.0)
-        {
-            ret = [arrObj lastObject];
-        }
-            break;
-            
-        case 4: // [iOS9 +)
-        {
-            ret = [arrObj objectAtIndex:2];
-        }
-            break;
-            
-        default:
-            break;
-    }
-    return ret;
-}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
@@ -59,18 +23,6 @@
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
-    
-    Class lsawsc = objc_getClass("LSApplicationWorkspace");
-    NSObject* workspace = [lsawsc performSelector:NSSelectorFromString(@"defaultWorkspace")];
-    NSArray *Arr = [workspace performSelector:NSSelectorFromString(@"allInstalledApplications")];
-    NSLog(@"*******%d",Arr.count);
-    for (NSString * tmp in Arr)
-    {
-        NSString * bundleid = [self getParseBundleIdString:tmp];
-        NSLog(@"*******%@",bundleid);
-    }
-
-    
 #ifdef DEBUG
     //[[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
 #endif
