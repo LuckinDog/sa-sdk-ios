@@ -104,7 +104,7 @@
 		4DBA6FA01B4B8DC4004F0ADB /* NSData+SABase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */; };
 		4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */; };
 		4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
-		A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; };
+		A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A11C545A201075020074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
 		A11C545D2010751F0074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */; };
 		A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
@@ -674,6 +674,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				008D82AE1F0E22ED00052CFF /* NSString+HashCode.h in Headers */,
+				A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */,
 				A3746E9C1C313E15008A50A3 /* SAApplicationStateSerializer.h in Headers */,
 				0027C8491FA201CE002EA41B /* SAHeatMapSnapshotMessage.h in Headers */,
 				A3E388A11D509B8900F6B9FC /* SAReachability.h in Headers */,
@@ -681,7 +682,6 @@
 				00EA990F1EEF9D1A005E524F /* UICollectionView+AutoTrack.h in Headers */,
 				A3997A251C3AC1DE005A9374 /* SAObjectSelector.h in Headers */,
 				A3997A1F1C3ABCE3005A9374 /* SADesignerEventBindingMessage.h in Headers */,
-				A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */,
 				0009198B1F974CE100E5D3C5 /* UIViewController+AutoTrack.h in Headers */,
 				A3746EC01C3190E7008A50A3 /* SAPropertyDescription.h in Headers */,
 				4D14F17E1B4A7A32006AD786 /* SALogger.h in Headers */,
