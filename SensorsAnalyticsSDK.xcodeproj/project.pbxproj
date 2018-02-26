@@ -13,7 +13,6 @@
 		0009198C1F974CE100E5D3C5 /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */; };
 		0009198D1F974D1C00E5D3C5 /* UIViewController+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */; };
 		0009198E1F974D1C00E5D3C5 /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */; };
-		0021E1D91FA33D4800DC533D /* snapshot_request_ios.json in Resources */ = {isa = PBXBuildFile; fileRef = 0027C8411FA201CE002EA41B /* snapshot_request_ios.json */; };
 		0025E0481F09D79A001248F4 /* AutoTrackUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */; };
 		0025E0491F09D79A001248F4 /* AutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */; };
 		0027C8431FA201CE002EA41B /* SAHeatMapConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 0027C83B1FA201CD002EA41B /* SAHeatMapConnection.h */; };
@@ -30,7 +29,6 @@
 		0027C84E1FA201DA002EA41B /* SAHeatMapMessage.h in Sources */ = {isa = PBXBuildFile; fileRef = 0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */; };
 		0027C84F1FA201DA002EA41B /* SAHeatMapSnapshotMessage.h in Sources */ = {isa = PBXBuildFile; fileRef = 0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */; };
 		0027C8501FA201DA002EA41B /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0027C83C1FA201CE002EA41B /* SAHeatMapSnapshotMessage.m */; };
-		0027C8511FA201DA002EA41B /* snapshot_request_ios.json in Sources */ = {isa = PBXBuildFile; fileRef = 0027C8411FA201CE002EA41B /* snapshot_request_ios.json */; };
 		0027C8531FA201E9002EA41B /* ic_test.png in Resources */ = {isa = PBXBuildFile; fileRef = 0027C8521FA201E9002EA41B /* ic_test.png */; };
 		0027C8581FA201FC002EA41B /* TestTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0027C8551FA201FC002EA41B /* TestTableViewController.m */; };
 		0027C8591FA201FC002EA41B /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0027C8571FA201FC002EA41B /* TestViewController.m */; };
@@ -124,7 +122,6 @@
 		A1D1C5831FB44902006685C1 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D1C5811FB448FA006685C1 /* libz.tbd */; };
 		A1D1C5841FB44908006685C1 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */; };
 		A1D1C5851FB44913006685C1 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A366491F1CC784A1008D991E /* SafariServices.framework */; };
-		A1D1C58B1FB45019006685C1 /* snapshot_request_ios.json in Resources */ = {isa = PBXBuildFile; fileRef = 0027C8411FA201CE002EA41B /* snapshot_request_ios.json */; };
 		A1D1C58C1FB45019006685C1 /* snapshot_payload.json in Resources */ = {isa = PBXBuildFile; fileRef = A39898A01C33FB330046B1F4 /* snapshot_payload.json */; };
 		A1D1C58D1FB45019006685C1 /* ic_test.png in Resources */ = {isa = PBXBuildFile; fileRef = 0027C8521FA201E9002EA41B /* ic_test.png */; };
 		A1D1C58E1FB45019006685C1 /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
@@ -263,7 +260,6 @@
 		0027C83E1FA201CE002EA41B /* SAAbstractHeatMapMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAbstractHeatMapMessage.m; sourceTree = "<group>"; };
 		0027C83F1FA201CE002EA41B /* SAHeapMapConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHeapMapConnection.m; sourceTree = "<group>"; };
 		0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAHeatMapMessage.h; sourceTree = "<group>"; };
-		0027C8411FA201CE002EA41B /* snapshot_request_ios.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = snapshot_request_ios.json; sourceTree = "<group>"; };
 		0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAHeatMapSnapshotMessage.h; sourceTree = "<group>"; };
 		0027C8521FA201E9002EA41B /* ic_test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_test.png; sourceTree = "<group>"; };
 		0027C8541FA201FC002EA41B /* TestTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTableViewController.h; sourceTree = "<group>"; };
@@ -533,7 +529,6 @@
 				0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */,
 				0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */,
 				0027C83C1FA201CE002EA41B /* SAHeatMapSnapshotMessage.m */,
-				0027C8411FA201CE002EA41B /* snapshot_request_ios.json */,
 				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
 				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */,
@@ -866,7 +861,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0021E1D91FA33D4800DC533D /* snapshot_request_ios.json in Resources */,
 				4D0EB7CC1B47A88C0019FD21 /* Main.storyboard in Resources */,
 				0027C8531FA201E9002EA41B /* ic_test.png in Resources */,
 				4D0EB7D11B47A88C0019FD21 /* LaunchScreen.xib in Resources */,
@@ -888,7 +882,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1D1C58B1FB45019006685C1 /* snapshot_request_ios.json in Resources */,
 				A1D1C58C1FB45019006685C1 /* snapshot_payload.json in Resources */,
 				A1D1C58D1FB45019006685C1 /* ic_test.png in Resources */,
 				A1D1C58E1FB45019006685C1 /* JSCallOC.html in Resources */,
@@ -917,7 +910,6 @@
 				0027C84E1FA201DA002EA41B /* SAHeatMapMessage.h in Sources */,
 				0027C84F1FA201DA002EA41B /* SAHeatMapSnapshotMessage.h in Sources */,
 				0027C8501FA201DA002EA41B /* SAHeatMapSnapshotMessage.m in Sources */,
-				0027C8511FA201DA002EA41B /* snapshot_request_ios.json in Sources */,
 				0009198D1F974D1C00E5D3C5 /* UIViewController+AutoTrack.h in Sources */,
 				0009198E1F974D1C00E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
 				000919871F973CD100E5D3C5 /* UIImage+AutoTrack.h in Sources */,
@@ -1126,7 +1118,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SENSORS_ANALYTICS_IDFA=1",
 					"$(inherited)",
-					"SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE=1",
 				);
 				INFOPLIST_FILE = HelloSensorsAnalytics/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
