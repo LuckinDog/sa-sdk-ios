@@ -1104,8 +1104,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
-    _autoTrackEventType |= eventType;
-    _autoTrack = YES;
+    _autoTrackEventType = eventType;
+    _autoTrack = (_autoTrackEventType != SensorsAnalyticsEventTypeNone);
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
