@@ -760,6 +760,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 - (void)addWebViewUserAgentSensorsDataFlag;
 
+/**
+ * @abstract
+ * h5 数据打通的时候是否通过ua serverUrl 来校验, 校验通过则h5的数据走app上报否则走jssdk上报
+ *
+ * @param enableVerify YES/NO   校验通过后可走app上报数据/直接走app上报数据
+ */
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify ;
+
 - (SensorsAnalyticsDebugMode)debugMode;
 
 /**
