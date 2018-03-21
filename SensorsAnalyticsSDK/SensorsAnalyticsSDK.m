@@ -1512,8 +1512,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    NSNumber *timeStamp = @([[self class] getCurrentTime]);
-    
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     
     [libProperties setValue:[_automaticProperties objectForKey:@"$lib"] forKey:@"$lib"];
@@ -1563,6 +1561,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     dispatch_async(self.serialQueue, ^{
+        NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
