@@ -2336,45 +2336,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag {
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        @try {
-//            UIWebView * tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-//            NSString * oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-//            NSString * newAgent = oldAgent;
-//            if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
-//                newAgent = [oldAgent stringByAppendingString:@"/sa-sdk-ios"];
-//            }
-//
-//            NSDictionary * dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
-//            [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-//            [[NSUserDefaults standardUserDefaults] synchronize];
-//        } @catch (NSException *exception) {
-//            SADebug(@"%@: %@", self, exception);
-//        }
-//    });
     [self addWebViewUserAgentSensorsDataFlag:YES];
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify  {
-    __block BOOL  verify = enableVerify;
+    __block BOOL verify = enableVerify;
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
-            if (self->_serverURL==nil || self->_serverURL.length==0) {
+            if (self->_serverURL == nil || self->_serverURL.length == 0) {
                 verify = NO;
             }
             SAServerUrl *ss = [[SAServerUrl alloc]initWithUrl:self->_serverURL];
-            
-            UIWebView * tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-            NSString * oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-            NSString * newAgent = oldAgent;
+            UIWebView *tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            NSString *oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            NSString *newAgent = oldAgent;
             if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
                 if (verify) {
                     newAgent = [oldAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ",ss.host,ss.project]];
-                }else{
+                } else {
                     newAgent = [oldAgent stringByAppendingString:@" /sa-sdk-ios"];
                 }
             }
-            NSDictionary * dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
+            NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
             [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
             [[NSUserDefaults standardUserDefaults] synchronize];
         } @catch (NSException *exception) {
