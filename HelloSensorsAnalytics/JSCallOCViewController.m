@@ -40,7 +40,13 @@
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
-    //[[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView];
+    NSString *path = [[NSBundle mainBundle]pathForResource:@"jssdk" ofType:@"js"];
+    NSURL *url = [NSURL fileURLWithPath:path];
+    [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"var script = document.createElement('script');"
+                                                      "script.type = 'text/javascript';"
+                                                      "script.src = \'%@\';"
+                                                      "document.getElementsByTagName('head')[0].appendChild(script);",url.path]];
+    
 }
 
 @end

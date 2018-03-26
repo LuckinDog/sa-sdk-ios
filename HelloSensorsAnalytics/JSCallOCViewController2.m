@@ -55,6 +55,18 @@
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
+-(void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
+{
+    NSString *path = [[NSBundle mainBundle]pathForResource:@"jssdk" ofType:@"js"];
+    NSURL *url = [NSURL fileURLWithPath:path];
+    [webView evaluateJavaScript:[NSString stringWithFormat:@"var script = document.createElement('script');"
+                                 "script.type = 'text/javascript';"
+                                 "script.src = \'%@\';"
+                                 "document.getElementsByTagName('head')[0].appendChild(script);",url.path]
+              completionHandler:^(id _Nullable obj, NSError * _Nullable error) {
+                  
+              }];  //添加到head标签中
+}
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
     if (!_webView.loading) {
         //[[SensorsAnalyticsSDK sharedInstance] showUpWebView:_webView];
