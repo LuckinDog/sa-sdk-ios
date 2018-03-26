@@ -125,6 +125,8 @@
 		A1D1C58E1FB45019006685C1 /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
 		A1F446842068AB1F00F99BE8 /* SAHeatMapConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446832068AB1F00F99BE8 /* SAHeatMapConnection.m */; };
 		A1F446852068AB8300F99BE8 /* SAHeatMapConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446832068AB1F00F99BE8 /* SAHeatMapConnection.m */; };
+		A1F446882068ACCD00F99BE8 /* SAUdid.h in Headers */ = {isa = PBXBuildFile; fileRef = A1F446862068ACCD00F99BE8 /* SAUdid.h */; };
+		A1F446892068ACCD00F99BE8 /* SAUdid.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAUdid.m */; };
 		A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A36649201CC784A1008D991E /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A366491F1CC784A1008D991E /* SafariServices.framework */; };
@@ -343,6 +345,8 @@
 		A1D1C57B1FB44613006685C1 /* SensorsDataSwiftDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsDataSwiftDemo-Bridging-Header.h"; sourceTree = "<group>"; };
 		A1D1C5811FB448FA006685C1 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		A1F446832068AB1F00F99BE8 /* SAHeatMapConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHeatMapConnection.m; sourceTree = "<group>"; };
+		A1F446862068ACCD00F99BE8 /* SAUdid.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAUdid.h; sourceTree = "<group>"; };
+		A1F446872068ACCD00F99BE8 /* SAUdid.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAUdid.m; sourceTree = "<group>"; };
 		A3333BD31C5A0DDE0013353F /* SADesignerDisconnectMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADesignerDisconnectMessage.h; sourceTree = "<group>"; };
 		A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADesignerDisconnectMessage.m; sourceTree = "<group>"; };
 		A366491F1CC784A1008D991E /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
@@ -617,6 +621,8 @@
 				008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */,
 				004136081FFB4682009F2097 /* SAServerUrl.h */,
 				004136091FFB4682009F2097 /* SAServerUrl.m */,
+				A1F446862068ACCD00F99BE8 /* SAUdid.h */,
+				A1F446872068ACCD00F99BE8 /* SAUdid.m */,
 			);
 			path = SensorsAnalyticsSDK;
 			sourceTree = "<group>";
@@ -689,6 +695,7 @@
 				00EA99EC1EEFAEC6005E524F /* UIAlertView+AutoTrack.h in Headers */,
 				A3746E921C313A0D008A50A3 /* SADesignerSnapshotMessage.h in Headers */,
 				A3997A311C3AC3B8005A9374 /* SAEventBinding.h in Headers */,
+				A1F446882068ACCD00F99BE8 /* SAUdid.h in Headers */,
 				A3746EBC1C3190E7008A50A3 /* SAClassDescription.h in Headers */,
 				002DB94D1EB1647F00A9632C /* SASwizzle.h in Headers */,
 				4D14F1711B4A51B7006AD786 /* SAGzipUtility.h in Headers */,
@@ -992,6 +999,7 @@
 				A3746EB11C318B65008A50A3 /* SAObjectSerializerContext.m in Sources */,
 				0041360B1FFB4682009F2097 /* SAServerUrl.m in Sources */,
 				A3746EA91C318B54008A50A3 /* SAObjectSerializer.m in Sources */,
+				A1F446892068ACCD00F99BE8 /* SAUdid.m in Sources */,
 				A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */,
 				A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */,
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
