@@ -2,7 +2,7 @@
 //  SALogger.m
 //  SensorsAnalyticsSDK
 //
-//  Created by ziven.mac on 2018/3/28.
+//  Created by 向作为 on 2018/3/28.
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
