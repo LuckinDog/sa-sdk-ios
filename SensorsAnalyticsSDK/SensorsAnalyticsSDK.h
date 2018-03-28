@@ -994,7 +994,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 删除当前这个用户的所有记录
  */
 - (void)deleteUser;
-
+-(void)enableLog:(BOOL)enabelLog;
 @end
 
 /**

@@ -19,6 +19,9 @@
     
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?token=9d8f18c23084485f&project=production"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
+    
+   // [[SensorsAnalyticsSDK sharedInstance]enableLog:YES];
+
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppViewScreen |

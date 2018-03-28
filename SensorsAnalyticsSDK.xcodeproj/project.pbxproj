@@ -129,6 +129,8 @@
 		A1F446892068ACCD00F99BE8 /* SAUdid.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAUdid.m */; };
 		A1F4468D2068DBC100F99BE8 /* jssdk.js in Resources */ = {isa = PBXBuildFile; fileRef = A1F4468C2068DBC000F99BE8 /* jssdk.js */; };
 		A1F44692206A472F00F99BE8 /* SAUdid.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAUdid.m */; };
+		A1F44694206B672D00F99BE8 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F44693206B672D00F99BE8 /* SALogger.m */; };
+		A1F44695206B932D00F99BE8 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F44693206B672D00F99BE8 /* SALogger.m */; };
 		A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A36649201CC784A1008D991E /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A366491F1CC784A1008D991E /* SafariServices.framework */; };
@@ -350,6 +352,7 @@
 		A1F446862068ACCD00F99BE8 /* SAUdid.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAUdid.h; sourceTree = "<group>"; };
 		A1F446872068ACCD00F99BE8 /* SAUdid.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAUdid.m; sourceTree = "<group>"; };
 		A1F4468C2068DBC000F99BE8 /* jssdk.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jssdk.js; sourceTree = "<group>"; };
+		A1F44693206B672D00F99BE8 /* SALogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALogger.m; sourceTree = "<group>"; };
 		A3333BD31C5A0DDE0013353F /* SADesignerDisconnectMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADesignerDisconnectMessage.h; sourceTree = "<group>"; };
 		A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADesignerDisconnectMessage.m; sourceTree = "<group>"; };
 		A366491F1CC784A1008D991E /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
@@ -613,6 +616,7 @@
 				4D14F17F1B4A7B15006AD786 /* NSData+SABase64.h */,
 				4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */,
 				4D14F17C1B4A7A32006AD786 /* SALogger.h */,
+				A1F44693206B672D00F99BE8 /* SALogger.m */,
 				4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */,
 				4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */,
 				00EA99EA1EEFAEC6005E524F /* UIAlertView+AutoTrack.h */,
@@ -910,6 +914,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1F44695206B932D00F99BE8 /* SALogger.m in Sources */,
 				A1F44692206A472F00F99BE8 /* SAUdid.m in Sources */,
 				A1F446852068AB8300F99BE8 /* SAHeatMapConnection.m in Sources */,
 				A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */,
@@ -1028,6 +1033,7 @@
 				A3746EC51C3190E7008A50A3 /* UIView+SAHelpers.m in Sources */,
 				00EA99F31EEFB7DB005E524F /* UIActionSheet+AutoTrack.m in Sources */,
 				A3746EAF1C318B65008A50A3 /* SAObjectSerializerConfig.m in Sources */,
+				A1F44694206B672D00F99BE8 /* SALogger.m in Sources */,
 				00EA99ED1EEFAEC6005E524F /* UIAlertView+AutoTrack.m in Sources */,
 				A3746EC31C3190E7008A50A3 /* SATypeDescription.m in Sources */,
 				00D3B57D1EFB382A0086F1F8 /* UITabBar+AutoTrack.m in Sources */,

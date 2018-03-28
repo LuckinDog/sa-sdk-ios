@@ -36,8 +36,10 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#define VERSION @"1.9.4"
 #import "SAUdid.h"
+#import "SALogger.h"
+
+#define VERSION @"1.9.4"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -390,7 +392,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _debugMode = debugMode;
 
             [self setServerUrl:serverURL];
-
+            [self enableLog];
             _flushInterval = 15 * 1000;
             _flushBulkSize = 100;
             _maxCacheSize = 10000;
@@ -471,19 +473,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
                               self, serverURL, [self debugModeToString:debugMode]];
             }
-            BOOL printLog = NO;
-#if (defined SENSORS_ANALYTICS_ENABLE_LOG)
-            printLog = YES;
-#endif
 
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                printLog = YES;
-            }
-
-            if (printLog) {
-                NSLog(@"%@", logMessage);
-            }
-
+            SALog(@"%@", logMessage);
             //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
             if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -1007,7 +998,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if ([urlstr rangeOfString:scheme].location != NSNotFound) {
                 typedef void(^Myblock)(id,NSError *);
                 Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error){
-                    NSLog(@"response: %@ error: %@", response, error);
+                    SALog(@"response: %@ error: %@", response, error);
                 };
                 SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
                 if (sharedManagerSelector) {
@@ -3326,7 +3317,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         SADebug(@"%@ execute event bindings %@", self, eventBindings);
     }
 }
-
+#pragma mark profile set
 - (void)set:(NSDictionary *)profileDict {
     [[self people] set:profileDict];
 }
@@ -3361,6 +3352,26 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)deleteUser {
     [[self people] deleteUser];
+}
+
+-(void)enableLog:(BOOL)enabelLog
+{
+    [SALogger enableLog:enabelLog];
+}
+-(void)enableLog{
+    BOOL printLog = NO;
+#if (defined SENSORS_ANALYTICS_ENABLE_LOG)
+    printLog = YES;
+#endif
+    
+#if (defined SENSORS_ANALYTICS_DISABLE_LOG)
+    printLog = NO;
+#endif
+    
+    if ([[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff) {
+        printLog = YES;
+    }
+    [SALogger enableLog:printLog];
 }
 
 @end

@@ -5,7 +5,6 @@
 //  Created by ziven.mac on 2018/1/18.
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
-
 #import "SAAppExtensionDataManager.h"
 void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 @interface SAAppExtensionDataManager() {
@@ -156,9 +155,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
         NSString *path = [self filePathForApplicationGroupIdentifier:groupIdentifier];
         if(![[NSFileManager defaultManager]fileExistsAtPath:path]){
             BOOL suss=   [[NSFileManager defaultManager]createFileAtPath:path contents:nil attributes:nil];
-            if (suss) {
-                NSLog(@"create plist file success!!!!!!! APPEXtension...");
-            }
+       
         }
         NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:path];
         if (array.count) {
