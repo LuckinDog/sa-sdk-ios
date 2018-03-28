@@ -12,4 +12,5 @@ extern const NSString *kSAUDIDACCOUNT;
 
 @interface SAUdid : NSObject
 +(NSString *)saUdid;
++(NSString *)saveUdid:(NSString *)udid;
 @end

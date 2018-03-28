@@ -128,6 +128,7 @@
 		A1F446882068ACCD00F99BE8 /* SAUdid.h in Headers */ = {isa = PBXBuildFile; fileRef = A1F446862068ACCD00F99BE8 /* SAUdid.h */; };
 		A1F446892068ACCD00F99BE8 /* SAUdid.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAUdid.m */; };
 		A1F4468D2068DBC100F99BE8 /* jssdk.js in Resources */ = {isa = PBXBuildFile; fileRef = A1F4468C2068DBC000F99BE8 /* jssdk.js */; };
+		A1F44692206A472F00F99BE8 /* SAUdid.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAUdid.m */; };
 		A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A36649201CC784A1008D991E /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A366491F1CC784A1008D991E /* SafariServices.framework */; };
@@ -909,6 +910,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1F44692206A472F00F99BE8 /* SAUdid.m in Sources */,
 				A1F446852068AB8300F99BE8 /* SAHeatMapConnection.m in Sources */,
 				A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */,
 				0041360C1FFB4938009F2097 /* SAServerUrl.h in Sources */,

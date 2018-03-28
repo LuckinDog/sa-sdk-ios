@@ -37,7 +37,7 @@
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
 #define VERSION @"1.9.4"
-
+#import "SAUdid.h"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -177,7 +177,9 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 @end
-
+@interface SensorsAnalyticsSDK (KeyChain)
+-(void)readDistinctIdFromKeychain;
+@end
 @implementation SensorsAnalyticsSDK {
     SensorsAnalyticsDebugMode _debugMode;
     UInt64 _flushBulkSize;
@@ -1091,7 +1093,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)resetAnonymousId {
     BOOL isReal;
     self.distinctId = [[self class] getUniqueHardwareId:&isReal];
-    [self archiveDistinctId];
+    [SAUdid saveUdid:self.distinctId];
 }
 
 - (void)trackAppCrash {
@@ -1867,6 +1869,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (distinctId == nil || distinctId.length == 0) {
         SAError(@"%@ cannot identify blank distinct id: %@", self, distinctId);
 //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
+        return;
     }
     if (distinctId.length > 255) {
         SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, distinctId);
@@ -1877,7 +1880,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.originalId = self.distinctId;
         // 更新distinctId
         self.distinctId = distinctId;
-        [self archiveDistinctId];
+        [SAUdid saveUdid:self.distinctId];
     });
 }
 
@@ -2083,7 +2086,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Local caches
 
 - (void)unarchive {
-    [self unarchiveDistinctId];
+    [self readDistinctIdFromKeychain];
     [self unarchiveLoginId];
     [self unarchiveSuperProperties];
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
@@ -2105,16 +2108,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return unarchivedData;
 }
 
-- (void)unarchiveDistinctId {
-    NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:[self filePathForData:@"distinct_id"]];
-    if (archivedDistinctId == nil) {
-        BOOL isReal;
-        self.distinctId = [[self class] getUniqueHardwareId:&isReal];
-        [self archiveDistinctId];
-    } else {
-        self.distinctId = archivedDistinctId;
-    }
-}
+
 
 - (void)unarchiveLoginId {
     NSString *archivedLoginId = (NSString *)[self unarchiveFromFile:[self filePathForData:@"login_id"]];
@@ -2144,19 +2138,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     self.eventBindings = eventBindings;
 }
 
-- (void)archiveDistinctId {
-    NSString *filePath = [self filePathForData:@"distinct_id"];
-    /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
-                                                           forKey:NSFileProtectionKey];
-    [[NSFileManager defaultManager] setAttributes:protection
-                                     ofItemAtPath:filePath
-                                            error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[[self distinctId] copy] toFile:filePath]) {
-        SAError(@"%@ unable to archive distinctId", self);
-    }
-    SADebug(@"%@ archived distinctId", self);
-}
 
 - (void)archiveLoginId {
     NSString *filePath = [self filePathForData:@"login_id"];
@@ -3384,6 +3365,40 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 @end
 
+@implementation SensorsAnalyticsSDK(KeyChain)
+-(void)readDistinctIdFromOld
+{
+    NSString *filePath = [self filePathForData:@"distinct_id"];
+    NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:filePath];
+    if (archivedDistinctId == nil) {
+        BOOL isReal;
+        self.distinctId = [[self class] getUniqueHardwareId:&isReal];
+    } else {
+        self.distinctId = archivedDistinctId;
+    }
+}
+-(void)deleteDistinctIdFromOld
+{
+    NSString *filePath = [self filePathForData:@"distinct_id"];
+    [[NSFileManager defaultManager]removeItemAtPath:filePath error:nil];
+}
+-(void)readDistinctIdFromKeychain
+{
+    // 读取keychain
+    NSString * udid  = [SAUdid saUdid];
+    if (udid != nil) {
+        self.distinctId = udid;
+    }else{
+        //读取plist
+        [self readDistinctIdFromOld];
+        //写入keychain
+        [SAUdid saveUdid:self.distinctId];
+        //删除plist
+        [self deleteDistinctIdFromOld];
+    }
+}
+
+@end
 #pragma mark - People analytics
 
 @implementation SensorsAnalyticsPeople {
