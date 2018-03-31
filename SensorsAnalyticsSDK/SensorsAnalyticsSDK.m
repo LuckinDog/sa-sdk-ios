@@ -2253,11 +2253,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 -(void)flushByTimer{
-   
     SALog(@"flushByTimer");
     [self flush];
 }
-
 
 - (void)stopFlushTimer {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -2463,7 +2461,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                            selector:@selector(applicationDidEnterBackground:)
                                name:UIApplicationDidEnterBackgroundNotification
                              object:nil];
-    [notificationCenter addObserver:self selector:@selector(applicationWillTerminateNotification:) name:UIApplicationWillTerminateNotification object:nil];
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationWillTerminateNotification:)
+                               name:UIApplicationWillTerminateNotification
+                             object:nil];
     
     [self _enableAutoTrack];
 }

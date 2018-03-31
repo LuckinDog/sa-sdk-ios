@@ -6,7 +6,7 @@
 //  Created by 向作为 on 2018/3/26.
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
-
+#import "SALogger.h"
 #import "SAKeyChainItemWrapper.h"
 NSString * kSASERVICE = @"com.sensorsdata.analytics.udid";
 NSString * kSAUDIDACCOUNT = @"com.sensorsdata.analytics.udid";
@@ -36,35 +36,36 @@ NSString * kSAUDIDACCOUNT = @"com.sensorsdata.analytics.udid";
 
 + (BOOL) saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup
 {
-    NSMutableDictionary *query = [[NSMutableDictionary alloc]init];
-    CFTypeRef queryResults = NULL;
-    CFErrorRef error = NULL;
-    SecAccessControlRef secAccessControl = SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
-    if (error ) {
+    @try{
+        NSMutableDictionary *query = [[NSMutableDictionary alloc]init];
+        CFTypeRef queryResults = NULL;
+        CFErrorRef error = NULL;
+        SecAccessControlRef secAccessControl = SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
+        if (error ) {
+            CFRelease(secAccessControl);
+            return NO;
+        }
+        [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
+        [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnData];
+        [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
+        [query setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
+        [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
         CFRelease(secAccessControl);
-        return NO;
-    }
-    [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
-    [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnData];
-    [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
-    [query setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
-    [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
-    CFRelease(secAccessControl);
-    if (isStringParamValid(account)) {
-        [query setObject:account forKey:(__bridge id) kSecAttrAccount];
-    }
-    if (isStringParamValid(service)) {
-        [query setObject:service forKey:(__bridge id) kSecAttrService];
-    }
+        if (isStringParamValid(account)) {
+            [query setObject:account forKey:(__bridge id) kSecAttrAccount];
+        }
+        if (isStringParamValid(service)) {
+            [query setObject:service forKey:(__bridge id) kSecAttrService];
+        }
 #if !TARGET_IPHONE_SIMULATOR
-    if (isStringParamValid(accessGroup)) {
-        [query setObject:accessGroup  forKey:(__bridge NSString *)kSecAttrAccessGroup];
-    }
+        if (isStringParamValid(accessGroup)) {
+            [query setObject:accessGroup  forKey:(__bridge NSString *)kSecAttrAccessGroup];
+        }
 #endif
-    //search query
-    NSMutableDictionary *searchQuery = [[NSMutableDictionary alloc]initWithDictionary:query];
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)searchQuery, &queryResults);
-    if (status == errSecSuccess) {
+        //search query
+        NSMutableDictionary *searchQuery = [[NSMutableDictionary alloc]initWithDictionary:query];
+        OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)searchQuery, &queryResults);
+        if (status == errSecSuccess) {
             NSDictionary *attributes = (__bridge_transfer NSDictionary *)queryResults;
             // First we need the attributes from the Keychain.
             NSMutableDictionary *updateItem = [NSMutableDictionary dictionaryWithDictionary:attributes];
@@ -91,74 +92,90 @@ NSString * kSAUDIDACCOUNT = @"com.sensorsdata.analytics.udid";
             // An implicit assumption is that you can only update a single item at a time.
             OSStatus  result = SecItemUpdate((__bridge CFDictionaryRef)updateItem, (__bridge CFDictionaryRef)tempCheck);
             NSAssert( result == noErr || result == errSecDuplicateItem, @"Couldn't update the Keychain Item." );
-    }else if(status == errSecItemNotFound){
-        [query setObject:[password dataUsingEncoding:NSUTF8StringEncoding] forKey:(__bridge id)kSecValueData];
-        [query removeObjectForKey:(__bridge id)kSecMatchLimit ];
-        [query removeObjectForKey:(__bridge id)kSecReturnAttributes];
-        [query removeObjectForKey:(__bridge id)kSecReturnData];
-        [query removeObjectForKey:(__bridge id)kSecAttrAccessControl];
-        status= SecItemAdd((__bridge CFDictionaryRef)query, &queryResults);
-        NSAssert( status == noErr || status == errSecDuplicateItem, @"Couldn't add the Keychain Item." );
+            SALog(@"SecItemUpdate result = %d",result);
+        }else if(status == errSecItemNotFound){
+            [query setObject:[password dataUsingEncoding:NSUTF8StringEncoding] forKey:(__bridge id)kSecValueData];
+            [query removeObjectForKey:(__bridge id)kSecMatchLimit ];
+            [query removeObjectForKey:(__bridge id)kSecReturnAttributes];
+            [query removeObjectForKey:(__bridge id)kSecReturnData];
+            [query removeObjectForKey:(__bridge id)kSecAttrAccessControl];
+            status= SecItemAdd((__bridge CFDictionaryRef)query, &queryResults);
+            NSAssert( status == noErr || status == errSecDuplicateItem, @"Couldn't add the Keychain Item." );
+            SALog(@"SecItemAdd result = %d",status);
+        }
+        return (status == errSecSuccess);
+    } @catch (NSException *e) {
+        SALog(@"%@",e);
+        return NO;
     }
-    return (status == errSecSuccess);
 }
 
 + (NSDictionary *)fetchPasswordWithAccount:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup {
-    NSMutableDictionary *query = [[NSMutableDictionary alloc]init];
-    CFTypeRef queryResults = NULL;
-    CFErrorRef error = NULL;
-    SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
-    if (error) {
-        return nil;
-    }else {
-        [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
-        CFRelease(secAccessControl);
-    }
-    
-    [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
-    [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnData];
-    [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
-    [query setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit ];
-    
+    @try{
+        NSMutableDictionary *query = [[NSMutableDictionary alloc]init];
+        CFTypeRef queryResults = NULL;
+        CFErrorRef error = NULL;
+        SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
+        if (error) {
+            return nil;
+        }else {
+            [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
+            CFRelease(secAccessControl);
+        }
+        
+        [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
+        [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnData];
+        [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
+        [query setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit ];
+        
 #if !TARGET_IPHONE_SIMULATOR
-    if (isStringParamValid(accessGroup)) {
-        [query setObject:accessGroup  forKey:(__bridge NSString *)kSecAttrAccessGroup];
-    }
+        if (isStringParamValid(accessGroup)) {
+            [query setObject:accessGroup  forKey:(__bridge NSString *)kSecAttrAccessGroup];
+        }
 #endif
-    if (isStringParamValid(account)) {
-        [query setObject:account forKey:(__bridge id) kSecAttrAccount];
+        if (isStringParamValid(account)) {
+            [query setObject:account forKey:(__bridge id) kSecAttrAccount];
+        }
+        if (isStringParamValid(service)) {
+            [query setObject:service forKey:(__bridge id) kSecAttrService];
+        }
+        NSMutableDictionary * mutResultDict = [NSMutableDictionary dictionary];
+        OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &queryResults);
+        if (status == errSecSuccess) {
+            NSDictionary *results = (__bridge_transfer NSDictionary *)queryResults;
+            [mutResultDict addEntriesFromDictionary:results];
+            NSString * password = [[NSString alloc]initWithData:[results objectForKey:(__bridge id)kSecValueData] encoding:NSUTF8StringEncoding];
+            [mutResultDict setObject:password forKey:(__bridge id)kSecValueData];
+        }else if(status == errSecItemNotFound){
+        }
+        return mutResultDict;
+    } @catch (NSException *e){
+        SALog(@"%@",e);
+        return nil;
     }
-    if (isStringParamValid(service)) {
-        [query setObject:service forKey:(__bridge id) kSecAttrService];
-    }
-    NSMutableDictionary * mutResultDict = [NSMutableDictionary dictionary];
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &queryResults);
-    if (status == errSecSuccess) {
-        NSDictionary *results = (__bridge_transfer NSDictionary *)queryResults;
-        [mutResultDict addEntriesFromDictionary:results];
-        NSString * password = [[NSString alloc]initWithData:[results objectForKey:(__bridge id)kSecValueData] encoding:NSUTF8StringEncoding];
-        [mutResultDict setObject:password forKey:(__bridge id)kSecValueData];
-    }else if(status == errSecItemNotFound){
-    }
-    return mutResultDict;
 }
 
 + (BOOL)deletePasswordWithAccount:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup {
-    NSMutableDictionary *searchQuery = [[NSMutableDictionary alloc]init];
-    [searchQuery setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
-    if(isStringParamValid(service)){
-        [searchQuery setObject:service forKey:(__bridge id)kSecAttrService];
-    }
-    if(isStringParamValid(account)){
-        [searchQuery setObject:account forKey:(__bridge id)kSecAttrAccount];
-    }
+    @try{
+        NSMutableDictionary *searchQuery = [[NSMutableDictionary alloc]init];
+        [searchQuery setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
+        if(isStringParamValid(service)){
+            [searchQuery setObject:service forKey:(__bridge id)kSecAttrService];
+        }
+        if(isStringParamValid(account)){
+            [searchQuery setObject:account forKey:(__bridge id)kSecAttrAccount];
+        }
 #if !TARGET_IPHONE_SIMULATOR
-    if(isStringParamValid(accessGroup)){
-        [searchQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-    }
+        if(isStringParamValid(accessGroup)){
+            [searchQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+        }
 #endif
-    OSStatus status = SecItemDelete((__bridge  CFDictionaryRef)  searchQuery);
-    return (status == errSecSuccess);
+        OSStatus status = SecItemDelete((__bridge  CFDictionaryRef)  searchQuery);
+        return (status == errSecSuccess);
+    } @catch (NSException *e) {
+        SALog(@"%@",e);
+        return NO;
+    }
 }
 
 BOOL isStringParamValid(id  parameter){

@@ -7,7 +7,6 @@
 //
 
 #import <sqlite3.h>
-
 #import "JSONUtil.h"
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
@@ -240,6 +239,5 @@ void * SASQLiteQueueTag = &SASQLiteQueueTag;
     return YES;
 #endif
 }
-
 
 @end
