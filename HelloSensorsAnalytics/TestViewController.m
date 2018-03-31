@@ -35,10 +35,10 @@
 */
 
 - (IBAction)onButtonClick:(id)sender {
-    SALog(@"****:onButtonClick");
+    //SALog(@"****:onButtonClick");
 }
 
 - (IBAction)onButtonClick2:(id)sender {
-    SALog(@"****:onButtonClick2");
+    //SALog(@"****:onButtonClick2");
 }
 @end

@@ -36,7 +36,7 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#import "SAUdid.h"
+#import "SAKeyChainItemWrapper.h"
 #import "SALogger.h"
 
 #define VERSION @"1.9.4"
@@ -451,7 +451,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 dispatch_sync(dispatch_get_main_queue(), ^{
                     UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-                    _userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+                    self->_userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
                 });
             }
 
@@ -886,10 +886,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventDict removeObjectForKey:@"_nocache"];
             [eventDict removeObjectForKey:@"server_url"];
 
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                SALog(@"track event from H5:%@", eventDict);
-            }
-
+            SALog(@"track event from H5:%@", eventDict);
+            
             if([type isEqualToString:@"track_signup"]) {
                 NSString *newLoginId = [eventDict objectForKey:@"distinct_id"];
                 if (![newLoginId isEqualToString:[self loginId]]) {
@@ -1084,7 +1082,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)resetAnonymousId {
     BOOL isReal;
     self.distinctId = [[self class] getUniqueHardwareId:&isReal];
-    [SAUdid saveUdid:self.distinctId];
+    [SAKeyChainItemWrapper saveUdid:self.distinctId];
 }
 
 - (void)trackAppCrash {
@@ -1112,6 +1110,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                      RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                      APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                      }];
+        SALog(@"$AppStart From enableAutoTrack!!");
     }
     // 启动 AppEnd 事件计时器
     if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
@@ -1249,43 +1248,37 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if([urlResponse statusCode] != 200) {
                 NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+               
+                SAError(@"==========================================================================");
+                @try {
+                    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+                    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                    NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+                    SAError(@"%@ invalid message: %@", self, logString);
+                } @catch (NSException *exception) {
+                    SAError(@"%@: %@", self, exception);
+                }
+                SAError(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
+                SAError(@"%@ ret_content: %@", self, urlResponseContent);
+                SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SAError(@"==========================================================================");
-                    @try {
-                        #if (defined DEBUG) || (defined SENSORS_ANALYTICS_ENABLE_LOG)
-                        NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                        NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                        SAError(@"%@ invalid message: %@", self, logString);
-                        #endif
-                    } @catch (NSException *exception) {
-                        SAError(@"%@: %@", self, exception);
-                    }
-                    SAError(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
-                    SAError(@"%@ ret_content: %@", self, urlResponseContent);
-                    
                     if ([urlResponse statusCode] >= 300) {
                         [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                     }
                 } else {
-                    SAError(@"%@", errMsg);
                     if ([urlResponse statusCode] >= 300) {
                         flushSucc = NO;
                     }
                 }
             } else {
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SAError(@"==========================================================================");
-                    @try {
-                        #if (defined DEBUG) || (defined SENSORS_ANALYTICS_ENABLE_LOG)
-                        NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                        NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                        SAError(@"%@ valid message: %@", self, logString);
-                        #endif
-                    } @catch (NSException *exception) {
-                        SAError(@"%@: %@", self, exception);
-                    }
+                SAError(@"==========================================================================");
+                @try {
+                    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+                    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                    NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+                    SAError(@"%@ valid message: %@", self, logString);
+                } @catch (NSException *exception) {
+                    SAError(@"%@: %@", self, exception);
                 }
             }
             
@@ -1681,12 +1674,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   };
         }
         
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            SALog(@"track event:%@", e);
-        }
+        SALog(@"track event:%@", e);
         
         [self enqueueWithType:type andEvent:[e copy]];
-        
         if (_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
             [self flush];
@@ -1871,7 +1861,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.originalId = self.distinctId;
         // 更新distinctId
         self.distinctId = distinctId;
-        [SAUdid saveUdid:self.distinctId];
+        [SAKeyChainItemWrapper saveUdid:self.distinctId];
     });
 }
 
@@ -2254,12 +2244,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             double interval = _flushInterval > 100 ? (double)_flushInterval / 1000.0 : 0.1f;
             self.timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                           target:self
-                                                        selector:@selector(flush)
+                                                        selector:@selector(flushByTimer)
                                                         userInfo:nil
                                                          repeats:YES];
+            [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
         }
     });
 }
+
+-(void)flushByTimer{
+   
+    SALog(@"flushByTimer");
+    [self flush];
+}
+
 
 - (void)stopFlushTimer {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -2465,6 +2463,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                            selector:@selector(applicationDidEnterBackground:)
                                name:UIApplicationDidEnterBackgroundNotification
                              object:nil];
+    [notificationCenter addObserver:self selector:@selector(applicationWillTerminateNotification:) name:UIApplicationWillTerminateNotification object:nil];
     
     [self _enableAutoTrack];
 }
@@ -3011,14 +3010,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
         }
     });
-
     if (_autoTrack && _appRelaunched) {
         // 追踪 AppStart 事件
         if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
+            SALog(@"$AppStart From applicationDidBecomeActive!!");
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                          }];
+
         }
         // 启动 AppEnd 事件计时器
         if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
@@ -3085,7 +3085,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
+            SALog(@"$AppEnd From applicationDidEnterBackground!!");
             [self track:APP_END_EVENT];
+
+
         }
     }
     
@@ -3100,6 +3103,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         ((SADesignerConnection *)self.abtestDesignerConnection).sessionEnded = YES;
         [((SADesignerConnection *)self.abtestDesignerConnection) close];
     }
+}
+
+- (void)applicationWillTerminateNotification:(NSNotification *)notify {
+    SALog(@"UIApplicationWillTerminateNotification");
+    self.messageQueue = nil;
 }
 
 #pragma mark - SensorsData VTrack Analytics
@@ -3368,7 +3376,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     printLog = NO;
 #endif
     
-    if ([[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff) {
+    if ([self debugMode] != SensorsAnalyticsDebugOff) {
         printLog = YES;
     }
     [SALogger enableLog:printLog];
@@ -3377,8 +3385,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 @end
 
 @implementation SensorsAnalyticsSDK(KeyChain)
--(void)readDistinctIdFromOld
-{
+- (void)readDistinctIdFromOld {
     NSString *filePath = [self filePathForData:@"distinct_id"];
     NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:filePath];
     if (archivedDistinctId == nil) {
@@ -3388,22 +3395,20 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         self.distinctId = archivedDistinctId;
     }
 }
--(void)deleteDistinctIdFromOld
-{
+- (void)deleteDistinctIdFromOld {
     NSString *filePath = [self filePathForData:@"distinct_id"];
     [[NSFileManager defaultManager]removeItemAtPath:filePath error:nil];
 }
--(void)readDistinctIdFromKeychain
-{
+- (void)readDistinctIdFromKeychain {
     // 读取keychain
-    NSString * udid  = [SAUdid saUdid];
+    NSString * udid  = [SAKeyChainItemWrapper saUdid];
     if (udid != nil) {
         self.distinctId = udid;
     }else{
         //读取plist
         [self readDistinctIdFromOld];
         //写入keychain
-        [SAUdid saveUdid:self.distinctId];
+        [SAKeyChainItemWrapper saveUdid:self.distinctId];
         //删除plist
         [self deleteDistinctIdFromOld];
     }

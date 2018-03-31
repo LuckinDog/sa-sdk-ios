@@ -18,7 +18,6 @@
 -(NSArray *)dataArray{
     if (!_dataArray) {
         _dataArray = @[@[@"section00",@"section01"],@[@"section10"],@[@"section10",@"section11"]];
-        
     }
     return _dataArray;
 }
@@ -26,7 +25,6 @@
 -(NSArray *)dataArray_1{
     if (!_dataArray_1) {
         _dataArray_1 = @[@"index_0",@"index_1",@"index_2"];
-        
     }
     return _dataArray_1;
 }
@@ -67,48 +65,37 @@
     // Pass the selected object to the new view controller.
 }
 */
--(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     if (tableView == self.tableView) {
         return self.dataArray.count;
-
     }
     return 1;
 }
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     if (tableView == self.tableView) {
         return [self.dataArray[section] count];
     }
     return self.dataArray_1.count;
 }
--(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
+-(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (tableView == self.tableView) {
         cell.textLabel.text = self.dataArray[indexPath.section][indexPath.row];
 
     }else{
         cell.textLabel.text = self.dataArray_1[indexPath.row];
-
     }
     return cell;
 }
--(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{
+-(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
     NSString *title = nil;
     if (tableView == self.tableView) {
-        title = [NSString stringWithFormat:@"table :section %ld",section];
-
+        title = [NSString stringWithFormat:@"table :section %ld",(long)section];
     }else{
-        
-        title = [NSString stringWithFormat:@"table_1 :section %ld",section];
+        title = [NSString stringWithFormat:@"table_1 :section %ld",(long)section];
     }
     return title;
-
 }
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
 }
 @end

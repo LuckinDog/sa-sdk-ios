@@ -42,7 +42,7 @@
 }
 
 -(void) imageViewTouchUpInside:(UITapGestureRecognizer *)recognizer{
-    SALog(@"UIImageView被点击了");
+    //SALog(@"UIImageView被点击了");
 }
 
 - (void)didReceiveMemoryWarning {

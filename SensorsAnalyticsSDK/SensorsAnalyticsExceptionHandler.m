@@ -81,7 +81,6 @@ static const int32_t UncaughtExceptionMaximum = 10;
 
 - (void)addSensorsAnalyticsInstance:(SensorsAnalyticsSDK *)instance {
     NSParameterAssert(instance != nil);
-    
     [self.sensorsAnalyticsSDKInstances addObject:instance];
 }
 

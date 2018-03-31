@@ -34,7 +34,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 
 -(void)setGroupIdentifierArray:(NSArray *)groupIdentifierArray {
     dispatch_block_t block = ^(){
-        _groupIdentifierArray = groupIdentifierArray;
+        self->_groupIdentifierArray = groupIdentifierArray;
     };
     
     if (dispatch_get_specific(SAAppExtensionQueueTag)) {
@@ -47,7 +47,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 -(NSArray *)groupIdentifierArray {
    __block  NSArray *groupArray = nil;
     dispatch_block_t block = ^(){
-         groupArray = _groupIdentifierArray;
+        groupArray = self->_groupIdentifierArray;
     };
     if (dispatch_get_specific(SAAppExtensionQueueTag)) {
         block();
@@ -154,8 +154,8 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
         NSDictionary *event = @{@"event":eventName,@"properties":properties?properties:@{}};
         NSString *path = [self filePathForApplicationGroupIdentifier:groupIdentifier];
         if(![[NSFileManager defaultManager]fileExistsAtPath:path]){
-            BOOL suss=   [[NSFileManager defaultManager]createFileAtPath:path contents:nil attributes:nil];
-       
+            BOOL suss = [[NSFileManager defaultManager]createFileAtPath:path contents:nil attributes:nil];
+            NSLog(@"create  AppExtension file : %d",suss);
         }
         NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:path];
         if (array.count) {

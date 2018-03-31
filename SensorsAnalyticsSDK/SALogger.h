@@ -11,22 +11,20 @@
 #define __SensorsAnalyticsSDK__SALogger__
 
 #define SALog(fmt,...) \
-[SALogger log : YES                                     \
-level : 1                                                  \
-file : __FILE__                                           \
+[SALogger log : YES                                      \
+level : 1                                                   \
+file : __FILE__                                            \
 function : __PRETTY_FUNCTION__                       \
 line : __LINE__                                           \
 format : (fmt), ## __VA_ARGS__]
 
 #define SAError SALog
-
 #define SADebug SALog
 
 #endif
 
-
 @interface SALogger:NSObject
-@property(class , readonly, strong)SALogger *sharedInstance;
+@property(class , readonly, strong) SALogger *sharedInstance;
 + (void)enableLog:(BOOL)enableLog;
 + (void)log:(BOOL)asynchronous
       level:(NSInteger)level
@@ -34,7 +32,6 @@ format : (fmt), ## __VA_ARGS__]
    function:(const char *)function
        line:(NSUInteger)line
      format:(NSString *)format, ... ;
-
 @end
 
 

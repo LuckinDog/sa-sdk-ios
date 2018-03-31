@@ -11,12 +11,11 @@
 static BOOL __enableLog__ ;
 static dispatch_queue_t __logQueue__ ;
 @implementation SALogger
-+(void)initialize{
++(void)initialize {
     __enableLog__ = NO;
     __logQueue__ = dispatch_queue_create("com.sensorsdata.analytics.log", DISPATCH_QUEUE_SERIAL);
 }
-+(void)enableLog:(BOOL)enableLog
-{
++(void)enableLog:(BOOL)enableLog {
     dispatch_sync(__logQueue__, ^{
         __enableLog__ = enableLog;
     });
@@ -35,8 +34,7 @@ static dispatch_queue_t __logQueue__ ;
        file:(const char *)file
    function:(const char *)function
        line:(NSUInteger)line
-     format:(NSString *)format, ...
-{
+     format:(NSString *)format, ... {
     va_list args;
     va_start(args, format);
     NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
@@ -48,18 +46,30 @@ static dispatch_queue_t __logQueue__ ;
       level:(NSInteger)level
        file:(const char *)file
    function:(const char *)function
-       line:(NSUInteger)line
-{
+       line:(NSUInteger)line {
     NSString *logMessage = [[NSString alloc]initWithFormat:@"[SALog][level %ld]  %s [line %lu]    %s %@",(long)level,function,(unsigned long)line,[@"" UTF8String],message];
     if (__enableLog__) {
         NSLog(@"%@",logMessage);
     }
+    dispatch_block_t block = ^(){
+        NSString *path = [NSHomeDirectory() stringByAppendingString:@"/Library/SALog.log"];
+        if (![[NSFileManager defaultManager]fileExistsAtPath:path]) {
+            [[NSFileManager defaultManager]createFileAtPath:path contents:[NSData data] attributes:nil];
+        }
+        NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:path];
+        [handle seekToEndOfFile];
+        NSDate *currentDate = NSDate.date;
+        NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
+        formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss zzz";
+        NSString *time = [formatter stringFromDate:currentDate];
+        NSString *log = [[NSString alloc]initWithFormat:@"%@ %@\n",time ,logMessage];
+        [handle writeData:[ log dataUsingEncoding:NSUTF8StringEncoding]];
+    };
+    dispatch_sync(__logQueue__, block);
 }
 
--(void)dealloc
-{
+-(void)dealloc {
     
 }
-
 @end
 

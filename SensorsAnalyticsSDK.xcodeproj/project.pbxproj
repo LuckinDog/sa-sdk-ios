@@ -7,13 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		000919871F973CD100E5D3C5 /* UIImage+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */; };
 		000919881F973CD100E5D3C5 /* UIImage+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002BF6701F0A875100824F76 /* UIImage+AutoTrack.m */; };
 		0009198B1F974CE100E5D3C5 /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */; };
 		0009198C1F974CE100E5D3C5 /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */; };
-		0009198D1F974D1C00E5D3C5 /* UIViewController+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */; };
 		0009198E1F974D1C00E5D3C5 /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */; };
-		0025E0481F09D79A001248F4 /* AutoTrackUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */; };
 		0025E0491F09D79A001248F4 /* AutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */; };
 		0027C8431FA201CE002EA41B /* SAHeatMapConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 0027C83B1FA201CD002EA41B /* SAHeatMapConnection.h */; };
 		0027C8441FA201CE002EA41B /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0027C83C1FA201CE002EA41B /* SAHeatMapSnapshotMessage.m */; };
@@ -21,11 +18,7 @@
 		0027C8461FA201CE002EA41B /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0027C83E1FA201CE002EA41B /* SAAbstractHeatMapMessage.m */; };
 		0027C8481FA201CE002EA41B /* SAHeatMapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */; };
 		0027C8491FA201CE002EA41B /* SAHeatMapSnapshotMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */; };
-		0027C84A1FA201DA002EA41B /* SAAbstractHeatMapMessage.h in Sources */ = {isa = PBXBuildFile; fileRef = 0027C83D1FA201CE002EA41B /* SAAbstractHeatMapMessage.h */; };
 		0027C84B1FA201DA002EA41B /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0027C83E1FA201CE002EA41B /* SAAbstractHeatMapMessage.m */; };
-		0027C84D1FA201DA002EA41B /* SAHeatMapConnection.h in Sources */ = {isa = PBXBuildFile; fileRef = 0027C83B1FA201CD002EA41B /* SAHeatMapConnection.h */; };
-		0027C84E1FA201DA002EA41B /* SAHeatMapMessage.h in Sources */ = {isa = PBXBuildFile; fileRef = 0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */; };
-		0027C84F1FA201DA002EA41B /* SAHeatMapSnapshotMessage.h in Sources */ = {isa = PBXBuildFile; fileRef = 0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */; };
 		0027C8501FA201DA002EA41B /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0027C83C1FA201CE002EA41B /* SAHeatMapSnapshotMessage.m */; };
 		0027C8531FA201E9002EA41B /* ic_test.png in Resources */ = {isa = PBXBuildFile; fileRef = 0027C8521FA201E9002EA41B /* ic_test.png */; };
 		0027C8581FA201FC002EA41B /* TestTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0027C8551FA201FC002EA41B /* TestTableViewController.m */; };
@@ -36,29 +29,23 @@
 		002DB94E1EB1647F00A9632C /* SASwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94A1EB1647F00A9632C /* SASwizzle.m */; };
 		002DB94F1EB1647F00A9632C /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */; };
 		002DB9501EB1647F00A9632C /* UIApplication+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */; };
-		002DB9511EB1648800A9632C /* SASwizzle.h in Sources */ = {isa = PBXBuildFile; fileRef = 002DB9491EB1647F00A9632C /* SASwizzle.h */; };
 		002DB9521EB1648800A9632C /* SASwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94A1EB1647F00A9632C /* SASwizzle.m */; };
-		002DB9531EB1648800A9632C /* UIApplication+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */; };
 		002DB9541EB1648800A9632C /* UIApplication+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */; };
 		002DB9571EB1681900A9632C /* AutoTrackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB9561EB1681900A9632C /* AutoTrackViewController.m */; };
 		0038C5D11FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0038C5CF1FCFA13D00C1BBC1 /* SensorsAnalyticsExceptionHandler.h */; };
 		0038C5D21FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0038C5D01FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.m */; };
-		0038C5D31FCFA16600C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Sources */ = {isa = PBXBuildFile; fileRef = 0038C5CF1FCFA13D00C1BBC1 /* SensorsAnalyticsExceptionHandler.h */; };
 		0038C5D41FCFA16600C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0038C5D01FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.m */; };
 		0041360A1FFB4682009F2097 /* SAServerUrl.h in Headers */ = {isa = PBXBuildFile; fileRef = 004136081FFB4682009F2097 /* SAServerUrl.h */; };
 		0041360B1FFB4682009F2097 /* SAServerUrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 004136091FFB4682009F2097 /* SAServerUrl.m */; };
-		0041360C1FFB4938009F2097 /* SAServerUrl.h in Sources */ = {isa = PBXBuildFile; fileRef = 004136081FFB4682009F2097 /* SAServerUrl.h */; };
 		0041360D1FFB4938009F2097 /* SAServerUrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 004136091FFB4682009F2097 /* SAServerUrl.m */; };
 		0041360F1FFB4EC0009F2097 /* test2.html in Resources */ = {isa = PBXBuildFile; fileRef = 0041360E1FFB4EBF009F2097 /* test2.html */; };
 		005EB7E71F9723F700C14AF1 /* AutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */; };
 		008D82AE1F0E22ED00052CFF /* NSString+HashCode.h in Headers */ = {isa = PBXBuildFile; fileRef = 008D82AC1F0E22ED00052CFF /* NSString+HashCode.h */; };
 		008D82AF1F0E22ED00052CFF /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */; };
-		008D82B21F0E2EFA00052CFF /* NSString+HashCode.h in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AC1F0E22ED00052CFF /* NSString+HashCode.h */; };
 		008D82B31F0E2EFA00052CFF /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */; };
 		00D3B57D1EFB382A0086F1F8 /* UITabBar+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00D3B57B1EFB382A0086F1F8 /* UITabBar+AutoTrack.m */; };
 		00D3B57E1EFB382A0086F1F8 /* UITabBar+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 00D3B57C1EFB382A0086F1F8 /* UITabBar+AutoTrack.h */; };
 		00D3B57F1EFB38360086F1F8 /* UITabBar+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00D3B57B1EFB382A0086F1F8 /* UITabBar+AutoTrack.m */; };
-		00D3B5801EFB38360086F1F8 /* UITabBar+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 00D3B57C1EFB382A0086F1F8 /* UITabBar+AutoTrack.h */; };
 		00DC9CD71D7E9CFA00C7DF6C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */; };
 		00DC9CDA1D7E9D9D00C7DF6C /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */; };
 		00DC9CDC1D7E9E3F00C7DF6C /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
@@ -66,18 +53,14 @@
 		00EA97C21EEF7418005E524F /* UITableView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA97C01EEF7418005E524F /* UITableView+AutoTrack.m */; };
 		00EA97C31EEF7418005E524F /* UITableView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EA97C11EEF7418005E524F /* UITableView+AutoTrack.h */; };
 		00EA97C81EEF7555005E524F /* UITableView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA97C01EEF7418005E524F /* UITableView+AutoTrack.m */; };
-		00EA97C91EEF7555005E524F /* UITableView+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 00EA97C11EEF7418005E524F /* UITableView+AutoTrack.h */; };
 		00EA990E1EEF9D1A005E524F /* UICollectionView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA990C1EEF9D1A005E524F /* UICollectionView+AutoTrack.m */; };
 		00EA990F1EEF9D1A005E524F /* UICollectionView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EA990D1EEF9D1A005E524F /* UICollectionView+AutoTrack.h */; };
 		00EA997C1EEF9E0D005E524F /* UICollectionView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA990C1EEF9D1A005E524F /* UICollectionView+AutoTrack.m */; };
-		00EA997D1EEF9E0D005E524F /* UICollectionView+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 00EA990D1EEF9D1A005E524F /* UICollectionView+AutoTrack.h */; };
 		00EA99EC1EEFAEC6005E524F /* UIAlertView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EA99EA1EEFAEC6005E524F /* UIAlertView+AutoTrack.h */; };
 		00EA99ED1EEFAEC6005E524F /* UIAlertView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99EB1EEFAEC6005E524F /* UIAlertView+AutoTrack.m */; };
-		00EA99EE1EEFAF75005E524F /* UIAlertView+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99EA1EEFAEC6005E524F /* UIAlertView+AutoTrack.h */; };
 		00EA99EF1EEFAF75005E524F /* UIAlertView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99EB1EEFAEC6005E524F /* UIAlertView+AutoTrack.m */; };
 		00EA99F21EEFB7DB005E524F /* UIActionSheet+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EA99F01EEFB7DB005E524F /* UIActionSheet+AutoTrack.h */; };
 		00EA99F31EEFB7DB005E524F /* UIActionSheet+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99F11EEFB7DB005E524F /* UIActionSheet+AutoTrack.m */; };
-		00EA99F61EEFBCEA005E524F /* UIActionSheet+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99F01EEFB7DB005E524F /* UIActionSheet+AutoTrack.h */; };
 		00EA99F71EEFBCEA005E524F /* UIActionSheet+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99F11EEFB7DB005E524F /* UIActionSheet+AutoTrack.m */; };
 		4D0EB7C31B47A88C0019FD21 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C21B47A88C0019FD21 /* main.m */; };
 		4D0EB7C61B47A88C0019FD21 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C51B47A88C0019FD21 /* AppDelegate.m */; };
@@ -125,10 +108,10 @@
 		A1D1C58E1FB45019006685C1 /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
 		A1F446842068AB1F00F99BE8 /* SAHeatMapConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446832068AB1F00F99BE8 /* SAHeatMapConnection.m */; };
 		A1F446852068AB8300F99BE8 /* SAHeatMapConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446832068AB1F00F99BE8 /* SAHeatMapConnection.m */; };
-		A1F446882068ACCD00F99BE8 /* SAUdid.h in Headers */ = {isa = PBXBuildFile; fileRef = A1F446862068ACCD00F99BE8 /* SAUdid.h */; };
-		A1F446892068ACCD00F99BE8 /* SAUdid.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAUdid.m */; };
+		A1F446882068ACCD00F99BE8 /* SAKeyChainItemWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = A1F446862068ACCD00F99BE8 /* SAKeyChainItemWrapper.h */; };
+		A1F446892068ACCD00F99BE8 /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAKeyChainItemWrapper.m */; };
 		A1F4468D2068DBC100F99BE8 /* jssdk.js in Resources */ = {isa = PBXBuildFile; fileRef = A1F4468C2068DBC000F99BE8 /* jssdk.js */; };
-		A1F44692206A472F00F99BE8 /* SAUdid.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAUdid.m */; };
+		A1F44692206A472F00F99BE8 /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F446872068ACCD00F99BE8 /* SAKeyChainItemWrapper.m */; };
 		A1F44694206B672D00F99BE8 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F44693206B672D00F99BE8 /* SALogger.m */; };
 		A1F44695206B932D00F99BE8 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F44693206B672D00F99BE8 /* SALogger.m */; };
 		A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
@@ -349,8 +332,8 @@
 		A1D1C57B1FB44613006685C1 /* SensorsDataSwiftDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsDataSwiftDemo-Bridging-Header.h"; sourceTree = "<group>"; };
 		A1D1C5811FB448FA006685C1 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		A1F446832068AB1F00F99BE8 /* SAHeatMapConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHeatMapConnection.m; sourceTree = "<group>"; };
-		A1F446862068ACCD00F99BE8 /* SAUdid.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAUdid.h; sourceTree = "<group>"; };
-		A1F446872068ACCD00F99BE8 /* SAUdid.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAUdid.m; sourceTree = "<group>"; };
+		A1F446862068ACCD00F99BE8 /* SAKeyChainItemWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAKeyChainItemWrapper.h; sourceTree = "<group>"; };
+		A1F446872068ACCD00F99BE8 /* SAKeyChainItemWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAKeyChainItemWrapper.m; sourceTree = "<group>"; };
 		A1F4468C2068DBC000F99BE8 /* jssdk.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jssdk.js; sourceTree = "<group>"; };
 		A1F44693206B672D00F99BE8 /* SALogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALogger.m; sourceTree = "<group>"; };
 		A3333BD31C5A0DDE0013353F /* SADesignerDisconnectMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADesignerDisconnectMessage.h; sourceTree = "<group>"; };
@@ -629,8 +612,8 @@
 				008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */,
 				004136081FFB4682009F2097 /* SAServerUrl.h */,
 				004136091FFB4682009F2097 /* SAServerUrl.m */,
-				A1F446862068ACCD00F99BE8 /* SAUdid.h */,
-				A1F446872068ACCD00F99BE8 /* SAUdid.m */,
+				A1F446862068ACCD00F99BE8 /* SAKeyChainItemWrapper.h */,
+				A1F446872068ACCD00F99BE8 /* SAKeyChainItemWrapper.m */,
 			);
 			path = SensorsAnalyticsSDK;
 			sourceTree = "<group>";
@@ -703,7 +686,7 @@
 				00EA99EC1EEFAEC6005E524F /* UIAlertView+AutoTrack.h in Headers */,
 				A3746E921C313A0D008A50A3 /* SADesignerSnapshotMessage.h in Headers */,
 				A3997A311C3AC3B8005A9374 /* SAEventBinding.h in Headers */,
-				A1F446882068ACCD00F99BE8 /* SAUdid.h in Headers */,
+				A1F446882068ACCD00F99BE8 /* SAKeyChainItemWrapper.h in Headers */,
 				A3746EBC1C3190E7008A50A3 /* SAClassDescription.h in Headers */,
 				002DB94D1EB1647F00A9632C /* SASwizzle.h in Headers */,
 				4D14F1711B4A51B7006AD786 /* SAGzipUtility.h in Headers */,
@@ -816,7 +799,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0910;
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = SensorsData;
 				TargetAttributes = {
 					4D0EB7BD1B47A88C0019FD21 = {
@@ -915,40 +898,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1F44695206B932D00F99BE8 /* SALogger.m in Sources */,
-				A1F44692206A472F00F99BE8 /* SAUdid.m in Sources */,
+				A1F44692206A472F00F99BE8 /* SAKeyChainItemWrapper.m in Sources */,
 				A1F446852068AB8300F99BE8 /* SAHeatMapConnection.m in Sources */,
 				A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */,
-				0041360C1FFB4938009F2097 /* SAServerUrl.h in Sources */,
 				0041360D1FFB4938009F2097 /* SAServerUrl.m in Sources */,
-				0038C5D31FCFA16600C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Sources */,
 				0038C5D41FCFA16600C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */,
-				0027C84A1FA201DA002EA41B /* SAAbstractHeatMapMessage.h in Sources */,
 				0027C84B1FA201DA002EA41B /* SAAbstractHeatMapMessage.m in Sources */,
-				0027C84D1FA201DA002EA41B /* SAHeatMapConnection.h in Sources */,
-				0027C84E1FA201DA002EA41B /* SAHeatMapMessage.h in Sources */,
-				0027C84F1FA201DA002EA41B /* SAHeatMapSnapshotMessage.h in Sources */,
 				0027C8501FA201DA002EA41B /* SAHeatMapSnapshotMessage.m in Sources */,
-				0009198D1F974D1C00E5D3C5 /* UIViewController+AutoTrack.h in Sources */,
 				0009198E1F974D1C00E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
-				000919871F973CD100E5D3C5 /* UIImage+AutoTrack.h in Sources */,
 				000919881F973CD100E5D3C5 /* UIImage+AutoTrack.m in Sources */,
-				008D82B21F0E2EFA00052CFF /* NSString+HashCode.h in Sources */,
 				008D82B31F0E2EFA00052CFF /* NSString+HashCode.m in Sources */,
-				0025E0481F09D79A001248F4 /* AutoTrackUtils.h in Sources */,
 				0025E0491F09D79A001248F4 /* AutoTrackUtils.m in Sources */,
 				00D3B57F1EFB38360086F1F8 /* UITabBar+AutoTrack.m in Sources */,
-				00D3B5801EFB38360086F1F8 /* UITabBar+AutoTrack.h in Sources */,
-				00EA99F61EEFBCEA005E524F /* UIActionSheet+AutoTrack.h in Sources */,
 				00EA99F71EEFBCEA005E524F /* UIActionSheet+AutoTrack.m in Sources */,
-				00EA99EE1EEFAF75005E524F /* UIAlertView+AutoTrack.h in Sources */,
 				00EA99EF1EEFAF75005E524F /* UIAlertView+AutoTrack.m in Sources */,
 				00EA997C1EEF9E0D005E524F /* UICollectionView+AutoTrack.m in Sources */,
-				00EA997D1EEF9E0D005E524F /* UICollectionView+AutoTrack.h in Sources */,
 				00EA97C81EEF7555005E524F /* UITableView+AutoTrack.m in Sources */,
-				00EA97C91EEF7555005E524F /* UITableView+AutoTrack.h in Sources */,
-				002DB9511EB1648800A9632C /* SASwizzle.h in Sources */,
 				002DB9521EB1648800A9632C /* SASwizzle.m in Sources */,
-				002DB9531EB1648800A9632C /* UIApplication+AutoTrack.h in Sources */,
 				002DB9541EB1648800A9632C /* UIApplication+AutoTrack.m in Sources */,
 				A3E3889F1D509B7100F6B9FC /* SAReachability.m in Sources */,
 				A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */,
@@ -1010,7 +976,7 @@
 				A3746EB11C318B65008A50A3 /* SAObjectSerializerContext.m in Sources */,
 				0041360B1FFB4682009F2097 /* SAServerUrl.m in Sources */,
 				A3746EA91C318B54008A50A3 /* SAObjectSerializer.m in Sources */,
-				A1F446892068ACCD00F99BE8 /* SAUdid.m in Sources */,
+				A1F446892068ACCD00F99BE8 /* SAKeyChainItemWrapper.m in Sources */,
 				A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */,
 				A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */,
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
@@ -1145,8 +1111,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.sensorsAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = iphoneos11.1;
+				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WARNING_CFLAGS = "-Wno-implicit-retain-self";
 			};
 			name = Debug;
 		};
@@ -1169,8 +1136,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.sensorsAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = iphoneos11.1;
+				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WARNING_CFLAGS = "-Wno-implicit-retain-self";
 			};
 			name = Release;
 		};
@@ -1182,13 +1150,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -1210,7 +1188,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1225,13 +1203,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -1247,9 +1235,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1257,7 +1246,7 @@
 		4D5CA78C1B43E92D00D7ACB7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1266,13 +1255,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s x86_64";
+				WARNING_CFLAGS = "-Wno-implicit-retain-self";
 			};
 			name = Debug;
 		};
 		4D5CA78D1B43E92D00D7ACB7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1280,6 +1270,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s x86_64";
+				WARNING_CFLAGS = "-Wno-implicit-retain-self";
 			};
 			name = Release;
 		};
@@ -1382,6 +1373,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WARNING_CFLAGS = "-Wno-implicit-retain-self";
 			};
 			name = Debug;
 		};
@@ -1417,6 +1409,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WARNING_CFLAGS = "-Wno-implicit-retain-self";
 			};
 			name = Release;
 		};
