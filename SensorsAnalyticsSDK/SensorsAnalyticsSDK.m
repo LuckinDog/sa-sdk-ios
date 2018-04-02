@@ -3077,7 +3077,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     return;
     _applicationWillResignActive = NO;
-        // 遍历trackTimer
+    // 遍历trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
     dispatch_async(self.serialQueue, ^{
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
