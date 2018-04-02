@@ -2712,12 +2712,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     };
 
-    __weak SensorsAnalyticsSDK *weakSelf = self;
     void (^gestureRecognizerAppClickBlock)(id, SEL, id) = ^(id target, SEL command, id arg) {
         @try {
             if ([arg isKindOfClass:[UITapGestureRecognizer class]] ||
                 [arg isKindOfClass:[UILongPressGestureRecognizer class]]) {
-                [arg addTarget:weakSelf action:@selector(trackGestureRecognizerAppClick:)];
+                [arg addTarget:self action:@selector(trackGestureRecognizerAppClick:)];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
