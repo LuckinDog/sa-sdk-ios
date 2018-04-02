@@ -3113,8 +3113,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 _referrerScreenUrl = nil;
             }
             [self track:APP_END_EVENT];
-
-
         }
     }
     
