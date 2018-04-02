@@ -15,11 +15,11 @@ extern const NSString *kSAUDIDACCOUNT;
 + (NSString *)saUdid;
 + (NSString *)saveUdid:(NSString *)udid;
 
-+ (BOOL) saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service ;
++ (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service ;
 + (NSDictionary *)fetchPasswordWithAccount:(NSString *)account service:(NSString *)service ;
 + (BOOL)deletePasswordWithAccount:(NSString *)account service:(NSString *)service ;
 
-+ (BOOL) saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup;
++ (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup;
 + (NSDictionary *)fetchPasswordWithAccount:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup;
 + (BOOL)deletePasswordWithAccount:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup;
 

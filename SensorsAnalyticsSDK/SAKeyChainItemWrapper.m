@@ -34,7 +34,7 @@ NSString * kSAUDIDACCOUNT = @"com.sensorsdata.analytics.udid";
 
 
 
-+ (BOOL) saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup
++ (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup
 {
     @try{
         NSMutableDictionary *query = [[NSMutableDictionary alloc]init];

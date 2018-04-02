@@ -100,7 +100,6 @@ void * SASQLiteQueueTag = &SASQLiteQueueTag;
             } else {
                 sqlite3_finalize(insertStatement);
                 self->_messageCount ++;
-                    SADebug(@"insert into dataCache success, current count is %lu,event=%@", self->_messageCount,obj);
             }
         } else {
             SAError(@"insert into dataCache error");

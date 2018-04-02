@@ -22,10 +22,7 @@
                                         andDebugMode:SensorsAnalyticsDebugOff];
     
     [[SensorsAnalyticsSDK sharedInstance]enableLog:YES];
-    [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
-     SensorsAnalyticsEventTypeAppEnd |
-     SensorsAnalyticsEventTypeAppViewScreen |
-     SensorsAnalyticsEventTypeAppClick];
+    [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart|SensorsAnalyticsEventTypeAppEnd|SensorsAnalyticsEventTypeAppViewScreen|SensorsAnalyticsEventTypeAppClick];
 
 #ifdef DEBUG
     //[[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];

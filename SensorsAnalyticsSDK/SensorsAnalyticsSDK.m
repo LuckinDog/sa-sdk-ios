@@ -157,9 +157,6 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 
 @property (nonatomic, strong) id abtestDesignerConnection;
 @property (atomic, strong) NSSet *eventBindings;
-
-@property (assign, nonatomic) BOOL safariRequestInProgress;
-
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, strong) NSTimer *vtrackConnectorTimer;
 
@@ -390,7 +387,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self.configureURL = configureURL;
             self.vtrackServerURL = vtrackServerURL;
             _debugMode = debugMode;
-
+      
             [self setServerUrl:serverURL];
             [self enableLog];
             _flushInterval = 15 * 1000;
@@ -415,8 +412,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             self.checkForEventBindingsOnActive = YES;
             self.flushBeforeEnterBackground = YES;
-
-            self.safariRequestInProgress = NO;
 
             self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
             if (self.messageQueue == nil) {
@@ -491,6 +486,41 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return self;
 }
 
+-(void) dealloc{
+    SALog(@"");
+    [self.timer invalidate];
+    self.timer = nil;
+    [self.vtrackConnectorTimer invalidate];
+    self.vtrackConnectorTimer = nil;
+    
+    dispatch_sync(self.serialQueue, ^{
+        self.messageQueue = nil;
+        self.serialQueue = nil;
+    });
+   
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    self.distinctId = nil;
+    self.originalId = nil;
+    self.loginId = nil;
+    self.people = nil;
+    self.serverURL = nil;
+    self.vtrackServerURL = nil;
+    self.vtrackWindow = nil;
+    self.regexTestName = nil;
+    self.eventBindings  = nil;
+    self.automaticProperties = nil;
+    self.superProperties = nil;
+    self.trackTimer = nil;
+    self.firstDay = nil;
+    self.ignoredViewTypeList = nil;
+    self.ignoredViewControllers = nil;
+    self.secondWindow = nil;
+    self.heatMapViewControllers = nil;
+}
+
++(void) releaseInstance{
+    sharedInstance =  nil;
+}
 - (NSDictionary *)getPresetProperties {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     @try {
@@ -1110,7 +1140,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                      RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                      APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                      }];
-        SALog(@"$AppStart From enableAutoTrack!!");
     }
     // 启动 AppEnd 事件计时器
     if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
@@ -2253,7 +2282,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 -(void)flushByTimer{
-    SALog(@"flushByTimer");
     [self flush];
 }
 
@@ -2684,11 +2712,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     };
 
+    __weak SensorsAnalyticsSDK *weakSelf = self;
     void (^gestureRecognizerAppClickBlock)(id, SEL, id) = ^(id target, SEL command, id arg) {
         @try {
             if ([arg isKindOfClass:[UITapGestureRecognizer class]] ||
                 [arg isKindOfClass:[UILongPressGestureRecognizer class]]) {
-                [arg addTarget:self action:@selector(trackGestureRecognizerAppClick:)];
+                [arg addTarget:weakSelf action:@selector(trackGestureRecognizerAppClick:)];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
@@ -2720,12 +2749,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             //UILabel
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UILABEL
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
+           // [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
 #endif
 
             //UIImageView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGEVIEW
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
+           // [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
 #endif
 
             //UIAlertController & UIActionSheet
@@ -3014,7 +3043,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if (_autoTrack && _appRelaunched) {
         // 追踪 AppStart 事件
         if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
-            SALog(@"$AppStart From applicationDidBecomeActive!!");
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
@@ -3046,9 +3074,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
+    [SensorsAnalyticsSDK releaseInstance];
+
+    return;
     _applicationWillResignActive = NO;
-    
-    // 遍历trackTimer
+        // 遍历trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
     dispatch_async(self.serialQueue, ^{
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
@@ -3086,7 +3116,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
-            SALog(@"$AppEnd From applicationDidEnterBackground!!");
             [self track:APP_END_EVENT];
 
 
@@ -3107,8 +3136,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)applicationWillTerminateNotification:(NSNotification *)notify {
-    SALog(@"UIApplicationWillTerminateNotification");
-    self.messageQueue = nil;
+    SALog(@"applicationWillTerminateNotification");
+    [SensorsAnalyticsSDK releaseInstance];
 }
 
 #pragma mark - SensorsData VTrack Analytics
@@ -3377,7 +3406,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     printLog = NO;
 #endif
     
-    if ([self debugMode] != SensorsAnalyticsDebugOff) {
+    if ( [self debugMode] != SensorsAnalyticsDebugOff) {
         printLog = YES;
     }
     [SALogger enableLog:printLog];
@@ -3419,9 +3448,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - People analytics
 
 @implementation SensorsAnalyticsPeople {
-    SensorsAnalyticsSDK *_sdk;
+   __weak SensorsAnalyticsSDK *_sdk;
 }
 
+-(void)dealloc{
+    _sdk = nil;
+}
 - (id)initWithSDK:(SensorsAnalyticsSDK *)sdk {
     self = [super init];
     if (self) {

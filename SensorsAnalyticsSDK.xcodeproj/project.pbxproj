@@ -1113,7 +1113,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				WARNING_CFLAGS = "-Wno-implicit-retain-self";
+				WARNING_CFLAGS = " -Wno-implicit-retain-self";
 			};
 			name = Debug;
 		};
@@ -1138,7 +1138,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				WARNING_CFLAGS = "-Wno-implicit-retain-self";
+				WARNING_CFLAGS = " -Wno-implicit-retain-self";
 			};
 			name = Release;
 		};
@@ -1255,7 +1255,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s x86_64";
-				WARNING_CFLAGS = "-Wno-implicit-retain-self";
+				WARNING_CFLAGS = " -Wno-implicit-retain-self";
 			};
 			name = Debug;
 		};
@@ -1270,7 +1270,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s x86_64";
-				WARNING_CFLAGS = "-Wno-implicit-retain-self";
+				WARNING_CFLAGS = " -Wno-implicit-retain-self";
 			};
 			name = Release;
 		};
