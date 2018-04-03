@@ -157,7 +157,6 @@ void sa_uiTabBarDidSelectRowAtIndexPath(id self, SEL _cmd, id tabBar, UITabBarIt
         Class class = [delegate class];
         //        static dispatch_once_t onceToken;
         //        dispatch_once(&onceToken, ^{
-
         if (class_addMethod(class, NSSelectorFromString(@"sa_uiTabBarDidSelectRowAtIndexPath"), (IMP)sa_uiTabBarDidSelectRowAtIndexPath, "v@:@@")) {
             Method dis_originMethod = class_getInstanceMethod(class, NSSelectorFromString(@"sa_uiTabBarDidSelectRowAtIndexPath"));
             Method dis_swizzledMethod = class_getInstanceMethod(class, @selector(tabBar:didSelectItem:));

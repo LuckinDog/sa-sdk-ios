@@ -9,8 +9,6 @@
 #import "AppDelegate.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
-#import "SALogger.h"
-#import "SAKeyChainItemWrapper.h"
 @interface AppDelegate ()
 
 @end
@@ -18,23 +16,23 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?token=9d8f18c23084485f&project=production"
-                                        andDebugMode:SensorsAnalyticsDebugOff];
-    
-    [[SensorsAnalyticsSDK sharedInstance]enableLog:YES];
-    [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart|SensorsAnalyticsEventTypeAppEnd|SensorsAnalyticsEventTypeAppViewScreen|SensorsAnalyticsEventTypeAppClick];
-
+  
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f"
+                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
+    [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
+     SensorsAnalyticsEventTypeAppEnd |
+     SensorsAnalyticsEventTypeAppViewScreen |
+     SensorsAnalyticsEventTypeAppClick];
 #ifdef DEBUG
     //[[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
 #endif
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
     [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
+    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
-    [[SensorsAnalyticsSDK sharedInstance]trackInstallation:@"AppInstall"];
-    
     return YES;
 }
 

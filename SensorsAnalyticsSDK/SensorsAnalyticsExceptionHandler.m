@@ -74,13 +74,14 @@ static const int32_t UncaughtExceptionMaximum = 10;
         if (err == 0) {
             memcpy(_prev_signal_handlers + signals[i], &prev_action, sizeof(prev_action));
         } else {
-            SALog(@"Errored while trying to set up sigaction for signal %d", signals[i]);
+            NSLog(@"Errored while trying to set up sigaction for signal %d", signals[i]);
         }
     }
 }
 
 - (void)addSensorsAnalyticsInstance:(SensorsAnalyticsSDK *)instance {
     NSParameterAssert(instance != nil);
+    
     [self.sensorsAnalyticsSDKInstances addObject:instance];
 }
 
@@ -145,7 +146,7 @@ void SAHandleException(NSException *exception) {
 
             });
         }
-        SALog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
+        NSLog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
     } @catch(NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
