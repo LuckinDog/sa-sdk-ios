@@ -5,7 +5,7 @@
 //  Created by 王灼洲 on 2017/4/27.
 //  Copyright © 2017年 SensorsData. All rights reserved.
 //
-#import "SALogger.h"
+
 #import "AutoTrackViewController.h"
 
 @interface AutoTrackViewController ()
@@ -38,11 +38,11 @@
 
 -(void) labelTouchUpInside:(UITapGestureRecognizer *)recognizer{
     UILabel *label=(UILabel*)recognizer.view;
-    SALog(@"%@被点击了",label.text);
+    NSLog(@"%@被点击了",label.text);
 }
 
 -(void) imageViewTouchUpInside:(UITapGestureRecognizer *)recognizer{
-    //SALog(@"UIImageView被点击了");
+    NSLog(@"UIImageView被点击了");
 }
 
 - (void)didReceiveMemoryWarning {
