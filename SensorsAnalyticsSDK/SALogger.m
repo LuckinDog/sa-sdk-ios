@@ -14,6 +14,7 @@ static dispatch_queue_t __logQueue__ ;
     __enableLog__ = NO;
     __logQueue__ = dispatch_queue_create("com.sensorsdata.analytics.log", DISPATCH_QUEUE_SERIAL);
 }
+
 + (void)enableLog:(BOOL)enableLog {
     dispatch_sync(__logQueue__, ^{
         __enableLog__ = enableLog;
@@ -28,6 +29,7 @@ static dispatch_queue_t __logQueue__ ;
     });
     return sharedInstance;
 }
+
 + (void)log:(BOOL)asynchronous
       level:(NSInteger)level
        file:(const char *)file
@@ -40,6 +42,7 @@ static dispatch_queue_t __logQueue__ ;
     [self.sharedInstance log:asynchronous message:message level:level file:file function:function line:line];
     va_end(args);
 }
+
 - (void)log:(BOOL)asynchronous
     message:(NSString *)message
       level:(NSInteger)level
@@ -85,7 +88,9 @@ static dispatch_queue_t __logQueue__ ;
     }
     return desc;
 }
+
 - (void)dealloc {
     
 }
+
 @end
