@@ -597,26 +597,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)disableDebugMode {
     _debugMode = SensorsAnalyticsDebugOff;
     _serverURL = _originServerUrl;
+    [self enableLog:NO];
 }
 
 - (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
+    NSString *modeStr = nil;
     switch (debugMode) {
         case SensorsAnalyticsDebugOff:
-            return @"DebugOff";
+            modeStr = @"DebugOff";
             break;
-
         case SensorsAnalyticsDebugAndTrack:
-            return @"DebugAndTrack";
+            modeStr = @"DebugAndTrack";
             break;
-
         case SensorsAnalyticsDebugOnly:
-            return @"DebugOnly";
+            modeStr = @"DebugOnly";
             break;
-
         default:
-            return @"Unknown";
+            modeStr = @"Unknown";
             break;
     }
+    return modeStr;
 }
 
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
