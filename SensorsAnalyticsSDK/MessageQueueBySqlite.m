@@ -49,7 +49,7 @@
             return nil;
         }
         _messageCount = [self sqliteCount];
-        SADebug(@"SQLites is opened. current count is %ul", _messageCount);
+        SADebug(@"SQLites is opened. ");
     } else {
         SAError(@"failed to open SQLite db.");
         return nil;
@@ -88,7 +88,6 @@
         } else {
             sqlite3_finalize(insertStatement);
             _messageCount ++;
-            SADebug(@"insert into dataCache success, current count is %lu", _messageCount);
         }
     } else {
         SAError(@"insert into dataCache error");
