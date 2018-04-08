@@ -386,7 +386,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self.configureURL = configureURL;
             self.vtrackServerURL = vtrackServerURL;
             _debugMode = debugMode;
-
             [self setServerUrl:serverURL];
             [self enableLog];
             
@@ -1245,14 +1244,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
             NSString *messageDesc = nil;
-            if([urlResponse statusCode] != 200) {
+            NSInteger statusCode = urlResponse.statusCode;
+            if(statusCode != 200) {
                 messageDesc = @"invalid message";
                 if (_debugMode != SensorsAnalyticsDebugOff) {
-                    if ([urlResponse statusCode] >= 300) {
+                    if (statusCode >= 300) {
                         [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                     }
                 } else {
-                    if ([urlResponse statusCode] >= 300) {
+                    if (statusCode >= 300) {
                         flushSucc = NO;
                     }
                 }
@@ -1260,16 +1260,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 messageDesc = @"valid message";
             }
             SAError(@"==========================================================================");
-            @try {
-                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                SAError(@"%@ %@: %@", self,messageDesc,logString);
-            } @catch (NSException *exception) {
-                SAError(@"%@: %@", self, exception);
+            if ([SALogger isLoggerEnabled]) {
+                @try {
+                    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+                    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                    NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+                    SAError(@"%@ %@: %@", self,messageDesc,logString);
+                } @catch (NSException *exception) {
+                    SAError(@"%@: %@", self, exception);
+                }
             }
-            
-            SAError(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
+            SAError(@"%@ ret_code: %ld", self, statusCode);
             SAError(@"%@ ret_content: %@", self, urlResponseContent);
             
             dispatch_semaphore_signal(flushSem);
