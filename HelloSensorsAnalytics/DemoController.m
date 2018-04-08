@@ -8,7 +8,7 @@
 #import "TestTableViewController.h"
 #import "TestCollectionViewController.h"
 #import <Foundation/Foundation.h>
-
+#import "SALogger.h"
 #import "zlib.h"
 
 #import "DemoController.h"
@@ -80,7 +80,7 @@
     NSUInteger row = [indexPath row];
     switch (row) {
         case 0:{
-            NSLog(@"测试track");
+            SALog(@"测试track");
             //[self testTrack];
             TestTableViewController *vc =  [[TestTableViewController alloc]init ];
             //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
@@ -88,42 +88,42 @@
         }
             break;
         case 1l: {
-            NSLog(@"测试track_signup");
+            SALog(@"测试track_signup");
             [self testTrackSignup];
             TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc] init];
             [self.navigationController pushViewController:collectionVC animated:YES];
         }
             break;
         case 2l:
-            NSLog(@"测试track_installation");
+            SALog(@"测试track_installation");
             [self testTrackInstallation];
             break;
         case 3l:
-            NSLog(@"测试profile_set");
+            SALog(@"测试profile_set");
             [self testProfileSet];
             break;
         case 4l:
-            NSLog(@"测试profile_append");
+            SALog(@"测试profile_append");
             [self testProfileAppend];
             break;
         case 5l:
-            NSLog(@"测试profile_increment");
+            SALog(@"测试profile_increment");
             [self testProfileIncrement];
             break;
         case 6l:
-            NSLog(@"测试profile_unset");
+            SALog(@"测试profile_unset");
             [self testProfileUnset];
             break;
         case 7l:
-            NSLog(@"测试profile_delete");
+            SALog(@"测试profile_delete");
             [self testProfileDelete];
             break;
         case 8l:
-            NSLog(@"测试flush");
+            SALog(@"测试flush");
             [self testFlush];
             break;
         case 9l:
-            NSLog(@"进入无埋点测试页面");
+            SALog(@"进入无埋点测试页面");
             [self testCodeless];
             break;
         default:

@@ -18,11 +18,13 @@
     
   
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f"
-                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
+                                        andDebugMode:SensorsAnalyticsDebugOff];
+    [[SensorsAnalyticsSDK sharedInstance]enableLog:NO];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
+    
 #ifdef DEBUG
     //[[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
 #endif
@@ -63,7 +65,7 @@
         
     }];
 //   NSArray  *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier: @"group.cn.com.sensorsAnalytics.share"];
-//    NSLog(@"applicationDidBecomeActive::::::%@",eventArray);
+//    SALog(@"applicationDidBecomeActive::::::%@",eventArray);
 //    for (NSDictionary *dict in eventArray  ) {
 //        [[SensorsAnalyticsSDK sharedInstance]track:dict[@"event"] withProperties:dict[@"properties"]];
 //    }
