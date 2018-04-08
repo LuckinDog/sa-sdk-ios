@@ -14,6 +14,14 @@ static dispatch_queue_t __logQueue__ ;
     __enableLog__ = NO;
     __logQueue__ = dispatch_queue_create("com.sensorsdata.analytics.log", DISPATCH_QUEUE_SERIAL);
 }
++ (BOOL)isLoggerEnabled
+{
+    __block BOOL enable = NO;
+    dispatch_sync(__logQueue__, ^{
+        enable = __enableLog__;
+    });
+    return enable;
+}
 
 + (void)enableLog:(BOOL)enableLog {
     dispatch_sync(__logQueue__, ^{
