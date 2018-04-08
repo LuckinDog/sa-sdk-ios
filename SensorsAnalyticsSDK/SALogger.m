@@ -53,21 +53,6 @@ static dispatch_queue_t __logQueue__ ;
     if (__enableLog__) {
         NSLog(@"%@",logMessage);
     }
-    dispatch_block_t block = ^(){
-        NSString *path = [NSHomeDirectory() stringByAppendingString:@"/Library/SALog.log"];
-        if (![[NSFileManager defaultManager]fileExistsAtPath:path]) {
-            [[NSFileManager defaultManager]createFileAtPath:path contents:[NSData data] attributes:nil];
-        }
-        NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:path];
-        [handle seekToEndOfFile];
-        NSDate *currentDate = NSDate.date;
-        NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
-        formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss zzz";
-        NSString *time = [formatter stringFromDate:currentDate];
-        NSString *log = [[NSString alloc]initWithFormat:@"%@ %@\n",time ,logMessage];
-        [handle writeData:[ log dataUsingEncoding:NSUTF8StringEncoding]];
-    };
-    dispatch_sync(__logQueue__, block);
 }
 
 -(NSString *)descriptionForLevel:(SALoggerLevel)level
