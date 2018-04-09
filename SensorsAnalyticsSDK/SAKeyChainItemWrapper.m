@@ -35,7 +35,7 @@ NSString * kSAAPPINSTALLATION = @"com.sensorsdata.analytics.installation";
     return sucess;
 }
 
-+ (BOOL) saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service {
++ (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service {
     return [self saveOrUpdatePassword:password account:account service:service accessGroup:nil];
 }
 
@@ -47,8 +47,7 @@ NSString * kSAAPPINSTALLATION = @"com.sensorsdata.analytics.installation";
     return [self deletePasswordWithAccount:account service:service];
 }
 
-+ (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup
-{
++ (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup {
     @try{
         NSMutableDictionary *query = [[NSMutableDictionary alloc]init];
         CFTypeRef queryResults = NULL;

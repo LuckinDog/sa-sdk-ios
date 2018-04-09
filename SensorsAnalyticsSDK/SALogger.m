@@ -14,8 +14,7 @@ static dispatch_queue_t __logQueue__ ;
     __enableLog__ = NO;
     __logQueue__ = dispatch_queue_create("com.sensorsdata.analytics.log", DISPATCH_QUEUE_SERIAL);
 }
-+ (BOOL)isLoggerEnabled
-{
++ (BOOL)isLoggerEnabled {
     __block BOOL enable = NO;
     dispatch_sync(__logQueue__, ^{
         enable = __enableLog__;
@@ -63,8 +62,7 @@ static dispatch_queue_t __logQueue__ ;
     }
 }
 
--(NSString *)descriptionForLevel:(SALoggerLevel)level
-{
+-(NSString *)descriptionForLevel:(SALoggerLevel)level {
     NSString *desc = nil;
     switch (level) {
         case SALoggerLevelInfo:
@@ -77,6 +75,7 @@ static dispatch_queue_t __logQueue__ ;
             desc = @"ERROR";
             break;
         default:
+            desc = @"UNKNOW";
             break;
     }
     return desc;
