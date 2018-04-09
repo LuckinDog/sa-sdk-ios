@@ -2088,17 +2088,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)unarchiveDistinctId {
     NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:[self filePathForData:@"distinct_id"]];
+    NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (archivedDistinctId == nil) {
-        NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
         if (distinctIdInKeychain != nil && distinctIdInKeychain.length>0) {
             self.distinctId = distinctIdInKeychain;
-        }else{
+        } else {
             BOOL isReal;
             self.distinctId = [[self class] getUniqueHardwareId:&isReal];
         }
         [self archiveDistinctId];
     } else {
         self.distinctId = archivedDistinctId;
+        if(distinctIdInKeychain != nil && distinctIdInKeychain.length){
+            [SAKeyChainItemWrapper saveUdid:self.distinctId];
+        }
     }
 }
 
