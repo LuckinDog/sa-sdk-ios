@@ -158,7 +158,7 @@
                     errorMsg = @"Unknown error code.";
                     break;
             }
-            SALog(@" zlib error while attempting compression: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
+            SALog(@"zlib error while attempting compression: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
             
             // Free data structures that were dynamically created for the stream.
             deflateEnd(&zlibStreamStruct);
