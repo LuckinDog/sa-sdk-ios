@@ -883,7 +883,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventDict removeObjectForKey:@"_nocache"];
             [eventDict removeObjectForKey:@"server_url"];
 
-            SALog(@"track event from H5:%@", eventDict);
+            SALog(@"\n【track event from H5】:\n%@", eventDict);
 
             if([type isEqualToString:@"track_signup"]) {
                 NSString *newLoginId = [eventDict objectForKey:@"distinct_id"];
@@ -1246,7 +1246,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *messageDesc = nil;
             NSInteger statusCode = urlResponse.statusCode;
             if(statusCode != 200) {
-                messageDesc = @"invalid message";
+                messageDesc = @"\n【invalid message】\n";
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     if (statusCode >= 300) {
                         [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -1257,7 +1257,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                 }
             } else {
-                messageDesc = @"valid message";
+                messageDesc = @"\n【valid message】\n";
             }
             SAError(@"==========================================================================");
             if ([SALogger isLoggerEnabled]) {
@@ -1665,7 +1665,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   };
         }
         
-        SALog(@"track event:%@", e);
+        SALog(@"\n【track event】:\n%@", e);
         
         [self enqueueWithType:type andEvent:[e copy]];
         
