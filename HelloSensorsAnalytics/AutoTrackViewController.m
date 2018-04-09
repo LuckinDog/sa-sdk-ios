@@ -7,7 +7,7 @@
 //
 
 #import "AutoTrackViewController.h"
-#import "SALogger.h"
+
 @interface AutoTrackViewController ()
 
 @end
@@ -38,11 +38,11 @@
 
 -(void) labelTouchUpInside:(UITapGestureRecognizer *)recognizer{
     UILabel *label=(UILabel*)recognizer.view;
-    SALog(@"%@被点击了",label.text);
+    NSLog(@"%@被点击了",label.text);
 }
 
 -(void) imageViewTouchUpInside:(UITapGestureRecognizer *)recognizer{
-    SALog(@"UIImageView被点击了");
+    NSLog(@"UIImageView被点击了");
 }
 
 - (void)didReceiveMemoryWarning {

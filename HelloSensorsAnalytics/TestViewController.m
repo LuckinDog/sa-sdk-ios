@@ -7,7 +7,7 @@
 //
 
 #import "TestViewController.h"
-#import "SALogger.h"
+
 @interface TestViewController ()
 
 @end
@@ -35,10 +35,10 @@
 */
 
 - (IBAction)onButtonClick:(id)sender {
-    SALog(@"****:onButtonClick");
+    NSLog(@"****:onButtonClick");
 }
 
 - (IBAction)onButtonClick2:(id)sender {
-    SALog(@"****:onButtonClick2");
+    NSLog(@"****:onButtonClick2");
 }
 @end
