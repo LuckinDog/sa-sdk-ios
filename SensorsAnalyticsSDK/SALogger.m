@@ -44,11 +44,15 @@ static dispatch_queue_t __logQueue__ ;
    function:(const char *)function
        line:(NSUInteger)line
      format:(NSString *)format, ... {
-    va_list args;
-    va_start(args, format);
-    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
-    [self.sharedInstance log:asynchronous message:message level:level file:file function:function line:line];
-    va_end(args);
+    @try{
+        va_list args;
+        va_start(args, format);
+        NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+        [self.sharedInstance log:asynchronous message:message level:level file:file function:function line:line];
+        va_end(args);
+    } @catch(NSException *e){
+       
+    }
 }
 
 - (void)log:(BOOL)asynchronous
@@ -57,9 +61,13 @@ static dispatch_queue_t __logQueue__ ;
        file:(const char *)file
    function:(const char *)function
        line:(NSUInteger)line {
-    NSString *logMessage = [[NSString alloc]initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@",[self descriptionForLevel:level],function,(unsigned long)line,[@"" UTF8String],message];
-    if (__enableLog__) {
-        NSLog(@"%@",logMessage);
+    @try{
+        NSString *logMessage = [[NSString alloc]initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@",[self descriptionForLevel:level],function,(unsigned long)line,[@"" UTF8String],message];
+        if (__enableLog__) {
+            NSLog(@"%@",logMessage);
+        }
+    } @catch(NSException *e){
+       
     }
 }
 
@@ -77,6 +85,7 @@ static dispatch_queue_t __logQueue__ ;
             desc = @"ERROR";
             break;
         default:
+            desc = @"UNKNOW";
             break;
     }
     return desc;
