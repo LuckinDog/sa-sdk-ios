@@ -22,11 +22,13 @@ NSString * kSAAPPINSTALLATION = @"com.sensorsdata.analytics.installation";
     BOOL sucess = [self saveOrUpdatePassword:udid account:kSAUDIDACCOUNT service:kSASERVICE];
     return sucess ? udid : nil;
 }
+
 + (BOOL)isAppInstalled {
     NSDictionary *result = [self fetchPasswordWithAccount:kSAAPPINSTALLATION service:kSASERVICE];
     NSString *value =  [result objectForKey:(__bridge id)kSecValueData];
     return value ? [value boolValue] : NO;
 }
+
 + (BOOL)markAppInstalled {
     NSString *str = [NSString stringWithFormat:@"%@",@YES];
     BOOL sucess = [self saveOrUpdatePassword:str account:kSAAPPINSTALLATION service:kSASERVICE];
