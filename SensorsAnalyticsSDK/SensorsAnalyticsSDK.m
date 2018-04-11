@@ -2271,6 +2271,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                         selector:@selector(flush)
                                                         userInfo:nil
                                                          repeats:YES];
+            [[NSRunLoop currentRunLoop]addTimer:self.timer forMode:NSRunLoopCommonModes];
         }
     });
 }
@@ -2478,6 +2479,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidEnterBackground:)
                                name:UIApplicationDidEnterBackgroundNotification
+                             object:nil];
+    
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationWillTerminateNotification:)
+                               name:UIApplicationWillTerminateNotification
                              object:nil];
     
     [self _enableAutoTrack];
@@ -3116,6 +3122,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
+-(void)applicationWillTerminateNotification:(NSNotification *)notification {
+    SALog(@"applicationWillTerminateNotification");
+    dispatch_sync(self.serialQueue, ^{
+    });
+}
+
 #pragma mark - SensorsData VTrack Analytics
 
 - (void)checkForConfigure {
@@ -3394,7 +3406,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - People analytics
 
 @implementation SensorsAnalyticsPeople {
-    SensorsAnalyticsSDK *_sdk;
+    __weak SensorsAnalyticsSDK *_sdk;
 }
 
 - (id)initWithSDK:(SensorsAnalyticsSDK *)sdk {
