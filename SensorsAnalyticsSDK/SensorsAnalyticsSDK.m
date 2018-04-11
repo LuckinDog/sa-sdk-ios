@@ -1752,11 +1752,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         userDefaultsKey = @"HasTrackInstallation";
         hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallation];
     }
-    
+
     if (hasTrackInstallation) {
         return;
     }
-    
+
     if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
         hasTrackInstallation = NO;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
@@ -1776,21 +1776,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             [properties setValue:@"" forKey:@"$ios_install_source"];
         }
+
         if (disableCallback) {
             [properties setValue:@YES forKey:@"$ios_install_disable_callback"];
         }
+
         if (_userAgent) {
             [properties setValue:_userAgent forKey:@"$user_agent"];
         }
+
         if (propertyDict != nil) {
             [properties addEntriesFromDictionary:propertyDict];
         }
+
         // 先发送 track
         [self track:event withProperties:properties withType:@"track"];
+
         // 再发送 profile_set_once
         NSMutableDictionary *profileProperties = [properties mutableCopy];
         [profileProperties setValue:[NSDate date] forKey:@"$first_visit_time"];
         [self track:nil withProperties:profileProperties withType:@"profile_set_once"];
+
         [self flush];
     }
 }
