@@ -1270,9 +1270,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     SAError(@"%@: %@", self, exception);
                 }
             }
-            SAError(@"%@ ret_code: %ld", self, statusCode);
-            SAError(@"%@ ret_content: %@", self, urlResponseContent);
-            
+            if (statusCode != 200) {
+                SAError(@"%@ ret_code: %ld", self, statusCode);
+                SAError(@"%@ ret_content: %@", self, urlResponseContent);
+            }
             dispatch_semaphore_signal(flushSem);
         };
         
