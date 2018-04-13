@@ -38,7 +38,7 @@
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
 #define VERSION @"1.9.7"
-
+#import "SensorsAnalyticsSDKController.h"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -243,7 +243,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (UInt64)getCurrentTime {
-    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
+    UInt64 time = NSDate.date.timeIntervalSince1970 *1000;
+    return time;
+}
+
++(UInt64)getSystemUpTime {
+    UInt64 time = NSProcessInfo.processInfo.systemUptime *1000;
     return time;
 }
 
@@ -1712,7 +1717,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    NSNumber *eventBegin = @([[self class] getCurrentTime]);
+    NSNumber *eventBegin = @([[self class] getSystemUpTime]);
     
     dispatch_async(self.serialQueue, ^{
         self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : [NSNumber numberWithLong:0], @"timeUnit" : [NSNumber numberWithInt:timeUnit]};
@@ -1999,12 +2004,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
                 carrierName= @"中国移动";
             }
-
             //中国联通
             if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
                 carrierName= @"中国联通";
             }
-
             //中国电信
             if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
                 carrierName= @"中国电信";
@@ -3026,7 +3029,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     // 遍历trackTimer,修改eventBegin为当前timeStamp
     dispatch_async(self.serialQueue, ^{
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSNumber *timeStamp = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
@@ -3077,7 +3080,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     // 遍历trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
     dispatch_async(self.serialQueue, ^{
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSNumber *timeStamp = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
@@ -3406,6 +3409,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         printLog = YES;
     }
     [SALogger enableLog:printLog];
+}
+-(void)disableSDKInstance
+{
+//    [self.timer invalidate];
+//    [self.vtrackConnectorTimer invalidate];
+    dispatch_sync(self.serialQueue, ^{
+    });
+    [SensorsAnalyticsSDKController disableAllFunctionOriginIMP];
+}
+
+- (void)enableSDKInstance
+{
+     [SensorsAnalyticsSDKController enableOriginFunctionIMP];
 }
 
 @end

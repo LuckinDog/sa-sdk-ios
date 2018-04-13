@@ -1007,6 +1007,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)enableLog:(BOOL)enabelLog;
 
+- (void)disableSDKInstance;
+- (void)enableSDKInstance;
 @end
 
 /**
