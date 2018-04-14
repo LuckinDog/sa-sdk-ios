@@ -247,6 +247,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return time;
 }
 
++ (UInt64)getSystemUpTime {
+    UInt64 time = NSProcessInfo.processInfo.systemUptime * 1000;
+    return time;
+}
+
 + (NSString *)getUniqueHardwareId:(BOOL *)isReal {
     NSString *distinctId = NULL;
 
@@ -1539,7 +1544,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     dispatch_async(self.serialQueue, ^{
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
@@ -1571,9 +1576,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 
                 float eventDuration;
                 if (eventAccumulatedDuration) {
-                    eventDuration = [timeStamp longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
+                    eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
                 } else {
-                    eventDuration = [timeStamp longValue] - [eventBegin longValue];
+                    eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue];
                 }
 
                 if (eventDuration < 0) {
@@ -1626,14 +1631,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self resetAnonymousId];
             bestId = [self anonymousId];
         }
-
+        
+        NSNumber *currentTime = @([[self class] getCurrentTime]);
         if ([type isEqualToString:@"track_signup"]) {
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
                   @"original_id": self.originalId,
-                  @"time": timeStamp,
+                  @"time": currentTime,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
@@ -1649,7 +1655,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
-                  @"time": timeStamp,
+                  @"time": currentTime,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
@@ -1659,7 +1665,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             e = @{
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
-                  @"time": timeStamp,
+                  @"time": currentTime,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
@@ -1712,8 +1718,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    NSNumber *eventBegin = @([[self class] getCurrentTime]);
-    
+    NSNumber *eventBegin = @([[self class] getSystemUpTime]);
     dispatch_async(self.serialQueue, ^{
         self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : [NSNumber numberWithLong:0], @"timeUnit" : [NSNumber numberWithInt:timeUnit]};
     });
@@ -3024,16 +3029,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         isFirstStart = YES;
     }
 
-    // 遍历trackTimer,修改eventBegin为当前timeStamp
+    // 遍历trackTimer,修改eventBegin为当前currentSystemUpTime
     dispatch_async(self.serialQueue, ^{
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
         for (key in keys) {
             eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
             if (eventTimer) {
-                [eventTimer setValue:timeStamp forKey:@"eventBegin"];
+                [eventTimer setValue:currentSystemUpTime forKey:@"eventBegin"];
                 self.trackTimer[key] = eventTimer;
             }
         }
@@ -3073,11 +3078,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
-    
+
     // 遍历trackTimer
-    // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
+    // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
@@ -3093,17 +3098,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
                 long eventDuration;
                 if (eventAccumulatedDuration) {
-                    eventDuration = [timeStamp longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
+                    eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
                 } else {
-                    eventDuration = [timeStamp longValue] - [eventBegin longValue];
+                    eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue];
                 }
-
                 [eventTimer setObject:[NSNumber numberWithLong:eventDuration] forKey:@"eventAccumulatedDuration"];
-                [eventTimer setObject:timeStamp forKey:@"eventBegin"];
+                [eventTimer setObject:currentSystemUpTime forKey:@"eventBegin"];
                 self.trackTimer[key] = eventTimer;
             }
         }
-
     });
 
     if (_autoTrack) {
