@@ -247,6 +247,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return time;
 }
 
++ (UInt64)getSystemUpTime {
+    UInt64 time = NSProcessInfo.processInfo.systemUptime * 1000;
+    return time;
+}
+
 + (NSString *)getUniqueHardwareId:(BOOL *)isReal {
     NSString *distinctId = NULL;
 
@@ -1539,7 +1544,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     dispatch_async(self.serialQueue, ^{
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSNumber *timeStamp = @([[self class] getSystemUpTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
@@ -1626,14 +1631,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self resetAnonymousId];
             bestId = [self anonymousId];
         }
-
+        
+        NSNumber *currentTime = @([[self class] getCurrentTime]);
         if ([type isEqualToString:@"track_signup"]) {
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
                   @"original_id": self.originalId,
-                  @"time": timeStamp,
+                  @"time": currentTime,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
@@ -1649,7 +1655,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
-                  @"time": timeStamp,
+                  @"time": currentTime,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
@@ -1659,7 +1665,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             e = @{
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
-                  @"time": timeStamp,
+                  @"time": currentTime,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
@@ -1712,8 +1718,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    NSNumber *eventBegin = @([[self class] getCurrentTime]);
-    
+    NSNumber *eventBegin = @([[self class] getSystemUpTime]);
     dispatch_async(self.serialQueue, ^{
         self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : [NSNumber numberWithLong:0], @"timeUnit" : [NSNumber numberWithInt:timeUnit]};
     });
@@ -3026,7 +3031,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     // 遍历trackTimer,修改eventBegin为当前timeStamp
     dispatch_async(self.serialQueue, ^{
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSNumber *timeStamp = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
@@ -3077,7 +3082,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     // 遍历trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
     dispatch_async(self.serialQueue, ^{
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSNumber *timeStamp = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
