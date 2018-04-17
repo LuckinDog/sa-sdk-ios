@@ -1632,7 +1632,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self resetAnonymousId];
             bestId = [self anonymousId];
         }
-        
+
         if ([type isEqualToString:@"track_signup"]) {
             e = @{
                   @"event": event,
@@ -2016,8 +2016,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             if (carrierName != nil) {
                 [p setValue:carrierName forKey:@"$carrier"];
-            }else{
-                if(carrier.carrierName){
+            } else {
+                if (carrier.carrierName) {
                     [p setValue:carrier.carrierName forKey:@"$carrier"];
                 }
             }
