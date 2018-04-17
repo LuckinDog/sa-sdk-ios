@@ -43,21 +43,21 @@
 
 // 自动追踪相关事件及属性
 // App 启动或激活
-NSString* const APP_START_EVENT = @"$AppStart";
+static NSString* const APP_START_EVENT = @"$AppStart";
 // App 退出或进入后台
-NSString* const APP_END_EVENT = @"$AppEnd";
+static NSString* const APP_END_EVENT = @"$AppEnd";
 // App 浏览页面
-NSString* const APP_VIEW_SCREEN_EVENT = @"$AppViewScreen";
+static NSString* const APP_VIEW_SCREEN_EVENT = @"$AppViewScreen";
 // App 首次启动
-NSString* const APP_FIRST_START_PROPERTY = @"$is_first_time";
+static NSString* const APP_FIRST_START_PROPERTY = @"$is_first_time";
 // App 是否从后台恢复
-NSString* const RESUME_FROM_BACKGROUND_PROPERTY = @"$resume_from_background";
+static NSString* const RESUME_FROM_BACKGROUND_PROPERTY = @"$resume_from_background";
 // App 浏览页面名称
-NSString* const SCREEN_NAME_PROPERTY = @"$screen_name";
+static NSString* const SCREEN_NAME_PROPERTY = @"$screen_name";
 // App 浏览页面 Url
-NSString* const SCREEN_URL_PROPERTY = @"$url";
+static NSString* const SCREEN_URL_PROPERTY = @"$url";
 // App 浏览页面 Referrer Url
-NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
+static NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 
 @implementation SensorsAnalyticsDebugException
 
@@ -1545,6 +1545,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     dispatch_async(self.serialQueue, ^{
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
+        NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
@@ -1632,14 +1633,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             bestId = [self anonymousId];
         }
         
-        NSNumber *currentTime = @([[self class] getCurrentTime]);
         if ([type isEqualToString:@"track_signup"]) {
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
                   @"original_id": self.originalId,
-                  @"time": currentTime,
+                  @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
@@ -1655,7 +1655,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
-                  @"time": currentTime,
+                  @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
@@ -1665,7 +1665,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             e = @{
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": bestId,
-                  @"time": currentTime,
+                  @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
                   @"_track_id": @(arc4random()),
