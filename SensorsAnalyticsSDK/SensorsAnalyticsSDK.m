@@ -2015,7 +2015,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 carrierName= @"中国电信";
             }
             if (carrierName != nil) {
-                [p setValue:carrier.carrierName forKey:@"$carrier"];
+                [p setValue:carrierName forKey:@"$carrier"];
+            }else{
+                if(carrier.carrierName){
+                    [p setValue:carrier.carrierName forKey:@"$carrier"];
+                }
             }
         }
     }
