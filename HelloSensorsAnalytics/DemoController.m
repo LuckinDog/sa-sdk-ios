@@ -80,6 +80,7 @@
     NSUInteger row = [indexPath row];
     switch (row) {
         case 0:{
+            [SensorsAnalyticsSDK disableSDKInstance];
             NSLog(@"测试track");
             //[self testTrack];
             TestTableViewController *vc =  [[TestTableViewController alloc]init ];
@@ -123,6 +124,7 @@
             [self testFlush];
             break;
         case 9l:
+            [SensorsAnalyticsSDK enableSDKInstance];
             NSLog(@"进入无埋点测试页面");
             [self testCodeless];
             break;

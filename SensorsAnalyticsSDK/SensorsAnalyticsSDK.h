@@ -1009,6 +1009,11 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 - (void)disableSDKInstance;
 - (void)enableSDKInstance;
++ (void)disableSDKInstance;
++ (void)enableSDKInstance;
+- (NSString *)getSDKContollerUrl;
+- (void)requestFunctionalManagerMentConfig;
++ (BOOL)isSDKInstanceEnabled;
 @end
 
 /**
