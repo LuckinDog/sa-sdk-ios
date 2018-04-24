@@ -3463,8 +3463,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     NSMutableString  *mutUrlString = [NSMutableString string];
     if (self->_serverURL) {
         NSURL *url = [NSURL URLWithString:self->_serverURL];
+        NSString * scheme= url.scheme;
         NSString *host = url.host;
         NSNumber *port = url.port;
+        if (scheme) {
+            [mutUrlString appendFormat:@"%@://",scheme];
+        }
         if (host) {
             [mutUrlString appendString:host];
         }
@@ -3472,9 +3476,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [mutUrlString appendFormat:@":%@",port];
         }
         if (!self.config.v) {
-            [mutUrlString appendString:@"config/iOS"];
+            [mutUrlString appendString:@"/config/iOS"];
         }else{
-            [mutUrlString appendFormat:@"config/iOS?v=%@",self.config.v];
+            [mutUrlString appendFormat:@"/config/iOS?v=%@",self.config.v];
         }
     }
     return mutUrlString;
