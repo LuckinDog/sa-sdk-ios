@@ -37,7 +37,7 @@
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
-#define VERSION @"1.9.9"
+#define VERSION @"1.9.10"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
