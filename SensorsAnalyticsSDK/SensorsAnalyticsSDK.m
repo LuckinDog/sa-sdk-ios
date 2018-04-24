@@ -1783,6 +1783,8 @@ static BOOL isSDKInstanceEnabled = YES;
         hasTrackInstallation = NO;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
         [[NSUserDefaults standardUserDefaults] synchronize];
+    } else {
+        hasTrackInstallation = YES;
     }
     if (disableCallback) {
         [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
