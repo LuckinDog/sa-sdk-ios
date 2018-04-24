@@ -37,7 +37,7 @@
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
-#import "SensorsAnalyticsSDKController.h"
+#import "SASDKConfig.h"
 #define VERSION @"1.9.9"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
@@ -132,8 +132,8 @@ static NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 @end
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
-static SensorsAnalyticsSDK *enabledInstance = nil;
-static SensorsAnalyticsSDK *disabledInstance = nil;
+static BOOL isSDKInstanceEnabled = YES;
+
 @interface SensorsAnalyticsSDK()
 
 // 在内部，重新声明成可读写的
@@ -175,7 +175,7 @@ static SensorsAnalyticsSDK *disabledInstance = nil;
 @property (nonatomic, strong) dispatch_source_t reqConfigTimer;
 @property (nonatomic, assign) NSUInteger reqConfigCount;
 @property (nonatomic, assign) BOOL reqConfigTimerDidSuspend;
-@property (nonatomic, strong) NSString *v;
+@property (nonatomic, strong)SASDKConfig *config;
 // 用于 SafariViewController
 @property (strong, nonatomic) UIWindow *secondWindow;
 
@@ -235,11 +235,9 @@ static SensorsAnalyticsSDK *disabledInstance = nil;
                                           andConfigureURL:configureURL
                                        andVTrackServerURL:vtrackServerURL
                                              andDebugMode:debugMode];
-        enabledInstance = sharedInstance;
-        disabledInstance = nil;
         NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
         if (sdkConfig) {
-            [sharedInstance setSDKWithConfig:sdkConfig];
+            [sharedInstance setSDKWithConfigDict:sdkConfig];
         }
     });
     return sharedInstance;
@@ -254,7 +252,10 @@ static SensorsAnalyticsSDK *disabledInstance = nil;
 }
 
 + (SensorsAnalyticsSDK *)sharedInstance {
-    return sharedInstance;
+    if (isSDKInstanceEnabled) {
+        return sharedInstance;
+    }
+    return nil;
 }
 
 + (UInt64)getCurrentTime {
@@ -3433,85 +3434,65 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     [SALogger enableLog:printLog];
 }
--(void)disableSDKInstance
-{
-    if (self.timer.isValid) {
-        [self.timer invalidate];
-    }
-    self.timer = nil;
-    if (self.vtrackConnectorTimer.isValid) {
-        [self.vtrackConnectorTimer invalidate];
-    }
-    dispatch_sync(self.serialQueue, ^{
-    });
-    sharedInstance = disabledInstance;
-    //[SensorsAnalyticsSDKController disableAllFunctionOriginIMP];
-}
-
-- (void)enableSDKInstance{
-    // [SensorsAnalyticsSDKController enableOriginFunctionIMP];
-    sharedInstance = enabledInstance;
-    [self startFlushTimer];
-}
 
 +(void)disableSDKInstance{
-    if (sharedInstance == disabledInstance) {
+    if (isSDKInstanceEnabled == NO) {
         return;
     }
-    if (sharedInstance.timer.isValid) {
-        [sharedInstance.timer invalidate];
+    if (self.sharedInstance.timer.isValid) {
+        [self.sharedInstance.timer invalidate];
     }
-    sharedInstance.timer = nil;
-    if (sharedInstance.vtrackConnectorTimer.isValid) {
-        [sharedInstance.vtrackConnectorTimer invalidate];
+    self.sharedInstance.timer = nil;
+    if (self.sharedInstance.vtrackConnectorTimer.isValid) {
+        [self.sharedInstance.vtrackConnectorTimer invalidate];
     }
-    dispatch_sync(sharedInstance.serialQueue, ^{
+    dispatch_sync(self.sharedInstance.serialQueue, ^{
     });
-    sharedInstance = disabledInstance;
+    isSDKInstanceEnabled = NO;
 }
 
 + (void)enableSDKInstance{
-    if (sharedInstance == enabledInstance) {
+    if (isSDKInstanceEnabled == YES) {
         return;
     }
-    sharedInstance = enabledInstance;
-    [sharedInstance startFlushTimer];
+    isSDKInstanceEnabled = YES;
+    [self.sharedInstance startFlushTimer];
 }
 
 - (NSString *)getSDKContollerUrl {
-    NSString *url = nil;
+    NSMutableString  *mutUrlString = [NSMutableString string];
     if (self->_serverURL) {
-        if ([self->_serverURL containsString:@":8006/"]) {
-            NSRange range8006 =  [self->_serverURL rangeOfString:@":8006/"];
-            if (range8006.location != NSNotFound) {
-                NSString *controllerUrlPrefix =  [self->_serverURL substringToIndex:range8006.location+range8006.length];
-                if (!self.v) {
-                    controllerUrlPrefix = [controllerUrlPrefix stringByAppendingFormat:@"config/iOS"];
-                }else{
-                    controllerUrlPrefix = [controllerUrlPrefix stringByAppendingFormat:@"config/iOS?v=%@",self.v];
-                }
-                url = controllerUrlPrefix;
-            }
+        NSURL *url = [NSURL URLWithString:self->_serverURL];
+        NSString *host = url.host;
+        NSNumber *port = url.port;
+        if (host) {
+            [mutUrlString appendString:host];
+        }
+        if (port) {
+            [mutUrlString appendFormat:@":%@",port];
+        }
+        if (!self.config.v) {
+            [mutUrlString appendString:@"config/iOS"];
+        }else{
+            [mutUrlString appendFormat:@"config/iOS?v=%@",self.config.v];
         }
     }
-    return url;
+    return mutUrlString;
 }
 
--(void)setSDKWithConfig:(NSDictionary *)configDict{
-    NSString *v = configDict[@"v"];
-    NSDictionary *configs = configDict[@"configs"];
-    NSNumber *disableSDK = configs[@"disableSDK"];
-    NSNumber *disableDebugMode = configs[@"disableDebugMode"];
-    self.v = v;
-    if (disableSDK.boolValue == YES) {
-        if (disableDebugMode.boolValue) {
-             [self disableDebugMode];
-        }
-        [SensorsAnalyticsSDK disableSDKInstance];
-    }else{
-        [SensorsAnalyticsSDK enableSDKInstance];
-        if (disableDebugMode.boolValue) {
-            [self  disableDebugMode];
+-(void)setSDKWithConfigDict:(NSDictionary *)configDict{
+    if (configDict) {
+        self.config = [SASDKConfig configWithDict:configDict];
+        if (self.config.disableSDK == YES) {
+            if (self.config.disableDebugMode) {
+                [self disableDebugMode];
+            }
+            [SensorsAnalyticsSDK disableSDKInstance];
+        }else{
+            [SensorsAnalyticsSDK enableSDKInstance];
+            if (self.config.disableDebugMode) {
+                [self  disableDebugMode];
+            }
         }
     }
 }
@@ -3534,8 +3515,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [weakself requestFunctionalManagerMentConfigWithCompletion:^(BOOL success , NSDictionary *configDict) {
                 if (success) {
                     [[NSUserDefaults standardUserDefaults] setObject:configDict forKey:@"SASDKConfig"];
-                    [[NSUserDefaults standardUserDefaults]synchronize];
-                    [weakself setSDKWithConfig:configDict];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                    [weakself setSDKWithConfigDict:configDict];
                     //请求成功，cancel
                     SALog(@"reqConfigSuccess: Count =%d ,suspend reqConfigTimer.",weakself.reqConfigCount);
                     if (!weakself.reqConfigTimerDidSuspend) {
@@ -3594,7 +3575,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 + (BOOL)isSDKInstanceEnabled{
-    return (sharedInstance == enabledInstance)&&(enabledInstance!=nil);
+    return isSDKInstanceEnabled;
 }
 
 @end
