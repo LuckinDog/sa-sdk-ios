@@ -38,8 +38,7 @@
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
 #import "SASDKConfig.h"
-#define VERSION @"1.9.9"
-
+#define VERSION @"1.9.10"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
