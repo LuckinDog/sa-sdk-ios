@@ -3463,7 +3463,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     NSMutableString  *mutUrlString = [NSMutableString string];
     if (self->_serverURL) {
         NSURL *url = [NSURL URLWithString:self->_serverURL];
-        NSString * scheme= url.scheme;
+        NSString * scheme = url.scheme;
         NSString *host = url.host;
         NSNumber *port = url.port;
         if (scheme) {
