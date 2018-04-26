@@ -103,10 +103,10 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  * AutoTrack 中的事件类型
  *
  * @discussion
- *   SensorsAnalyticsEventTyppeAppStart - $AppStart
- *   SensorsAnalyticsEventTyppeAppEnd - $AppEnd
- *   SensorsAnalyticsEventTyppeAppClick - $AppClick
- *   SensorsAnalyticsEventTyppeAppViewScreen - $AppViewScreen
+ *   SensorsAnalyticsEventTypeAppStart - $AppStart
+ *   SensorsAnalyticsEventTypeAppEnd - $AppEnd
+ *   SensorsAnalyticsEventTypeAppClick - $AppClick
+ *   SensorsAnalyticsEventTypeAppViewScreen - $AppViewScreen
  */
 typedef NS_OPTIONS(NSInteger, SensorsAnalyticsAutoTrackEventType) {
     SensorsAnalyticsEventTypeNone      = 0,
