@@ -3541,7 +3541,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)requestFunctionalManagerMentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
-    NSString *urlString = @"http://javacloud.bmob.cn/25f807cff6205da7/getSDKConfig";//[self getSDKContollerUrl:self->_serverURL];
+    NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
     if (urlString == nil) {
         completion(NO,nil);
         return;
