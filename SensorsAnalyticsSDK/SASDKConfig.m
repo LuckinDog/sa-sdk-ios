@@ -15,8 +15,8 @@
 -(instancetype)initWithDict:(NSDictionary *)dict{
     if (self = [super init]) {
         self.v = [dict valueForKey:@"v"];
-        self.disableSDK = [dict valueForKeyPath:@"disableSDK"];
-        self.disableDebugMode = [dict valueForKeyPath:@"disableDebugMode"];
+        self.disableSDK = [[dict valueForKeyPath:@"configs.disableSDK"] boolValue] ;
+        self.disableDebugMode = [[dict valueForKeyPath:@"configs.disableDebugMode"] boolValue];
     }
     return self;
 }

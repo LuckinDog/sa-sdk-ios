@@ -171,10 +171,11 @@ static BOOL isSDKInstanceEnabled = YES;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
-@property (nonatomic, strong) dispatch_source_t reqConfigTimer;
-@property (nonatomic, assign) NSUInteger reqConfigCount;
-@property (nonatomic, assign) BOOL reqConfigTimerDidSuspend;
 @property (nonatomic, strong)SASDKConfig *config;
+
+@property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
+@property (nonatomic, assign)NSUInteger maxReqRetryCount ;
+
 // 用于 SafariViewController
 @property (strong, nonatomic) UIWindow *secondWindow;
 
@@ -234,10 +235,6 @@ static BOOL isSDKInstanceEnabled = YES;
                                           andConfigureURL:configureURL
                                        andVTrackServerURL:vtrackServerURL
                                              andDebugMode:debugMode];
-        NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
-        if (sdkConfig) {
-            [sharedInstance setSDKWithConfigDict:sdkConfig];
-        }
     });
     return sharedInstance;
 }
@@ -422,7 +419,10 @@ static BOOL isSDKInstanceEnabled = YES;
             _lastScreenTrackProperties = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
-
+            _maxReqRetryCount = 3;//sdk开启关闭功能接口最大重试次数
+            NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
+            [self setSDKWithConfigDict:sdkConfig];
+            
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _heatMapViewControllers = [[NSMutableArray alloc] init];
@@ -3035,6 +3035,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
+    //下次启动app的时候重新初始化
+    if (self.config.disableSDK == YES) {
+        if (self.config.disableDebugMode) {
+            [self disableDebugMode];
+        }
+        [SensorsAnalyticsSDK disableSDKInstance];
+    }else{
+        [SensorsAnalyticsSDK enableSDKInstance];
+        if (self.config.disableDebugMode) {
+            [self  disableDebugMode];
+        }
+    }
+
     [self requestFunctionalManagerMentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
@@ -3098,12 +3111,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
-    SALog(@"suspend reqConfigTimer, 'cause applicationDidEnterBackground.");
-    if (!self.reqConfigTimerDidSuspend) {
-        self.reqConfigTimerDidSuspend = YES;
-        self.reqConfigCount = 0;
-        dispatch_suspend(self.reqConfigTimer);
-    }
+    SALog(@"requestFunctionalManagerMentConfigWithCompletion should be canceled, 'cause applicationDidEnterBackground.");
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagerMentConfigWithCompletion:) object:self.reqConfigBlock];
+
     // 遍历trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
@@ -3460,96 +3470,88 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self.sharedInstance startFlushTimer];
 }
 
-- (NSString *)getSDKContollerUrl {
-    NSMutableString  *mutUrlString = [NSMutableString string];
-    if (self->_serverURL) {
-        NSURL *url = [NSURL URLWithString:self->_serverURL];
-        NSString * scheme = url.scheme;
-        NSString *host = url.host;
-        NSNumber *port = url.port;
-        if (scheme) {
-            [mutUrlString appendFormat:@"%@://",scheme];
+- (NSString *)getSDKContollerUrl:(NSString *)urlString{
+    NSString  *retStr = nil;
+    if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
+        NSURLComponents *componets= [NSURLComponents componentsWithString:urlString];
+        if (componets == nil) {
+            SALog(@"URLString is malformed, nil is returned.");
+            return nil;
         }
-        if (host) {
-            [mutUrlString appendString:host];
-        }
-        if (port) {
-            [mutUrlString appendFormat:@":%@",port];
-        }
+        componets.query = nil;
+        componets.path =@"/config/iOS";
         if (!self.config.v) {
-            [mutUrlString appendString:@"/config/iOS"];
+            componets.query = nil;
         }else{
-            [mutUrlString appendFormat:@"/config/iOS?v=%@",self.config.v];
+            componets.query = [NSString stringWithFormat:@"v=%@",self.config.v];
         }
+        SALog(@"%@",componets.URL);
+        retStr = componets.URL.absoluteString;
     }
-    return mutUrlString;
+    return retStr;
 }
 
 -(void)setSDKWithConfigDict:(NSDictionary *)configDict{
     if (configDict) {
         self.config = [SASDKConfig configWithDict:configDict];
-        if (self.config.disableSDK == YES) {
-            if (self.config.disableDebugMode) {
-                [self disableDebugMode];
-            }
-            [SensorsAnalyticsSDK disableSDKInstance];
-        }else{
-            [SensorsAnalyticsSDK enableSDKInstance];
-            if (self.config.disableDebugMode) {
-                [self  disableDebugMode];
-            }
-        }
     }
 }
 -(void)requestFunctionalManagerMentConfig{
-    if (self.reqConfigTimer == nil) {
-        self.reqConfigTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
-        dispatch_source_set_timer(self.reqConfigTimer, DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC, 0.1 * NSEC_PER_SEC);
-        __weak typeof(self) weakself = self;
-        dispatch_source_set_event_handler(self.reqConfigTimer, ^{
-            weakself.reqConfigCount = weakself.reqConfigCount+1;
-            if(weakself.reqConfigCount>=3){
-                SALog(@"reqConfigFailed: Count =3 ,suspend reqConfigTimer.");
-                if (!weakself.reqConfigTimerDidSuspend) {
-                    weakself.reqConfigTimerDidSuspend = YES;
-                    weakself.reqConfigCount = 0;
-                    dispatch_suspend(weakself.reqConfigTimer);
+    [self requestFunctionalManagerMentConfigDelay:0 index:0];
+}
+
+-(void)requestFunctionalManagerMentConfigDelay:(NSTimeInterval) delay index:(NSUInteger) index{
+    __weak typeof(self) weakself = self;
+    void(^ block)(BOOL success , NSDictionary *configDict)  = ^(BOOL success , NSDictionary *configDict) {
+        if (success) {
+            if(configDict != nil){//重新设置config,处理configDict中的缺失参数
+                NSString *v = [configDict valueForKey:@"v"];
+                NSNumber *disableSDK = [configDict valueForKeyPath:@"configs.disableSDK"];
+                NSNumber *disableDebugMode = [configDict valueForKeyPath:@"configs.disableDebugMode"];
+                if (v == nil) {
+                    v = self.config.v ;
                 }
-                return ;
+                if (disableSDK == nil) {
+                    disableSDK = [NSNumber numberWithBool:self.config.disableSDK];
+                }
+                if (disableDebugMode == nil) {
+                    disableDebugMode = [NSNumber numberWithBool:self.config.disableDebugMode];
+                }
+                NSDictionary *configToBeSet = nil;
+                if (v) {
+                    configToBeSet = @{@"v":v,@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
+                }else{
+                    configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
+                }
+                [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKConfig"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+                [weakself setSDKWithConfigDict:configToBeSet];
             }
-            [weakself requestFunctionalManagerMentConfigWithCompletion:^(BOOL success , NSDictionary *configDict) {
-                if (success) {
-                    [[NSUserDefaults standardUserDefaults] setObject:configDict forKey:@"SASDKConfig"];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
-                    [weakself setSDKWithConfigDict:configDict];
-                    //请求成功，cancel
-                    SALog(@"reqConfigSuccess: Count =%d ,suspend reqConfigTimer.",weakself.reqConfigCount);
-                    if (!weakself.reqConfigTimerDidSuspend) {
-                        weakself.reqConfigTimerDidSuspend = YES;
-                        weakself.reqConfigCount = 0;
-                        dispatch_suspend(weakself.reqConfigTimer);
-                    }
-                }else {
-                     SALog(@"reqConfigFailed: Count =%d .",weakself.reqConfigCount);
-                }
-            }];
-        });
-        self.reqConfigTimerDidSuspend = NO;
-        dispatch_resume(self.reqConfigTimer);
-    }else{
-        SALog(@"reqConfigTimer exist, clean reqConfifCount, resume reqConfigTimer");
-        self.reqConfigTimerDidSuspend = NO;
-        dispatch_resume(self.reqConfigTimer);
-    }
+            SALog(@"reqConfigSuccess: index =%d .",index);
+        }else {
+            SALog(@"reqConfigFailed: index =%d .",index);
+            if (index<weakself.maxReqRetryCount-1) {
+                [weakself requestFunctionalManagerMentConfigDelay:delay+10 index:index+1];
+            }
+        }
+    };
+    
+    self.reqConfigBlock = block;
+    [self performSelector:@selector(requestFunctionalManagerMentConfigWithCompletion:) withObject:self.reqConfigBlock afterDelay:delay inModes:@[NSRunLoopCommonModes,NSDefaultRunLoopMode]];
 }
 
 - (void)requestFunctionalManagerMentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
-    NSString *urlString = [self getSDKContollerUrl];
+    NSString *urlString = @"http://javacloud.bmob.cn/25f807cff6205da7/getSDKConfig";//[self getSDKContollerUrl:self->_serverURL];
+    if (urlString == nil) {
+        completion(NO,nil);
+        return;
+    }
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         @try{
-            if ([(NSHTTPURLResponse*)response statusCode]==200) {
+            NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
+            if (statusCode == 200) {
                 NSError *err = NULL;
                 NSDictionary *dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
                 if (err) {
@@ -3561,11 +3563,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                         if ([dict respondsToSelector:@selector(count)] && dict.count) {
                             completion(YES,dict);
                         }else{
-                             completion(NO,nil);
+                            completion(NO,nil);
                         }
                     }
                 }
-            }else{
+            }else if (statusCode == 304){
+                //304代表请求成功，但是不需要更新config
+                if (completion) {
+                    completion(YES,nil);
+                }
+            } else {
                 if (completion) {
                     completion(NO,nil);
                 }
