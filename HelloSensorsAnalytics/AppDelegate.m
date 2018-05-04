@@ -15,7 +15,6 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
     //http://master-test.cloud.sensorsdata.cn:8006/sa?project=default&token=531e8b62608349d6
     //http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://master-test.cloud.sensorsdata.cn:8006/sa?project=default&token=531e8b62608349d6"
@@ -25,7 +24,7 @@
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
-   
+
 #ifdef DEBUG
     //[[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
 #endif

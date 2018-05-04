@@ -131,7 +131,6 @@ static NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 @end
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
-static BOOL isSDKInstanceEnabled = YES;
 
 @interface SensorsAnalyticsSDK()
 
@@ -171,10 +170,10 @@ static BOOL isSDKInstanceEnabled = YES;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
-@property (nonatomic, strong)SASDKConfig *config;
+@property (nonatomic, strong) SASDKConfig *config;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
-@property (nonatomic, assign)NSUInteger maxReqRetryCount ;
+@property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
 
 // 用于 SafariViewController
 @property (strong, nonatomic) UIWindow *secondWindow;
@@ -208,10 +207,7 @@ static BOOL isSDKInstanceEnabled = YES;
     NSString *_osVersion;
     NSString *_userAgent;
     NSString *_originServerUrl;
-    dispatch_source_t _sdkControllerConfigTimer;
 }
-
-
 
 #pragma mark - Initialization
 
@@ -248,14 +244,14 @@ static BOOL isSDKInstanceEnabled = YES;
 }
 
 + (SensorsAnalyticsSDK *)sharedInstance {
-    if (isSDKInstanceEnabled) {
-        return sharedInstance;
+    if (sharedInstance.config.disableSDK) {
+        return nil;
     }
-    return nil;
+    return sharedInstance;
 }
 
 + (UInt64)getCurrentTime {
-    UInt64 time = NSDate.date.timeIntervalSince1970 *1000;
+    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
     return time;
 }
 
@@ -419,10 +415,10 @@ static BOOL isSDKInstanceEnabled = YES;
             _lastScreenTrackProperties = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
-            _maxReqRetryCount = 3;//sdk开启关闭功能接口最大重试次数
+            _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
             [self setSDKWithConfigDict:sdkConfig];
-            
+
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _heatMapViewControllers = [[NSMutableArray alloc] init];
@@ -495,10 +491,13 @@ static BOOL isSDKInstanceEnabled = YES;
             //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
             if (_debugMode != SensorsAnalyticsDebugOff) {
-                // 创建
-                NSThread *thread = [[NSThread alloc] initWithTarget:self selector:@selector(checkDebugMode) object:nil];
-                // 启动
-                [thread start];
+                NSString *alertMessage = nil;
+                if (_debugMode == SensorsAnalyticsDebugOnly) {
+                    alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+                } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
+                    alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+                }
+                [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
             }
 #endif
         }
@@ -551,65 +550,6 @@ static BOOL isSDKInstanceEnabled = YES;
         // 将 Server URI Path 替换成 Debug 模式的 '/debug'
         NSURL *url = [[[NSURL URLWithString:serverUrl] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
         _serverURL = [url absoluteString];
-    }
-}
-
-- (void)checkDebugMode {
-    if (_serverURL == nil || [_serverURL length] == 0) {
-        SALog(@"In order to be safe (_serverURL is nil), we must disable debugMode");
-        [self disableDebugMode];
-        return;
-    }
-    __block BOOL disableDebugMode = YES;
-    dispatch_semaphore_t checkDebugModeSem = dispatch_semaphore_create(0);
-    @try {
-        NSURL *URL = [NSURL URLWithString:_serverURL];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-        [request setHTTPMethod:@"GET"];
-        void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-            if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
-                SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
-                dispatch_semaphore_signal(checkDebugModeSem);
-                return;
-            }
-
-            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
-            if([urlResponse statusCode] == 200) {
-                NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                if (urlResponseContent != nil) {
-                    if ([urlResponseContent rangeOfString:@"Sensors Analytics is ready to receive your data!"].location != NSNotFound) {
-                        disableDebugMode = NO;
-                        NSString *alertMessage = nil;
-                        if (_debugMode == SensorsAnalyticsDebugOnly) {
-                            alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-                        } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-                            alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-                        }
-                        [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
-                    }
-                }
-            }
-            dispatch_semaphore_signal(checkDebugModeSem);
-        };
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
-
-        [task resume];
-#else
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
-         ^(NSURLResponse *response, NSData* data, NSError *error) {
-             return block(data, response, error);
-         }];
-#endif
-        dispatch_semaphore_wait(checkDebugModeSem, DISPATCH_TIME_FOREVER);
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
-    } @finally {
-        if (disableDebugMode) {
-            SALog(@"In order to be safe, we must disable debugMode");
-            [self disableDebugMode];
-        }
     }
 }
 
@@ -1136,6 +1076,9 @@ static BOOL isSDKInstanceEnabled = YES;
 }
 
 - (BOOL)isAutoTrackEnabled {
+    if (sharedInstance.config.disableSDK == YES) {
+        return NO;
+    }
     return _autoTrack;
 }
 
@@ -1483,6 +1426,9 @@ static BOOL isSDKInstanceEnabled = YES;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
+    if (self.config.disableSDK) {
+        return;
+    }
     // 对于type是track数据，它们的event名称是有意义的
     if ([type isEqualToString:@"track"]) {
         if (event == nil || [event length] == 0) {
@@ -3035,20 +2981,27 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
-    //下次启动app的时候重新初始化
+    //下次启动 app 的时候重新初始化
+    NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
+    [self setSDKWithConfigDict:sdkConfig];
     if (self.config.disableSDK == YES) {
-        if (self.config.disableDebugMode) {
-            [self disableDebugMode];
+        //停止 SDK 的 flushtimer
+        if (self.timer.isValid) {
+            [self.timer invalidate];
         }
-        [SensorsAnalyticsSDK disableSDKInstance];
+        self.timer = nil;
+        if (self.vtrackConnectorTimer.isValid) {
+            [self.vtrackConnectorTimer invalidate];
+        }
+        [self flush];//停止采集数据之后 flush 本地数据
+        dispatch_sync(self.serialQueue, ^{
+        });
+
     }else{
-        [SensorsAnalyticsSDK enableSDKInstance];
-        if (self.config.disableDebugMode) {
-            [self  disableDebugMode];
-        }
+        [self startFlushTimer];
     }
 
-    [self requestFunctionalManagerMentConfig];
+    [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
         return;
@@ -3061,7 +3014,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         isFirstStart = YES;
     }
 
-    // 遍历trackTimer,修改eventBegin为当前currentSystemUpTime
+    // 遍历 trackTimer ,修改 eventBegin 为当前 currentSystemUpTime
     dispatch_async(self.serialQueue, ^{
 
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
@@ -3111,10 +3064,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
-    SALog(@"requestFunctionalManagerMentConfigWithCompletion should be canceled, 'cause applicationDidEnterBackground.");
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagerMentConfigWithCompletion:) object:self.reqConfigBlock];
-
-    // 遍历trackTimer
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+    // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
@@ -3425,12 +3376,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] deleteUser];
 }
 
--(void)enableLog:(BOOL)enabelLog
-{
+- (void)enableLog:(BOOL)enabelLog{
     [SALogger enableLog:enabelLog];
 }
 
--(void)enableLog{
+- (void)enableLog {
     BOOL printLog = NO;
 #if (defined SENSORS_ANALYTICS_ENABLE_LOG)
     printLog = YES;
@@ -3446,148 +3396,150 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SALogger enableLog:printLog];
 }
 
-+(void)disableSDKInstance{
-    if (isSDKInstanceEnabled == NO) {
-        return;
-    }
-    if (self.sharedInstance.timer.isValid) {
-        [self.sharedInstance.timer invalidate];
-    }
-    self.sharedInstance.timer = nil;
-    if (self.sharedInstance.vtrackConnectorTimer.isValid) {
-        [self.sharedInstance.vtrackConnectorTimer invalidate];
-    }
-    dispatch_sync(self.sharedInstance.serialQueue, ^{
-    });
-    isSDKInstanceEnabled = NO;
-}
-
-+ (void)enableSDKInstance{
-    if (isSDKInstanceEnabled == YES) {
-        return;
-    }
-    isSDKInstanceEnabled = YES;
-    [self.sharedInstance startFlushTimer];
-}
-
-- (NSString *)getSDKContollerUrl:(NSString *)urlString{
-    NSString  *retStr = nil;
-    if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
-        NSURLComponents *componets= [NSURLComponents componentsWithString:urlString];
-        if (componets == nil) {
-            SALog(@"URLString is malformed, nil is returned.");
-            return nil;
-        }
-        componets.query = nil;
-        componets.path =@"/config/iOS";
-        if (!self.config.v) {
+- (NSString *)getSDKContollerUrl:(NSString *)urlString {
+    NSString *retStr = nil;
+    @try {
+        if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
+            NSURLComponents *componets = [NSURLComponents componentsWithString:urlString];
+            if (componets == nil) {
+                SALog(@"URLString is malformed, nil is returned.");
+                return nil;
+            }
             componets.query = nil;
-        }else{
-            componets.query = [NSString stringWithFormat:@"v=%@",self.config.v];
+            componets.path = @"/config/iOS";
+            if (!self.config.v) {
+                componets.query = nil;
+            } else {
+                componets.query = [NSString stringWithFormat:@"v=%@",self.config.v];
+            }
+            retStr = componets.URL.absoluteString;
         }
-        SALog(@"%@",componets.URL);
-        retStr = componets.URL.absoluteString;
-    }
-    return retStr;
-}
-
--(void)setSDKWithConfigDict:(NSDictionary *)configDict{
-    if (configDict) {
-        self.config = [SASDKConfig configWithDict:configDict];
+    } @catch (NSException *e) {
+        retStr = nil;
+        SAError(@"%@ error: %@", self, e);
+    } @finally {
+        return retStr;
     }
 }
--(void)requestFunctionalManagerMentConfig{
-    [self requestFunctionalManagerMentConfigDelay:0 index:0];
+
+- (void)setSDKWithConfigDict:(NSDictionary *)configDict {
+    @try {
+        if (configDict) {
+            self.config = [SASDKConfig configWithDict:configDict];
+            if (self.config.disableDebugMode) {
+                [self disableDebugMode];
+            }
+        }
+    } @catch (NSException *e) {
+        SAError(@"%@ error: %@", self, e);
+    }
 }
 
--(void)requestFunctionalManagerMentConfigDelay:(NSTimeInterval) delay index:(NSUInteger) index{
+- (void)requestFunctionalManagermentConfig {
+    @try {
+        [self requestFunctionalManagermentConfigDelay:0 index:0];
+    } @catch (NSException *e) {
+        SAError(@"%@ error: %@", self, e);
+    }
+}
+
+- (void)requestFunctionalManagermentConfigDelay:(NSTimeInterval) delay index:(NSUInteger) index {
     __weak typeof(self) weakself = self;
-    void(^ block)(BOOL success , NSDictionary *configDict)  = ^(BOOL success , NSDictionary *configDict) {
-        if (success) {
-            if(configDict != nil){//重新设置config,处理configDict中的缺失参数
-                NSString *v = [configDict valueForKey:@"v"];
-                NSNumber *disableSDK = [configDict valueForKeyPath:@"configs.disableSDK"];
-                NSNumber *disableDebugMode = [configDict valueForKeyPath:@"configs.disableDebugMode"];
-                if (v == nil) {
-                    v = self.config.v ;
+    void(^block)(BOOL success , NSDictionary *configDict) = ^(BOOL success , NSDictionary *configDict) {
+        @try {
+            if (success) {
+                if(configDict != nil) {//重新设置 config,处理 configDict 中的缺失参数
+                    NSString *v = [configDict valueForKey:@"v"];
+                    NSNumber *disableSDK = [configDict valueForKeyPath:@"configs.disableSDK"];
+                    NSNumber *disableDebugMode = [configDict valueForKeyPath:@"configs.disableDebugMode"];
+                    //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
+                    if (disableSDK.boolValue == YES && weakself.config.disableSDK == NO) {
+                        [weakself track:@"DisableSensorsDataSDK" withProperties:@{}];
+                    }
+                    //如果有字段缺失，需要设置为默认值
+                    if (disableSDK == nil) {
+                        disableSDK = [NSNumber numberWithBool:NO];
+                    }
+                    if (disableDebugMode == nil) {
+                        disableDebugMode = [NSNumber numberWithBool:NO];
+                    }
+                    NSDictionary *configToBeSet = nil;
+                    if (v) {
+                        configToBeSet = @{@"v":v,@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
+                    } else {
+                        configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
+                    }
+                    [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKConfig"];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
                 }
-                if (disableSDK == nil) {
-                    disableSDK = [NSNumber numberWithBool:self.config.disableSDK];
+            } else {
+                if (index < weakself.pullSDKConfigurationRetryMaxCount - 1) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakself requestFunctionalManagermentConfigDelay:30 index:index + 1];
+                    });
                 }
-                if (disableDebugMode == nil) {
-                    disableDebugMode = [NSNumber numberWithBool:self.config.disableDebugMode];
-                }
-                NSDictionary *configToBeSet = nil;
-                if (v) {
-                    configToBeSet = @{@"v":v,@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
-                }else{
-                    configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
-                }
-                [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKConfig"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-                [weakself setSDKWithConfigDict:configToBeSet];
             }
-            SALog(@"reqConfigSuccess: index =%d .",index);
-        }else {
-            SALog(@"reqConfigFailed: index =%d .",index);
-            if (index<weakself.maxReqRetryCount-1) {
-                [weakself requestFunctionalManagerMentConfigDelay:delay+10 index:index+1];
-            }
+        } @catch (NSException *e) {
+            SAError(@"%@ error: %@", self, e);
         }
     };
-    
-    self.reqConfigBlock = block;
-    [self performSelector:@selector(requestFunctionalManagerMentConfigWithCompletion:) withObject:self.reqConfigBlock afterDelay:delay inModes:@[NSRunLoopCommonModes,NSDefaultRunLoopMode]];
+    @try {
+        self.reqConfigBlock = block;
+        [self performSelector:@selector(requestFunctionalManagermentConfigWithCompletion:) withObject:self.reqConfigBlock afterDelay:delay inModes:@[NSRunLoopCommonModes,NSDefaultRunLoopMode]];
+    } @catch (NSException *e) {
+        SAError(@"%@ error: %@", self, e);
+    }
 }
 
-- (void)requestFunctionalManagerMentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
-    NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
-    if (urlString == nil) {
-        completion(NO,nil);
-        return;
-    }
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        @try{
-            NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
-            if (statusCode == 200) {
-                NSError *err = NULL;
-                NSDictionary *dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
-                if (err) {
+- (void)requestFunctionalManagermentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
+    @try {
+        NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
+        if (urlString == nil || urlString.length == 0) {
+            completion(NO,nil);
+            return;
+        }
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
+        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            @try{
+                NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
+                if (statusCode == 200) {
+                    NSError *err = NULL;
+                    NSDictionary *dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
+                    if (err) {
+                        if (completion) {
+                            completion(NO,nil);
+                        }
+                    } else {
+                        if (completion) {
+                            if ([dict respondsToSelector:@selector(count)] && dict.count) {
+                                completion(YES,dict);
+                            } else {
+                                completion(NO,nil);
+                            }
+                        }
+                    }
+                } else if (statusCode == 304) {
+                    //304 config 没有更新
+                    if (completion) {
+                        completion(YES,nil);
+                    }
+                } else {
                     if (completion) {
                         completion(NO,nil);
                     }
-                }else{
-                    if (completion) {
-                        if ([dict respondsToSelector:@selector(count)] && dict.count) {
-                            completion(YES,dict);
-                        }else{
-                            completion(NO,nil);
-                        }
-                    }
                 }
-            }else if (statusCode == 304){
-                //304代表请求成功，但是不需要更新config
-                if (completion) {
-                    completion(YES,nil);
-                }
-            } else {
+            } @catch (NSException *e) {
+                SAError(@"%@ error: %@", self, e);
                 if (completion) {
                     completion(NO,nil);
                 }
             }
-        }@catch(NSException *e){
-            if (completion) {
-                completion(NO,nil);
-            }
-        }
-    }];
-    [task resume];
-}
-
-+ (BOOL)isSDKInstanceEnabled{
-    return isSDKInstanceEnabled;
+        }];
+        [task resume];
+    } @catch (NSException *e) {
+        SAError(@"%@ error: %@", self, e);
+    }
 }
 
 @end

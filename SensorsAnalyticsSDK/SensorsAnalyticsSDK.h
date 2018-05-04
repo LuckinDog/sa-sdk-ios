@@ -1006,8 +1006,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param enabelLog YES/NO
  */
 - (void)enableLog:(BOOL)enabelLog;
-
-+ (BOOL)isSDKInstanceEnabled;
 @end
 
 /**
