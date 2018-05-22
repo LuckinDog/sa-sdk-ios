@@ -172,7 +172,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
-@property (nonatomic, strong) SASDKConfig *config;
+@property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
 
@@ -248,7 +248,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (SensorsAnalyticsSDK *)sharedInstance {
-    if (sharedInstance.config.disableSDK) {
+    if (sharedInstance.remoteConfig.disableSDK) {
         return nil;
     }
     return sharedInstance;
@@ -420,8 +420,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
-            NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
-            [self setSDKWithConfigDict:sdkConfig];
+            NSDictionary *sdkConfig = [self readRemoteSDKConfigFromLocal];
+            [self setSDKWithRemoteConfigDict:sdkConfig];
 
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
 
@@ -1082,7 +1082,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isAutoTrackEnabled {
-    if (sharedInstance.config.disableSDK == YES) {
+    if (sharedInstance.remoteConfig.disableSDK == YES) {
         return NO;
     }
     return _autoTrack;
@@ -1432,7 +1432,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
-    if (self.config.disableSDK) {
+    if (self.remoteConfig.disableSDK) {
         return;
     }
     // 对于type是track数据，它们的event名称是有意义的
@@ -1913,7 +1913,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                     return NO;
                 }
-                NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
+                NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
                 if (objLength > PROPERTY_LENGTH_LIMITATION) {
                     NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)object];
                     SAError(@"%@", errMsg);
@@ -1927,7 +1927,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         // NSString 检查长度，但忽略部分属性
         if ([properties[k] isKindOfClass:[NSString class]] && ![k isEqualToString:@"$binding_path"]) {
-            NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
+            NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
             NSUInteger valueMaxLength = PROPERTY_LENGTH_LIMITATION;
             if ([k isEqualToString:@"app_crashed_reason"]) {
                 valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
@@ -3001,9 +3001,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
     //下次启动 app 的时候重新初始化
-    NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
-    [self setSDKWithConfigDict:sdkConfig];
-    if (self.config.disableSDK == YES) {
+    NSDictionary *sdkConfig = [self readRemoteSDKConfigFromLocal];
+    [self setSDKWithRemoteConfigDict:sdkConfig];
+    if (self.remoteConfig.disableSDK == YES) {
         //停止 SDK 的 flushtimer
         if (self.timer.isValid) {
             [self.timer invalidate];
@@ -3019,7 +3019,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }else{
         [self startFlushTimer];
     }
-
+    if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
+        [self.deviceOrientationManager startDeviceMotionUpdates];
+    }
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
@@ -3084,6 +3086,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+    [self.deviceOrientationManager stopDeviceMotionUpdates];
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
@@ -3426,10 +3429,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
             componets.query = nil;
             componets.path = @"/config/iOS";
-            if (!self.config.v) {
+            if (!self.remoteConfig.v) {
                 componets.query = nil;
             } else {
-                componets.query = [NSString stringWithFormat:@"v=%@",self.config.v];
+                componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
             }
             retStr = componets.URL.absoluteString;
         }
@@ -3441,17 +3444,31 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-- (void)setSDKWithConfigDict:(NSDictionary *)configDict {
+- (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
         if (configDict) {
-            self.config = [SASDKConfig configWithDict:configDict];
-            if (self.config.disableDebugMode) {
+            self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
+            if (self.remoteConfig.disableDebugMode) {
                 [self disableDebugMode];
             }
         }
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
     }
+}
+
+- (NSDictionary *)readRemoteSDKConfigFromLocal {
+    NSDictionary *sdkConfig_old = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
+    NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKRemoteConfig"];
+    if (sdkConfig_old != nil) {
+        if (sdkConfig == nil) {
+            [[NSUserDefaults standardUserDefaults] setObject:sdkConfig_old forKey:@"SASDKRemoteConfig"];
+            sdkConfig = sdkConfig_old;
+        }
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"SASDKConfig"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    return sdkConfig;
 }
 
 - (void)requestFunctionalManagermentConfig {
@@ -3472,7 +3489,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     NSNumber *disableSDK = [configDict valueForKeyPath:@"configs.disableSDK"];
                     NSNumber *disableDebugMode = [configDict valueForKeyPath:@"configs.disableDebugMode"];
                     //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
-                    if (disableSDK.boolValue == YES && weakself.config.disableSDK == NO) {
+                    if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
                         [weakself track:@"DisableSensorsDataSDK" withProperties:@{}];
                     }
                     //如果有字段缺失，需要设置为默认值
@@ -3488,7 +3505,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     } else {
                         configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
                     }
-                    [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKConfig"];
+                    [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKRemoteConfig"];
+                    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"]) {
+                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"SASDKConfig"];
+                    }
                     [[NSUserDefaults standardUserDefaults] synchronize];
                 }
             } else {
