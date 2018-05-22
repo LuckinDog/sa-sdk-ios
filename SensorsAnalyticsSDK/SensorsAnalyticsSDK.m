@@ -1928,7 +1928,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // NSString 检查长度，但忽略部分属性
         if ([properties[k] isKindOfClass:[NSString class]] && ![k isEqualToString:@"$binding_path"]) {
             NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
-            if (objLength > PROPERTY_LENGTH_LIMITATION) {
+            NSUInteger valueMaxLength = PROPERTY_LENGTH_LIMITATION;
+            if ([k isEqualToString:@"app_crashed_reason"]) {
+                valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
+            }
+            if (objLength > valueMaxLength) {
                 NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)properties[k]];
                 SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
