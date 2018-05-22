@@ -33,6 +33,7 @@
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
+    [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     return YES;
 }
 
