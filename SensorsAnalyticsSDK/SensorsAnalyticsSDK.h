@@ -1006,6 +1006,19 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param enabelLog YES/NO
  */
 - (void)enableLog:(BOOL)enabelLog;
+
+/**
+ * @abstract
+ * 设备方向信息采集功能开关
+ *
+ * @discussion
+ * 根据需要决定是否开启设备方向采集
+ * 默认关闭
+ *
+ * @param enable YES/NO
+ */
+- (void)enableTrackScreenOrientation:(BOOL)enable;
+
 @end
 
 /**

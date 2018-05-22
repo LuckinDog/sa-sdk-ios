@@ -38,6 +38,8 @@
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
 #import "SASDKConfig.h"
+#import "SADeviceOrientationManager.h"
+
 #define VERSION @"1.10.0"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -171,6 +173,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
 @property (nonatomic, strong) SASDKConfig *config;
+@property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
+@property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
@@ -418,6 +422,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
             [self setSDKWithConfigDict:sdkConfig];
+
+            _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
 
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
@@ -1612,6 +1618,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 [p setObject:@NO forKey:@"$is_first_day"];
             }
+
+            @try {
+                if (self.deviceOrientationConfig.enableTrackScreenOrientation && self.deviceOrientationConfig.deviceOrientation.length) {
+                    [p setObject:self.deviceOrientationConfig.deviceOrientation forKey:@"$screen_orientation"];
+                }
+            } @catch (NSException *e) {
+                 SAError(@"%@: %@", self, e);
+            }
+
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
@@ -3538,6 +3553,33 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }];
         [task resume];
     } @catch (NSException *e) {
+        SAError(@"%@ error: %@", self, e);
+    }
+}
+
+- (void)enableTrackScreenOrientation:(BOOL)enable {
+    @try {
+        self.deviceOrientationConfig.enableTrackScreenOrientation = enable;
+        if (enable) {
+            if (_deviceOrientationManager == nil) {
+                _deviceOrientationManager = [[SADeviceOrientationManager alloc]init];
+                _deviceOrientationManager.deviceMotionUpdateInterval = self.deviceOrientationConfig.deviceMotionUpdateInterval;
+                __weak SensorsAnalyticsSDK *weakSelf = self;
+                _deviceOrientationManager.deviceOrientationBlock = ^(NSString *deviceOrientation) {
+                    __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
+                    if (deviceOrientation) {
+                        strongSelf.deviceOrientationConfig.deviceOrientation = deviceOrientation;
+                    }
+                };
+            }
+            [_deviceOrientationManager startDeviceMotionUpdates];
+        } else {
+            _deviceOrientationConfig.deviceOrientation = @"";
+            if (_deviceOrientationManager) {
+                [_deviceOrientationManager stopDeviceMotionUpdates];
+            }
+        }
+    } @catch (NSException * e) {
         SAError(@"%@ error: %@", self, e);
     }
 }
