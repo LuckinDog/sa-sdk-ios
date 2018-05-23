@@ -3012,11 +3012,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (self.vtrackConnectorTimer.isValid) {
             [self.vtrackConnectorTimer invalidate];
         }
+        //停止采集设备方向信息
+        [self.deviceOrientationManager stopDeviceMotionUpdates];
         [self flush];//停止采集数据之后 flush 本地数据
         dispatch_sync(self.serialQueue, ^{
         });
 
     }else{
+        if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
+            [self.deviceOrientationManager startDeviceMotionUpdates];
+        }
         [self startFlushTimer];
     }
     [self requestFunctionalManagermentConfig];
@@ -3083,6 +3088,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+    [self.deviceOrientationManager stopDeviceMotionUpdates];
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
