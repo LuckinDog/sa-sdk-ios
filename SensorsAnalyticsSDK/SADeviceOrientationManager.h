@@ -11,11 +11,9 @@
 @interface SADeviceOrientationConfig:NSObject
 @property (nonatomic,strong) NSString *deviceOrientation;
 @property (nonatomic,assign) BOOL enableTrackScreenOrientation;//default is NO
-@property (nonatomic,assign) NSTimeInterval deviceMotionUpdateInterval; //default is 0.1 second
 @end
 
 @interface SADeviceOrientationManager : NSObject
-@property (nonatomic,assign) NSTimeInterval deviceMotionUpdateInterval;
 @property (nonatomic,strong) void(^deviceOrientationBlock)(NSString * deviceOrientation);
 - (void)startDeviceMotionUpdates;
 - (void)stopDeviceMotionUpdates;

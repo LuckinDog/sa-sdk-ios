@@ -3572,7 +3572,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (enable) {
             if (_deviceOrientationManager == nil) {
                 _deviceOrientationManager = [[SADeviceOrientationManager alloc]init];
-                _deviceOrientationManager.deviceMotionUpdateInterval = self.deviceOrientationConfig.deviceMotionUpdateInterval;
                 __weak SensorsAnalyticsSDK *weakSelf = self;
                 _deviceOrientationManager.deviceOrientationBlock = ^(NSString *deviceOrientation) {
                     __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
