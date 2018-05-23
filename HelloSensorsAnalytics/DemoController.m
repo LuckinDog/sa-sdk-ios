@@ -82,7 +82,6 @@
         case 0:{
             NSLog(@"测试track");
             //[self testTrack];
-            [[SensorsAnalyticsSDK sharedInstance]enableTrackGPSLocation:NO];
             TestTableViewController *vc =  [[TestTableViewController alloc]init ];
             //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
             [self.navigationController pushViewController:vc  animated:YES];
