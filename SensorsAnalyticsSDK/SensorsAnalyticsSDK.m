@@ -3045,7 +3045,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (self.locationConfig.enableGPSLocation) {
             [self.locationManager startUpdatingLocation];
         }
-        [self startFlushTimer];
     }
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
@@ -3097,7 +3096,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     }
 #endif
-    
+
     [self startFlushTimer];
 }
 
@@ -3113,6 +3112,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
     [self.deviceOrientationManager stopDeviceMotionUpdates];
     [self.locationManager stopUpdatingLocation];
+
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
