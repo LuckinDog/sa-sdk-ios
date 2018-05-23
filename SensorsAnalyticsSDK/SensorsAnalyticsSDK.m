@@ -176,8 +176,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
-@property (nonatomic,strong) SALocationManager *locationManager;
-@property (nonatomic,strong) SAGPSLocationConfig *locationConfig;
+@property (nonatomic, strong) SALocationManager *locationManager;
+@property (nonatomic, strong) SAGPSLocationConfig *locationConfig;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
