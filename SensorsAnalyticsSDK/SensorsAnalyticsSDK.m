@@ -1913,7 +1913,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                     return NO;
                 }
-                NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
+                NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
                 if (objLength > PROPERTY_LENGTH_LIMITATION) {
                     NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)object];
                     SAError(@"%@", errMsg);
@@ -1927,7 +1927,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         // NSString 检查长度，但忽略部分属性
         if ([properties[k] isKindOfClass:[NSString class]] && ![k isEqualToString:@"$binding_path"]) {
-            NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
+            NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
             NSUInteger valueMaxLength = PROPERTY_LENGTH_LIMITATION;
             if ([k isEqualToString:@"app_crashed_reason"]) {
                 valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
