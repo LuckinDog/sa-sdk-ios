@@ -3593,6 +3593,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
+- (void)clearKeychainData {
+    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
+    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationAccount service:kSAService];
+    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
+}
+
 @end
 
 #pragma mark - People analytics
