@@ -1,5 +1,5 @@
 //
-//  SASDKConfig.h
+//  SASDKRemoteConfig.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/4/24.

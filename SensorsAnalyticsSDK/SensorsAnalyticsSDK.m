@@ -37,7 +37,7 @@
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
-#import "SASDKConfig.h"
+#import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
 
 #define VERSION @"1.10.0"

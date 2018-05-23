@@ -1,12 +1,12 @@
 //
-//  SASDKConfig.m
+//  SASDKRemoteConfig.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/4/24.
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
-#import "SASDKConfig.h"
+#import "SASDKRemoteConfig.h"
 @interface SASDKRemoteConfig()
 
 @end
