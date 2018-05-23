@@ -8,6 +8,8 @@
 #import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
 
+#import <CoreLocation/CoreLocation.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class SensorsAnalyticsPeople;
@@ -1018,6 +1020,20 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param enable YES/NO
  */
 - (void)enableTrackScreenOrientation:(BOOL)enable;
+
+@property (nonatomic,assign) CLLocationAccuracy desiredAccuracy;
+@property (nonatomic,assign) CLLocationDistance distanceFilter;
+/**
+ * @abstract
+ * 位置信息采集功能开关
+ *
+ * @discussion
+ * 根据需要决定是否开启位置采集
+ * 默认关闭
+ *
+ * @param enable YES/NO
+ */
+- (void)enableTrackGPSLocation:(BOOL)enable;
 
 /**
  * @abstract

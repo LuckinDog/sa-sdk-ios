@@ -39,6 +39,7 @@
 #import "SAKeyChainItemWrapper.h"
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
+#import "SALocationManager.h"
 
 #define VERSION @"1.10.0"
 #define PROPERTY_LENGTH_LIMITATION 8191
@@ -175,6 +176,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
+@property (nonatomic,strong) SALocationManager *locationManager;
+@property (nonatomic,strong) SAGPSLocationConfig *locationConfig;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
@@ -424,6 +427,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self setSDKWithRemoteConfigDict:sdkConfig];
 
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
+            _locationConfig = [[SAGPSLocationConfig alloc]init];
 
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
@@ -1620,11 +1624,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             @try {
+                //采集设备方向
                 if (self.deviceOrientationConfig.enableTrackScreenOrientation && self.deviceOrientationConfig.deviceOrientation.length) {
                     [p setObject:self.deviceOrientationConfig.deviceOrientation forKey:@"$screen_orientation"];
                 }
             } @catch (NSException *e) {
                  SAError(@"%@: %@", self, e);
+            }
+
+            @try {
+                //采集地理位置信息
+                if (self.locationConfig.enableGPSLocation) {
+                    if (CLLocationCoordinate2DIsValid(self.locationConfig.coordinate)) {
+                        NSInteger latitude = self.locationConfig.coordinate.latitude * pow(10, 6);
+                        NSInteger longitude = self.locationConfig.coordinate.longitude * pow(10, 6);
+                        [p setObject:@(latitude) forKey:@"$latitude"];
+                        [p setObject:@(longitude) forKey:@"$longitude"];
+                    }
+                }
+            } @catch (NSException *e) {
+                SAError(@"%@: %@", self, e);
             }
 
             e = @{
@@ -3014,6 +3033,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         //停止采集设备方向信息
         [self.deviceOrientationManager stopDeviceMotionUpdates];
+        [self.locationManager stopUpdatingLocation];
         [self flush];//停止采集数据之后 flush 本地数据
         dispatch_sync(self.serialQueue, ^{
         });
@@ -3021,6 +3041,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }else{
         if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
             [self.deviceOrientationManager startDeviceMotionUpdates];
+        }
+        if (self.locationConfig.enableGPSLocation) {
+            [self.locationManager startUpdatingLocation];
         }
         [self startFlushTimer];
     }
@@ -3089,6 +3112,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     _applicationWillResignActive = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
     [self.deviceOrientationManager stopDeviceMotionUpdates];
+    [self.locationManager stopUpdatingLocation];
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
@@ -3589,6 +3613,30 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     } @catch (NSException * e) {
         SAError(@"%@ error: %@", self, e);
+    }
+}
+
+- (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {
+    self.locationConfig.enableGPSLocation = enableGPSLocation;
+    if (enableGPSLocation) {
+        if (_locationManager == nil) {
+            _locationManager = [[SALocationManager alloc]init];
+            __weak SensorsAnalyticsSDK *weakSelf = self;
+            _locationManager.updateLocationBlock = ^(CLLocation * location,NSError *error){
+                __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
+                if (location) {
+                    strongSelf.locationConfig.coordinate = location.coordinate;
+                }
+                if (error) {
+                    SALog(@"%@",error);
+                }
+            };
+        }
+        [_locationManager startUpdatingLocation];
+    }else{
+        if (_locationManager != nil) {
+            [_locationManager stopUpdatingLocation];
+        }
     }
 }
 
