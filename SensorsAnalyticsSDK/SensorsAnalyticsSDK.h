@@ -1021,6 +1021,18 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 位置信息采集功能开关
+ *
+ * @discussion
+ * 根据需要决定是否开启位置采集
+ * 默认关闭
+ *
+ * @param enable YES/NO
+ */
+- (void)enableTrackGPSLocation:(BOOL)enable;
+
+/**
+ * @abstract
  * 清除 keychain 缓存数据
  *
  * @discussion

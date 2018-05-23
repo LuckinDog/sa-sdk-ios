@@ -34,6 +34,7 @@
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
+    [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
     return YES;
 }
 
