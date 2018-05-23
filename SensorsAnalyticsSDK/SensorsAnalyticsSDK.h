@@ -1019,6 +1019,17 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)enableTrackScreenOrientation:(BOOL)enable;
 
+/**
+ * @abstract
+ * 清除 keychain 缓存数据
+ *
+ * @discussion
+ * 注意：清除 keychain 中 kSAService 名下的数据，包括 distinct_id 和 AppInstall 标记。
+ *          清除后 AppInstall 可以再次触发，造成 AppInstall 事件统计不准确。
+ *
+ */
+-(void)clearKeychainData;
+
 @end
 
 /**
