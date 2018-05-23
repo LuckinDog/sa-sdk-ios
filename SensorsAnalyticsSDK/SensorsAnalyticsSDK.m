@@ -420,7 +420,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
-            NSDictionary *sdkConfig = [self readRemoteSDKConfigFromLocal];
+            NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
             [self setSDKWithRemoteConfigDict:sdkConfig];
 
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
@@ -3001,7 +3001,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
     //下次启动 app 的时候重新初始化
-    NSDictionary *sdkConfig = [self readRemoteSDKConfigFromLocal];
+    NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
     [self setSDKWithRemoteConfigDict:sdkConfig];
     if (self.remoteConfig.disableSDK == YES) {
         //停止 SDK 的 flushtimer
@@ -3018,9 +3018,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     }else{
         [self startFlushTimer];
-    }
-    if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
-        [self.deviceOrientationManager startDeviceMotionUpdates];
     }
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
@@ -3086,7 +3083,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
-    [self.deviceOrientationManager stopDeviceMotionUpdates];
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
@@ -3457,20 +3453,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-- (NSDictionary *)readRemoteSDKConfigFromLocal {
-    NSDictionary *sdkConfig_old = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
-    NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKRemoteConfig"];
-    if (sdkConfig_old != nil) {
-        if (sdkConfig == nil) {
-            [[NSUserDefaults standardUserDefaults] setObject:sdkConfig_old forKey:@"SASDKRemoteConfig"];
-            sdkConfig = sdkConfig_old;
-        }
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"SASDKConfig"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }
-    return sdkConfig;
-}
-
 - (void)requestFunctionalManagermentConfig {
     @try {
         [self requestFunctionalManagermentConfigDelay:0 index:0];
@@ -3505,10 +3487,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     } else {
                         configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
                     }
-                    [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKRemoteConfig"];
-                    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"]) {
-                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"SASDKConfig"];
-                    }
+                    [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKConfig"];
                     [[NSUserDefaults standardUserDefaults] synchronize];
                 }
             } else {
