@@ -1062,8 +1062,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
-    _autoTrackEventType = eventType;
-    _autoTrack = (_autoTrackEventType != SensorsAnalyticsEventTypeNone);
+    if (_autoTrackEventType != eventType) {
+        _autoTrackEventType = eventType;
+        _autoTrack = (_autoTrackEventType != SensorsAnalyticsEventTypeNone);
+        [self _enableAutoTrack];
+    }
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
@@ -1071,28 +1074,39 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-    // 追踪 AppStart 事件
-    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
-        [self track:APP_START_EVENT withProperties:@{
-                                                     RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
-                                                     APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                     }];
-    }
-    // 启动 AppEnd 事件计时器
-    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
-        [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
-    }
-    [self _enableAutoTrack];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // 追踪 AppStart 事件
+        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
+            [self track:APP_START_EVENT withProperties:@{
+                                                         RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
+                                                         APP_FIRST_START_PROPERTY : @(isFirstStart),
+                                                         }];
+        }
+        // 启动 AppEnd 事件计时器
+        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
+            [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+        }
+    });
 }
 
 - (BOOL)isAutoTrackEnabled {
     if (sharedInstance.remoteConfig.disableSDK == YES) {
         return NO;
     }
+    if (self.remoteConfig.autoTrackMode == 0 || !isAutoTrackModeValid(self.remoteConfig.autoTrackMode)) {
+        return NO;
+    }
     return _autoTrack;
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
+    if (sharedInstance.remoteConfig.disableSDK == YES) {
+        return YES;
+    }
+    if (isAutoTrackModeValid(self.remoteConfig.autoTrackMode) && self.remoteConfig.autoTrackMode != -1) {
+        return  !(self.remoteConfig.autoTrackMode & eventType);
+    }
     return !(_autoTrackEventType & eventType);
 }
 
@@ -2733,14 +2747,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     // 监听所有 UIViewController 显示事件
     if (_autoTrack) {
         //$AppViewScreen
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen ||
-            _autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
+//        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen ||
+//            _autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
 //            [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
 //                                onClass:[UIViewController class]
 //                              withBlock:block
 //                                  named:@"track_view_screen"];
-            [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
-        }
+//            [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
+//        }
 
         //$AppClick
         if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
@@ -2782,15 +2796,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
             }
 #endif
-            NSError *error = NULL;
-            // Actions & Events
-            [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
-                                      error:&error];
-            if (error) {
-                SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
-                error = NULL;
-            }
+//            NSError *error = NULL;
+//            // Actions & Events
+//            [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
+//                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
+//                                      error:&error];
+//            if (error) {
+//                SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
+//                error = NULL;
+//            }
         }
     }
 }
@@ -3077,14 +3091,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     if (_autoTrack && _appRelaunched) {
         // 追踪 AppStart 事件
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
+        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                          }];
         }
         // 启动 AppEnd 事件计时器
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
+        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
             [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     }
@@ -3145,7 +3159,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     if (_autoTrack) {
         // 追踪 AppEnd 事件
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
+        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
@@ -3496,10 +3510,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     void(^block)(BOOL success , NSDictionary *configDict) = ^(BOOL success , NSDictionary *configDict) {
         @try {
             if (success) {
-                if(configDict != nil) {//重新设置 config,处理 configDict 中的缺失参数
+                if(configDict != nil) {
+                    //重新设置 config,处理 configDict 中的缺失参数
+                    //用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
                     NSString *v = [configDict valueForKey:@"v"];
                     NSNumber *disableSDK = [configDict valueForKeyPath:@"configs.disableSDK"];
                     NSNumber *disableDebugMode = [configDict valueForKeyPath:@"configs.disableDebugMode"];
+                    NSNumber *autoTrackMode = [configDict valueForKeyPath:@"configs.autoTrackMode"];
                     //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
                     if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
                         [weakself track:@"DisableSensorsDataSDK" withProperties:@{}];
@@ -3511,11 +3528,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     if (disableDebugMode == nil) {
                         disableDebugMode = [NSNumber numberWithBool:NO];
                     }
+                    if (autoTrackMode == nil) {
+                        autoTrackMode = [NSNumber numberWithInteger:-1];
+                    }
                     NSDictionary *configToBeSet = nil;
                     if (v) {
-                        configToBeSet = @{@"v":v,@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
+                        configToBeSet = @{@"v":v,@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode,@"autoTrackMode":autoTrackMode}};
                     } else {
-                        configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
+                        configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode,@"autoTrackMode":autoTrackMode}};
                     }
                     [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKConfig"];
                     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -3541,7 +3561,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)requestFunctionalManagermentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
     @try {
-        NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
+        NSString *urlString = @"http://javacloud.bmob.cn/25f807cff6205da7/getSDKConfig"; [self getSDKContollerUrl:self->_serverURL];
         if (urlString == nil || urlString.length == 0) {
             completion(NO,nil);
             return;
