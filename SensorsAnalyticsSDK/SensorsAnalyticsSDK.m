@@ -423,6 +423,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
+            _remoteConfig = [[SASDKRemoteConfig alloc]init];
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
             [self setSDKWithRemoteConfigDict:sdkConfig];
 
@@ -3486,11 +3487,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
-        if (configDict) {
-            self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
-            if (self.remoteConfig.disableDebugMode) {
-                [self disableDebugMode];
-            }
+        self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
+        if (self.remoteConfig.disableDebugMode) {
+            [self disableDebugMode];
         }
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);

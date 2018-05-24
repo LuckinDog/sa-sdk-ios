@@ -39,4 +39,9 @@ BOOL isAutoTrackModeValid(NSInteger autoTrackMode){
     }
     return self;
 }
+
+-(NSString *)description {
+    return [[NSString alloc]initWithFormat:@"<%@:%p>,v=%@,disableSDK=%d,disableDebugMode=%d,autoTrackMode=%ld",self.class,self,self.v,self.disableSDK,self.disableDebugMode,(long)self.autoTrackMode];
+}
+
 @end
