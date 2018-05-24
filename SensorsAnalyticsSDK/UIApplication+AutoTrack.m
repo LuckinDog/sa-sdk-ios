@@ -11,19 +11,20 @@
 #import "SensorsAnalyticsSDK.h"
 #import "AutoTrackUtils.h"
 #import "UIView+SAHelpers.h"
-#import "SASwizzle.h"
-@implementation UIApplication (AutoTrack)
-- (BOOL)sa_sendAction:(SEL)action to:(id)to from:(id)from forEvent:(UIEvent *)event {
 
+@implementation UIApplication (AutoTrack)
+
+- (BOOL)sa_sendAction:(SEL)action to:(id)to from:(id)from forEvent:(UIEvent *)event {
+    
     /*
      默认先执行 AutoTrack
      如果先执行原点击处理逻辑，可能已经发生页面 push 或者 pop，导致获取当前 ViewController 不正确
      可以通过 UIView 扩展属性 sensorsAnalyticsAutoTrackAfterSendAction，来配置 AutoTrack 是发生在原点击处理函数之前还是之后
      */
-
+    
     BOOL ret = YES;
     BOOL sensorsAnalyticsAutoTrackAfterSendAction = NO;
-
+    
     @try {
         if (from) {
             if ([from isKindOfClass:[UIView class]]) {
@@ -39,11 +40,11 @@
         SAError(@"%@ error: %@", self, exception);
         sensorsAnalyticsAutoTrackAfterSendAction = NO;
     }
-
+    
     if (sensorsAnalyticsAutoTrackAfterSendAction) {
         ret = [self sa_sendAction:action to:to from:from forEvent:event];
     }
-
+    
     @try {
         /*
          caojiangPreVerify:forEvent: & caojiangEventAction:forEvent: 是我们可视化埋点中的点击事件
@@ -58,11 +59,11 @@
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
-
+    
     if (!sensorsAnalyticsAutoTrackAfterSendAction) {
         ret = [self sa_sendAction:action to:to from:from forEvent:event];
     }
-
+    
     return ret;
 }
 
@@ -72,12 +73,12 @@
         if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
             return;
         }
-
+        
         //忽略 $AppClick 事件
         if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
             return;
         }
-
+        
         // ViewType 被忽略
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
         if ([from isKindOfClass:[NSClassFromString(@"UITabBarButton") class]]) {
@@ -99,7 +100,7 @@
                     return;
                 }
             }
-
+        
         /*
          此处不处理 UITabBar，放到 UITabBar+AutoTrack.h 中处理
          */
@@ -117,7 +118,7 @@
             }
 #endif
         }
-
+        
         if (([event isKindOfClass:[UIEvent class]] && event.type==UIEventTypeTouches) ||
             [from isKindOfClass:[UISwitch class]] ||
             [from isKindOfClass:[UIStepper class]] ||
@@ -125,39 +126,39 @@
             if (![from isKindOfClass:[UIView class]]) {
                 return;
             }
-
+            
             UIView* view = (UIView *)from;
             if (!view) {
                 return;
             }
-
+            
             if (view.sensorsAnalyticsIgnoreView) {
                 return;
             }
-
+            
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-
+            
             //ViewID
             if (view.sensorsAnalyticsViewID != nil) {
                 [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
             }
-
+            
             UIViewController *viewController = [view viewController];
-
+            
             if (viewController == nil ||
                 [@"UINavigationController" isEqualToString:NSStringFromClass([viewController class])]) {
                 viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
             }
-
+            
             if (viewController != nil) {
                 if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
                     return;
                 }
-
+                
                 //获取 Controller 名称($screen_name)
                 NSString *screenName = NSStringFromClass([viewController class]);
                 [properties setValue:screenName forKey:@"$screen_name"];
-
+                
                 NSString *controllerTitle = viewController.navigationItem.title;
                 if (controllerTitle != nil) {
                     [properties setValue:viewController.navigationItem.title forKey:@"$title"];
@@ -169,7 +170,7 @@
                     [properties setValue:elementContent forKey:@"$title"];
                 }
             }
-
+            
             //UISwitch
             if ([from isKindOfClass:[UISwitch class]]) {
                 [properties setValue:@"UISwitch" forKey:@"$element_type"];
@@ -179,9 +180,9 @@
                 } else {
                     [properties setValue:@"unchecked" forKey:@"$element_content"];
                 }
-
+                
                 [AutoTrackUtils sa_addViewPathProperties:properties withObject:uiSwitch withViewController:viewController];
-
+                
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
@@ -190,7 +191,7 @@
                 [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
                 return;
             }
-
+            
             //UIStepper
             if ([from isKindOfClass:[UIStepper class]]) {
                 [properties setValue:@"UIStepper" forKey:@"$element_type"];
@@ -198,9 +199,9 @@
                 if (stepper) {
                     [properties setValue:[NSString stringWithFormat:@"%g", stepper.value] forKey:@"$element_content"];
                 }
-
+                
                 [AutoTrackUtils sa_addViewPathProperties:properties withObject:stepper withViewController:viewController];
-
+                
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
@@ -209,7 +210,7 @@
                 [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
                 return;
             }
-
+            
             //UISearchBar
             //        if ([to isKindOfClass:[UISearchBar class]] && [from isKindOfClass:[[NSClassFromString(@"UISearchBarTextField") class] class]]) {
             //            UISearchBar *searchBar = (UISearchBar *)to;
@@ -222,21 +223,21 @@
             //                }
             //            }
             //        }
-
+            
             //UISegmentedControl
             if ([from isKindOfClass:[UISegmentedControl class]]) {
                 UISegmentedControl *segmented = (UISegmentedControl *)from;
                 [properties setValue:@"UISegmentedControl" forKey:@"$element_type"];
-
+                
                 if ([segmented selectedSegmentIndex] == UISegmentedControlNoSegment) {
                     return;
                 }
-
+                
                 [properties setValue:[NSString stringWithFormat: @"%ld", (long)[segmented selectedSegmentIndex]] forKey:@"$element_position"];
                 [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:@"$element_content"];
-
+                
                 [AutoTrackUtils sa_addViewPathProperties:properties withObject:segmented withViewController:viewController];
-
+                
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
@@ -244,9 +245,9 @@
                 }
                 [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
                 return;
-
+                
             }
-
+            
             //只统计触摸结束时
             if ([event isKindOfClass:[UIEvent class]] && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
@@ -337,15 +338,15 @@
                             }
                         }
                     }
-
+                
                 [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-
+                
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-
+                
                 [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
             }
         }
@@ -355,3 +356,4 @@
 }
 
 @end
+

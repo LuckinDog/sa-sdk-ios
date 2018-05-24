@@ -9,13 +9,15 @@
 #import "UIViewController+AutoTrack.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
-#import "SASwizzle.h"
+
 @implementation UIViewController (AutoTrack)
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated {
     @try {
         UIViewController *viewController = (UIViewController *)self;
-        if (![[SensorsAnalyticsSDK sharedInstance]isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
-            [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
+        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
+            if ([[SensorsAnalyticsSDK sharedInstance]isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] == NO) {
+                [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
+            }
         }
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);

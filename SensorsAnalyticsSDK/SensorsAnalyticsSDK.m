@@ -1078,14 +1078,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         // 追踪 AppStart 事件
-        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                          }];
         }
         // 启动 AppEnd 事件计时器
-        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
             [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     });
@@ -1097,6 +1097,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     if (self.remoteConfig.autoTrackMode == 0 || !isAutoTrackModeValid(self.remoteConfig.autoTrackMode)) {
         return NO;
+    } else if (self.remoteConfig.autoTrackMode>=1 && self.remoteConfig.autoTrackMode<=15) {
+        return YES;
     }
     return _autoTrack;
 }
@@ -1494,13 +1496,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [libProperties setValue:@"code" forKey:@"$lib_method"];
 
     NSString *lib_detail = nil;
-    if (_autoTrack && propertieDict) {
+    if ([self isAutoTrackEnabled] && propertieDict) {
         if ([event isEqualToString:@"$AppClick"]) {
-            if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
+            if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
             }
         } else if ([event isEqualToString:@"$AppViewScreen"]) {
-            if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen) {
+            if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
             }
         }
@@ -2546,7 +2548,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
+    if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
         //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
         void (^tableViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UITableView *tableView, NSIndexPath *indexPath) {
@@ -2568,7 +2570,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
     }
     
-    if (!(_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
     
@@ -2746,67 +2748,59 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     };
 
     // 监听所有 UIViewController 显示事件
-    if (_autoTrack) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         //$AppViewScreen
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
-        });
-
+        [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
+        NSError *error = NULL;
         //$AppClick
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
-            //UITableView、UICollectionView
+        // Actions & Events
+        [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
+                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
+                                      error:&error];
+        if (error) {
+            SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
+            error = NULL;
+        }
+    });
+    //$AppClick
+    //UITableView、UICollectionView
 #if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
-            [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
+    [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
                                     onClass:[UIViewController class]
                                   withBlock:unswizzleUITableViewAppClickBlock
                                       named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
 #endif
 
-            //UILabel
+    //UILabel
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UILABEL
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
 #endif
 
-            //UIImageView
+    //UIImageView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGEVIEW
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
 #endif
 
-            //UIAlertController & UIActionSheet
+    //UIAlertController & UIActionSheet
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIALERTCONTROLLER
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-            //iOS9
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerView_addGestureRecognizer"];
-
-            //iOS10
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerInterfaceActionGroupView_addGestureRecognizer"];
+    //iOS9
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerView_addGestureRecognizer"];
+    //iOS10
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerInterfaceActionGroupView_addGestureRecognizer"];
 #endif
 #endif
 #endif
 
-            //React Natove
+    //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
-            if (NSClassFromString(@"RCTUIManager")) {
-//                [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
-                __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
-            }
-#endif
-            static dispatch_once_t onceToken;
-            dispatch_once(&onceToken, ^{
-                NSError *error = NULL;
-                // Actions & Events
-                [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-                                     withMethod:@selector(sa_sendAction:to:from:forEvent:)
-                                          error:&error];
-                if (error) {
-                    SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
-                    error = NULL;
-                }
-            });
-        }
+    if (NSClassFromString(@"RCTUIManager")) {
+//        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
+        __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
     }
+#endif
 }
 
 - (void)trackGestureRecognizerAppClick:(id)target {
@@ -3089,16 +3083,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     });
 
-    if (_autoTrack && _appRelaunched) {
+    if ([self isAutoTrackEnabled] && _appRelaunched) {
         // 追踪 AppStart 事件
-        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                          }];
         }
         // 启动 AppEnd 事件计时器
-        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
             [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     }
@@ -3157,9 +3151,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     });
 
-    if (_autoTrack) {
+    if ([self isAutoTrackEnabled]) {
         // 追踪 AppEnd 事件
-        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
