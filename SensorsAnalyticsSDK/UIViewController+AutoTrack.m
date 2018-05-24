@@ -11,13 +11,6 @@
 #import "SALogger.h"
 #import "SASwizzle.h"
 @implementation UIViewController (AutoTrack)
-+(void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
-    });
-}
-
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated {
     @try {
         UIViewController *viewController = (UIViewController *)self;

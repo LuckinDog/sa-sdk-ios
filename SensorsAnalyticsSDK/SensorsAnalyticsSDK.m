@@ -2748,14 +2748,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     // 监听所有 UIViewController 显示事件
     if (_autoTrack) {
         //$AppViewScreen
-//        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen ||
-//            _autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
-//            [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
-//                                onClass:[UIViewController class]
-//                              withBlock:block
-//                                  named:@"track_view_screen"];
-//            [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
-//        }
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
+        });
 
         //$AppClick
         if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
@@ -2797,15 +2793,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
             }
 #endif
-//            NSError *error = NULL;
-//            // Actions & Events
-//            [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-//                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
-//                                      error:&error];
-//            if (error) {
-//                SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
-//                error = NULL;
-//            }
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                NSError *error = NULL;
+                // Actions & Events
+                [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
+                                     withMethod:@selector(sa_sendAction:to:from:forEvent:)
+                                          error:&error];
+                if (error) {
+                    SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
+                    error = NULL;
+                }
+            });
         }
     }
 }
