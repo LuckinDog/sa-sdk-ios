@@ -372,6 +372,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             @"SFAppAutoFillPasswordViewController",
             @"PUUIMomentsGridViewController",
             @"SFPasswordRemoteViewController",
+            @"UIWebRotatingAlertController"
         ];
         NSMutableSet *transformedClasses = [NSMutableSet setWithCapacity:_blacklistedViewControllerClassNames.count];
         for (NSString *className in _blacklistedViewControllerClassNames) {
