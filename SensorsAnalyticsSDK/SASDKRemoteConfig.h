@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 static NSInteger kSAAutoTrackModeDefault = -1;//-1，表示不修改现有的 autoTrack 方式 。0 代表禁用所有的 autoTrack 。其他 1～15 为合法数据
-static NSInteger kSAAutoTrakcModeDisabledAll = 0;
+static NSInteger kSAAutoTrackModeDisabledAll = 0;
 static NSInteger kSAAutoTrackModeEnabledAll = 15;
 
 BOOL isAutoTrackModeValid(NSInteger autoTrackMode);

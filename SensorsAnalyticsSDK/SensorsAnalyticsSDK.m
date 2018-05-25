@@ -1096,7 +1096,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
     if (self.remoteConfig.autoTrackMode != kSAAutoTrackModeDefault) {
-        if (self.remoteConfig.autoTrackMode == kSAAutoTrakcModeDisabledAll) {
+        if (self.remoteConfig.autoTrackMode == kSAAutoTrackModeDisabledAll) {
             return NO;
         } else {
             return YES;
@@ -1110,8 +1110,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (sharedInstance.remoteConfig.disableSDK == YES) {
         return YES;
     }
-    if (self.remoteConfig.autoTrackMode != -1) {
-        if (self.remoteConfig.autoTrackMode == 0) {
+    if (self.remoteConfig.autoTrackMode != kSAAutoTrackModeDefault) {
+        if (self.remoteConfig.autoTrackMode == kSAAutoTrackModeDisabledAll) {
             return YES;
         } else {
             return !(self.remoteConfig.autoTrackMode & eventType);
