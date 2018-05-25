@@ -1095,20 +1095,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (sharedInstance.remoteConfig.disableSDK == YES) {
         return NO;
     }
-    if (self.remoteConfig.autoTrackMode == 0 || !isAutoTrackModeValid(self.remoteConfig.autoTrackMode)) {
-        return NO;
-    } else if (self.remoteConfig.autoTrackMode>=1 && self.remoteConfig.autoTrackMode<=15) {
-        return YES;
+    if (self.remoteConfig.autoTrackMode != kSAAutoTrackModeDefault) {
+        if (self.remoteConfig.autoTrackMode == kSAAutoTrakcModeDisabledAll) {
+            return NO;
+        } else {
+            return YES;
+        }
     }
     return _autoTrack;
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
+
     if (sharedInstance.remoteConfig.disableSDK == YES) {
         return YES;
     }
-    if (isAutoTrackModeValid(self.remoteConfig.autoTrackMode) && self.remoteConfig.autoTrackMode != -1) {
-        return  !(self.remoteConfig.autoTrackMode & eventType);
+    if (self.remoteConfig.autoTrackMode != -1) {
+        if (self.remoteConfig.autoTrackMode == 0) {
+            return YES;
+        } else {
+            return !(self.remoteConfig.autoTrackMode & eventType);
+        }
     }
     return !(_autoTrackEventType & eventType);
 }
