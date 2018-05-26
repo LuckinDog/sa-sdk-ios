@@ -174,8 +174,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
+#endif
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
 @property (nonatomic, strong) SALocationManager *locationManager;
@@ -431,7 +434,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
             [self setSDKWithRemoteConfigDict:sdkConfig];
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
+#endif
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
             _locationConfig = [[SAGPSLocationConfig alloc]init];
@@ -1653,6 +1658,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [p setObject:@NO forKey:@"$is_first_day"];
             }
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             @try {
                 //采集设备方向
                 if (self.deviceOrientationConfig.enableTrackScreenOrientation && self.deviceOrientationConfig.deviceOrientation.length) {
@@ -1661,6 +1667,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } @catch (NSException *e) {
                  SAError(@"%@: %@", self, e);
             }
+#endif
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
             @try {
@@ -3054,8 +3061,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (self.vtrackConnectorTimer.isValid) {
             [self.vtrackConnectorTimer invalidate];
         }
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         //停止采集设备方向信息
         [self.deviceOrientationManager stopDeviceMotionUpdates];
+#endif
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         [self.locationManager stopUpdatingLocation];
@@ -3066,16 +3076,17 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         });
 
     }else{
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
             [self.deviceOrientationManager startDeviceMotionUpdates];
         }
+#endif
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         if (self.locationConfig.enableGPSLocation) {
             [self.locationManager startUpdatingLocation];
         }
 #endif
-
     }
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
@@ -3141,7 +3152,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
+#endif
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
     [self.locationManager stopUpdatingLocation];
@@ -3629,6 +3643,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)enableTrackScreenOrientation:(BOOL)enable {
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     @try {
         self.deviceOrientationConfig.enableTrackScreenOrientation = enable;
         if (enable) {
@@ -3652,6 +3667,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     } @catch (NSException * e) {
         SAError(@"%@ error: %@", self, e);
     }
+#endif
 }
 
 - (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {

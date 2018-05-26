@@ -5,6 +5,8 @@
 //  Created by 向作为 on 2018/5/21.
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+
 #import "SALogger.h"
 #import "SADeviceOrientationManager.h"
 
@@ -97,3 +99,4 @@ static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
 }
 
 @end
+#endif
