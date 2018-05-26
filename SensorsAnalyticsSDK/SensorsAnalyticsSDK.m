@@ -3049,9 +3049,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
-    //下次启动 app 的时候重新初始化
-    NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
-    [self setSDKWithRemoteConfigDict:sdkConfig];
+    if (_appRelaunched) {
+        //下次启动 app 的时候重新初始化
+        NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
+        [self setSDKWithRemoteConfigDict:sdkConfig];
+    }
     if (self.remoteConfig.disableSDK == YES) {
         //停止 SDK 的 flushtimer
         if (self.timer.isValid) {
