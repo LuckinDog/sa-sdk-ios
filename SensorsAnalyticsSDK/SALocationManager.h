@@ -6,6 +6,7 @@
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 @interface SAGPSLocationConfig:NSObject
@@ -21,3 +22,4 @@
 -(void)stopUpdatingLocation;
 
 @end
+#endif

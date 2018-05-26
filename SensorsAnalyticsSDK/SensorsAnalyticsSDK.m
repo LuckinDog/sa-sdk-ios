@@ -176,8 +176,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
 @property (nonatomic, strong) SALocationManager *locationManager;
 @property (nonatomic, strong) SAGPSLocationConfig *locationConfig;
+#endif
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
@@ -429,8 +432,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self setSDKWithRemoteConfigDict:sdkConfig];
 
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
-            _locationConfig = [[SAGPSLocationConfig alloc]init];
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+            _locationConfig = [[SAGPSLocationConfig alloc]init];
+#endif
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _heatMapViewControllers = [[NSMutableArray alloc] init];
@@ -1657,6 +1662,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                  SAError(@"%@: %@", self, e);
             }
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
             @try {
                 //采集地理位置信息
                 if (self.locationConfig.enableGPSLocation) {
@@ -1670,6 +1676,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } @catch (NSException *e) {
                 SAError(@"%@: %@", self, e);
             }
+#endif
 
             e = @{
                   @"event": event,
@@ -3049,7 +3056,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         //停止采集设备方向信息
         [self.deviceOrientationManager stopDeviceMotionUpdates];
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         [self.locationManager stopUpdatingLocation];
+#endif
+
         [self flush];//停止采集数据之后 flush 本地数据
         dispatch_sync(self.serialQueue, ^{
         });
@@ -3058,9 +3069,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
             [self.deviceOrientationManager startDeviceMotionUpdates];
         }
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         if (self.locationConfig.enableGPSLocation) {
             [self.locationManager startUpdatingLocation];
         }
+#endif
+
     }
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
@@ -3127,7 +3142,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     _applicationWillResignActive = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
     [self.deviceOrientationManager stopDeviceMotionUpdates];
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
     [self.locationManager stopUpdatingLocation];
+#endif
 
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
@@ -3637,6 +3655,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
     self.locationConfig.enableGPSLocation = enableGPSLocation;
     if (enableGPSLocation) {
         if (_locationManager == nil) {
@@ -3658,6 +3677,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [_locationManager stopUpdatingLocation];
         }
     }
+#endif
 }
 
 - (void)clearKeychainData {
