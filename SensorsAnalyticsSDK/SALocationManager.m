@@ -6,6 +6,8 @@
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+
 #import "SALocationManager.h"
 #import "SALogger.h"
 #define kSADefaultDistanceFilter 100.0
@@ -89,3 +91,4 @@
 }
 
 @end
+#endif
