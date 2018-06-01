@@ -1705,10 +1705,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"_track_id": @(arc4random()),
                   };
         }
+
+        NSMutableDictionary *ee = [e mutableCopy];
+        @try {
+            NSString *project = [ee valueForKeyPath:@"properties.$project"];
+            if (project) {
+                [ee setObject:project forKey:@"project"];
+                NSMutableDictionary *properties = [[ee objectForKey:@"properties"] mutableCopy];
+                [properties removeObjectForKey:@"$project"];
+                [ee setObject:properties forKey:@"properties"];
+            }
+        } @catch (NSException *e) {
+            SAError(@"%@: %@", self, e);
+        }
         
         SALog(@"\n【track event】:\n%@", e);
         
-        [self enqueueWithType:type andEvent:[e copy]];
+        [self enqueueWithType:type andEvent:[ee copy]];
         
         if (_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
