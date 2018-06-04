@@ -194,6 +194,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (instancetype)initWithServerURL:(NSString *)serverURL
                   andConfigureURL:(NSString *)configureURL
                andVTrackServerURL:(NSString *)vtrackServerURL
+                    andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 @end
@@ -212,6 +213,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
+    NSDictionary * _launchOptions;
+    UIApplicationState _applicationState;
     BOOL _applicationWillResignActive;
     BOOL _clearReferrerWhenAppEnd;
 	SensorsAnalyticsAutoTrackEventType _autoTrackEventType;
@@ -243,6 +246,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[super alloc] initWithServerURL:serverURL
                                           andConfigureURL:configureURL
                                        andVTrackServerURL:vtrackServerURL
+                                            andLaunchOptions:nil
                                              andDebugMode:debugMode];
     });
     return sharedInstance;
@@ -254,6 +258,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                             andConfigureURL:nil
                                          andVTrackServerURL:nil
                                                andDebugMode:debugMode];
+}
+
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
+                                        andLaunchOptions:(nonnull NSDictionary *)launchOptions
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[super alloc] initWithServerURL:serverURL
+                                          andConfigureURL:nil
+                                       andVTrackServerURL:nil
+                                         andLaunchOptions:launchOptions
+                                             andDebugMode:debugMode];
+    });
+    return sharedInstance;
 }
 
 + (SensorsAnalyticsSDK *)sharedInstance {
@@ -395,11 +413,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (instancetype)initWithServerURL:(NSString *)serverURL
                   andConfigureURL:(NSString *)configureURL
                andVTrackServerURL:(NSString *)vtrackServerURL
+                    andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     @try {
         if (self = [self init]) {
             _autoTrackEventType = SensorsAnalyticsEventTypeNone;
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
+
+            _launchOptions = launchOptions;
+            if ([[NSThread currentThread] isMainThread]) {
+                _applicationState = UIApplication.sharedApplication.applicationState;
+            } else {
+                _applicationState = UIApplication.sharedApplication.applicationState;
+            }
 
             // 将 Configure URI Path 末尾补齐 iOS.conf
             NSURL *url = [NSURL URLWithString:configureURL];
@@ -527,6 +553,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ error: %@", self, exception);
     }
     return self;
+}
+
+- (BOOL)isLaunchedPassively {
+    NSDictionary *remoteNotification = _launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+
+    if (remoteNotification) {
+        if (_applicationState == UIApplicationStateBackground) {
+            return YES ;
+        }
+    }
+
+    return NO;
 }
 
 - (NSDictionary *)getPresetProperties {
@@ -1088,16 +1126,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        // 追踪 AppStart 事件
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-            [self track:APP_START_EVENT withProperties:@{
-                                                         RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
-                                                         APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                         }];
-        }
-        // 启动 AppEnd 事件计时器
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-            [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+        if ([self isLaunchedPassively]) {
+            // 追踪 AppStart 事件
+            if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
+                [self track:@"$AppStartPassively" withProperties:@{
+                                                             RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
+                                                             APP_FIRST_START_PROPERTY : @(isFirstStart),
+                                                             }];
+            }
+        } else {
+            // 追踪 AppStart 事件
+            if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
+                [self track:APP_START_EVENT withProperties:@{
+                                                             RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
+                                                             APP_FIRST_START_PROPERTY : @(isFirstStart),
+                                                             }];
+            }
+            // 启动 AppEnd 事件计时器
+            if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
+                [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+            }
         }
     });
 }
@@ -1656,6 +1704,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [p setObject:@YES forKey:@"$is_first_day"];
             } else {
                 [p setObject:@NO forKey:@"$is_first_day"];
+            }
+
+            @try {
+                if ([self isLaunchedPassively]) {
+                    [p setObject:@"background" forKey:@"app_state"];
+                }
+            } @catch (NSException *e) {
+                SAError(@"%@: %@", self, e);
             }
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
@@ -2557,6 +2613,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackViewScreen:(UIViewController *)controller {
+    if ([self isLaunchedPassively]) {
+        return;
+    }
+
     if (!controller) {
         return;
     }
@@ -3058,11 +3118,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ application will enter foreground", self);
     
     _appRelaunched = YES;
+    _launchOptions = nil;
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
     if (_appRelaunched) {
+        _launchOptions = nil;
         //下次启动 app 的时候重新初始化
         NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
         [self setSDKWithRemoteConfigDict:sdkConfig];
@@ -3166,6 +3228,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
+    _launchOptions = nil;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
