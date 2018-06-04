@@ -1715,11 +1715,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [properties removeObjectForKey:@"$project"];
                 [ee setObject:properties forKey:@"properties"];
             }
-        } @catch (NSException *e) {
-            SAError(@"%@: %@", self, e);
+        } @catch (NSException *ex) {
+            SAError(@"%@: %@", self, ex);
         }
         
-        SALog(@"\n【track event】:\n%@", e);
+        SALog(@"\n【track event】:\n%@", ee);
         
         [self enqueueWithType:type andEvent:[ee copy]];
         
