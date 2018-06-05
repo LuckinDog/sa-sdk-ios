@@ -3126,7 +3126,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
     if (_appRelaunched) {
-        _launchOptions = nil;
         //下次启动 app 的时候重新初始化
         NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
         [self setSDKWithRemoteConfigDict:sdkConfig];
