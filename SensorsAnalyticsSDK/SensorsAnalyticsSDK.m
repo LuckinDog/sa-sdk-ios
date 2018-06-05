@@ -1710,7 +1710,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             @try {
                 if ([self isLaunchedPassively]) {
-                    [p setObject:@"background" forKey:@"app_state"];
+                    [p setObject:@"background" forKey:@"$app_state"];
                 }
             } @catch (NSException *e) {
                 SAError(@"%@: %@", self, e);
