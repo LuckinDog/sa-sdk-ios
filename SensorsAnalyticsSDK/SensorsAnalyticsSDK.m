@@ -840,6 +840,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     if (![appServerUrl check:h5ServerUrl]) {
                         return;
                     }
+                } else {
+                    //防止 H5 集成的 JS SDK 版本太老，没有发 server_url
+                    return;
                 }
             }
 
@@ -1055,6 +1058,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)setMaxCacheSize:(UInt64)maxCacheSize {
     if (maxCacheSize > 0) {
+        //防止设置的值太小导致事件丢失
+        if (maxCacheSize < 10000) {
+            maxCacheSize = 10000;
+        }
         _maxCacheSize = maxCacheSize;
     }
 }
