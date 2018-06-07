@@ -424,7 +424,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if ([[NSThread currentThread] isMainThread]) {
                 _applicationState = UIApplication.sharedApplication.applicationState;
             } else {
-                _applicationState = UIApplication.sharedApplication.applicationState;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    _applicationState = UIApplication.sharedApplication.applicationState;
+                });
             }
 
             // 将 Configure URI Path 末尾补齐 iOS.conf
@@ -558,12 +560,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isLaunchedPassively {
-    NSDictionary *remoteNotification = _launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+    @try {
+        NSDictionary *remoteNotification = _launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
 
-    if (remoteNotification) {
-        if (_applicationState == UIApplicationStateBackground) {
-            return YES ;
+        if (remoteNotification) {
+            if (_applicationState == UIApplicationStateBackground) {
+                return YES ;
+            }
         }
+    } @catch(NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
     }
 
     return NO;
@@ -1662,21 +1668,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
         
+        NSString *project = nil;
         if (propertieDict) {
             NSArray *keys = propertieDict.allKeys;
             for (id key in keys) {
                 NSObject *obj = propertieDict[key];
-                if ([obj isKindOfClass:[NSDate class]]) {
-                    // 序列化所有 NSDate 类型
-                    NSString *dateStr = [_dateFormatter stringFromDate:(NSDate *)obj];
-                    [p setObject:dateStr forKey:key];
+                if ([@"$project" isEqualToString:key]) {
+                    project = (NSString *)obj;
                 } else {
-                    [p setObject:obj forKey:key];
+                    if ([obj isKindOfClass:[NSDate class]]) {
+                        // 序列化所有 NSDate 类型
+                        NSString *dateStr = [_dateFormatter stringFromDate:(NSDate *)obj];
+                        [p setObject:dateStr forKey:key];
+                    } else {
+                        [p setObject:obj forKey:key];
+                    }
                 }
             }
         }
         
-        NSDictionary *e;
+        NSMutableDictionary *e;
         NSString *bestId;
         if ([self loginId] != nil) {
             bestId = [self loginId];
@@ -1690,16 +1701,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         if ([type isEqualToString:@"track_signup"]) {
-            e = @{
-                  @"event": event,
-                  @"properties": [NSDictionary dictionaryWithDictionary:p],
-                  @"distinct_id": bestId,
-                  @"original_id": self.originalId,
-                  @"time": timeStamp,
-                  @"type": type,
-                  @"lib": libProperties,
-                  @"_track_id": @(arc4random()),
-                  };
+            e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                 event, @"event",
+                 [NSDictionary dictionaryWithDictionary:p], @"properties",
+                 bestId, @"distinct_id",
+                 self.originalId, @"original_id",
+                 timeStamp, @"time",
+                 type, @"type",
+                 libProperties, @"lib",
+                 @(arc4random()), @"_track_id",
+                 nil];
         } else if([type isEqualToString:@"track"]){
             //  是否首日访问
             if ([self isFirstDay]) {
@@ -1742,44 +1753,34 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SAError(@"%@: %@", self, e);
             }
 #endif
-
-            e = @{
-                  @"event": event,
-                  @"properties": [NSDictionary dictionaryWithDictionary:p],
-                  @"distinct_id": bestId,
-                  @"time": timeStamp,
-                  @"type": type,
-                  @"lib": libProperties,
-                  @"_track_id": @(arc4random()),
-                  };
+            e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                 event, @"event",
+                 [NSDictionary dictionaryWithDictionary:p], @"properties",
+                 bestId, @"distinct_id",
+                 timeStamp, @"time",
+                 type, @"type",
+                 libProperties, @"lib",
+                 @(arc4random()), @"_track_id",
+                 nil];
         } else {
             // 此时应该都是对Profile的操作
-            e = @{
-                  @"properties": [NSDictionary dictionaryWithDictionary:p],
-                  @"distinct_id": bestId,
-                  @"time": timeStamp,
-                  @"type": type,
-                  @"lib": libProperties,
-                  @"_track_id": @(arc4random()),
-                  };
+            e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                 [NSDictionary dictionaryWithDictionary:p], @"properties",
+                 bestId, @"distinct_id",
+                 timeStamp, @"time",
+                 type, @"type",
+                 libProperties, @"lib",
+                 @(arc4random()), @"_track_id",
+                 nil];
         }
 
-        NSMutableDictionary *ee = [e mutableCopy];
-        @try {
-            NSString *project = [ee valueForKeyPath:@"properties.$project"];
-            if (project) {
-                [ee setObject:project forKey:@"project"];
-                NSMutableDictionary *properties = [[ee objectForKey:@"properties"] mutableCopy];
-                [properties removeObjectForKey:@"$project"];
-                [ee setObject:properties forKey:@"properties"];
-            }
-        } @catch (NSException *ex) {
-            SAError(@"%@: %@", self, ex);
+        if (project) {
+            [e setObject:project forKey:@"project"];
         }
         
-        SALog(@"\n【track event】:\n%@", ee);
+        SALog(@"\n【track event】:\n%@", e);
         
-        [self enqueueWithType:type andEvent:[ee copy]];
+        [self enqueueWithType:type andEvent:[e copy]];
         
         if (_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
