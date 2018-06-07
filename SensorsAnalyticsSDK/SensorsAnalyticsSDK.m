@@ -547,9 +547,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
                     alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
                 }
-                if (![self isLaunchedPassively]) {
-                    [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
-                }
+                [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
             }
 #endif
         }
