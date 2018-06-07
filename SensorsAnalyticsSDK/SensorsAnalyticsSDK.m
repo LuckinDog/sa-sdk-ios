@@ -2387,6 +2387,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)setFlushInterval:(UInt64)interval {
     @synchronized(self) {
+        if (interval < 5 * 1000) {
+            interval = 5 * 1000;
+        }
         _flushInterval = interval;
     }
     [self flush];
