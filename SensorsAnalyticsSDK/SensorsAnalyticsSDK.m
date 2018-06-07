@@ -1676,12 +1676,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         NSString *project = nil;
+        NSString *token = nil;
         if (propertieDict) {
             NSArray *keys = propertieDict.allKeys;
             for (id key in keys) {
                 NSObject *obj = propertieDict[key];
                 if ([@"$project" isEqualToString:key]) {
                     project = (NSString *)obj;
+                } else if ([@"$token" isEqualToString:key]) {
+                    token = (NSString *)obj;
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
                         // 序列化所有 NSDate 类型
@@ -1783,6 +1786,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         if (project) {
             [e setObject:project forKey:@"project"];
+        }
+        if (token) {
+            [e setObject:token forKey:@"token"];
         }
         
         SALog(@"\n【track event】:\n%@", e);
