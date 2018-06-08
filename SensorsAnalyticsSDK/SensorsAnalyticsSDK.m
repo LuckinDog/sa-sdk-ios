@@ -41,7 +41,7 @@
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
 
-#define VERSION @"1.10.3"
+#define VERSION @"1.10.4"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -730,7 +730,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType {
-    _networkTypePolicy = networkType;
+    @synchronized (self) {
+        _networkTypePolicy = networkType;
+    }
 }
 
 - (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType {
