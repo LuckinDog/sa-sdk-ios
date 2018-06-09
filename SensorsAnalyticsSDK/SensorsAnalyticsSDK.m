@@ -261,7 +261,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
-                                        andLaunchOptions:(nonnull NSDictionary *)launchOptions
+                                        andLaunchOptions:(NSDictionary *)launchOptions
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
