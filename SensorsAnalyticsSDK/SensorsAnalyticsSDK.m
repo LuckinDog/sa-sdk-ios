@@ -329,6 +329,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return distinctId;
 }
 
++(NSString *)getUserAgent {
+    //1, 尝试从 SAUserAgent 缓存读取，
+    __block  NSString *currentUA = [[NSUserDefaults standardUserDefaults] objectForKey:@"SAUserAgent"];
+    if (currentUA  == nil)  {
+        //2,从 webview 执行 JS 获取 UA
+        if ([NSThread isMainThread]) {
+            UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+                currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+                [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+            });
+        }
+    }
+    return currentUA;
+}
+
+
 - (BOOL)shouldTrackClass:(Class)aClass {
     static NSSet *blacklistedClasses = nil;
     static dispatch_once_t onceToken;
@@ -507,15 +530,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self setUpListeners];
 
             // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
-            if ([NSThread isMainThread]) {
-                UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-                _userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-            } else {
-                dispatch_sync(dispatch_get_main_queue(), ^{
-                    UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-                    _userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-                });
-            }
+            _userAgent = [self.class getUserAgent];
 
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
             if (configureURL != nil) {
