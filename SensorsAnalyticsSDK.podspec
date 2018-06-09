@@ -12,8 +12,8 @@ Pod::Spec.new do |s|
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'core' do |c|
-	c.source_files  = "SensorsAnalyticsSDK/SensorsAnalyticsSDK", "SensorsAnalyticsSDK/SensorsAnalyticsSDK/*.{h,m}"
-	c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SensorsAnalyticsSDK/SAAppExtensionDataManager.h"
+	c.source_files  = "SensorsAnalyticsSDK", "SensorsAnalyticsSDK/*.{h,m}"
+	c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h"
   end
 
   s.subspec 'IDFA' do |f|
