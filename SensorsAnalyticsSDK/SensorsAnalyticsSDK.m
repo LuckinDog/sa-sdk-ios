@@ -574,9 +574,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isLaunchedPassively {
     @try {
+        //远程通知启动
         NSDictionary *remoteNotification = _launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
-
         if (remoteNotification) {
+            if (_applicationState == UIApplicationStateBackground) {
+                return YES ;
+            }
+        }
+
+        //位置变动启动
+        NSDictionary *location = _launchOptions[UIApplicationLaunchOptionsLocationKey];
+        if (location) {
             if (_applicationState == UIApplicationStateBackground) {
                 return YES ;
             }
