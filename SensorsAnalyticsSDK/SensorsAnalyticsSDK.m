@@ -2986,9 +2986,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
 #endif
 
-        if (view.sensorsAnalyticsIgnoreView) {
-            return;
-        }
+//        if (view.sensorsAnalyticsIgnoreView) {
+//            return;
+//        }
 
         UIViewController *viewController = [self currentViewController];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
