@@ -937,6 +937,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventDict removeObjectForKey:@"_nocache"];
             [eventDict removeObjectForKey:@"server_url"];
 
+            // $project & $token
+            NSString *project = [propertiesDict objectForKey:@"$project"];
+            NSString *token = [propertiesDict objectForKey:@"$token"];
+            if (project) {
+                [propertiesDict removeObjectForKey:@"$project"];
+                [eventDict setValue:project forKey:@"project"];
+            }
+            if (token) {
+                [propertiesDict removeObjectForKey:@"$token"];
+                [eventDict setValue:token forKey:@"token"];
+            }
+
             SALog(@"\n【track event from H5】:\n%@", eventDict);
 
             if([type isEqualToString:@"track_signup"]) {
@@ -2986,9 +2998,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
 #endif
 
-        if (view.sensorsAnalyticsIgnoreView) {
-            return;
-        }
+//        if (view.sensorsAnalyticsIgnoreView) {
+//            return;
+//        }
 
         UIViewController *viewController = [self currentViewController];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
