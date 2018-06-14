@@ -2565,9 +2565,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
     }
     
-    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
-        return;
-    }
+//    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
+//        return;
+//    }
     
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
