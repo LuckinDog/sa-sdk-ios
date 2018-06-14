@@ -41,7 +41,7 @@
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
-#define VERSION @"1.10.5"
+#define VERSION @"1.10.6"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
