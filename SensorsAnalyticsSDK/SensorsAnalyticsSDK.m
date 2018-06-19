@@ -152,10 +152,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (atomic, strong) MessageQueueBySqlite *messageQueue;
 
-@property (nonatomic, strong) id abtestDesignerConnection;
-
-@property (assign, nonatomic) BOOL safariRequestInProgress;
-
 @property (nonatomic, strong) NSTimer *timer;
 
 //用户设置的不被AutoTrack的Controllers
@@ -439,8 +435,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
 
             self.flushBeforeEnterBackground = YES;
-
-            self.safariRequestInProgress = NO;
 
             self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
             if (self.messageQueue == nil) {
