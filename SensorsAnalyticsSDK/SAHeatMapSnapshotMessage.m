@@ -67,7 +67,8 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         __block NSDictionary *serializedObjects = nil;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            screenshot = [serializer screenshotImageForWindow:[[SensorsAnalyticsSDK sharedInstance] vtrackWindow]];
+            
+            screenshot = [serializer screenshotImageForWindow:UIApplication.sharedApplication.keyWindow];
         });
         snapshotMessage.screenshot = screenshot;
 
@@ -77,7 +78,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         }
         
         dispatch_sync(dispatch_get_main_queue(), ^{
-            serializedObjects = [serializer objectHierarchyForWindow:[[SensorsAnalyticsSDK sharedInstance] vtrackWindow]];
+            serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
         });
         [connection setSessionObject:serializedObjects forKey:@"snapshot_hierarchy"];
         snapshotMessage.serializedObjects = serializedObjects;
