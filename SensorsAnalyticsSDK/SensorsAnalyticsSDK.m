@@ -1733,6 +1733,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitMilliseconds];
 }
 
+- (void)trackTimerStart:(NSString *)event {
+    [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+}
+
 - (void)trackTimerBegin:(NSString *)event {
     [self trackTimer:event];
 }
