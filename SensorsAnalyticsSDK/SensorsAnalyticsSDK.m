@@ -17,7 +17,6 @@
 #import "JSONUtil.h"
 #import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
-#import "NSData+SABase64.h"
 #import "SALogger.h"
 #import "SAReachability.h"
 #import "SASwizzler.h"
@@ -1215,7 +1214,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 2. 使用gzip进行压缩
             zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
             // 3. base64
-            b64String = [zippedData sa_base64EncodedString];
+            b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
             int hashCode = [b64String sensorsdata_hashCode];
             b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
                                                                                   (CFStringRef)b64String,
