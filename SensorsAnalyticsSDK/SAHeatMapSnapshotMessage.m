@@ -10,7 +10,6 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "NSData+SABase64.h"
 #import "SAHeatMapSnapshotMessage.h"
 #import "SAApplicationStateSerializer.h"
 #import "SAObjectIdentityProvider.h"
@@ -105,7 +104,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
     if (screenshot) {
         NSData *jpegSnapshotImageData = UIImageJPEGRepresentation(screenshot, 0.5);
         if (jpegSnapshotImageData) {
-            payloadObject = [jpegSnapshotImageData sa_base64EncodedString];
+            payloadObject = [jpegSnapshotImageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
             imageHash = [self getImageHash:jpegSnapshotImageData];
         }
     }
@@ -117,8 +116,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
 
 - (UIImage *)screenshot {
     NSString *base64Image = [self payloadObjectForKey:@"screenshot"];
-    NSData *imageData = [NSData sa_dataFromBase64String:base64Image];
-    
+    NSData *imageData =[[base64Image dataUsingEncoding:NSUTF8StringEncoding] base64EncodedDataWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
     return imageData ? [UIImage imageWithData:imageData] : nil;
 }
 
