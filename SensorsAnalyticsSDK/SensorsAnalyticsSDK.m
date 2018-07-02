@@ -36,6 +36,7 @@
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
+#import "NSThread+SAHelpers.h"
 #define VERSION @"1.10.6"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -2346,8 +2347,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify  {
-    __block BOOL verify = enableVerify;
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [NSThread sa_safelyRunOnMainThreadSync:^{
+        BOOL verify = enableVerify;
         @try {
             if (self->_serverURL == nil || self->_serverURL.length == 0) {
                 verify = NO;
@@ -2369,7 +2370,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
-    });
+    }
+     ];
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
