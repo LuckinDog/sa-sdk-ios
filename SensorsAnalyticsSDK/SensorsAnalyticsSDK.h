@@ -529,6 +529,24 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 设置 Cookie
+ *
+ * @param cookie NSString cookie
+ * @param encode BOOL 是否 encode
+ */
+- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode;
+
+/**
+ * @abstract
+ * 返回已设置的 Cookie
+ *
+ * @param decode BOOL 是否 decode
+ * @return NSString cookie
+ */
+- (NSString *)getCookieWithDecode:(BOOL)decode;
+
+/**
+ * @abstract
  * 初始化事件的计时器。
  *
  * @discussion

@@ -200,6 +200,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *_osVersion;
     NSString *_userAgent;
     NSString *_originServerUrl;
+    NSString *_cookie;
 }
 
 #pragma mark - Initialization
@@ -1239,6 +1240,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
         }
         
+        //Cookie
+        [request setValue:[[SensorsAnalyticsSDK sharedInstance] getCookieWithDecode:NO] forHTTPHeaderField:@"Cookie"];
+
         dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
         __block BOOL flushSucc = YES;
         
@@ -1728,6 +1732,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)track:(NSString *)event {
     [self track:event withProperties:nil withType:@"track"];
+}
+
+- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
+    if (encode) {
+        _cookie = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                (CFStringRef)cookie,
+                                                                                NULL,
+                                                                                CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                kCFStringEncodingUTF8));
+    } else {
+        _cookie = cookie;
+    }
+}
+
+- (NSString *)getCookieWithDecode:(BOOL)decode {
+    if (decode) {
+        return (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)_cookie, CFSTR(""),CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+    } else {
+        return _cookie;
+    }
 }
 
 - (void)trackTimer:(NSString *)event {
