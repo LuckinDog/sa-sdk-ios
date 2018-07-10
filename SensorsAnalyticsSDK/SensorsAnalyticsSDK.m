@@ -1325,6 +1325,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+- (void)deleteAll {
+    [self.messageQueue deleteAll];
+}
+
 - (BOOL)handleHeatMapUrl:(NSURL *)url {
     @try {
         if (!url) {

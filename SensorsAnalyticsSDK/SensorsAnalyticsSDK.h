@@ -848,6 +848,15 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 主动调用flush接口，则不论flushInterval和网络类型的限制条件是否满足，都尝试向服务器上传一次数据
  */
 - (void)flush;
+
+/**
+ * @abstract
+ * 删除本地缓存的全部事件
+ *
+ * @discussion
+ * 一旦调用该接口，将会删除本地缓存的全部事件，请慎用！
+ */
+- (void)deleteAll;
 #pragma mark- heatMap
 - (BOOL)handleHeatMapUrl:(NSURL *)url;
 
