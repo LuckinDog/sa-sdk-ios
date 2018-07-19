@@ -1620,6 +1620,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
         
+        //不允许通过公共属性或者自定义属性覆盖 $device_id
+        [p setObject:[_automaticProperties objectForKey:@"$device_id"] forKey:@"$device_id"];
+
         NSMutableDictionary *e;
         NSString *bestId;
         if ([self loginId] != nil) {
@@ -1713,7 +1716,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (token) {
             [e setObject:token forKey:@"token"];
         }
-        
+
         SALog(@"\n【track event】:\n%@", e);
         
         [self enqueueWithType:type andEvent:[e copy]];
