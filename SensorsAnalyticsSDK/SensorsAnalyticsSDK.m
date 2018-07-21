@@ -175,6 +175,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
+
+@property (nonatomic,copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
+
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -1535,15 +1538,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [libProperties setValue:lib_detail forKey:@"$lib_detail"];
     }
 
+    //获取用户自定义的动态公共属性
+    NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+    if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+        SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
+        dynamicSuperPropertiesDict = nil;
+    } else {
+        if ([self assertPropertyTypes:dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
+            dynamicSuperPropertiesDict = nil;
+        }
+    }
+
     dispatch_async(self.serialQueue, ^{
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
-            // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties和propertieDict
+            // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
             [p addEntriesFromDictionary:_automaticProperties];
             [p addEntriesFromDictionary:_superProperties];
+            [p addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
             //update lib $app_version from super properties
             id app_version = [_superProperties objectForKey:@"$app_version"];
@@ -1621,7 +1636,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         //不允许通过公共属性或者自定义属性覆盖 $device_id
-        [p setObject:[_automaticProperties objectForKey:@"$device_id"] forKey:@"$device_id"];
+        //[p setObject:[_automaticProperties objectForKey:@"$device_id"] forKey:@"$device_id"];
 
         NSMutableDictionary *e;
         NSString *bestId;
@@ -2109,6 +2124,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                   @"$screen_width": @((NSInteger)size.width),
                                       }];
     return [p copy];
+}
+
+-(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
+     dispatch_async(self.serialQueue, ^{
+         self.dynamicSuperProperties = dynamicSuperProperties;
+     });
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
