@@ -601,10 +601,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
-            if (_debugAlertViewHasShownNumber >= 3) {
+            if (self->_debugAlertViewHasShownNumber >= 3) {
                 return;
             }
-            _debugAlertViewHasShownNumber += 1;
+            self->_debugAlertViewHasShownNumber += 1;
             NSString *alertTitle = @"SensorsData 重要提示";
             if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
                 UIAlertController *connectAlert = [UIAlertController
@@ -615,12 +615,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
                 [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
                     alertWindow.hidden = YES;
-                    _debugAlertViewHasShownNumber -= 1;
+                    self->_debugAlertViewHasShownNumber -= 1;
                 }]];
                 if (showNoMore) {
                     [connectAlert addAction:[UIAlertAction actionWithTitle:@"不再显示" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                         alertWindow.hidden = YES;
-                        _showDebugAlertView = NO;
+                        self->_showDebugAlertView = NO;
                     }]];
                 }
 
