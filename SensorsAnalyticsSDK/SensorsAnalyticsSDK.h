@@ -6,25 +6,9 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <UIKit/UIApplication.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 @class SensorsAnalyticsPeople;
-
-/**
- * @abstract
- * 在DEBUG模式下，发送错误时会抛出该异常
- */
-@interface SensorsAnalyticsDebugException : NSException
-
-@end
-
-@interface UIImage (SensorsAnalytics)
-@property (nonatomic,copy) NSString* sensorsAnalyticsImageName;
-@end
-
-
 
 /**
  * @abstract
