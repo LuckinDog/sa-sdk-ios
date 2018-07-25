@@ -20,44 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@protocol SAUIViewAutoTrackDelegate
-
-//UITableView
-@optional
--(NSDictionary *) sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
-
-//UICollectionView
-@optional
--(NSDictionary *) sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
-
-//@optional
-//-(NSDictionary *) sensorsAnalytics_alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-//
-//@optional
-//-(NSDictionary *) sensorsAnalytics_actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
-@end
-
 @interface UIImage (SensorsAnalytics)
 @property (nonatomic,copy) NSString* sensorsAnalyticsImageName;
 @end
 
-@interface UIView (SensorsAnalytics)
-- (nullable UIViewController *)viewController;
 
-//viewID
-@property (copy,nonatomic) NSString* sensorsAnalyticsViewID;
-
-//AutoTrack 时，是否忽略该 View
-@property (nonatomic,assign) BOOL sensorsAnalyticsIgnoreView;
-
-//AutoTrack 发生在 SendAction 之前还是之后，默认是 SendAction 之前
-@property (nonatomic,assign) BOOL sensorsAnalyticsAutoTrackAfterSendAction;
-
-//AutoTrack 时，View 的扩展属性
-@property (strong,nonatomic) NSDictionary* sensorsAnalyticsViewProperties;
-
-@property (nonatomic, weak, nullable) id sensorsAnalyticsDelegate;
-@end
 
 /**
  * @abstract
@@ -105,15 +72,11 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  * @discussion
  *   SensorsAnalyticsEventTypeAppStart - $AppStart
  *   SensorsAnalyticsEventTypeAppEnd - $AppEnd
- *   SensorsAnalyticsEventTypeAppClick - $AppClick
- *   SensorsAnalyticsEventTypeAppViewScreen - $AppViewScreen
  */
 typedef NS_OPTIONS(NSInteger, SensorsAnalyticsAutoTrackEventType) {
     SensorsAnalyticsEventTypeNone      = 0,
     SensorsAnalyticsEventTypeAppStart      = 1 << 0,
     SensorsAnalyticsEventTypeAppEnd        = 1 << 1,
-    SensorsAnalyticsEventTypeAppClick      = 1 << 2,
-    SensorsAnalyticsEventTypeAppViewScreen = 1 << 3,
 };
 
 /**
@@ -136,27 +99,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
     SensorsAnalyticsNetworkTypeWIFI     = 1 << 3,
     SensorsAnalyticsNetworkTypeALL      = 0xFF,
 };
-
-/**
- * @abstract
- * 自动追踪(AutoTrack)中，实现该 Protocal 的 Controller 对象可以通过接口向自动采集的事件中加入属性
- *
- * @discussion
- * 属性的约束请参考 <code>track:withProperties:</code>
- */
-@protocol SAAutoTracker
-
-@required
--(NSDictionary *)getTrackProperties;
-
-@end
-
-@protocol SAScreenAutoTracker<SAAutoTracker>
-
-@required
--(NSString *) getScreenUrl;
-
-@end
 
 /**
  * @class
@@ -402,10 +344,10 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @property
  *
  * @abstract
- * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面、元素点击
+ * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭
  *
  * @discussion
- * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
+ * 该功能自动追踪 App 的一些行为，例如 App 启动 / 关闭，具体信息请参考文档:
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
@@ -429,43 +371,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType;
 
-/**
- * @abstract
- * 忽略某一类型的 View
- *
- * @param aClass View 对应的 Class
- */
-- (void)ignoreViewType:(Class)aClass;
 
-/**
- * @abstract
- * 判断某个 View 类型是否被忽略
- *
- * @param aClass Class View 对应的 Class
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewTypeIgnored:(Class)aClass;
-
-/**
- * @abstract
- * 判断某个 ViewController 是否被忽略
- *
- * @param viewController UIViewController
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewControllerIgnored:(UIViewController*)viewController;
-
-/**
- * @abstract
- * 判断某个 ViewController 是否被忽略
- *
- * @param viewController UIViewController
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewControllerStringIgnored:(NSString*)viewController;
 
 /**
  * @abstract
@@ -485,8 +391,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param show             是否显示
  */
 - (void)showDebugInfoView:(BOOL)show;
-
-- (NSString *)getUIViewControllerTitle:(UIViewController *)controller;
 
 /**
  * @abstract
@@ -706,36 +610,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 在AutoTrack时，用户可以设置哪些controlls不被AutoTrack
- *
- * @param controllers   controller‘字符串’数组
- */
-- (void)ignoreAutoTrackViewControllers:(NSArray *)controllers;
-
-/**
- * @abstract
- * 获取LastScreenUrl
- *
- * @return LastScreenUrl
- */
-- (NSString *)getLastScreenUrl;
-
-/**
- * @abstract
- * App 退出或进到后台时清空 referrer，默认情况下不清空
- */
-- (void)clearReferrerWhenAppEnd;
-
-/**
- * @abstract
- * 获取 LastScreenTrackProperties
- *
- * @return LastScreenTrackProperties
- */
-- (NSDictionary *)getLastScreenTrackProperties;
-
-/**
- * @abstract
  * H5 数据打通的时候默认通过 ServerUrl 校验
  */
 - (void)addWebViewUserAgentSensorsDataFlag;
@@ -750,39 +624,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 - (SensorsAnalyticsDebugMode)debugMode;
 
-/**
- * @abstract
- * 通过代码触发 UIView 的 $AppClick 事件
- *
- * @param view UIView
- */
-- (void)trackViewAppClick:(nonnull UIView *)view;
 
-/**
- * @abstract
- * 通过代码触发 UIViewController 的 $AppViewScreen 事件
- *
- * @param viewController 当前的 UIViewController
- */
-- (void)trackViewScreen:(UIViewController *)viewController;
-
-/**
- * @abstract
- * 通过代码触发 UIView 的 $AppClick 事件
- *
- * @param view UIView
- * @param properties 自定义属性
- */
-- (void)trackViewAppClick:(nonnull UIView *)view withProperties:(nullable NSDictionary *)properties;
-
-/**
- * @abstract
- * Track $AppViewScreen事件
- *
- * @param url 当前页面url
- * @param properties 用户扩展属性
- */
-- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties;
 
 /**
  @abstract
@@ -875,24 +717,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 一旦调用该接口，将会删除本地缓存的全部事件，请慎用！
  */
 - (void)deleteAll;
-#pragma mark- heatMap
-- (BOOL)handleHeatMapUrl:(NSURL *)url;
 
-/**
- * @abstract
- * 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
- */
-- (void)enableHeatMap;
-
-- (BOOL)isHeatMapEnabled;
-
-/**
- * @abstract
- * 指定哪些页面开启 HeatMap，如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
- */
-- (void)addHeatMapViewControllers:(NSArray *)controllers;
-
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
 #pragma mark- profile
 /**
  * @abstract

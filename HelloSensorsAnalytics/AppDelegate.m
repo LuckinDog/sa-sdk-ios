@@ -31,14 +31,10 @@
     }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
-     SensorsAnalyticsEventTypeAppEnd |
-     SensorsAnalyticsEventTypeAppViewScreen |
-     SensorsAnalyticsEventTypeAppClick];
+     SensorsAnalyticsEventTypeAppEnd];
 
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
-    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
-    //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
@@ -48,9 +44,7 @@
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    if ([[SensorsAnalyticsSDK sharedInstance] handleHeatMapUrl:url]) {
-        return YES;
-    }
+  
     return NO;
 }
 
