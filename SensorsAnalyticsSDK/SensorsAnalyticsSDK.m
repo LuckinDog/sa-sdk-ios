@@ -57,6 +57,8 @@ static NSString* const SCREEN_NAME_PROPERTY = @"$screen_name";
 static NSString* const SCREEN_URL_PROPERTY = @"$url";
 // App 浏览页面 Referrer Url
 static NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
+//中国运营商 mcc 标识
+static NSString* const CARRIER_CHINA_MCC = @"460";
 
 @implementation SensorsAnalyticsDebugException
 
@@ -2088,29 +2090,58 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:@"$app_version"];
     if (carrier != nil) {
         NSString *networkCode = [carrier mobileNetworkCode];
-        if (networkCode != nil) {
-            NSString *carrierName = nil;
-            //中国移动
-            if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
-                carrierName= @"中国移动";
+        NSString *countryCode = [carrier mobileCountryCode];
+        
+        NSString *carrierName = nil;
+        //中国运营商
+        if (countryCode && [countryCode isEqualToString:CARRIER_CHINA_MCC]) {
+            if (networkCode) {
+                
+                //中国移动
+                if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
+                    carrierName= @"中国移动";
+                }
+                //中国联通
+                if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
+                    carrierName= @"中国联通";
+                }
+                //中国电信
+                if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
+                    carrierName= @"中国电信";
+                }
+                //中国卫通
+                if ([networkCode isEqualToString:@"04"]) {
+                    carrierName= @"中国卫通";
+                }
+                //中国铁通
+                if ([networkCode isEqualToString:@"20"]) {
+                    carrierName= @"中国铁通";
+                }
             }
-            //中国联通
-            if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
-                carrierName= @"中国联通";
-            }
-            //中国电信
-            if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
-                carrierName= @"中国电信";
-            }
-            if (carrierName != nil) {
-                [p setValue:carrierName forKey:@"$carrier"];
-            } else {
-                if (carrier.carrierName) {
-                    [p setValue:carrier.carrierName forKey:@"$carrier"];
+        } else { //国外运营商解析
+            //加载当前 bundle
+            NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+            //文件路径
+            NSString *jsonPath = [sensorsBundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
+            NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+            if (jsonData) {
+                NSDictionary *dicAllMcc =  [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableLeaves error:nil];
+                if (dicAllMcc) {
+                    NSString *mccMncKey = [NSString stringWithFormat:@"%@%@",countryCode,networkCode];
+                    carrierName = dicAllMcc[mccMncKey];
                 }
             }
         }
+        
+        if (carrierName != nil) {
+            [p setValue:carrierName forKey:@"$carrier"];
+        } else {
+            if (carrier.carrierName) {
+                [p setValue:carrier.carrierName forKey:@"$carrier"];
+            }
+        }
     }
+    
     BOOL isReal;
     [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
     [p addEntriesFromDictionary:@{
