@@ -2040,11 +2040,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     //截取再拼接 $ 末尾，替换原数据
                     NSMutableString *newObject = [NSMutableString stringWithString:[self subByteString:(NSString *)object byteLength:PROPERTY_LENGTH_LIMITATION]];
                     [newObject appendString:@"$"];
-                    NSMutableSet *newSetObject = [NSMutableSet set];
                     if (!newProperties) {
                         newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                     }
-                    newSetObject = [NSMutableSet setWithSet:properties[k]];
+                    NSMutableSet *newSetObject = [NSMutableSet setWithSet:properties[k]];
                     [newSetObject removeObject:object];
                     [newSetObject addObject:newObject];
                     [newProperties setObject:newSetObject forKey:k];
