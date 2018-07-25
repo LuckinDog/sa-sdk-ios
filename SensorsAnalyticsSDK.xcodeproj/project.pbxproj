@@ -45,6 +45,8 @@
 		4D2AF15D1B4BAE77007716F8 /* JSONUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2AF15B1B4BAE77007716F8 /* JSONUtil.m */; };
 		4D5CA77B1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */; };
 		4D5CA77D1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */; };
+		4D6FF98B21086BAB00241224 /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4D6FF98A21086BAA00241224 /* SensorsAnalyticsSDK.bundle */; };
+		4D6FF98C21086BAB00241224 /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4D6FF98A21086BAA00241224 /* SensorsAnalyticsSDK.bundle */; };
 		4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */; };
 		4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
 		A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -183,6 +185,7 @@
 		4D5CA7771B43E92D00D7ACB7 /* libSensorsAnalyticsSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSensorsAnalyticsSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsSDK.h; sourceTree = "<group>"; };
 		4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDK.m; sourceTree = "<group>"; };
+		4D6FF98A21086BAA00241224 /* SensorsAnalyticsSDK.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SensorsAnalyticsSDK.bundle; sourceTree = "<group>"; };
 		4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageQueueBySqlite.h; sourceTree = "<group>"; };
 		4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageQueueBySqlite.m; sourceTree = "<group>"; };
 		99C2DE03E0C876AF8032C99C /* libPods-HelloSensorsAnalytics.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HelloSensorsAnalytics.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -355,6 +358,7 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				4D6FF98921086B8900241224 /* Resources */,
 				A161A05220B540E400A3CA14 /* SALocationManager.h */,
 				A161A05320B540E400A3CA14 /* SALocationManager.m */,
 				A161A04A20B3E2DC00A3CA14 /* SADeviceOrientationManager.h */,
@@ -387,6 +391,14 @@
 				007BE5A720E1F1D2006CB1ED /* NSThread+SAHelpers.m */,
 			);
 			path = SensorsAnalyticsSDK;
+			sourceTree = "<group>";
+		};
+		4D6FF98921086B8900241224 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4D6FF98A21086BAA00241224 /* SensorsAnalyticsSDK.bundle */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		A1624B5D200894940088FBC9 /* share */ = {
@@ -609,6 +621,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D6FF98B21086BAB00241224 /* SensorsAnalyticsSDK.bundle in Resources */,
 				4D0EB7CC1B47A88C0019FD21 /* Main.storyboard in Resources */,
 				0027C8531FA201E9002EA41B /* ic_test.png in Resources */,
 				4D0EB7D11B47A88C0019FD21 /* LaunchScreen.xib in Resources */,
@@ -630,6 +643,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+
+				4D6FF98C21086BAB00241224 /* SensorsAnalyticsSDK.bundle in Resources */,
+				A1D1C58C1FB45019006685C1 /* snapshot_payload.json in Resources */,
 				A1D1C58D1FB45019006685C1 /* ic_test.png in Resources */,
 				A1D1C58E1FB45019006685C1 /* JSCallOC.html in Resources */,
 				A1D1C5731FB445BC006685C1 /* LaunchScreen.storyboard in Resources */,
@@ -778,7 +794,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = NO;
 				CODE_SIGN_ENTITLEMENTS = HelloSensorsAnalytics/HelloSensorsAnalytics.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer: jiang cao (E5479387PJ)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
@@ -803,7 +819,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = NO;
 				CODE_SIGN_ENTITLEMENTS = HelloSensorsAnalytics/HelloSensorsAnalytics.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer: jiang cao (E5479387PJ)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
