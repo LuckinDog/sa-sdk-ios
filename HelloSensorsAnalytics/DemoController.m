@@ -17,7 +17,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.tableView.sensorsAnalyticsDelegate = self;
 }
 
 - (NSDictionary *)getTrackProperties {

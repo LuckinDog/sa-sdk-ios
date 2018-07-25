@@ -7,7 +7,6 @@
 //
 
 #import "AutoTrackViewController.h"
-#import "AutoTrackUtils.h"
 @interface AutoTrackViewController ()
 
 @end
@@ -29,7 +28,6 @@
     
     [_myUISwitch addTarget:self action:@selector(picSwitchClick:) forControlEvents:UIControlEventTouchUpInside];
     
-    _myButton1.sensorsAnalyticsDelegate = self;
     [_myButton1 setAttributedTitle:[[NSAttributedString alloc]initWithString:@"button1" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13],NSForegroundColorAttributeName:[UIColor redColor]}] forState:UIControlStateNormal];
      [_myLabel setAttributedText:[[NSAttributedString alloc]initWithString:@"label1" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13],NSForegroundColorAttributeName:[UIColor redColor]}]];
 }
@@ -63,8 +61,7 @@
 */
 
 - (IBAction)onButton1Click:(id)sender {
-  NSString *content=  [AutoTrackUtils contentFromView:self.view ];
-    NSLog(@"%@",content);
+
 }
 - (IBAction)segmentOnClick:(id)sender {
 }
