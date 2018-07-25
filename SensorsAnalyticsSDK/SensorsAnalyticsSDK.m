@@ -3642,6 +3642,4 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [_sdk track:nil withProperties:@{} withType:@"profile_delete"];
 }
 
-
-
 @end
