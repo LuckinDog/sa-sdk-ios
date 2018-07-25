@@ -1738,9 +1738,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *infoProperties = [e objectForKey:@"properties"];
         if (infoProperties && [infoProperties.allKeys containsObject:@"$device_id"]) {
             NSDictionary *autoProperties = self.automaticProperties;
-            NSMutableDictionary *correctInfoProperties = [NSMutableDictionary dictionaryWithDictionary:infoProperties];
-            correctInfoProperties[@"$device_id"] = autoProperties[@"$device_id"];
-            [e setObject:correctInfoProperties forKey:@"properties"];
+            if (autoProperties && [autoProperties.allKeys containsObject:@"$device_id"]) {
+                NSMutableDictionary *correctInfoProperties = [NSMutableDictionary dictionaryWithDictionary:infoProperties];
+                correctInfoProperties[@"$device_id"] = autoProperties[@"$device_id"];
+                [e setObject:correctInfoProperties forKey:@"properties"];
+            }
         }
 
         SALog(@"\n【track event】:\n%@", e);
