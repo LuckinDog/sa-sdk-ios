@@ -1986,6 +1986,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)assertPropertyTypes:(NSDictionary *)properties withEventType:(NSString *)eventType {
+    NSMutableDictionary *newProperties = nil;
     for (id __unused k in properties) {
         // key 必须是NSString
         if (![k isKindOfClass: [NSString class]]) {
@@ -2036,12 +2037,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
                 if (objLength > PROPERTY_LENGTH_LIMITATION) {
-                    NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)object];
-                    SAError(@"%@", errMsg);
-                    if (_debugMode != SensorsAnalyticsDebugOff) {
-                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+                    //截取再拼接 $ 末尾，替换原数据
+                    NSMutableString *newObject = [NSMutableString stringWithString:[self subByteString:(NSString *)object byteLength:PROPERTY_LENGTH_LIMITATION]];
+                    [newObject appendString:@"$"];
+                    NSMutableSet *newSetObject = [NSMutableSet set];
+                    if (!newProperties) {
+                        newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                     }
-                    return NO;
+                    newSetObject = [NSMutableSet setWithSet:properties[k]];
+                    [newSetObject removeObject:object];
+                    [newSetObject addObject:newObject];
+                    [newProperties setObject:newSetObject forKey:k];
                 }
             }
         }
@@ -2054,12 +2060,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
             }
             if (objLength > valueMaxLength) {
-                NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)properties[k]];
-                SAError(@"%@", errMsg);
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+                //截取再拼接 $ 末尾，替换原数据
+                NSMutableString *newObject = [NSMutableString stringWithString:[self subByteString:properties[k] byteLength:valueMaxLength]];
+                [newObject appendString:@"$"];
+                if (!newProperties) {
+                    newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                 }
-                return NO;
+                [newProperties setObject:newObject forKey:k];
             }
         }
         
@@ -2086,6 +2093,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return NO;
             }
         }
+    }
+    //截取之后，重新设置 properties
+    if (newProperties) {
+        properties = [NSDictionary dictionaryWithDictionary:newProperties];
     }
     return YES;
 }
@@ -3537,6 +3548,33 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 }
 
+#pragma mark - tools
+///截取指定长度字符，包括汉字
+- (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )len {
+
+    NSStringEncoding enc = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF8);
+    NSData* data = [string dataUsingEncoding:enc];
+    
+    //预留一位，拼接 $
+    NSData *data1 = [data subdataWithRange:NSMakeRange(0,len-1)];
+    NSString*txt=[[NSString alloc]initWithData:data1 encoding:enc];
+    
+    //utf8 汉字占三个字节，可能截取失败
+    if (!txt) {
+        data1 = [data subdataWithRange:NSMakeRange(0, len-2)];
+        txt=[[NSString alloc]initWithData:data1 encoding:enc];
+    }
+    if (!txt) {
+        data1 = [data subdataWithRange:NSMakeRange(0, len-3)];
+        txt=[[NSString alloc]initWithData:data1 encoding:enc];
+    }
+    
+    if (!txt) {
+        return string;
+    }
+    return txt;
+    
+}
 @end
 
 #pragma mark - People analytics
@@ -3604,5 +3642,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)deleteUser {
     [_sdk track:nil withProperties:@{} withType:@"profile_delete"];
 }
+
+
 
 @end
