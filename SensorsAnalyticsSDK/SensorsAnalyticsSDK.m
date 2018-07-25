@@ -1733,6 +1733,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (token) {
             [e setObject:token forKey:@"token"];
         }
+        
+        //修正 $device_id，防止用户修改
+        NSDictionary *infoProperties = [e objectForKey:@"properties"];
+        if (infoProperties && [infoProperties.allKeys containsObject:@"$device_id"]) {
+            NSDictionary *autoProperties = self.automaticProperties;
+            NSMutableDictionary *correctInfoProperties = [NSMutableDictionary dictionaryWithDictionary:infoProperties];
+            correctInfoProperties[@"$device_id"] = autoProperties[@"$device_id"];
+            [e setObject:correctInfoProperties forKey:@"properties"];
+        }
 
         SALog(@"\n【track event】:\n%@", e);
         
