@@ -1488,7 +1488,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (propertieDict) {
-        if (![self assertPropertyTypes:[propertieDict copy] withEventType:type]) {
+        if (![self assertPropertyTypes:&propertieDict withEventType:type]) {
             SAError(@"%@ failed to track event.", self);
             return;
         }
@@ -1548,7 +1548,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
         dynamicSuperPropertiesDict = nil;
     } else {
-        if ([self assertPropertyTypes:dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
+        if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
             dynamicSuperPropertiesDict = nil;
         }
     }
@@ -1987,7 +1987,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return VERSION;
 }
 
-- (BOOL)assertPropertyTypes:(NSDictionary *)properties withEventType:(NSString *)eventType {
+- (BOOL)assertPropertyTypes:(NSDictionary **)propertiesAddress withEventType:(NSString *)eventType {
+    NSDictionary *properties = *propertiesAddress;
     NSMutableDictionary *newProperties = nil;
     for (id __unused k in properties) {
         // key 必须是NSString
@@ -2095,9 +2096,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     }
-    //截取之后，重新设置 properties
+    //截取之后，修改原 properties
     if (newProperties) {
-        properties = [NSDictionary dictionaryWithDictionary:newProperties];
+        *propertiesAddress = [NSDictionary dictionaryWithDictionary:newProperties];
     }
     return YES;
 }
@@ -2188,7 +2189,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
     propertyDict = [propertyDict copy];
-    if (![self assertPropertyTypes:propertyDict withEventType:@"register_super_properties"]) {
+    if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
         SAError(@"%@ failed to register super properties.", self);
         return;
     }
