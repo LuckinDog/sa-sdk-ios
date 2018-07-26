@@ -80,7 +80,7 @@
     switch (row) {
         case 0:{
             NSLog(@"测试track");
-            //[self testTrack];
+            [self testTrack];
             TestTableViewController *vc =  [[TestTableViewController alloc]init ];
             //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
             [self.navigationController pushViewController:vc  animated:YES];
