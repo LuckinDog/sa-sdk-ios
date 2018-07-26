@@ -20,11 +20,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         SensorsAnalyticsSDK.sharedInstance(withServerURL: "http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f", andDebugMode: SensorsAnalyticsDebugMode.andTrack)
       //MARK:自动埋点开启
         SensorsAnalyticsSDK.sharedInstance().enableAutoTrack(
-              [.eventTypeAppClick,.eventTypeAppStart,.eventTypeAppEnd,.eventTypeAppViewScreen]
+              [.eventTypeAppStart,.eventTypeAppEnd]
         )
         SensorsAnalyticsSDK.sharedInstance().setMaxCacheSize(10000)
         SensorsAnalyticsSDK.sharedInstance().setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
-        SensorsAnalyticsSDK.sharedInstance().enableHeatMap()
         SensorsAnalyticsSDK.sharedInstance().addWebViewUserAgentSensorsDataFlag()
       
         
