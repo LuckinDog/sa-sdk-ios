@@ -37,6 +37,8 @@
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
+#import "SACommonUtility.h"
+
 #define VERSION @"1.10.6"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -2038,7 +2040,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
                 if (objLength > PROPERTY_LENGTH_LIMITATION) {
                     //截取再拼接 $ 末尾，替换原数据
-                    NSMutableString *newObject = [NSMutableString stringWithString:[self subByteString:(NSString *)object byteLength:PROPERTY_LENGTH_LIMITATION]];
+                    NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:(NSString *)object byteLength:PROPERTY_LENGTH_LIMITATION]];
                     [newObject appendString:@"$"];
                     if (!newProperties) {
                         newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
@@ -2060,7 +2062,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             if (objLength > valueMaxLength) {
                 //截取再拼接 $ 末尾，替换原数据
-                NSMutableString *newObject = [NSMutableString stringWithString:[self subByteString:properties[k] byteLength:valueMaxLength]];
+                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:properties[k] byteLength:valueMaxLength]];
                 [newObject appendString:@"$"];
                 if (!newProperties) {
                     newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
@@ -3547,33 +3549,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 }
 
-#pragma mark - tools
-///截取指定长度字符，包括汉字
-- (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )len {
-
-    NSStringEncoding enc = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF8);
-    NSData* data = [string dataUsingEncoding:enc];
-    
-    //预留一位，拼接 $
-    NSData *data1 = [data subdataWithRange:NSMakeRange(0,len-1)];
-    NSString*txt=[[NSString alloc]initWithData:data1 encoding:enc];
-    
-    //utf8 汉字占三个字节，可能截取失败
-    if (!txt) {
-        data1 = [data subdataWithRange:NSMakeRange(0, len-2)];
-        txt=[[NSString alloc]initWithData:data1 encoding:enc];
-    }
-    if (!txt) {
-        data1 = [data subdataWithRange:NSMakeRange(0, len-3)];
-        txt=[[NSString alloc]initWithData:data1 encoding:enc];
-    }
-    
-    if (!txt) {
-        return string;
-    }
-    return txt;
-    
-}
 @end
 
 #pragma mark - People analytics
