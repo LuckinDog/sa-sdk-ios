@@ -37,6 +37,8 @@
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
+#import "SACommonUtility.h"
+
 #define VERSION @"1.10.6"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1986,6 +1988,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)assertPropertyTypes:(NSDictionary *)properties withEventType:(NSString *)eventType {
+    NSMutableDictionary *newProperties = nil;
     for (id __unused k in properties) {
         // key 必须是NSString
         if (![k isKindOfClass: [NSString class]]) {
@@ -2036,12 +2039,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
                 if (objLength > PROPERTY_LENGTH_LIMITATION) {
-                    NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)object];
-                    SAError(@"%@", errMsg);
-                    if (_debugMode != SensorsAnalyticsDebugOff) {
-                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+                    //截取再拼接 $ 末尾，替换原数据
+                    NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:(NSString *)object byteLength:PROPERTY_LENGTH_LIMITATION]];
+                    [newObject appendString:@"$"];
+                    if (!newProperties) {
+                        newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                     }
-                    return NO;
+                    NSMutableSet *newSetObject = [NSMutableSet setWithSet:properties[k]];
+                    [newSetObject removeObject:object];
+                    [newSetObject addObject:newObject];
+                    [newProperties setObject:newSetObject forKey:k];
                 }
             }
         }
@@ -2054,12 +2061,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
             }
             if (objLength > valueMaxLength) {
-                NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)properties[k]];
-                SAError(@"%@", errMsg);
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+                //截取再拼接 $ 末尾，替换原数据
+                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:properties[k] byteLength:valueMaxLength]];
+                [newObject appendString:@"$"];
+                if (!newProperties) {
+                    newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                 }
-                return NO;
+                [newProperties setObject:newObject forKey:k];
             }
         }
         
@@ -2086,6 +2094,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return NO;
             }
         }
+    }
+    //截取之后，重新设置 properties
+    if (newProperties) {
+        properties = [NSDictionary dictionaryWithDictionary:newProperties];
     }
     return YES;
 }
