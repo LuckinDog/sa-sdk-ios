@@ -2430,13 +2430,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *retStr = nil;
     @try {
         if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
-            NSURLComponents *componets = [NSURLComponents componentsWithString:urlString];
+            NSURL *url = [NSURL URLWithString:urlString];
+            url = [url URLByDeletingLastPathComponent];
+            NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
             if (componets == nil) {
                 SALog(@"URLString is malformed, nil is returned.");
                 return nil;
             }
             componets.query = nil;
-            componets.path = @"/config/iOS.conf";
+            componets.path = [componets.path stringByAppendingPathComponent: @"/config/iOS.conf"];
             if (!self.remoteConfig.v) {
                 componets.query = nil;
             } else {

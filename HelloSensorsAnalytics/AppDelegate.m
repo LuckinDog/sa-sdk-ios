@@ -15,7 +15,7 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"https://36kr.com/global/sensors/sa"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
@@ -23,10 +23,8 @@
         for (int i=0; i<100; i++) {
             [mutArr addObject:[NSString stringWithFormat:@"%i",i]];
         }
-        return @{@"__timstamp__":@((long long)(NSDate.date.timeIntervalSince1970*1000)),
+        return @{
                  @"__APPState__":@(UIApplication.sharedApplication.applicationState),
-                 @"$device_id":UIDevice.currentDevice.identifierForVendor.UUIDString,
-                 @"count_100":mutArr,
                  };
     }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
