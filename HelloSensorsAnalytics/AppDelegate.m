@@ -19,13 +19,7 @@
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
-        NSMutableSet *mutArr = [NSMutableSet set];
-        for (int i=0; i<100; i++) {
-            [mutArr addObject:[NSString stringWithFormat:@"%i",i]];
-        }
-        return @{
-                 @"__APPState__":@(UIApplication.sharedApplication.applicationState),
-                 };
+        return @{@"__APPState__":@(UIApplication.sharedApplication.applicationState)};
     }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |

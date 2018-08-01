@@ -2438,10 +2438,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return nil;
             }
             componets.query = nil;
-            componets.path = [componets.path stringByAppendingPathComponent: @"/config/iOS.conf"];
-            if (!self.remoteConfig.v) {
-                componets.query = nil;
-            } else {
+            componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+            if (self.remoteConfig.v && self.remoteConfig.v.length) {
                 componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
             }
             retStr = componets.URL.absoluteString;
