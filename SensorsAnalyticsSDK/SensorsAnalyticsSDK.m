@@ -1691,8 +1691,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
            ![properties[k] isKindOfClass:[NSNumber class]] &&
            ![properties[k] isKindOfClass:[NSNull class]] &&
            ![properties[k] isKindOfClass:[NSSet class]] &&
+           ![properties[k] isKindOfClass:[NSArray class]] &&
            ![properties[k] isKindOfClass:[NSDate class]]) {
-            NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet or NSDate. got: %@ %@", self, [properties[k] class], properties[k]];
+            NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [properties[k] class], properties[k]];
             SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -1700,13 +1701,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return NO;
         }
         
-        // NSSet 类型的属性中，每个元素必须是 NSString 类型
-        if ([properties[k] isKindOfClass:[NSSet class]]) {
-            NSEnumerator *enumerator = [((NSSet *)properties[k]) objectEnumerator];
+        // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
+        if ([properties[k] isKindOfClass:[NSSet class]] || [properties[k] isKindOfClass:[NSArray class]]) {
+            NSEnumerator *enumerator = [(properties[k]) objectEnumerator];
             id object;
             while (object = [enumerator nextObject]) {
                 if (![object isKindOfClass:[NSString class]]) {
-                    NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet must be NSString. got: %@ %@", self, [object class], object];
+                    NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [object class], object];
                     SAError(@"%@", errMsg);
                     if (_debugMode != SensorsAnalyticsDebugOff) {
                         [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -1759,10 +1760,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
         
-        // profileAppend的属性必须是个NSSet
+        // profileAppend的属性必须是个NSSet、NSArray
         if ([eventType isEqualToString:@"profile_append"]) {
-            if (![properties[k] isKindOfClass:[NSSet class]]) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet. got %@ %@", self, [properties[k] class], properties[k]];
+            if (![properties[k] isKindOfClass:[NSSet class]] && ![properties[k] isKindOfClass:[NSArray class]]) {
+                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [properties[k] class], properties[k]];
                 SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -2398,8 +2399,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[self people] increment:profileDict];
 }
 
-- (void)append:(NSString *)profile by:(NSSet *)content {
-    [[self people] append:profile by:content];
+- (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
+    if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
+        [[self people] append:profile by:content];
+    }
 }
 
 - (void)deleteUser {
@@ -2687,9 +2690,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)append:(NSString *)profile by:(NSSet *)content {
+- (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
-        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_append"];
+        if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
+            [_sdk track:nil withProperties:@{profile: content} withType:@"profile_append"];
+        }
     }
 }
 
