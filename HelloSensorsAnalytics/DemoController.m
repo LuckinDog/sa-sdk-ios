@@ -45,7 +45,7 @@
 }
 
 - (void)testTrackInstallation {
-    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:nil];
+    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:nil userAgent:nil];
 }
 
 - (void)testProfileSet {
