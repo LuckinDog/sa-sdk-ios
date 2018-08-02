@@ -685,8 +685,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param event             event的名称
  * @param propertyDict     event的属性
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
+ * @param userAgent        客户端ua
  */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback userAgent:(nullable NSString *)userAgent;
 
 /**
  * @abstract
@@ -737,16 +738,18 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 /**
  * @abstract
  * H5 数据打通的时候默认通过 ServerUrl 校验
+ * @param userAgent 当前 ua 值
  */
-- (void)addWebViewUserAgentSensorsDataFlag;
+- (void)setWebViewUserAgentSensorsDataFlag:(NSString *)userAgent;
 
 /**
  * @abstract
  * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
  *
+ * @param userAgent 当前 ua 值
  * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
  */
-- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
+- (void)setWebViewUserAgentSensorsDataFlag:(nonnull NSString *)userAgent enableVerify:(BOOL)enableVerify;
 
 - (SensorsAnalyticsDebugMode)debugMode;
 
