@@ -667,8 +667,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @param event             event的名称
  * @param propertyDict     event的属性
+ * @param userAgent        客户端ua
  */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict userAgent:(nullable NSString *)userAgent;
 
 /**
  * @abstract
@@ -698,8 +699,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
  *
  * @param event             event的名称
+ * @param userAgent        客户端ua
  */
-- (void)trackInstallation:(NSString *)event;
+- (void)trackInstallation:(NSString *)event userAgent:(nullable NSString *)userAgent;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo;
 
@@ -740,7 +742,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * H5 数据打通的时候默认通过 ServerUrl 校验
  * @param userAgent 当前 ua 值
  */
-- (void)setWebViewUserAgentSensorsDataFlag:(NSString *)userAgent;
+- (void)addWebViewUserAgentSensorsDataFlag:(NSString *)userAgent;
 
 /**
  * @abstract
@@ -749,7 +751,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param userAgent 当前 ua 值
  * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
  */
-- (void)setWebViewUserAgentSensorsDataFlag:(nonnull NSString *)userAgent enableVerify:(BOOL)enableVerify;
+- (void)addWebViewUserAgentSensorsDataFlag:(nonnull NSString *)userAgent enableVerify:(BOOL)enableVerify;
 
 - (SensorsAnalyticsDebugMode)debugMode;
 
