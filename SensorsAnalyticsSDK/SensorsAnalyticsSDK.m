@@ -1582,12 +1582,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self trackInstallation:event withProperties:propertyDict disableCallback:NO userAgent:nil];
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict userAgent:(nullable NSString *)userAgent{
+    [self trackInstallation:event withProperties:propertyDict disableCallback:NO userAgent:userAgent];
 }
 
-- (void)trackInstallation:(NSString *)event {
-    [self trackInstallation:event withProperties:nil disableCallback:NO userAgent:nil];
+- (void)trackInstallation:(NSString *)event userAgent:(nullable NSString *)userAgent{
+    [self trackInstallation:event withProperties:nil disableCallback:NO userAgent:userAgent];
 }
 
 - (NSString  *)getIDFA {
@@ -2098,11 +2098,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)setWebViewUserAgentSensorsDataFlag:(NSString *)userAgent {
-    [self setWebViewUserAgentSensorsDataFlag:userAgent enableVerify:YES];
+
+- (void)addWebViewUserAgentSensorsDataFlag:(NSString *)userAgent {
+    [self addWebViewUserAgentSensorsDataFlag:userAgent enableVerify:YES];
 }
 
-- (void)setWebViewUserAgentSensorsDataFlag:(nonnull NSString *)userAgent enableVerify:(BOOL)enableVerify {
+- (void)addWebViewUserAgentSensorsDataFlag:(nonnull NSString *)userAgent enableVerify:(BOOL)enableVerify {
     if (userAgent == nil || userAgent.length == 0) {
         SAError(@"userAgent = nil, 将影响 H5 和 App 打通 ，渠道追踪功能 ");
         return;

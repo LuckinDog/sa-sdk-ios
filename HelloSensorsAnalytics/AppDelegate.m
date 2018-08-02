@@ -27,7 +27,7 @@
      SensorsAnalyticsEventTypeAppEnd];
 
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
-    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
+    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"} userAgent:nil];
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
 
@@ -37,7 +37,7 @@
         uaInMemory = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
     }
 
-    [[SensorsAnalyticsSDK sharedInstance] setWebViewUserAgentSensorsDataFlag:uaInMemory];
+    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag:uaInMemory];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
     return YES;
