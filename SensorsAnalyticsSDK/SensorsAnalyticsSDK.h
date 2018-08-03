@@ -397,8 +397,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @discussion
  * propertyDict是一个Map。
  * 其中的key是Property的名称，必须是<code>NSString</code>
- * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSDate</code>这些类型
- * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
+ * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSArray,<code>NSDate</code>这些类型
+ * 特别的，<code>NSSet</code>或者<code>NSArray类型的value中目前只支持其中的元素是<code>NSString</code>
  *
  * @param event             event的名称
  * @param propertyDict     event的属性
@@ -548,15 +548,16 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @discussion
  * propertyDict是一个Map。
  * 其中的key是Property的名称，必须是<code>NSString</code>
- * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSDate</code>这些类型
- * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
+ * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSArray,<code>NSDate</code>这些类型
+ * 特别的，<code>NSSet</code>或者<code>NSArray类型的value中目前只支持其中的元素是<code>NSString</code>
  *
  * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
  *
  * @param event             event的名称
  * @param propertyDict     event的属性
+ * @param userAgent        客户端ua
  */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict userAgent:(nullable NSString *)userAgent;
 
 /**
  * @abstract
@@ -565,16 +566,17 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @discussion
  * propertyDict是一个Map。
  * 其中的key是Property的名称，必须是<code>NSString</code>
- * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSDate</code>这些类型
- * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
+ * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSArray,<code>NSDate</code>这些类型
+ * 特别的，<code>NSSet</code>或者<code>NSArray</code>类型的value中目前只支持其中的元素是<code>NSString</code>
  *
  * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
  *
  * @param event             event的名称
  * @param propertyDict     event的属性
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
+ * @param userAgent        客户端ua
  */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback userAgent:(nullable NSString *)userAgent;
 
 /**
  * @abstract
@@ -585,8 +587,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
  *
  * @param event             event的名称
+ * @param userAgent        客户端ua
  */
-- (void)trackInstallation:(NSString *)event;
+- (void)trackInstallation:(NSString *)event userAgent:(nullable NSString *)userAgent;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo;
 
@@ -595,16 +598,18 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 /**
  * @abstract
  * H5 数据打通的时候默认通过 ServerUrl 校验
+ * @param userAgent 当前 ua 值
  */
-- (void)addWebViewUserAgentSensorsDataFlag;
+- (void)addWebViewUserAgentSensorsDataFlag:(NSString *)userAgent;
 
 /**
  * @abstract
  * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
  *
+ * @param userAgent 当前 ua 值
  * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
  */
-- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
+- (void)addWebViewUserAgentSensorsDataFlag:(nonnull NSString *)userAgent enableVerify:(BOOL)enableVerify;
 
 - (SensorsAnalyticsDebugMode)debugMode;
 
@@ -648,8 +653,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 返回的 NSDictionary 需满足以下要求
  * 重要：1,key 必须是NSString
  *          2,key 的名称必须符合要求
- *          3,value 的类型必须是 NSString, NSNumber, NSSet, NSDate
- *          4,value 类型为 NSSet 时，NSSet 中的所有元素必须为 NSString
+ *          3,value 的类型必须是 NSString, NSNumber, NSSet,NSArray,NSDate
+ *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
  * @param dynamicSuperProperties block 用来返回事件的动态公共属性
  */
 -(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
@@ -710,9 +715,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @discussion
  * 这些Profile的内容用一个<code>NSDictionary</code>来存储
  * 其中的key是Profile的名称，必须是<code>NSString</code>
- * Value则是Profile的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,
+ * Value则是Profile的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSArray
  *                              <code>NSDate</code>这些类型
- * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
+ * 特别的，<code>NSSet</code>或者<code>NSArray类型的value中目前只支持其中的元素是<code>NSString</code>
  * 如果某个Profile之前已经存在了，则这次会被覆盖掉；不存在，则会创建
  *
  * @param profileDict 要替换的那些Profile的内容
@@ -792,16 +797,16 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 向一个<code>NSSet</code>类型的value添加一些值
+ * 向一个<code>NSSet</code>或者<code>NSArray类型的value添加一些值
  *
  * @discussion
- * 如前面所述，这个<code>NSSet</code>的元素必须是<code>NSString</code>，否则，会忽略
- * 同时，如果要append的Profile之前不存在，会初始化一个空的<code>NSSet</code>
+ * 如前面所述，这个<code>NSSet</code>或者<code>NSArray的元素必须是<code>NSString</code>，否则，会忽略
+ * 同时，如果要append的Profile之前不存在，会初始化一个空的<code>NSSet</code>或者<code>NSArray</code>
  *
  * @param profile profile
  * @param content description
  */
-- (void)append:(NSString *)profile by:(NSSet *)content;
+- (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content;
 
 /**
  * @abstract
@@ -890,9 +895,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @discussion
  * 这些Profile的内容用一个<code>NSDictionary</code>来存储
  * 其中的key是Profile的名称，必须是<code>NSString</code>
- * Value则是Profile的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,
+ * Value则是Profile的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSArray</code>,
  *                              <code>NSDate</code>这些类型
- * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
+ * 特别的，<code>NSSet</code>或者<code>NSArray</code>类型的value中目前只支持其中的元素是<code>NSString</code>
  * 如果某个Profile之前已经存在了，则这次会被覆盖掉；不存在，则会创建
  *
  * @param profileDict 要替换的那些Profile的内容
@@ -972,16 +977,16 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 向一个<code>NSSet</code>类型的value添加一些值
+ * 向一个<code>NSSet</code>或者<code>NSArray</code>类型的value添加一些值
  *
  * @discussion
- * 如前面所述，这个<code>NSSet</code>的元素必须是<code>NSString</code>，否则，会忽略
- * 同时，如果要append的Profile之前不存在，会初始化一个空的<code>NSSet</code>
+ * 如前面所述，这个<code>NSSet</code>或者<code>NSArray</code>的元素必须是<code>NSString</code>，否则，会忽略
+ * 同时，如果要append的Profile之前不存在，会初始化一个空的<code>NSSet</code>或者<code>NSArray</code>
  *
  * @param profile profile
  * @param content description
  */
-- (void)append:(NSString *)profile by:(NSSet *)content;
+- (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content;
 
 /**
  * @abstract
