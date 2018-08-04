@@ -29,17 +29,11 @@
 
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
     [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
-    NSString *uaInMemory = [NSUserDefaults.standardUserDefaults objectForKey:@"UserAgent"];
-    if (uaInMemory == nil) {
-        UIWebView *tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        uaInMemory = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-    }
-    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"} userAgent:nil];
+    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
-
-    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag:uaInMemory];
+    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
     return YES;
