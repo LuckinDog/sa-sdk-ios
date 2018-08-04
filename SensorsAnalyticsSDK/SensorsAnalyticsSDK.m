@@ -113,6 +113,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SensorsAnalyticsNetworkType _networkTypePolicy;
     NSString *_deviceModel;
     NSString *_osVersion;
+    NSString *_userAgent;
     NSString *_originServerUrl;
     NSString *_cookie;
 }
@@ -191,6 +192,111 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return distinctId;
 }
 
+
++(NSString *)getUserAgent {
+    //1, 尝试从 SAUserAgent 缓存读取，
+    __block  NSString *currentUA = [[NSUserDefaults standardUserDefaults] objectForKey:@"SAUserAgent"];
+    if (currentUA  == nil)  {
+        //2,从 webview 执行 JS 获取 UA
+        if ([NSThread isMainThread]) {
+            UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+                currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+                [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+            });
+        }
+    }
+    return currentUA;
+}
+
+
+- (BOOL)shouldTrackClass:(Class)aClass {
+    static NSSet *blacklistedClasses = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSArray *_blacklistedViewControllerClassNames = @[
+            @"SFBrowserRemoteViewController",
+            @"SFSafariViewController",
+            @"UIAlertController",
+            @"UIInputWindowController",
+            @"UINavigationController",
+            @"UIKeyboardCandidateGridCollectionViewController",
+            @"UICompatibilityInputViewController",
+            @"UIApplicationRotationFollowingController",
+            @"UIApplicationRotationFollowingControllerNoTouches",
+            @"AVPlayerViewController",
+            @"UIActivityGroupViewController",
+            @"UIReferenceLibraryViewController",
+            @"UIKeyboardCandidateRowViewController",
+            @"UIKeyboardHiddenViewController",
+            @"_UIAlertControllerTextFieldViewController",
+            @"_UILongDefinitionViewController",
+            @"_UIResilientRemoteViewContainerViewController",
+            @"_UIShareExtensionRemoteViewController",
+            @"_UIRemoteDictionaryViewController",
+            @"UISystemKeyboardDockController",
+            @"_UINoDefinitionViewController",
+            @"UIImagePickerController",
+            @"_UIActivityGroupListViewController",
+            @"_UIRemoteViewController",
+            @"_UIFallbackPresentationViewController",
+            @"_UIDocumentPickerRemoteViewController",
+            @"_UIAlertShimPresentingViewController",
+            @"_UIWaitingForRemoteViewContainerViewController",
+            @"UIDocumentMenuViewController",
+            @"UIActivityViewController",
+            @"_UIActivityUserDefaultsViewController",
+            @"_UIActivityViewControllerContentController",
+            @"_UIRemoteInputViewController",
+            @"UIViewController",
+            @"UITableViewController",
+            @"_UIUserDefaultsActivityNavigationController",
+            @"UISnapshotModalViewController",
+            @"WKActionSheet",
+            @"DDSafariViewController",
+            @"SFAirDropActivityViewController",
+            @"CKSMSComposeController",
+            @"DDParsecLoadingViewController",
+            @"PLUIPrivacyViewController",
+            @"PLUICameraViewController",
+            @"SLRemoteComposeViewController",
+            @"CAMViewfinderViewController",
+            @"DDParsecNoDataViewController",
+            @"CAMPreviewViewController",
+            @"DDParsecCollectionViewController",
+            @"SLComposeViewController",
+            @"DDParsecRemoteCollectionViewController",
+            @"AVFullScreenPlaybackControlsViewController",
+            @"PLPhotoTileViewController",
+            @"AVFullScreenViewController",
+            @"CAMImagePickerCameraViewController",
+            @"CKSMSComposeRemoteViewController",
+            @"PUPhotoPickerHostViewController",
+            @"PUUIAlbumListViewController",
+            @"PUUIPhotosAlbumViewController",
+            @"SFAppAutoFillPasswordViewController",
+            @"PUUIMomentsGridViewController",
+            @"SFPasswordRemoteViewController",
+            @"UIWebRotatingAlertController"
+        ];
+        NSMutableSet *transformedClasses = [NSMutableSet setWithCapacity:_blacklistedViewControllerClassNames.count];
+        for (NSString *className in _blacklistedViewControllerClassNames) {
+            if (NSClassFromString(className) != nil) {
+                [transformedClasses addObject:NSClassFromString(className)];
+            }
+        }
+        blacklistedClasses = [transformedClasses copy];
+    });
+
+    return ![blacklistedClasses containsObject:aClass];
+}
+
 - (instancetype)initWithServerURL:(NSString *)serverURL
                     andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
@@ -210,6 +316,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
 
+    
             _debugMode = debugMode;
             [self setServerUrl:serverURL];
             [self enableLog];
@@ -266,6 +373,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             [self setUpListeners];
 
+            // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
+            _userAgent = [self.class getUserAgent];
+            
             // XXX: App Active 的时候会启动计时器，此处不需要启动
             //        [self startFlushTimer];
             NSString *logMessage = nil;
@@ -1509,7 +1619,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback userAgent:(nullable NSString *)userAgent{
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
     BOOL hasTrackInstallation = NO;
     NSString *userDefaultsKey = nil;
     if (disableCallback) {
@@ -1550,20 +1660,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@YES forKey:@"$ios_install_disable_callback"];
         }
 
-        if (userAgent && userAgent.length) {
-            [properties setValue:userAgent forKey:@"$user_agent"];
-            //存储 UA
-            [[NSUserDefaults standardUserDefaults] setValue:userAgent forKey:@"SAUserAgent"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        }else {
-            NSString *cachedUserAgent = [[NSUserDefaults standardUserDefaults] objectForKey:@"SAUserAgent"];
-            if (cachedUserAgent && cachedUserAgent.length) {
-                [properties setValue:userAgent forKey:@"$user_agent"];
-            }else {
-                [properties setValue:@"" forKey:@"$user_agent"];
-                //提示没有UA
-                SAError(@"userAgent = nil, 将影响 H5 和 App 打通 ，渠道追踪功能 ");
-            }
+        if (_userAgent) {
+            [properties setValue:_userAgent forKey:@"$user_agent"];
         }
 
         if (propertyDict != nil) {
@@ -1582,12 +1680,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict userAgent:(nullable NSString *)userAgent{
-    [self trackInstallation:event withProperties:propertyDict disableCallback:NO userAgent:userAgent];
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
 }
 
-- (void)trackInstallation:(NSString *)event userAgent:(nullable NSString *)userAgent{
-    [self trackInstallation:event withProperties:nil disableCallback:NO userAgent:userAgent];
+- (void)trackInstallation:(NSString *)event {
+    [self trackInstallation:event withProperties:nil disableCallback:NO];
 }
 
 - (NSString  *)getIDFA {
@@ -2099,23 +2197,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 
-- (void)addWebViewUserAgentSensorsDataFlag:(NSString *)userAgent {
-    [self addWebViewUserAgentSensorsDataFlag:userAgent enableVerify:YES];
+- (void)addWebViewUserAgentSensorsDataFlag {
+    [self addWebViewUserAgentSensorsDataFlag:YES];
 }
 
-- (void)addWebViewUserAgentSensorsDataFlag:(nonnull NSString *)userAgent enableVerify:(BOOL)enableVerify {
-    if (userAgent == nil || userAgent.length == 0) {
-        SAError(@"userAgent = nil, 将影响 H5 和 App 打通 ，渠道追踪功能 ");
-        return;
-    }
-    dispatch_async(self.serialQueue,^{
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify  {
+    [NSThread sa_safelyRunOnMainThreadSync:^{
         BOOL verify = enableVerify;
         @try {
             if (self->_serverURL == nil || self->_serverURL.length == 0) {
                 verify = NO;
             }
             SAServerUrl *ss = [[SAServerUrl alloc]initWithUrl:self->_serverURL];
-            NSString *oldAgent = userAgent;
+            UIWebView *tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            NSString *oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
             NSString *newAgent = oldAgent;
             if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
                 if (verify) {
@@ -2126,13 +2221,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
             [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-            //存入缓存
-            [[NSUserDefaults standardUserDefaults] setValue:newAgent forKey:@"SAUserAgent"];
             [[NSUserDefaults standardUserDefaults] synchronize];
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
-    });
+    }
+     ];
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
