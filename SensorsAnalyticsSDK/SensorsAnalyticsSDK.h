@@ -748,6 +748,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
 
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
+
+
 - (SensorsAnalyticsDebugMode)debugMode;
 
 /**
