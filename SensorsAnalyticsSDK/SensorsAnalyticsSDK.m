@@ -284,21 +284,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 +(NSString *)getUserAgent {
-    //1, 尝试从 SAUserAgent 缓存读取，
-    __block  NSString *currentUA = [[NSUserDefaults standardUserDefaults] objectForKey:@"SAUserAgent"];
+    __block  NSString *currentUA = nil;
     if (currentUA  == nil)  {
-        //2,从 webview 执行 JS 获取 UA
         if ([NSThread isMainThread]) {
             UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
             currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-            [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
         } else {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
                 currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-                [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
             });
         }
     }
