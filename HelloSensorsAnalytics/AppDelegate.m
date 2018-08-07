@@ -21,23 +21,14 @@
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         return @{@"__APPState__":@(UIApplication.sharedApplication.applicationState)};
     }];
-    [[SensorsAnalyticsSDK sharedInstance] clearKeychainData];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd];
-
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
-    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"} userAgent:nil];
+    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
+    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
-
-    NSString *uaInMemory = [NSUserDefaults.standardUserDefaults objectForKey:@"UserAgent"];
-    if (uaInMemory == nil) {
-        UIWebView *tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        uaInMemory = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-    }
-
-    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag:uaInMemory];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
     return YES;

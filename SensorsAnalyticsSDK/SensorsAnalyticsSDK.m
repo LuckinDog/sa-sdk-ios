@@ -113,6 +113,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SensorsAnalyticsNetworkType _networkTypePolicy;
     NSString *_deviceModel;
     NSString *_osVersion;
+    NSString *_userAgent;
     NSString *_originServerUrl;
     NSString *_cookie;
 }
@@ -191,6 +192,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return distinctId;
 }
 
+
++(NSString *)getUserAgent {
+    //在此之前调用过 addWebViewUserAgentSensorsDataFlag ，可以直接从 _userAgent 获取 ua
+    __block  NSString *currentUA = self.sharedInstance->_userAgent;
+    if (currentUA  == nil)  {
+        if ([NSThread isMainThread]) {
+            UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            self.sharedInstance->_userAgent = currentUA;
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+                currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+                self.sharedInstance->_userAgent = currentUA;
+            });
+        }
+    }
+    return currentUA;
+}
+
 - (instancetype)initWithServerURL:(NSString *)serverURL
                     andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
@@ -210,6 +231,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
 
+    
             _debugMode = debugMode;
             [self setServerUrl:serverURL];
             [self enableLog];
@@ -265,7 +287,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
 
             [self setUpListeners];
-
+            
             // XXX: App Active 的时候会启动计时器，此处不需要启动
             //        [self startFlushTimer];
             NSString *logMessage = nil;
@@ -1509,7 +1531,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback userAgent:(nullable NSString *)userAgent{
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
     BOOL hasTrackInstallation = NO;
     NSString *userDefaultsKey = nil;
     if (disableCallback) {
@@ -1550,20 +1572,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@YES forKey:@"$ios_install_disable_callback"];
         }
 
-        if (userAgent && userAgent.length) {
+        NSString *userAgent = [propertyDict objectForKey:@"$user_agent"];
+        if (userAgent ==nil || userAgent.length == 0) {
+            userAgent = self.class.getUserAgent;
+        }
+        if (userAgent) {
             [properties setValue:userAgent forKey:@"$user_agent"];
-            //存储 UA
-            [[NSUserDefaults standardUserDefaults] setValue:userAgent forKey:@"SAUserAgent"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        }else {
-            NSString *cachedUserAgent = [[NSUserDefaults standardUserDefaults] objectForKey:@"SAUserAgent"];
-            if (cachedUserAgent && cachedUserAgent.length) {
-                [properties setValue:userAgent forKey:@"$user_agent"];
-            }else {
-                [properties setValue:@"" forKey:@"$user_agent"];
-                //提示没有UA
-                SAError(@"userAgent = nil, 将影响 H5 和 App 打通 ，渠道追踪功能 ");
-            }
         }
 
         if (propertyDict != nil) {
@@ -1582,12 +1596,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict userAgent:(nullable NSString *)userAgent{
-    [self trackInstallation:event withProperties:propertyDict disableCallback:NO userAgent:userAgent];
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
 }
 
-- (void)trackInstallation:(NSString *)event userAgent:(nullable NSString *)userAgent{
-    [self trackInstallation:event withProperties:nil disableCallback:NO userAgent:userAgent];
+- (void)trackInstallation:(NSString *)event {
+    [self trackInstallation:event withProperties:nil disableCallback:NO];
 }
 
 - (NSString  *)getIDFA {
@@ -2099,23 +2113,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 
-- (void)addWebViewUserAgentSensorsDataFlag:(NSString *)userAgent {
-    [self addWebViewUserAgentSensorsDataFlag:userAgent enableVerify:YES];
+- (void)addWebViewUserAgentSensorsDataFlag {
+    [self addWebViewUserAgentSensorsDataFlag:YES];
 }
 
-- (void)addWebViewUserAgentSensorsDataFlag:(nonnull NSString *)userAgent enableVerify:(BOOL)enableVerify {
-    if (userAgent == nil || userAgent.length == 0) {
-        SAError(@"userAgent = nil, 将影响 H5 和 App 打通 ，渠道追踪功能 ");
-        return;
-    }
-    dispatch_async(self.serialQueue,^{
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify  {
+    [self addWebViewUserAgentSensorsDataFlag:enableVerify userAgent:nil];
+}
+
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent{
+    [NSThread sa_safelyRunOnMainThreadSync:^{
         BOOL verify = enableVerify;
         @try {
             if (self->_serverURL == nil || self->_serverURL.length == 0) {
                 verify = NO;
             }
             SAServerUrl *ss = [[SAServerUrl alloc]initWithUrl:self->_serverURL];
-            NSString *oldAgent = userAgent;
+            NSString *oldAgent = nil;
+            if (userAgent && userAgent.length) {
+                oldAgent = userAgent;
+            } else {
+                oldAgent = self.class.getUserAgent;
+            }
             NSString *newAgent = oldAgent;
             if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
                 if (verify) {
@@ -2124,16 +2143,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     newAgent = [oldAgent stringByAppendingString:@" /sa-sdk-ios"];
                 }
             }
+            //使 newAgent 生效，并设置 _userAgent
             NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
             [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-            //存入缓存
-            [[NSUserDefaults standardUserDefaults] setValue:newAgent forKey:@"SAUserAgent"];
+            self->_userAgent = newAgent;
             [[NSUserDefaults standardUserDefaults] synchronize];
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
-    });
+    }
+     ];
 }
+
 
 - (SensorsAnalyticsDebugMode)debugMode {
     return _debugMode;
