@@ -113,6 +113,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SensorsAnalyticsNetworkType _networkTypePolicy;
     NSString *_deviceModel;
     NSString *_osVersion;
+    NSString *_userAgent;
     NSString *_originServerUrl;
     NSString *_cookie;
 }
@@ -193,21 +194,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 
 +(NSString *)getUserAgent {
-    //1, 尝试从 SAUserAgent 缓存读取，
-    __block  NSString *currentUA = [[NSUserDefaults standardUserDefaults] objectForKey:@"SAUserAgent"];
+    //在此之前调用过 addWebViewUserAgentSensorsDataFlag ，可以直接从 _userAgent 获取 ua
+    __block  NSString *currentUA = self.sharedInstance->_userAgent;
     if (currentUA  == nil)  {
-        //2,从 webview 执行 JS 获取 UA
         if ([NSThread isMainThread]) {
             UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
             currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-            [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            self.sharedInstance->_userAgent = currentUA;
         } else {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
                 currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-                [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
+                self.sharedInstance->_userAgent = currentUA;
             });
         }
     }
@@ -2217,8 +2215,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (userAgent && userAgent.length) {
                 oldAgent = userAgent;
             } else {
-                UIWebView *tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-                oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+                oldAgent = self.class.getUserAgent;
             }
             NSString *newAgent = oldAgent;
             if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
@@ -2228,10 +2225,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     newAgent = [oldAgent stringByAppendingString:@" /sa-sdk-ios"];
                 }
             }
-            //使 newAgent 生效，并缓存下来
+            //使 newAgent 生效，并设置 _userAgent
             NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
             [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-            [[NSUserDefaults standardUserDefaults] setObject:newAgent forKey:@"SAUserAgent"];
+            self->_userAgent = newAgent;
             [[NSUserDefaults standardUserDefaults] synchronize];
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);

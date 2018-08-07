@@ -606,6 +606,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
 
+/**
+ * @abstract
+ * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
+ *
+ * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
+ * @param userAgent  userAgent = nil ,SDK 会从 webview 中读取 ua
+
+ */
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
 
 
