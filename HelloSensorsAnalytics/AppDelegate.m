@@ -19,7 +19,15 @@
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
-        return @{@"__APPState__":@(UIApplication.sharedApplication.applicationState)};
+        __block UIApplicationState appState;
+        if (NSThread.isMainThread) {
+            appState = UIApplication.sharedApplication.applicationState;
+        }else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                appState = UIApplication.sharedApplication.applicationState;
+            });
+        }
+        return @{@"__APPState__":@(appState)};
     }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
