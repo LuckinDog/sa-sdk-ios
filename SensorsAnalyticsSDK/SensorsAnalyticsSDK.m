@@ -776,17 +776,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             NSString *type = [eventDict valueForKey:@"type"];
-            NSString *bestId;
-            if ([self loginId] != nil) {
-                bestId = [self loginId];
-            } else{
-                bestId = [self distinctId];
-            }
-
-            if (bestId == nil) {
-                [self resetAnonymousId];
-                bestId = [self anonymousId];
-            }
+            NSString *bestId = self.getBestId;
 
             [eventDict setValue:@([[self class] getCurrentTime]) forKey:@"time"];
 
@@ -815,8 +805,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSMutableDictionary *propertiesDict = [eventDict objectForKey:@"properties"];
             if([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]){
+                // track / track_signup 类型的请求，还是要加上各种公共property
+                // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
                 [propertiesDict addEntriesFromDictionary:_superProperties];
+                NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+                [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
                 // 每次 track 时手机网络状态
                 NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
@@ -1634,17 +1628,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         NSMutableDictionary *e;
-        NSString *bestId;
-        if ([self loginId] != nil) {
-            bestId = [self loginId];
-        } else{
-            bestId = [self distinctId];
-        }
-
-        if (bestId == nil) {
-            [self resetAnonymousId];
-            bestId = [self anonymousId];
-        }
+        NSString *bestId = self.getBestId;
 
         if ([type isEqualToString:@"track_signup"]) {
             e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -1752,6 +1736,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     });
+}
+
+-(NSString *)getBestId{
+    NSString *bestId;
+    if ([self loginId] != nil) {
+        bestId = [self loginId];
+    } else{
+        bestId = [self distinctId];
+    }
+
+    if (bestId == nil) {
+        [self resetAnonymousId];
+        bestId = [self anonymousId];
+    }
+    return bestId;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
