@@ -47,11 +47,6 @@
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:navigationAction.request]) {
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-    
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
