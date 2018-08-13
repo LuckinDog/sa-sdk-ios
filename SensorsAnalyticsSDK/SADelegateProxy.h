@@ -15,6 +15,6 @@
 +(instancetype)proxyWithUIWebView:(id)target;
 +(instancetype)proxyWithWKWebView:(id)target;
 +(instancetype)proxyWithTabBar:(id)target;
-+(instancetype)proxyWithUIControl:(id)target;
-+(instancetype)proxyWithUIGestureRecognizerDelegateProxy:(id)target ;
+//+(instancetype)proxyWithUIControl:(id)target;
++(instancetype)proxyWithUIGestureRecognizer:(id)target;//仅支持UILabel，UIImageView
 @end

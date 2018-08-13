@@ -18,6 +18,8 @@
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;
 -(void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler  isSensorsReq:(BOOL *)isSensorsReq;
 -(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item;
+//-(void)onClickUIControl:(id)control;
+-(void)onGestureRecognizer:(UIGestureRecognizer *)gesture;
 @end
 
 #endif /* SensorsAnalyticsSDK_priv_h */

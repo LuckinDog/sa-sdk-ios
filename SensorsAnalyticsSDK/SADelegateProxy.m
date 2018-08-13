@@ -107,6 +107,7 @@
     if ([self.target isKindOfClass:UITabBar.class]) {
         return;
     }
+//    [SensorsAnalyticsSDK.sharedInstance onClickUIControl:control];
     SALog(@"\n%@\n%@\n",self.target,control);
 }
 @end
@@ -120,6 +121,10 @@
 -(void)onGestureRecognizer:(UIGestureRecognizer *)gesture{
     //do something for track
     SALog(@"\n%@\n%@\n",self.target,gesture);
+    [SensorsAnalyticsSDK.sharedInstance onGestureRecognizer:gesture];
+}
+-(void)dealloc {
+
 }
 @end
 
@@ -154,7 +159,7 @@
     return delegateProxy;
 }
 
-+(instancetype)proxyWithUIGestureRecognizerDelegateProxy:(id)target {
++(instancetype)proxyWithUIGestureRecognizer:(id)target {
     SAUIGestureRecognizerDelegateProxy *delegateProxy = [[SAUIGestureRecognizerDelegateProxy alloc]initWithObject:target];
     return delegateProxy;
 }

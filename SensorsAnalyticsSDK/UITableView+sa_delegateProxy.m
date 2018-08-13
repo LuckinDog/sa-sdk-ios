@@ -155,48 +155,56 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
     
 }
 @end
-void sa_addTargetWithActionForControlEvents(id obj ,SEL sel, id target,SEL action, UIControlEvents events){
-    SEL swizzileSel = sel_getUid("sa_addTarget:action:forControlEvents:");
-    SEL action_proxy = sel_getUid("onClickUIControl:");
-    SADelegateProxy *delegateProxy = nil;
-    delegateProxy = [SADelegateProxy proxyWithUIControl:target];
-    [(NSObject *)obj sa_setDelagateProxy:delegateProxy];
-    ((void (*)(id, SEL,id,SEL,UIControlEvents))objc_msgSend)(obj,swizzileSel,target,action,events);
-    ((void (*)(id, SEL,id,SEL,UIControlEvents))objc_msgSend)(obj,swizzileSel,delegateProxy,action_proxy,events);
-}
+//void sa_addTargetWithActionForControlEvents(id obj ,SEL sel, id target,SEL action, UIControlEvents events){
+//    SEL swizzileSel = sel_getUid("sa_addTarget:action:forControlEvents:");
+//    SEL action_proxy = sel_getUid("onClickUIControl:");
+//    SADelegateProxy *delegateProxy = nil;
+//    delegateProxy = [SADelegateProxy proxyWithUIControl:target];
+//    [(NSObject *)obj sa_setDelagateProxy:delegateProxy];
+//    ((void (*)(id, SEL,id,SEL,UIControlEvents))objc_msgSend)(obj,swizzileSel,target,action,events);
+//    ((void (*)(id, SEL,id,SEL,UIControlEvents))objc_msgSend)(obj,swizzileSel,delegateProxy,action_proxy,events);
+//}
 
-@implementation UIControl (sa_delegateProxy)
-+ (void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SEL origSel_ = sel_getUid("addTarget:action:forControlEvents:");
-        SEL swizzileSel = sel_getUid("sa_addTarget:action:forControlEvents:");
-        Method origMethod = class_getInstanceMethod(self, origSel_);
-        const char* type = method_getTypeEncoding(origMethod);
-        class_addMethod(self, swizzileSel, (IMP)sa_addTargetWithActionForControlEvents, type);
-        Method swizzleMethod = class_getInstanceMethod(self, swizzileSel);
-        IMP origIMP = method_getImplementation(origMethod);
-        IMP swizzleIMP = method_getImplementation(swizzleMethod);
-        method_setImplementation(origMethod, swizzleIMP);
-        method_setImplementation(swizzleMethod, origIMP);
-    });
-}
-
--(void)dealloc{
-
-}
-
-@end
+//@implementation UIControl (sa_delegateProxy)
+//+ (void)load {
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        SEL origSel_ = sel_getUid("addTarget:action:forControlEvents:");
+//        SEL swizzileSel = sel_getUid("sa_addTarget:action:forControlEvents:");
+//        Method origMethod = class_getInstanceMethod(self, origSel_);
+//        const char* type = method_getTypeEncoding(origMethod);
+//        class_addMethod(self, swizzileSel, (IMP)sa_addTargetWithActionForControlEvents, type);
+//        Method swizzleMethod = class_getInstanceMethod(self, swizzileSel);
+//        IMP origIMP = method_getImplementation(origMethod);
+//        IMP swizzleIMP = method_getImplementation(swizzleMethod);
+//        method_setImplementation(origMethod, swizzleIMP);
+//        method_setImplementation(swizzleMethod, origIMP);
+//    });
+//}
+//
+//-(void)dealloc{
+//
+//}
+//
+//@end
 
 void sa_addGestureRecognizer(id obj ,SEL sel, UIGestureRecognizer *gesture){
     SEL swizzileSel = sel_getUid("sa_addGestureRecognizer:");
     SEL action_proxy = sel_getUid("onGestureRecognizer:");
     SADelegateProxy *delegateProxy = nil;
     if ([obj isKindOfClass:UIImageView.class] || [obj isKindOfClass:UILabel.class]) {
-        delegateProxy =  [SADelegateProxy proxyWithUIGestureRecognizerDelegateProxy:gesture];
+        delegateProxy =  [SADelegateProxy proxyWithUIGestureRecognizer:obj];
+        [gesture addTarget:delegateProxy action:action_proxy];
+        [(NSObject *)obj sa_setDelagateProxy:delegateProxy];
     }
-    [gesture addTarget:delegateProxy action:action_proxy];
-    [(NSObject *)obj sa_setDelagateProxy:delegateProxy];
+   
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
+    if ([obj isKindOfClass:NSClassFromString(@"_UIAlertControllerView")] || [obj isKindOfClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView")]) {
+        delegateProxy =  [SADelegateProxy proxyWithUIGestureRecognizer:obj];
+        [gesture addTarget:delegateProxy action:action_proxy];
+        [(NSObject *)obj sa_setDelagateProxy:delegateProxy];
+    }
+#endif
     ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,gesture);
 }
 @interface UIView (sa_delegateProxy)

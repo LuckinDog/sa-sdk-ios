@@ -2816,45 +2816,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 
 - (void)_enableAutoTrack {
-//    void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
-//        UIViewController *controller = (UIViewController *)obj;
-//        if (!controller) {
-//            return;
-//        }
-//
-//        Class klass = [controller class];
-//        if (!klass) {
-//            return;
-//        }
-//
-//        NSString *screenName = NSStringFromClass(klass);
-//
-//        //UITableView
-//#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
-//        if ([controller respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
-//            [SASwizzler unswizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UITableView_AutoTrack"]];
-//        }
-//#endif
-//
-//        //UICollectionView
-//#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
-//        if ([controller respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
-//            [SASwizzler unswizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UICollectionView_AutoTrack"]];
-//        }
-//#endif
-//    };
-//
-//    void (^gestureRecognizerAppClickBlock)(id, SEL, id) = ^(id target, SEL command, id arg) {
-//        @try {
-//            if ([arg isKindOfClass:[UITapGestureRecognizer class]] ||
-//                [arg isKindOfClass:[UILongPressGestureRecognizer class]]) {
-//                [arg addTarget:self action:@selector(trackGestureRecognizerAppClick:)];
-//            }
-//        } @catch (NSException *exception) {
-//            SAError(@"%@ error: %@", self, exception);
-//        }
-//    };
-
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -2863,45 +2824,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSError *error = NULL;
         //$AppClick
         // Actions & Events
-//        [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-//                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
-//                                      error:&error];
+        [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
+                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
+                                      error:&error];
         if (error) {
             SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
             error = NULL;
         }
     });
-    //$AppClick
-    //UITableView、UICollectionView
-//#if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
-//    [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
-//                                    onClass:[UIViewController class]
-//                                  withBlock:unswizzleUITableViewAppClickBlock
-//                                      named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
-//#endif
-
-    //UILabel
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UILABEL
-//    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
-#endif
-
-    //UIImageView
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGEVIEW
-//    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
-#endif
-
-    //UIAlertController & UIActionSheet
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIALERTCONTROLLER
-#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-    //iOS9
-    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerView_addGestureRecognizer"];
-    //iOS10
-    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerInterfaceActionGroupView_addGestureRecognizer"];
-#endif
-#endif
-#endif
-
+   
     //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
     if (NSClassFromString(@"RCTUIManager")) {
@@ -2909,186 +2840,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
     }
 #endif
-}
-
-- (void)trackGestureRecognizerAppClick:(id)target {
-    @try {
-        if (target == nil) {
-            return;
-        }
-        UIGestureRecognizer *gesture = target;
-        if (gesture == nil) {
-            return;
-        }
-
-        if (gesture.state != UIGestureRecognizerStateEnded) {
-            return;
-        }
-
-        UIView *view = gesture.view;
-        if (view == nil) {
-            return;
-        }
-        //关闭 AutoTrack
-        if (![self isAutoTrackEnabled]) {
-            return;
-        }
-
-        //忽略 $AppClick 事件
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-
-        if ([view isKindOfClass:[UILabel class]]) {//UILabel
-            if ([self isViewTypeIgnored:[UILabel class]]) {
-                return;
-            }
-        } else if ([view isKindOfClass:[UIImageView class]]) {//UIImageView
-            if ([self isViewTypeIgnored:[UIImageView class]]) {
-                return;
-            }
-        }
-#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-        else if ([view isKindOfClass:NSClassFromString(@"_UIAlertControllerView")] ||
-                   [view isKindOfClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView")]) {//UIAlertController
-            if ([self isViewTypeIgnored:NSClassFromString(@"UIAlertController")]) {
-                return;
-            }
-        }
-#endif
-
-//        if (view.sensorsAnalyticsIgnoreView) {
-//            return;
-//        }
-
-        UIViewController *viewController = [self currentViewController];
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-
-        if (viewController != nil) {
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
-                return;
-            }
-
-            //获取 Controller 名称($screen_name)
-            NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:@"$screen_name"];
-
-            NSString *controllerTitle = viewController.navigationItem.title;
-            if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-            }
-
-            //再获取 controller.navigationItem.titleView, 并且优先级比较高
-            NSString *elementContent = [self getUIViewControllerTitle:viewController];
-            if (elementContent != nil && [elementContent length] > 0) {
-                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                [properties setValue:elementContent forKey:@"$title"];
-            }
-        }
-
-        //ViewID
-        if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
-        }
-
-        if ([view isKindOfClass:[UILabel class]]) {
-            [properties setValue:@"UILabel" forKey:@"$element_type"];
-            UILabel *label = (UILabel*)view;
-            NSString *sa_elementContent = label.sa_elementContent;
-            if (sa_elementContent && sa_elementContent.length > 0) {
-                [properties setValue:sa_elementContent forKey:@"$element_content"];
-            }
-            [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-        } else if ([view isKindOfClass:[UIImageView class]]) {
-            [properties setValue:@"UIImageView" forKey:@"$element_type"];
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-            UIImageView *imageView = (UIImageView *)view;
-            [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-            if (imageView) {
-                if (imageView.image) {
-                    NSString *imageName = imageView.image.sensorsAnalyticsImageName;
-                    if (imageName != nil) {
-                        [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
-                    }
-                }
-            }
-#endif
-        }
-#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-        else if ([NSStringFromClass([view class]) isEqualToString:@"_UIAlertControllerView"]) {//iOS9
-            BOOL isOK = NO;
-            Ivar ivar = class_getInstanceVariable([view class], "_actionViews");
-            NSMutableArray *actionviews =  object_getIvar(view, ivar);
-            for (UIView *actionview in actionviews) {
-                CGPoint point = [gesture locationInView:actionview];
-                if ([NSStringFromClass([actionview class]) isEqualToString:@"_UIAlertControllerActionView"] &&
-                    point.x > 0 && point.x < CGRectGetWidth(actionview.bounds) &&
-                    point.y > 0 && point.y < CGRectGetHeight(actionview.bounds) &&
-                    gesture.state == UIGestureRecognizerStateEnded) {
-                    UILabel *titleLabel = [actionview performSelector:@selector(titleLabel)];
-                    if (titleLabel) {
-                        isOK = YES;
-                        [properties setValue:@"UIAlertController" forKey:@"$element_type"];
-                        [properties setValue:titleLabel.text forKey:@"$element_content"];
-                    }
-                }
-            }
-            if (!isOK) {
-                return;
-            }
-        } else if ([NSStringFromClass([view class]) isEqualToString:@"_UIAlertControllerInterfaceActionGroupView"]) {//iOS10
-            BOOL isOK = NO;
-            NSMutableArray *targets = [gesture valueForKey:@"_targets"];
-            id targetContainer = targets[0];
-            id targetOfGesture = [targetContainer valueForKey:@"_target"];
-            if ([targetOfGesture isKindOfClass:[NSClassFromString(@"UIInterfaceActionSelectionTrackingController") class]]) {
-                Ivar ivar = class_getInstanceVariable([targetOfGesture class], "_representationViews");
-                NSMutableArray *representationViews =  object_getIvar(targetOfGesture, ivar);
-                for (UIView *representationView in representationViews) {
-                    CGPoint point = [gesture locationInView:representationView];
-                    if ([NSStringFromClass([representationView class]) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] &&
-                        point.x > 0 && point.x < CGRectGetWidth(representationView.bounds) &&
-                        point.y > 0 && point.y < CGRectGetHeight(representationView.bounds) &&
-                        gesture.state == UIGestureRecognizerStateEnded) {
-                        isOK = YES;
-                        if ([representationView respondsToSelector:NSSelectorFromString(@"action")]) {
-                            #pragma clang diagnostic push
-                            #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                            NSObject *action = [representationView performSelector:NSSelectorFromString(@"action")];
-                            if (action) {
-                                if ([action respondsToSelector:NSSelectorFromString(@"title")]) {
-                                    NSString *title = [action performSelector:NSSelectorFromString(@"title")];
-                                    if (title) {
-                                        isOK = YES;
-                                        [properties setValue:@"UIAlertController" forKey:@"$element_type"];
-                                        [properties setValue:title forKey:@"$element_content"];
-                                    }
-                                }
-                            }
-                            #pragma clang diagnostic pop
-                        }
-                    }
-                }
-            }
-            if (!isOK) {
-                return;
-            }
-        }
-#endif
-        else {
-            return;
-        }
-
-        //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
-        if (propDict != nil) {
-            [properties addEntriesFromDictionary:propDict];
-        }
-
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
-    }
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
@@ -3686,6 +3437,375 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         SAError(@"%@ error: %@", self, exception);
     }
 }
+-(void)onClickUIControl:(id)control {
+    @try {
+        //关闭 AutoTrack
+        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
+            return;
+        }
+        //忽略 $AppClick 事件
+        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+            return;
+        }
+        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[control class]]) {
+            return;
+        }
+        
+        if (!control) {
+            return;
+        }
+        
+        if ([control isKindOfClass:[UISwitch class]] ||
+            [control isKindOfClass:[UIStepper class]] ||
+            [control isKindOfClass:[UISegmentedControl class]] ||
+            [control isKindOfClass:UIButton.class]) {//0
+           
+            UIView* view = (UIView *)control;
+            if (view.sensorsAnalyticsIgnoreView) {
+                return;
+            }
+            
+            NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+            
+            //ViewID
+            if (view.sensorsAnalyticsViewID != nil) {
+                [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+            }
+            
+            UIViewController *viewController = [view viewController];
+            if (viewController == nil || [viewController isKindOfClass:UINavigationController.class]) {
+                viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
+            }
+            
+            if (viewController != nil) {
+                if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
+                    return;
+                }
+                //获取 Controller 名称($screen_name)
+                NSString *screenName = NSStringFromClass([viewController class]);
+                [properties setValue:screenName forKey:@"$screen_name"];
+                
+                NSString *controllerTitle = viewController.navigationItem.title;
+                if (controllerTitle != nil) {
+                    [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                }
+                //再获取 controller.navigationItem.titleView, 并且优先级比较高
+                NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
+                if (elementContent != nil && [elementContent length] > 0) {
+                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                    [properties setValue:elementContent forKey:@"$title"];
+                }
+            }
+            
+            //UISwitch
+            if ([control isKindOfClass:[UISwitch class]]) {
+                [properties setValue:@"UISwitch" forKey:@"$element_type"];
+                UISwitch *uiSwitch = (UISwitch *)control;
+                if (uiSwitch.on) {
+                    [properties setValue:@"checked" forKey:@"$element_content"];
+                } else {
+                    [properties setValue:@"unchecked" forKey:@"$element_content"];
+                }
+                
+                [AutoTrackUtils sa_addViewPathProperties:properties withObject:uiSwitch withViewController:viewController];
+                
+                //View Properties
+                NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+                if (propDict != nil) {
+                    [properties addEntriesFromDictionary:propDict];
+                }
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                return;
+            }
+            
+            //UIStepper
+            if ([control isKindOfClass:[UIStepper class]]) {
+                [properties setValue:@"UIStepper" forKey:@"$element_type"];
+                UIStepper *stepper = (UIStepper *)control;
+                if (stepper) {
+                    [properties setValue:[NSString stringWithFormat:@"%g", stepper.value] forKey:@"$element_content"];
+                }
+                
+                [AutoTrackUtils sa_addViewPathProperties:properties withObject:stepper withViewController:viewController];
+                
+                //View Properties
+                NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+                if (propDict != nil) {
+                    [properties addEntriesFromDictionary:propDict];
+                }
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                return;
+            }
+            
+            //UISegmentedControl
+          
+            if ([control isKindOfClass:[UISegmentedControl class]]) {
+                UISegmentedControl *segmented = (UISegmentedControl *)control;
+                [properties setValue:@"UISegmentedControl" forKey:@"$element_type"];
+                
+                if ([segmented selectedSegmentIndex] == UISegmentedControlNoSegment) {
+                    return;
+                }
+                [properties setValue:[NSString stringWithFormat: @"%ld", (long)[segmented selectedSegmentIndex]] forKey:@"$element_position"];
+                [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:@"$element_content"];
+                
+                [AutoTrackUtils sa_addViewPathProperties:properties withObject:segmented withViewController:viewController];
+                
+                //View Properties
+                NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+                if (propDict != nil) {
+                    [properties addEntriesFromDictionary:propDict];
+                }
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                return;
+            }
+            if ([control isKindOfClass:[UIButton class]]) {//UIButton
+                UIButton *button = (UIButton *)control;
+                        [properties setValue:@"UIButton" forKey:@"$element_type"];
+                        if (button != nil) {
+                            NSString *currentTitle = button.sa_elementContent;
+                            if (currentTitle != nil) {
+                                [properties setValue:currentTitle forKey:@"$element_content"];
+                            } else {
+                                if (button.subviews.count > 0) {
+                                    NSString *elementContent = [[NSString alloc] init];
+                                    elementContent = [AutoTrackUtils contentFromView:button];
+                                    if (elementContent != nil && [elementContent length] > 0) {
+                                        elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                                        [properties setValue:elementContent forKey:@"$element_content"];
+                                    } else {
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
+                                        UIImage *image = button.currentImage;
+                                        if (image) {
+                                            NSString *imageName = image.sensorsAnalyticsImageName;
+                                            if (imageName != nil) {
+                                                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
+                                            }
+                                        }
+#endif
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if([control isKindOfClass:[UITabBarItem class]]){//For iOS7 TabBar
+                        UITabBarItem *tabBarItem = (UITabBarItem *)control;
+                        if (tabBarItem) {
+                            [properties setValue:@"UITabbar" forKey:@"$element_type"];
+                            [properties setValue:tabBarItem.title forKey:@"$element_content"];
+                        }
+                    } else if ([control isKindOfClass:[UISlider class]]) {//UISlider
+                        UISlider *slide = (UISlider *)control;
+                        if (slide != nil) {
+                            [properties setValue:@"UISlider" forKey:@"$element_type"];
+                            [properties setValue:[NSString stringWithFormat:@"%f",slide.value] forKey:@"$element_content"];
+                        }
+                    } else {
+                        if ([control isKindOfClass:[UIControl class]]) {
+                            [properties setValue:@"UIControl" forKey:@"$element_type"];
+                            UIControl *fromView = (UIControl *)control;
+                            if (fromView.subviews.count > 0) {
+                                NSString *elementContent = [[NSString alloc] init];
+                                elementContent = [AutoTrackUtils contentFromView:fromView];
+                                if (elementContent != nil && [elementContent length] > 0) {
+                                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                                    [properties setValue:elementContent forKey:@"$element_content"];
+                                }
+                            }
+                        }
+                    }
+                
+                [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+                
+                //View Properties
+                NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+                if (propDict != nil) {
+                    [properties addEntriesFromDictionary:propDict];
+                }
+                
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+}
+-(void)onGestureRecognizer:(UIGestureRecognizer *)gesture {
+    @try {
+        if (gesture == nil) {
+            return;
+        }
+        
+        if (gesture.state != UIGestureRecognizerStateEnded) {
+            return;
+        }
+        
+        UIView *view = gesture.view;
+        if (view == nil) {
+            return;
+        }
+        //关闭 AutoTrack
+        if (![self isAutoTrackEnabled]) {
+            return;
+        }
+        
+        //忽略 $AppClick 事件
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+            return;
+        }
+        
+        if ([view isKindOfClass:[UILabel class]]) {//UILabel
+            if ([self isViewTypeIgnored:[UILabel class]]) {
+                return;
+            }
+        } else if ([view isKindOfClass:[UIImageView class]]) {//UIImageView
+            if ([self isViewTypeIgnored:[UIImageView class]]) {
+                return;
+            }
+        }
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
+        else if ([view isKindOfClass:NSClassFromString(@"_UIAlertControllerView")] ||
+                 [view isKindOfClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView")]) {//UIAlertController
+            if ([self isViewTypeIgnored:NSClassFromString(@"UIAlertController")]) {
+                return;
+            }
+        }
+#endif
+        
+        
+        if (view.sensorsAnalyticsIgnoreView) {
+                    return;
+                }
+        
+        UIViewController *viewController = [self currentViewController];
+        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+        
+        if (viewController != nil) {
+            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
+                return;
+            }
+            
+            //获取 Controller 名称($screen_name)
+            NSString *screenName = NSStringFromClass([viewController class]);
+            [properties setValue:screenName forKey:@"$screen_name"];
+            
+            NSString *controllerTitle = viewController.navigationItem.title;
+            if (controllerTitle != nil) {
+                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+            }
+            
+            //再获取 controller.navigationItem.titleView, 并且优先级比较高
+            NSString *elementContent = [self getUIViewControllerTitle:viewController];
+            if (elementContent != nil && [elementContent length] > 0) {
+                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                [properties setValue:elementContent forKey:@"$title"];
+            }
+        }
+        
+        //ViewID
+        if (view.sensorsAnalyticsViewID != nil) {
+            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+        }
+        
+        if ([view isKindOfClass:[UILabel class]]) {
+            [properties setValue:@"UILabel" forKey:@"$element_type"];
+            UILabel *label = (UILabel*)view;
+            NSString *sa_elementContent = label.sa_elementContent;
+            if (sa_elementContent && sa_elementContent.length > 0) {
+                [properties setValue:sa_elementContent forKey:@"$element_content"];
+            }
+            [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+        } else if ([view isKindOfClass:[UIImageView class]]) {
+            [properties setValue:@"UIImageView" forKey:@"$element_type"];
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
+            UIImageView *imageView = (UIImageView *)view;
+            [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+            if (imageView) {
+                if (imageView.image) {
+                    NSString *imageName = imageView.image.sensorsAnalyticsImageName;
+                    if (imageName != nil) {
+                        [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
+                    }
+                }
+            }
+#endif
+        }
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
+        else if ([NSStringFromClass([view class]) isEqualToString:@"_UIAlertControllerView"]) {//iOS9
+            BOOL isOK = NO;
+            Ivar ivar = class_getInstanceVariable([view class], "_actionViews");
+            NSMutableArray *actionviews =  object_getIvar(view, ivar);
+            for (UIView *actionview in actionviews) {
+                CGPoint point = [gesture locationInView:actionview];
+                if ([NSStringFromClass([actionview class]) isEqualToString:@"_UIAlertControllerActionView"] &&
+                    point.x > 0 && point.x < CGRectGetWidth(actionview.bounds) &&
+                    point.y > 0 && point.y < CGRectGetHeight(actionview.bounds) &&
+                    gesture.state == UIGestureRecognizerStateEnded) {
+                    UILabel *titleLabel = [actionview performSelector:@selector(titleLabel)];
+                    if (titleLabel) {
+                        isOK = YES;
+                        [properties setValue:@"UIAlertController" forKey:@"$element_type"];
+                        [properties setValue:titleLabel.text forKey:@"$element_content"];
+                    }
+                }
+            }
+            if (!isOK) {
+                return;
+            }
+        } else if ([NSStringFromClass([view class]) isEqualToString:@"_UIAlertControllerInterfaceActionGroupView"]) {//iOS10
+            BOOL isOK = NO;
+            NSMutableArray *targets = [gesture valueForKey:@"_targets"];
+            id targetContainer = targets[0];
+            id targetOfGesture = [targetContainer valueForKey:@"_target"];
+            if ([targetOfGesture isKindOfClass:[NSClassFromString(@"UIInterfaceActionSelectionTrackingController") class]]) {
+                Ivar ivar = class_getInstanceVariable([targetOfGesture class], "_representationViews");
+                NSMutableArray *representationViews =  object_getIvar(targetOfGesture, ivar);
+                for (UIView *representationView in representationViews) {
+                    CGPoint point = [gesture locationInView:representationView];
+                    if ([NSStringFromClass([representationView class]) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] &&
+                        point.x > 0 && point.x < CGRectGetWidth(representationView.bounds) &&
+                        point.y > 0 && point.y < CGRectGetHeight(representationView.bounds) &&
+                        gesture.state == UIGestureRecognizerStateEnded) {
+                        isOK = YES;
+                        if ([representationView respondsToSelector:NSSelectorFromString(@"action")]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                            NSObject *action = [representationView performSelector:NSSelectorFromString(@"action")];
+                            if (action) {
+                                if ([action respondsToSelector:NSSelectorFromString(@"title")]) {
+                                    NSString *title = [action performSelector:NSSelectorFromString(@"title")];
+                                    if (title) {
+                                        isOK = YES;
+                                        [properties setValue:@"UIAlertController" forKey:@"$element_type"];
+                                        [properties setValue:title forKey:@"$element_content"];
+                                    }
+                                }
+                            }
+#pragma clang diagnostic pop
+                        }
+                    }
+                }
+            }
+            if (!isOK) {
+                return;
+            }
+        }
+#endif
+        else {
+            return;
+        }
+        
+        //View Properties
+        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        if (propDict != nil) {
+            [properties addEntriesFromDictionary:propDict];
+        }
+        
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+}
+
 @end
 
 #pragma mark - People analytics
