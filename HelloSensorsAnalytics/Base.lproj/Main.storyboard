@@ -370,6 +370,7 @@
                         <outlet property="myButton1" destination="AQe-ge-t3D" id="WG1-4Y-fhJ"/>
                         <outlet property="myLabel" destination="6vd-Bp-g3F" id="U87-g7-tAZ"/>
                         <outlet property="myUISwitch" destination="g3O-Bv-ZAs" id="CcS-1f-qBr"/>
+                        <outlet property="segmentedControl" destination="acF-uD-hra" id="ilw-Ka-fhk"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b9t-xA-BCI" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -421,7 +422,7 @@
                     </connections>
                 </navigationController>
             </objects>
-            <point key="canvasLocation" x="26" y="-79"/>
+            <point key="canvasLocation" x="-279" y="-125"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="gua-q1-BwC">
@@ -440,12 +441,13 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tXb-iT-UZS" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="724" y="-110"/>
         </scene>
     </scenes>
     <resources>
         <image name="ic_test.png" width="750" height="446"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="0OP-2D-VzN"/>
+        <segue reference="A4h-rg-N0J"/>
     </inferredMetricsTieBreakers>
 </document>

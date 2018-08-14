@@ -29,7 +29,8 @@
 @interface UITabBar (sa_delegateProxy)
 @end
 
-@interface UIControl (sa_delegateProxy)
+//@interface UIControl (sa_delegateProxy)
+//@end
+
+@interface UIView (sa_delegateProxy)
 @end
-
-

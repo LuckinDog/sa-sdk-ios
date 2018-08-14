@@ -72,6 +72,6 @@
 }
 
 -(void)dealloc {
-    _labelTapGestureRecognizer  = nil;
+    _labelTapGestureRecognizer = nil;
 }
 @end

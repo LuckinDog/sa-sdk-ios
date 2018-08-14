@@ -60,10 +60,6 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
     });
 }
 
--(void)dealloc{
-    
-}
-
 @end
 
 @implementation UICollectionView (sa_delegateProxy)
@@ -83,9 +79,6 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
     });
 }
 
--(void)dealloc{
-    
-}
 @end
 
 @implementation UIWebView (sa_delegateProxy)
@@ -103,10 +96,6 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
         method_setImplementation(origMethod, swizzleIMP);
         method_setImplementation(swizzleMethod, origIMP);
     });
-}
-
--(void)dealloc{
-    
 }
 
 @end
@@ -128,10 +117,6 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
     });
 }
 
--(void)dealloc{
-    
-}
-
 @end
 
 @implementation UITabBar (sa_delegateProxy)
@@ -151,9 +136,6 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
     });
 }
 
--(void)dealloc{
-    
-}
 @end
 //void sa_addTargetWithActionForControlEvents(id obj ,SEL sel, id target,SEL action, UIControlEvents events){
 //    SEL swizzileSel = sel_getUid("sa_addTarget:action:forControlEvents:");
@@ -182,10 +164,6 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 //    });
 //}
 //
-//-(void)dealloc{
-//
-//}
-//
 //@end
 
 void sa_addGestureRecognizer(id obj ,SEL sel, UIGestureRecognizer *gesture){
@@ -207,8 +185,7 @@ void sa_addGestureRecognizer(id obj ,SEL sel, UIGestureRecognizer *gesture){
 #endif
     ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,gesture);
 }
-@interface UIView (sa_delegateProxy)
-@end
+
 @implementation UIView (sa_delegateProxy)
 + (void)load {
     static dispatch_once_t onceToken;
@@ -224,10 +201,6 @@ void sa_addGestureRecognizer(id obj ,SEL sel, UIGestureRecognizer *gesture){
         method_setImplementation(origMethod, swizzleIMP);
         method_setImplementation(swizzleMethod, origIMP);
     });
-}
-
--(void)dealloc{
-    
 }
 
 @end
