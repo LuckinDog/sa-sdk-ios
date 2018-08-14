@@ -81,7 +81,18 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
     UIResponder *next = [self nextResponder];
     do {
         if ([next isKindOfClass:[UIViewController class]]) {
-            return (UIViewController *)next;
+            UIViewController *v = (UIViewController *)next;
+            if (v.parentViewController) {
+                if ([v.parentViewController isKindOfClass:[UIViewController class]] &&
+                    ![v.parentViewController isKindOfClass:[UITabBarController class]] &&
+                    ![v.parentViewController isKindOfClass:[UINavigationController class]] ) {
+                    next = v.parentViewController;
+                } else {
+                    return v;
+                }
+            } else {
+                return (UIViewController *)next;
+            }
         }
         next = [next nextResponder];
     } while (next != nil);
@@ -685,7 +696,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         @try {
             UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
             if (rootViewController != nil) {
-                currentVC = [self getCurrentVCFrom:rootViewController];
+                currentVC = [self getCurrentVCFrom:rootViewController isRoot:YES];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
@@ -696,7 +707,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             @try {
                 UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
                 if (rootViewController != nil) {
-                    currentVC = [self getCurrentVCFrom:rootViewController];
+                    currentVC = [self getCurrentVCFrom:rootViewController isRoot:YES];
                 }
             } @catch (NSException *exception) {
                 SAError(@"%@ error: %@", self, exception);
@@ -706,20 +717,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (UIViewController *)getCurrentVCFrom:(UIViewController *)rootVC {
+- (UIViewController *)getCurrentVCFrom:(UIViewController *)rootVC isRoot:(BOOL)isRoot{
     @try {
         UIViewController *currentVC;
         if ([rootVC presentedViewController]) {
             // 视图是被presented出来的
-            rootVC = [self getCurrentVCFrom:rootVC.presentedViewController];
+            rootVC = [self getCurrentVCFrom:rootVC.presentedViewController isRoot:NO];
         }
         
         if ([rootVC isKindOfClass:[UITabBarController class]]) {
             // 根视图为UITabBarController
-            currentVC = [self getCurrentVCFrom:[(UITabBarController *)rootVC selectedViewController]];
+            currentVC = [self getCurrentVCFrom:[(UITabBarController *)rootVC selectedViewController] isRoot:NO];
         } else if ([rootVC isKindOfClass:[UINavigationController class]]){
             // 根视图为UINavigationController
-            currentVC = [self getCurrentVCFrom:[(UINavigationController *)rootVC visibleViewController]];
+            currentVC = [self getCurrentVCFrom:[(UINavigationController *)rootVC visibleViewController] isRoot:NO];
         } else {
             // 根视图为非导航类
             if ([rootVC respondsToSelector:NSSelectorFromString(@"contentViewController")]) {
@@ -728,10 +739,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 UIViewController *tempViewController = [rootVC performSelector:NSSelectorFromString(@"contentViewController")];
 #pragma clang diagnostic pop
                 if (tempViewController) {
-                    currentVC = [self getCurrentVCFrom:tempViewController];
+                    currentVC = [self getCurrentVCFrom:tempViewController isRoot:NO];
                 }
             } else {
-                currentVC = rootVC;
+                if (rootVC.childViewControllers && rootVC.childViewControllers.count == 1 && isRoot) {
+                    currentVC = [self getCurrentVCFrom:rootVC.childViewControllers[0] isRoot:NO];
+                }
+                else {
+                    currentVC = rootVC;
+                }
             }
         }
         
