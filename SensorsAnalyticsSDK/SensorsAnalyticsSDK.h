@@ -619,17 +619,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 - (SensorsAnalyticsDebugMode)debugMode;
 
-
-
-/**
- @abstract
- * Track App Extension groupIdentifier 中缓存的数据
- *
- * @param groupIdentifier groupIdentifier
- * @param completion  完成 track 后的 callback
- */
-- (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion;
-
 /**
  * @abstract
  * 用来设置每个事件都带有的一些公共属性

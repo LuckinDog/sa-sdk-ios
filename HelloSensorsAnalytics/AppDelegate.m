@@ -8,7 +8,6 @@
 
 #import "AppDelegate.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SAAppExtensionDataManager.h"
 @interface AppDelegate ()
 
 @end
@@ -54,21 +53,7 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    //@"group.cn.com.sensorsAnalytics.share"
-    [[SensorsAnalyticsSDK sharedInstance]trackEventFromExtensionWithGroupIdentifier:@"group.cn.com.sensorsAnalytics.share" completion:^(NSString *identifiy ,NSArray *events){
-        
-    }];
-//   NSArray  *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier: @"group.cn.com.sensorsAnalytics.share"];
-//    NSLog(@"applicationDidBecomeActive::::::%@",eventArray);
-//    for (NSDictionary *dict in eventArray  ) {
-//        [[SensorsAnalyticsSDK sharedInstance]track:dict[@"event"] withProperties:dict[@"properties"]];
-//    }
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    //[[SAAppExtensionDataManager sharedInstance]deleteEventsWithGroupIdentifier:@"dd"];
-    //[[SAAppExtensionDataManager sharedInstance]readAllEventsWithGroupIdentifier:NULL];
-    //[[SAAppExtensionDataManager sharedInstance]writeEvent:@"eee" properties:@"" groupIdentifier:@"ff"];
-    //[[SAAppExtensionDataManager sharedInstance]fileDataCountForGroupIdentifier:@"ff"];
-    //[[SAAppExtensionDataManager sharedInstance]fileDataArrayWithPath:@"fff" limit:-1];
+
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
