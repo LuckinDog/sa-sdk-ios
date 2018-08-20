@@ -2,8 +2,8 @@
 //  SADelegateProxy.h
 //  SADemo
 //
-//  Created by ziven.mac on 2018/8/8.
-//  Copyright © 2018年 ziven.mac. All rights reserved.
+//  Created by 向作为 on 2018/8/8.
+//  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -15,6 +15,5 @@
 +(instancetype)proxyWithUIWebView:(id)target;
 +(instancetype)proxyWithWKWebView:(id)target;
 +(instancetype)proxyWithTabBar:(id)target;
-//+(instancetype)proxyWithUIControl:(id)target;
 +(instancetype)proxyWithUIGestureRecognizer:(id)target;//仅支持UILabel，UIImageView
 @end

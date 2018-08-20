@@ -2,8 +2,8 @@
 //  UITableView+sa_autoTrack.h
 //  SADemo
 //
-//  Created by ziven.mac on 2018/8/8.
-//  Copyright © 2018年 ziven.mac. All rights reserved.
+//  Created by 向作为 on 2018/8/8.
+//  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -28,9 +28,6 @@
 
 @interface UITabBar (sa_delegateProxy)
 @end
-
-//@interface UIControl (sa_delegateProxy)
-//@end
 
 @interface UIView (sa_delegateProxy)
 @end

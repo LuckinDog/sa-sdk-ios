@@ -2,7 +2,7 @@
 //  SensorsAnalyticsSDK_priv.h
 //  SensorsAnalyticsSDK
 //
-//  Created by ziven.mac on 2018/8/9.
+//  Created by 向作为 on 2018/8/9.
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
@@ -18,7 +18,6 @@
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;
 -(void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler  isSensorsReq:(BOOL *)isSensorsReq;
 -(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item;
-//-(void)onClickUIControl:(id)control;
 -(void)onGestureRecognizer:(UIGestureRecognizer *)gesture;
 @end
 
