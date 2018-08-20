@@ -276,7 +276,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return 返回的单例
  */
-+ (SensorsAnalyticsSDK *)sharedInstance;
++ (SensorsAnalyticsSDK * _Nullable )sharedInstance;
 
 /**
  * @abstract

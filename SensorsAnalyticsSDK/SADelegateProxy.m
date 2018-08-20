@@ -154,7 +154,7 @@
    
 }
 
--(bool)respondsToSelector:(SEL)aSelector{
+-(BOOL)respondsToSelector:(SEL)aSelector{
     if (aSelector == @selector(tableView:didSelectRowAtIndexPath:)) {
         return YES;
     }
