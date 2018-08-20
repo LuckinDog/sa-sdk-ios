@@ -96,22 +96,6 @@
 }
 @end
 
-@interface SAUIControlDelegateProxy :SADelegateProxy
-@end
-@implementation SAUIControlDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
--(void)onClickUIControl:(id)control{
-    //do something for track
-    if ([self.target isKindOfClass:UITabBar.class]) {
-        return;
-    }
-//    [SensorsAnalyticsSDK.sharedInstance onClickUIControl:control];
-    SALog(@"\n%@\n%@\n",self.target,control);
-}
-@end
-
 @interface SAUIGestureRecognizerDelegateProxy :SADelegateProxy
 @end
 @implementation SAUIGestureRecognizerDelegateProxy
@@ -151,11 +135,6 @@
 
 +(instancetype)proxyWithTabBar:(id)target {
     SAUITabBarDelegateProxy *delegateProxy = [[SAUITabBarDelegateProxy alloc]initWithObject:target];
-    return delegateProxy;
-}
-
-+(instancetype)proxyWithUIControl:(id)target {
-    SAUIControlDelegateProxy *delegateProxy = [[SAUIControlDelegateProxy alloc]initWithObject:target];
     return delegateProxy;
 }
 
