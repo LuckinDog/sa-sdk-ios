@@ -48,12 +48,6 @@
 		00DC9CDA1D7E9D9D00C7DF6C /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */; };
 		00DC9CDC1D7E9E3F00C7DF6C /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
 		00DC9CDF1D7E9EC900C7DF6C /* JSCallOCViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CDE1D7E9EC900C7DF6C /* JSCallOCViewController2.m */; };
-		00EA99EC1EEFAEC6005E524F /* UIAlertView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EA99EA1EEFAEC6005E524F /* UIAlertView+AutoTrack.h */; };
-		00EA99ED1EEFAEC6005E524F /* UIAlertView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99EB1EEFAEC6005E524F /* UIAlertView+AutoTrack.m */; };
-		00EA99EF1EEFAF75005E524F /* UIAlertView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99EB1EEFAEC6005E524F /* UIAlertView+AutoTrack.m */; };
-		00EA99F21EEFB7DB005E524F /* UIActionSheet+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EA99F01EEFB7DB005E524F /* UIActionSheet+AutoTrack.h */; };
-		00EA99F31EEFB7DB005E524F /* UIActionSheet+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99F11EEFB7DB005E524F /* UIActionSheet+AutoTrack.m */; };
-		00EA99F71EEFBCEA005E524F /* UIActionSheet+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 00EA99F11EEFB7DB005E524F /* UIActionSheet+AutoTrack.m */; };
 		4D0EB7C31B47A88C0019FD21 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C21B47A88C0019FD21 /* main.m */; };
 		4D0EB7C61B47A88C0019FD21 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C51B47A88C0019FD21 /* AppDelegate.m */; };
 		4D0EB7C91B47A88C0019FD21 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C81B47A88C0019FD21 /* ViewController.m */; };
@@ -268,10 +262,6 @@
 		00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = JSCallOC.html; sourceTree = "<group>"; };
 		00DC9CDD1D7E9EC900C7DF6C /* JSCallOCViewController2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController2.h; sourceTree = "<group>"; };
 		00DC9CDE1D7E9EC900C7DF6C /* JSCallOCViewController2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController2.m; sourceTree = "<group>"; };
-		00EA99EA1EEFAEC6005E524F /* UIAlertView+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIAlertView+AutoTrack.h"; sourceTree = "<group>"; };
-		00EA99EB1EEFAEC6005E524F /* UIAlertView+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIAlertView+AutoTrack.m"; sourceTree = "<group>"; };
-		00EA99F01EEFB7DB005E524F /* UIActionSheet+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+AutoTrack.h"; sourceTree = "<group>"; };
-		00EA99F11EEFB7DB005E524F /* UIActionSheet+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+AutoTrack.m"; sourceTree = "<group>"; };
 		4322325EA1A07B7CEC9F68D9 /* libPods-SensorsAnalyticsSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SensorsAnalyticsSDK.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D0EB7BE1B47A88C0019FD21 /* HelloSensorsAnalytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloSensorsAnalytics.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D0EB7C11B47A88C0019FD21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -577,10 +567,6 @@
 				A1753DD62074AEC400425771 /* SALogger.m */,
 				4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */,
 				4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */,
-				00EA99EA1EEFAEC6005E524F /* UIAlertView+AutoTrack.h */,
-				00EA99EB1EEFAEC6005E524F /* UIAlertView+AutoTrack.m */,
-				00EA99F01EEFB7DB005E524F /* UIActionSheet+AutoTrack.h */,
-				00EA99F11EEFB7DB005E524F /* UIActionSheet+AutoTrack.m */,
 				4D23EFB22109643400DBDB9F /* SACommonUtility.h */,
 				4D23EFB32109643400DBDB9F /* SACommonUtility.m */,
 				0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */,
@@ -682,8 +668,6 @@
 				4D14F16C1B47D4EB006AD786 /* SensorsAnalyticsSDK.h in Headers */,
 				0027C8481FA201CE002EA41B /* SAHeatMapMessage.h in Headers */,
 				A3746EC21C3190E7008A50A3 /* SATypeDescription.h in Headers */,
-				00EA99F21EEFB7DB005E524F /* UIActionSheet+AutoTrack.h in Headers */,
-				00EA99EC1EEFAEC6005E524F /* UIAlertView+AutoTrack.h in Headers */,
 				A3746EBC1C3190E7008A50A3 /* SAClassDescription.h in Headers */,
 				002DB94D1EB1647F00A9632C /* SASwizzle.h in Headers */,
 				4D14F1711B4A51B7006AD786 /* SAGzipUtility.h in Headers */,
@@ -914,8 +898,6 @@
 				0009198E1F974D1C00E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
 				008D82B31F0E2EFA00052CFF /* NSString+HashCode.m in Sources */,
 				0025E0491F09D79A001248F4 /* AutoTrackUtils.m in Sources */,
-				00EA99F71EEFBCEA005E524F /* UIActionSheet+AutoTrack.m in Sources */,
-				00EA99EF1EEFAF75005E524F /* UIAlertView+AutoTrack.m in Sources */,
 				002DB9521EB1648800A9632C /* SASwizzle.m in Sources */,
 				002DB9541EB1648800A9632C /* UIApplication+AutoTrack.m in Sources */,
 				A3E3889F1D509B7100F6B9FC /* SAReachability.m in Sources */,
@@ -987,9 +969,7 @@
 				A3746EBD1C3190E7008A50A3 /* SAClassDescription.m in Sources */,
 				0038C5D21FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */,
 				A3746EC51C3190E7008A50A3 /* UIView+SAHelpers.m in Sources */,
-				00EA99F31EEFB7DB005E524F /* UIActionSheet+AutoTrack.m in Sources */,
 				A3746EAF1C318B65008A50A3 /* SAObjectSerializerConfig.m in Sources */,
-				00EA99ED1EEFAEC6005E524F /* UIAlertView+AutoTrack.m in Sources */,
 				007BE5A920E1F1D2006CB1ED /* NSThread+SAHelpers.m in Sources */,
 				A3746EC31C3190E7008A50A3 /* SATypeDescription.m in Sources */,
 				A3746E991C313C86008A50A3 /* SAObjectIdentityProvider.m in Sources */,

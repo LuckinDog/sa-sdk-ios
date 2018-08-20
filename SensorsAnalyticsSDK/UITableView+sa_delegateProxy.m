@@ -147,7 +147,6 @@ void sa_addGestureRecognizer(id obj ,SEL sel, UIGestureRecognizer *gesture){
         [gesture addTarget:delegateProxy action:action_proxy];
         [(NSObject *)obj sa_setDelagateProxy:delegateProxy];
     }
-   
     ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,gesture);
 }
 
