@@ -23,7 +23,6 @@
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
-#import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
@@ -2193,28 +2192,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                            selector:@selector(applicationWillTerminateNotification:)
                                name:UIApplicationWillTerminateNotification
                              object:nil];
-}
-
-
-
-- (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
-    @try {
-        if (groupIdentifier == nil || [groupIdentifier isEqualToString:@""]) {
-            return;
-        }
-        NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
-        if (eventArray) {
-            for (NSDictionary *dict in eventArray) {
-                [[SensorsAnalyticsSDK sharedInstance] track:dict[@"event"] withProperties:dict[@"properties"]];
-            }
-            [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
-            if (completion) {
-                completion(groupIdentifier, eventArray);
-            }
-        }
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
-    }
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
