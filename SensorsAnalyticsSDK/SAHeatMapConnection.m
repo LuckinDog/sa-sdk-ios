@@ -174,7 +174,6 @@
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    
     _commandQueue.suspended = NO;
     if (!_connected) {
         _connected = YES;
