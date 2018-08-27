@@ -1035,6 +1035,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)login:(NSString *)loginId {
+    [self login:loginId withProperties:nil];
+}
+
+- (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
     if (loginId == nil || loginId.length == 0) {
         SAError(@"%@ cannot login blank login_id: %@", self, loginId);
         return;
@@ -1048,7 +1052,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self archiveLoginId];
         if (![loginId isEqualToString:[self distinctId]]) {
             self.originalId = [self distinctId];
-            [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
+            [self track:@"$SignUp" withProperties:properties withType:@"track_signup"];
         }
     }
 }
