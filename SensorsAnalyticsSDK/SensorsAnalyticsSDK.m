@@ -322,7 +322,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
         //文件路径
-        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_track_controller_list.json" ofType:nil];
+        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
 
         @try {
