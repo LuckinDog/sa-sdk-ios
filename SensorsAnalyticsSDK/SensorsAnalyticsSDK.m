@@ -240,7 +240,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return sharedInstance;
 }
 
-+ (SensorsAnalyticsSDK *)sharedInstance {
++ (SensorsAnalyticsSDK *_Nullable)sharedInstance {
     if (sharedInstance.remoteConfig.disableSDK) {
         return nil;
     }
