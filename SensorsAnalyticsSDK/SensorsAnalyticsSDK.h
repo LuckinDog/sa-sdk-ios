@@ -276,7 +276,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return 返回的单例
  */
-+ (SensorsAnalyticsSDK * _Nullable )sharedInstance;
++ (SensorsAnalyticsSDK * _Nullable)sharedInstance;
 
 /**
  * @abstract
@@ -356,6 +356,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param loginId 当前用户的loginId
  */
 - (void)login:(NSString *)loginId;
+- (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties ;
 
 /**
  * @abstract
