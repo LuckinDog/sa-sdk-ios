@@ -12,8 +12,4 @@
 @property(nonatomic,weak)id target;
 +(instancetype)proxyWithTableView:(id)target;
 +(instancetype)proxyWithCollectionView:(id)target;
-+(instancetype)proxyWithUIWebView:(id)target;
-+(instancetype)proxyWithWKWebView:(id)target;
-+(instancetype)proxyWithTabBar:(id)target;
-+(instancetype)proxyWithUIGestureRecognizer:(id)target;//UILabel，UIImageView
 @end

@@ -41,73 +41,6 @@
     }
 }
 @end
-@interface SAUIWebViewDelegateProxy:SADelegateProxy<UIWebViewDelegate>
-@end
-@implementation SAUIWebViewDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
--(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    SALog(@"\n%@\n%@\n",webView,request);
-
-    BOOL shouldLoad = [SensorsAnalyticsSDK.sharedInstance webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
-    if (shouldLoad == YES) {
-        if ([self.target respondsToSelector:_cmd]) {
-            return  [self.target webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
-        }
-    }
-    return shouldLoad;
-}
-
-@end
-@interface SAWKWebViewDelegateProxy:SADelegateProxy<WKNavigationDelegate>
-@end
-@implementation SAWKWebViewDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    SALog(@"\n%@\n%@\n",webView,navigationAction);
-    BOOL isSensorsReq = NO;
-    [SensorsAnalyticsSDK.sharedInstance webView:webView decidePolicyForNavigationAction:navigationAction decisionHandler:decisionHandler isSensorsReq:&isSensorsReq];
-    if (isSensorsReq) {
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-    if ([self.target respondsToSelector:_cmd]) {
-        return [self.target webView:webView decidePolicyForNavigationAction:navigationAction decisionHandler:decisionHandler];
-    }
-}
-@end
-
-@interface SAUITabBarDelegateProxy :SADelegateProxy<UITabBarDelegate>
-@end
-@implementation SAUITabBarDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
-- (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
-    // called when a new view is selected by the user (but not programatically)
-    SALog(@"\n%@\n%@\n",tabBar,item);
-    [SensorsAnalyticsSDK.sharedInstance tabBar:tabBar didSelectItem:item];
-    if ([self.target respondsToSelector:_cmd]) {
-        [self.target tabBar:tabBar didSelectItem:item];
-    }
-}
-@end
-
-@interface SAUIGestureRecognizerDelegateProxy :SADelegateProxy
-@end
-@implementation SAUIGestureRecognizerDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
--(void)onGestureRecognizer:(UIGestureRecognizer *)gesture{
-    //do something for track
-    SALog(@"\n%@\n%@\n",self.target,gesture);
-    [SensorsAnalyticsSDK.sharedInstance onGestureRecognizer:gesture];
-}
-@end
 
 @implementation SADelegateProxy
 +(instancetype)proxyWithTableView:(id)target {
@@ -117,26 +50,6 @@
 
 +(instancetype)proxyWithCollectionView:(id)target {
     SACollectionViewDelegateProxy *delegateProxy = [[SACollectionViewDelegateProxy alloc]initWithObject:target];
-    return delegateProxy;
-}
-
-+(instancetype)proxyWithUIWebView:(id)target {
-    SAUIWebViewDelegateProxy *delegateProxy = [[SAUIWebViewDelegateProxy alloc]initWithObject:target];
-    return delegateProxy;
-}
-
-+(instancetype)proxyWithWKWebView:(id)target {
-    SAWKWebViewDelegateProxy *delegateProxy = [[SAWKWebViewDelegateProxy alloc]initWithObject:target];
-    return delegateProxy;
-}
-
-+(instancetype)proxyWithTabBar:(id)target {
-    SAUITabBarDelegateProxy *delegateProxy = [[SAUITabBarDelegateProxy alloc]initWithObject:target];
-    return delegateProxy;
-}
-
-+(instancetype)proxyWithUIGestureRecognizer:(id)target {
-    SAUIGestureRecognizerDelegateProxy *delegateProxy = [[SAUIGestureRecognizerDelegateProxy alloc]initWithObject:target];
     return delegateProxy;
 }
 
@@ -156,9 +69,6 @@
         return YES;
     }
     if (aSelector == @selector(collectionView:didSelectItemAtIndexPath:)) {
-        return YES;
-    }
-    if (aSelector ==@selector(tabBar:didSelectItem:)) {
         return YES;
     }
     return [self.target respondsToSelector:aSelector];

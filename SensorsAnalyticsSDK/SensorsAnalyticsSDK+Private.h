@@ -15,10 +15,6 @@
 @interface SensorsAnalyticsSDK(Private)
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
--(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;
--(void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler  isSensorsReq:(BOOL *)isSensorsReq;
--(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item;
--(void)onGestureRecognizer:(UIGestureRecognizer *)gesture;
 @end
 
 #endif /* SensorsAnalyticsSDK_priv_h */

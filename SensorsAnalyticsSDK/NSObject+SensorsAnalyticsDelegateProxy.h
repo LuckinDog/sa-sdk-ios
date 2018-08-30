@@ -19,15 +19,3 @@
 
 @interface UICollectionView (SensorsAnalyticsDelegateProxy)
 @end
-
-@interface UIWebView (SensorsAnalyticsDelegateProxy)
-@end
-
-@interface WKWebView (SensorsAnalyticsDelegateProxy)
-@end
-
-@interface UITabBar (SensorsAnalyticsDelegateProxy)
-@end
-
-@interface UIView (SensorsAnalyticsDelegateProxy)
-@end
