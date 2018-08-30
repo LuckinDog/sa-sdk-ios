@@ -10,7 +10,7 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
-#import "SensorsAnalyticsSDK_priv.h"
+#import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 @interface SATableViewDelegateProxy:SADelegateProxy<UITableViewDelegate>
@@ -106,9 +106,6 @@
     //do something for track
     SALog(@"\n%@\n%@\n",self.target,gesture);
     [SensorsAnalyticsSDK.sharedInstance onGestureRecognizer:gesture];
-}
--(void)dealloc {
-
 }
 @end
 

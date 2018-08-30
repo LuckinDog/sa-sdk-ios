@@ -6,13 +6,13 @@
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
-#ifndef SensorsAnalyticsSDK_priv_h
-#define SensorsAnalyticsSDK_priv_h
+#ifndef SensorsAnalyticsSDK_Private_h
+#define SensorsAnalyticsSDK_Private_h
 #import "SensorsAnalyticsSDK.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <WebKit/Webkit.h>
-@interface SensorsAnalyticsSDK(priv)
+@interface SensorsAnalyticsSDK(Private)
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;

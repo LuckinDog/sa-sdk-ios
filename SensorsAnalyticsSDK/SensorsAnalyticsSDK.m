@@ -38,7 +38,7 @@
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
-#import "SensorsAnalyticsSDK_priv.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 #define VERSION @"1.10.10"
 #define PROPERTY_LENGTH_LIMITATION 8191

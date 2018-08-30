@@ -6,7 +6,7 @@
 //  Copyright © 2018年 SensorsData. All rights reserved.
 //
 
-#import "UITableView+sa_delegateProxy.h"
+#import "NSObject+SensorsAnalyticsDelegateProxy.h"
 #import <objc/runtime.h>
 #import <objc/objc.h>
 #import <objc/message.h>
@@ -28,22 +28,22 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
         }
         delegate = delegateProxy;
     }
-    [(NSObject *)obj sa_setDelagateProxy:delegate];
+    [(NSObject *)obj setSensorsAnalyticsDelegateProxy:delegate];
     ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,delegate);
 }
 
-@implementation NSObject (sa_delegateProxy)
+@implementation NSObject (SensorsAnalyticsDelegateProxy)
 
--(void)sa_setDelagateProxy:(SADelegateProxy *)sa_delegateProxy{
-    objc_setAssociatedObject(self, @selector(sa_setDelagateProxy:), sa_delegateProxy, OBJC_ASSOCIATION_RETAIN);
+-(void)setSensorsAnalyticsDelegateProxy:(SADelegateProxy *)SensorsAnalyticsDelegateProxy{
+    objc_setAssociatedObject(self, @selector(setSensorsAnalyticsDelegateProxy:), SensorsAnalyticsDelegateProxy, OBJC_ASSOCIATION_RETAIN);
 }
--(SADelegateProxy *)sa_delegateProxy{
-    return objc_getAssociatedObject(self, @selector(sa_setDelagateProxy:));
+-(SADelegateProxy *)sensorsAnalyticsDelegateProxy{
+    return objc_getAssociatedObject(self, @selector(setSensorsAnalyticsDelegateProxy:));
 }
 
 @end
 
-@implementation UITableView (sa_delegateProxy)
+@implementation UITableView (SensorsAnalyticsDelegateProxy)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -62,7 +62,7 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 
 @end
 
-@implementation UICollectionView (sa_delegateProxy)
+@implementation UICollectionView (SensorsAnalyticsDelegateProxy)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -81,7 +81,7 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 
 @end
 
-@implementation UIWebView (sa_delegateProxy)
+@implementation UIWebView (SensorsAnalyticsDelegateProxy)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -100,7 +100,7 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 
 @end
 
-@implementation WKWebView (sa_delegateProxy)
+@implementation WKWebView (SensorsAnalyticsDelegateProxy)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -119,7 +119,7 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 
 @end
 
-@implementation UITabBar (sa_delegateProxy)
+@implementation UITabBar (SensorsAnalyticsDelegateProxy)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -145,12 +145,12 @@ void sa_addGestureRecognizer(id obj ,SEL sel, UIGestureRecognizer *gesture){
     if ([obj isKindOfClass:UIImageView.class] || [obj isKindOfClass:UILabel.class]) {
         delegateProxy =  [SADelegateProxy proxyWithUIGestureRecognizer:obj];
         [gesture addTarget:delegateProxy action:action_proxy];
-        [(NSObject *)obj sa_setDelagateProxy:delegateProxy];
+        [(NSObject *)obj setSensorsAnalyticsDelegateProxy:delegateProxy];
     }
     ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,gesture);
 }
 
-@implementation UIView (sa_delegateProxy)
+@implementation UIView (SensorsAnalyticsDelegateProxy)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
