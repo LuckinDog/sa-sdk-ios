@@ -207,7 +207,7 @@
             [connectAlert addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                 SADebug(@"Confirmed to open HeatMap ...");
                 
-                _connected = YES;
+                self->_connected = YES;
                 [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
             }]];
             
