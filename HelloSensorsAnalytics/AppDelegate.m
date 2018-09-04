@@ -15,9 +15,13 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"
+    //http://test-chenchen.datasink.sensorsdata.cn/sa?project=default&token=c216ee95bf50c956
+    //http://sdk-test.datasink.sensorsdata.cn/sa?project=default&token=95c73ae661f85aa0
+    
+    
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://test-chenchen.datasink.sensorsdata.cn/sa?project=default&token=c216ee95bf50c956"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
-    [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
+    [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;
         if (NSThread.isMainThread) {

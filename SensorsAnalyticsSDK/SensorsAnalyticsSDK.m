@@ -38,7 +38,7 @@
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
-
+#import "SAAppCirCleConnection.h"
 #define VERSION @"1.10.9"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1323,6 +1323,36 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SAHeatMapConnection *connection = [[SAHeatMapConnection alloc] initWithURL:nil];
             if (connection) {
                 [connection showOpenHeatMapDialog:featureCode withUrl:postUrl isWifi:isWifi];
+                return YES;
+            }
+        }
+        if ([url.host isEqualToString:@"appcircle"]) {
+            NSString *featureCode = nil;
+            NSString *postUrl = nil;
+            NSString *query = [url query];
+            if (query != nil) {
+                NSArray *subArray = [query componentsSeparatedByString:@"&"];
+                NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
+                if (subArray) {
+                    for (int j = 0 ; j < subArray.count; j++) {
+                        //在通过=拆分键和值
+                        NSArray *dicArray = [subArray[j] componentsSeparatedByString:@"="];
+                        //给字典加入元素
+                        [tempDic setObject:dicArray[1] forKey:dicArray[0]];
+                    }
+                    featureCode = [tempDic objectForKey:@"feature_code"];
+                    postUrl = [tempDic objectForKey:@"url"];
+                }
+            }
+            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+            BOOL isWifi = NO;
+            if ([networkType isEqualToString:@"WIFI"]) {
+                isWifi = YES;
+            }
+        
+            SAAppCircleConnection *connection = [[SAAppCircleConnection alloc] initWithURL:nil];
+            if (connection) {
+                [connection showOpenAppCircleDialog:featureCode withUrl:postUrl isWifi:isWifi];
                 return YES;
             }
         }

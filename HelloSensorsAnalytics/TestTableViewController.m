@@ -25,7 +25,12 @@
 
 -(NSArray *)dataArray_1{
     if (!_dataArray_1) {
-        _dataArray_1 = @[@"index_0",@"index_1",@"index_2"];
+        NSMutableArray *arr = [NSMutableArray array];
+        for (int i=0; i<100; i++) {
+            NSString *title = [[NSString alloc]initWithFormat:@"index_%i",i];
+            [arr addObject:title];
+        }
+        _dataArray_1 = arr;
         
     }
     return _dataArray_1;
@@ -90,7 +95,6 @@
 
     }else{
         cell.textLabel.text = self.dataArray_1[indexPath.row];
-
     }
     return cell;
 }
@@ -109,6 +113,6 @@
 }
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
+   
 }
 @end

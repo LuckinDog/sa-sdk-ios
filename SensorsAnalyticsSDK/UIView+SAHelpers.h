@@ -20,3 +20,6 @@
 
 @end
 
+@interface UITableViewCell (SAHelpers)
+-(NSString*)sa_indexPath;
+@end

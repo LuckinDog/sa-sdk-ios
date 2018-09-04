@@ -142,6 +142,16 @@
 		A1D1C5851FB44913006685C1 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A366491F1CC784A1008D991E /* SafariServices.framework */; };
 		A1D1C58D1FB45019006685C1 /* ic_test.png in Resources */ = {isa = PBXBuildFile; fileRef = 0027C8521FA201E9002EA41B /* ic_test.png */; };
 		A1D1C58E1FB45019006685C1 /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
+		A1D97AD1213690FF00B2005E /* SAAppCircleSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D97ACA213690FF00B2005E /* SAAppCircleSnapshotMessage.m */; };
+		A1D97AD2213690FF00B2005E /* SAAppCircleConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = A1D97ACB213690FF00B2005E /* SAAppCircleConnection.h */; };
+		A1D97AD3213690FF00B2005E /* SAAppCircleAbstractMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = A1D97ACC213690FF00B2005E /* SAAppCircleAbstractMessage.h */; };
+		A1D97AD4213690FF00B2005E /* SAAppCircleConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D97ACD213690FF00B2005E /* SAAppCircleConnection.m */; };
+		A1D97AD5213690FF00B2005E /* SAAppCircleSnapshotMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = A1D97ACE213690FF00B2005E /* SAAppCircleSnapshotMessage.h */; };
+		A1D97AD6213690FF00B2005E /* SAAppCircleMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = A1D97ACF213690FF00B2005E /* SAAppCircleMessage.h */; };
+		A1D97AD7213690FF00B2005E /* SAAppCircleAbstractMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D97AD0213690FF00B2005E /* SAAppCircleAbstractMessage.m */; };
+		A1D97AD82136948900B2005E /* SAAppCircleSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D97ACA213690FF00B2005E /* SAAppCircleSnapshotMessage.m */; };
+		A1D97AD92136948900B2005E /* SAAppCircleConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D97ACD213690FF00B2005E /* SAAppCircleConnection.m */; };
+		A1D97ADA2136948900B2005E /* SAAppCircleAbstractMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D97AD0213690FF00B2005E /* SAAppCircleAbstractMessage.m */; };
 		A3746E7E1C3115EB008A50A3 /* SAAbstractDesignerMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = A3746E791C3115EB008A50A3 /* SAAbstractDesignerMessage.h */; };
 		A3746E7F1C3115EB008A50A3 /* SAAbstractDesignerMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3746E7A1C3115EB008A50A3 /* SAAbstractDesignerMessage.m */; };
 		A3746E821C3115EB008A50A3 /* SADesignerMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = A3746E7D1C3115EB008A50A3 /* SADesignerMessage.h */; };
@@ -356,6 +366,13 @@
 		A1D1C5741FB445BC006685C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1D1C57B1FB44613006685C1 /* SensorsDataSwiftDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsDataSwiftDemo-Bridging-Header.h"; sourceTree = "<group>"; };
 		A1D1C5811FB448FA006685C1 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		A1D97ACA213690FF00B2005E /* SAAppCircleSnapshotMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppCircleSnapshotMessage.m; sourceTree = "<group>"; };
+		A1D97ACB213690FF00B2005E /* SAAppCircleConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppCircleConnection.h; sourceTree = "<group>"; };
+		A1D97ACC213690FF00B2005E /* SAAppCircleAbstractMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppCircleAbstractMessage.h; sourceTree = "<group>"; };
+		A1D97ACD213690FF00B2005E /* SAAppCircleConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppCircleConnection.m; sourceTree = "<group>"; };
+		A1D97ACE213690FF00B2005E /* SAAppCircleSnapshotMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppCircleSnapshotMessage.h; sourceTree = "<group>"; };
+		A1D97ACF213690FF00B2005E /* SAAppCircleMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppCircleMessage.h; sourceTree = "<group>"; };
+		A1D97AD0213690FF00B2005E /* SAAppCircleAbstractMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppCircleAbstractMessage.m; sourceTree = "<group>"; };
 		A366491F1CC784A1008D991E /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
 		A3746E791C3115EB008A50A3 /* SAAbstractDesignerMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAbstractDesignerMessage.h; sourceTree = "<group>"; };
 		A3746E7A1C3115EB008A50A3 /* SAAbstractDesignerMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAbstractDesignerMessage.m; sourceTree = "<group>"; };
@@ -512,6 +529,7 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				A1D97AC9213690FF00B2005E /* AppCircle */,
 				4D6FF98921086B8900241224 /* Resources */,
 				A161A05220B540E400A3CA14 /* SALocationManager.h */,
 				A161A05320B540E400A3CA14 /* SALocationManager.m */,
@@ -645,6 +663,20 @@
 			path = SensorsDataSwiftDemo;
 			sourceTree = "<group>";
 		};
+		A1D97AC9213690FF00B2005E /* AppCircle */ = {
+			isa = PBXGroup;
+			children = (
+				A1D97ACF213690FF00B2005E /* SAAppCircleMessage.h */,
+				A1D97ACC213690FF00B2005E /* SAAppCircleAbstractMessage.h */,
+				A1D97ACA213690FF00B2005E /* SAAppCircleSnapshotMessage.m */,
+				A1D97ACB213690FF00B2005E /* SAAppCircleConnection.h */,
+				A1D97ACD213690FF00B2005E /* SAAppCircleConnection.m */,
+				A1D97ACE213690FF00B2005E /* SAAppCircleSnapshotMessage.h */,
+				A1D97AD0213690FF00B2005E /* SAAppCircleAbstractMessage.m */,
+			);
+			path = AppCircle;
+			sourceTree = SOURCE_ROOT;
+		};
 		F029B80BAB18852D4CE30358 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -686,10 +718,12 @@
 				00EA990F1EEF9D1A005E524F /* UICollectionView+AutoTrack.h in Headers */,
 				A3997A251C3AC1DE005A9374 /* SAObjectSelector.h in Headers */,
 				0009198B1F974CE100E5D3C5 /* UIViewController+AutoTrack.h in Headers */,
+				A1D97AD5213690FF00B2005E /* SAAppCircleSnapshotMessage.h in Headers */,
 				A3746EC01C3190E7008A50A3 /* SAPropertyDescription.h in Headers */,
 				4D14F17E1B4A7A32006AD786 /* SALogger.h in Headers */,
 				A161A04C20B3E2DC00A3CA14 /* SADeviceOrientationManager.h in Headers */,
 				00EA97C31EEF7418005E524F /* UITableView+AutoTrack.h in Headers */,
+				A1D97AD3213690FF00B2005E /* SAAppCircleAbstractMessage.h in Headers */,
 				4D14F16C1B47D4EB006AD786 /* SensorsAnalyticsSDK.h in Headers */,
 				0027C8481FA201CE002EA41B /* SAHeatMapMessage.h in Headers */,
 				A3746EC21C3190E7008A50A3 /* SATypeDescription.h in Headers */,
@@ -719,6 +753,8 @@
 				002DB94F1EB1647F00A9632C /* UIApplication+AutoTrack.h in Headers */,
 				0038C5D11FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				002BF6711F0A875100824F76 /* UIImage+AutoTrack.h in Headers */,
+				A1D97AD2213690FF00B2005E /* SAAppCircleConnection.h in Headers */,
+				A1D97AD6213690FF00B2005E /* SAAppCircleMessage.h in Headers */,
 				A3997A291C3AC342005A9374 /* SASwizzler.h in Headers */,
 				A3746E821C3115EB008A50A3 /* SADesignerMessage.h in Headers */,
 				4D23EFB42109643400DBDB9F /* SACommonUtility.h in Headers */,
@@ -849,6 +885,16 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
+				"zh-Hans",
+				ja,
+				es,
+				it,
+				ru,
+				fr,
+				nl,
+				pt,
+				ca,
 			);
 			mainGroup = 4D5CA76E1B43E92D00D7ACB7;
 			productRefGroup = 4D5CA7781B43E92D00D7ACB7 /* Products */;
@@ -907,6 +953,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1D97AD82136948900B2005E /* SAAppCircleSnapshotMessage.m in Sources */,
+				A1D97AD92136948900B2005E /* SAAppCircleConnection.m in Sources */,
+				A1D97ADA2136948900B2005E /* SAAppCircleAbstractMessage.m in Sources */,
 				007BE5AA20E1F3D9006CB1ED /* NSThread+SAHelpers.m in Sources */,
 				A190A8C720CE5E83002C4202 /* UIView+AutoTrack.m in Sources */,
 				A161A05620B540F400A3CA14 /* SALocationManager.m in Sources */,
@@ -971,6 +1020,7 @@
 			files = (
 				005EB7E71F9723F700C14AF1 /* AutoTrackUtils.m in Sources */,
 				A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */,
+				A1D97AD7213690FF00B2005E /* SAAppCircleAbstractMessage.m in Sources */,
 				4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */,
 				A3997A2A1C3AC342005A9374 /* SASwizzler.m in Sources */,
 				A14938C8207B8730006EF04A /* SAKeyChainItemWrapper.m in Sources */,
@@ -982,7 +1032,9 @@
 				A3746EB11C318B65008A50A3 /* SAObjectSerializerContext.m in Sources */,
 				0041360B1FFB4682009F2097 /* SAServerUrl.m in Sources */,
 				A3746EA91C318B54008A50A3 /* SAObjectSerializer.m in Sources */,
+				A1D97AD4213690FF00B2005E /* SAAppCircleConnection.m in Sources */,
 				A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */,
+				A1D97AD1213690FF00B2005E /* SAAppCircleSnapshotMessage.m in Sources */,
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
 				A15CBCA5208ED5D50014DE74 /* SASDKRemoteConfig.m in Sources */,
 				A3746EBF1C3190E7008A50A3 /* SAEnumDescription.m in Sources */,
@@ -1247,7 +1299,18 @@
 		4D5CA78C1B43E92D00D7ACB7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/AppCircle/Desktop/ChitChat",
+					"$(PROJECT_DIR)/AppCircle/Desktop/PodFrameworkTest/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/AppCircle/Desktop/CarthageZWXDemo/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/AppCircle/Desktop/OpenEmu/OpenEmu",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/AppCircle/Desktop/04_OC前端/CodeTestFrontCross-3.0.1-Darwin/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1263,7 +1326,18 @@
 		4D5CA78D1B43E92D00D7ACB7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/AppCircle/Desktop/ChitChat",
+					"$(PROJECT_DIR)/AppCircle/Desktop/PodFrameworkTest/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/AppCircle/Desktop/CarthageZWXDemo/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/AppCircle/Desktop/OpenEmu/OpenEmu",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/AppCircle/Desktop/04_OC前端/CodeTestFrontCross-3.0.1-Darwin/lib",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

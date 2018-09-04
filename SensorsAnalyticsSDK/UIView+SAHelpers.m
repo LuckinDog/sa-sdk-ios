@@ -244,3 +244,13 @@ static NSString* sa_encryptHelper(id input) {
 }
 
 @end
+@implementation UITableViewCell (SAHelpers)
+-(NSString*)sa_indexPath {
+    UITableView *tableView = (UITableView *)[self superview];
+    if([tableView isKindOfClass:UITableView.class] == NO) return @"";
+    NSIndexPath *indexPath = [tableView indexPathForCell:self];
+    NSString *pathString = [[NSString alloc]initWithFormat:@"[%ld][%ld]",(long)indexPath.section,(long)indexPath.row];
+    return pathString;
+}
+
+@end

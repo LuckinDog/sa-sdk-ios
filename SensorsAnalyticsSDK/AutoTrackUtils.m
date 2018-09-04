@@ -19,10 +19,10 @@
     if (varE != nil) {
         [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varE='%@'", varE]];
     }
-    //    NSArray *varD = [view jjf_varSetD];
-    //    if (varD != nil && [varD count] > 0) {
-    //        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varSetD='%@'", [varD componentsJoinedByString:@","]]];
-    //    }
+//    NSArray *varD = [view jjf_varSetD];
+//    if (varD != nil && [varD count] > 0) {
+//        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varSetD='%@'", [varD componentsJoinedByString:@","]]];
+//    }
     varE = [view jjf_varC];
     if (varE != nil) {
         [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varC='%@'", varE]];
@@ -478,35 +478,11 @@
             [tableView layoutIfNeeded];
             cell = [tableView cellForRowAtIndexPath:indexPath];
         }
-        NSString *cellClass =NSStringFromClass([cell class]);
         NSString *elementContent = [[NSString alloc] init];
 
         if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled] && [[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-            long section = (unsigned long)indexPath.section;
-            int count = 0;
-            for (int i = 0; i <= section; i++) {
-                NSInteger numberOfItemsInSection = [tableView numberOfRowsInSection:i];
-                if (i == section) {
-                    numberOfItemsInSection = indexPath.row;
-                }
-                for (int j = 0; j < numberOfItemsInSection; j++) {
-                    UITableViewCell *cellRow = [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:j inSection:i]];
-                    if(cellRow == nil) {
-                        [tableView layoutIfNeeded];
-                        cellRow = [tableView cellForRowAtIndexPath:indexPath];
-                    }
-                    if(cellRow == nil) {
-                        [tableView reloadData];
-                        [tableView layoutIfNeeded];
-                        cellRow = [tableView cellForRowAtIndexPath:indexPath];
-                    }
-                    if ([cellClass isEqualToString:NSStringFromClass([cellRow class])]) {
-                        count++;
-                    }
-                }
-            }
-            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%d]",NSStringFromClass([cell class]), count]];
+            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.row]];
             id responder = cell.nextResponder;
             NSArray<__kindof UIView *> *subviews = [tableView.superview subviews];
             NSMutableArray<__kindof UIView *> *viewsArray = [[NSMutableArray alloc] init];
