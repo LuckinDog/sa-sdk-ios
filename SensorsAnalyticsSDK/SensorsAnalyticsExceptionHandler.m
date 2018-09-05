@@ -144,7 +144,7 @@ void SAHandleException(NSException *exception) {
             @try {
                 if ([exception callStackSymbols]) {
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
-                    long slide_address = [SensorsAnalyticsExceptionHandler marginStrategyTrade_getImageSlide];
+                    long slide_address = [SensorsAnalyticsExceptionHandler sa_computeImageSlide];
                     [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address,[exception callStackSymbols]] forKey:@"app_crashed_reason"];
                     
 #else
@@ -181,10 +181,9 @@ void SAHandleException(NSException *exception) {
 
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
 /** 增加 crash slideAdress 采集支持
- *  MarginStrategyTrade
  *  @return the slide of this binary image
  */
-+ (long) marginStrategyTrade_getImageSlide {
++ (long) sa_computeImageSlide {
     long slide = -1;
     for (uint32_t i = 0; i < _dyld_image_count(); i++) {
         if (_dyld_get_image_header(i)->filetype == MH_EXECUTE) {
