@@ -254,3 +254,13 @@ static NSString* sa_encryptHelper(id input) {
 }
 
 @end
+@implementation UICollectionViewCell (SAHelpers)
+-(NSString*)sa_indexPath {
+    UICollectionView *collectionView = (UICollectionView *)[self superview];
+    if([collectionView isKindOfClass:UICollectionView.class] == NO) return @"";
+    NSIndexPath *indexPath = [collectionView indexPathForCell:self];
+    NSString *pathString = [[NSString alloc]initWithFormat:@"[%ld][%ld]",(long)indexPath.section,(long)indexPath.item];
+    return pathString;
+}
+
+@end

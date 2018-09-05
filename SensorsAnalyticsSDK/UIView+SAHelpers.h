@@ -23,3 +23,7 @@
 @interface UITableViewCell (SAHelpers)
 -(NSString*)sa_indexPath;
 @end
+
+@interface UICollectionViewCell (SAHelpers)
+-(NSString*)sa_indexPath;
+@end

@@ -304,7 +304,7 @@
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:@"$element_position"];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section,(long)indexPath.item] forKey:@"$element_position"];
         }
 
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
@@ -312,34 +312,9 @@
             [collectionView layoutIfNeeded];
             cell = [collectionView cellForItemAtIndexPath:indexPath];
         }
-        NSString *cellClass =NSStringFromClass([cell class]);
-        
         if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled] && [[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-            long section = (unsigned long)indexPath.section;
-            int count = 0;
-            for (int i = 0; i <= section; i++) {
-                NSInteger numberOfItemsInSection = [collectionView numberOfItemsInSection:i];
-                if (i == section) {
-                    numberOfItemsInSection = indexPath.row;
-                }
-                for (int j = 0; j < numberOfItemsInSection; j++) {
-                    UICollectionViewCell *cellRow = [collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForRow:j inSection:i]];
-                    if(cellRow == nil) {
-                        [collectionView layoutIfNeeded];
-                        cellRow = [collectionView cellForItemAtIndexPath:indexPath];
-                    }
-                    if(cellRow == nil) {
-                        [collectionView reloadData];
-                        [collectionView layoutIfNeeded];
-                        cellRow = [collectionView cellForItemAtIndexPath:indexPath];
-                    }
-                    if ([cellClass isEqualToString:NSStringFromClass([cellRow class])]) {
-                        count++;
-                    }
-                }
-            }
-            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%d]",NSStringFromClass([cell class]), count]];
+            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), indexPath.section,indexPath.item]];
             id responder = cell.nextResponder;
             
             NSArray<__kindof UIView *> *subviews = [collectionView.superview subviews];

@@ -375,6 +375,17 @@
           ]
         },
         {
+            "name": "UICollectionViewCell",
+            "superclass": "UIView",
+            "properties": [
+                {
+                    "name": "sa_indexPath",
+                    "type": "NSString",
+                    "use_kvc": false
+                }
+            ]
+        },
+        {
           "name": "UITextView",
           "superclass": "UIScrollView",
           "properties": [
