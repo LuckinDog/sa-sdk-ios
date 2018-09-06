@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.subspec 'core' do |c|
 	c.source_files  = "SensorsAnalyticsSDK", "SensorsAnalyticsSDK/*.{h,m}"
 	c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h"
-  s.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
+  c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
   s.subspec 'IDFA' do |f|
