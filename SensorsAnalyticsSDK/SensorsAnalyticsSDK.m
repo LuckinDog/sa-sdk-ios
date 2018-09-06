@@ -39,7 +39,9 @@
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
 #import "SAAppCirCleConnection.h"
-#define VERSION @"1.10.9"
+
+
+#define VERSION @"1.10.12"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
