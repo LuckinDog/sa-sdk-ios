@@ -494,11 +494,11 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				4D6FF98921086B8900241224 /* Resources */,
 				A1C18E87211C4235000A1194 /* SADelegateProxy.h */,
 				A1C18E89211C4236000A1194 /* SADelegateProxy.m */,
 				A1C18E86211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.h */,
 				A1C18E88211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m */,
-				4D6FF98921086B8900241224 /* Resources */,
 				A161A05220B540E400A3CA14 /* SALocationManager.h */,
 				A161A05320B540E400A3CA14 /* SALocationManager.m */,
 				A161A04A20B3E2DC00A3CA14 /* SADeviceOrientationManager.h */,

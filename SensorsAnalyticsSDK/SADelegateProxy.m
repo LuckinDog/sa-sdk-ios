@@ -20,7 +20,6 @@
     [invocation invokeWithTarget:self.target];
 }
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    SALog(@"\n%@\n%@\n",tableView,indexPath);
     if ([self.target respondsToSelector:_cmd]) {
         [SensorsAnalyticsSDK.sharedInstance tableView:tableView didSelectRowAtIndexPath:indexPath];
         [self.target tableView:tableView didSelectRowAtIndexPath:indexPath];
@@ -34,7 +33,6 @@
     [invocation invokeWithTarget:self.target];
 }
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
-    SALog(@"\n%@\n%@\n",collectionView,indexPath);
     if ([self.target respondsToSelector:_cmd]) {
         [SensorsAnalyticsSDK.sharedInstance collectionView:collectionView didSelectItemAtIndexPath:indexPath];
         [self.target collectionView:collectionView didSelectItemAtIndexPath:indexPath];
