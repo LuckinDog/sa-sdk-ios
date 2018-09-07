@@ -16,5 +16,6 @@
 @property (weak, nonatomic) IBOutlet UISwitch *myUISwitch;
 - (IBAction)segmentOnClick:(id)sender;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *segmentedControl;
 
 @end
