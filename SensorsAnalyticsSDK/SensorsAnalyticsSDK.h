@@ -888,7 +888,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)deleteAll;
 #pragma mark- heatMap
-- (BOOL)handleHeatMapUrl:(NSURL *)url;
+- (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考canOpenURL:(NSURL *)url")));
 
 /**
  * @abstract
@@ -905,6 +905,17 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 - (void)addHeatMapViewControllers:(NSArray *)controllers;
 
 - (BOOL)isHeatMapViewController:(UIViewController *)viewController;
+
+
+/**
+ * @abstract
+ * 神策 SDK 会处理 点击图，圈选的url
+ * @discussion
+ *  目前处理 heatmap，appcircle
+ * @param url
+ * @return YES/NO   
+ */
+- (BOOL)canOpenURL:(NSURL *)url;
 #pragma mark- profile
 /**
  * @abstract

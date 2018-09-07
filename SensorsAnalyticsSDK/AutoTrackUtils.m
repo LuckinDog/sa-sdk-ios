@@ -314,7 +314,7 @@
         }
         if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled] && [[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), indexPath.section,indexPath.item]];
+            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.item]];
             id responder = cell.nextResponder;
             
             NSArray<__kindof UIView *> *subviews = [collectionView.superview subviews];

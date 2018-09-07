@@ -51,7 +51,7 @@
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    if ([[SensorsAnalyticsSDK sharedInstance] handleHeatMapUrl:url]) {
+    if ([[SensorsAnalyticsSDK sharedInstance] canOpenURL:url]) {
         return YES;
     }
     return NO;
