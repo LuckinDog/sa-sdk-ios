@@ -27,7 +27,6 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#import "SAHeatMapConnection.h"
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
@@ -38,9 +37,8 @@
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
-#import "SAAppCirCleConnection.h"
 #import "SensorsAnalyticsSDK+Private.h"
-
+#import "SAAuxiliaryToolManager.h"
 #define VERSION @"1.10.12"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -174,7 +172,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //用户设置的不被AutoTrack的Controllers
 @property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
 
-@property (nonatomic, strong) NSMutableArray *heatMapViewControllers;
+@property (nonatomic, strong) NSMutableArray *trackElementSelectorViewControllers;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
@@ -195,9 +193,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
 
-@property (nonatomic, strong) SAAppCircleConnection *appCircleConnection;
-@property (nonatomic, strong) SAHeatMapConnection *heatMapConnection;
-
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -209,7 +204,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
-    BOOL _heatMap;
+    BOOL _shouldTrackElementSelector;
     UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
@@ -377,7 +372,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _flushBulkSize = 100;
             _maxCacheSize = 10000;
             _autoTrack = NO;
-            _heatMap = NO;
+            _shouldTrackElementSelector = NO;
             _appRelaunched = NO;
             _showDebugAlertView = YES;
             _debugAlertViewHasShownNumber = 0;
@@ -399,7 +394,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
-            _heatMapViewControllers = [[NSMutableArray alloc] init];
+            _trackElementSelectorViewControllers = [[NSMutableArray alloc] init];
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
 
@@ -1030,10 +1025,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
 
-- (void)enableAutoTrack {
-    [self enableAutoTrack:SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppViewScreen];
-}
-
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
     if (_autoTrackEventType != eventType) {
         _autoTrackEventType = eventType;
@@ -1134,10 +1125,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     return false;
-}
-
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
-    _autoTrackEventType = _autoTrackEventType ^ eventType;
 }
 
 - (void)showDebugInfoView:(BOOL)show {
@@ -1296,135 +1283,62 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)deleteAll {
     [self.messageQueue deleteAll];
 }
-
-- (BOOL)canOpenURL:(NSURL *)url  {
-    return [self openHeatMapURL:url] || [self openAppCircleURL:url];
+#pragma mark-- heatmap && appcircle
+- (BOOL)canOpenURL:(NSURL *)URL  {
+   return [[SAAuxiliaryToolManager sharedInstance] canOpenURL:URL];
 }
 
-- (BOOL)openAppCircleURL:(NSURL *)url {
-    @try {
-        if (!url) {
-            return NO;
-        }
-        if ([url.host isEqualToString:@"appcircle"]) {
-            NSString *featureCode = nil;
-            NSString *postUrl = nil;
-            NSString *query = [url query];
-            if (query != nil) {
-                NSArray *subArray = [query componentsSeparatedByString:@"&"];
-                NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
-                if (subArray) {
-                    for (int j = 0 ; j < subArray.count; j++) {
-                        //在通过=拆分键和值
-                        NSArray *dicArray = [subArray[j] componentsSeparatedByString:@"="];
-                        //给字典加入元素
-                        [tempDic setObject:dicArray[1] forKey:dicArray[0]];
-                    }
-                    featureCode = [tempDic objectForKey:@"feature_code"];
-                    postUrl = [tempDic objectForKey:@"url"];
-                }
-            }
-            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-            BOOL isWifi = NO;
-            if ([networkType isEqualToString:@"WIFI"]) {
-                isWifi = YES;
-            }
-            
-            SAAppCircleConnection *connection = [[SAAppCircleConnection alloc] initWithURL:nil];
-            if (connection) {
-                [connection showOpenAppCircleDialog:featureCode withUrl:postUrl isWifi:isWifi];
-                return YES;
-            }
-        }
-    } @catch (NSException *exception) {
-        SAError(@"%@: %@", self, exception);
+-(BOOL)openURL:(NSURL *)URL{
+    if (URL == nil) {
+        return NO;
     }
-    return NO;
-}
-
-- (BOOL)openHeatMapURL:(NSURL *)url {
-    @try {
-        if (!url) {
-            return NO;
-        }
-        if ([@"heatmap" isEqualToString:url.host]) {
-            NSString *featureCode = nil;
-            NSString *postUrl = nil;
-            NSString *query = [url query];
-            if (query != nil) {
-                NSArray *subArray = [query componentsSeparatedByString:@"&"];
-                NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
-                if (subArray) {
-                    for (int j = 0 ; j < subArray.count; j++) {
-                        //在通过=拆分键和值
-                        NSArray *dicArray = [subArray[j] componentsSeparatedByString:@"="];
-                        //给字典加入元素
-                        [tempDic setObject:dicArray[1] forKey:dicArray[0]];
-                    }
-                    featureCode = [tempDic objectForKey:@"feature_code"];
-                    postUrl = [tempDic objectForKey:@"url"];
-                }
-            }
-            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-            BOOL isWifi = NO;
-            if ([networkType isEqualToString:@"WIFI"]) {
-                isWifi = YES;
-            }
-            SAHeatMapConnection *connection = [[SAHeatMapConnection alloc] initWithURL:nil];
-            if (connection) {
-                [connection showOpenHeatMapDialog:featureCode withUrl:postUrl isWifi:isWifi];
-                return YES;
-            }
-        }
-    } @catch (NSException *exception) {
-         SAError(@"%@: %@", self, exception);
+    NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+    BOOL isWifi = NO;
+    if ([networkType isEqualToString:@"WIFI"]) {
+        isWifi = YES;
     }
-    return NO;
+    return [[SAAuxiliaryToolManager sharedInstance] openURL:URL isWifi:isWifi];
 }
 
-- (BOOL)handleHeatMapUrl:(NSURL *)url {
-    return [self openHeatMapURL:url];
+-(void)enableTrackElementSelector {
+    _shouldTrackElementSelector = YES;
 }
 
-- (void)enableHeatMap {
-    _heatMap = YES;
+-(BOOL)isTrackElementSelectorEnabled {
+    return _shouldTrackElementSelector;
 }
 
-- (BOOL)isHeatMapEnabled {
-    return _heatMap;
-}
-
-- (void)addHeatMapViewControllers:(NSArray *)controllers {
+- (void)addTrackElementSelectorViewControllers:(NSArray *)controllers {
     @try {
         if (controllers == nil || controllers.count == 0) {
             return;
         }
-        [_heatMapViewControllers addObjectsFromArray:controllers];
+        [_trackElementSelectorViewControllers addObjectsFromArray:controllers];
         
         //去重
-        NSSet *set = [NSSet setWithArray:_heatMapViewControllers];
+        NSSet *set = [NSSet setWithArray:_trackElementSelectorViewControllers];
         if (set != nil) {
-            _heatMapViewControllers = [NSMutableArray arrayWithArray:[set allObjects]];
+            _trackElementSelectorViewControllers = [NSMutableArray arrayWithArray:[set allObjects]];
         } else{
-            _heatMapViewControllers = [[NSMutableArray alloc] init];
+            _trackElementSelectorViewControllers = [[NSMutableArray alloc] init];
         }
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
 }
 
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController {
+- (BOOL)isTrackElementSelectorViewController:(UIViewController *)viewController {
     @try {
         if (viewController == nil) {
             return NO;
         }
         
-        if (_heatMapViewControllers == nil || _heatMapViewControllers.count == 0) {
+        if (_trackElementSelectorViewControllers == nil || _trackElementSelectorViewControllers.count == 0) {
             return YES;
         }
         
         NSString *screenName = NSStringFromClass([viewController class]);
-        if ([_heatMapViewControllers containsObject:screenName]) {
+        if ([_trackElementSelectorViewControllers containsObject:screenName]) {
             return YES;
         }
     } @catch (NSException *exception) {
@@ -1432,6 +1346,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     return NO;
 }
+
+#pragma mark --track event
 
 - (BOOL) isValidName : (NSString *) name {
     @try {
@@ -1811,14 +1727,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
 }
 
-- (void)trackTimerBegin:(NSString *)event {
-    [self trackTimer:event];
-}
-
-- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
-    [self trackTimer:event withTimeUnit:timeUnit];
-}
-
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     if (![self isValidName:event]) {
         NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
@@ -1847,16 +1755,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         self.trackTimer = [NSMutableDictionary dictionary];
     });
-}
-
-- (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
-    [self identify:newDistinctId];
-    [self track:@"$SignUp" withProperties:propertieDict withType:@"track_signup"];
-}
-
-- (void)trackSignUp:(NSString *)newDistinctId {
-    [self identify:newDistinctId];
-    [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
@@ -3316,6 +3214,52 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
+}
+@end
+
+@implementation SensorsAnalyticsSDK (Deprecated)
+- (void)enableAutoTrack {
+    [self enableAutoTrack:SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppViewScreen];
+}
+- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
+    _autoTrackEventType = _autoTrackEventType ^ eventType;
+}
+
+- (void)trackTimerBegin:(NSString *)event {
+    [self trackTimer:event];
+}
+
+- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
+    [self trackTimer:event withTimeUnit:timeUnit];
+}
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
+    [self identify:newDistinctId];
+    [self track:@"$SignUp" withProperties:propertieDict withType:@"track_signup"];
+}
+
+- (void)trackSignUp:(NSString *)newDistinctId {
+    [self identify:newDistinctId];
+    [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
+}
+
+- (BOOL)handleHeatMapUrl:(NSURL *)URL {
+    return [self openURL:URL];
+}
+
+- (void)enableHeatMap {
+    [self enableTrackElementSelector];
+}
+
+- (BOOL)isHeatMapEnabled {
+    return [self isTrackElementSelectorEnabled];
+}
+
+- (void)addHeatMapViewControllers:(NSArray *)controllers {
+    [self addTrackElementSelectorViewControllers:controllers];
+}
+
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController {
+    return [self isTrackElementSelectorViewController:viewController];
 }
 @end
 

@@ -191,9 +191,6 @@ static NSString* sa_encryptHelper(id input) {
             [encryptedStuff appendFormat:@"%02x", digest[i]];
         }
     }
-    if ([input isKindOfClass:[NSString class]]) {
-        
-    }
     return encryptedStuff;
 }
 

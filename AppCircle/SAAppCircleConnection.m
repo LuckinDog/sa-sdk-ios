@@ -24,7 +24,6 @@
     NSURL *_url;
     NSDictionary *_typeToMessageClassMap;
     NSOperationQueue *_commandQueue;
-    UIView *_recordingView;
     NSTimer *timer;
     id<SAAppCircleMessage> _designerMessage;
     NSString *_featureCode;
@@ -121,17 +120,6 @@
     return designerMessage;
 }
 
-#pragma mark - UIAlertViewDelegate Methods
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex == 0) {
-        SADebug(@"Canceled to open AppCircle ...");
-        [self close];
-    } else {
-        SADebug(@"Confirmed to open AppCircle ...");
-    }
-}
-
 #pragma mark -  Methods
 
 - (void)startAppCircleTimer:(id)message withFeatureCode:(NSString *)featureCode withUrl:(NSString *)postUrl {
@@ -160,66 +148,18 @@
     }
 }
 
-- (void)showOpenAppCircleDialog:(NSString *)featureCode withUrl:(NSString *)postUrl isWifi:(BOOL)isWifi {
-    
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr{
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
     //文件路径
     NSString *jsonPath = [sensorsBundle pathForResource:@"sa_appcircle_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
-    
     _commandQueue.suspended = NO;
-    if (!_connected) {
-        _connected = YES;
-        
-        NSString *alertTitle = @"提示";
-        NSString *alertMessage = @"正在连接 APP 自定义埋点";
-        if (!isWifi) {
-            alertMessage = @"正在连接 APP 自定义埋点，建议在 WiFi 环境下使用";
-        }
-        
-        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
-            UIWindow *mainWindow = UIApplication.sharedApplication.keyWindow;
-            if (mainWindow == nil) {
-                mainWindow = [[UIApplication sharedApplication] delegate].window;
-            }
-            if (mainWindow == nil) {
-                return;
-            }
-            
-            UIAlertController *connectAlert = [UIAlertController
-                                               alertControllerWithTitle:alertTitle
-                                               message:alertMessage
-                                               preferredStyle:UIAlertControllerStyleAlert];
-            
-            [connectAlert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                SADebug(@"Canceled to open AppCircle ...");
-                
-                [self close];
-            }]];
-            
-            [connectAlert addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                SADebug(@"Confirmed to open AppCircle ...");
-                
-                self->_connected = YES;
-                [self startAppCircleTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
-            }]];
-            
-            UIViewController *viewController = mainWindow.rootViewController;
-            while (viewController.presentedViewController) {
-                viewController = viewController.presentedViewController;
-            }
-            [viewController presentViewController:connectAlert animated:YES completion:nil];
-        } else {
-            _connected = YES;
-            
-            [self startAppCircleTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
-
-            UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"继续", nil];
-            [connectAlert show];
-        }
-    } else {
-        [self startAppCircleTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
+    if (!self->_connected) {
+        self->_connected = YES;
+        [self startAppCircleTimer:jsonString withFeatureCode:featureCode withUrl:urlStr];
+    }else {
+        [self startAppCircleTimer:jsonString withFeatureCode:featureCode withUrl:urlStr];
     }
 }
 

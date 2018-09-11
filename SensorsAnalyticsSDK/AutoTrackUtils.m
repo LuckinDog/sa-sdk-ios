@@ -312,7 +312,7 @@
             [collectionView layoutIfNeeded];
             cell = [collectionView cellForItemAtIndexPath:indexPath];
         }
-        if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled] && [[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
+        if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
             [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.item]];
             id responder = cell.nextResponder;
@@ -455,7 +455,7 @@
         }
         NSString *elementContent = [[NSString alloc] init];
 
-        if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled] && [[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
+        if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
             [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.row]];
             id responder = cell.nextResponder;
@@ -523,11 +523,11 @@
 
 + (void)sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController {
     @try {
-        if (![[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled]) {
+        if (![[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled]) {
             return;
         }
 
-        if (![[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
+        if (![[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
             return;
         }
 

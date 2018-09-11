@@ -166,7 +166,7 @@
     }
 }
 
-- (void)showOpenHeatMapDialog:(NSString *)featureCode withUrl:(NSString *)postUrl isWifi:(BOOL)isWifi {
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)postUrl{
     
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
     //文件路径
@@ -175,55 +175,9 @@
     NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
     
     _commandQueue.suspended = NO;
-    if (!_connected) {
-        _connected = YES;
-        
-        NSString *alertTitle = @"提示";
-        NSString *alertMessage = @"正在连接 APP 点击分析";
-        if (!isWifi) {
-            alertMessage = @"正在连接 APP 点击分析，建议在 WiFi 环境下使用";
-        }
-        
-        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
-            UIWindow *mainWindow = UIApplication.sharedApplication.keyWindow;
-            if (mainWindow == nil) {
-                mainWindow = [[UIApplication sharedApplication] delegate].window;
-            }
-            if (mainWindow == nil) {
-                return;
-            }
-            
-            UIAlertController *connectAlert = [UIAlertController
-                                               alertControllerWithTitle:alertTitle
-                                               message:alertMessage
-                                               preferredStyle:UIAlertControllerStyleAlert];
-            
-            [connectAlert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                SADebug(@"Canceled to open HeatMap ...");
-                
-                [self close];
-            }]];
-            
-            [connectAlert addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                SADebug(@"Confirmed to open HeatMap ...");
-                
-                self->_connected = YES;
-                [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
-            }]];
-            
-            UIViewController *viewController = mainWindow.rootViewController;
-            while (viewController.presentedViewController) {
-                viewController = viewController.presentedViewController;
-            }
-            [viewController presentViewController:connectAlert animated:YES completion:nil];
-        } else {
-            _connected = YES;
-            
-            [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
-
-            UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"继续", nil];
-            [connectAlert show];
-        }
+    if (!self->_connected) {
+        self->_connected = YES;
+        [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
     } else {
         [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
     }

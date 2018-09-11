@@ -389,19 +389,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @property
  *
  * @abstract
- * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面
- *
- * @discussion
- * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
- *   https://sensorsdata.cn/manual/ios_sdk.html
- * 该功能默认关闭
- */
-- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
-
-/**
- * @property
- *
- * @abstract
  * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面、元素点击
  *
  * @discussion
@@ -466,14 +453,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @return YES:被忽略; NO:没有被忽略
  */
 - (BOOL)isViewControllerStringIgnored:(NSString*)viewController;
-
-/**
- * @abstract
- * 过滤掉 AutoTrack 的某个事件类型
- *
- * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
- */
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
 
 /**
  * @abstract
@@ -579,23 +558,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 初始化事件的计时器。
- *
- * @discussion
- * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
- * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- * 间记录在事件属性 "event_duration" 中。
- *
- * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
- *
- * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
- *
- * @param event             event的名称
- */
-- (void)trackTimerBegin:(NSString *)event __attribute__((deprecated("已过时，请参考 trackTimerStart")));
-
-/**
- * @abstract
  * 初始化事件的计时器，允许用户指定计时单位。
  *
  * @discussion
@@ -605,18 +567,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param timeUnit          计时单位，毫秒/秒/分钟/小时
  */
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
-
-/**
- * @abstract
- * 初始化事件的计时器，允许用户指定计时单位。
- *
- * @discussion
- * 请参考 trackTimer
- *
- * @param event             event的名称
- * @param timeUnit          计时单位，毫秒/秒/分钟/小时
- */
-- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
@@ -629,29 +579,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 清除所有事件计时器
  */
 - (void)clearTrackTimer;
-
-/**
- * @abstract
- * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
- *
- * @param newDistinctId     用户完成注册后生成的注册ID
- * @param propertyDict     event的属性
- */
-- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
-
-/**
- * @abstract
- * 不带私有属性的trackSignUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
- *
- * @param newDistinctId     用户完成注册后生成的注册ID
- */
-- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考login")));
 
 /**
  * @abstract
@@ -886,35 +813,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 一旦调用该接口，将会删除本地缓存的全部事件，请慎用！
  */
 - (void)deleteAll;
-#pragma mark- heatMap
-- (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考canOpenURL:(NSURL *)url")));
+#pragma mark- heatMap && appcircle
+- (BOOL)canOpenURL:(NSURL *)URL;
+- (BOOL)openURL:(NSURL *)URL;
 
-/**
- * @abstract
- * 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
- */
-- (void)enableHeatMap;
-
-- (BOOL)isHeatMapEnabled;
-
-/**
- * @abstract
- * 指定哪些页面开启 HeatMap，如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
- */
-- (void)addHeatMapViewControllers:(NSArray *)controllers;
-
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
-
-
-/**
- * @abstract
- * 神策 SDK 会处理 点击图，圈选的url
- * @discussion
- *  目前处理 heatmap，appcircle
- * @param url
- * @return YES/NO   
- */
-- (BOOL)canOpenURL:(NSURL *)url;
+- (void)enableTrackElementSelector;
+- (BOOL)isTrackElementSelectorEnabled;
+- (void)addTrackElementSelectorViewControllers:(NSArray *)controllers;
+- (BOOL)isTrackElementSelectorViewController:(UIViewController *)viewController;
 #pragma mark- profile
 /**
  * @abstract
@@ -1068,6 +974,108 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  */
 -(void)clearKeychainData;
+
+@end
+@interface SensorsAnalyticsSDK (Deprecated)
+/**
+ * @property
+ *
+ * @abstract
+ * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面
+ *
+ * @discussion
+ * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
+ *   https://sensorsdata.cn/manual/ios_sdk.html
+ * 该功能默认关闭
+ */
+- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+
+/**
+ * @abstract
+ * 过滤掉 AutoTrack 的某个事件类型
+ *
+ * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
+ */
+- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+
+/**
+ * @abstract
+ * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param newDistinctId     用户完成注册后生成的注册ID
+ * @param propertyDict     event的属性
+ */
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
+
+/**
+ * @abstract
+ * 不带私有属性的trackSignUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param newDistinctId     用户完成注册后生成的注册ID
+ */
+- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考login")));
+
+/**
+ * @abstract
+ * 初始化事件的计时器。
+ *
+ * @discussion
+ * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ * 间记录在事件属性 "event_duration" 中。
+ *
+ * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
+ *
+ * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
+ *
+ * @param event             event的名称
+ */
+- (void)trackTimerBegin:(NSString *)event __attribute__((deprecated("已过时，请参考 trackTimerStart")));
+
+/**
+ * @abstract
+ * 初始化事件的计时器，允许用户指定计时单位。
+ *
+ * @discussion
+ * 请参考 trackTimer
+ *
+ * @param event             event的名称
+ * @param timeUnit          计时单位，毫秒/秒/分钟/小时
+ */
+- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
+
+
+/**
+ * @abstract
+ * 神策 SDK 会处理 点击图，圈选的url
+ * @discussion
+ *  目前处理 heatmap，appcircle
+ * @param url
+ * @return YES/NO
+ */
+- (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考canOpenURL:(NSURL *)url")));
+
+/**
+ * @abstract
+ * 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
+ */
+- (void)enableHeatMap __attribute__((deprecated("已过时，请参考enableTrackElementSelector")));
+
+- (BOOL)isHeatMapEnabled __attribute__((deprecated("已过时，请参考isTrackElementSelectorEnabled")));
+
+/**
+ * @abstract
+ * 指定哪些页面开启 HeatMap，如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
+ */
+- (void)addHeatMapViewControllers:(NSArray *)controllers __attribute__((deprecated("已过时，请参考addTrackElementSelectorViewControllers:(NSArray *)controllers")));
+
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController __attribute__((deprecated("已过时，请参考isTrackElementSelectorViewController:(UIViewController *)viewController")));
 
 @end
 

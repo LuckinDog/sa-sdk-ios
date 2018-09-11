@@ -37,16 +37,17 @@
 }
 
 -(void)picSwitchClick:(UISwitch *)sender {
-    
 }
 
 -(void) labelTouchUpInside:(UITapGestureRecognizer *)recognizer{
     UILabel *label=(UILabel*)recognizer.view;
     NSLog(@"%@被点击了",label.text);
+
 }
 
 -(void) imageViewTouchUpInside:(UITapGestureRecognizer *)recognizer{
     NSLog(@"UIImageView被点击了");
+
 }
 
 - (void)didReceiveMemoryWarning {
@@ -67,8 +68,10 @@
 - (IBAction)onButton1Click:(id)sender {
   NSString *content=  [AutoTrackUtils contentFromView:self.view ];
     NSLog(@"%@",content);
+
 }
 - (IBAction)segmentOnClick:(id)sender {
+
 }
 
 -(void)dealloc {

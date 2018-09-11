@@ -39,7 +39,7 @@
      SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
-    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
+//    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
@@ -52,6 +52,7 @@
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
     if ([[SensorsAnalyticsSDK sharedInstance] canOpenURL:url]) {
+        [[SensorsAnalyticsSDK sharedInstance] openURL:url];
         return YES;
     }
     return NO;

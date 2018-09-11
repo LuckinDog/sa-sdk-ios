@@ -1,6 +1,6 @@
 //
 //  SADelegateProxy.h
-//  SADemo
+//  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/8/8.
 //  Copyright © 2018年 SensorsData. All rights reserved.
