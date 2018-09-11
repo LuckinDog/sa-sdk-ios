@@ -2649,7 +2649,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);
     }
     
-    if ([controller conformsToProtocol:@protocol(SAAutoTracker)]) {
+    if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
         [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
         _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
@@ -2665,7 +2665,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 #endif
     
-    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)]) {
+    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
         UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
         NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
         
