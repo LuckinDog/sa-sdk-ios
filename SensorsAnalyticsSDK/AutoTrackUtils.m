@@ -278,8 +278,7 @@
 
         UIViewController *viewController = [view viewController];
 
-        if (viewController == nil ||
-            [@"UINavigationController" isEqualToString:NSStringFromClass([viewController class])]) {
+        if (viewController == nil || [viewController isKindOfClass:UINavigationController.class]) {
             viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
         }
 
@@ -443,8 +442,7 @@
 
         UIViewController *viewController = [tableView viewController];
 
-        if (viewController == nil ||
-            [@"UINavigationController" isEqualToString:NSStringFromClass([viewController class])]) {
+        if (viewController == nil || [viewController isKindOfClass:UINavigationController.class]) {
             viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
         }
 
