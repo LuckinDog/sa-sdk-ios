@@ -63,6 +63,13 @@
         } else {
             [viewPathArray addObject:NSStringFromClass([view class])];
         }
+        //segment 点击的 index 问题
+        if ([view isKindOfClass:UISegmentedControl.class]) {
+            NSInteger selectedSegmentIndex = [(UISegmentedControl *)view  selectedSegmentIndex];
+            Class aClass = view.subviews[selectedSegmentIndex].class;
+            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",NSStringFromClass(aClass),(long)selectedSegmentIndex];
+            [viewPathArray insertObject:selectedSegmentPath atIndex:0];
+        }
     } else {
         NSString *viewIdentify = [NSString stringWithString:NSStringFromClass([view class])];
         viewIdentify = [viewIdentify stringByAppendingString:@"[("];
@@ -74,6 +81,13 @@
         }
         viewIdentify = [viewIdentify stringByAppendingString:@")]"];
         [viewPathArray addObject:viewIdentify];
+        //segment 点击的 index 问题
+        if ([view isKindOfClass:UISegmentedControl.class]) {
+            NSInteger selectedSegmentIndex = [(UISegmentedControl *)view  selectedSegmentIndex];
+            Class aClass = view.subviews[selectedSegmentIndex].class;
+            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",NSStringFromClass(aClass),(long)selectedSegmentIndex];
+            [viewPathArray insertObject:selectedSegmentPath atIndex:0];
+        }
     }
 }
 
