@@ -1,6 +1,6 @@
 //
 //  SADelegateProxy.m
-//  SADemo
+//  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/8/8.
 //  Copyright © 2018年 SensorsData. All rights reserved.
@@ -12,7 +12,6 @@
 #import <WebKit/WebKit.h>
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SALogger.h"
 @interface SATableViewDelegateProxy:SADelegateProxy<UITableViewDelegate>
 @end
 @implementation SATableViewDelegateProxy
