@@ -12,7 +12,6 @@
 #import <WebKit/WebKit.h>
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SALogger.h"
 @interface SATableViewDelegateProxy:SADelegateProxy<UITableViewDelegate>
 @end
 @implementation SATableViewDelegateProxy
