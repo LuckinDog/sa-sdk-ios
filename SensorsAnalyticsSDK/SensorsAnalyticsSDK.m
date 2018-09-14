@@ -362,9 +362,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 });
             }
 
-            self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
+            self.people = [[SensorsAnalyticsPeople alloc] init];
 
-    
             _debugMode = debugMode;
             [self setServerUrl:serverURL];
             [self enableLog];
@@ -3268,70 +3267,60 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 #pragma mark - People analytics
 
-@implementation SensorsAnalyticsPeople {
-    __weak SensorsAnalyticsSDK *_sdk;
-}
-
-- (id)initWithSDK:(SensorsAnalyticsSDK *)sdk {
-    self = [super init];
-    if (self) {
-        _sdk = sdk;
-    }
-    return self;
-}
+@implementation SensorsAnalyticsPeople
 
 - (void)set:(NSDictionary *)profileDict {
     if (profileDict) {
-        [_sdk track:nil withProperties:profileDict withType:@"profile_set"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:@"profile_set"];
     }
 }
 
 - (void)setOnce:(NSDictionary *)profileDict {
     if (profileDict) {
-        [_sdk track:nil withProperties:profileDict withType:@"profile_set_once"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:@"profile_set_once"];
     }
 }
 
 - (void)set:(NSString *) profile to:(id)content {
     if (profile && content) {
-        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:@"profile_set"];
     }
 }
 
 - (void)setOnce:(NSString *) profile to:(id)content {
     if (profile && content) {
-        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
     }
 }
 
 - (void)unset:(NSString *) profile {
     if (profile) {
-        [_sdk track:nil withProperties:@{profile: @""} withType:@"profile_unset"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: @""} withType:@"profile_unset"];
     }
 }
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
-        [_sdk track:nil withProperties:@{profile: amount} withType:@"profile_increment"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: amount} withType:@"profile_increment"];
     }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
-        [_sdk track:nil withProperties:profileDict withType:@"profile_increment"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:@"profile_increment"];
     }
 }
 
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-            [_sdk track:nil withProperties:@{profile: content} withType:@"profile_append"];
+            [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:@"profile_append"];
         }
     }
 }
 
 - (void)deleteUser {
-    [_sdk track:nil withProperties:@{} withType:@"profile_delete"];
+    [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{} withType:@"profile_delete"];
 }
 
 @end
