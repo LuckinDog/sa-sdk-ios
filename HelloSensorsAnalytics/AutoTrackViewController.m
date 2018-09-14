@@ -35,16 +35,8 @@
     [_myButton1 setAttributedTitle:[[NSAttributedString alloc]initWithString:@"button1" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13],NSForegroundColorAttributeName:[UIColor redColor]}] forState:UIControlStateNormal];
      [_myLabel setAttributedText:[[NSAttributedString alloc]initWithString:@"label1" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13],NSForegroundColorAttributeName:[UIColor redColor]}]];
 
-    UISegmentedControl *segment2 = [[UISegmentedControl alloc]initWithItems:@[@"1",@"2",@"3"]];
-    segment2.frame = CGRectMake(0, 600, 200, 40);
-    [segment2 addTarget:self action:@selector(segmentOnClick11:) forControlEvents:UIControlEventAllEvents];
-    [self.view addSubview:segment2];
-    segment2.backgroundColor = UIColor.redColor;
-
 }
--(void)segmentOnClick11:(id)seg {
 
-}
 -(void)picSwitchClick:(UISwitch *)sender {
 }
 

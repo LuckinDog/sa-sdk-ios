@@ -326,7 +326,7 @@
                     }
                 } else {
                     if ([from isKindOfClass:[UIControl class]]) {
-                        [properties setValue:@"UIControl" forKey:@"$element_type"];
+                        [properties setValue:NSStringFromClass([from class]) forKey:@"$element_type"];
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
                             NSString *elementContent = [[NSString alloc] init];
