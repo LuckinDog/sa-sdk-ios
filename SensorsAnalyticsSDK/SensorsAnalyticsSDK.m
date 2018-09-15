@@ -775,6 +775,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
                 [propertiesDict addEntriesFromDictionary:self->_superProperties];
                 NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+                //去重
+                [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
                 // 每次 track 时手机网络状态
@@ -1509,6 +1511,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dynamicSuperPropertiesDict = nil;
         }
     }
+    //去重
+    [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
     dispatch_async(self.serialQueue, ^{
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
@@ -2146,18 +2150,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [p copy];
 }
 
--(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
-     dispatch_async(self.serialQueue, ^{
-         self.dynamicSuperProperties = dynamicSuperProperties;
-     });
-}
-
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
     propertyDict = [propertyDict copy];
     if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
         SAError(@"%@ failed to register super properties.", self);
         return;
     }
+    
+    [self unregisterSameLetterSuperProperties:propertyDict];
+    
     dispatch_async(self.serialQueue, ^{
         // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
@@ -2165,6 +2166,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
         [self archiveSuperProperties];
     });
+}
+
+-(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
+    dispatch_async(self.serialQueue, ^{
+        self.dynamicSuperProperties = dynamicSuperProperties;
+    });
+}
+
+///注销仅大小写不同的 SuperProperties
+- (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict {
+    NSArray *allNewKeys = propertyDict.allKeys;
+    for (NSString *newKey in allNewKeys) {
+        //如果包含仅大小写不同的 key ,unregisterSuperProperty
+        NSArray *superPropertyAllKeys = [self.superProperties.allKeys mutableCopy];
+        [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            NSString *usedKey = (NSString *)obj;
+            if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
+                [self unregisterSuperProperty:usedKey];
+                *stop = YES;
+            }
+        }];
+    }
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
