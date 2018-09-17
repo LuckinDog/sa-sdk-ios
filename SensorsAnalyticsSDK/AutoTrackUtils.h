@@ -16,6 +16,10 @@
 
 + (NSString *)contentFromView:(UIView *)rootView;
 
-+ (void)sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController;
+//+ (void)sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController;
 
+
++ (void)__sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController;
+
++ (void)trackAppClickWithUITabBar:(UITabBar*)tabbar didSelectItem:(UITabBarItem *)item;
 @end

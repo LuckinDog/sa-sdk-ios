@@ -13,160 +13,160 @@
 #import "UIView+AutoTrack.h"
 @implementation AutoTrackUtils
 
-+ (void)sa_find_view_responder:(UIView *)view withViewPathArray:(NSMutableArray *)viewPathArray {
-    NSMutableArray *viewVarArray = [[NSMutableArray alloc] init];
-    NSString *varE = [view jjf_varE];
-    if (varE != nil) {
-        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varE='%@'", varE]];
-    }
-//    NSArray *varD = [view jjf_varSetD];
-//    if (varD != nil && [varD count] > 0) {
-//        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varSetD='%@'", [varD componentsJoinedByString:@","]]];
+//+ (void)sa_find_view_responder:(UIView *)view withViewPathArray:(NSMutableArray *)viewPathArray {
+//    NSMutableArray *viewVarArray = [[NSMutableArray alloc] init];
+//    NSString *varE = [view jjf_varE];
+//    if (varE != nil) {
+//        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varE='%@'", varE]];
 //    }
-    varE = [view jjf_varC];
-    if (varE != nil) {
-        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varC='%@'", varE]];
-    }
-    varE = [view jjf_varB];
-    if (varE != nil) {
-        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varB='%@'", varE]];
-    }
-    varE = [view jjf_varA];
-    if (varE != nil) {
-        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varA='%@'", varE]];
-    }
-    if ([viewVarArray count] == 0) {
-        NSArray<__kindof UIView *> *subviews;
-        NSMutableArray<__kindof UIView *> *sameTypeViews = [[NSMutableArray alloc] init];
-        id nextResponder = [view nextResponder];
-        if (nextResponder) {
-            if ([nextResponder respondsToSelector:NSSelectorFromString(@"subviews")]) {
-                subviews = [nextResponder subviews];
-                if ([view isKindOfClass:[UITableView class]] || [view isKindOfClass:[UICollectionView class]]) {
-                    subviews =  [[subviews reverseObjectEnumerator] allObjects];
-                }
-            }
-
-            for (UIView *v in subviews) {
-                if (v) {
-                    if ([NSStringFromClass([view class]) isEqualToString:NSStringFromClass([v class])]) {
-                        [sameTypeViews addObject:v];
-                    }
-                }
-            }
-        }
-        if (sameTypeViews.count > 1) {
-            NSString * className = nil;
-            NSUInteger index = [sameTypeViews indexOfObject:view];
-            className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([view class]), (unsigned long)index];
-            [viewPathArray addObject:className];
-        } else {
-            [viewPathArray addObject:NSStringFromClass([view class])];
-        }
-        //segment 点击的 index 问题
-        if ([view isKindOfClass:UISegmentedControl.class]) {
-            NSInteger selectedSegmentIndex = [(UISegmentedControl *)view  selectedSegmentIndex];
-            Class aClass = view.subviews[selectedSegmentIndex].class;
-            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",NSStringFromClass(aClass),(long)selectedSegmentIndex];
-            [viewPathArray insertObject:selectedSegmentPath atIndex:0];
-        }
-    } else {
-        NSString *viewIdentify = [NSString stringWithString:NSStringFromClass([view class])];
-        viewIdentify = [viewIdentify stringByAppendingString:@"[("];
-        for (int i = 0; i < viewVarArray.count; i++) {
-            viewIdentify = [viewIdentify stringByAppendingString:viewVarArray[i]];
-            if (i != (viewVarArray.count - 1)) {
-                viewIdentify = [viewIdentify stringByAppendingString:@" AND "];
-            }
-        }
-        viewIdentify = [viewIdentify stringByAppendingString:@")]"];
-        [viewPathArray addObject:viewIdentify];
-        //segment 点击的 index 问题
-        if ([view isKindOfClass:UISegmentedControl.class]) {
-            NSInteger selectedSegmentIndex = [(UISegmentedControl *)view  selectedSegmentIndex];
-            Class aClass = view.subviews[selectedSegmentIndex].class;
-            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",NSStringFromClass(aClass),(long)selectedSegmentIndex];
-            [viewPathArray insertObject:selectedSegmentPath atIndex:0];
-        }
-    }
-}
-
-+ (void)sa_find_responder:(id)responder withViewPathArray:(NSMutableArray *)viewPathArray {
-
-    while (responder!=nil&&![responder isKindOfClass:[UIViewController class]] &&
-           ![responder isKindOfClass:[UIWindow class]]) {
-        long count = 0;
-        NSArray<__kindof UIView *> *subviews;
-        id nextResponder = [responder nextResponder];
-        if (nextResponder) {
-            if ([nextResponder respondsToSelector:NSSelectorFromString(@"subviews")]) {
-                subviews = [nextResponder subviews];
-                if ([responder isKindOfClass:[UITableView class]] || [responder isKindOfClass:[UICollectionView class]]) {
-                    subviews =  [[subviews reverseObjectEnumerator] allObjects];
-                }
-                if (subviews) {
-                    count = (unsigned long)subviews.count;
-                }
-            }
-        }
-        if (count <= 1) {
-            if (NSStringFromClass([responder class])) {
-                [viewPathArray addObject:NSStringFromClass([responder class])];
-            }
-        } else {
-            NSMutableArray<__kindof UIView *> *sameTypeViews = [[NSMutableArray alloc] init];
-            for (UIView *v in subviews) {
-                if (v) {
-                    if ([NSStringFromClass([responder class]) isEqualToString:NSStringFromClass([v class])]) {
-                        [sameTypeViews addObject:v];
-                    }
-                }
-            }
-            if (sameTypeViews.count > 1) {
-                NSString * className = nil;
-                NSUInteger index = [sameTypeViews indexOfObject:responder];
-                className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index];
-                [viewPathArray addObject:className];
-            } else {
-                [viewPathArray addObject:NSStringFromClass([responder class])];
-            }
-        }
-        
-        responder = [responder nextResponder];
-    }
-    
-    if (responder && [responder isKindOfClass:[UIViewController class]]) {
-        while ([responder parentViewController]) {
-            UIViewController *viewController = [responder parentViewController];
-            if (viewController) {
-                NSArray<__kindof UIViewController *> *childViewControllers = [viewController childViewControllers];
-                if (childViewControllers > 0) {
-                    NSMutableArray<__kindof UIViewController *> *items = [[NSMutableArray alloc] init];
-                    for (UIViewController *v in childViewControllers) {
-                        if (v) {
-                            if ([NSStringFromClass([responder class]) isEqualToString:NSStringFromClass([v class])]) {
-                                [items addObject:v];
-                            }
-                        }
-                    }
-                    if (items.count > 1) {
-                        NSString * className = nil;
-                        NSUInteger index = [items indexOfObject:responder];
-                        className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index];
-                        [viewPathArray addObject:className];
-                    } else {
-                        [viewPathArray addObject:NSStringFromClass([responder class])];
-                    }
-                } else {
-                    [viewPathArray addObject:NSStringFromClass([responder class])];
-                }
-                
-                responder = viewController;
-            }
-        }
-        [viewPathArray addObject:NSStringFromClass([responder class])];
-    }
-}
+////    NSArray *varD = [view jjf_varSetD];
+////    if (varD != nil && [varD count] > 0) {
+////        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varSetD='%@'", [varD componentsJoinedByString:@","]]];
+////    }
+//    varE = [view jjf_varC];
+//    if (varE != nil) {
+//        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varC='%@'", varE]];
+//    }
+//    varE = [view jjf_varB];
+//    if (varE != nil) {
+//        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varB='%@'", varE]];
+//    }
+//    varE = [view jjf_varA];
+//    if (varE != nil) {
+//        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varA='%@'", varE]];
+//    }
+//    if ([viewVarArray count] == 0) {
+//        NSArray<__kindof UIView *> *subviews;
+//        NSMutableArray<__kindof UIView *> *sameTypeViews = [[NSMutableArray alloc] init];
+//        id nextResponder = [view nextResponder];
+//        if (nextResponder) {
+//            if ([nextResponder respondsToSelector:NSSelectorFromString(@"subviews")]) {
+//                subviews = [nextResponder subviews];
+//                if ([view isKindOfClass:[UITableView class]] || [view isKindOfClass:[UICollectionView class]]) {
+//                    subviews =  [[subviews reverseObjectEnumerator] allObjects];
+//                }
+//            }
+//
+//            for (UIView *v in subviews) {
+//                if (v) {
+//                    if ([NSStringFromClass([view class]) isEqualToString:NSStringFromClass([v class])]) {
+//                        [sameTypeViews addObject:v];
+//                    }
+//                }
+//            }
+//        }
+//        if (sameTypeViews.count > 1) {
+//            NSString * className = nil;
+//            NSUInteger index = [sameTypeViews indexOfObject:view];
+//            className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([view class]), (unsigned long)index];
+//            [viewPathArray addObject:className];
+//        } else {
+//            [viewPathArray addObject:NSStringFromClass([view class])];
+//        }
+//        //segment 点击的 index 问题
+//        if ([view isKindOfClass:UISegmentedControl.class]) {
+//            NSInteger selectedSegmentIndex = [(UISegmentedControl *)view  selectedSegmentIndex];
+//            Class aClass = view.subviews[selectedSegmentIndex].class;
+//            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",NSStringFromClass(aClass),(long)selectedSegmentIndex];
+//            [viewPathArray insertObject:selectedSegmentPath atIndex:0];
+//        }
+//    } else {
+//        NSString *viewIdentify = [NSString stringWithString:NSStringFromClass([view class])];
+//        viewIdentify = [viewIdentify stringByAppendingString:@"[("];
+//        for (int i = 0; i < viewVarArray.count; i++) {
+//            viewIdentify = [viewIdentify stringByAppendingString:viewVarArray[i]];
+//            if (i != (viewVarArray.count - 1)) {
+//                viewIdentify = [viewIdentify stringByAppendingString:@" AND "];
+//            }
+//        }
+//        viewIdentify = [viewIdentify stringByAppendingString:@")]"];
+//        [viewPathArray addObject:viewIdentify];
+//        //segment 点击的 index 问题
+//        if ([view isKindOfClass:UISegmentedControl.class]) {
+//            NSInteger selectedSegmentIndex = [(UISegmentedControl *)view  selectedSegmentIndex];
+//            Class aClass = view.subviews[selectedSegmentIndex].class;
+//            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",NSStringFromClass(aClass),(long)selectedSegmentIndex];
+//            [viewPathArray insertObject:selectedSegmentPath atIndex:0];
+//        }
+//    }
+//}
+//
+//+ (void)sa_find_responder:(id)responder withViewPathArray:(NSMutableArray *)viewPathArray {
+//
+//    while (responder!=nil&&![responder isKindOfClass:[UIViewController class]] &&
+//           ![responder isKindOfClass:[UIWindow class]]) {
+//        long count = 0;
+//        NSArray<__kindof UIView *> *subviews;
+//        id nextResponder = [responder nextResponder];
+//        if (nextResponder) {
+//            if ([nextResponder respondsToSelector:NSSelectorFromString(@"subviews")]) {
+//                subviews = [nextResponder subviews];
+//                if ([responder isKindOfClass:[UITableView class]] || [responder isKindOfClass:[UICollectionView class]]) {
+//                    subviews =  [[subviews reverseObjectEnumerator] allObjects];
+//                }
+//                if (subviews) {
+//                    count = (unsigned long)subviews.count;
+//                }
+//            }
+//        }
+//        if (count <= 1) {
+//            if (NSStringFromClass([responder class])) {
+//                [viewPathArray addObject:NSStringFromClass([responder class])];
+//            }
+//        } else {
+//            NSMutableArray<__kindof UIView *> *sameTypeViews = [[NSMutableArray alloc] init];
+//            for (UIView *v in subviews) {
+//                if (v) {
+//                    if ([NSStringFromClass([responder class]) isEqualToString:NSStringFromClass([v class])]) {
+//                        [sameTypeViews addObject:v];
+//                    }
+//                }
+//            }
+//            if (sameTypeViews.count > 1) {
+//                NSString * className = nil;
+//                NSUInteger index = [sameTypeViews indexOfObject:responder];
+//                className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index];
+//                [viewPathArray addObject:className];
+//            } else {
+//                [viewPathArray addObject:NSStringFromClass([responder class])];
+//            }
+//        }
+//        
+//        responder = [responder nextResponder];
+//    }
+//    
+//    if (responder && [responder isKindOfClass:[UIViewController class]]) {
+//        while ([responder parentViewController]) {
+//            UIViewController *viewController = [responder parentViewController];
+//            if (viewController) {
+//                NSArray<__kindof UIViewController *> *childViewControllers = [viewController childViewControllers];
+//                if (childViewControllers > 0) {
+//                    NSMutableArray<__kindof UIViewController *> *items = [[NSMutableArray alloc] init];
+//                    for (UIViewController *v in childViewControllers) {
+//                        if (v) {
+//                            if ([NSStringFromClass([responder class]) isEqualToString:NSStringFromClass([v class])]) {
+//                                [items addObject:v];
+//                            }
+//                        }
+//                    }
+//                    if (items.count > 1) {
+//                        NSString * className = nil;
+//                        NSUInteger index = [items indexOfObject:responder];
+//                        className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index];
+//                        [viewPathArray addObject:className];
+//                    } else {
+//                        [viewPathArray addObject:NSStringFromClass([responder class])];
+//                    }
+//                } else {
+//                    [viewPathArray addObject:NSStringFromClass([responder class])];
+//                }
+//                
+//                responder = viewController;
+//            }
+//        }
+//        [viewPathArray addObject:NSStringFromClass([responder class])];
+//    }
+//}
 
 + (NSString *)contentFromView:(UIView *)rootView {
     @try {
@@ -328,25 +328,9 @@
         if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
             [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.item]];
-            id responder = cell.nextResponder;
-            
-            NSArray<__kindof UIView *> *subviews = [collectionView.superview subviews];
-            NSMutableArray<__kindof UIView *> *viewsArray = [[NSMutableArray alloc] init];
-            for (UIView *obj in subviews) {
-                if ([NSStringFromClass([responder class]) isEqualToString:NSStringFromClass([obj class])]) {
-                    [viewsArray addObject:obj];
-                }
-            }
-            
-            if ([viewsArray count] == 1) {
-                [viewPathArray addObject:NSStringFromClass([responder class])];
-            } else {
-                NSUInteger index = [viewsArray indexOfObject:collectionView];
-                [viewPathArray addObject:[NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index]];
-            }
-            
-            responder = [responder nextResponder];
-            [self sa_find_responder:responder withViewPathArray:viewPathArray];
+
+            id responder = [self __sa_find_view_responder:collectionView  withViewPathArray:viewPathArray];
+            [self __sa_find_responder:responder withViewPathArray:viewPathArray];
 
             NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
 
@@ -468,22 +452,9 @@
         if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
             [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.row]];
-            id responder = cell.nextResponder;
-            NSArray<__kindof UIView *> *subviews = [tableView.superview subviews];
-            NSMutableArray<__kindof UIView *> *viewsArray = [[NSMutableArray alloc] init];
-            for (UIView *obj in subviews) {
-                if ([NSStringFromClass([responder class]) isEqualToString:NSStringFromClass([obj class])]) {
-                    [viewsArray addObject:obj];
-                }
-            }
-            if ([viewsArray count] == 1) {
-                [viewPathArray addObject:NSStringFromClass([responder class])];
-            } else {
-                NSUInteger index = [viewsArray indexOfObject:tableView];
-                [viewPathArray addObject:[NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index]];
-            }
-            responder = [responder nextResponder];
-            [self sa_find_responder:responder withViewPathArray:viewPathArray];
+
+            id responder = [self __sa_find_view_responder:tableView withViewPathArray:viewPathArray];
+            [self __sa_find_responder:responder withViewPathArray:viewPathArray];
 
             NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
 
@@ -529,7 +500,40 @@
     }
 }
 
-+ (void)sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController {
+//+ (void)sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController {
+//    @try {
+//        if (![[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled]) {
+//            return;
+//        }
+//
+//        if (![[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
+//            return;
+//        }
+//
+//        NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
+//
+//        [self sa_find_view_responder:view withViewPathArray:viewPathArray];
+//
+//        id responder = view.nextResponder;
+//        [self sa_find_responder:responder withViewPathArray:viewPathArray];
+//
+//        NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
+//
+//        NSString *viewPath = [[NSString alloc] init];
+//        for (int i = 0; i < array.count; i++) {
+//            viewPath = [viewPath stringByAppendingString:array[i]];
+//            if (i != (array.count - 1)) {
+//                viewPath = [viewPath stringByAppendingString:@"/"];
+//            }
+//        }
+//        [properties setValue:viewPath forKey:@"$element_selector"];
+//    } @catch (NSException *exception) {
+//        SAError(@"%@ error: %@", self, exception);
+//    }
+//}
+
+
++ (void)__sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController {
     @try {
         if (![[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled]) {
             return;
@@ -540,14 +544,9 @@
         }
 
         NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-
-        [self sa_find_view_responder:view withViewPathArray:viewPathArray];
-        
-        id responder = view.nextResponder;
-        [self sa_find_responder:responder withViewPathArray:viewPathArray];
-        
+        id  responder= [self __sa_find_view_responder:view withViewPathArray:viewPathArray];
+        [self __sa_find_responder:responder withViewPathArray:viewPathArray];
         NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
-        
         NSString *viewPath = [[NSString alloc] init];
         for (int i = 0; i < array.count; i++) {
             viewPath = [viewPath stringByAppendingString:array[i]];
@@ -561,5 +560,238 @@
     }
 }
 
++ (id)__sa_find_view_responder:(UIView *)view withViewPathArray:(NSMutableArray *)viewPathArray {
+    do {
+        NSMutableArray *viewVarArray = [[NSMutableArray alloc] init];
+        NSString *varE = [view jjf_varE];
+        if (varE != nil) {
+            [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varE='%@'", varE]];
+        }
+        //    NSArray *varD = [view jjf_varSetD];
+        //    if (varD != nil && [varD count] > 0) {
+        //        [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varSetD='%@'", [varD componentsJoinedByString:@","]]];
+        //    }
+        varE = [view jjf_varC];
+        if (varE != nil) {
+            [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varC='%@'", varE]];
+        }
+        varE = [view jjf_varB];
+        if (varE != nil) {
+            [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varB='%@'", varE]];
+        }
+        varE = [view jjf_varA];
+        if (varE != nil) {
+            [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varA='%@'", varE]];
+        }
+        if ([viewVarArray count] == 0) {
+            NSArray<__kindof UIView *> *subviews;
+            NSMutableArray<__kindof UIView *> *sameTypeViews = [[NSMutableArray alloc] init];
+            id nextResponder = [view nextResponder];
+            if (nextResponder) {
+                if ([nextResponder respondsToSelector:NSSelectorFromString(@"subviews")]) {
+                    subviews = [nextResponder subviews];
+                }
+
+                for (UIView *v in subviews) {
+                    if (v) {
+                        if ([NSStringFromClass([view class]) isEqualToString:NSStringFromClass([v class])]) {
+                            [sameTypeViews addObject:v];
+                        }
+                    }
+                }
+            }
+            if (sameTypeViews.count > 1) {
+                NSString * className = nil;
+                NSUInteger index = [sameTypeViews indexOfObject:view];
+                className = [NSString stringWithFormat:@"%@[%lu]",NSStringFromClass([view class]),(unsigned long)index];
+                [viewPathArray addObject:className];
+            } else {
+                [viewPathArray addObject:NSStringFromClass([view class])];
+            }
+            //UISegmentedControl 点击的 index 问题
+            if ([view isKindOfClass:UISegmentedControl.class]) {
+                NSInteger selectedSegmentIndex = [(UISegmentedControl *)view selectedSegmentIndex];
+                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",@"UISegment",(long)selectedSegmentIndex];
+                [viewPathArray insertObject:selectedSegmentPath atIndex:0];
+            }
+            //UITabBar 点击的 index 问题
+            if ([view isKindOfClass:UITabBar.class]) {
+                UITabBar *tabBar = (UITabBar *)view;
+                NSInteger selectedIndex = [[tabBar items] indexOfObject:tabBar.selectedItem];
+                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",@"UITabBarButton",(long)selectedIndex];
+                [viewPathArray insertObject:selectedSegmentPath atIndex:0];
+            }
+        } else {
+            NSString *viewIdentify = [NSString stringWithString:NSStringFromClass([view class])];
+            viewIdentify = [viewIdentify stringByAppendingString:@"[("];
+            for (int i = 0; i < viewVarArray.count; i++) {
+                viewIdentify = [viewIdentify stringByAppendingString:viewVarArray[i]];
+                if (i != (viewVarArray.count - 1)) {
+                    viewIdentify = [viewIdentify stringByAppendingString:@" AND "];
+                }
+            }
+            viewIdentify = [viewIdentify stringByAppendingString:@")]"];
+            [viewPathArray addObject:viewIdentify];
+            //UISegmentedControl 点击的 index 问题
+            if ([view isKindOfClass:UISegmentedControl.class]) {
+                NSInteger selectedSegmentIndex = [(UISegmentedControl *)view selectedSegmentIndex];
+                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",@"UISegment",(long)selectedSegmentIndex];
+                [viewPathArray insertObject:selectedSegmentPath atIndex:0];
+            }
+            //UITabBar 点击的 index 问题
+            if ([view isKindOfClass:UITabBar.class]) {
+                UITabBar *tabBar = (UITabBar *)view;
+                NSInteger selectedIndex = [[tabBar items] indexOfObject:tabBar.selectedItem];
+                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",@"UITabBarButton",(long)selectedIndex];
+                [viewPathArray insertObject:selectedSegmentPath atIndex:0];
+            }
+        }
+    }while ((view = (id)view.nextResponder) &&[view isKindOfClass:UIView.class] && ![view isKindOfClass:UIWindow.class]);
+    return view;
+}
+
++ (void)__sa_find_responder:(id)responder withViewPathArray:(NSMutableArray *)viewPathArray {
+    if (responder && [responder isKindOfClass:[UIViewController class]]) {
+        while ([responder parentViewController]) {
+            UIViewController *viewController = [responder parentViewController];
+            if (viewController) {
+                NSArray<__kindof UIViewController *> *childViewControllers = [viewController childViewControllers];
+                if (childViewControllers > 0) {
+                    NSMutableArray<__kindof UIViewController *> *items = [[NSMutableArray alloc] init];
+                    for (UIViewController *v in childViewControllers) {
+                        if (v) {
+                            if ([NSStringFromClass([responder class]) isEqualToString:NSStringFromClass([v class])]) {
+                                [items addObject:v];
+                            }
+                        }
+                    }
+                    if (items.count > 1) {
+                        NSString * className = nil;
+                        NSUInteger index = [items indexOfObject:responder];
+                        className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index];
+                        [viewPathArray addObject:className];
+                    } else {
+                        [viewPathArray addObject:NSStringFromClass([responder class])];
+                    }
+                } else {
+                    [viewPathArray addObject:NSStringFromClass([responder class])];
+                }
+                responder = viewController;
+            }
+        }
+        [viewPathArray addObject:NSStringFromClass([responder class])];
+    }
+}
+
++ (void)trackAppClickWithUITabBar:(UITabBar*)tabBar didSelectItem:(UITabBarItem *)item{
+    //插入埋点
+    @try {
+        //关闭 AutoTrack
+        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
+            return;
+        }
+
+        //忽略 $AppClick 事件
+        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+            return;
+        }
+
+        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UITabBar class]]) {
+            return;
+        }
+
+        if (!tabBar) {
+            return;
+        }
+
+        UIView *view = (UIView *)tabBar;
+        if (!view) {
+            return;
+        }
+
+        if (view.sensorsAnalyticsIgnoreView) {
+            return;
+        }
+        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+        [properties setValue:@"UITabBar" forKey:@"$element_type"];
+        //ViewID
+        if (view.sensorsAnalyticsViewID != nil) {
+            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+        }
+        UIViewController *viewController = [view viewController];
+
+        if (viewController == nil ||
+            [@"UINavigationController" isEqualToString:NSStringFromClass([viewController class])]) {
+            viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
+        }
+
+        if (viewController != nil) {
+            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
+                return;
+            }
+
+            //获取 Controller 名称($screen_name)
+            NSString *screenName = NSStringFromClass([viewController class]);
+            [properties setValue:screenName forKey:@"$screen_name"];
+
+            NSString *controllerTitle = viewController.navigationItem.title;
+            if (controllerTitle != nil) {
+                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+            } else {
+                @try {
+                    UIView *titleView = viewController.navigationItem.titleView;
+                    if (titleView != nil) {
+                        if (titleView.subviews.count > 0) {
+                            NSString *elementContent = [[NSString alloc] init];
+                            for (UIView *subView in [titleView subviews]) {
+                                if (subView) {
+                                    if (subView.sensorsAnalyticsIgnoreView) {
+                                        continue;
+                                    }
+                                    if ([subView isKindOfClass:[UIButton class]]) {
+                                        UIButton *button = (UIButton *)subView;
+                                        NSString *currentTitle = button.sa_elementContent;
+                                        if (currentTitle != nil && currentTitle.length > 0) {
+                                            elementContent = [elementContent stringByAppendingString:currentTitle];
+                                            elementContent = [elementContent stringByAppendingString:@"-"];
+                                        }
+                                    } else if ([subView isKindOfClass:[UILabel class]]) {
+                                        UILabel *label = (UILabel *)subView;
+                                        NSString *currentTitle = label.sa_elementContent;
+                                        if (currentTitle != nil && currentTitle.length > 0) {
+                                            elementContent = [elementContent stringByAppendingString:currentTitle];
+                                            elementContent = [elementContent stringByAppendingString:@"-"];
+                                        }
+                                    }
+                                }
+                            }
+                            if (elementContent != nil && [elementContent length] > 0) {
+                                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                                [properties setValue:elementContent forKey:@"$title"];
+                            }
+                        }
+                    }
+                } @catch (NSException *exception) {
+                    SAError(@"%@: %@", self, exception);
+                }
+            }
+        }
+
+        if (item) {
+            [properties setValue:item.title forKey:@"$element_content"];
+        }
+
+        //View Properties
+        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        if (propDict != nil) {
+            [properties addEntriesFromDictionary:propDict];
+        }
+
+        [AutoTrackUtils __sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+}
 @end
 

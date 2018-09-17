@@ -12,4 +12,5 @@
 @property(nonatomic,weak)id target;
 +(instancetype)proxyWithTableView:(id)target;
 +(instancetype)proxyWithCollectionView:(id)target;
++(instancetype)proxyWithTabBar:(id)target;
 @end

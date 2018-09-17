@@ -19,3 +19,6 @@
 
 @interface UICollectionView (SensorsAnalyticsDelegateProxy)
 @end
+
+@interface UITabBar (SensorsAnalyticsDelegateProxy)
+@end

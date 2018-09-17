@@ -1093,19 +1093,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 完成<code>SensorsAnalyticsPeople</code>的初始化
- *
- * @discussion
- * 一般情况下，请不要直接初始化<code>SensorsAnalyticsPeople</code>，而是通过<code>SensorsAnalyticsSDK</code>的property来调用
- *
- * @param sdk 传入的<code>SensorsAnalyticsSDK</code>对象
- *
- * @return 初始化后的结果
- */
-- (id)initWithSDK:(SensorsAnalyticsSDK *)sdk;
-
-/**
- * @abstract
  * 直接设置用户的一个或者几个Profiles
  *
  * @discussion
