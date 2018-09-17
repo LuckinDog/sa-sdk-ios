@@ -203,7 +203,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return 返回的单例
  */
-+ (SensorsAnalyticsSDK *)sharedInstance;
++ (SensorsAnalyticsSDK * _Nullable)sharedInstance;
 
 /**
  * @abstract
@@ -283,6 +283,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param loginId 当前用户的loginId
  */
 - (void)login:(NSString *)loginId;
+- (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties ;
 
 /**
  * @abstract
@@ -869,19 +870,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * <b>请不要自己来初始化这个类.</b> 请通过<code>SensorsAnalyticsSDK</code>提供的<code>people</code>这个property来调用
  */
 @interface SensorsAnalyticsPeople : NSObject
-
-/**
- * @abstract
- * 完成<code>SensorsAnalyticsPeople</code>的初始化
- *
- * @discussion
- * 一般情况下，请不要直接初始化<code>SensorsAnalyticsPeople</code>，而是通过<code>SensorsAnalyticsSDK</code>的property来调用
- *
- * @param sdk 传入的<code>SensorsAnalyticsSDK</code>对象
- *
- * @return 初始化后的结果
- */
-- (id)initWithSDK:(SensorsAnalyticsSDK *)sdk;
 
 /**
  * @abstract
