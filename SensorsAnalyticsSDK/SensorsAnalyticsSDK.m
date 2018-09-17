@@ -2184,7 +2184,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *usedKey = (NSString *)obj;
             if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
                 [self unregisterSuperProperty:usedKey];
-                *stop = YES;
             }
         }];
     }
