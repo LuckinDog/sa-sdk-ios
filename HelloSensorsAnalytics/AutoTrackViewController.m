@@ -8,7 +8,9 @@
 
 #import "AutoTrackViewController.h"
 @interface AutoTrackViewController ()
-
+{
+    __strong UIGestureRecognizer *_labelTapGestureRecognizer;
+}
 @end
 
 @implementation AutoTrackViewController
@@ -21,7 +23,7 @@
     UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(labelTouchUpInside:)];
     
     [_myLabel addGestureRecognizer:labelTapGestureRecognizer];
-    
+    _labelTapGestureRecognizer = labelTapGestureRecognizer;
     UITapGestureRecognizer *imageViewTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewTouchUpInside:)];
     _imageView.userInteractionEnabled = YES;
     [_imageView addGestureRecognizer:imageViewTapGestureRecognizer];
@@ -64,5 +66,9 @@
 
 }
 - (IBAction)segmentOnClick:(id)sender {
+}
+
+-(void)dealloc {
+    _labelTapGestureRecognizer = nil;
 }
 @end
