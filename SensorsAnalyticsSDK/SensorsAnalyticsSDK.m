@@ -2145,9 +2145,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ failed to register super properties.", self);
         return;
     }
-    
+
     [self unregisterSameLetterSuperProperties:propertyDict];
-    
+
     dispatch_async(self.serialQueue, ^{
         // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
