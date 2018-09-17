@@ -194,6 +194,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic,copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
 
+///是否为被动启动
+@property(nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -209,8 +211,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
-    NSDictionary * _launchOptions;
-    UIApplicationState _applicationState;
     BOOL _applicationWillResignActive;
     BOOL _clearReferrerWhenAppEnd;
 	SensorsAnalyticsAutoTrackEventType _autoTrackEventType;
@@ -353,21 +353,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _autoTrackEventType = SensorsAnalyticsEventTypeNone;
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
 
-            _launchOptions = launchOptions;
             if ([[NSThread currentThread] isMainThread]) {
-                _applicationState = UIApplication.sharedApplication.applicationState;
+                [self configLaunchedPassivelyWithLaunchOptions:launchOptions];
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    self->_applicationState = UIApplication.sharedApplication.applicationState;
+                    [self configLaunchedPassivelyWithLaunchOptions:launchOptions];;
                 });
             }
 
-            self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
+            _people = [[SensorsAnalyticsPeople alloc] init];
 
-    
             _debugMode = debugMode;
-            [self setServerUrl:serverURL];
             [self enableLog];
+            [self setServerUrl:serverURL];
             
             _flushInterval = 15 * 1000;
             _flushBulkSize = 100;
@@ -453,28 +451,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return self;
 }
 
-- (BOOL)isLaunchedPassively {
-    @try {
-        //远程通知启动
-        NSDictionary *remoteNotification = _launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
-        if (remoteNotification) {
-            if (_applicationState == UIApplicationStateBackground) {
-                return YES ;
-            }
+- (void)configLaunchedPassivelyWithLaunchOptions:(NSDictionary *)launchOptions {
+    UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
+    //远程通知启动，位置变动启动
+    if ([launchOptions.allKeys containsObject:UIApplicationLaunchOptionsRemoteNotificationKey] || [launchOptions.allKeys containsObject:UIApplicationLaunchOptionsLocationKey]) {
+        if (applicationState == UIApplicationStateBackground) {
+            self.launchedPassively = YES;
         }
-
-        //位置变动启动
-        NSDictionary *location = _launchOptions[UIApplicationLaunchOptionsLocationKey];
-        if (location) {
-            if (_applicationState == UIApplicationStateBackground) {
-                return YES ;
-            }
-        }
-    } @catch(NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
     }
-
-    return NO;
 }
 
 - (NSDictionary *)getPresetProperties {
@@ -519,6 +503,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         // 将 Server URI Path 替换成 Debug 模式的 '/debug'
         NSURL *url = [[[NSURL URLWithString:serverUrl] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
+        NSString *host = url.host;
+        if ([host containsString:@"_"]) { //包含下划线日志提示
+            NSString * referenceUrl = @"https://en.wikipedia.org/wiki/Hostname";
+            SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@",serverUrl,referenceUrl);
+        }
         _serverURL = [url absoluteString];
     }
 }
@@ -2854,7 +2843,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ application will enter foreground", self);
     
     _appRelaunched = YES;
-    _launchOptions = nil;
+    self.launchedPassively = NO;
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
@@ -2952,7 +2941,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
-    _launchOptions = nil;
+    self.launchedPassively = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
@@ -3290,70 +3279,60 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 #pragma mark - People analytics
 
-@implementation SensorsAnalyticsPeople {
-    __weak SensorsAnalyticsSDK *_sdk;
-}
-
-- (id)initWithSDK:(SensorsAnalyticsSDK *)sdk {
-    self = [super init];
-    if (self) {
-        _sdk = sdk;
-    }
-    return self;
-}
+@implementation SensorsAnalyticsPeople
 
 - (void)set:(NSDictionary *)profileDict {
     if (profileDict) {
-        [_sdk track:nil withProperties:profileDict withType:@"profile_set"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:@"profile_set"];
     }
 }
 
 - (void)setOnce:(NSDictionary *)profileDict {
     if (profileDict) {
-        [_sdk track:nil withProperties:profileDict withType:@"profile_set_once"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:@"profile_set_once"];
     }
 }
 
 - (void)set:(NSString *) profile to:(id)content {
     if (profile && content) {
-        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:@"profile_set"];
     }
 }
 
 - (void)setOnce:(NSString *) profile to:(id)content {
     if (profile && content) {
-        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
     }
 }
 
 - (void)unset:(NSString *) profile {
     if (profile) {
-        [_sdk track:nil withProperties:@{profile: @""} withType:@"profile_unset"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: @""} withType:@"profile_unset"];
     }
 }
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
-        [_sdk track:nil withProperties:@{profile: amount} withType:@"profile_increment"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: amount} withType:@"profile_increment"];
     }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
-        [_sdk track:nil withProperties:profileDict withType:@"profile_increment"];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:@"profile_increment"];
     }
 }
 
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-            [_sdk track:nil withProperties:@{profile: content} withType:@"profile_append"];
+            [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:@"profile_append"];
         }
     }
 }
 
 - (void)deleteUser {
-    [_sdk track:nil withProperties:@{} withType:@"profile_delete"];
+    [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{} withType:@"profile_delete"];
 }
 
 @end
