@@ -39,6 +39,20 @@
 }
 @end
 
+@interface SAUITabBarDelegateProxy :SADelegateProxy<UITabBarDelegate>
+@end
+@implementation SAUITabBarDelegateProxy
+- (void)forwardInvocation:(NSInvocation *)invocation {
+    [invocation invokeWithTarget:self.target];
+}
+- (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
+    [[SensorsAnalyticsSDK sharedInstance] tabBar:tabBar didSelectItem:item];
+    if ([self.target respondsToSelector:_cmd]) {
+        [self.target tabBar:tabBar didSelectItem:item];
+    }
+}
+@end
+
 @implementation SADelegateProxy
 +(instancetype)proxyWithTableView:(id)target {
     SATableViewDelegateProxy *delegateProxy = [[SATableViewDelegateProxy alloc]initWithObject:target];
@@ -47,6 +61,11 @@
 
 +(instancetype)proxyWithCollectionView:(id)target {
     SACollectionViewDelegateProxy *delegateProxy = [[SACollectionViewDelegateProxy alloc]initWithObject:target];
+    return delegateProxy;
+}
+
++(instancetype)proxyWithTabBar:(id)target {
+    SAUITabBarDelegateProxy *delegateProxy = [[SAUITabBarDelegateProxy alloc]initWithObject:target];
     return delegateProxy;
 }
 
@@ -66,6 +85,9 @@
         return YES;
     }
     if (aSelector == @selector(collectionView:didSelectItemAtIndexPath:)) {
+        return YES;
+    }
+    if (aSelector == @selector(tabBar:didSelectItem:)) {
         return YES;
     }
     return [self.target respondsToSelector:aSelector];

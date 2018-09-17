@@ -19,6 +19,8 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
             delegateProxy = [SADelegateProxy proxyWithTableView:delegate];
         }else if ([obj isKindOfClass:UICollectionView.class]){
             delegateProxy = [SADelegateProxy proxyWithCollectionView:delegate];
+        }else if ([obj isKindOfClass:UITabBar.class]){
+            delegateProxy = [SADelegateProxy proxyWithTabBar:delegate];
         }
         delegate = delegateProxy;
     }
@@ -75,3 +77,21 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 
 @end
 
+@implementation UITabBar (SensorsAnalyticsDelegateProxy)
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        SEL origSel_ = sel_getUid("setDelegate:");
+        SEL swizzileSel = sel_getUid("sa_setDelegate:");
+        Method origMethod = class_getInstanceMethod(self, origSel_);
+        const char* type = method_getTypeEncoding(origMethod);
+        class_addMethod(self, swizzileSel, (IMP)sa_setDelegate, type);
+        Method swizzleMethod = class_getInstanceMethod(self, swizzileSel);
+        IMP origIMP = method_getImplementation(origMethod);
+        IMP swizzleIMP = method_getImplementation(swizzleMethod);
+        method_setImplementation(origMethod, swizzleIMP);
+        method_setImplementation(swizzleMethod, origIMP);
+    });
+}
+
+@end

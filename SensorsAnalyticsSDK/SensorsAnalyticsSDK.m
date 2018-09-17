@@ -3253,6 +3253,114 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
 }
+-(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
+    //插入埋点
+    @try {
+        //关闭 AutoTrack
+        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
+            return;
+        }
+
+        //忽略 $AppClick 事件
+        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+            return;
+        }
+
+        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UITabBar class]]) {
+            return;
+        }
+
+        if (!tabBar) {
+            return;
+        }
+
+        UIView *view = (UIView *)tabBar;
+        if (!view) {
+            return;
+        }
+
+        if (view.sensorsAnalyticsIgnoreView) {
+            return;
+        }
+        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+        [properties setValue:@"UITabBar" forKey:@"$element_type"];
+        //ViewID
+        if (view.sensorsAnalyticsViewID != nil) {
+            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+        }
+        UIViewController *viewController = [view viewController];
+
+        if (viewController == nil ||
+            [@"UINavigationController" isEqualToString:NSStringFromClass([viewController class])]) {
+            viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
+        }
+
+        if (viewController != nil) {
+            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
+                return;
+            }
+
+            //获取 Controller 名称($screen_name)
+            NSString *screenName = NSStringFromClass([viewController class]);
+            [properties setValue:screenName forKey:@"$screen_name"];
+
+            NSString *controllerTitle = viewController.navigationItem.title;
+            if (controllerTitle != nil) {
+                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+            } else {
+                @try {
+                    UIView *titleView = viewController.navigationItem.titleView;
+                    if (titleView != nil) {
+                        if (titleView.subviews.count > 0) {
+                            NSString *elementContent = [[NSString alloc] init];
+                            for (UIView *subView in [titleView subviews]) {
+                                if (subView) {
+                                    if (subView.sensorsAnalyticsIgnoreView) {
+                                        continue;
+                                    }
+                                    if ([subView isKindOfClass:[UIButton class]]) {
+                                        UIButton *button = (UIButton *)subView;
+                                        NSString *currentTitle = button.sa_elementContent;
+                                        if (currentTitle != nil && currentTitle.length > 0) {
+                                            elementContent = [elementContent stringByAppendingString:currentTitle];
+                                            elementContent = [elementContent stringByAppendingString:@"-"];
+                                        }
+                                    } else if ([subView isKindOfClass:[UILabel class]]) {
+                                        UILabel *label = (UILabel *)subView;
+                                        NSString *currentTitle = label.sa_elementContent;
+                                        if (currentTitle != nil && currentTitle.length > 0) {
+                                            elementContent = [elementContent stringByAppendingString:currentTitle];
+                                            elementContent = [elementContent stringByAppendingString:@"-"];
+                                        }
+                                    }
+                                }
+                            }
+                            if (elementContent != nil && [elementContent length] > 0) {
+                                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                                [properties setValue:elementContent forKey:@"$title"];
+                            }
+                        }
+                    }
+                } @catch (NSException *exception) {
+                    SAError(@"%@: %@", self, exception);
+                }
+            }
+        }
+
+        if (item) {
+            [properties setValue:item.title forKey:@"$element_content"];
+        }
+
+        //View Properties
+        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        if (propDict != nil) {
+            [properties addEntriesFromDictionary:propDict];
+        }
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+}
 @end
 
 #pragma mark - People analytics
