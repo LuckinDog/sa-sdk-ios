@@ -364,8 +364,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _people = [[SensorsAnalyticsPeople alloc] init];
 
             _debugMode = debugMode;
-            [self setServerUrl:serverURL];
             [self enableLog];
+            [self setServerUrl:serverURL];
             
             _flushInterval = 15 * 1000;
             _flushBulkSize = 100;
@@ -503,6 +503,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         // 将 Server URI Path 替换成 Debug 模式的 '/debug'
         NSURL *url = [[[NSURL URLWithString:serverUrl] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
+        NSString *host = url.host;
+        if ([host containsString:@"_"]) { //包含下划线日志提示
+            NSString * referenceUrl = @"https://en.wikipedia.org/wiki/Hostname";
+            SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@",serverUrl,referenceUrl);
+        }
         _serverURL = [url absoluteString];
     }
 }
