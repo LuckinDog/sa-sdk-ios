@@ -833,7 +833,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0910;
 				LastUpgradeCheck = 1000;
-				ORGANIZATIONNAME = SensorsData;
+				ORGANIZATIONNAME = "Sensors Data Inc.";
 				TargetAttributes = {
 					4D0EB7BD1B47A88C0019FD21 = {
 						CreatedOnToolsVersion = 6.4;
