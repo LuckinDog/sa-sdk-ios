@@ -55,9 +55,13 @@
  */
 - (id)JSONSerializableObjectForObject:(id)obj {
     // valid json types
-    if ([obj isKindOfClass:[NSString class]] ||
-        [obj isKindOfClass:[NSNumber class]] ) {
+    if ([obj isKindOfClass:[NSString class]]) {
         return obj;
+    }
+    //防止 float 精度丢失
+    if ([obj isKindOfClass:[NSNumber class]]) {
+        NSDecimalNumber *number = [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)obj).decimalValue];
+        return number;
     }
     // recurse on containers
     if ([obj isKindOfClass:[NSArray class]]) {
