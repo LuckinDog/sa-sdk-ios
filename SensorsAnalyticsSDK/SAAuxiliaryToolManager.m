@@ -2,8 +2,8 @@
 //  SAAuxiliaryToolManager.m
 //  SensorsAnalyticsSDK
 //
-//  Created by ziven.mac on 2018/9/7.
-//  Copyright © 2018年 SensorsData. All rights reserved.
+//  Created by 向作为 on 2018/9/7.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "SAAuxiliaryToolManager.h"
