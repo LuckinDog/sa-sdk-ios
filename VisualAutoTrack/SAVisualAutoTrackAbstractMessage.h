@@ -1,5 +1,5 @@
 //
-//  SAAppCircleMessage.h
+//  SAVisualAutoTrackAbstractMessage.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 8/1/17.
@@ -10,17 +10,21 @@
 
 #import <Foundation/Foundation.h>
 
-@class SAAppCircleConnection;
+#import "SAVisualAutoTrackMessage.h"
 
-@protocol SAAppCircleMessage <NSObject>
+@interface SAVisualAutoTrackAbstractMessage : NSObject <SAVisualAutoTrackMessage>
 
 @property (nonatomic, copy, readonly) NSString *type;
 
++ (instancetype)messageWithType:(NSString *)type payload:(NSDictionary *)payload;
+
+- (instancetype)initWithType:(NSString *)type;
+- (instancetype)initWithType:(NSString *)type payload:(NSDictionary *)payload;
+
 - (void)setPayloadObject:(id)object forKey:(NSString *)key;
 - (id)payloadObjectForKey:(NSString *)key;
+- (NSDictionary *)payload;
 
 - (NSData *)JSONData:(BOOL)useGzip withFeatuerCode:(NSString *)fetureCode;
-
-- (NSOperation *)responseCommandWithConnection:(SAAppCircleConnection *)connection;
 
 @end

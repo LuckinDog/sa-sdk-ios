@@ -10,7 +10,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 @interface SAAuxiliaryToolManager()<UIAlertViewDelegate>
-@property (nonatomic, strong) SAAppCircleConnection *appCircleConnection;
+@property (nonatomic, strong) SAVisualAutoTrackConnection *visualAutoTrackConnection;
 @property (nonatomic, strong) SAHeatMapConnection *heatMapConnection;
 @property (nonatomic,copy) NSString *postUrl;
 @property (nonatomic,copy) NSString *featureCode;
@@ -27,7 +27,7 @@
 }
 
 -(BOOL)canOpenURL:(NSURL *)URL {
-    return [self isHeatMapURL:URL] || [self isAppCircleURL:URL];
+    return [self isHeatMapURL:URL] || [self isvisualAutoTrackURL:URL];
 }
 
 - (BOOL)openURL:(NSURL *)URL  isWifi:(BOOL)isWifi {
@@ -70,9 +70,9 @@
         [connectAlert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
             SADebug(@"Canceled to open HeatMap ...");
             //do nothing
-            [self.appCircleConnection close];
+            [self.visualAutoTrackConnection close];
             [self.heatMapConnection close];
-            self.appCircleConnection = nil;
+            self.visualAutoTrackConnection = nil;
             self.heatMapConnection = nil;
         }]];
         
@@ -84,10 +84,10 @@
                 if (self.heatMapConnection) {
                     [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
                 }
-            }else if ([self isAppCircleURL:URL]) {
-                 self.appCircleConnection = [[SAAppCircleConnection alloc] initWithURL:nil];
-                if (self.appCircleConnection) {
-                    [self.appCircleConnection startConnectionWithFeatureCode:featureCode url:postURL];
+            }else if ([self isvisualAutoTrackURL:URL]) {
+                 self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
+                if (self.visualAutoTrackConnection) {
+                    [self.visualAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
                 }
             }
         }]];
@@ -107,7 +107,7 @@
     NSString *alertMessage = nil;
     if ([self isHeatMapURL:URL]) {
         alertMessage = @"正在连接 APP 点击分析";
-    }else if ([self isAppCircleURL:URL]) {
+    }else if ([self isvisualAutoTrackURL:URL]) {
         alertMessage = @"正在连接 APP 自定义埋点";
     }
     if (isWifi ==NO && alertMessage != nil) {
@@ -120,8 +120,8 @@
     return [URL.host isEqualToString:@"heatmap"];
 }
 
--(BOOL)isAppCircleURL:(NSURL *)URL {
-    return [URL.host isEqualToString:@"appcircle"];
+-(BOOL)isvisualAutoTrackURL:(NSURL *)URL {
+    return [URL.host isEqualToString:@"visualAutoTrack"];
 }
 
 
@@ -182,23 +182,23 @@
 #pragma mark -UIAlertViewDelagete
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
     if (buttonIndex == 0) {
-        SADebug(@"Canceled to open AppCircle ...");
-        [self.appCircleConnection close];
+        SADebug(@"Canceled to open visualAutoTrack ...");
+        [self.visualAutoTrackConnection close];
         [self.heatMapConnection close];
-        self.appCircleConnection = nil;
+        self.visualAutoTrackConnection = nil;
         self.heatMapConnection = nil;
     } else {
-        SADebug(@"Confirmed to open AppCircle ...");
+        SADebug(@"Confirmed to open visualAutoTrack ...");
         //start
         if ([self isHeatMapURL:self.originalURL]) {
             self.heatMapConnection = [[SAHeatMapConnection alloc]initWithURL:nil];
             if (self.heatMapConnection) {
                 [self.heatMapConnection startConnectionWithFeatureCode:self.featureCode url:self.postUrl];
             }
-        }else if ([self isAppCircleURL:self.originalURL]) {
-            self.appCircleConnection = [[SAAppCircleConnection alloc] initWithURL:nil];
-            if (self.appCircleConnection) {
-                [self.appCircleConnection startConnectionWithFeatureCode:self.featureCode url:self.postUrl];
+        }else if ([self isvisualAutoTrackURL:self.originalURL]) {
+            self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
+            if (self.visualAutoTrackConnection) {
+                [self.visualAutoTrackConnection startConnectionWithFeatureCode:self.featureCode url:self.postUrl];
             }
         }
     }

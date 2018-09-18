@@ -1,5 +1,5 @@
 //
-//  SAAppCircleConnection.m,
+//  SAVisualAutoTrackConnection.m,
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 8/1/17.
@@ -8,24 +8,24 @@
 /// Copyright (c) 2014 Mixpanel. All rights reserved.
 //
 
-#import "SAAppCircleConnection.h"
-#import "SAAppCircleMessage.h"
-#import "SAAppCircleSnapshotMessage.h"
+#import "SAVisualAutoTrackConnection.h"
+#import "SAVisualAutoTrackMessage.h"
+#import "SAVisualAutoTrackSnapshotMessage.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
 
-@interface SAAppCircleConnection ()
+@interface SAVisualAutoTrackConnection ()
 
 @end
 
-@implementation SAAppCircleConnection {
+@implementation SAVisualAutoTrackConnection {
     BOOL _connected;
 
     NSURL *_url;
     NSDictionary *_typeToMessageClassMap;
     NSOperationQueue *_commandQueue;
     NSTimer *timer;
-    id<SAAppCircleMessage> _designerMessage;
+    id<SAVisualAutoTrackMessage> _designerMessage;
     NSString *_featureCode;
     NSString *_postUrl;
 }
@@ -34,7 +34,7 @@
     self = [super init];
     if (self) {
         _typeToMessageClassMap = @{
-            SAAppCircleSnapshotRequestMessageType : [SAAppCircleSnapshotRequestMessage class],
+            SAVisualAutoTrackSnapshotRequestMessageType : [SAVisualAutoTrackSnapshotRequestMessage class],
         };
         _connected = NO;
         _useGzip = YES;
@@ -68,7 +68,7 @@
     return key;
 }
 
-- (void)sendMessage:(id<SAAppCircleMessage>)message {
+- (void)sendMessage:(id<SAVisualAutoTrackMessage>)message {
     if (_connected) {
         if (_featureCode == nil || _postUrl == nil) {
             return;
@@ -97,10 +97,10 @@
     }
 }
 
-- (id <SAAppCircleMessage>)designerMessageForMessage:(id)message {
+- (id <SAVisualAutoTrackMessage>)designerMessageForMessage:(id)message {
     NSParameterAssert([message isKindOfClass:[NSString class]] || [message isKindOfClass:[NSData class]]);
 
-    id <SAAppCircleMessage> designerMessage = nil;
+    id <SAVisualAutoTrackMessage> designerMessage = nil;
 
     NSData *jsonData = [message isKindOfClass:[NSString class]] ? [(NSString *)message dataUsingEncoding:NSUTF8StringEncoding] : message;
    // SADebug(@"%@ VTrack received message: %@", self, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
@@ -122,7 +122,7 @@
 
 #pragma mark -  Methods
 
-- (void)startAppCircleTimer:(id)message withFeatureCode:(NSString *)featureCode withUrl:(NSString *)postUrl {
+- (void)startVisualAutoTrackTimer:(id)message withFeatureCode:(NSString *)featureCode withUrl:(NSString *)postUrl {
     _featureCode = featureCode;
     _postUrl =  (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)postUrl, CFSTR(""),CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     _designerMessage = [self designerMessageForMessage:message];
@@ -151,15 +151,15 @@
 - (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr{
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
     //文件路径
-    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_appcircle_path.json" ofType:nil];
+    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_VisualAutoTrack_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
     _commandQueue.suspended = NO;
     if (!self->_connected) {
         self->_connected = YES;
-        [self startAppCircleTimer:jsonString withFeatureCode:featureCode withUrl:urlStr];
+        [self startVisualAutoTrackTimer:jsonString withFeatureCode:featureCode withUrl:urlStr];
     }else {
-        [self startAppCircleTimer:jsonString withFeatureCode:featureCode withUrl:urlStr];
+        [self startVisualAutoTrackTimer:jsonString withFeatureCode:featureCode withUrl:urlStr];
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  SAAbstractAppCircleMessage.m
+//  SAVisualAutoTrackAbstractMessage.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 8/1/17.
@@ -9,17 +9,17 @@
 //
 
 #import "SAGzipUtility.h"
-#import "SAAppCircleAbstractMessage.h"
+#import "SAVisualAutoTrackAbstractMessage.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 
-@interface SAAbstractAppCircleMessage ()
+@interface SAVisualAutoTrackAbstractMessage ()
 
 @property (nonatomic, copy, readwrite) NSString *type;
 
 @end
 
-@implementation SAAbstractAppCircleMessage {
+@implementation SAVisualAutoTrackAbstractMessage {
     NSMutableDictionary *_payload;
 }
 
@@ -96,7 +96,7 @@
     return jsonData;
 }
 
-- (NSOperation *)responseCommandWithConnection:(SAAppCircleConnection *)connection {
+- (NSOperation *)responseCommandWithConnection:(SAVisualAutoTrackConnection *)connection {
     return nil;
 }
 

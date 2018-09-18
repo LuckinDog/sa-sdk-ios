@@ -11,15 +11,15 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "SAAppCircleAbstractMessage.h"
+#import "SAVisualAutoTrackAbstractMessage.h"
 
 @class SAObjectSerializerConfig;
 
-extern NSString *const SAAppCircleSnapshotRequestMessageType;
+extern NSString *const SAVisualAutoTrackSnapshotRequestMessageType;
 
 #pragma mark -- Snapshot Request
 
-@interface SAAppCircleSnapshotRequestMessage : SAAbstractAppCircleMessage
+@interface SAVisualAutoTrackSnapshotRequestMessage : SAVisualAutoTrackAbstractMessage
 
 + (instancetype)message;
 
@@ -29,7 +29,7 @@ extern NSString *const SAAppCircleSnapshotRequestMessageType;
 
 #pragma mark -- Snapshot Response
 
-@interface SAAppCircleSnapshotResponseMessage : SAAbstractAppCircleMessage
+@interface SAVisualAutoTrackSnapshotResponseMessage : SAVisualAutoTrackAbstractMessage
 
 + (instancetype)message;
 

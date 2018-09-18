@@ -1,5 +1,5 @@
 //
-//  SAAppCircleConnection.h
+//  SAVisualAutoTrackConnection.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 8/1/17.
@@ -10,9 +10,9 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol SAAppCircleMessage;
+@protocol SAVisualAutoTrackMessage;
 
-@interface SAAppCircleConnection : NSObject
+@interface SAVisualAutoTrackConnection : NSObject
 
 @property (nonatomic, readonly) BOOL connected;
 @property (nonatomic, assign) BOOL useGzip;
@@ -20,7 +20,7 @@
 - (instancetype)initWithURL:(NSURL *)url;
 - (void)setSessionObject:(id)object forKey:(NSString *)key;
 - (id)sessionObjectForKey:(NSString *)key;
-- (void)sendMessage:(id<SAAppCircleMessage>)message;
+- (void)sendMessage:(id<SAVisualAutoTrackMessage>)message;
 - (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr;
 - (void)close;
 

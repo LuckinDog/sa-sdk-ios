@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAAppCircleConnection.h"
+#import "SAVisualAutoTrackConnection.h"
 #import "SAHeatMapConnection.h"
 NS_ASSUME_NONNULL_BEGIN
 
