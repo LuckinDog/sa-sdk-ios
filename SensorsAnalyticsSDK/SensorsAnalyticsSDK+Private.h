@@ -16,6 +16,7 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
 -(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item;
+-(void)onGestureRecognizer:(UIGestureRecognizer *)gesture;
 @end
 
 #endif /* SensorsAnalyticsSDK_priv_h */

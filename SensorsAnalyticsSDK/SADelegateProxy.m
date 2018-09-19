@@ -53,6 +53,18 @@
 }
 @end
 
+@interface SAUIGestureRecognizerDelegateProxy :SADelegateProxy
+@end
+@implementation SAUIGestureRecognizerDelegateProxy
+- (void)forwardInvocation:(NSInvocation *)invocation {
+    [invocation invokeWithTarget:self.target];
+}
+-(void)onGestureRecognizer:(UIGestureRecognizer *)gesture{
+    //do something for track
+    [SensorsAnalyticsSDK.sharedInstance onGestureRecognizer:gesture];
+}
+@end
+
 @implementation SADelegateProxy
 +(instancetype)proxyWithTableView:(id)target {
     SATableViewDelegateProxy *delegateProxy = [[SATableViewDelegateProxy alloc]initWithObject:target];
@@ -66,6 +78,11 @@
 
 +(instancetype)proxyWithTabBar:(id)target {
     SAUITabBarDelegateProxy *delegateProxy = [[SAUITabBarDelegateProxy alloc]initWithObject:target];
+    return delegateProxy;
+}
+
++(instancetype)proxyWithUIGestureRecognizer:(id)target {
+    SAUIGestureRecognizerDelegateProxy *delegateProxy = [[SAUIGestureRecognizerDelegateProxy alloc]initWithObject:target];
     return delegateProxy;
 }
 

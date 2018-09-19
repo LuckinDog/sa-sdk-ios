@@ -22,3 +22,6 @@
 
 @interface UITabBar (SensorsAnalyticsDelegateProxy)
 @end
+
+@interface UIView (SensorsAnalyticsDelegateProxy)
+@end

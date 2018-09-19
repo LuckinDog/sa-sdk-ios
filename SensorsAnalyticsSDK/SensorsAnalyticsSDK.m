@@ -3229,6 +3229,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 -(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
     [AutoTrackUtils trackAppClickWithUITabBar:tabBar didSelectItem:item];
 }
+
+-(void)onGestureRecognizer:(UIGestureRecognizer *)gesture {
+    [AutoTrackUtils trackAppClickWithUIGestureRecognizer:gesture];
+}
+
 @end
 
 @implementation SensorsAnalyticsSDK (Deprecated)

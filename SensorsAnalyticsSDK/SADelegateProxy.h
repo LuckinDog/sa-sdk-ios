@@ -13,4 +13,6 @@
 +(instancetype)proxyWithTableView:(id)target;
 +(instancetype)proxyWithCollectionView:(id)target;
 +(instancetype)proxyWithTabBar:(id)target;
++(instancetype)proxyWithUIGestureRecognizer:(id)target;//UILabel，UIImageView
+
 @end

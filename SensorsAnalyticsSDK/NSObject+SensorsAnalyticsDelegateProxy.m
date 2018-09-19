@@ -95,3 +95,34 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 }
 
 @end
+
+void sa_addGestureRecognizer(id obj ,SEL sel, UIGestureRecognizer *gesture){
+    SEL swizzileSel = sel_getUid("sa_addGestureRecognizer:");
+    SEL action_proxy = sel_getUid("onGestureRecognizer:");
+    SADelegateProxy *delegateProxy = nil;
+    if ([obj isKindOfClass:UIImageView.class] || [obj isKindOfClass:UILabel.class]) {
+        delegateProxy =  [SADelegateProxy proxyWithUIGestureRecognizer:obj];
+        [gesture addTarget:delegateProxy action:action_proxy];
+        [(NSObject *)obj setSensorsAnalyticsDelegateProxy:delegateProxy];
+    }
+    ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,gesture);
+}
+
+@implementation UIView (SensorsAnalyticsDelegateProxy)
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        SEL origSel_ = sel_getUid("addGestureRecognizer:");
+        SEL swizzileSel = sel_getUid("sa_addGestureRecognizer:");
+        Method origMethod = class_getInstanceMethod(self, origSel_);
+        const char* type = method_getTypeEncoding(origMethod);
+        class_addMethod(self, swizzileSel, (IMP)sa_addGestureRecognizer, type);
+        Method swizzleMethod = class_getInstanceMethod(self, swizzileSel);
+        IMP origIMP = method_getImplementation(origMethod);
+        IMP swizzleIMP = method_getImplementation(swizzleMethod);
+        method_setImplementation(origMethod, swizzleIMP);
+        method_setImplementation(swizzleMethod, origIMP);
+    });
+}
+
+@end
