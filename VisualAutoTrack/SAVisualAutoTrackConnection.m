@@ -149,7 +149,7 @@
 - (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr{
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
     //文件路径
-    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_VisualAutoTrack_path.json" ofType:nil];
+    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visual_autoTrack_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
     _commandQueue.suspended = NO;

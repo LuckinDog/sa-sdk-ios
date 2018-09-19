@@ -27,7 +27,7 @@
 }
 
 -(BOOL)canOpenURL:(NSURL *)URL {
-    return [self isHeatMapURL:URL] || [self isvisualAutoTrackURL:URL];
+    return [self isHeatMapURL:URL] || [self isVisualAutoTrackURL:URL];
 }
 
 - (BOOL)openURL:(NSURL *)URL  isWifi:(BOOL)isWifi {
@@ -84,7 +84,7 @@
                 if (self.heatMapConnection) {
                     [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
                 }
-            }else if ([self isvisualAutoTrackURL:URL]) {
+            }else if ([self isVisualAutoTrackURL:URL]) {
                  self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
                 if (self.visualAutoTrackConnection) {
                     [self.visualAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
@@ -107,7 +107,7 @@
     NSString *alertMessage = nil;
     if ([self isHeatMapURL:URL]) {
         alertMessage = @"正在连接 APP 点击分析";
-    }else if ([self isvisualAutoTrackURL:URL]) {
+    }else if ([self isVisualAutoTrackURL:URL]) {
         alertMessage = @"正在连接 APP 自定义埋点";
     }
     if (isWifi ==NO && alertMessage != nil) {
@@ -120,8 +120,8 @@
     return [URL.host isEqualToString:@"heatmap"];
 }
 
--(BOOL)isvisualAutoTrackURL:(NSURL *)URL {
-    return [URL.host isEqualToString:@"visualAutoTrack"];
+-(BOOL)isVisualAutoTrackURL:(NSURL *)URL {
+    return [URL.host isEqualToString:@"appcircle"];
 }
 
 
@@ -195,7 +195,7 @@
             if (self.heatMapConnection) {
                 [self.heatMapConnection startConnectionWithFeatureCode:self.featureCode url:self.postUrl];
             }
-        }else if ([self isvisualAutoTrackURL:self.originalURL]) {
+        }else if ([self isVisualAutoTrackURL:self.originalURL]) {
             self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
             if (self.visualAutoTrackConnection) {
                 [self.visualAutoTrackConnection startConnectionWithFeatureCode:self.featureCode url:self.postUrl];
