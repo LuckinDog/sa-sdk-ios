@@ -111,5 +111,10 @@ Pod::Spec.new do |s|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_CRASH_SLIDEADDRESS=1'}
   end
+
+  s.subspec 'DISABLE_AUTOTRACK_DEVIVEID' do |f|
+        f.dependency 'SensorsAnalyticsSDK/core'
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVIVEID=1'}
+  end
   
 end
