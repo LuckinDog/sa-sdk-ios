@@ -29,3 +29,7 @@
 @interface UICollectionViewCell (SAHelpers)
 -(NSString*)sa_indexPath;
 @end
+
+@interface UISegmentedControl (SAHelpers)
+-(NSArray *)sa_subviewsFixed;
+@end

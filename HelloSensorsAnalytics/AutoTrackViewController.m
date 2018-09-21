@@ -42,6 +42,8 @@
     [slider addTarget:self action:@selector(stepperOnClick:) forControlEvents:UIControlEventValueChanged];
     [self.view addSubview:slider];
 
+    [_segmentedControl insertSegmentWithTitle:@"3" atIndex:2 animated:YES];
+
 }
 -(void)stepperOnClick:(UIStepper*)sender {
     NSLog(@"step on:%f",sender.value);

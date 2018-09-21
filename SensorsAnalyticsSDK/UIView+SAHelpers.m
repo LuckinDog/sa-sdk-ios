@@ -246,10 +246,15 @@ static NSString* sa_encryptHelper(id input) {
 @implementation UITableViewCell (SAHelpers)
 -(NSString*)sa_indexPath {
     UITableView *tableView = (UITableView *)[self superview];
-    if([tableView isKindOfClass:UITableView.class] == NO) return @"";
-    NSIndexPath *indexPath = [tableView indexPathForCell:self];
-    NSString *pathString = [[NSString alloc]initWithFormat:@"[%ld][%ld]",(long)indexPath.section,(long)indexPath.row];
-    return pathString;
+    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]){
+        tableView = (UITableView *)[tableView superview];
+    }
+    if ([tableView isKindOfClass:UITableView.class]) {
+        NSIndexPath *indexPath = [tableView indexPathForCell:self];
+        NSString *pathString = [[NSString alloc]initWithFormat:@"[%ld][%ld]",(long)indexPath.section,(long)indexPath.row];
+        return pathString;
+    }
+    return @"";
 }
 
 @end
@@ -262,4 +267,11 @@ static NSString* sa_encryptHelper(id input) {
     return pathString;
 }
 
+@end
+
+@implementation UISegmentedControl (SAHelpers)
+-(NSArray *)sa_subviewsFixed {
+    NSArray *segments = [self valueForKey:@"segments"];
+    return segments;
+}
 @end

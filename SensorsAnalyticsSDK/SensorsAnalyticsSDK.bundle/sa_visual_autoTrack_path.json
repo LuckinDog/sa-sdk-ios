@@ -403,6 +403,17 @@
           ]
         },
         {
+          "name": "UISegmentedControl",
+          "superclass": "UIControl",
+          "properties": [
+            {
+                "name":"sa_subviewsFixed",
+                "type":"NSArray",
+                "use_kvc": false
+            }
+          ]
+        },
+        {
           "name": "CALayer",
           "superclass": "NSObject",
           "properties": [
