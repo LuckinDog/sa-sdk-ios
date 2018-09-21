@@ -2126,7 +2126,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     BOOL isReal;
     
-#if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVIVEID
+#if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
     [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
 #endif
     [p addEntriesFromDictionary:@{
