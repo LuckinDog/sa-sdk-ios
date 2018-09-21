@@ -2692,7 +2692,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 UIView *uiView = ((UIView* (*)(id, SEL, NSNumber*))[obj methodForSelector:viewForReactTagSelector])(obj, viewForReactTagSelector, reactTag);
                 NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
                 
-                if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]]) {
+                if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]] || [uiView isKindOfClass:[NSClassFromString(@"RCTScrollView") class]]) {
                     //好像跟 UISwitch 会重复
                     return;
                 }
