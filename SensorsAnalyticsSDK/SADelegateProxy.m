@@ -16,7 +16,7 @@
 @end
 @implementation SATableViewDelegateProxy
 - (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
+    [super forwardInvocation:invocation];
 }
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if ([self.target respondsToSelector:_cmd]) {
@@ -24,12 +24,19 @@
         [self.target tableView:tableView didSelectRowAtIndexPath:indexPath];
     }
 }
+-(BOOL)respondsToSelector:(SEL)aSelector{
+    if (aSelector == @selector(tableView:didSelectRowAtIndexPath:)) {
+        return YES;
+    }
+    return [super respondsToSelector:aSelector];
+}
+
 @end
 @interface SACollectionViewDelegateProxy:SADelegateProxy<UICollectionViewDelegate>
 @end
 @implementation SACollectionViewDelegateProxy
 - (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
+    [super forwardInvocation:invocation];
 }
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     if ([self.target respondsToSelector:_cmd]) {
@@ -37,6 +44,13 @@
         [self.target collectionView:collectionView didSelectItemAtIndexPath:indexPath];
     }
 }
+-(BOOL)respondsToSelector:(SEL)aSelector{
+    if (aSelector == @selector(collectionView:didSelectItemAtIndexPath:)) {
+        return YES;
+    }
+    return [super respondsToSelector:aSelector];
+}
+
 @end
 
 @implementation SADelegateProxy
@@ -58,17 +72,20 @@
     return [self.target methodSignatureForSelector:selector];
 }
 - (void)forwardInvocation:(NSInvocation *)invocation {
-   
+    [invocation invokeWithTarget:self.target];
 }
 
 -(BOOL)respondsToSelector:(SEL)aSelector{
-    if (aSelector == @selector(tableView:didSelectRowAtIndexPath:)) {
-        return YES;
+    unsigned int count = 0;
+    Method* methodList = class_copyMethodList(self.class, &count);
+    for (int i = 0;i<count;i++){
+        Method method = methodList[i];
+        SEL sel = method_getName(method);
+        if (sel == aSelector) {
+            return YES;
+        }
     }
-    if (aSelector == @selector(collectionView:didSelectItemAtIndexPath:)) {
-        return YES;
-    }
-    return [self.target respondsToSelector:aSelector];
+    return NO;
 }
 
 -(void)dealloc {
