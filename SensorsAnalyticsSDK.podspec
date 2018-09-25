@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'core' do |c|
-c.source_files  = "AppCircle/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","HeatMap/*.{h,m}"
+c.source_files  = "VisualAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","HeatMap/*.{h,m}"
 	c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h"
   c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
