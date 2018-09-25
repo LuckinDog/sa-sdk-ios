@@ -85,6 +85,7 @@
             return YES;
         }
     }
+    free(methodList);
     return NO;
 }
 
