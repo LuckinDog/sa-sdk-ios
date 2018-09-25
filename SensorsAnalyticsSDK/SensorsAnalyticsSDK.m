@@ -258,7 +258,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return time;
 }
 
-+ (NSString *)getUniqueHardwareId:(BOOL *)isReal {
++ (NSString *)getUniqueHardwareId {
     NSString *distinctId = NULL;
 
     // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFA
@@ -272,9 +272,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         distinctId = [uuid UUIDString];
         // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
         // 00000000-0000-0000-0000-000000000000
-        if (distinctId && ![distinctId hasPrefix:@"00000000"]) {
-            *isReal = YES;
-        } else{
+        if (!distinctId || [distinctId hasPrefix:@"00000000"]) {
             distinctId = NULL;
         }
     }
@@ -283,16 +281,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 没有IDFA，则使用IDFV
     if (!distinctId && NSClassFromString(@"UIDevice")) {
         distinctId = [[UIDevice currentDevice].identifierForVendor UUIDString];
-        *isReal = YES;
     }
     
     // 没有IDFV，则使用UUID
     if (!distinctId) {
         SADebug(@"%@ error getting device identifier: falling back to uuid", self);
         distinctId = [[NSUUID UUID] UUIDString];
-        *isReal = NO;
     }
-    
     return distinctId;
 }
 
@@ -1007,8 +1002,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)resetAnonymousId {
-    BOOL isReal;
-    self.distinctId = [[self class] getUniqueHardwareId:&isReal];
+    self.distinctId = [[self class] getUniqueHardwareId];
     [self archiveDistinctId];
 }
 
@@ -2124,10 +2118,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    BOOL isReal;
-    
 #if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-    [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
+    [p setValue:[[self class] getUniqueHardwareId] forKey:@"$device_id"];
 #endif
     [p addEntriesFromDictionary:@{
                                   @"$lib": @"iOS",
@@ -2231,8 +2223,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.distinctId = distinctIdInKeychain;
     } else {
         if (archivedDistinctId == nil) {
-            BOOL isReal;
-            self.distinctId = [[self class] getUniqueHardwareId:&isReal];
+            self.distinctId = [[self class] getUniqueHardwareId];
         } else {
             self.distinctId = archivedDistinctId;
         }
