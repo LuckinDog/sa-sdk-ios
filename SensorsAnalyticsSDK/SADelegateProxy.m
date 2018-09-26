@@ -15,41 +15,54 @@
 @interface SATableViewDelegateProxy:SADelegateProxy<UITableViewDelegate>
 @end
 @implementation SATableViewDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if ([self.target respondsToSelector:_cmd]) {
         [SensorsAnalyticsSDK.sharedInstance tableView:tableView didSelectRowAtIndexPath:indexPath];
         [self.target tableView:tableView didSelectRowAtIndexPath:indexPath];
     }
 }
+-(BOOL)respondsToSelector:(SEL)aSelector{
+    if (aSelector == @selector(tableView:didSelectRowAtIndexPath:)) {
+        return YES;
+    }
+    return NO;
+}
+
 @end
 @interface SACollectionViewDelegateProxy:SADelegateProxy<UICollectionViewDelegate>
 @end
 @implementation SACollectionViewDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     if ([self.target respondsToSelector:_cmd]) {
         [SensorsAnalyticsSDK.sharedInstance collectionView:collectionView didSelectItemAtIndexPath:indexPath];
         [self.target collectionView:collectionView didSelectItemAtIndexPath:indexPath];
     }
 }
+-(BOOL)respondsToSelector:(SEL)aSelector{
+    if (aSelector == @selector(collectionView:didSelectItemAtIndexPath:)) {
+        return YES;
+    }
+    return NO;
+}
+
 @end
 
 @interface SAUITabBarDelegateProxy :SADelegateProxy<UITabBarDelegate>
 @end
 @implementation SAUITabBarDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
+
 - (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
     [[SensorsAnalyticsSDK sharedInstance] tabBar:tabBar didSelectItem:item];
     if ([self.target respondsToSelector:_cmd]) {
         [self.target tabBar:tabBar didSelectItem:item];
     }
+}
+
+-(BOOL)respondsToSelector:(SEL)aSelector{
+    if (aSelector == @selector(tabBar:didSelectItem:)) {
+        return YES;
+    }
+    return NO;
 }
 @end
 
@@ -94,20 +107,7 @@
     return [self.target methodSignatureForSelector:selector];
 }
 - (void)forwardInvocation:(NSInvocation *)invocation {
-   
-}
-
--(BOOL)respondsToSelector:(SEL)aSelector{
-    if (aSelector == @selector(tableView:didSelectRowAtIndexPath:)) {
-        return YES;
-    }
-    if (aSelector == @selector(collectionView:didSelectItemAtIndexPath:)) {
-        return YES;
-    }
-    if (aSelector == @selector(tabBar:didSelectItem:)) {
-        return YES;
-    }
-    return [self.target respondsToSelector:aSelector];
+    [invocation invokeWithTarget:self.target];
 }
 
 -(void)dealloc {
