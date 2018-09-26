@@ -25,7 +25,7 @@
     if (aSelector == @selector(tableView:didSelectRowAtIndexPath:)) {
         return YES;
     }
-    return [super respondsToSelector:aSelector];
+    return NO;
 }
 
 @end
@@ -42,7 +42,7 @@
     if (aSelector == @selector(collectionView:didSelectItemAtIndexPath:)) {
         return YES;
     }
-    return [super respondsToSelector:aSelector];
+    return NO;
 }
 
 @end
@@ -67,22 +67,6 @@
 }
 - (void)forwardInvocation:(NSInvocation *)invocation {
     [invocation invokeWithTarget:self.target];
-}
-
--(BOOL)respondsToSelector:(SEL)aSelector{
-    unsigned int count = 0;
-    BOOL respondsToSelector = NO;
-    Method* methodList = class_copyMethodList(self.class, &count);
-    for (int i = 0;i<count;i++){
-        Method method = methodList[i];
-        SEL sel = method_getName(method);
-        if (sel == aSelector) {
-            respondsToSelector = YES;
-            break;
-        }
-    }
-    free(methodList);
-    return respondsToSelector;
 }
 
 -(void)dealloc {
