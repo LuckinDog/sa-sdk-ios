@@ -77,16 +77,18 @@
 
 -(BOOL)respondsToSelector:(SEL)aSelector{
     unsigned int count = 0;
+    BOOL respondsToSelector = NO;
     Method* methodList = class_copyMethodList(self.class, &count);
     for (int i = 0;i<count;i++){
         Method method = methodList[i];
         SEL sel = method_getName(method);
         if (sel == aSelector) {
-            return YES;
+            respondsToSelector = YES;
+            break;
         }
     }
     free(methodList);
-    return NO;
+    return respondsToSelector;
 }
 
 -(void)dealloc {
