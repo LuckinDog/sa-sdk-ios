@@ -15,9 +15,6 @@
 @interface SATableViewDelegateProxy:SADelegateProxy<UITableViewDelegate>
 @end
 @implementation SATableViewDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [super forwardInvocation:invocation];
-}
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if ([self.target respondsToSelector:_cmd]) {
         [SensorsAnalyticsSDK.sharedInstance tableView:tableView didSelectRowAtIndexPath:indexPath];
@@ -35,9 +32,6 @@
 @interface SACollectionViewDelegateProxy:SADelegateProxy<UICollectionViewDelegate>
 @end
 @implementation SACollectionViewDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [super forwardInvocation:invocation];
-}
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     if ([self.target respondsToSelector:_cmd]) {
         [SensorsAnalyticsSDK.sharedInstance collectionView:collectionView didSelectItemAtIndexPath:indexPath];
