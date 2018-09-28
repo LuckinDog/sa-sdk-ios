@@ -78,7 +78,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 @end
 
 @implementation UIView (SensorsAnalytics)
-- (UIViewController *)viewController {
+- (UIViewController *)sensorsAnalyticsViewController {
     UIResponder *next = [self nextResponder];
     do {
         if ([next isKindOfClass:[UIViewController class]]) {
