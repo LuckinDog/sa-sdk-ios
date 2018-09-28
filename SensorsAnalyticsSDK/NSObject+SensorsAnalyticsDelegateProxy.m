@@ -13,25 +13,29 @@
 #import "SADelegateProxy.h"
 void sa_setDelegate(id obj ,SEL sel, id delegate){
     SEL swizzileSel = sel_getUid("sa_setDelegate:");
+    SADelegateProxy *delegateProxy = nil;
     if (delegate != nil) {
-        SADelegateProxy *delegateProxy = nil;
-        if ([obj isKindOfClass:UITableView.class]) {
-            delegateProxy = [SADelegateProxy proxyWithTableView:delegate];
-        }else if ([obj isKindOfClass:UICollectionView.class]){
-            delegateProxy = [SADelegateProxy proxyWithCollectionView:delegate];
-        }else if ([obj isKindOfClass:UITabBar.class]){
-            delegateProxy = [SADelegateProxy proxyWithTabBar:delegate];
+        delegateProxy = [obj sensorsAnalyticsDelegateProxy];
+        if (delegateProxy == nil) {
+            if ([obj isKindOfClass:UITableView.class]) {
+                delegateProxy = [SADelegateProxy proxyWithTableView:delegate];
+            }else if ([obj isKindOfClass:UICollectionView.class]){
+                delegateProxy = [SADelegateProxy proxyWithCollectionView:delegate];
+            }else if ([obj isKindOfClass:UITabBar.class]){
+                delegateProxy = [SADelegateProxy proxyWithTabBar:delegate];
+            }
+        }else {
+            [(SADelegateProxy *)delegateProxy setTarget:delegate];
         }
-        delegate = delegateProxy;
     }
-    [(NSObject *)obj setSensorsAnalyticsDelegateProxy:delegate];
-    ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,delegate);
+    [(NSObject *)obj setSensorsAnalyticsDelegateProxy:delegateProxy];
+    ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,delegateProxy);
 }
 
 @implementation NSObject (SensorsAnalyticsDelegateProxy)
 
 -(void)setSensorsAnalyticsDelegateProxy:(SADelegateProxy *)SensorsAnalyticsDelegateProxy{
-    objc_setAssociatedObject(self, @selector(setSensorsAnalyticsDelegateProxy:), SensorsAnalyticsDelegateProxy, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(self, @selector(setSensorsAnalyticsDelegateProxy:), SensorsAnalyticsDelegateProxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 -(SADelegateProxy *)sensorsAnalyticsDelegateProxy{
     return objc_getAssociatedObject(self, @selector(setSensorsAnalyticsDelegateProxy:));

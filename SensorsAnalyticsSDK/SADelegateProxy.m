@@ -52,7 +52,7 @@
 @implementation SAUITabBarDelegateProxy
 
 - (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
-    [[SensorsAnalyticsSDK sharedInstance] tabBar:tabBar didSelectItem:item];
+    [SensorsAnalyticsSDK.sharedInstance tabBar:tabBar didSelectItem:item];
     if ([self.target respondsToSelector:_cmd]) {
         [self.target tabBar:tabBar didSelectItem:item];
     }
@@ -69,9 +69,6 @@
 @interface SAUIGestureRecognizerDelegateProxy :SADelegateProxy
 @end
 @implementation SAUIGestureRecognizerDelegateProxy
-- (void)forwardInvocation:(NSInvocation *)invocation {
-    [invocation invokeWithTarget:self.target];
-}
 -(void)onGestureRecognizer:(UIGestureRecognizer *)gesture{
     //do something for track
     [SensorsAnalyticsSDK.sharedInstance onGestureRecognizer:gesture];
