@@ -78,7 +78,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 @end
 
 @implementation UIView (SensorsAnalytics)
-- (UIViewController *)viewController {
+- (UIViewController *)sensorsAnalyticsViewController {
     UIResponder *next = [self nextResponder];
     do {
         if ([next isKindOfClass:[UIViewController class]]) {
@@ -415,7 +415,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
 
-            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.%@.%p", @"test", self];
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
 
             [self setUpListeners];
