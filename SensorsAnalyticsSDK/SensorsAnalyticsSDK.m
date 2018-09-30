@@ -234,7 +234,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[super alloc] initWithServerURL:serverURL
+        sharedInstance = [[self alloc] initWithServerURL:serverURL
                                          andLaunchOptions:launchOptions
                                              andDebugMode:debugMode];
     });
