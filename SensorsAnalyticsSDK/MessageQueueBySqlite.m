@@ -79,11 +79,13 @@
         @try {
             sqlite3_bind_text(insertStatement, 2, [[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] UTF8String], -1, SQLITE_TRANSIENT);
         } @catch (NSException *exception) {
+            sqlite3_finalize(insertStatement);
             SAError(@"Found NON UTF8 String, ignore");
             return;
         }
         rc = sqlite3_step(insertStatement);
         if(rc != SQLITE_DONE) {
+            sqlite3_finalize(insertStatement);
             SAError(@"insert into dataCache fail, rc is %d", rc);
         } else {
             sqlite3_finalize(insertStatement);
