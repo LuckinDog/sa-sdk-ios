@@ -32,7 +32,6 @@
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd |
-     SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
     [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
