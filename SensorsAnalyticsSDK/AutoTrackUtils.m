@@ -290,7 +290,7 @@
             [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
         }
 
-        UIViewController *viewController = [view viewController];
+        UIViewController *viewController = [view sensorsAnalyticsViewController];
 
         if (viewController == nil || [viewController isKindOfClass:UINavigationController.class]) {
             viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
@@ -411,7 +411,7 @@
             [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
         }
 
-        UIViewController *viewController = [tableView viewController];
+        UIViewController *viewController = [tableView sensorsAnalyticsViewController];
 
         if (viewController == nil || [viewController isKindOfClass:UINavigationController.class]) {
             viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
