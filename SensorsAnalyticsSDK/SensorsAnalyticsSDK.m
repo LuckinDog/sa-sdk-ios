@@ -2217,18 +2217,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)unarchiveDistinctId {
-    NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:[self filePathForData:@"distinct_id"]];
+    NSString *filePath = [self filePathForData:@"distinct_id"];
+    NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:filePath];
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
-    if (distinctIdInKeychain != nil && distinctIdInKeychain.length>0) {
+    if (distinctIdInKeychain != nil && distinctIdInKeychain.length > 0) {
         self.distinctId = distinctIdInKeychain;
+       
+        if (![archivedDistinctId isEqualToString:distinctIdInKeychain]) {
+            //保存 Archiver
+            NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete forKey:NSFileProtectionKey];
+            [[NSFileManager defaultManager] setAttributes:protection ofItemAtPath:filePath error:nil];
+            if (![NSKeyedArchiver archiveRootObject:[[self distinctId] copy] toFile:filePath]) {
+                SAError(@"%@ unable to archive distinctId", self);
+            }
+        }
     } else {
-        if (archivedDistinctId == nil) {
+        if (archivedDistinctId.length == 0) {
             self.distinctId = [[self class] getUniqueHardwareId];
+            [self archiveDistinctId];
         } else {
             self.distinctId = archivedDistinctId;
+            //保存 KeyChain
+            [SAKeyChainItemWrapper saveUdid:self.distinctId];
         }
     }
-    [self archiveDistinctId];
 }
 
 - (void)unarchiveLoginId {
