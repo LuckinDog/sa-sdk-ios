@@ -2160,18 +2160,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 ///注销仅大小写不同的 SuperProperties
 - (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict {
-    NSArray *allNewKeys = propertyDict.allKeys;
-    //如果包含仅大小写不同的 key ,unregisterSuperProperty
-    NSArray *superPropertyAllKeys = [self.superProperties.allKeys mutableCopy];
-    
-    for (NSString *newKey in allNewKeys) {
-        [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            NSString *usedKey = (NSString *)obj;
-            if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
-                [self unregisterSuperProperty:usedKey];
-            }
-        }];
-    }
+        NSArray *allNewKeys = [propertyDict.allKeys mutableCopy];
+        //如果包含仅大小写不同的 key ,unregisterSuperProperty
+        NSArray *superPropertyAllKeys = [self.superProperties.allKeys mutableCopy];
+        NSMutableArray *unregisterPropertyKeys = [NSMutableArray array];
+        for (NSString *newKey in allNewKeys) {
+            [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSString *usedKey = (NSString *)obj;
+                if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
+                    [unregisterPropertyKeys addObject:usedKey];
+                }
+            }];
+        }
+        if (unregisterPropertyKeys.count > 0) {
+            [self unregisterSuperPropertys:unregisterPropertyKeys];
+        }
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
@@ -2183,7 +2186,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
         [self archiveSuperProperties];
     });
-    
+}
+
+- (void)unregisterSuperPropertys:(NSArray <NSString *>*)propertys {
+    dispatch_async(self.serialQueue, ^{
+        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
+        [tmp removeObjectsForKeys:propertys];
+        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
+        [self archiveSuperProperties];
+    });
 }
 
 - (void)clearSuperProperties {
