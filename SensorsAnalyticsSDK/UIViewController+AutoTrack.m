@@ -9,7 +9,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 #import "SASwizzler.h"
-#import "AutoTrackUtils.h"
+#import "SensorsAnalyticsSDK+Private.h"
 @implementation UIViewController (AutoTrack)
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated {
     @try {
@@ -26,7 +26,7 @@
             //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
             void (^tableViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UITableView *tableView, NSIndexPath *indexPath) {
-                [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
+                [SensorsAnalyticsSDK.sharedInstance tableView:tableView didSelectRowAtIndexPath:indexPath];
             };
             if ([self respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
                 [SASwizzler swizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:self.class withBlock:tableViewBlock named:[NSString stringWithFormat:@"%@_%@", NSStringFromClass(self.class), @"UITableView_AutoTrack"]];
@@ -36,7 +36,7 @@
             //UICollectionView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
             void (^collectionViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UICollectionView *collectionView, NSIndexPath *indexPath) {
-                [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
+                [SensorsAnalyticsSDK.sharedInstance collectionView:collectionView didSelectItemAtIndexPath:indexPath];
             };
             if ([self respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
                 [SASwizzler swizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:self.class withBlock:collectionViewBlock named:[NSString stringWithFormat:@"%@_%@", NSStringFromClass(self.class), @"UICollectionView_AutoTrack"]];

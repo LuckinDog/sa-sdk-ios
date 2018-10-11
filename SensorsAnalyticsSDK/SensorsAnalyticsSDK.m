@@ -2775,33 +2775,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 #endif
 
-//- (void)_enableAutoTrack {
-//    // 监听所有 UIViewController 显示事件
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        //$AppViewScreen
-//        [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
-//        NSError *error = NULL;
-//        //$AppClick
-//        // Actions & Events
-//        [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-//                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
-//                                      error:&error];
-//        if (error) {
-//            SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
-//            error = NULL;
-//        }
-//    });
-//
-//    //React Natove
-//#ifdef SENSORS_ANALYTICS_REACT_NATIVE
-//    if (NSClassFromString(@"RCTUIManager")) {
-////        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
-//        __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
-//    }
-//#endif
-//}
-
 - (void)_enableAutoTrack {
     void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         UIViewController *controller = (UIViewController *)obj;
