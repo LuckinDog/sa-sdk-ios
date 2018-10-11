@@ -2161,9 +2161,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 ///注销仅大小写不同的 SuperProperties
 - (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict {
     NSArray *allNewKeys = propertyDict.allKeys;
+    //如果包含仅大小写不同的 key ,unregisterSuperProperty
+    NSArray *superPropertyAllKeys = [self.superProperties.allKeys mutableCopy];
+    
     for (NSString *newKey in allNewKeys) {
-        //如果包含仅大小写不同的 key ,unregisterSuperProperty
-        NSArray *superPropertyAllKeys = [self.superProperties.allKeys mutableCopy];
         [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             NSString *usedKey = (NSString *)obj;
             if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
