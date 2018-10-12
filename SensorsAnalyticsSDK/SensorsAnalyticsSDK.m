@@ -39,7 +39,7 @@
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAuxiliaryToolManager.h"
-#define VERSION @"1.10.15"
+#define VERSION @"1.10.16"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -61,6 +61,8 @@ static NSString* const SCREEN_URL_PROPERTY = @"$url";
 static NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 //中国运营商 mcc 标识
 static NSString* const CARRIER_CHINA_MCC = @"460";
+
+void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 @implementation SensorsAnalyticsDebugException
 
@@ -416,7 +418,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-
+            dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
+            
             [self setUpListeners];
             
             // XXX: App Active 的时候会启动计时器，此处不需要启动
@@ -1453,20 +1456,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [libProperties setValue:lib_detail forKey:@"$lib_detail"];
     }
 
-    //获取用户自定义的动态公共属性
-    NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
-    if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
-        SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
-        dynamicSuperPropertiesDict = nil;
-    } else {
-        if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
-            dynamicSuperPropertiesDict = nil;
-        }
-    }
-    //去重
-    [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-
     dispatch_async(self.serialQueue, ^{
+        //获取用户自定义的动态公共属性
+        NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+        if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+            SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
+            dynamicSuperPropertiesDict = nil;
+        } else {
+            if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
+                dynamicSuperPropertiesDict = nil;
+            }
+        }
+        //去重
+        [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
@@ -2091,10 +2094,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ failed to register super properties.", self);
         return;
     }
-
-    [self unregisterSameLetterSuperProperties:propertyDict];
-
     dispatch_async(self.serialQueue, ^{
+        [self unregisterSameLetterSuperProperties:propertyDict];
         // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
         [tmp addEntriesFromDictionary:propertyDict];
@@ -2111,16 +2112,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 ///注销仅大小写不同的 SuperProperties
 - (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict {
-    NSArray *allNewKeys = propertyDict.allKeys;
-    for (NSString *newKey in allNewKeys) {
+    dispatch_block_t block =^{
+        NSArray *allNewKeys = [propertyDict.allKeys mutableCopy];
         //如果包含仅大小写不同的 key ,unregisterSuperProperty
         NSArray *superPropertyAllKeys = [self.superProperties.allKeys mutableCopy];
-        [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            NSString *usedKey = (NSString *)obj;
-            if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
-                [self unregisterSuperProperty:usedKey];
-            }
-        }];
+        NSMutableArray *unregisterPropertyKeys = [NSMutableArray array];
+        for (NSString *newKey in allNewKeys) {
+            [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSString *usedKey = (NSString *)obj;
+                if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
+                    [unregisterPropertyKeys addObject:usedKey];
+                }
+            }];
+        }
+        if (unregisterPropertyKeys.count > 0) {
+            [self unregisterSuperPropertys:unregisterPropertyKeys];
+        }
+    };
+
+    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
+        block();
+    }else {
+        dispatch_async(self.serialQueue, block);
     }
 }
 
@@ -2133,7 +2146,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
         [self archiveSuperProperties];
     });
-    
+}
+
+- (void)unregisterSuperPropertys:(NSArray <NSString *>*)propertys {
+    dispatch_block_t block =  ^{
+        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
+        [tmp removeObjectsForKeys:propertys];
+        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
+        [self archiveSuperProperties];
+    };
+    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
+        block();
+    }else {
+        dispatch_async(self.serialQueue, block);
+    }
 }
 
 - (void)clearSuperProperties {
@@ -2593,10 +2619,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-//    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
-//        return;
-//    }
-    
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
     
@@ -2731,6 +2753,45 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 
 - (void)_enableAutoTrack {
+    void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
+        UIViewController *controller = (UIViewController *)obj;
+        if (!controller) {
+            return;
+        }
+        
+        Class klass = [controller class];
+        if (!klass) {
+            return;
+        }
+        
+        NSString *screenName = NSStringFromClass(klass);
+        
+        //UITableView
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
+        if ([controller respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
+            [SASwizzler unswizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UITableView_AutoTrack"]];
+        }
+#endif
+        
+        //UICollectionView
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
+        if ([controller respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
+            [SASwizzler unswizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UICollectionView_AutoTrack"]];
+        }
+#endif
+    };
+    
+    void (^gestureRecognizerAppClickBlock)(id, SEL, id) = ^(id target, SEL command, id arg) {
+        @try {
+            if ([arg isKindOfClass:[UITapGestureRecognizer class]] ||
+                [arg isKindOfClass:[UILongPressGestureRecognizer class]]) {
+                [arg addTarget:self action:@selector(trackGestureRecognizerAppClick:)];
+            }
+        } @catch (NSException *exception) {
+            SAError(@"%@ error: %@", self, exception);
+        }
+    };
+    
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -2740,22 +2801,154 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //$AppClick
         // Actions & Events
         [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
-                                      error:&error];
+                             withMethod:@selector(sa_sendAction:to:from:forEvent:)
+                                  error:&error];
         if (error) {
             SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
             error = NULL;
         }
     });
-   
+    //$AppClick
+    //UITableView、UICollectionView
+#if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
+    [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
+                            onClass:[UIViewController class]
+                          withBlock:unswizzleUITableViewAppClickBlock
+                              named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
+#endif
+    
+    //UILabel
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
+    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UILABEL
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
+    #endif
+    
+    //UIImageView
+    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGEVIEW
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
+    #endif
+#endif
+
     //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
     if (NSClassFromString(@"RCTUIManager")) {
-//        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
+        //        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
         __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
     }
 #endif
 }
+
+- (void)trackGestureRecognizerAppClick:(id)target {
+    @try {
+        if (target == nil) {
+            return;
+        }
+        UIGestureRecognizer *gesture = target;
+        if (gesture == nil) {
+            return;
+        }
+        
+        if (gesture.state != UIGestureRecognizerStateEnded) {
+            return;
+        }
+        
+        UIView *view = gesture.view;
+        if (view == nil) {
+            return;
+        }
+        //关闭 AutoTrack
+        if (![self isAutoTrackEnabled]) {
+            return;
+        }
+        
+        //忽略 $AppClick 事件
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+            return;
+        }
+        
+        if ([view isKindOfClass:[UILabel class]]) {//UILabel
+            if ([self isViewTypeIgnored:[UILabel class]]) {
+                return;
+            }
+        } else if ([view isKindOfClass:[UIImageView class]]) {//UIImageView
+            if ([self isViewTypeIgnored:[UIImageView class]]) {
+                return;
+            }
+        }
+
+        
+        //        if (view.sensorsAnalyticsIgnoreView) {
+        //            return;
+        //        }
+        
+        UIViewController *viewController = [self currentViewController];
+        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+        
+        if (viewController != nil) {
+            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
+                return;
+            }
+            
+            //获取 Controller 名称($screen_name)
+            NSString *screenName = NSStringFromClass([viewController class]);
+            [properties setValue:screenName forKey:@"$screen_name"];
+            
+            NSString *controllerTitle = viewController.navigationItem.title;
+            if (controllerTitle != nil) {
+                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+            }
+            
+            //再获取 controller.navigationItem.titleView, 并且优先级比较高
+            NSString *elementContent = [self getUIViewControllerTitle:viewController];
+            if (elementContent != nil && [elementContent length] > 0) {
+                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                [properties setValue:elementContent forKey:@"$title"];
+            }
+        }
+        
+        //ViewID
+        if (view.sensorsAnalyticsViewID != nil) {
+            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+        }
+        
+        if ([view isKindOfClass:[UILabel class]]) {
+            [properties setValue:@"UILabel" forKey:@"$element_type"];
+            UILabel *label = (UILabel*)view;
+            NSString *sa_elementContent = label.sa_elementContent;
+            if (sa_elementContent && sa_elementContent.length > 0) {
+                [properties setValue:sa_elementContent forKey:@"$element_content"];
+            }
+            [AutoTrackUtils __sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+        } else if ([view isKindOfClass:[UIImageView class]]) {
+            [properties setValue:@"UIImageView" forKey:@"$element_type"];
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
+            UIImageView *imageView = (UIImageView *)view;
+            [AutoTrackUtils __sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+            if (imageView) {
+                if (imageView.image) {
+                    NSString *imageName = imageView.image.sensorsAnalyticsImageName;
+                    if (imageName != nil) {
+                        [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
+                    }
+                }
+            }
+#endif
+        }else {
+            return;
+        }
+        
+        //View Properties
+        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        if (propDict != nil) {
+            [properties addEntriesFromDictionary:propDict];
+        }
+        
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+}
+
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
     NSMutableDictionary *trackProperties = [[NSMutableDictionary alloc] init];

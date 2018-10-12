@@ -718,7 +718,7 @@
         if (view.sensorsAnalyticsViewID != nil) {
             [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
         }
-        UIViewController *viewController = [view viewController];
+        UIViewController *viewController = [view sensorsAnalyticsViewController];
 
         if (viewController == nil ||
             [@"UINavigationController" isEqualToString:NSStringFromClass([viewController class])]) {
