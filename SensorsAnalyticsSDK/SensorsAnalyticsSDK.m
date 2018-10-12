@@ -43,7 +43,6 @@
 #define VERSION @"1.10.16"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
-void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 // 自动追踪相关事件及属性
 // App 启动或激活
 static NSString* const APP_START_EVENT = @"$AppStart";
@@ -63,6 +62,8 @@ static NSString* const SCREEN_URL_PROPERTY = @"$url";
 static NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 //中国运营商 mcc 标识
 static NSString* const CARRIER_CHINA_MCC = @"460";
+
+void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 @implementation SensorsAnalyticsDebugException
 
@@ -418,8 +419,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-
             dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
+            
             [self setUpListeners];
             
             // XXX: App Active 的时候会启动计时器，此处不需要启动
