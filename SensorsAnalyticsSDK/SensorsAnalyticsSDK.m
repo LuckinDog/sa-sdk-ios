@@ -63,6 +63,8 @@ static NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 //中国运营商 mcc 标识
 static NSString* const CARRIER_CHINA_MCC = @"460";
 
+void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
+
 @implementation SensorsAnalyticsDebugException
 
 @end
@@ -417,7 +419,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-
+            dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
+            
             [self setUpListeners];
             
             // XXX: App Active 的时候会启动计时器，此处不需要启动
@@ -1484,20 +1487,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [libProperties setValue:lib_detail forKey:@"$lib_detail"];
     }
 
-    //获取用户自定义的动态公共属性
-    NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
-    if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
-        SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
-        dynamicSuperPropertiesDict = nil;
-    } else {
-        if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
-            dynamicSuperPropertiesDict = nil;
-        }
-    }
-    //去重
-    [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-
     dispatch_async(self.serialQueue, ^{
+        //获取用户自定义的动态公共属性
+        NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+        if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+            SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
+            dynamicSuperPropertiesDict = nil;
+        } else {
+            if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
+                dynamicSuperPropertiesDict = nil;
+            }
+        }
+        //去重
+        [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
@@ -2140,10 +2143,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ failed to register super properties.", self);
         return;
     }
-
-    [self unregisterSameLetterSuperProperties:propertyDict];
-
     dispatch_async(self.serialQueue, ^{
+        [self unregisterSameLetterSuperProperties:propertyDict];
         // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
         [tmp addEntriesFromDictionary:propertyDict];
@@ -2160,16 +2161,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 ///注销仅大小写不同的 SuperProperties
 - (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict {
-    NSArray *allNewKeys = propertyDict.allKeys;
-    for (NSString *newKey in allNewKeys) {
+    dispatch_block_t block =^{
+        NSArray *allNewKeys = [propertyDict.allKeys mutableCopy];
         //如果包含仅大小写不同的 key ,unregisterSuperProperty
         NSArray *superPropertyAllKeys = [self.superProperties.allKeys mutableCopy];
-        [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            NSString *usedKey = (NSString *)obj;
-            if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
-                [self unregisterSuperProperty:usedKey];
-            }
-        }];
+        NSMutableArray *unregisterPropertyKeys = [NSMutableArray array];
+        for (NSString *newKey in allNewKeys) {
+            [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSString *usedKey = (NSString *)obj;
+                if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
+                    [unregisterPropertyKeys addObject:usedKey];
+                }
+            }];
+        }
+        if (unregisterPropertyKeys.count > 0) {
+            [self unregisterSuperPropertys:unregisterPropertyKeys];
+        }
+    };
+
+    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
+        block();
+    }else {
+        dispatch_async(self.serialQueue, block);
     }
 }
 
@@ -2182,7 +2195,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
         [self archiveSuperProperties];
     });
-    
+}
+
+- (void)unregisterSuperPropertys:(NSArray <NSString *>*)propertys {
+    dispatch_block_t block =  ^{
+        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
+        [tmp removeObjectsForKeys:propertys];
+        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
+        [self archiveSuperProperties];
+    };
+    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
+        block();
+    }else {
+        dispatch_async(self.serialQueue, block);
+    }
 }
 
 - (void)clearSuperProperties {
