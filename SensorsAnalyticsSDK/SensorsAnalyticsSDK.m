@@ -312,33 +312,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 
-- (BOOL)shouldTrackClass:(Class)aClass {
+- (BOOL)shouldTrackClassName:(NSString *)className {
     static NSSet *blacklistedClasses = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        
         NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
         //文件路径
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-
         @try {
             NSArray *_blacklistedViewControllerClassNames = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
-            
-            NSMutableSet *transformedClasses = [NSMutableSet setWithCapacity:_blacklistedViewControllerClassNames.count];
-            for (NSString *className in _blacklistedViewControllerClassNames) {
-                if (NSClassFromString(className) != nil) {
-                    [transformedClasses addObject:NSClassFromString(className)];
-                }
-            }
-            blacklistedClasses = [transformedClasses copy];
+            blacklistedClasses = [NSSet setWithArray:_blacklistedViewControllerClassNames];
         } @catch(NSException *exception) {  // json加载和解析可能失败
             SAError(@"%@ error: %@", self, exception);
         }
-
     });
-
-    return ![blacklistedClasses containsObject:aClass];
+    return ![blacklistedClasses containsObject:className];
 }
 
 - (instancetype)initWithServerURL:(NSString *)serverURL
@@ -2597,13 +2586,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    Class klass = [controller class];
-    if (!klass) {
-        return;
-    }
-    
-    NSString *screenName = NSStringFromClass(klass);
-    if (![self shouldTrackClass:klass]) {
+    NSString *screenName = NSStringFromClass(controller.class);
+    if (![self shouldTrackClassName:screenName]) {
         return;
     }
     
@@ -2620,7 +2604,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
+    [properties setValue:screenName forKey:SCREEN_NAME_PROPERTY];
     
     @try {
         //先获取 controller.navigationItem.title
