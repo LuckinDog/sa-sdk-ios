@@ -118,7 +118,12 @@
     if(stmt) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             @try {
-                NSData *jsonData = [[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, 0)] dataUsingEncoding:NSUTF8StringEncoding];
+                char* jsonChar = (char*)sqlite3_column_text(stmt, 0);
+                if (!jsonChar) {
+                    SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
+                    return nil;
+                }
+                NSData *jsonData = [[NSString stringWithUTF8String:jsonChar] dataUsingEncoding:NSUTF8StringEncoding];
                 NSError *err;
                 NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                                  options:NSJSONReadingMutableContainers
@@ -132,8 +137,7 @@
                 SAError(@"Found NON UTF8 String, ignore");
             }
         }
-    }
-    else {
+    } else {
         SAError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
         return nil;
     }
