@@ -386,10 +386,10 @@
 			isa = PBXGroup;
 			children = (
 				4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */,
+				4DB25E5C217719C700213575 /* SensorsAnalyticsSDK */,
 				4D0EB7BF1B47A88C0019FD21 /* HelloSensorsAnalytics */,
 				A1D1C5671FB445BC006685C1 /* SensorsDataSwiftDemo */,
 				A1624B5D200894940088FBC9 /* share */,
-				4DB25E5C217719C700213575 /* SensorsAnalyticsSDK */,
 				4D5CA7781B43E92D00D7ACB7 /* Products */,
 				F029B80BAB18852D4CE30358 /* Frameworks */,
 			);
