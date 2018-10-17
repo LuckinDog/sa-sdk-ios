@@ -98,6 +98,7 @@
 		A18C835421426AF800D7DCB4 /* SAAuxiliaryToolManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A18C835221426AF800D7DCB4 /* SAAuxiliaryToolManager.h */; };
 		A18C835521426AF800D7DCB4 /* SAAuxiliaryToolManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A18C835321426AF800D7DCB4 /* SAAuxiliaryToolManager.m */; };
 		A18C835621426AF800D7DCB4 /* SAAuxiliaryToolManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A18C835321426AF800D7DCB4 /* SAAuxiliaryToolManager.m */; };
+		A17F4C0F2175BFD30044F316 /* SAAppExtensionDataManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; };
 		A190A8C520CE58F6002C4202 /* UIView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A190A8C320CE58F6002C4202 /* UIView+AutoTrack.h */; };
 		A190A8C620CE58F6002C4202 /* UIView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A190A8C420CE58F6002C4202 /* UIView+AutoTrack.m */; };
 		A190A8C720CE5E83002C4202 /* UIView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A190A8C420CE58F6002C4202 /* UIView+AutoTrack.m */; };
@@ -214,6 +215,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				A17F4C0F2175BFD30044F316 /* SAAppExtensionDataManager.h in CopyFiles */,
 				4D5CA77B1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1204,7 +1206,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1251,7 +1253,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -1261,18 +1263,7 @@
 		4D5CA78C1B43E92D00D7ACB7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/AppCircle/Desktop/ChitChat",
-					"$(PROJECT_DIR)/AppCircle/Desktop/PodFrameworkTest/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/AppCircle/Desktop/CarthageZWXDemo/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/AppCircle/Desktop/OpenEmu/OpenEmu",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/AppCircle/Desktop/04_OC前端/CodeTestFrontCross-3.0.1-Darwin/lib",
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1288,18 +1279,7 @@
 		4D5CA78D1B43E92D00D7ACB7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/AppCircle/Desktop/ChitChat",
-					"$(PROJECT_DIR)/AppCircle/Desktop/PodFrameworkTest/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/AppCircle/Desktop/CarthageZWXDemo/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/AppCircle/Desktop/OpenEmu/OpenEmu",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/AppCircle/Desktop/04_OC前端/CodeTestFrontCross-3.0.1-Darwin/lib",
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1335,7 +1315,7 @@
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = share/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.sensorsAnalytics.share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1367,7 +1347,7 @@
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = share/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.sensorsAnalytics.share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1400,7 +1380,7 @@
 				DEVELOPMENT_TEAM = VBGTEN3BX8;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = SensorsDataSwiftDemo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.SensorsDataSwiftDemo;
@@ -1436,7 +1416,7 @@
 				DEVELOPMENT_TEAM = VBGTEN3BX8;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = SensorsDataSwiftDemo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.SensorsDataSwiftDemo;
