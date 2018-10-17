@@ -18,7 +18,7 @@
 @implementation MessageQueueBySqlite {
     sqlite3 *_database;
     JSONUtil *_jsonUtil;
-    NSUInteger _messageCount;
+    NSInteger _messageCount;
     CFMutableDictionaryRef _dbStmtCache;
 }
 
@@ -105,8 +105,6 @@
     }
 }
 
-
-
 - (NSArray *) getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     if (_messageCount == 0) {
         return @[];
@@ -175,7 +173,7 @@
     return YES;
 }
 
-- (NSUInteger) count {
+- (NSInteger) count {
     return _messageCount;
 }
 
