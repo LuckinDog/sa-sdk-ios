@@ -39,7 +39,7 @@
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAuxiliaryToolManager.h"
-#define VERSION @"1.10.16"
+#define VERSION @"1.10.17"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -984,7 +984,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)logout {
-    self.loginId = NULL;
+    self.loginId = nil;
     [self archiveLoginId];
 }
 

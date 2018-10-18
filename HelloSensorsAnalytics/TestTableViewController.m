@@ -9,6 +9,33 @@
 #import "TestTableViewController.h"
 #import "SensorsAnalyticsSDK.h"
 
+@interface SATableHeaderView : UIView
+@property(nonatomic,assign)NSUInteger section;
+@property(nonatomic,weak)UITableView *tablView;
+@property(nonatomic,strong)UIButton *backButton;
+@property(nonatomic,copy)void (^clickHeader)(UITableView *tableView, NSUInteger section);
+@end
+@implementation SATableHeaderView
+-(instancetype)init{
+    if (self = [super init]) {
+        self.backButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        [self addSubview:self.backButton];
+        [self.backButton addTarget:self action:@selector(click:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return self;
+}
+-(void)click:(UIButton *)button {
+    if (self.clickHeader) {
+        self.clickHeader(self.tablView, self.section);
+    }
+}
+
+-(void)layoutSubviews{
+    self.backButton.frame = self.bounds;
+}
+
+@end
+
 @interface TestTableViewController ()
 
 @end
@@ -18,7 +45,6 @@
 -(NSArray *)dataArray{
     if (!_dataArray) {
         _dataArray = @[@[@"section00",@"section01"],@[@"section10"],@[@"section10",@"section11"]];
-        
     }
     return _dataArray;
 }
@@ -31,7 +57,6 @@
             [arr addObject:title];
         }
         _dataArray_1 = arr;
-        
     }
     return _dataArray_1;
 }
@@ -48,14 +73,20 @@
     self.tableView.sensorsAnalyticsViewID = @"tableView1";
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
     [self.view addSubview:self.tableView];
-    
+    SATableHeaderView *headerView = [[SATableHeaderView alloc]init];
+    headerView.frame = CGRectMake(0, 0, self.view.bounds.size.width, 60);
+    headerView.clickHeader = ^(UITableView *tableView, NSUInteger section) {
+
+    };
+    self.tableView.tableHeaderView = headerView;
     self.tableView_1 = [[UITableView alloc]initWithFrame:table_1_frame style:UITableViewStylePlain];
     self.tableView_1.delegate = self;
     self.tableView_1.dataSource = self;
     self.tableView_1.sensorsAnalyticsViewID = @"tableView2";
     [self.tableView_1 registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
     [self.view addSubview:self.tableView_1];
-    self.view.backgroundColor = [UIColor whiteColor ];
+
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -76,7 +107,6 @@
 {
     if (tableView == self.tableView) {
         return self.dataArray.count;
-
     }
     return 1;
 }
@@ -92,7 +122,6 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (tableView == self.tableView) {
         cell.textLabel.text = self.dataArray[indexPath.section][indexPath.row];
-
     }else{
         cell.textLabel.text = self.dataArray_1[indexPath.row];
     }
@@ -103,9 +132,7 @@
     NSString *title = nil;
     if (tableView == self.tableView) {
         title = [NSString stringWithFormat:@"table :section %ld",(long)section];
-
     }else{
-        
         title = [NSString stringWithFormat:@"table_1 :section %ld",(long)section];
     }
     return title;
@@ -113,9 +140,41 @@
 }
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-   
+
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    SATableHeaderView*sectionFooterView = [[SATableHeaderView alloc]init];
+    [sectionFooterView.backButton setTitle:[NSString stringWithFormat:@"footer_section_%ld",(long)section] forState:UIControlStateNormal];
+//    sectionFooterView.backgroundColor = UIColor.blackColor;
+    sectionFooterView.section = section;
+    sectionFooterView.tablView = tableView;
+    sectionFooterView.clickHeader = ^(UITableView *tableView, NSUInteger section) {
+
+    };
+    return sectionFooterView;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    SATableHeaderView *sectionHeaderView = [[SATableHeaderView alloc]init];
+    [sectionHeaderView.backButton setTitle:[NSString stringWithFormat:@"header_section_%ld",(long)section] forState:UIControlStateNormal];
+//    sectionHeaderView.backgroundColor = UIColor.blueColor;
+    sectionHeaderView.section = section;
+    sectionHeaderView.tablView = tableView;
+    sectionHeaderView.clickHeader = ^(UITableView *tableView, NSUInteger section) {
+
+    };
+    return sectionHeaderView;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 60;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 60;
 }
 -(void)dealloc {
-    
+
 }
 @end
+
+
