@@ -985,7 +985,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)logout {
-    self.loginId = NULL;
+    self.loginId = nil;
     [self archiveLoginId];
 }
 
