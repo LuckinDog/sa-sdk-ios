@@ -275,3 +275,46 @@ static NSString* sa_encryptHelper(id input) {
     return segments;
 }
 @end
+
+@implementation UITableViewHeaderFooterView (SAHelpers)
+-(NSString *)sa_section {
+    UITableView *tableView = (UITableView *)[self superview];
+    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]){
+        tableView = (UITableView *)[tableView superview];
+    }
+    if ([tableView isKindOfClass:UITableView.class]) {
+        NSInteger sectionCount = tableView.numberOfSections;
+        NSInteger sa_section = -1;
+        UITableViewHeaderFooterView *headerFooterView = nil;
+        BOOL isHeader = YES;
+        for (int i = 0; i<sectionCount; i++) {
+            headerFooterView = [tableView headerViewForSection:i];
+            if (headerFooterView == self) {
+                isHeader = YES;
+                sa_section = i;
+                break;
+            }
+            headerFooterView = [tableView footerViewForSection:i];
+            if (headerFooterView == self) {
+                sa_section = i;
+                isHeader = NO;
+                break;
+            }
+        }
+
+        if (sa_section == -1) {
+            return @"";
+        }
+
+        NSString *desc = nil;
+        if (isHeader) {
+            desc = @"SectionHeader";
+        }else {
+            desc = @"SectionFooter";
+        }
+        NSString *pathString = [[NSString alloc]initWithFormat:@"[%@][%ld]",desc,(long)sa_section];
+        return pathString;
+    }
+    return @"";
+}
+@end

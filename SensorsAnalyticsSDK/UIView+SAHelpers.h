@@ -33,3 +33,7 @@
 @interface UISegmentedControl (SAHelpers)
 -(NSArray *)sa_subviewsFixed;
 @end
+
+@interface UITableViewHeaderFooterView (SAHelpers)
+-(NSString *)sa_section;
+@end

@@ -600,6 +600,7 @@
                     }
                 }
             }
+
             if (sameTypeViews.count > 1) {
                 NSString * className = nil;
                 NSUInteger index = [sameTypeViews indexOfObject:view];
@@ -607,6 +608,15 @@
                 [viewPathArray addObject:className];
             } else {
                 [viewPathArray addObject:NSStringFromClass([view class])];
+            }
+
+            //UITableViewHeaderFooterView 点击的 index 问题
+            if ([view isKindOfClass:UITableViewHeaderFooterView.class]) {
+                NSString *headerFooterSection = [view performSelector:@selector(sa_section)];
+                if (headerFooterSection.length) {
+                    [viewPathArray removeLastObject];
+                    [viewPathArray addObject:[NSString stringWithFormat:@"%@%@",NSStringFromClass(view.class),headerFooterSection]];
+                }
             }
             //UISegmentedControl 点击的 index 问题
             if ([view isKindOfClass:UISegmentedControl.class]) {
@@ -632,6 +642,15 @@
             }
             viewIdentify = [viewIdentify stringByAppendingString:@")]"];
             [viewPathArray addObject:viewIdentify];
+
+            //UITableViewHeaderFooterView 点击的 index 问题
+            if ([view isKindOfClass:UITableViewHeaderFooterView.class]) {
+                NSString *headerFooterSection = [view performSelector:@selector(sa_section)];
+                if (headerFooterSection.length) {
+                    [viewPathArray removeLastObject];
+                    [viewPathArray addObject:[NSString stringWithFormat:@"%@%@",NSStringFromClass(view.class),headerFooterSection]];
+                }
+            }
             //UISegmentedControl 点击的 index 问题
             if ([view isKindOfClass:UISegmentedControl.class]) {
                 NSInteger selectedSegmentIndex = [(UISegmentedControl *)view selectedSegmentIndex];
