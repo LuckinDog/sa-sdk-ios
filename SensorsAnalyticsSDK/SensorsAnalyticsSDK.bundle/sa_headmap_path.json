@@ -365,6 +365,17 @@
                     ]
                 },
                 {
+                    "name": "UITableViewHeaderFooterView",
+                    "superclass": "UIView",
+                    "properties": [
+                        {
+                            "name": "sa_section",
+                            "type": "NSString",
+                            "use_kvc": false
+                        }
+                    ]
+                },
+                {
                     "name": "UICollectionView",
                     "superclass": "UIScrollView",
                     "properties": [
