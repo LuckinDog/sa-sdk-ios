@@ -1,12 +1,13 @@
 //
-//  NSObject+SensorsAnalyticsDelegateProxy.m
+//  NSObject+SensorsAnalyticsDelegate.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/8/8.
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
 
-#import "NSObject+SensorsAnalyticsDelegateProxy.h"
+#import "NSObject+SensorsAnalyticsDelegate.h"
 #import <objc/runtime.h>
 #import <objc/objc.h>
 #import <objc/message.h>
@@ -15,7 +16,7 @@
 static NSMutableArray *arrChachedClassForCollectionViewDelegate = nil;
 static NSMutableArray *arrChachedClassForTableViewDelegate = nil;
 
-@interface NSObject (SensorsAnalyticsDelegateProxy)
+@interface NSObject (SensorsAnalyticsDelegate)
 + (BOOL)addMethod:(Class)class sel:(SEL)sel method:(IMP)method;
 + (void)swapMethod:(Class)class origMethod:(SEL)origSelector newMethod:(SEL)newSelector;
 + (BOOL)hasMethod:(Class)class sel:(SEL)sel;
@@ -70,7 +71,7 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
     }
 }
 
-@implementation NSObject (SensorsAnalyticsDelegateProxy)
+@implementation NSObject (SensorsAnalyticsDelegate)
 -(void)setSensorsAnalyticsDelegateProxy:(SADelegateProxy *)SensorsAnalyticsDelegateProxy{
     objc_setAssociatedObject(self, @selector(setSensorsAnalyticsDelegateProxy:), SensorsAnalyticsDelegateProxy, OBJC_ASSOCIATION_RETAIN);
 }
@@ -104,7 +105,7 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 
 @end
 
-@implementation UITableView (SensorsAnalyticsDelegateProxy)
+@implementation UITableView (SensorsAnalyticsDelegate)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -124,7 +125,7 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 
 @end
 
-@implementation UICollectionView (SensorsAnalyticsDelegateProxy)
+@implementation UICollectionView (SensorsAnalyticsDelegate)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -144,3 +145,4 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 
 @end
 
+#endif

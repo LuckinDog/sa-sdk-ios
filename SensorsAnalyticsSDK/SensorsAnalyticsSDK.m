@@ -2786,6 +2786,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 
 - (void)_enableAutoTrack {
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
     void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         UIViewController *controller = (UIViewController *)obj;
         if (!controller) {
@@ -2800,19 +2801,20 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSString *screenName = NSStringFromClass(klass);
         
         //UITableView
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
+    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
         if ([controller respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
             [SASwizzler unswizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UITableView_AutoTrack"]];
         }
-#endif
+    #endif
         
         //UICollectionView
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
+    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
         if ([controller respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
             [SASwizzler unswizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UICollectionView_AutoTrack"]];
         }
-#endif
+    #endif
     };
+#endif
     
     void (^gestureRecognizerAppClickBlock)(id, SEL, id) = ^(id target, SEL command, id arg) {
         @try {
@@ -2841,15 +2843,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             error = NULL;
         }
     });
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
     //$AppClick
     //UITableView、UICollectionView
-#if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
+    #if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
     [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
                             onClass:[UIViewController class]
                           withBlock:unswizzleUITableViewAppClickBlock
                               named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
+    #endif
 #endif
-    
     //UILabel
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
     #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UILABEL

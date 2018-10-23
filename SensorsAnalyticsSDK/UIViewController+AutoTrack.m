@@ -22,6 +22,7 @@
                 [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
             }
         }
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
         if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
             //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
@@ -43,6 +44,7 @@
             }
 #endif
         }
+#endif
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
