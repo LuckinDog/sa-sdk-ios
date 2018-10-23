@@ -47,8 +47,6 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
                 SEL swizSel = NSSelectorFromString(@"swizzle_didSelectRowAtIndexPath");
                 if (class_addMethod([delegate class], swizSel, (IMP)swizzle_didSelectRowAtIndexPath, "v@:@@")) {
                     [NSObject swapMethod:[delegate class] origMethod:swizSel newMethod:@selector(tableView:didSelectRowAtIndexPath:)];
-                    
-                    
                 }
             }
         }else if ([obj isKindOfClass:UICollectionView.class]){
@@ -66,13 +64,6 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
 }
 
 @implementation NSObject (SensorsAnalyticsDelegate)
--(void)setSensorsAnalyticsDelegateProxy:(SADelegateProxy *)SensorsAnalyticsDelegateProxy{
-    objc_setAssociatedObject(self, @selector(setSensorsAnalyticsDelegateProxy:), SensorsAnalyticsDelegateProxy, OBJC_ASSOCIATION_RETAIN);
-}
--(SADelegateProxy *)sensorsAnalyticsDelegateProxy{
-    return objc_getAssociatedObject(self, @selector(setSensorsAnalyticsDelegateProxy:));
-}
-
 + (void)swapMethod:(Class)class origMethod:(SEL)origSelector newMethod:(SEL)newSelector{
     Method originalMethod = class_getInstanceMethod(class, origSelector);
     Method swizzledMethod = class_getInstanceMethod(class, newSelector);

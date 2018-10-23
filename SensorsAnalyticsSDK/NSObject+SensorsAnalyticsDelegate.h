@@ -10,8 +10,6 @@
 
 #import <UIKit/UIKit.h>
 #import <WebKit/WKWebView.h>
-@class SADelegateProxy;
-
 @interface UITableView (SensorsAnalyticsDelegate)
 @end
 
