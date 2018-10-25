@@ -2818,6 +2818,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         @try {
             if ([arg isKindOfClass:[UITapGestureRecognizer class]] ||
                 [arg isKindOfClass:[UILongPressGestureRecognizer class]]) {
+                NSMutableArray *oldTargets = [NSMutableArray arrayWithArray:[arg valueForKey:@"_targets"]];
+                
+//                for (UIGestureRecognizerTarget *tatget in oldTargets) {
+//                }
+                
                 [arg addTarget:self action:@selector(trackGestureRecognizerAppClick:)];
             }
         } @catch (NSException *exception) {
@@ -2861,7 +2866,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
     #endif
 #endif
-
+    
     //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
     if (NSClassFromString(@"RCTUIManager")) {
