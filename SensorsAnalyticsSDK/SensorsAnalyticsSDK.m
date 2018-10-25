@@ -2814,14 +2814,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     };
     
-    void (^gestureRecognizerAppClickBlock)(id, SEL, id) = ^(id target, SEL command, id arg) {
+    void (^gestureRecognizerAppClickBlock)(id, SEL, id) = ^(id target, SEL command,UIGestureRecognizer *arg) {
         @try {
             if ([arg isKindOfClass:[UITapGestureRecognizer class]] ||
                 [arg isKindOfClass:[UILongPressGestureRecognizer class]]) {
                 NSMutableArray *oldTargets = [NSMutableArray arrayWithArray:[arg valueForKey:@"_targets"]];
+//                id oldTarget = [oldTargets firstObject];
+//                id defaultTarget = [oldTarget valueForKey:@"_target"];
+//                SEL action = [oldTarget valueForKey:@"_action"];
+//                [arg removeTarget:defaultTarget action:action];
+//                [arg addTarget:self action:@selector(trackGestureRecognizerAppClick:)];
+//                [arg addTarget:defaultTarget action:action];
                 
-//                for (UIGestureRecognizerTarget *tatget in oldTargets) {
-//                }
                 
                 [arg addTarget:self action:@selector(trackGestureRecognizerAppClick:)];
             }
