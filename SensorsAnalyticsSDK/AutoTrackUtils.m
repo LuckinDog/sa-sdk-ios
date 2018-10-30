@@ -699,6 +699,9 @@
             }
         }
         [viewPathArray addObject:NSStringFromClass([responder class])];
+        if ([(UIViewController *)responder presentingViewController]) {
+            [self __sa_find_responder:[responder presentingViewController] withViewPathArray:viewPathArray];
+        }
     }
 }
 
