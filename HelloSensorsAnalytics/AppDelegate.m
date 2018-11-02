@@ -50,8 +50,8 @@
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    if ([[SensorsAnalyticsSDK sharedInstance] canOpenURL:url]) {
-        [[SensorsAnalyticsSDK sharedInstance] openURL:url];
+    if ([[SensorsAnalyticsSDK sharedInstance] canHandleURL:url]) {
+        [[SensorsAnalyticsSDK sharedInstance] handleURL:url];
         return YES;
     }
     return NO;

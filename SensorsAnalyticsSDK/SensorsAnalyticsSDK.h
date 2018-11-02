@@ -812,8 +812,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)deleteAll;
 #pragma mark- heatMap && appcircle
-- (BOOL)canOpenURL:(NSURL *)URL;
-- (BOOL)openURL:(NSURL *)URL;
+- (BOOL)canHandleURL:(NSURL *)URL;
+- (BOOL)handleURL:(NSURL *)URL;
 
 - (void)enableTrackElementSelector;
 - (BOOL)isTrackElementSelectorEnabled;

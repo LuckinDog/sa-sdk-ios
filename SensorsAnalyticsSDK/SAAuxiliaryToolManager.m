@@ -26,12 +26,12 @@
     return sharedInstance;
 }
 
--(BOOL)canOpenURL:(NSURL *)URL {
+-(BOOL)canHandleURL:(NSURL *)URL {
     return [self isHeatMapURL:URL] || [self isVisualAutoTrackURL:URL];
 }
 
-- (BOOL)openURL:(NSURL *)URL  isWifi:(BOOL)isWifi {
-    if ([self canOpenURL:URL] == NO) {
+- (BOOL)handleURL:(NSURL *)URL isWifi:(BOOL)isWifi {
+    if ([self canHandleURL:URL] == NO) {
         return NO;
     }
     NSString *featureCode = nil;

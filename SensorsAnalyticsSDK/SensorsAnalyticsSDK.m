@@ -1261,11 +1261,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self.messageQueue deleteAll];
 }
 #pragma mark-- heatmap && appcircle
-- (BOOL)canOpenURL:(NSURL *)URL  {
-   return [[SAAuxiliaryToolManager sharedInstance] canOpenURL:URL];
+- (BOOL)canHandleURL:(NSURL *)URL  {
+   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:URL];
 }
 
--(BOOL)openURL:(NSURL *)URL{
+-(BOOL)handleURL:(NSURL *)URL{
     if (URL == nil) {
         return NO;
     }
@@ -1274,7 +1274,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([networkType isEqualToString:@"WIFI"]) {
         isWifi = YES;
     }
-    return [[SAAuxiliaryToolManager sharedInstance] openURL:URL isWifi:isWifi];
+    return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
 }
 
 -(void)enableTrackElementSelector {
@@ -3448,7 +3448,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (BOOL)handleHeatMapUrl:(NSURL *)URL {
-    return [self openURL:URL];
+    return [self handleURL:URL];
 }
 
 - (void)enableHeatMap {
