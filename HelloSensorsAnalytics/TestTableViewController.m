@@ -34,6 +34,7 @@
 //    return @"title";
 //}
 -(void)layoutSubviews{
+    [super layoutSubviews];
     self.contentView.frame = self.bounds;
     self.backButton.frame = self.contentView.bounds;
     [self.backButton setTitleColor:UIColor.redColor forState:UIControlStateNormal];
