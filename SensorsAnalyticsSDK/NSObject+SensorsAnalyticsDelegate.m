@@ -14,12 +14,6 @@
 #import "AutoTrackUtils.h"
 #import "SensorsAnalyticsSDK.h"
 
-@interface NSObject (SensorsAnalyticsDelegate)
-
-+ (void)swapMethod:(Class)class origMethod:(SEL)origSelector newMethod:(SEL)newSelector;
-+ (BOOL)hasMethod:(Class)class sel:(SEL)sel;
-@end
-
 void swizzle_didSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath){
     SEL selector = NSSelectorFromString(@"swizzle_didSelectRowAtIndexPath");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, tableView, indexPath);
@@ -43,48 +37,42 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
             if ([delegate isKindOfClass:[UITableView class]]) {
                 return;
             }
-            if ([NSObject hasMethod:[delegate class] sel:@selector(tableView:didSelectRowAtIndexPath:)]){
-                SEL swizSel = NSSelectorFromString(@"swizzle_didSelectRowAtIndexPath");
-                if (class_addMethod([delegate class], swizSel, (IMP)swizzle_didSelectRowAtIndexPath, "v@:@@")) {
-                    [NSObject swapMethod:[delegate class] origMethod:swizSel newMethod:@selector(tableView:didSelectRowAtIndexPath:)];
+            Class class = [delegate class];
+            do {
+                if (class_getInstanceMethod(class, @selector(tableView:didSelectRowAtIndexPath:))) {
+                    if (!class_getInstanceMethod(class_getSuperclass(class), @selector(tableView:didSelectRowAtIndexPath:))) {
+                        SEL swizSel = NSSelectorFromString(@"swizzle_didSelectRowAtIndexPath");
+                        if (class_addMethod(class , swizSel, (IMP)swizzle_didSelectRowAtIndexPath, "v@:@@")) {
+                            Method originalMethod = class_getInstanceMethod(class, @selector(tableView:didSelectRowAtIndexPath:));
+                            Method swizzledMethod = class_getInstanceMethod(class, swizSel);
+                            method_exchangeImplementations(originalMethod, swizzledMethod);
+                        }
+                        break;
+                    }
                 }
-            }
+            } while ((class = class_getSuperclass(class)));
+
         }else if ([obj isKindOfClass:UICollectionView.class]){
             if ([delegate isKindOfClass:[UICollectionView class]]) {
                 return;
             }
-            if ([NSObject hasMethod:[delegate class] sel:@selector(collectionView:didSelectItemAtIndexPath:)]){
-                SEL swizSel = NSSelectorFromString(@"swizzle_didSelectItemAtIndexPath");
-                if (class_addMethod([delegate class], swizSel, (IMP)swizzle_didSelectItemAtIndexPath, "v@:@@")) {
-                    [NSObject swapMethod:[delegate class] origMethod:swizSel newMethod:@selector(collectionView:didSelectItemAtIndexPath:)];
+            Class class = [delegate class];
+            do {
+                if (class_getInstanceMethod(class, @selector(collectionView:didSelectItemAtIndexPath:))) {
+                    if (!class_getInstanceMethod(class_getSuperclass(class), @selector(collectionView:didSelectItemAtIndexPath:))) {
+                        SEL swizSel = NSSelectorFromString(@"swizzle_didSelectItemAtIndexPath");
+                        if (class_addMethod(class, swizSel, (IMP)swizzle_didSelectItemAtIndexPath, "v@:@@")) {
+                            Method originalMethod = class_getInstanceMethod(class, @selector(collectionView:didSelectItemAtIndexPath:));
+                            Method swizzledMethod = class_getInstanceMethod(class, swizSel);
+                            method_exchangeImplementations(originalMethod, swizzledMethod);
+                        }
+                        break;
+                    }
                 }
-            }
+            } while ((class = class_getSuperclass(class)));
         }
     }
 }
-
-@implementation NSObject (SensorsAnalyticsDelegate)
-+ (void)swapMethod:(Class)class origMethod:(SEL)origSelector newMethod:(SEL)newSelector{
-    Method originalMethod = class_getInstanceMethod(class, origSelector);
-    Method swizzledMethod = class_getInstanceMethod(class, newSelector);
-    method_exchangeImplementations(originalMethod, swizzledMethod);
-}
-+ (BOOL)hasMethod:(Class)class sel:(SEL)sel{
-    BOOL hasMethod = NO;
-    unsigned int count = 0;
-    Method *methodList = class_copyMethodList(class, &count);
-    for (unsigned int i = 0; i < count; i++ ) {
-        Method method = methodList[i];
-        SEL methodName = method_getName(method);
-        if ([NSStringFromSelector(methodName) isEqualToString:NSStringFromSelector(sel)]) {
-            hasMethod = YES;break;
-        }
-    }
-    free(methodList);
-    return hasMethod;
-}
-
-@end
 
 @implementation UITableView (SensorsAnalyticsDelegate)
 + (void)load {
