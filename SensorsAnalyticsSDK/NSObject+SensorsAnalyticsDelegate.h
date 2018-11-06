@@ -9,7 +9,6 @@
 #ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
 
 #import <UIKit/UIKit.h>
-#import <WebKit/WKWebView.h>
 @interface UITableView (SensorsAnalyticsDelegate)
 @end
 

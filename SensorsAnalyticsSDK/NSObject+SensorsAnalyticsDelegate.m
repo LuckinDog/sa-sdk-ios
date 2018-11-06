@@ -14,14 +14,14 @@
 #import "AutoTrackUtils.h"
 #import "SensorsAnalyticsSDK.h"
 
-void swizzle_didSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath){
-    SEL selector = NSSelectorFromString(@"swizzle_didSelectRowAtIndexPath");
+void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath){
+    SEL selector = NSSelectorFromString(@"sa_tableView:didSelectRowAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, tableView, indexPath);
     [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
-void swizzle_didSelectItemAtIndexPath(id self, SEL _cmd, id collectionView, id indexPath){
-    SEL selector = NSSelectorFromString(@"swizzle_didSelectItemAtIndexPath");
+void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id collectionView, id indexPath){
+    SEL selector = NSSelectorFromString(@"sa_collectionView:didSelectItemAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, collectionView, indexPath);
     [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
 }
@@ -39,10 +39,12 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
             }
             Class class = [delegate class];
             do {
-                if (class_getInstanceMethod(class, @selector(tableView:didSelectRowAtIndexPath:))) {
+                Method rootMethod = nil;
+                if ((rootMethod = class_getInstanceMethod(class, @selector(tableView:didSelectRowAtIndexPath:)))) {
                     if (!class_getInstanceMethod(class_getSuperclass(class), @selector(tableView:didSelectRowAtIndexPath:))) {
-                        SEL swizSel = NSSelectorFromString(@"swizzle_didSelectRowAtIndexPath");
-                        if (class_addMethod(class , swizSel, (IMP)swizzle_didSelectRowAtIndexPath, "v@:@@")) {
+                        const char* encoding = method_getTypeEncoding(rootMethod);
+                        SEL swizSel = NSSelectorFromString(@"sa_tableView:didSelectRowAtIndexPath:");
+                        if (class_addMethod(class , swizSel, (IMP)sa_tablViewDidSelectRowAtIndexPath, encoding)) {
                             Method originalMethod = class_getInstanceMethod(class, @selector(tableView:didSelectRowAtIndexPath:));
                             Method swizzledMethod = class_getInstanceMethod(class, swizSel);
                             method_exchangeImplementations(originalMethod, swizzledMethod);
@@ -51,17 +53,18 @@ void sa_setDelegate(id obj ,SEL sel, id delegate){
                     }
                 }
             } while ((class = class_getSuperclass(class)));
-
         }else if ([obj isKindOfClass:UICollectionView.class]){
             if ([delegate isKindOfClass:[UICollectionView class]]) {
                 return;
             }
             Class class = [delegate class];
             do {
-                if (class_getInstanceMethod(class, @selector(collectionView:didSelectItemAtIndexPath:))) {
+                Method rootMethod = nil;
+                if ((rootMethod = class_getInstanceMethod(class, @selector(collectionView:didSelectItemAtIndexPath:)))) {
                     if (!class_getInstanceMethod(class_getSuperclass(class), @selector(collectionView:didSelectItemAtIndexPath:))) {
-                        SEL swizSel = NSSelectorFromString(@"swizzle_didSelectItemAtIndexPath");
-                        if (class_addMethod(class, swizSel, (IMP)swizzle_didSelectItemAtIndexPath, "v@:@@")) {
+                        const char* encoding = method_getTypeEncoding(rootMethod);
+                        SEL swizSel = NSSelectorFromString(@"sa_collectionView:didSelectItemAtIndexPath:");
+                        if (class_addMethod(class, swizSel, (IMP)sa_collectionViewDidSelectItemAtIndexPath, encoding)) {
                             Method originalMethod = class_getInstanceMethod(class, @selector(collectionView:didSelectItemAtIndexPath:));
                             Method swizzledMethod = class_getInstanceMethod(class, swizSel);
                             method_exchangeImplementations(originalMethod, swizzledMethod);
