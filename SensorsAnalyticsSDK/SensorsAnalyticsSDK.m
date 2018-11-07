@@ -539,7 +539,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             self->_debugAlertViewHasShownNumber += 1;
             NSString *alertTitle = @"SensorsData 重要提示";
-            if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+            if (@available(iOS 8.0, *)) {
                 UIAlertController *connectAlert = [UIAlertController
                                                    alertControllerWithTitle:alertTitle
                                                    message:message
@@ -1906,7 +1906,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         // value的类型检查
-        if( ![properties[k] isKindOfClass:[NSString class]] &&
+        if(![properties[k] isKindOfClass:[NSString class]] &&
            ![properties[k] isKindOfClass:[NSNumber class]] &&
            ![properties[k] isKindOfClass:[NSNull class]] &&
            ![properties[k] isKindOfClass:[NSSet class]] &&
