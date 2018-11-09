@@ -82,7 +82,7 @@
         case 0:{
             NSLog(@"测试track");
             //[self testTrack];
-            TestCollectionViewController *vc =  [[TestCollectionViewController alloc] init];
+            TestTableViewController *vc =  [[TestTableViewController alloc] init];
             //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
             [self.navigationController pushViewController:vc  animated:YES];
         }
