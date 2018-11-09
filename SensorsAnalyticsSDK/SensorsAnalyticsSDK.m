@@ -3266,7 +3266,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     @try {
         if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
             NSURL *url = [NSURL URLWithString:urlString];
-            url = [url URLByDeletingLastPathComponent];
+            if (url.lastPathComponent.length > 0) {
+                url = [url URLByDeletingLastPathComponent];
+            }
             NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
             if (componets == nil) {
                 SALog(@"URLString is malformed, nil is returned.");
