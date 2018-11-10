@@ -157,6 +157,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 @end
 
+// App 启动或激活
+static NSString* const SA_APP_START_EVENT = @"$AppStart";
+// App 退出或进入后台
+static NSString* const SA_APP_END_EVENT = @"$AppEnd";
+// App 浏览页面
+static NSString* const SA_APP_VIEW_SCREEN_EVENT = @"$AppViewScreen";
+// App 元素点击
+static NSString* const SA_APP_CLICK_EVENT = @"$AppClick";
 /**
  * @class
  * SensorsAnalyticsSDK 类
@@ -837,7 +845,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
  * @param dynamicSuperProperties block 用来返回事件的动态公共属性
  */
--(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
+-(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(NSString *event)) dynamicSuperProperties;
 
 /**
  * @abstract

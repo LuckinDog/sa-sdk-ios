@@ -155,7 +155,7 @@ void SAHandleException(NSException *exception) {
             }
             [instance track:@"AppCrashed" withProperties:properties];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                [instance track:@"$AppEnd"];
+                [instance track:SA_APP_END_EVENT];
             }
         }
         SALog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");

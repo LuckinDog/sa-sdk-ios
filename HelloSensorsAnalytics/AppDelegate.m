@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
+static NSString *APP_CLICK_EVENT = @"fdfdfd";
 @interface AppDelegate ()
 
 @end
@@ -18,16 +19,17 @@
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
-    [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
-        __block UIApplicationState appState;
-        if (NSThread.isMainThread) {
-            appState = UIApplication.sharedApplication.applicationState;
-        }else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                appState = UIApplication.sharedApplication.applicationState;
-            });
+    [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull(NSString * event){
+        if ([event isEqualToString:SA_APP_START_EVENT]) {
+            return @{@"dynamicaValueKey":@"SA_APP_START_EVENT"};
+        }else if([event isEqualToString:SA_APP_VIEW_SCREEN_EVENT]){
+            return @{@"dynamicaValueKey":@"SA_APP_VIEW_SCREEN_EVENT"};
+        }else if([event isEqualToString:SA_APP_CLICK_EVENT]){
+            return @{@"dynamicaValueKey":@"SA_APP_CLICK_EVENT"};
+        }else if([event isEqualToString:SA_APP_END_EVENT]){
+            return @{@"dynamicaValueKey":@"SA_APP_END_EVENT"};
         }
-        return @{@"__APPState__":@(appState)};
+        return @{@"dynamicaValueKey":event};
     }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |

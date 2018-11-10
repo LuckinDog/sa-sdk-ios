@@ -44,12 +44,7 @@
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
-// App 启动或激活
-static NSString* const APP_START_EVENT = @"$AppStart";
-// App 退出或进入后台
-static NSString* const APP_END_EVENT = @"$AppEnd";
-// App 浏览页面
-static NSString* const APP_VIEW_SCREEN_EVENT = @"$AppViewScreen";
+static NSString* const APP_START_PASSIVELY = @"AppStartPassively";
 // App 首次启动
 static NSString* const APP_FIRST_START_PROPERTY = @"$is_first_time";
 // App 是否从后台恢复
@@ -194,7 +189,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
 
-@property (nonatomic,copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
+@property (nonatomic,copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(NSString *event);
 
 ///是否为被动启动
 @property(nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
@@ -754,7 +749,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
                 [propertiesDict addEntriesFromDictionary:self->_superProperties];
-                NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+                NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties(eventDict[@"event"]):nil;
                 //去重
                 [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
@@ -1029,7 +1024,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([self isLaunchedPassively]) {
             // 追踪 AppStart 事件
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-                [self track:@"$AppStartPassively" withProperties:@{
+                [self track:APP_START_PASSIVELY withProperties:@{
                                                                    RESUME_FROM_BACKGROUND_PROPERTY : @(self->_appRelaunched),
                                                              APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                              }];
@@ -1037,14 +1032,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             // 追踪 AppStart 事件
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-                [self track:APP_START_EVENT withProperties:@{
+                [self track:SA_APP_START_EVENT withProperties:@{
                                                              RESUME_FROM_BACKGROUND_PROPERTY : @(self->_appRelaunched),
                                                              APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                              }];
             }
             // 启动 AppEnd 事件计时器
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-                [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+                [self trackTimer:SA_APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
             }
         }
     });
@@ -1446,11 +1441,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *lib_detail = nil;
     if ([self isAutoTrackEnabled] && propertieDict) {
-        if ([event isEqualToString:@"$AppClick"]) {
+        if ([event isEqualToString:SA_APP_CLICK_EVENT]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
             }
-        } else if ([event isEqualToString:@"$AppViewScreen"]) {
+        } else if ([event isEqualToString:SA_APP_VIEW_SCREEN_EVENT]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
             }
@@ -1482,7 +1477,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     dispatch_async(self.serialQueue, ^{
         //获取用户自定义的动态公共属性
-        NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+        NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties(event):nil;
         if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
             SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
             dynamicSuperPropertiesDict = nil;
@@ -2152,7 +2147,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
--(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
+-(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(NSString *event)) dynamicSuperProperties {
     dispatch_async(self.serialQueue, ^{
         self.dynamicSuperProperties = dynamicSuperProperties;
     });
@@ -2583,7 +2578,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties addEntriesFromDictionary:propDict];
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+        [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
@@ -2714,7 +2709,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
+    [self track:SA_APP_VIEW_SCREEN_EVENT withProperties:properties];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2789,7 +2784,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     }
                 }
                 
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
@@ -2989,7 +2984,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [properties addEntriesFromDictionary:propDict];
         }
         
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+        [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -3012,7 +3007,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
-    [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties];
+    [self track:SA_APP_VIEW_SCREEN_EVENT withProperties:trackProperties];
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
@@ -3114,14 +3109,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if ([self isAutoTrackEnabled] && _appRelaunched) {
         // 追踪 AppStart 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-            [self track:APP_START_EVENT withProperties:@{
+            [self track:SA_APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                          }];
         }
         // 启动 AppEnd 事件计时器
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-            [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+            [self trackTimer:SA_APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     }
     
@@ -3157,7 +3152,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSMutableDictionary *eventTimer = nil;
         for (key in keys) {
             if (key != nil) {
-                if ([key isEqualToString:@"$AppEnd"]) {
+                if ([key isEqualToString:SA_APP_END_EVENT]) {
                     continue;
                 }
             }
@@ -3184,7 +3179,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
-            [self track:APP_END_EVENT];
+            [self track:SA_APP_END_EVENT];
         }
     }
     

@@ -187,7 +187,7 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
                 return;
             }
 
@@ -206,7 +206,7 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
                 return;
             }
 
@@ -217,7 +217,7 @@
             //                [properties setValue:@"UISearchBar" forKey:@"$element_type"];
             //                NSString *searchText = searchBar.text;
             //                if (searchText == nil || [searchText length] == 0) {
-            //                    [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+            //                    [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
             //                    return;
             //                }
             //            }
@@ -241,7 +241,7 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
                 return;
                 
             }
@@ -346,7 +346,7 @@
                     [properties addEntriesFromDictionary:propDict];
                 }
                 
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
             }
         }
     } @catch (NSException *exception) {
