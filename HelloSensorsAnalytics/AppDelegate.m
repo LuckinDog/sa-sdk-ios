@@ -9,7 +9,6 @@
 #import "AppDelegate.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
-static NSString *APP_CLICK_EVENT = @"fdfdfd";
 @interface AppDelegate ()
 
 @end
