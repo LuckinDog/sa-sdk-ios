@@ -44,7 +44,7 @@
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
-static NSString* const APP_START_PASSIVELY = @"AppStartPassively";
+static NSString* const APP_START_PASSIVELY = @"$AppStartPassively";
 // App 首次启动
 static NSString* const APP_FIRST_START_PROPERTY = @"$is_first_time";
 // App 是否从后台恢复
