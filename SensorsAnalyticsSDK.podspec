@@ -52,11 +52,6 @@ c.source_files  = "VisualAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","Heat
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
   end
 
-  s.subspec 'DISABLE_VTRACK' do |f|
-        f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_VTRACK=1'}
-  end
-
   s.subspec 'DISABLE_AUTOTRACK_UICOLLECTIONVIEW' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW=1'}
@@ -75,11 +70,6 @@ c.source_files  = "VisualAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","Heat
   s.subspec 'DISABLE_AUTOTRACK_UIIMAGEVIEW' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGEVIEW=1'}
-  end
-
-  s.subspec 'DISABLE_AUTOTRACK_UIALERTCONTROLLER' do |f|
-        f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIALERTCONTROLLER=1'}
   end
 
   s.subspec 'DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME' do |f|
