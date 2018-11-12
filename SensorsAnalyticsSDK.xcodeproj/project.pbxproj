@@ -58,6 +58,7 @@
 		A1624B63200894940088FBC9 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1624B61200894940088FBC9 /* MainInterface.storyboard */; };
 		A1624B67200894940088FBC9 /* share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1624B5C200894940088FBC9 /* share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A1753DD72074AEC400425771 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1753DD62074AEC400425771 /* SALogger.m */; };
+
 		A190A8DD20CFCAC2002C4202 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A190A8DC20CFCAC2002C4202 /* UIKit.framework */; };
 		A190A8DF20CFCAC7002C4202 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A190A8DE20CFCAC7002C4202 /* libsqlite3.tbd */; };
 		A190A8E120CFCAEA002C4202 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A190A8E020CFCAEA002C4202 /* SystemConfiguration.framework */; };
@@ -72,6 +73,7 @@
 		A190A8F620CFCC0A002C4202 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */; };
 		A190A8F720CFD206002C4202 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A190A8E420CFCAFF002C4202 /* Foundation.framework */; };
 		A1A5A1A81FAC640800D06C7F /* TestCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A5A1A71FAC640800D06C7F /* TestCollectionViewController.m */; };
+
 		A1D1C5691FB445BC006685C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1C5681FB445BC006685C1 /* AppDelegate.swift */; };
 		A1D1C56B1FB445BC006685C1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1C56A1FB445BC006685C1 /* ViewController.swift */; };
 		A1D1C56E1FB445BC006685C1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1D1C56C1FB445BC006685C1 /* Main.storyboard */; };
@@ -122,6 +124,7 @@
 			dstSubfolderSpec = 16;
 			files = (
 				A1F28AC3214F9831005938D6 /* SensorsAnalyticsSDK.bundle in CopyFiles */,
+
 				4D5CA77B1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
@@ -220,6 +223,7 @@
 		A190A8F420CFCBE1002C4202 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		A1A5A1A61FAC640800D06C7F /* TestCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestCollectionViewController.h; sourceTree = "<group>"; };
 		A1A5A1A71FAC640800D06C7F /* TestCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestCollectionViewController.m; sourceTree = "<group>"; };
+
 		A1D1C5661FB445BC006685C1 /* SensorsDataSwiftDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsDataSwiftDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1D1C5681FB445BC006685C1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A1D1C56A1FB445BC006685C1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -467,11 +471,13 @@
 				4D14F1711B4A51B7006AD786 /* SAGzipUtility.h in Headers */,
 				4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */,
 				A15CBCA4208ED5D50014DE74 /* SASDKRemoteConfig.h in Headers */,
+
 				007BE5A820E1F1D2006CB1ED /* NSThread+SAHelpers.h in Headers */,
 				A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */,
 				4D2AF15C1B4BAE77007716F8 /* JSONUtil.h in Headers */,
 				0041360A1FFB4682009F2097 /* SAServerUrl.h in Headers */,
 				0038C5D11FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Headers */,
+
 				4D23EFB42109643400DBDB9F /* SACommonUtility.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -560,7 +566,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0910;
 				LastUpgradeCheck = 1000;
-				ORGANIZATIONNAME = SensorsData;
+				ORGANIZATIONNAME = "Sensors Data Inc.";
 				TargetAttributes = {
 					4D0EB7BD1B47A88C0019FD21 = {
 						CreatedOnToolsVersion = 6.4;
@@ -658,6 +664,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+
 				00DC9CDA1D7E9D9D00C7DF6C /* JSCallOCViewController.m in Sources */,
 				0027C8591FA201FC002EA41B /* TestViewController.m in Sources */,
 				A1A5A1A81FAC640800D06C7F /* TestCollectionViewController.m in Sources */,
@@ -678,8 +685,10 @@
 				A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */,
 				4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */,
 				A14938C8207B8730006EF04A /* SAKeyChainItemWrapper.m in Sources */,
+
 				0041360B1FFB4682009F2097 /* SAServerUrl.m in Sources */,
 				A15CBCA5208ED5D50014DE74 /* SASDKRemoteConfig.m in Sources */,
+
 				008D82AF1F0E22ED00052CFF /* NSString+HashCode.m in Sources */,
 				A161A05520B540E500A3CA14 /* SALocationManager.m in Sources */,
 				A1753DD72074AEC400425771 /* SALogger.m in Sources */,
@@ -986,7 +995,7 @@
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = share/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.sensorsAnalytics.share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1018,7 +1027,7 @@
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = share/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.sensorsAnalytics.share;
 				PRODUCT_NAME = "$(TARGET_NAME)";

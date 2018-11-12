@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 2017/5/26.
-//  Copyright © 2017年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "SensorsAnalyticsExceptionHandler.h"
@@ -28,10 +28,6 @@ static const int32_t UncaughtExceptionMaximum = 10;
 @property (nonatomic, unsafe_unretained) struct sigaction *prev_signal_handlers;
 @property (nonatomic, strong) NSHashTable *sensorsAnalyticsSDKInstances;
 
-@end
-
-@interface SensorsAnalyticsSDK()
-@property (nonatomic, strong) dispatch_queue_t serialQueue;
 @end
 
 @implementation SensorsAnalyticsExceptionHandler
@@ -161,9 +157,6 @@ void SAHandleException(NSException *exception) {
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
                 [instance track:@"$AppEnd"];
             }
-            dispatch_sync(instance.serialQueue, ^{
-
-            });
         }
         SALog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
     } @catch(NSException *exception) {

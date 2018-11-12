@@ -3,7 +3,7 @@
 //  HelloSensorsAnalytics
 //
 //  Created by 曹犟 on 15/7/4.
-//  Copyright (c) 2015年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "AppDelegate.h"
@@ -31,6 +31,7 @@
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd];
+
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];

@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
-//  Copyright (c) 2015年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import <sqlite3.h>
@@ -18,10 +18,14 @@
 @implementation MessageQueueBySqlite {
     sqlite3 *_database;
     JSONUtil *_jsonUtil;
-    NSUInteger _messageCount;
+    NSInteger _messageCount;
+    CFMutableDictionaryRef _dbStmtCache;
 }
 
 - (void) closeDatabase {
+    if (_dbStmtCache) CFRelease(_dbStmtCache);
+    _dbStmtCache = NULL;
+    
     sqlite3_close(_database);
     sqlite3_shutdown();
     SADebug(@"%@ close database", self);
@@ -48,9 +52,17 @@
             SAError(@"Create dataCache Failure %s",errorMsg);
             return nil;
         }
+        CFDictionaryKeyCallBacks keyCallbacks = kCFCopyStringDictionaryKeyCallBacks;
+        CFDictionaryValueCallBacks valueCallbacks = {0};
+        _dbStmtCache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &keyCallbacks, &valueCallbacks);
+        
         _messageCount = [self sqliteCount];
+        
         SADebug(@"SQLites is opened. current count is %ul", _messageCount);
     } else {
+        if (_dbStmtCache) CFRelease(_dbStmtCache);
+        _dbStmtCache = NULL;
+        
         SAError(@"failed to open SQLite db.");
         return nil;
     }
@@ -71,10 +83,9 @@
     }
     NSData* jsonData = [_jsonUtil JSONSerializeObject:obj];
     NSString* query = @"INSERT INTO dataCache(type, content) values(?, ?)";
-    sqlite3_stmt *insertStatement;
+    sqlite3_stmt *insertStatement = [self dbCacheStmt:query];
     int rc;
-    rc = sqlite3_prepare_v2(_database, [query UTF8String],-1, &insertStatement, nil);
-    if (rc == SQLITE_OK) {
+    if (insertStatement) {
         sqlite3_bind_text(insertStatement, 1, [type UTF8String], -1, SQLITE_TRANSIENT);
         @try {
             sqlite3_bind_text(insertStatement, 2, [[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] UTF8String], -1, SQLITE_TRANSIENT);
@@ -86,7 +97,6 @@
         if(rc != SQLITE_DONE) {
             SAError(@"insert into dataCache fail, rc is %d", rc);
         } else {
-            sqlite3_finalize(insertStatement);
             _messageCount ++;
             SADebug(@"insert into dataCache success, current count is %lu", _messageCount);
         }
@@ -95,20 +105,23 @@
     }
 }
 
-
-
 - (NSArray *) getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     if (_messageCount == 0) {
         return @[];
     }
     NSMutableArray* contentArray = [[NSMutableArray alloc] init];
     NSString* query = [NSString stringWithFormat:@"SELECT content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
-    sqlite3_stmt* stmt = NULL;
-    int rc = sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
-    if(rc == SQLITE_OK) {
+    
+    sqlite3_stmt* stmt = [self dbCacheStmt:query];
+    if(stmt) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             @try {
-                NSData *jsonData = [[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, 0)] dataUsingEncoding:NSUTF8StringEncoding];
+                char* jsonChar = (char*)sqlite3_column_text(stmt, 0);
+                if (!jsonChar) {
+                    SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
+                    return nil;
+                }
+                NSData *jsonData = [[NSString stringWithUTF8String:jsonChar] dataUsingEncoding:NSUTF8StringEncoding];
                 NSError *err;
                 NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                                  options:NSJSONReadingMutableContainers
@@ -117,16 +130,13 @@
                     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
                     [eventDict setValue:@(time) forKey:@"_flush_time"];
                 }
-
                 [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
             } @catch (NSException *exception) {
                 SAError(@"Found NON UTF8 String, ignore");
             }
         }
-        sqlite3_finalize(stmt);
-    }
-    else {
-        SAError(@"Failed to prepare statement with rc:%d, error:%s", rc, sqlite3_errmsg(_database));
+    } else {
+        SAError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
         return nil;
     }
     return [NSArray arrayWithArray:contentArray];
@@ -163,23 +173,21 @@
     return YES;
 }
 
-- (NSUInteger) count {
+- (NSInteger) count {
     return _messageCount;
 }
 
 - (NSInteger) sqliteCount {
     NSString* query = @"select count(*) from dataCache";
-    sqlite3_stmt* statement = NULL;
-    NSInteger count = -1;
-    int rc = sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, NULL);
-    if(rc == SQLITE_OK) {
+    NSInteger count = 0;
+    sqlite3_stmt* statement = [self dbCacheStmt:query];
+    if(statement) {
         while (sqlite3_step(statement) == SQLITE_ROW) {
             count = sqlite3_column_int(statement, 0);
         }
-        sqlite3_finalize(statement);
     }
     else {
-        SAError(@"Failed to prepare statement, rc is %d", rc);
+        SAError(@"Failed to prepare statement");
     }
     return count;
 }
@@ -201,5 +209,23 @@
     return YES;
 #endif
 }
+
+
+- (sqlite3_stmt *) dbCacheStmt:(NSString *)sql {
+    if (sql.length == 0 || !_dbStmtCache) return NULL;
+    sqlite3_stmt *stmt = (sqlite3_stmt *)CFDictionaryGetValue(_dbStmtCache, (__bridge const void *)(sql));
+    if (!stmt) {
+        int result = sqlite3_prepare_v2(_database, sql.UTF8String, -1, &stmt, NULL);
+        if (result != SQLITE_OK) {
+            SAError(@"%s line:%d sqlite stmt prepare error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_database));
+            return NULL;
+        }
+        CFDictionarySetValue(_dbStmtCache, (__bridge const void *)(sql), stmt);
+    } else {
+        sqlite3_reset(stmt);
+    }
+    return stmt;
+}
+
 
 @end

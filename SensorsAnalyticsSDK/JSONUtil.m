@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
-//  Copyright (c) 2015年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "JSONUtil.h"
@@ -55,10 +55,22 @@
  */
 - (id)JSONSerializableObjectForObject:(id)obj {
     // valid json types
-    if ([obj isKindOfClass:[NSString class]] ||
-        [obj isKindOfClass:[NSNumber class]] ) {
+    if ([obj isKindOfClass:[NSString class]]) {
         return obj;
     }
+    //防止 float 精度丢失
+    if ([obj isKindOfClass:[NSNumber class]]) {
+        @try {
+            if ([obj stringValue] && [[obj stringValue] rangeOfString:@"."].location != NSNotFound) {
+                return [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)obj).decimalValue];
+            } else {
+                return obj;
+            }
+        } @catch (NSException *exception) {
+            return obj;
+        }
+    }
+    
     // recurse on containers
     if ([obj isKindOfClass:[NSArray class]]) {
         NSMutableArray *a = [NSMutableArray array];

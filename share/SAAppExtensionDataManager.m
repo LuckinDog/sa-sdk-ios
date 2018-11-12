@@ -3,13 +3,12 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by ziven.mac on 2018/1/18.
-//  Copyright © 2018年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "SAAppExtensionDataManager.h"
 void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 @interface SAAppExtensionDataManager() {
-    dispatch_queue_t _appExtensionQueue;
 }
 @property(nonatomic,strong)dispatch_queue_t appExtensionQueue;
 

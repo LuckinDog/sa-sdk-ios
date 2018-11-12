@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
-//  Copyright (c) 2015年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -68,7 +68,7 @@
  *
  *  @return 当前记录的数量
  */
-- (NSUInteger) count;
+- (NSInteger) count;
 
 /**
  *  @abstract
