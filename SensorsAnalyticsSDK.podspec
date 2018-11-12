@@ -106,5 +106,10 @@ Pod::Spec.new do |s|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
   end
-  
+
+  s.subspec 'DISABLE_MARK_INSTALLATION_IN_KEYCHAIN' do |f|
+  f.dependency 'SensorsAnalyticsSDK/core'
+  f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN=1'}
+  end
+
 end

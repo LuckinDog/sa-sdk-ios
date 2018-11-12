@@ -1794,16 +1794,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *userDefaultsKey = nil;
     if (disableCallback) {
         userDefaultsKey = @"HasTrackInstallationWithDisableCallback";
+        
+#ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
         hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback];
+#endif
+        
     } else {
         userDefaultsKey = @"HasTrackInstallation";
+        
+#ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
         hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallation];
+#endif
+        
     }
-
+    
+#ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
     if (hasTrackInstallation) {
         return;
     }
-
+#endif
+    
     if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
         hasTrackInstallation = NO;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
@@ -1811,11 +1821,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         hasTrackInstallation = YES;
     }
+    
+#ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
     if (disableCallback) {
         [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
     }else{
         [SAKeyChainItemWrapper markHasTrackInstallation];
     }
+#endif
     if (!hasTrackInstallation) {
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
