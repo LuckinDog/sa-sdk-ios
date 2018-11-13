@@ -264,7 +264,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *distinctId = NULL;
 
     // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFA
-#if defined(SENSORS_ANALYTICS_IDFA)
+//#if defined(SENSORS_ANALYTICS_IDFA)
     Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
     if (ASIdentifierManagerClass) {
         SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
@@ -278,7 +278,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             distinctId = NULL;
         }
     }
-#endif
+//#endif
     
     // 没有IDFA，则使用IDFV
     if (!distinctId && NSClassFromString(@"UIDevice")) {

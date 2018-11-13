@@ -17,11 +17,6 @@ Pod::Spec.new do |s|
   c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
-  s.subspec 'IDFA' do |f|
-	f.dependency 'SensorsAnalyticsSDK/core'
-	f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_IDFA=1'}
-  end
-
   s.subspec 'LOG' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_LOG=1'}
