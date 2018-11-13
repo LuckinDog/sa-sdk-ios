@@ -267,7 +267,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *distinctId = NULL;
 
     // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFA
-#if defined(SENSORS_ANALYTICS_IDFA)
+//#if defined(SENSORS_ANALYTICS_IDFA)
     Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
     if (ASIdentifierManagerClass) {
         SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
@@ -281,7 +281,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             distinctId = NULL;
         }
     }
-#endif
+//#endif
     
     // 没有IDFA，则使用IDFV
     if (!distinctId && NSClassFromString(@"UIDevice")) {
@@ -492,7 +492,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _serverURL = serverUrl;
     } else {
         // 将 Server URI Path 替换成 Debug 模式的 '/debug'
-        NSURL *url = [[[NSURL URLWithString:serverUrl] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
+        NSURL *tempBaseUrl = [NSURL URLWithString:serverUrl];
+        if (tempBaseUrl.lastPathComponent.length > 0) {
+            tempBaseUrl = [tempBaseUrl URLByDeletingLastPathComponent];
+        }
+        NSURL *url = [tempBaseUrl URLByAppendingPathComponent:@"debug"];
         NSString *host = url.host;
         if ([host containsString:@"_"]) { //包含下划线日志提示
             NSString * referenceUrl = @"https://en.wikipedia.org/wiki/Hostname";
@@ -1993,7 +1997,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     if (!newProperties) {
                         newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                     }
-                    NSMutableSet *newSetObject = [NSMutableSet setWithSet:properties[k]];
+                    
+                    NSMutableSet *newSetObject = nil;
+                    if ([properties[k] isKindOfClass:[NSArray class]]) {
+                        newSetObject = [NSMutableSet setWithArray:properties[k]];
+                    } else {
+                        newSetObject = [NSMutableSet setWithSet:properties[k]];
+                    }
                     [newSetObject removeObject:object];
                     [newSetObject addObject:newObject];
                     [newProperties setObject:newSetObject forKey:k];
@@ -3259,7 +3269,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     @try {
         if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
             NSURL *url = [NSURL URLWithString:urlString];
-            url = [url URLByDeletingLastPathComponent];
+            if (url.lastPathComponent.length > 0) {
+                url = [url URLByDeletingLastPathComponent];
+            }
             NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
             if (componets == nil) {
                 SALog(@"URLString is malformed, nil is returned.");
