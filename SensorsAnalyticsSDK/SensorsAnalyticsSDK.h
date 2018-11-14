@@ -157,14 +157,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 @end
 
-// App 启动或激活
-static NSString* const SA_APP_START_EVENT = @"$AppStart";
-// App 退出或进入后台
-static NSString* const SA_APP_END_EVENT = @"$AppEnd";
-// App 浏览页面
-static NSString* const SA_APP_VIEW_SCREEN_EVENT = @"$AppViewScreen";
-// App 元素点击
-static NSString* const SA_APP_CLICK_EVENT = @"$AppClick";
 /**
  * @class
  * SensorsAnalyticsSDK 类

@@ -11,6 +11,7 @@
 #import "SALogger.h"
 #import "UIView+SAHelpers.h"
 #import "UIView+AutoTrack.h"
+#import "SAConstant.h"
 @implementation AutoTrackUtils
 
 + (void)sa_find_view_responder:(UIView *)view withViewPathArray:(NSMutableArray *)viewPathArray {
@@ -269,11 +270,11 @@
 
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
-        [properties setValue:@"UICollectionView" forKey:@"$element_type"];
+        [properties setValue:@"UICollectionView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
         //ViewID
         if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
 
         UIViewController *viewController = [view sensorsAnalyticsViewController];
@@ -289,21 +290,21 @@
 
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:@"$screen_name"];
+            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
 
             NSString *controllerTitle = viewController.navigationItem.title;
             if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                [properties setValue:viewController.navigationItem.title forKey:SA_EVENT_PROPERTY_TITLE];
             }
             NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
             if (elementContent != nil && [elementContent length] > 0) {
                 elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                [properties setValue:elementContent forKey:@"$title"];
+                [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_TITLE];
             }
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:@"$element_position"];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
@@ -368,14 +369,14 @@
                     viewPath = [viewPath stringByAppendingString:@"/"];
                 }
             }
-            [properties setValue:viewPath forKey:@"$element_selector"];
+            [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
         }
         
         NSString *elementContent = [[NSString alloc] init];
         elementContent = [self contentFromView:cell];
         if (elementContent != nil && [elementContent length] > 0) {
             elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-            [properties setValue:elementContent forKey:@"$element_content"];
+            [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
         }
 
         //View Properties
@@ -431,11 +432,11 @@
 
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
-        [properties setValue:@"UITableView" forKey:@"$element_type"];
+        [properties setValue:@"UITableView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
         //ViewID
         if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
 
         UIViewController *viewController = [tableView sensorsAnalyticsViewController];
@@ -451,22 +452,22 @@
 
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:@"$screen_name"];
+            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
 
             NSString *controllerTitle = viewController.navigationItem.title;
             if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                [properties setValue:viewController.navigationItem.title forKey:SA_EVENT_PROPERTY_TITLE];
             }
 
             NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
             if (elementContent != nil && [elementContent length] > 0) {
                 elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                [properties setValue:elementContent forKey:@"$title"];
+                [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_TITLE];
             }
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:@"$element_position"];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
@@ -533,13 +534,13 @@
             if (range.length) {
                 [viewPath deleteCharactersInRange:range];
             }
-            [properties setValue:viewPath forKey:@"$element_selector"];
+            [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
         }
 
         elementContent = [self contentFromView:cell];
         if (elementContent != nil && [elementContent length] > 0) {
             elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-            [properties setValue:elementContent forKey:@"$element_content"];
+            [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
         }
 
         //View Properties
@@ -590,7 +591,7 @@
                 viewPath = [viewPath stringByAppendingString:@"/"];
             }
         }
-        [properties setValue:viewPath forKey:@"$element_selector"];
+        [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }

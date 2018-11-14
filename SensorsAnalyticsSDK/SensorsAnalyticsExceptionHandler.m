@@ -11,7 +11,7 @@
 #import "SALogger.h"
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
-
+#import "SAConstant.h"
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
 #import <mach-o/dyld.h>
 #endif
