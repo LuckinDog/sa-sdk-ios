@@ -1792,23 +1792,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
     BOOL hasTrackInstallation = NO;
     NSString *userDefaultsKey = nil;
-    if (disableCallback) {
-        userDefaultsKey = @"HasTrackInstallationWithDisableCallback";
-        
-#ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
-        hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback];
-#endif
-        
-    } else {
-        userDefaultsKey = @"HasTrackInstallation";
-        
-#ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
-        hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallation];
-#endif
-        
-    }
+    userDefaultsKey = disableCallback?@"HasTrackInstallationWithDisableCallback":@"HasTrackInstallation";
     
 #ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
+    hasTrackInstallation = disableCallback?[SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback]:[SAKeyChainItemWrapper hasTrackInstallation];
     if (hasTrackInstallation) {
         return;
     }
