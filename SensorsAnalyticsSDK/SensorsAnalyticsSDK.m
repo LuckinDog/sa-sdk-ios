@@ -225,6 +225,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *_cookie;
 }
 
+@synthesize remoteConfig = _remoteConfig;
+
 #pragma mark - Initialization
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
@@ -367,6 +369,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
+            
 
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -3304,17 +3307,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-
 - (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
     dispatch_barrier_async(self.readWriteQueue, ^{
-        _remoteConfig = remoteConfig;
+        self->_remoteConfig = remoteConfig;
     });
 }
 
 - (id)remoteConfig {
     __block SASDKRemoteConfig *remoteConfig = nil;
     dispatch_sync(self.readWriteQueue, ^{
-        remoteConfig = _remoteConfig;
+        remoteConfig = self->_remoteConfig;
     });
     return remoteConfig;
 }
