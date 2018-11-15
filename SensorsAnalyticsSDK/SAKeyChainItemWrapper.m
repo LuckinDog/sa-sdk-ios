@@ -24,7 +24,7 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
     return sucess ? udid : nil;
 }
 
-#ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
+#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
 + (BOOL)hasTrackInstallation {
     NSDictionary *result = [self fetchPasswordWithAccount:kSAAppInstallationAccount service:kSAService];
     NSString *value =  [result objectForKey:(__bridge id)kSecValueData];

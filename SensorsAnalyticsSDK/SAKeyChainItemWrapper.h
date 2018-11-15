@@ -16,7 +16,7 @@ extern  NSString * const kSAAppInstallationWithDisableCallbackAccount;
 + (NSString *)saUdid;
 + (NSString *)saveUdid:(NSString *)udid;
 
-#ifndef SENSORS_ANALYTICS_DISABLE_MARK_TRACK_INSTALLATION_IN_KEYCHAIN
+#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
 + (BOOL)hasTrackInstallation;
 + (BOOL)hasTrackInstallationWithDisableCallback;
 + (BOOL)markHasTrackInstallation;
