@@ -145,6 +145,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, copy) NSString *loginId;
 @property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
+@property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
@@ -207,6 +208,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *_originServerUrl;
     NSString *_cookie;
 }
+
+@synthesize remoteConfig = _remoteConfig;
 
 #pragma mark - Initialization
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
@@ -350,7 +353,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
-            _remoteConfig = [[SASDKRemoteConfig alloc]init];
+
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
+            self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
+            
+            NSString *readWriteLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
+            self.readWriteQueue = dispatch_queue_create([readWriteLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+            
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
 
@@ -389,10 +399,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
-
-            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
-            self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-            dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
             
             [self setUpListeners];
             
@@ -3282,6 +3288,20 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
     }
+}
+
+- (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
+    dispatch_barrier_async(self.readWriteQueue, ^{
+        self->_remoteConfig = remoteConfig;
+    });
+}
+
+- (id)remoteConfig {
+    __block SASDKRemoteConfig *remoteConfig = nil;
+    dispatch_sync(self.readWriteQueue, ^{
+        remoteConfig = self->_remoteConfig;
+    });
+    return remoteConfig;
 }
 
 - (void)requestFunctionalManagermentConfig {
