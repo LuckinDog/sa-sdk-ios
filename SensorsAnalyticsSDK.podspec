@@ -12,9 +12,9 @@ Pod::Spec.new do |s|
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'core' do |c|
-c.source_files  = "VisualAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","HeatMap/*.{h,m}"
-	c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h"
-  c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
+        c.source_files  = "VisualAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","HeatMap/*.{h,m}"
+        c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h"
+        c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
   s.subspec 'LOG' do |f|
@@ -101,5 +101,10 @@ c.source_files  = "VisualAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","Heat
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
   end
-  
+
+  s.subspec 'DISABLE_INSTALLATION_MARK_IN_KEYCHAIN' do |f|
+        f.dependency 'SensorsAnalyticsSDK/core'
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN=1'}
+  end
+
 end
