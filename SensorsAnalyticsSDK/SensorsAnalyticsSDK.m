@@ -1799,18 +1799,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
     BOOL hasTrackInstallation = NO;
     NSString *userDefaultsKey = nil;
-    if (disableCallback) {
-        userDefaultsKey = @"HasTrackInstallationWithDisableCallback";
-        hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback];
-    } else {
-        userDefaultsKey = @"HasTrackInstallation";
-        hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallation];
-    }
-
+    userDefaultsKey = disableCallback?@"HasTrackInstallationWithDisableCallback":@"HasTrackInstallation";
+    
+#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
+    hasTrackInstallation = disableCallback?[SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback]:[SAKeyChainItemWrapper hasTrackInstallation];
     if (hasTrackInstallation) {
         return;
     }
-
+#endif
+    
     if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
         hasTrackInstallation = NO;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
@@ -1818,11 +1815,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         hasTrackInstallation = YES;
     }
+    
+#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
     if (disableCallback) {
         [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
     }else{
         [SAKeyChainItemWrapper markHasTrackInstallation];
     }
+#endif
     if (!hasTrackInstallation) {
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
