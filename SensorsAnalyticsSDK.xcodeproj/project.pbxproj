@@ -74,6 +74,9 @@
 		4D8DA86C2133BA5D0064DFEB /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4D8DA8692133BA5D0064DFEB /* SensorsAnalyticsSDK.bundle */; };
 		4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */; };
 		4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
+		4DD9E84F2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD9E84D2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h */; };
+		4DD9E8502181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */; };
+		4DD9E8512181CCFC00191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */; };
 		A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A11C545A201075020074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
 		A11C545D2010751F0074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */; };
@@ -282,6 +285,8 @@
 		4D8DA8692133BA5D0064DFEB /* SensorsAnalyticsSDK.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SensorsAnalyticsSDK.bundle; sourceTree = "<group>"; };
 		4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageQueueBySqlite.h; sourceTree = "<group>"; };
 		4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageQueueBySqlite.m; sourceTree = "<group>"; };
+		4DD9E84D2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+AutoTrack.h"; sourceTree = "<group>"; };
+		4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+AutoTrack.m"; sourceTree = "<group>"; };
 		99C2DE03E0C876AF8032C99C /* libPods-HelloSensorsAnalytics.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HelloSensorsAnalytics.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A11C5457201075020074E817 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppExtensionDataManager.h; sourceTree = "<group>"; };
 		A11C5458201075020074E817 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppExtensionDataManager.m; sourceTree = "<group>"; };
@@ -510,6 +515,8 @@
 				002DB94A1EB1647F00A9632C /* SASwizzle.m */,
 				002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */,
 				002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */,
+				4DD9E84D2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h */,
+				4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */,
 				A3E388A01D509B8900F6B9FC /* SAReachability.h */,
 				A3E3889E1D509B7100F6B9FC /* SAReachability.m */,
 				A3746E791C3115EB008A50A3 /* SAAbstractDesignerMessage.h */,
@@ -679,6 +686,7 @@
 				0038C5D11FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				A1C18E8F211C42DD000A1194 /* SensorsAnalyticsSDK+Private.h in Headers */,
 				A3997A291C3AC342005A9374 /* SASwizzler.h in Headers */,
+				4DD9E84F2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h in Headers */,
 				A3746E821C3115EB008A50A3 /* SADesignerMessage.h in Headers */,
 				4D23EFB42109643400DBDB9F /* SACommonUtility.h in Headers */,
 			);
@@ -865,6 +873,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DD9E8512181CCFC00191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */,
 				007BE5AA20E1F3D9006CB1ED /* NSThread+SAHelpers.m in Sources */,
 				A190A8C720CE5E83002C4202 /* UIView+AutoTrack.m in Sources */,
 				A161A05620B540F400A3CA14 /* SALocationManager.m in Sources */,
@@ -955,6 +964,7 @@
 				A3746E991C313C86008A50A3 /* SAObjectIdentityProvider.m in Sources */,
 				4D23EFB52109643400DBDB9F /* SACommonUtility.m in Sources */,
 				4D14F1721B4A51B7006AD786 /* SAGzipUtility.m in Sources */,
+				4DD9E8502181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */,
 				0027C8471FA201CE002EA41B /* SAHeatMapConnection.m in Sources */,
 				A3997A261C3AC1DE005A9374 /* SAObjectSelector.m in Sources */,
 				A161A04D20B3E2DC00A3CA14 /* SADeviceOrientationManager.m in Sources */,
