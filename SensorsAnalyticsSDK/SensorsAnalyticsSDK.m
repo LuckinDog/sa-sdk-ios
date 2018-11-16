@@ -31,7 +31,11 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#import "SAKeyChainItemWrapper.h"
+
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
+     #import "SAKeyChainItemWrapper.h"
+#endif
+
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
@@ -1801,12 +1805,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *userDefaultsKey = nil;
     userDefaultsKey = disableCallback?@"HasTrackInstallationWithDisableCallback":@"HasTrackInstallation";
     
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
 #ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
     hasTrackInstallation = disableCallback?[SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback]:[SAKeyChainItemWrapper hasTrackInstallation];
     if (hasTrackInstallation) {
         return;
     }
 #endif
+#endif
+
     
     if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
         hasTrackInstallation = NO;
@@ -1815,13 +1822,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         hasTrackInstallation = YES;
     }
-    
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
 #ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
     if (disableCallback) {
         [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
     }else{
         [SAKeyChainItemWrapper markHasTrackInstallation];
     }
+#endif
 #endif
     if (!hasTrackInstallation) {
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
@@ -2251,10 +2259,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)unarchiveDistinctId {
     NSString *filePath = [self filePathForData:@"distinct_id"];
     NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:filePath];
+
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain != nil && distinctIdInKeychain.length > 0) {
         self.distinctId = distinctIdInKeychain;
-       
         if (![archivedDistinctId isEqualToString:distinctIdInKeychain]) {
             //保存 Archiver
             NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete forKey:NSFileProtectionKey];
@@ -2264,14 +2273,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     } else {
+#endif
         if (archivedDistinctId.length == 0) {
             self.distinctId = [[self class] getUniqueHardwareId];
             [self archiveDistinctId];
         } else {
             self.distinctId = archivedDistinctId;
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
             //保存 KeyChain
             [SAKeyChainItemWrapper saveUdid:self.distinctId];
         }
+#endif
     }
 }
 
@@ -2305,7 +2317,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![NSKeyedArchiver archiveRootObject:[[self distinctId] copy] toFile:filePath]) {
         SAError(@"%@ unable to archive distinctId", self);
     }
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper saveUdid:self.distinctId];
+#endif
     SADebug(@"%@ archived distinctId", self);
 }
 
@@ -3482,9 +3496,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)clearKeychainData {
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationAccount service:kSAService];
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
+#endif
+
 }
 
 #pragma mark - delageProxy
