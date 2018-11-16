@@ -40,6 +40,7 @@
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstant.h"
+#import "UIGestureRecognizer+AutoTrack.h"
 
 #define VERSION @"1.10.17"
 #define PROPERTY_LENGTH_LIMITATION 8191
@@ -2816,17 +2817,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     };
     
-    void (^gestureRecognizerAppClickBlock)(id, SEL, id) = ^(id target, SEL command, id arg) {
-        @try {
-            if ([arg isKindOfClass:[UITapGestureRecognizer class]] ||
-                [arg isKindOfClass:[UILongPressGestureRecognizer class]]) {
-                [arg addTarget:self action:@selector(trackGestureRecognizerAppClick:)];
-            }
-        } @catch (NSException *exception) {
-            SAError(@"%@ error: %@", self, exception);
-        }
-    };
-    
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -2852,18 +2842,34 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                               named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
 #endif
     
-    //UILabel
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
-    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UILABEL
-    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
-    #endif
-    
-    //UIImageView
-    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGEVIEW
-    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
-    #endif
-#endif
+    static dispatch_once_t onceTokenGesture;
+    dispatch_once(&onceTokenGesture, ^{
 
+        NSError *error = NULL;
+        //$AppClick
+        [UITapGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
+                             withMethod:@selector(sa_addTarget:action:)
+                                  error:&error];
+        
+        [UITapGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
+                                      withMethod:@selector(sa_initWithTarget:action:)
+                                           error:&error];
+        
+        [UILongPressGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
+                                      withMethod:@selector(sa_addTarget:action:)
+                                           error:&error];
+        
+        [UILongPressGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
+                                      withMethod:@selector(sa_initWithTarget:action:)
+                                           error:&error];
+        if (error) {
+            SAError(@"Failed to swizzle Target on UITapGestureRecognizer. Details: %@", error);
+            error = NULL;
+        }
+    });
+#endif
+    
     //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
     if (NSClassFromString(@"RCTUIManager")) {
@@ -2871,117 +2877,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
     }
 #endif
-}
-
-- (void)trackGestureRecognizerAppClick:(id)target {
-    @try {
-        if (target == nil) {
-            return;
-        }
-        UIGestureRecognizer *gesture = target;
-        if (gesture == nil) {
-            return;
-        }
-        
-        if (gesture.state != UIGestureRecognizerStateEnded) {
-            return;
-        }
-        
-        UIView *view = gesture.view;
-        if (view == nil) {
-            return;
-        }
-        //关闭 AutoTrack
-        if (![self isAutoTrackEnabled]) {
-            return;
-        }
-        
-        //忽略 $AppClick 事件
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-        
-        if ([view isKindOfClass:[UILabel class]]) {//UILabel
-            if ([self isViewTypeIgnored:[UILabel class]]) {
-                return;
-            }
-        } else if ([view isKindOfClass:[UIImageView class]]) {//UIImageView
-            if ([self isViewTypeIgnored:[UIImageView class]]) {
-                return;
-            }
-        }
-
-        
-        //        if (view.sensorsAnalyticsIgnoreView) {
-        //            return;
-        //        }
-        
-        UIViewController *viewController = [self currentViewController];
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        
-        if (viewController != nil) {
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
-                return;
-            }
-            
-            //获取 Controller 名称($screen_name)
-            NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
-            
-            NSString *controllerTitle = viewController.navigationItem.title;
-            if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:SA_EVENT_PROPERTY_TITLE];
-            }
-            
-            //再获取 controller.navigationItem.titleView, 并且优先级比较高
-            NSString *elementContent = [self getUIViewControllerTitle:viewController];
-            if (elementContent != nil && [elementContent length] > 0) {
-                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_TITLE];
-            }
-        }
-        
-        //ViewID
-        if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
-        }
-        
-        if ([view isKindOfClass:[UILabel class]]) {
-            [properties setValue:@"UILabel" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-            UILabel *label = (UILabel*)view;
-            NSString *sa_elementContent = label.sa_elementContent;
-            if (sa_elementContent && sa_elementContent.length > 0) {
-                [properties setValue:sa_elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-            }
-            [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-        } else if ([view isKindOfClass:[UIImageView class]]) {
-            [properties setValue:@"UIImageView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-            UIImageView *imageView = (UIImageView *)view;
-            [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-            if (imageView) {
-                if (imageView.image) {
-                    NSString *imageName = imageView.image.sensorsAnalyticsImageName;
-                    if (imageName != nil) {
-                        [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                    }
-                }
-            }
-#endif
-        }else {
-            return;
-        }
-        
-        //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
-        if (propDict != nil) {
-            [properties addEntriesFromDictionary:propDict];
-        }
-        
-        [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
-    }
 }
 
 
