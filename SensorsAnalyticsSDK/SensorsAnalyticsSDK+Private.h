@@ -1,4 +1,4 @@
-git//
+//
 //  SensorsAnalyticsSDK_priv.h
 //  SensorsAnalyticsSDK
 //
