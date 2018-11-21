@@ -43,7 +43,6 @@
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 
 #define VERSION @"1.10.17"
@@ -3390,13 +3389,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 }
 
-#pragma mark - delageProxy
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
-}
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
-}
 @end
 
 #pragma mark - People analytics
