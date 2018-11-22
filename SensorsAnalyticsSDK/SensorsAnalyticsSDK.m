@@ -45,7 +45,7 @@
 #import "SACommonUtility.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 
-#define VERSION @"1.10.17"
+#define VERSION @"1.10.18"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
