@@ -4,6 +4,11 @@
 //  Created by 曹犟 on 15/7/1.
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
+
 #import <objc/runtime.h>
 #include <sys/sysctl.h>
 #include <stdlib.h>
@@ -37,11 +42,12 @@
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAAuxiliaryToolManager.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 
-#define VERSION @"1.10.17"
+#import "SensorsAnalyticsSDK+Private.h"
+#import "SAAuxiliaryToolManager.h"
+
+#define VERSION @"1.10.18"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -614,7 +620,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType {
     if ([@"NULL" isEqualToString:networkType]) {
-        return SensorsAnalyticsNetworkTypeALL;
+        return SensorsAnalyticsNetworkTypeNONE;
     } else if ([@"WIFI" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkTypeWIFI;
     } else if ([@"2G" isEqualToString:networkType]) {
@@ -2759,6 +2765,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 
 - (void)_enableAutoTrack {
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
     void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         UIViewController *controller = (UIViewController *)obj;
         if (!controller) {
@@ -2773,19 +2780,20 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSString *screenName = NSStringFromClass(klass);
         
         //UITableView
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
+    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
         if ([controller respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
             [SASwizzler unswizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UITableView_AutoTrack"]];
         }
-#endif
+    #endif
         
         //UICollectionView
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
+    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
         if ([controller respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
             [SASwizzler unswizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UICollectionView_AutoTrack"]];
         }
-#endif
+    #endif
     };
+#endif
     
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
@@ -2803,15 +2811,17 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             error = NULL;
         }
     });
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
     //$AppClick
     //UITableView、UICollectionView
-#if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
+    #if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
     [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
                             onClass:[UIViewController class]
                           withBlock:unswizzleUITableViewAppClickBlock
                               named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
+    #endif
 #endif
-    
+    //UILabel
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
     static dispatch_once_t onceTokenGesture;
     dispatch_once(&onceTokenGesture, ^{
@@ -3332,21 +3342,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationAccount service:kSAService];
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
-}
-
-#pragma mark - delageProxy
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
-}
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
-}
--(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
-    [AutoTrackUtils trackAppClickWithUITabBar:tabBar didSelectItem:item];
-}
-
--(void)onGestureRecognizer:(UIGestureRecognizer *)gesture {
-    [AutoTrackUtils trackAppClickWithUIGestureRecognizer:gesture];
 }
 
 @end

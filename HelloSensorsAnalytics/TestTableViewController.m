@@ -224,3 +224,21 @@
 @end
 
 
+@implementation TestTableViewController_A
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [super tableView:tableView didSelectRowAtIndexPath:indexPath];
+}
+
+
+@end
+@implementation TestTableViewController_B
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+//    [super tableView:tableView didSelectRowAtIndexPath:indexPath];
+}
+
+
+@end
