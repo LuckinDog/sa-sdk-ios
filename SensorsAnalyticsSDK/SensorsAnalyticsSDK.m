@@ -849,8 +849,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
 
-    if (request == nil) {
-        SADebug(@"request == nil");
+    if (request == nil || ![request isKindOfClass:NSURLRequest.class]) {
+        SADebug(@"request == nil or not NSURLRequest class");
         return NO;
     }
 
@@ -945,7 +945,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
                 return YES;
             }
-            return NO;
         } else{
             SADebug(@"showUpWebView: not UIWebView or WKWebView");
             return NO;
