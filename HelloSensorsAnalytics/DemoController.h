@@ -12,7 +12,7 @@
 #import <UIKit/UIKit.h>
 #import "SensorsAnalyticsSDK.h"
 
-@interface DemoController : UITableViewController< UIActionSheetDelegate>
+@interface DemoController : UITableViewController<SAScreenAutoTracker, SAUIViewAutoTrackDelegate, UIActionSheetDelegate>
 
 @end
 

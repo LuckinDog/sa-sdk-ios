@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "SensorsAnalyticsSDK.h"
 
-@interface AutoTrackViewController : UIViewController
+@interface AutoTrackViewController : UIViewController<SAUIViewAutoTrackDelegate>
 - (IBAction)onButton1Click:(id)sender;
 @property (weak, nonatomic) IBOutlet UIButton *myButton1;
 @property (weak, nonatomic) IBOutlet UILabel *myLabel;
