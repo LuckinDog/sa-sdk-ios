@@ -7,7 +7,6 @@
 //
 
 #import "TestViewController.h"
-#import "AutoTrackUtils.h"
 @interface TestViewController ()
 
 @end
@@ -36,8 +35,6 @@
 
 - (IBAction)onButtonClick:(id)sender {
     NSLog(@"****:onButtonClick");
-    NSString *content = [AutoTrackUtils contentFromView:self.view];
-    NSLog(@"%@",content);
 }
 
 - (IBAction)onButtonClick2:(id)sender {

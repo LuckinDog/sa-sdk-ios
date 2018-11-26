@@ -40,14 +40,12 @@
     self.tableView = [[UITableView alloc]initWithFrame:table_frame style:UITableViewStyleGrouped];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
-    self.tableView.sensorsAnalyticsViewID = @"tableView1";
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
     [self.view addSubview:self.tableView];
     
     self.tableView_1 = [[UITableView alloc]initWithFrame:table_1_frame style:UITableViewStylePlain];
     self.tableView_1.delegate = self;
     self.tableView_1.dataSource = self;
-    self.tableView_1.sensorsAnalyticsViewID = @"tableView2";
     [self.tableView_1 registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
     [self.view addSubview:self.tableView_1];
     self.view.backgroundColor = [UIColor whiteColor ];
