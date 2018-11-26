@@ -627,6 +627,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return SensorsAnalyticsNetworkType3G;
     }   else if ([@"4G" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkType4G;
+    }else if ([@"unknown" isEqualToString:networkType]){
+        return SensorsAnalyticsNetworkType4G;
     }
     return SensorsAnalyticsNetworkTypeNONE;
 }
@@ -2397,6 +2399,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 network = @"3G";
             } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
                 network = @"4G";
+            } else {
+                network = @"unknown";
             }
         }
     } @catch(NSException *exception) {
