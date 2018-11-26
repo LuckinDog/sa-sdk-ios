@@ -48,6 +48,8 @@
 #define VERSION @"1.10.18"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
+static NSString * SA_JS_GET_APP_INDO_SCHEME = @"sensorsanalytics://getAppInfo";
+static NSString * SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
 // 自动追踪相关事件及属性
 // App 启动或激活
 static NSString* const APP_START_EVENT = @"$AppStart";
@@ -841,16 +843,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [self showUpWebView:webView WithRequest:request andProperties:nil enableVerify:enableVerify];
 }
 
+-(BOOL)shouldHandleWebView:(id)webView request:(NSURLRequest*)request {
+    if (webView == nil) {
+        SADebug(@"showUpWebView == nil");
+        return NO;
+    }
+
+    if (request == nil) {
+        SADebug(@"request == nil");
+        return NO;
+    }
+
+    NSString *urlString = request.URL.absoluteString;
+    if ([urlString rangeOfString:SA_JS_GET_APP_INDO_SCHEME].length ||[urlString rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].length) {
+        return YES;
+    }
+    return NO;
+}
+
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict enableVerify:(BOOL)enableVerify {
     @try {
         SADebug(@"showUpWebView");
-        if (webView == nil) {
-            SADebug(@"showUpWebView == nil");
-            return NO;
-        }
-        
-        if (request == nil) {
-            SADebug(@"request == nil");
+        if (![self shouldHandleWebView:webView request:request]) {
             return NO;
         }
         
@@ -867,21 +881,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSData* jsonData = [_jsonUtil JSONSerializeObject:properties];
         NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         
-        NSString *scheme = @"sensorsanalytics://getAppInfo";
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
-        
-        NSString *trackEventScheme = @"sensorsanalytics://trackEvent";
         
         //判断系统是否支持WKWebView
         Class wkWebViewClass = NSClassFromString(@"WKWebView");
         
         NSString *urlstr = request.URL.absoluteString;
         if (urlstr == nil) {
-            return NO;
+            return YES;
         }
         NSArray *urlArray = [urlstr componentsSeparatedByString:@"?"];
         if (urlArray == nil) {
-            return NO;
+            return YES;
         }
         //解析参数
         NSMutableDictionary *paramsDic = [[NSMutableDictionary alloc] init];
@@ -899,10 +910,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
             SADebug(@"showUpWebView: UIWebView");
-            if ([urlstr rangeOfString:scheme].location != NSNotFound) {
+            if ([urlstr rangeOfString:SA_JS_GET_APP_INDO_SCHEME].location != NSNotFound) {
                 [webView stringByEvaluatingJavaScriptFromString:js];
                 return YES;
-            } else if ([urlstr rangeOfString:trackEventScheme].location != NSNotFound) {
+            } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
                 if ([paramsDic count] > 0) {
                     NSString *eventInfo = [paramsDic objectForKey:@"event"];
                     if (eventInfo != nil) {
@@ -912,10 +923,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
                 return YES;
             }
-            return NO;
         } else if(wkWebViewClass && [webView isKindOfClass:wkWebViewClass] == YES) {//WKWebView
             SADebug(@"showUpWebView: WKWebView");
-            if ([urlstr rangeOfString:scheme].location != NSNotFound) {
+            if ([urlstr rangeOfString:SA_JS_GET_APP_INDO_SCHEME].location != NSNotFound) {
                 typedef void(^Myblock)(id,NSError *);
                 Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error){
                     SALog(@"response: %@ error: %@", response, error);
@@ -925,7 +935,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     ((void (*)(id, SEL, NSString *, Myblock))[webView methodForSelector:sharedManagerSelector])(webView, sharedManagerSelector, js, myBlock);
                 }
                 return YES;
-            } else if ([urlstr rangeOfString:trackEventScheme].location != NSNotFound) {
+            } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
                 if ([paramsDic count] > 0) {
                     NSString *eventInfo = [paramsDic objectForKey:@"event"];
                     if (eventInfo != nil) {
@@ -942,8 +952,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
+    } @finally {
+        return [self shouldHandleWebView:webView request:request];
     }
-    return NO;
 }
 
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict {
