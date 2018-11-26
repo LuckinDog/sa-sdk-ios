@@ -4,12 +4,6 @@
 //  Created by 曹犟 on 15/7/1.
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
-
-#import <objc/runtime.h>
 #include <sys/sysctl.h>
 #include <stdlib.h>
 
@@ -35,9 +29,8 @@
 #import "SALocationManager.h"
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
-#import "UIGestureRecognizer+AutoTrack.h"
 
-#define VERSION @"1.10.18"
+#define VERSION @"1.10.17"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -75,7 +68,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, copy) NSString *loginId;
 @property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
-@property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
@@ -131,8 +123,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *_cookie;
 }
 
-@synthesize remoteConfig = _remoteConfig;
-
 #pragma mark - Initialization
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
@@ -173,7 +163,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *distinctId = NULL;
 
     // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFA
-//#if defined(SENSORS_ANALYTICS_IDFA)
+#if defined(SENSORS_ANALYTICS_IDFA)
     Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
     if (ASIdentifierManagerClass) {
         SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
@@ -187,7 +177,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             distinctId = NULL;
         }
     }
-//#endif
+#endif
     
     // 没有IDFA，则使用IDFV
     if (!distinctId && NSClassFromString(@"UIDevice")) {
@@ -253,15 +243,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _debugAlertViewHasShownNumber = 0;
             _applicationWillResignActive = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
-            
-
-            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
-            self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-            dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
-            
-            NSString *readWriteLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
-            self.readWriteQueue = dispatch_queue_create([readWriteLabel UTF8String], DISPATCH_QUEUE_SERIAL);
-            
+            _remoteConfig = [[SASDKRemoteConfig alloc]init];
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
             [self setSDKWithRemoteConfigDict:sdkConfig];
 
@@ -298,6 +280,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
+
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
+            self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
             
             [self setUpListeners];
             
@@ -495,7 +481,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType {
     if ([@"NULL" isEqualToString:networkType]) {
-        return SensorsAnalyticsNetworkTypeNONE;
+        return SensorsAnalyticsNetworkTypeALL;
     } else if ([@"WIFI" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkTypeWIFI;
     } else if ([@"2G" isEqualToString:networkType]) {
@@ -1555,15 +1541,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
     BOOL hasTrackInstallation = NO;
     NSString *userDefaultsKey = nil;
-    userDefaultsKey = disableCallback?@"HasTrackInstallationWithDisableCallback":@"HasTrackInstallation";
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
-    hasTrackInstallation = disableCallback?[SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback]:[SAKeyChainItemWrapper hasTrackInstallation];
+    if (disableCallback) {
+        userDefaultsKey = @"HasTrackInstallationWithDisableCallback";
+        hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback];
+    } else {
+        userDefaultsKey = @"HasTrackInstallation";
+        hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallation];
+    }
+
     if (hasTrackInstallation) {
         return;
     }
-#endif
-    
+
     if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
         hasTrackInstallation = NO;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
@@ -1571,14 +1560,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         hasTrackInstallation = YES;
     }
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
     if (disableCallback) {
         [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
     }else{
         [SAKeyChainItemWrapper markHasTrackInstallation];
     }
-#endif
     if (!hasTrackInstallation) {
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -2541,20 +2527,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
     }
-}
-
-- (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    dispatch_barrier_async(self.readWriteQueue, ^{
-        self->_remoteConfig = remoteConfig;
-    });
-}
-
-- (id)remoteConfig {
-    __block SASDKRemoteConfig *remoteConfig = nil;
-    dispatch_sync(self.readWriteQueue, ^{
-        remoteConfig = self->_remoteConfig;
-    });
-    return remoteConfig;
 }
 
 - (void)requestFunctionalManagermentConfig {
