@@ -14,10 +14,3 @@
 @property(nonatomic,strong)UITableView *tableView_1;
 @property(nonatomic,strong)NSArray *dataArray_1;
 @end
-
-@interface  TestTableViewController_A: TestTableViewController
-
-@end
-@interface  TestTableViewController_B: TestTableViewController
-
-@end

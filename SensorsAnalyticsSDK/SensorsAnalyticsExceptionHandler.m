@@ -6,11 +6,6 @@
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
-
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
@@ -90,7 +85,7 @@ static const int32_t UncaughtExceptionMaximum = 10;
     [self.sensorsAnalyticsSDKInstances addObject:instance];
 }
 
-static void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
+void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
     SensorsAnalyticsExceptionHandler *handler = [SensorsAnalyticsExceptionHandler sharedHandler];
     
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
@@ -124,7 +119,7 @@ static void SASignalHandler(int crashSignal, struct __siginfo *info, void *conte
     }
 }
 
-static void SAHandleException(NSException *exception) {
+void SAHandleException(NSException *exception) {
     SensorsAnalyticsExceptionHandler *handler = [SensorsAnalyticsExceptionHandler sharedHandler];
     
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);

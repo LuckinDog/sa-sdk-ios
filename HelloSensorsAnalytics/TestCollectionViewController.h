@@ -11,10 +11,3 @@
 @interface TestCollectionViewController : UIViewController
 
 @end
-
-@interface  TestCollectionViewController_A: TestCollectionViewController
-
-@end
-@interface  TestCollectionViewController_B: TestCollectionViewController
-
-@end
