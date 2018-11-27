@@ -240,10 +240,8 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
 
 static BOOL isStringParamValid(id  parameter){
     BOOL result = NO;
-    if (parameter != nil && [parameter isKindOfClass:[NSString class]]) {
-        if ([parameter length] > 0) {
+    if ([parameter isKindOfClass:[NSString class]] && [parameter length] > 0) {
             result = YES;
-        }
     }
     return result;
 }
