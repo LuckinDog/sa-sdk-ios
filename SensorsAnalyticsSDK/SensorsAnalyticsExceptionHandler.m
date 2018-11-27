@@ -90,7 +90,7 @@ static const int32_t UncaughtExceptionMaximum = 10;
     [self.sensorsAnalyticsSDKInstances addObject:instance];
 }
 
-void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
+static void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
     SensorsAnalyticsExceptionHandler *handler = [SensorsAnalyticsExceptionHandler sharedHandler];
     
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
@@ -124,7 +124,7 @@ void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
     }
 }
 
-void SAHandleException(NSException *exception) {
+static void SAHandleException(NSException *exception) {
     SensorsAnalyticsExceptionHandler *handler = [SensorsAnalyticsExceptionHandler sharedHandler];
     
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
