@@ -2399,9 +2399,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 network = @"3G";
             } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
                 network = @"4G";
-            } else {
+            } else if (netinfo.currentRadioAccessTechnology) {
                 network = @"UNKNOWN";
             }
+            
         }
     } @catch(NSException *exception) {
         SADebug(@"%@: %@", self, exception);
@@ -3291,8 +3292,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)requestFunctionalManagermentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
     @try {
+         NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
+        SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
+        
         NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
-        if (urlString == nil || urlString.length == 0) {
+        if (urlString == nil || urlString.length == 0 || networkType == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO,nil);
             return;
         }
