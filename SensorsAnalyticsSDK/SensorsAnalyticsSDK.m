@@ -629,6 +629,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return SensorsAnalyticsNetworkType3G;
     }   else if ([@"4G" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkType4G;
+    }else if ([@"UNKNOWN" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType4G;
     }
     return SensorsAnalyticsNetworkTypeNONE;
 }
@@ -2407,7 +2409,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 network = @"3G";
             } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
                 network = @"4G";
+            } else if (netinfo.currentRadioAccessTechnology) {
+                network = @"UNKNOWN";
             }
+            
         }
     } @catch(NSException *exception) {
         SADebug(@"%@: %@", self, exception);
@@ -2709,9 +2714,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-         NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
-        [properties addEntriesFromDictionary:trackProperties];
-        _lastScreenTrackProperties = trackProperties;
+        [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
+        _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
     }
     
 #ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
@@ -3298,8 +3302,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)requestFunctionalManagermentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
     @try {
+         NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
+        SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
+        
         NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
-        if (urlString == nil || urlString.length == 0) {
+        if (urlString == nil || urlString.length == 0 || networkType == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO,nil);
             return;
         }
