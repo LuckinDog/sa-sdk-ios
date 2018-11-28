@@ -48,7 +48,7 @@
 #define VERSION @"1.10.18"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
-static NSString * SA_JS_GET_APP_INDO_SCHEME = @"sensorsanalytics://getAppInfo";
+static NSString * SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
 static NSString * SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
 // 自动追踪相关事件及属性
 // App 启动或激活
@@ -857,7 +857,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     NSString *urlString = request.URL.absoluteString;
-    if ([urlString rangeOfString:SA_JS_GET_APP_INDO_SCHEME].length ||[urlString rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].length) {
+    if ([urlString rangeOfString:SA_JS_GET_APP_INFO_SCHEME].length ||[urlString rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].length) {
         return YES;
     }
     return NO;
@@ -910,7 +910,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
             SADebug(@"showUpWebView: UIWebView");
-            if ([urlstr rangeOfString:SA_JS_GET_APP_INDO_SCHEME].location != NSNotFound) {
+            if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
                 [webView stringByEvaluatingJavaScriptFromString:js];
             } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
                 if ([paramsDic count] > 0) {
@@ -923,7 +923,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         } else if(wkWebViewClass && [webView isKindOfClass:wkWebViewClass] == YES) {//WKWebView
             SADebug(@"showUpWebView: WKWebView");
-            if ([urlstr rangeOfString:SA_JS_GET_APP_INDO_SCHEME].location != NSNotFound) {
+            if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
                 typedef void(^Myblock)(id,NSError *);
                 Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error){
                     SALog(@"response: %@ error: %@", response, error);
