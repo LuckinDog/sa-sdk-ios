@@ -864,14 +864,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict enableVerify:(BOOL)enableVerify {
+    if (![self shouldHandleWebView:webView request:request]) {
+        return NO;
+    }
     @try {
         SADebug(@"showUpWebView");
-        if (![self shouldHandleWebView:webView request:request]) {
-            return NO;
-        }
-        
         JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
-        
         NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         if (bridgeCallbackInfo) {
@@ -914,7 +912,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SADebug(@"showUpWebView: UIWebView");
             if ([urlstr rangeOfString:SA_JS_GET_APP_INDO_SCHEME].location != NSNotFound) {
                 [webView stringByEvaluatingJavaScriptFromString:js];
-                return YES;
             } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
                 if ([paramsDic count] > 0) {
                     NSString *eventInfo = [paramsDic objectForKey:@"event"];
@@ -923,7 +920,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
                     }
                 }
-                return YES;
             }
         } else if(wkWebViewClass && [webView isKindOfClass:wkWebViewClass] == YES) {//WKWebView
             SADebug(@"showUpWebView: WKWebView");
@@ -936,7 +932,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 if (sharedManagerSelector) {
                     ((void (*)(id, SEL, NSString *, Myblock))[webView methodForSelector:sharedManagerSelector])(webView, sharedManagerSelector, js, myBlock);
                 }
-                return YES;
             } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
                 if ([paramsDic count] > 0) {
                     NSString *eventInfo = [paramsDic objectForKey:@"event"];
@@ -945,16 +940,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
                     }
                 }
-                return YES;
             }
         } else{
             SADebug(@"showUpWebView: not UIWebView or WKWebView");
-            return NO;
         }
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     } @finally {
-        return [self shouldHandleWebView:webView request:request];
+        return YES;
     }
 }
 
