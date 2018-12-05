@@ -112,4 +112,9 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN=1'}
   end
 
+  s.subspec 'ENABLE_CHILD_VIEW_SCREEN' do |f|
+  f.dependency 'SensorsAnalyticsSDK/core'
+  f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEW_SCREEN=1'}
+  end
+
 end
