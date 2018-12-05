@@ -1493,10 +1493,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (lib_detail) {
         [libProperties setValue:lib_detail forKey:@"$lib_detail"];
     }
-
+    __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
     dispatch_async(self.serialQueue, ^{
         //获取用户自定义的动态公共属性
-        NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
         if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
             SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
             dynamicSuperPropertiesDict = nil;
