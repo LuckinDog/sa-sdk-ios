@@ -3001,6 +3001,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
+        if (self.timer == nil || ![self.timer isValid]) {
+            [self startFlushTimer];
+        }
         return;
     }
     _applicationWillResignActive = NO;
