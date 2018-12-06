@@ -776,6 +776,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param viewController 当前的 UIViewController
  */
 - (void)trackViewScreen:(UIViewController *)viewController;
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *,id> *)properties;
 
 /**
  * @abstract
