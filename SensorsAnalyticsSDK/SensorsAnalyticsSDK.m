@@ -48,8 +48,8 @@
 #define VERSION @"1.10.18"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
-static NSString * SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
-static NSString * SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
+static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
+static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
 // 自动追踪相关事件及属性
 // App 启动或激活
 static NSString* const APP_START_EVENT = @"$AppStart";
