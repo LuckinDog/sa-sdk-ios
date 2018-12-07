@@ -19,17 +19,16 @@
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
-    [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull(NSString * event){
-        if ([event isEqualToString:SA_APP_START_EVENT]) {
-            return @{@"dynamicaValueKey":@"SA_APP_START_EVENT"};
-        }else if([event isEqualToString:SA_APP_VIEW_SCREEN_EVENT]){
-            return @{@"dynamicaValueKey":@"SA_APP_VIEW_SCREEN_EVENT"};
-        }else if([event isEqualToString:SA_APP_CLICK_EVENT]){
-            return @{@"dynamicaValueKey":@"SA_APP_CLICK_EVENT"};
-        }else if([event isEqualToString:SA_APP_END_EVENT]){
-            return @{@"dynamicaValueKey":@"SA_APP_END_EVENT"};
+    [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull(void){
+        __block UIApplicationState state;
+        if (NSThread.currentThread.isMainThread) {
+            state = UIApplication.sharedApplication.applicationState;
+        }else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                state = UIApplication.sharedApplication.applicationState;
+            });
         }
-        return @{@"dynamicaValueKey":event?event:@""};
+        return @{@"applicationState":@(state)};
     }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |

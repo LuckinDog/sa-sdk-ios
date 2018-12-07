@@ -27,6 +27,10 @@ static NSString * const UncaughtExceptionHandlerSignalKey = @"UncaughtExceptionH
 static volatile int32_t UncaughtExceptionCount = 0;
 static const int32_t UncaughtExceptionMaximum = 10;
 
+@interface SensorsAnalyticsSDK()
+@property (nonatomic, strong) dispatch_queue_t serialQueue;
+@end
+
 @interface SensorsAnalyticsExceptionHandler ()
 
 @property (nonatomic) NSUncaughtExceptionHandler *defaultExceptionHandler;
@@ -162,6 +166,10 @@ static void SAHandleException(NSException *exception) {
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
                 [instance track:SA_APP_END_EVENT];
             }
+            
+            dispatch_sync(instance.serialQueue, ^{
+                
+            });
         }
         SALog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
     } @catch(NSException *exception) {
