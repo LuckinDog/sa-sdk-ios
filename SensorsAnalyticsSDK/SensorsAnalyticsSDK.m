@@ -2431,6 +2431,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)startFlushTimer {
     [self stopFlushTimer];
+    if (self.remoteConfig.disableSDK) {
+        return;
+    }
     SADebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_flushInterval > 0) {
