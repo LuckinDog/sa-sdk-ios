@@ -19,16 +19,16 @@
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
-    [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull(void){
-        __block UIApplicationState state;
-        if (NSThread.currentThread.isMainThread) {
-            state = UIApplication.sharedApplication.applicationState;
+    [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
+        __block UIApplicationState appState;
+        if (NSThread.isMainThread) {
+            appState = UIApplication.sharedApplication.applicationState;
         }else {
             dispatch_sync(dispatch_get_main_queue(), ^{
-                state = UIApplication.sharedApplication.applicationState;
+                appState = UIApplication.sharedApplication.applicationState;
             });
         }
-        return @{@"applicationState":@(state)};
+        return @{@"__APPState__":@(appState)};
     }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
