@@ -50,8 +50,8 @@
 #define VERSION @"1.10.18"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
-static NSString * SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
-static NSString * SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
+static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
+static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
 // 自动追踪相关事件及属性
 // App 启动或激活
 static NSString* const APP_START_EVENT = @"$AppStart";
@@ -2384,8 +2384,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)startFlushTimer {
-    SADebug(@"starting flush timer.");
     [self stopFlushTimer];
+    if (self.remoteConfig.disableSDK) {
+        return;
+    }
+    SADebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_flushInterval > 0) {
             double interval = self->_flushInterval > 100 ? (double)self->_flushInterval / 1000.0 : 0.1f;
@@ -2922,10 +2925,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     if (self.remoteConfig.disableSDK == YES) {
         //停止 SDK 的 flushtimer
-        if (self.timer.isValid) {
-            [self.timer invalidate];
-        }
-        self.timer = nil;
+        [self stopFlushTimer];
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         //停止采集设备方向信息
@@ -2956,6 +2956,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
+        if (self.timer == nil || ![self.timer isValid]) {
+            [self startFlushTimer];
+        }
         return;
     }
     _applicationWillResignActive = NO;
