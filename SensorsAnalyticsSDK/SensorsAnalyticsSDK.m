@@ -1209,7 +1209,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         __block BOOL flushSucc = YES;
         
         UIApplication *application = UIApplication.sharedApplication;
-        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier;
+        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
         // 结束后台任务
         void (^endBackgroundTask)(void) = ^(){
             [application endBackgroundTask:backgroundTaskIdentifier];
