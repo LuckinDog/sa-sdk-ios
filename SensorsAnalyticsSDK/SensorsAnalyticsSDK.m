@@ -1157,7 +1157,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)_flush:(BOOL) vacuumAfterFlushing {
+- (void)_flush:(BOOL) isBackground {
     if (_serverURL == nil || [_serverURL isEqualToString:@""]) {
         return;
     }
@@ -1181,11 +1181,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
             int hashCode = [b64String sensorsdata_hashCode];
             b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                  (CFStringRef)b64String,
-                                                                                  NULL,
-                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                  kCFStringEncodingUTF8));
-        
+                                                                                      (CFStringRef)b64String,
+                                                                                      NULL,
+                                                                                      CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                      kCFStringEncodingUTF8));
+            
             postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
         } @catch (NSException *exception) {
             SAError(@"%@ flushByPost format data error: %@", self, exception);
@@ -1204,14 +1204,31 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         //Cookie
         [request setValue:[[SensorsAnalyticsSDK sharedInstance] getCookieWithDecode:NO] forHTTPHeaderField:@"Cookie"];
-
+        
         dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
         __block BOOL flushSucc = YES;
+        
+        UIApplication *application = UIApplication.sharedApplication;
+        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier;
+        // 结束后台任务
+        void (^endBackgroundTask)(void) = ^(){
+            [application endBackgroundTask:backgroundTaskIdentifier];
+            backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+        };
+        
+        if (isBackground) {
+            backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
+                endBackgroundTask();
+            }];
+        }
         
         void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
             if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
                 SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
                 flushSucc = NO;
+                if (backgroundTaskIdentifier) {
+                    endBackgroundTask();
+                }
                 dispatch_semaphore_signal(flushSem);
                 return;
             }
@@ -1250,20 +1267,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SAError(@"%@ ret_code: %ld", self, statusCode);
                 SAError(@"%@ ret_content: %@", self, urlResponseContent);
             }
+            
+            if (backgroundTaskIdentifier) {
+                endBackgroundTask();
+            }
             dispatch_semaphore_signal(flushSem);
         };
         
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
         NSURLSession *session = [NSURLSession sharedSession];
         NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
-        
         [task resume];
-#else
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
-         ^(NSURLResponse *response, NSData* data, NSError *error) {
-             return block(data, response, error);
-        }];
-#endif
         
         dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
         
@@ -1271,13 +1284,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     
     [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
-    
-    if (vacuumAfterFlushing) {
-        if (![self.messageQueue vacuum]) {
-            SAError(@"failed to VACUUM SQLite.");
-        }
-    }
-    
     SADebug(@"events flushed.");
 }
 
