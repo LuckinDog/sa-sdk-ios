@@ -2661,7 +2661,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)autoTrackViewScreen:(UIViewController *)controller {
     NSString *screenName = NSStringFromClass(controller.class);
     //过滤用户设置的不被AutoTrack的Controllers
-    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
+    if (_ignoredViewControllers.count > 0 && screenName) {
         if ([_ignoredViewControllers containsObject:screenName]) {
             return;
         }
