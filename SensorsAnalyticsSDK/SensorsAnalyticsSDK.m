@@ -49,8 +49,8 @@
 #define VERSION @"1.10.18"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
-static NSString * SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
-static NSString * SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
+static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
+static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
 //中国运营商 mcc 标识
 static NSString* const CARRIER_CHINA_MCC = @"460";
 
