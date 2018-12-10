@@ -2670,6 +2670,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackViewScreen:(UIViewController *)controller {
+    [self trackViewScreen:controller properties:nil];
+}
+
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *,id> *)properties_{
     if ([self isLaunchedPassively]) {
         return;
     }
@@ -2736,7 +2740,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _referrerScreenUrl = currentScreenUrl;
         }
     }
-
+    [properties addEntriesFromDictionary:properties_];
     [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
 }
 
