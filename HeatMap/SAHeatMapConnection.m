@@ -171,7 +171,6 @@
     NSString *jsonPath = [sensorsBundle pathForResource:@"sa_headmap_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
-
     _commandQueue.suspended = NO;
     if (!self->_connected) {
         self->_connected = YES;

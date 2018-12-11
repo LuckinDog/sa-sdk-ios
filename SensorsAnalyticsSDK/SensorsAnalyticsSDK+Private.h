@@ -18,6 +18,7 @@
 
 -(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item;
 -(void)onGestureRecognizer:(UIGestureRecognizer *)gesture;
+- (void)autoTrackViewScreen:(UIViewController *)viewController;
 @end
 
 #endif /* SensorsAnalyticsSDK_priv_h */
