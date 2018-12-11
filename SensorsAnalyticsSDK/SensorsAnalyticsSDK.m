@@ -2661,7 +2661,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self _enableAutoTrack];
 }
 
+- (void)autoTrackViewScreen:(UIViewController *)controller {
+    NSString *screenName = NSStringFromClass(controller.class);
+    //过滤用户设置的不被AutoTrack的Controllers
+    if (_ignoredViewControllers.count > 0 && screenName) {
+        if ([_ignoredViewControllers containsObject:screenName]) {
+            return;
+        }
+    }
+    [self trackViewScreen:controller];
+}
+
 - (void)trackViewScreen:(UIViewController *)controller {
+    [self trackViewScreen:controller properties:nil];
+}
+
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *,id> *)properties_{
     if ([self isLaunchedPassively]) {
         return;
     }
@@ -2669,34 +2684,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!controller) {
         return;
     }
-    
+
     NSString *screenName = NSStringFromClass(controller.class);
     if (![self shouldTrackClassName:screenName]) {
         return;
     }
-    
+
     if ([controller isKindOfClass:NSClassFromString(@"UINavigationController")] ||
         [controller isKindOfClass:NSClassFromString(@"UITabBarController")]) {
         return;
     }
-    
-    //过滤用户设置的不被AutoTrack的Controllers
-    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
-        if ([_ignoredViewControllers containsObject:screenName]) {
-            return;
-        }
-    }
-    
+
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     [properties setValue:screenName forKey:SCREEN_NAME_PROPERTY];
-    
+
     @try {
         //先获取 controller.navigationItem.title
         NSString *controllerTitle = controller.navigationItem.title;
         if (controllerTitle != nil) {
             [properties setValue:controllerTitle forKey:@"$title"];
         }
-        
+
         //再获取 controller.navigationItem.titleView, 并且优先级比较高
         NSString *elementContent = [self getUIViewControllerTitle:controller];
         if (elementContent != nil && [elementContent length] > 0) {
@@ -2706,13 +2714,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *exception) {
         SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);
     }
-    
+
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
         [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
         _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
     }
-    
+
 #ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
     [properties setValue:screenName forKey:SCREEN_URL_PROPERTY];
     @synchronized(_referrerScreenUrl) {
@@ -2722,11 +2730,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _referrerScreenUrl = screenName;
     }
 #endif
-    
+
     if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
         UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
         NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
-        
+
         [properties setValue:currentScreenUrl forKey:SCREEN_URL_PROPERTY];
         @synchronized(_referrerScreenUrl) {
             if (_referrerScreenUrl) {
@@ -2735,7 +2743,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _referrerScreenUrl = currentScreenUrl;
         }
     }
-    
+    [properties addEntriesFromDictionary:properties_];
     [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
 }
 
