@@ -454,11 +454,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)configLaunchedPassivelyWithLaunchOptions:(NSDictionary *)launchOptions {
     UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
-    //远程通知启动，位置变动启动
-    if ([launchOptions.allKeys containsObject:UIApplicationLaunchOptionsRemoteNotificationKey] || [launchOptions.allKeys containsObject:UIApplicationLaunchOptionsLocationKey]) {
-        if (applicationState == UIApplicationStateBackground) {
-            self.launchedPassively = YES;
-        }
+    //判断被动启动
+    if (applicationState == UIApplicationStateBackground) {
+        self.launchedPassively = YES;
     }
 }
 
