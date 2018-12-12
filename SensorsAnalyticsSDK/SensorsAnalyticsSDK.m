@@ -2669,6 +2669,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
     }
+    
+    if ([self isLaunchedPassively]) {
+        return;
+    }
+    
     [self trackViewScreen:controller];
 }
 
@@ -2677,10 +2682,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *,id> *)properties_{
-    if ([self isLaunchedPassively]) {
-        return;
-    }
-
     if (!controller) {
         return;
     }
