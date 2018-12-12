@@ -26,7 +26,7 @@
             UIViewController *viewController = (UIViewController *)self;
             if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
-                [viewController.parentViewController isKindOfClass:[UINavigationController class]] ) {
+                [viewController.parentViewController isKindOfClass:[UINavigationController class]] || [viewController.parentViewController isKindOfClass:[UIPageViewController class]]) {
                 [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
             }
 #else
