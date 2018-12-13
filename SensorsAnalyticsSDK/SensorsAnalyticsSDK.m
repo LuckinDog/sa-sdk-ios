@@ -1208,28 +1208,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
         __block BOOL flushSucc = YES;
         
-        UIApplication *application = UIApplication.sharedApplication;
-        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-        // 结束后台任务
-        void (^endBackgroundTask)(void) = ^(){
-            [application endBackgroundTask:backgroundTaskIdentifier];
-            backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-        };
-        
-        if (isBackground) {
-            backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
-                endBackgroundTask();
-            }];
-        }
-        
         void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
             if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
                 SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
                 flushSucc = NO;
-                
-                if (backgroundTaskIdentifier) {
-                    endBackgroundTask();
-                }
                 
                 dispatch_semaphore_signal(flushSem);
                 return;
@@ -1269,11 +1251,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SAError(@"%@ ret_code: %ld", self, statusCode);
                 SAError(@"%@ ret_content: %@", self, urlResponseContent);
             }
-            
-            if (backgroundTaskIdentifier) {
-                endBackgroundTask();
-            }
-            
+
             dispatch_semaphore_signal(flushSem);
         };
         
@@ -3118,7 +3096,21 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     if (self.flushBeforeEnterBackground) {
         dispatch_async(self.serialQueue, ^{
+            UIApplication *application = UIApplication.sharedApplication;
+            __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+            // 结束后台任务
+            void (^endBackgroundTask)(void) = ^(){
+                [application endBackgroundTask:backgroundTaskIdentifier];
+                backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+            };
+            
+            backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
+                endBackgroundTask();
+            }];
+            
             [self _flush:YES];
+            
+            endBackgroundTask();
         });
     }
 }
