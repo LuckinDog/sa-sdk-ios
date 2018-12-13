@@ -27,7 +27,8 @@
             if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
                 [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
-                [viewController.parentViewController isKindOfClass:[UIPageViewController class]]) {
+                [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
+                [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
                 [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
             }
 #else
