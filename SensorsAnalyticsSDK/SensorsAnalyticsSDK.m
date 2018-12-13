@@ -206,6 +206,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 ///是否为被动启动
 @property(nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
+@property(nonatomic,strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -2668,7 +2669,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    if ([self isLaunchedPassively]) {
+    if (self.launchedPassively) {
+        if (controller) {
+            if (!self.launchedPassivelyControllers) {
+                self.launchedPassivelyControllers = [NSMutableArray array];
+            }
+            
+            NSString *screenName = NSStringFromClass(controller.class);
+            if ([self shouldTrackClassName:screenName]) {
+                [self.launchedPassivelyControllers addObject:controller];
+            }
+        }
         return;
     }
     
@@ -3005,6 +3016,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
 #endif
     }
+    
+    //track 被动启动的页面浏览
+    if (self.launchedPassivelyControllers) {
+        [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
+             [self trackViewScreen:controller];
+        }];
+        self.launchedPassivelyControllers = nil;
+    }
+    
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
