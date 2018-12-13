@@ -1157,7 +1157,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)_flush:(BOOL) isBackground {
+- (void)_flush:(BOOL) vacuumAfterFlushing {
     if (_serverURL == nil || [_serverURL isEqualToString:@""]) {
         return;
     }
@@ -1265,6 +1265,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     
     [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
+    
+    if (vacuumAfterFlushing) {
+        if (![self.messageQueue vacuum]) {
+            SAError(@"failed to VACUUM SQLite.");
+        }
+    }
+    
     SADebug(@"events flushed.");
 }
 
@@ -3045,15 +3052,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     _applicationWillResignActive = NO;
     self.launchedPassively = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
-
+    
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
 #endif
-
+    
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
     [self.locationManager stopUpdatingLocation];
 #endif
-
+    
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
@@ -3083,7 +3090,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
         }
     });
-
+    
     if ([self isAutoTrackEnabled]) {
         // 追踪 AppEnd 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
