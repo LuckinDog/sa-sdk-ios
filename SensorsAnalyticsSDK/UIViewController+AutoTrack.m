@@ -29,10 +29,10 @@
                 [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
                 [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
-                [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
+                [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen: viewController];
             }
 #else
-            [[SensorsAnalyticsSDK sharedInstance] trackViewScreen:self];
+            [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen:self];
 #endif
         }
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
