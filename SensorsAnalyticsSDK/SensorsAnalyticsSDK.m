@@ -2690,11 +2690,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    if ([controller isKindOfClass:NSClassFromString(@"UINavigationController")] ||
-        [controller isKindOfClass:NSClassFromString(@"UITabBarController")]) {
-        return;
-    }
-
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     [properties setValue:screenName forKey:SCREEN_NAME_PROPERTY];
 

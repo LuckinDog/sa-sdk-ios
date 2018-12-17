@@ -63,5 +63,6 @@
   "SFPasswordRemoteViewController",
   "UIWebRotatingAlertController",
   "UIEditUserWordController",
-  "UISplitViewController"
+  "UISplitViewController",
+  "UITabBarController"
   ]
