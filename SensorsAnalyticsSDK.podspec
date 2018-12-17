@@ -102,9 +102,9 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
   end
 
-  s.subspec 'ENABLE_AUTOTRACT_DIDSELECTROW' do |f|
+  s.subspec 'ENABLE_AUTOTRACK_DIDSELECTROW' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW=1'}
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW=1'}
   end
   
   s.subspec 'DISABLE_INSTALLATION_MARK_IN_KEYCHAIN' do |f|
