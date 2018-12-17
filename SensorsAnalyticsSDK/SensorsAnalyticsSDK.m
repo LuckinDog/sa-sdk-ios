@@ -1953,6 +1953,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (BOOL)assertPropertyTypes:(NSDictionary **)propertiesAddress withEventType:(NSString *)eventType {
     NSDictionary *properties = *propertiesAddress;
     NSMutableDictionary *newProperties = nil;
+    NSMutableArray * mutKeyForValueIsNSNullArr = nil;
     for (id __unused k in properties) {
         // key 必须是NSString
         if (![k isKindOfClass: [NSString class]]) {
@@ -1975,13 +1976,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         // value的类型检查
-        if(![properties[k] isKindOfClass:[NSString class]] &&
-           ![properties[k] isKindOfClass:[NSNumber class]] &&
-           ![properties[k] isKindOfClass:[NSNull class]] &&
-           ![properties[k] isKindOfClass:[NSSet class]] &&
-           ![properties[k] isKindOfClass:[NSArray class]] &&
-           ![properties[k] isKindOfClass:[NSDate class]]) {
-            NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [properties[k] class], properties[k]];
+        id propertyValue = properties[k];
+        if(![propertyValue isKindOfClass:[NSString class]] &&
+           ![propertyValue isKindOfClass:[NSNumber class]] &&
+           ![propertyValue isKindOfClass:[NSNull class]]&&
+           ![propertyValue isKindOfClass:[NSSet class]] &&
+           ![propertyValue isKindOfClass:[NSArray class]] &&
+           ![propertyValue isKindOfClass:[NSDate class]]) {
+            NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [propertyValue class], propertyValue];
             SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -1989,9 +1991,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return NO;
         }
         
+        if ([propertyValue isKindOfClass:[NSNull class]]) {
+            if (mutKeyForValueIsNSNullArr == nil) {
+                mutKeyForValueIsNSNullArr = [NSMutableArray arrayWithObject:k];
+            }else {
+                [mutKeyForValueIsNSNullArr addObject:k];
+            }
+        }
         // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
-        if ([properties[k] isKindOfClass:[NSSet class]] || [properties[k] isKindOfClass:[NSArray class]]) {
-            NSEnumerator *enumerator = [(properties[k]) objectEnumerator];
+        if ([propertyValue isKindOfClass:[NSSet class]] || [propertyValue isKindOfClass:[NSArray class]]) {
+            NSEnumerator *enumerator = [propertyValue objectEnumerator];
             id object;
             while (object = [enumerator nextObject]) {
                 if (![object isKindOfClass:[NSString class]]) {
@@ -2012,10 +2021,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                     
                     NSMutableSet *newSetObject = nil;
-                    if ([properties[k] isKindOfClass:[NSArray class]]) {
-                        newSetObject = [NSMutableSet setWithArray:properties[k]];
+                    if ([propertyValue isKindOfClass:[NSArray class]]) {
+                        newSetObject = [NSMutableSet setWithArray:propertyValue];
                     } else {
-                        newSetObject = [NSMutableSet setWithSet:properties[k]];
+                        newSetObject = [NSMutableSet setWithSet:propertyValue];
                     }
                     [newSetObject removeObject:object];
                     [newSetObject addObject:newObject];
@@ -2025,15 +2034,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         // NSString 检查长度，但忽略部分属性
-        if ([properties[k] isKindOfClass:[NSString class]]) {
-            NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        if ([propertyValue isKindOfClass:[NSString class]]) {
+            NSUInteger objLength = [((NSString *)propertyValue) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
             NSUInteger valueMaxLength = PROPERTY_LENGTH_LIMITATION;
             if ([k isEqualToString:@"app_crashed_reason"]) {
                 valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
             }
             if (objLength > valueMaxLength) {
                 //截取再拼接 $ 末尾，替换原数据
-                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:properties[k] byteLength:valueMaxLength]];
+                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:propertyValue byteLength:valueMaxLength]];
                 [newObject appendString:@"$"];
                 if (!newProperties) {
                     newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
@@ -2044,8 +2053,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         // profileIncrement的属性必须是NSNumber
         if ([eventType isEqualToString:@"profile_increment"]) {
-            if (![properties[k] isKindOfClass:[NSNumber class]]) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [properties[k] class], properties[k]];
+            if (![propertyValue isKindOfClass:[NSNumber class]]) {
+                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [propertyValue class], propertyValue];
                 SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -2056,8 +2065,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         // profileAppend的属性必须是个NSSet、NSArray
         if ([eventType isEqualToString:@"profile_append"]) {
-            if (![properties[k] isKindOfClass:[NSSet class]] && ![properties[k] isKindOfClass:[NSArray class]]) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [properties[k] class], properties[k]];
+            if (![propertyValue isKindOfClass:[NSSet class]] && ![propertyValue isKindOfClass:[NSArray class]]) {
+                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [propertyValue  class], propertyValue];
                 SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -2069,6 +2078,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     //截取之后，修改原 properties
     if (newProperties) {
         *propertiesAddress = [NSDictionary dictionaryWithDictionary:newProperties];
+    }
+
+    if (mutKeyForValueIsNSNullArr) {
+        NSMutableDictionary *mutDict = [NSMutableDictionary dictionaryWithDictionary:*propertiesAddress];
+        [mutDict removeObjectsForKeys:mutKeyForValueIsNSNullArr];
+        *propertiesAddress = mutDict;
     }
     return YES;
 }
