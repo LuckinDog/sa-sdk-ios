@@ -1953,7 +1953,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (BOOL)assertPropertyTypes:(NSDictionary **)propertiesAddress withEventType:(NSString *)eventType {
     NSDictionary *properties = *propertiesAddress;
     NSMutableDictionary *newProperties = nil;
-    NSMutableArray * mutKeyArrayForValueIsNSNull = nil;
+    NSMutableArray *mutKeyArrayForValueIsNSNull = nil;
     for (id __unused k in properties) {
         // key 必须是NSString
         if (![k isKindOfClass: [NSString class]]) {
@@ -1987,19 +1987,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
-            if (![propertyValue isKindOfClass:NSNull.class]){
+            
+            if ([propertyValue isKindOfClass:[NSNull class]]) {
                 //NSNull 需要对数据做修复，remove 对应的 key
+                if (!mutKeyArrayForValueIsNSNull) {
+                    mutKeyArrayForValueIsNSNull = [NSMutableArray arrayWithObject:k];
+                }else {
+                    [mutKeyArrayForValueIsNSNull addObject:k];
+                }
+            }else {
                 return NO;
             }
         }
         
-        if ([propertyValue isKindOfClass:[NSNull class]]) {
-            if (mutKeyArrayForValueIsNSNull == nil) {
-                mutKeyArrayForValueIsNSNull = [NSMutableArray arrayWithObject:k];
-            }else {
-                [mutKeyArrayForValueIsNSNull addObject:k];
-            }
-        }
         // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
         if ([propertyValue isKindOfClass:[NSSet class]] || [propertyValue isKindOfClass:[NSArray class]]) {
             NSEnumerator *enumerator = [propertyValue objectEnumerator];
@@ -2085,7 +2085,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (mutKeyArrayForValueIsNSNull) {
         NSMutableDictionary *mutDict = [NSMutableDictionary dictionaryWithDictionary:*propertiesAddress];
         [mutDict removeObjectsForKeys:mutKeyArrayForValueIsNSNull];
-        *propertiesAddress = mutDict;
+        *propertiesAddress = [NSDictionary dictionaryWithDictionary:mutDict];
     }
     return YES;
 }
