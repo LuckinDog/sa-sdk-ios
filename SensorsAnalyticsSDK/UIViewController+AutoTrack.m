@@ -22,7 +22,7 @@
     @try {
         
         if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] == NO) {
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEW_SCREEN
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
             if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
