@@ -1953,7 +1953,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (BOOL)assertPropertyTypes:(NSDictionary **)propertiesAddress withEventType:(NSString *)eventType {
     NSDictionary *properties = *propertiesAddress;
     NSMutableDictionary *newProperties = nil;
-    NSMutableArray * mutKeyForValueIsNSNullArr = nil;
+    NSMutableArray * mutKeyArrayForValueIsNSNull = nil;
     for (id __unused k in properties) {
         // key 必须是NSString
         if (![k isKindOfClass: [NSString class]]) {
@@ -1979,7 +1979,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         id propertyValue = properties[k];
         if(![propertyValue isKindOfClass:[NSString class]] &&
            ![propertyValue isKindOfClass:[NSNumber class]] &&
-           ![propertyValue isKindOfClass:[NSNull class]]&&
            ![propertyValue isKindOfClass:[NSSet class]] &&
            ![propertyValue isKindOfClass:[NSArray class]] &&
            ![propertyValue isKindOfClass:[NSDate class]]) {
@@ -1988,14 +1987,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
-            return NO;
+            if (![propertyValue isKindOfClass:NSNull.class]){
+                //NSNull 需要对数据做修复，remove 对应的 key
+                return NO;
+            }
         }
         
         if ([propertyValue isKindOfClass:[NSNull class]]) {
-            if (mutKeyForValueIsNSNullArr == nil) {
-                mutKeyForValueIsNSNullArr = [NSMutableArray arrayWithObject:k];
+            if (mutKeyArrayForValueIsNSNull == nil) {
+                mutKeyArrayForValueIsNSNull = [NSMutableArray arrayWithObject:k];
             }else {
-                [mutKeyForValueIsNSNullArr addObject:k];
+                [mutKeyArrayForValueIsNSNull addObject:k];
             }
         }
         // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
@@ -2080,9 +2082,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         *propertiesAddress = [NSDictionary dictionaryWithDictionary:newProperties];
     }
 
-    if (mutKeyForValueIsNSNullArr) {
+    if (mutKeyArrayForValueIsNSNull) {
         NSMutableDictionary *mutDict = [NSMutableDictionary dictionaryWithDictionary:*propertiesAddress];
-        [mutDict removeObjectsForKeys:mutKeyForValueIsNSNullArr];
+        [mutDict removeObjectsForKeys:mutKeyArrayForValueIsNSNull];
         *propertiesAddress = mutDict;
     }
     return YES;
