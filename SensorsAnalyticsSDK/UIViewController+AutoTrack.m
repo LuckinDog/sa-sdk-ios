@@ -35,7 +35,7 @@
             [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen:self];
 #endif
         }
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
         if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
             //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW

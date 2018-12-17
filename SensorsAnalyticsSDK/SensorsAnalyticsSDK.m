@@ -2824,7 +2824,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 
 - (void)_enableAutoTrack {
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
     void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         UIViewController *controller = (UIViewController *)obj;
         if (!controller) {
@@ -2870,7 +2870,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             error = NULL;
         }
     });
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
     //$AppClick
     //UITableView、UICollectionView
     #if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
