@@ -1964,7 +1964,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             return NO;
         }
-        
+
         // key的名称必须符合要求
         if (![self isValidName: k]) {
             NSString *errMsg = [NSString stringWithFormat:@"property name[%@] is not valid", k];
@@ -1974,7 +1974,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             return NO;
         }
-        
+
         // value的类型检查
         id propertyValue = properties[k];
         if(![propertyValue isKindOfClass:[NSString class]] &&
@@ -1987,7 +1987,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
-            
+
             if ([propertyValue isKindOfClass:[NSNull class]]) {
                 //NSNull 需要对数据做修复，remove 对应的 key
                 if (!mutKeyArrayForValueIsNSNull) {
@@ -1999,7 +1999,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return NO;
             }
         }
-        
+
         // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
         if ([propertyValue isKindOfClass:[NSSet class]] || [propertyValue isKindOfClass:[NSArray class]]) {
             NSEnumerator *enumerator = [propertyValue objectEnumerator];
@@ -2021,7 +2021,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     if (!newProperties) {
                         newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                     }
-                    
+
                     NSMutableSet *newSetObject = nil;
                     if ([propertyValue isKindOfClass:[NSArray class]]) {
                         newSetObject = [NSMutableSet setWithArray:propertyValue];
@@ -2034,7 +2034,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
             }
         }
-        
+
         // NSString 检查长度，但忽略部分属性
         if ([propertyValue isKindOfClass:[NSString class]]) {
             NSUInteger objLength = [((NSString *)propertyValue) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
@@ -2052,7 +2052,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [newProperties setObject:newObject forKey:k];
             }
         }
-        
+
         // profileIncrement的属性必须是NSNumber
         if ([eventType isEqualToString:@"profile_increment"]) {
             if (![propertyValue isKindOfClass:[NSNumber class]]) {
@@ -2064,7 +2064,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return NO;
             }
         }
-        
+
         // profileAppend的属性必须是个NSSet、NSArray
         if ([eventType isEqualToString:@"profile_append"]) {
             if (![propertyValue isKindOfClass:[NSSet class]] && ![propertyValue isKindOfClass:[NSArray class]]) {
