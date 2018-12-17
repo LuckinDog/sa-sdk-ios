@@ -3017,14 +3017,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     }
     
-    //track 被动启动的页面浏览
-    if (self.launchedPassivelyControllers) {
-        [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
-             [self trackViewScreen:controller];
-        }];
-        self.launchedPassivelyControllers = nil;
-    }
-    
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
@@ -3069,6 +3061,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
             [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
+    }
+    
+    //track 被动启动的页面浏览
+    if (self.launchedPassivelyControllers) {
+        [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self trackViewScreen:controller];
+        }];
+        self.launchedPassivelyControllers = nil;
     }
     
     [self startFlushTimer];
