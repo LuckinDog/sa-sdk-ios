@@ -46,7 +46,7 @@
 #import "SAConstant.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 
-#define VERSION @"1.10.18"
+#define VERSION @"1.10.19"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
@@ -2412,8 +2412,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)startFlushTimer {
-    SADebug(@"starting flush timer.");
     [self stopFlushTimer];
+    if (self.remoteConfig.disableSDK) {
+        return;
+    }
+    SADebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_flushInterval > 0) {
             double interval = self->_flushInterval > 100 ? (double)self->_flushInterval / 1000.0 : 0.1f;
@@ -2640,7 +2643,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self _enableAutoTrack];
 }
 
+- (void)autoTrackViewScreen:(UIViewController *)controller {
+    NSString *screenName = NSStringFromClass(controller.class);
+    //过滤用户设置的不被AutoTrack的Controllers
+    if (_ignoredViewControllers.count > 0 && screenName) {
+        if ([_ignoredViewControllers containsObject:screenName]) {
+            return;
+        }
+    }
+    [self trackViewScreen:controller];
+}
+
 - (void)trackViewScreen:(UIViewController *)controller {
+    [self trackViewScreen:controller properties:nil];
+}
+
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *,id> *)properties_{
     if ([self isLaunchedPassively]) {
         return;
     }
@@ -2648,34 +2666,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!controller) {
         return;
     }
-    
+
     NSString *screenName = NSStringFromClass(controller.class);
     if (![self shouldTrackClassName:screenName]) {
         return;
     }
-    
+
     if ([controller isKindOfClass:NSClassFromString(@"UINavigationController")] ||
         [controller isKindOfClass:NSClassFromString(@"UITabBarController")]) {
         return;
     }
-    
-    //过滤用户设置的不被AutoTrack的Controllers
-    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
-        if ([_ignoredViewControllers containsObject:screenName]) {
-            return;
-        }
-    }
-    
+
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
     
+
     @try {
         //先获取 controller.navigationItem.title
         NSString *controllerTitle = controller.navigationItem.title;
         if (controllerTitle != nil) {
             [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
         }
-        
+
         //再获取 controller.navigationItem.titleView, 并且优先级比较高
         NSString *elementContent = [self getUIViewControllerTitle:controller];
         if (elementContent != nil && [elementContent length] > 0) {
@@ -2685,13 +2697,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *exception) {
         SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);
     }
-    
+
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
         [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
         _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
     }
-    
+
 #ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
     [properties setValue:screenName forKey:SCREEN_URL_PROPERTY];
     @synchronized(_referrerScreenUrl) {
@@ -2701,12 +2713,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _referrerScreenUrl = screenName;
     }
 #endif
-    
+
     if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
         UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
         NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
         
         [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
+
         @synchronized(_referrerScreenUrl) {
             if (_referrerScreenUrl) {
                 [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
@@ -2714,7 +2727,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _referrerScreenUrl = currentScreenUrl;
         }
     }
-    
     [self track:SA_APP_VIEW_SCREEN_EVENT withProperties:properties];
 }
 
@@ -2950,10 +2962,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     if (self.remoteConfig.disableSDK) {
         //停止 SDK 的 flushtimer
-        if (self.timer.isValid) {
-            [self.timer invalidate];
-        }
-        self.timer = nil;
+        [self stopFlushTimer];
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         //停止采集设备方向信息
@@ -2984,6 +2993,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
+        if (self.timer == nil || ![self.timer isValid]) {
+            [self startFlushTimer];
+        }
         return;
     }
     _applicationWillResignActive = NO;
