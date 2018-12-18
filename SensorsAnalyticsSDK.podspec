@@ -112,9 +112,9 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN=1'}
   end
 
-  s.subspec 'ENABLE_AUTOTRACT_APPSTARTPASSIVELY' do |f|
+  s.subspec 'ENABLE_AUTOTRACK_APPSTARTPASSIVELY' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACT_APPSTARTPASSIVELY=1'}
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY=1'}
   end
 
 end

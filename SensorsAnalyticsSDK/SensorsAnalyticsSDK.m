@@ -455,7 +455,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)configLaunchedPassivelyWithLaunchOptions:(NSDictionary *)launchOptions {
     UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
-#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_APPSTARTPASSIVELY
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
     //判断被动启动
     if (applicationState == UIApplicationStateBackground) {
         self.launchedPassively = YES;
@@ -2679,7 +2679,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (self.launchedPassively) {
-#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_APPSTARTPASSIVELY
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
         if (controller) {
             if (!self.launchedPassivelyControllers) {
                 self.launchedPassivelyControllers = [NSMutableArray array];
@@ -3074,7 +3074,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     }
     
-#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_APPSTARTPASSIVELY
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
     //track 被动启动的页面浏览
     if (self.launchedPassivelyControllers) {
         [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
