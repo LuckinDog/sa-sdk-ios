@@ -792,8 +792,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         [propertiesDict setObject:@NO forKey:@"$is_first_day"];
                     }
                 }
-
-                [propertiesDict removeObjectForKey:@"$is_first_time"];
                 [propertiesDict removeObjectForKey:@"_nocache"];
             }
 
