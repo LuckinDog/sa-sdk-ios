@@ -206,6 +206,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 ///是否为被动启动
 @property(nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
+@property(nonatomic,strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -454,12 +455,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)configLaunchedPassivelyWithLaunchOptions:(NSDictionary *)launchOptions {
     UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
+    //判断被动启动
+    if (applicationState == UIApplicationStateBackground) {
+        self.launchedPassively = YES;
+    }
+#else
     //远程通知启动，位置变动启动
     if ([launchOptions.allKeys containsObject:UIApplicationLaunchOptionsRemoteNotificationKey] || [launchOptions.allKeys containsObject:UIApplicationLaunchOptionsLocationKey]) {
         if (applicationState == UIApplicationStateBackground) {
             self.launchedPassively = YES;
         }
     }
+ #endif
 }
 
 - (NSDictionary *)getPresetProperties {
@@ -2684,6 +2692,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
     }
+    
+    if (self.launchedPassively) {
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
+        if (controller) {
+            if (!self.launchedPassivelyControllers) {
+                self.launchedPassivelyControllers = [NSMutableArray array];
+            }
+            
+            NSString *screenName = NSStringFromClass(controller.class);
+            if ([self shouldTrackClassName:screenName]) {
+                [self.launchedPassivelyControllers addObject:controller];
+            }
+        }
+#endif
+        return;
+    }
+    
     [self trackViewScreen:controller];
 }
 
@@ -2692,10 +2717,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *,id> *)properties_{
-    if ([self isLaunchedPassively]) {
-        return;
-    }
-
     if (!controller) {
         return;
     }
@@ -3016,6 +3037,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
 #endif
     }
+    
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
@@ -3061,6 +3083,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     }
+    
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
+    //track 被动启动的页面浏览
+    if (self.launchedPassivelyControllers) {
+        [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self trackViewScreen:controller];
+        }];
+        self.launchedPassivelyControllers = nil;
+    }
+#endif
     
     [self startFlushTimer];
 }
