@@ -99,7 +99,10 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
             }
             UIViewController *parentVC = vc.parentViewController;
             if (parentVC) {
-                if ([parentVC isKindOfClass:UINavigationController.class]||[parentVC isKindOfClass:UITabBarController.class]) {
+                if ([parentVC isKindOfClass:UINavigationController.class]||
+                    [parentVC isKindOfClass:UITabBarController.class]||
+                    [parentVC isKindOfClass:UIPageViewController.class]||
+                    [parentVC isKindOfClass:UISplitViewController.class]) {
                     break;
                 }
             }else {
