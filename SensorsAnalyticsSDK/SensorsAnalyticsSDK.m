@@ -45,7 +45,7 @@
 #import "SACommonUtility.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 
-#define VERSION @"1.10.19"
+#define VERSION @"1.10.20"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
