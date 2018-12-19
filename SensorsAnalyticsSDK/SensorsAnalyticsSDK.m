@@ -95,7 +95,9 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
             if (v.parentViewController) {
                 if ([v.parentViewController isKindOfClass:[UIViewController class]] &&
                     ![v.parentViewController isKindOfClass:[UITabBarController class]] &&
-                    ![v.parentViewController isKindOfClass:[UINavigationController class]] ) {
+                    ![v.parentViewController isKindOfClass:[UINavigationController class]]&&
+                    ![v.parentViewController isKindOfClass:UISplitViewController.class]&&
+                    ![v.parentViewController isKindOfClass:UIPageViewController.class]) {
                     next = v.parentViewController;
                 } else {
                     return v;
