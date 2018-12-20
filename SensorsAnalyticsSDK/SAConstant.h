@@ -24,17 +24,17 @@ extern NSString * const SA_EVENT_TOKEN;
 #pragma mark--evnet nanme
 
 // App 启动或激活
-extern NSString * const SA_APP_START_EVENT;
+extern NSString * const SA_EVENT_NAME_APP_START;
 // App 退出或进入后台
-extern NSString * const SA_APP_END_EVENT;
+extern NSString * const SA_EVENT_NAME_APP_END;
 // App 浏览页面
-extern NSString * const SA_APP_VIEW_SCREEN_EVENT;
+extern NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN;
 // App 元素点击
-extern NSString * const SA_APP_CLICK_EVENT;
+extern NSString * const SA_EVENT_NAME_APP_CLICK;
 // 自动追踪相关事件及属性
-extern NSString * const SA_APP_START_PASSIVELY_EVENT;
+extern NSString * const SA_EVENT_NAME_APP_START_PASSIVELY;
 
-extern NSString * const SA_APP_SIGN_UP_EVENT;
+extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
 
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOUTCE;

@@ -989,7 +989,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self archiveLoginId];
         if (![loginId isEqualToString:[self distinctId]]) {
             self.originalId = [self distinctId];
-            [self track:SA_APP_SIGN_UP_EVENT withProperties:properties withType:@"track_signup"];
+            [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:properties withType:@"track_signup"];
         }
     }
 }
@@ -1035,7 +1035,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([self isLaunchedPassively]) {
             // 追踪 AppStart 事件
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-                [self track:SA_APP_START_PASSIVELY_EVENT withProperties:@{
+                [self track:SA_EVENT_NAME_APP_START_PASSIVELY withProperties:@{
                                                                    SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(self->_appRelaunched),
                                                              SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
                                                              }];
@@ -1043,14 +1043,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             // 追踪 AppStart 事件
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-                [self track:SA_APP_START_EVENT withProperties:@{
+                [self track:SA_EVENT_NAME_APP_START withProperties:@{
                                                              SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(self->_appRelaunched),
                                                              SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
                                                              }];
             }
             // 启动 AppEnd 事件计时器
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-                [self trackTimer:SA_APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+                [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
             }
         }
     });
@@ -1452,11 +1452,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *lib_detail = nil;
     if ([self isAutoTrackEnabled] && propertieDict) {
-        if ([event isEqualToString:SA_APP_CLICK_EVENT]) {
+        if ([event isEqualToString:SA_EVENT_NAME_APP_CLICK]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME]];
             }
-        } else if ([event isEqualToString:SA_APP_VIEW_SCREEN_EVENT]) {
+        } else if ([event isEqualToString:SA_EVENT_NAME_APP_VIEW_SCREEN]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME]];
             }
@@ -1786,12 +1786,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
-    [self track:SA_APP_SIGN_UP_EVENT withProperties:propertieDict withType:@"track_signup"];
+    [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:propertieDict withType:@"track_signup"];
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId {
     [self identify:newDistinctId];
-    [self track:SA_APP_SIGN_UP_EVENT withProperties:nil withType:@"track_signup"];
+    [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:nil withType:@"track_signup"];
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
@@ -2610,7 +2610,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties addEntriesFromDictionary:propDict];
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
+        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
@@ -2736,10 +2736,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
 #ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
-    [properties setValue:screenName forKey:SCREEN_URL_PROPERTY];
+    [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_URL];
     @synchronized(_referrerScreenUrl) {
         if (_referrerScreenUrl) {
-            [properties setValue:_referrerScreenUrl forKey:SCREEN_REFERRER_URL_PROPERTY];
+            [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
         }
         _referrerScreenUrl = screenName;
     }
@@ -2758,7 +2758,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _referrerScreenUrl = currentScreenUrl;
         }
     }
-    [self track:SA_APP_VIEW_SCREEN_EVENT withProperties:properties];
+    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:properties];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2833,7 +2833,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     }
                 }
                 
-                [[SensorsAnalyticsSDK sharedInstance] track:SA_APP_CLICK_EVENT withProperties:properties];
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
@@ -2954,7 +2954,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
-    [self track:SA_APP_VIEW_SCREEN_EVENT withProperties:trackProperties];
+    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:trackProperties];
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
@@ -3057,14 +3057,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if ([self isAutoTrackEnabled] && _appRelaunched) {
         // 追踪 AppStart 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-            [self track:SA_APP_START_EVENT withProperties:@{
+            [self track:SA_EVENT_NAME_APP_START withProperties:@{
                                                          SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(_appRelaunched),
                                                          SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
                                                          }];
         }
         // 启动 AppEnd 事件计时器
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-            [self trackTimer:SA_APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+            [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     }
     
@@ -3110,7 +3110,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSMutableDictionary *eventTimer = nil;
         for (key in keys) {
             if (key != nil) {
-                if ([key isEqualToString:SA_APP_END_EVENT]) {
+                if ([key isEqualToString:SA_EVENT_NAME_APP_END]) {
                     continue;
                 }
             }
@@ -3137,7 +3137,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
-            [self track:SA_APP_END_EVENT];
+            [self track:SA_EVENT_NAME_APP_END];
         }
     }
     

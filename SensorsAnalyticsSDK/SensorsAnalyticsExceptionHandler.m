@@ -164,7 +164,7 @@ static void SAHandleException(NSException *exception) {
             }
             [instance track:@"AppCrashed" withProperties:properties];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                [instance track:SA_APP_END_EVENT];
+                [instance track:SA_EVENT_NAME_APP_END];
             }
             
             dispatch_sync(instance.serialQueue, ^{

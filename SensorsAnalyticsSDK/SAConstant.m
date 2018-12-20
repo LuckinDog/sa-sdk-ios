@@ -22,17 +22,17 @@ NSString * const SA_EVENT_TOKEN = @"token";
 
 #pragma mark--event name
 // App 启动或激活
-NSString * const SA_APP_START_EVENT = @"$AppStart";
+NSString * const SA_EVENT_NAME_APP_START = @"$AppStart";
 // App 退出或进入后台
-NSString * const SA_APP_END_EVENT = @"$AppEnd";
+NSString * const SA_EVENT_NAME_APP_END = @"$AppEnd";
 // App 浏览页面
-NSString * const SA_APP_VIEW_SCREEN_EVENT = @"$AppViewScreen";
+NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN = @"$AppViewScreen";
 // App 元素点击
-NSString * const SA_APP_CLICK_EVENT = @"$AppClick";
+NSString * const SA_EVENT_NAME_APP_CLICK = @"$AppClick";
 // 自动追踪相关事件及属性
-NSString * const SA_APP_START_PASSIVELY_EVENT = @"$AppStartPassively";
+NSString * const SA_EVENT_NAME_APP_START_PASSIVELY = @"$AppStartPassively";
 
-NSString * const SA_APP_SIGN_UP_EVENT = @"$SignUp";
+NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
 
 #pragma mark--app install property
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOUTCE = @"$ios_install_source";
