@@ -35,7 +35,7 @@ NSString * const SA_EVENT_NAME_APP_START_PASSIVELY = @"$AppStartPassively";
 NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
 
 #pragma mark--app install property
-NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOUTCE = @"$ios_install_source";
+NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE = @"$ios_install_source";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK = @"$ios_install_disable_callback";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_USER_AGENT = @"$user_agent";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME = @"$first_visit_time";

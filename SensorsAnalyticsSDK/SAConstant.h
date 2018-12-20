@@ -37,7 +37,7 @@ extern NSString * const SA_EVENT_NAME_APP_START_PASSIVELY;
 extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
 
 #pragma mark--app install property
-extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOUTCE;
+extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_USER_AGENT;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;

@@ -1825,9 +1825,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         NSString *idfa = [self getIDFA];
         if (idfa != nil) {
-            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOUTCE];
+            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
         } else {
-            [properties setValue:@"" forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOUTCE];
+            [properties setValue:@"" forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
         }
 
         if (disableCallback) {
