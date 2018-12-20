@@ -3061,6 +3061,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self.locationManager stopUpdatingLocation];
 #endif
     
+    UIApplication *application = UIApplication.sharedApplication;
+    __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+    // 结束后台任务
+    void (^endBackgroundTask)(void) = ^(){
+        [application endBackgroundTask:backgroundTaskIdentifier];
+        backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+    };
+    
+    backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
+        endBackgroundTask();
+    }];
+    
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
@@ -3103,20 +3115,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     if (self.flushBeforeEnterBackground) {
         dispatch_async(self.serialQueue, ^{
-            UIApplication *application = UIApplication.sharedApplication;
-            __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-            // 结束后台任务
-            void (^endBackgroundTask)(void) = ^(){
-                [application endBackgroundTask:backgroundTaskIdentifier];
-                backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-            };
-            
-            backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
-                endBackgroundTask();
-            }];
             
             [self _flush:YES];
             
+            endBackgroundTask();
+        });
+    }else {
+        dispatch_async(self.serialQueue, ^{
             endBackgroundTask();
         });
     }
