@@ -6,11 +6,6 @@
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
-
 #import "SAHeatMapConnection.h"
 #import "SAHeatMapMessage.h"
 #import "SAHeatMapSnapshotMessage.h"
@@ -187,7 +182,7 @@
             alertMessage = @"正在连接 APP 点击分析，建议在 WiFi 环境下使用";
         }
         
-        if (@available(iOS 8.0, *)) {
+        if (@available(iOS 8.0,*)) {
             UIWindow *mainWindow = UIApplication.sharedApplication.keyWindow;
             if (mainWindow == nil) {
                 mainWindow = [[UIApplication sharedApplication] delegate].window;
