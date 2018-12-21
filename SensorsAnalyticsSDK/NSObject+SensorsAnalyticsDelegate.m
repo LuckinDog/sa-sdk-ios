@@ -5,7 +5,7 @@
 //  Created by 向作为 on 2018/8/8.
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
-#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
 
 #import "NSObject+SensorsAnalyticsDelegate.h"
 #import <objc/runtime.h>
@@ -14,19 +14,19 @@
 #import "AutoTrackUtils.h"
 #import "SensorsAnalyticsSDK.h"
 
-void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath){
+static void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath){
     SEL selector = NSSelectorFromString(@"sa_tableView:didSelectRowAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, tableView, indexPath);
     [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
-void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id collectionView, id indexPath){
+static void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id collectionView, id indexPath){
     SEL selector = NSSelectorFromString(@"sa_collectionView:didSelectItemAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, collectionView, indexPath);
     [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
 }
 
-void sa_setDelegate(id obj ,SEL sel, id delegate){
+static void sa_setDelegate(id obj ,SEL sel, id delegate){
     SEL swizzileSel = sel_getUid("sa_setDelegate:");
     ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,delegate);
     if (delegate == nil) {
