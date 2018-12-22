@@ -89,25 +89,31 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 @implementation UIView (SensorsAnalytics)
 - (UIViewController *)sensorsAnalyticsViewController {
-    UIResponder *next = [self nextResponder];
+    UIResponder *next = self.nextResponder;
     do {
-        if ([next isKindOfClass:[UIViewController class]]) {
-            UIViewController *v = (UIViewController *)next;
-            if (v.parentViewController) {
-                if ([v.parentViewController isKindOfClass:[UIViewController class]] &&
-                    ![v.parentViewController isKindOfClass:[UITabBarController class]] &&
-                    ![v.parentViewController isKindOfClass:[UINavigationController class]] ) {
-                    next = v.parentViewController;
-                } else {
-                    return v;
+        if ([next isKindOfClass:UIViewController.class]) {
+            UIViewController *vc = (UIViewController *)next;
+            if ([vc isKindOfClass:UINavigationController.class]) {
+                next = [(UINavigationController *)vc topViewController];
+                break;
+            }else if([vc isKindOfClass:UITabBarController.class]) {
+                next = [(UITabBarController *)vc selectedViewController];
+                break;
+            }
+            UIViewController *parentVC = vc.parentViewController;
+            if (parentVC) {
+                if ([parentVC isKindOfClass:UINavigationController.class]||
+                    [parentVC isKindOfClass:UITabBarController.class]||
+                    [parentVC isKindOfClass:UIPageViewController.class]||
+                    [parentVC isKindOfClass:UISplitViewController.class]) {
+                    break;
                 }
-            } else {
-                return (UIViewController *)next;
+            }else {
+                break;
             }
         }
-        next = [next nextResponder];
-    } while (next != nil);
-    return nil;
+    } while ((next=next.nextResponder));
+    return [next isKindOfClass:UIViewController.class]?(UIViewController *)next:nil;
 }
 
 //viewID
@@ -2705,7 +2711,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
     }
 
-#ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
+#ifdef SENSORS_ANALYTICS_AUTOTRACK_APPVIEWSCREEN_URL
     [properties setValue:screenName forKey:SCREEN_URL_PROPERTY];
     @synchronized(_referrerScreenUrl) {
         if (_referrerScreenUrl) {

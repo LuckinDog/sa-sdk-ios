@@ -22,9 +22,9 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_LOG=1'}
   end
 
-  s.subspec 'AUTOTRACT_APPVIEWSCREEN_URL' do |f|
+  s.subspec 'AUTOTRACK_APPVIEWSCREEN_URL' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL=1'}
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_AUTOTRACK_APPVIEWSCREEN_URL=1'}
   end
 
   s.subspec 'DISABLE_CALL_STACK' do |f|
