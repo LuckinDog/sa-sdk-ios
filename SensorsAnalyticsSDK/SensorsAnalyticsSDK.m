@@ -1479,7 +1479,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-#ifndef SENSORS_ANALYTICS_DISABLE_CALL_STACK
+#ifdef SENSORS_ANALYTICS_ENABLE_CALL_STACK
     NSArray *syms = [NSThread callStackSymbols];
     
     if ([syms count] > 2 && !lib_detail) {
