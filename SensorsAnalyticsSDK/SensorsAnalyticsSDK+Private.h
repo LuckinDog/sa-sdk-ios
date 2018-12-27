@@ -12,8 +12,24 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <WebKit/Webkit.h>
+
+/**
+ 埋点方式
+
+ - SensorsAnalyticsTrackTypeCode: 代码埋点
+ - SensorsAnalyticsTrackTypeAuto: 全埋点
+ */
+typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
+    SensorsAnalyticsTrackTypeCode,
+    SensorsAnalyticsTrackTypeAuto,
+};
+
 @interface SensorsAnalyticsSDK(Private)
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
+
+- (void)track:(NSString *)event withTrackType:(SensorsAnalyticsTrackType)trackType;
+
+- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType;
 @end
 
 #endif /* SensorsAnalyticsSDK_priv_h */

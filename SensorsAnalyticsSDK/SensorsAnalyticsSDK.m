@@ -44,6 +44,7 @@
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
 #import "UIGestureRecognizer+AutoTrack.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 #define VERSION @"1.10.20"
 #define PROPERTY_LENGTH_LIMITATION 8191
@@ -1061,7 +1062,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self track:@"$AppStartPassively" withProperties:@{
                                                                    RESUME_FROM_BACKGROUND_PROPERTY : @(self->_appRelaunched),
                                                              APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                             }];
+                                                             } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         } else {
             // 追踪 AppStart 事件
@@ -1427,14 +1428,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (self.remoteConfig.disableSDK) {
         return;
     }
+    
+     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
+    
     // 对于type是track数据，它们的event名称是有意义的
-    if ([type isEqualToString:@"track"]) {
+    if ([type isEqualToString:@"track"] || [type isEqualToString:@"codeTrack"]) {
         if (event == nil || [event length] == 0) {
             NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
             SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
+            
+            if ([type isEqualToString:@"codeTrack"]) {
+                [libProperties setValue:@"codeTrack" forKey:@"$lib_method"];
+            }else {
+                [libProperties setValue:@"autoTrack" forKey:@"$lib_method"];
+            }
+            
             return;
         }
         if (![self isValidName:event]) {
@@ -1454,8 +1465,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    
     [libProperties setValue:[_automaticProperties objectForKey:@"$lib"] forKey:@"$lib"];
     [libProperties setValue:[_automaticProperties objectForKey:@"$lib_version"] forKey:@"$lib_version"];
     
@@ -1464,7 +1473,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [libProperties setValue:app_version forKey:@"$app_version"];
     }
     
-    [libProperties setValue:@"code" forKey:@"$lib_method"];
+//    [libProperties setValue:@"code" forKey:@"$lib_method"];
 
     NSString *lib_detail = nil;
     if ([self isAutoTrackEnabled] && propertieDict) {
@@ -1482,8 +1491,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_CALL_STACK
     NSArray *syms = [NSThread callStackSymbols];
     
-    if ([syms count] > 2 && !lib_detail) {
-        NSString *trace = [syms objectAtIndex:2];
+    if ([syms count] > 4 && !lib_detail) {
+        NSString *trace = [syms objectAtIndex:4];
         
         NSRange start = [trace rangeOfString:@"["];
         NSRange end = [trace rangeOfString:@"]"];
@@ -1726,12 +1735,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return bestId;
 }
 
-- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
-    [self track:event withProperties:propertieDict withType:@"track"];
+- (void)track:(NSString *)event {
+    [self track:event withTrackType:SensorsAnalyticsTrackTypeCode];
 }
 
-- (void)track:(NSString *)event {
-    [self track:event withProperties:nil withType:@"track"];
+- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
+    [self track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeCode];
+}
+
+- (void)track:(NSString *)event withTrackType:(SensorsAnalyticsTrackType)trackType {
+    [self checkEvent:event withProperties:nil withTrackType:trackType];
+}
+
+- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
+    [self checkEvent:event withProperties:propertieDict withTrackType:trackType];
+}
+
+- (void)checkEvent:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
+    if (trackType == SensorsAnalyticsTrackTypeCode) { //事件校验
+        //不符事件，打印 log
+        
+        [self track:event withProperties:propertieDict withType:@"codeTrack"];
+    }else {
+        [self track:event withProperties:propertieDict withType:@"track"];
+    }
 }
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
@@ -2627,7 +2654,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties addEntriesFromDictionary:propDict];
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
@@ -2849,7 +2876,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     }
                 }
                 
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
@@ -3321,7 +3348,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     NSNumber *autoTrackMode = [configDict valueForKeyPath:@"configs.autoTrackMode"];
                     //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
                     if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
-                        [weakself track:@"DisableSensorsDataSDK" withProperties:@{}];
+                        [weakself track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeAuto];
                     }
                     //如果有字段缺失，需要设置为默认值
                     if (disableSDK == nil) {
