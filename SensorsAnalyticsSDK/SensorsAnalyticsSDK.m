@@ -183,6 +183,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSPredicate *regexTestName;
 
+@property (nonatomic, strong) NSPredicate *regexEventName;
+
 @property (atomic, strong) MessageQueueBySqlite *messageQueue;
 
 @property (nonatomic, strong) NSTimer *timer;
@@ -431,6 +433,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
+            
+            NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick))|(^AppCrashed)$";
+            self.regexEventName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",eventPattern];
+            
+            
             
             [self setUpListeners];
             
@@ -1070,7 +1077,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self track:APP_START_EVENT withProperties:@{
                                                              RESUME_FROM_BACKGROUND_PROPERTY : @(self->_appRelaunched),
                                                              APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                             }];
+                                                             } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             // 启动 AppEnd 事件计时器
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
@@ -1439,13 +1446,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
-            
-            if ([type isEqualToString:@"codeTrack"]) {
-                [libProperties setValue:@"codeTrack" forKey:@"$lib_method"];
-            }else {
-                [libProperties setValue:@"autoTrack" forKey:@"$lib_method"];
-            }
-            
             return;
         }
         if (![self isValidName:event]) {
@@ -1455,6 +1455,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
             return;
+        }
+        
+        if ([type isEqualToString:@"codeTrack"]) {
+            [libProperties setValue:@"codeTrack" forKey:@"$lib_method"];
+            type = @"track";
+        }else {
+            [libProperties setValue:@"autoTrack" forKey:@"$lib_method"];
         }
     }
     
@@ -1749,7 +1756,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
     if (trackType == SensorsAnalyticsTrackTypeCode) { //事件校验
-        //不符事件，打印 log
+        //预置事件
+        if ([self.regexEventName evaluateWithObject:event]) {
+#warning 打印log
+            SAError(@"\n【invalid event】\n %@ is a sensorsdata preset event, it is recommended to modify the event name",event);
+        };
         
         [self track:event withProperties:propertieDict withType:@"codeTrack"];
     }else {
@@ -1810,11 +1821,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackTimerEnd:(NSString *)event {
-    [self track:event];
+    [self track:event withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self track:event withProperties:propertyDict];
+    [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)clearTrackTimer {
@@ -2797,7 +2808,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     [properties addEntriesFromDictionary:properties_];
-    [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
+    [self track:APP_VIEW_SCREEN_EVENT withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2992,7 +3003,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
-    [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties];
+    [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
@@ -3003,7 +3014,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
         if (eventArray) {
             for (NSDictionary *dict in eventArray) {
-                [[SensorsAnalyticsSDK sharedInstance] track:dict[@"event"] withProperties:dict[@"properties"]];
+                [[SensorsAnalyticsSDK sharedInstance] track:dict[@"event"] withProperties:dict[@"properties"] withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
             if (completion) {
@@ -3098,7 +3109,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                         }];
+                                                         } withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
         // 启动 AppEnd 事件计时器
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
@@ -3187,7 +3198,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
-            [self track:APP_END_EVENT];
+            [self track:APP_END_EVENT withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     }
 
