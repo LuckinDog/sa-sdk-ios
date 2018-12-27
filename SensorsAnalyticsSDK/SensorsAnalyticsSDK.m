@@ -1487,13 +1487,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     }
-    
+ 
 #ifndef SENSORS_ANALYTICS_DISABLE_CALL_STACK
     NSArray *syms = [NSThread callStackSymbols];
-    
-    if ([syms count] > 4 && !lib_detail) {
-        NSString *trace = [syms objectAtIndex:4];
-        
+
+    if ([syms count] > 3 && !lib_detail) {
+        NSString *trace = [syms objectAtIndex:3];
+
         NSRange start = [trace rangeOfString:@"["];
         NSRange end = [trace rangeOfString:@"]"];
         if (start.location != NSNotFound && end.location != NSNotFound && end.location > start.location) {
@@ -1501,7 +1501,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSRange split = [trace_info rangeOfString:@" "];
             NSString *class = [trace_info substringWithRange:NSMakeRange(0, split.location)];
             NSString *function = [trace_info substringWithRange:NSMakeRange(split.location + 1, trace_info.length-(split.location + 1))];
-            
+
             lib_detail = [NSString stringWithFormat:@"%@##%@####", class, function];
         }
     }
@@ -1736,7 +1736,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event {
-    [self track:event withTrackType:SensorsAnalyticsTrackTypeCode];
+    [self track:event withProperties:nil withTrackType:SensorsAnalyticsTrackTypeCode];;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
@@ -1744,14 +1744,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withTrackType:(SensorsAnalyticsTrackType)trackType {
-    [self checkEvent:event withProperties:nil withTrackType:trackType];
+    [self track:event withProperties:nil withTrackType:trackType];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
-    [self checkEvent:event withProperties:propertieDict withTrackType:trackType];
-}
-
-- (void)checkEvent:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
     if (trackType == SensorsAnalyticsTrackTypeCode) { //事件校验
         //不符事件，打印 log
         
