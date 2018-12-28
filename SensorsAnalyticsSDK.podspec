@@ -27,11 +27,6 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_AUTOTRACK_APPVIEWSCREEN_URL=1'}
   end
 
-  s.subspec 'DISABLE_CALL_STACK' do |f|
-        f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_CALL_STACK=1'}
-  end
-
   s.subspec 'DISABLE_TRACK_GPS' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_GPS=1'}
@@ -120,6 +115,11 @@ Pod::Spec.new do |s|
   s.subspec 'ENABLE_AUTOTRACK_APPSTARTPASSIVELY' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY=1'}
+  end
+
+  s.subspec 'ENABLE_CALL_STACK' do |f|
+        f.dependency 'SensorsAnalyticsSDK/core'
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_CALL_STACK=1'}
   end
 
 end
