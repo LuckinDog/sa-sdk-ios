@@ -1752,10 +1752,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
-    if (trackType == SensorsAnalyticsTrackTypeCode) { //事件校验
-        //预置事件
+    if (trackType == SensorsAnalyticsTrackTypeCode) {
+        //事件校验，预置事件提醒
         if ([self.regexEventName evaluateWithObject:event]) {
-            SAError(@"\n【event warning】\n %@ is a sensorsdata preset event, it is recommended to modify the event name",event);
+            SAError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one",event);
         };
         
         [self track:event withProperties:propertieDict withType:@"codeTrack"];
