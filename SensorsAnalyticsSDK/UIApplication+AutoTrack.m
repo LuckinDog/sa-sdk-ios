@@ -194,7 +194,7 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
                 return;
             }
 
@@ -213,7 +213,7 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
                 return;
             }
 
@@ -248,7 +248,7 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
                 return;
                 
             }
@@ -353,7 +353,7 @@
                     [properties addEntriesFromDictionary:propDict];
                 }
                 
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
             }
         }
     } @catch (NSException *exception) {

@@ -401,7 +401,7 @@
             SAError(@"%@ error: %@", self, exception);
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -565,7 +565,7 @@
             SAError(@"%@ error: %@", self, exception);
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }

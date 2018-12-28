@@ -17,11 +17,11 @@
  埋点方式
 
  - SensorsAnalyticsTrackTypeCode: 代码埋点
- - SensorsAnalyticsTrackTypeAuto: 全埋点
+ - SensorsAnalyticsTrackTypeSA: 神策埋点
  */
 typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
     SensorsAnalyticsTrackTypeCode,
-    SensorsAnalyticsTrackTypeAuto,
+    SensorsAnalyticsTrackTypeSA,
 };
 
 @interface SensorsAnalyticsSDK(Private)
