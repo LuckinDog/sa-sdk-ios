@@ -163,9 +163,9 @@ static void SAHandleException(NSException *exception) {
             } @catch(NSException *exception) {
                 SAError(@"%@ error: %@", self, exception);
             }
-            [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
+            [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeSA];
+                [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             
             dispatch_sync(instance.serialQueue, ^{

@@ -1069,7 +1069,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self track:@"$AppStartPassively" withProperties:@{
                                                                    RESUME_FROM_BACKGROUND_PROPERTY : @(self->_appRelaunched),
                                                              APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                             } withTrackType:SensorsAnalyticsTrackTypeSA];
+                                                             } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         } else {
             // 追踪 AppStart 事件
@@ -1077,7 +1077,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self track:APP_START_EVENT withProperties:@{
                                                              RESUME_FROM_BACKGROUND_PROPERTY : @(self->_appRelaunched),
                                                              APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                             } withTrackType:SensorsAnalyticsTrackTypeSA];
+                                                             } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             // 启动 AppEnd 事件计时器
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
@@ -1437,7 +1437,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    [libProperties setValue:@"saTrack" forKey:@"$lib_method"];
+    [libProperties setValue:@"autoTrack" forKey:@"$lib_method"];
     
     // 对于type是track数据，它们的event名称是有意义的
     if ([type isEqualToString:@"track"] || [type isEqualToString:@"codeTrack"]) {
@@ -1817,11 +1817,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackTimerEnd:(NSString *)event {
-    [self track:event withTrackType:SensorsAnalyticsTrackTypeSA];
+    [self track:event withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeSA];
+    [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)clearTrackTimer {
@@ -2657,7 +2657,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties addEntriesFromDictionary:propDict];
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
@@ -2804,7 +2804,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     [properties addEntriesFromDictionary:properties_];
-    [self track:APP_VIEW_SCREEN_EVENT withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
+    [self track:APP_VIEW_SCREEN_EVENT withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2879,7 +2879,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     }
                 }
                 
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeSA];
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
@@ -2999,7 +2999,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
-    [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeSA];
+    [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
@@ -3010,7 +3010,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
         if (eventArray) {
             for (NSDictionary *dict in eventArray) {
-                [[SensorsAnalyticsSDK sharedInstance] track:dict[@"event"] withProperties:dict[@"properties"] withTrackType:SensorsAnalyticsTrackTypeSA];
+                [[SensorsAnalyticsSDK sharedInstance] track:dict[@"event"] withProperties:dict[@"properties"] withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
             if (completion) {
@@ -3105,7 +3105,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                         } withTrackType:SensorsAnalyticsTrackTypeSA];
+                                                         } withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
         // 启动 AppEnd 事件计时器
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
@@ -3194,7 +3194,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
-            [self track:APP_END_EVENT withTrackType:SensorsAnalyticsTrackTypeSA];
+            [self track:APP_END_EVENT withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     }
 
@@ -3351,7 +3351,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     NSNumber *autoTrackMode = [configDict valueForKeyPath:@"configs.autoTrackMode"];
                     //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
                     if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
-                        [weakself track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeSA];
+                        [weakself track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeAuto];
                     }
                     //如果有字段缺失，需要设置为默认值
                     if (disableSDK == nil) {
