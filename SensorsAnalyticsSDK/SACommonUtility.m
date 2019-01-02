@@ -22,11 +22,14 @@
     NSStringEncoding enc = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF8);
     NSData* data = [string dataUsingEncoding:enc];
     
-    //预留一位，拼接 $
-    NSData *data1 = [data subdataWithRange:NSMakeRange(0,len-1)];
+    NSData *data1 = [data subdataWithRange:NSMakeRange(0,len)];
     NSString*txt=[[NSString alloc]initWithData:data1 encoding:enc];
     
     //utf8 汉字占三个字节，可能截取失败
+    if (!txt) {
+        data1 = [data subdataWithRange:NSMakeRange(0, len-1)];
+        txt=[[NSString alloc]initWithData:data1 encoding:enc];
+    }
     if (!txt) {
         data1 = [data subdataWithRange:NSMakeRange(0, len-2)];
         txt=[[NSString alloc]initWithData:data1 encoding:enc];
@@ -35,7 +38,6 @@
         data1 = [data subdataWithRange:NSMakeRange(0, len-3)];
         txt=[[NSString alloc]initWithData:data1 encoding:enc];
     }
-    
 //    txt = [string getBytes:<#(nullable void *)#> maxLength:<#(NSUInteger)#> usedLength:<#(nullable NSUInteger *)#> encoding:<#(NSStringEncoding)#> options:<#(NSStringEncodingConversionOptions)#> range:<#(NSRange)#> remainingRange:<#(nullable NSRangePointer)#>]
     
     if (!txt) {
