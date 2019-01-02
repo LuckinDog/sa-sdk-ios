@@ -36,6 +36,8 @@
         txt=[[NSString alloc]initWithData:data1 encoding:enc];
     }
     
+//    txt = [string getBytes:<#(nullable void *)#> maxLength:<#(NSUInteger)#> usedLength:<#(nullable NSUInteger *)#> encoding:<#(NSStringEncoding)#> options:<#(NSStringEncodingConversionOptions)#> range:<#(NSRange)#> remainingRange:<#(nullable NSRangePointer)#>]
+    
     if (!txt) {
         return string;
     }
