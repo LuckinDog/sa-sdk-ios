@@ -17,28 +17,23 @@
 
 
 ///按字节截取指定长度字符，包括汉字
-+ (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )len {
++ (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )length {
     
     NSStringEncoding enc = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF8);
     NSData* data = [string dataUsingEncoding:enc];
     
-    NSData *data1 = [data subdataWithRange:NSMakeRange(0,len)];
-    NSString*txt=[[NSString alloc]initWithData:data1 encoding:enc];
+    NSData *subData = [data subdataWithRange:NSMakeRange(0,length)];
+    NSString*txt=[[NSString alloc]initWithData:subData encoding:enc];
     
-    //utf8 汉字占三个字节，可能截取失败
-    if (!txt) {
-        data1 = [data subdataWithRange:NSMakeRange(0, len-1)];
-        txt=[[NSString alloc]initWithData:data1 encoding:enc];
+     //utf8 汉字占三个字节，表情占四个字节，可能截取失败
+    NSInteger index = 3;
+    while (index > 0 && !txt) {
+        if (length > index) {
+            subData = [data subdataWithRange:NSMakeRange(0, length - index)];
+            txt = [[NSString alloc]initWithData:subData encoding:enc];
+        }
+        index --;
     }
-    if (!txt) {
-        data1 = [data subdataWithRange:NSMakeRange(0, len-2)];
-        txt=[[NSString alloc]initWithData:data1 encoding:enc];
-    }
-    if (!txt) {
-        data1 = [data subdataWithRange:NSMakeRange(0, len-3)];
-        txt=[[NSString alloc]initWithData:data1 encoding:enc];
-    }
-//    txt = [string getBytes:<#(nullable void *)#> maxLength:<#(NSUInteger)#> usedLength:<#(nullable NSUInteger *)#> encoding:<#(NSStringEncoding)#> options:<#(NSStringEncodingConversionOptions)#> range:<#(NSRange)#> remainingRange:<#(nullable NSRangePointer)#>]
     
     if (!txt) {
         return string;
