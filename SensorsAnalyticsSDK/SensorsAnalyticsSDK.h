@@ -931,7 +931,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param profileKey  pushId 的 key
  * @param pushId  pushId 的值
  */
-- (void)profileSet:(NSString *)profileKey pushId:(NSString *)pushId;
+- (void)profilePushKey:(NSString *)pushKey pushId:(NSString *)pushId;
 
 /**
  * @abstract
