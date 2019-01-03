@@ -26,13 +26,13 @@
     NSString*txt=[[NSString alloc]initWithData:subData encoding:enc];
     
      //utf8 汉字占三个字节，表情占四个字节，可能截取失败
-    NSInteger index = 3;
-    while (index > 0 && !txt) {
+    NSInteger index = 1;
+    while (index <= 3 && !txt) {
         if (length > index) {
             subData = [data subdataWithRange:NSMakeRange(0, length - index)];
             txt = [[NSString alloc]initWithData:subData encoding:enc];
         }
-        index --;
+        index ++;
     }
     
     if (!txt) {
