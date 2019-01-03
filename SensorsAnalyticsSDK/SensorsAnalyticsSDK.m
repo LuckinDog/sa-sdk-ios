@@ -47,7 +47,7 @@
 
 #define VERSION @"1.10.20"
 
-static const NSUInteger SA_PROPERTY_LENGTH_LIMITATION = 8191;
+static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
 static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
 static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
