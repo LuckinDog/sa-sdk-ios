@@ -46,7 +46,8 @@
 #import "UIGestureRecognizer+AutoTrack.h"
 
 #define VERSION @"1.10.20"
-#define PROPERTY_LENGTH_LIMITATION 8191
+
+static const NSUInteger SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
 static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
 static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
@@ -2019,9 +2020,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     return NO;
                 }
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-                if (objLength > PROPERTY_LENGTH_LIMITATION) {
+                if (objLength > SA_PROPERTY_LENGTH_LIMITATION) {
                     //截取再拼接 $ 末尾，替换原数据
-                    NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:(NSString *)object byteLength:PROPERTY_LENGTH_LIMITATION]];
+                    NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:(NSString *)object byteLength:SA_PROPERTY_LENGTH_LIMITATION - 1]];
                     [newObject appendString:@"$"];
                     if (!newProperties) {
                         newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
@@ -2043,13 +2044,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // NSString 检查长度，但忽略部分属性
         if ([propertyValue isKindOfClass:[NSString class]]) {
             NSUInteger objLength = [((NSString *)propertyValue) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-            NSUInteger valueMaxLength = PROPERTY_LENGTH_LIMITATION;
+            NSUInteger valueMaxLength = SA_PROPERTY_LENGTH_LIMITATION;
             if ([k isEqualToString:@"app_crashed_reason"]) {
-                valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
+                valueMaxLength = SA_PROPERTY_LENGTH_LIMITATION * 2;
             }
             if (objLength > valueMaxLength) {
                 //截取再拼接 $ 末尾，替换原数据
-                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:propertyValue byteLength:valueMaxLength]];
+                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:propertyValue byteLength:valueMaxLength - 1]];
                 [newObject appendString:@"$"];
                 if (!newProperties) {
                     newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
