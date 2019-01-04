@@ -3286,7 +3286,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    dispatch_barrier_async(self.readWriteQueue, ^{
+    dispatch_async(self.readWriteQueue, ^{
         self->_remoteConfig = remoteConfig;
     });
 }
