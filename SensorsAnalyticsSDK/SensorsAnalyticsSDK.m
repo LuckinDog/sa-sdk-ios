@@ -3192,6 +3192,20 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] set:profileDict];
 }
 
+- (void)profilePushKey:(NSString *)pushKey pushId:(NSString *)pushId {
+    if ([pushKey isKindOfClass:NSString.class] && pushKey.length && [pushId isKindOfClass:NSString.class] && pushId.length) {
+        NSString * distinctId = self.getBestId;
+        NSString * keyOfPushId = [NSString stringWithFormat:@"sa_%@_%@",distinctId,pushKey];
+        NSString * valueOfPushId = [NSUserDefaults.standardUserDefaults valueForKey:keyOfPushId];
+        NSString * newValueOfPushId = [NSString stringWithFormat:@"%@_%@",distinctId,pushId];
+        if (![valueOfPushId isEqualToString:newValueOfPushId]) {
+            [self set:@{pushKey:pushId}];
+            [NSUserDefaults.standardUserDefaults setValue:newValueOfPushId forKey:keyOfPushId];
+        }
+    }
+}
+
+
 - (void)setOnce:(NSDictionary *)profileDict {
     [[self people] setOnce:profileDict];
 }
