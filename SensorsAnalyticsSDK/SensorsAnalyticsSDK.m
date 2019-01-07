@@ -1484,25 +1484,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-#ifdef SENSORS_ANALYTICS_ENABLE_CALL_STACK
-    NSArray *syms = [NSThread callStackSymbols];
-    
-    if ([syms count] > 2 && !lib_detail) {
-        NSString *trace = [syms objectAtIndex:2];
-        
-        NSRange start = [trace rangeOfString:@"["];
-        NSRange end = [trace rangeOfString:@"]"];
-        if (start.location != NSNotFound && end.location != NSNotFound && end.location > start.location) {
-            NSString *trace_info = [trace substringWithRange:NSMakeRange(start.location+1, end.location-(start.location+1))];
-            NSRange split = [trace_info rangeOfString:@" "];
-            NSString *class = [trace_info substringWithRange:NSMakeRange(0, split.location)];
-            NSString *function = [trace_info substringWithRange:NSMakeRange(split.location + 1, trace_info.length-(split.location + 1))];
-            
-            lib_detail = [NSString stringWithFormat:@"%@##%@####", class, function];
-        }
-    }
-#endif
-
     if (lib_detail) {
         [libProperties setValue:lib_detail forKey:@"$lib_detail"];
     }
