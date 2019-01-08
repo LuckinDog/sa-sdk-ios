@@ -36,7 +36,11 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#import "SAKeyChainItemWrapper.h"
+
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
+     #import "SAKeyChainItemWrapper.h"
+#endif
+
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
@@ -46,8 +50,9 @@
 #import "SAConstant.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 
-#define VERSION @"1.10.20"
-#define PROPERTY_LENGTH_LIMITATION 8191
+#define VERSION @"1.10.21"
+
+static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
 static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
 static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
@@ -1176,17 +1181,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
             int hashCode = [b64String sensorsdata_hashCode];
             b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                  (CFStringRef)b64String,
-                                                                                  NULL,
-                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                  kCFStringEncodingUTF8));
-        
+                                                                                      (CFStringRef)b64String,
+                                                                                      NULL,
+                                                                                      CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                      kCFStringEncodingUTF8));
+
             postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
         } @catch (NSException *exception) {
             SAError(@"%@ flushByPost format data error: %@", self, exception);
             return YES;
         }
-        
+
         NSURL *URL = [NSURL URLWithString:self.serverURL];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
         [request setHTTPMethod:@"POST"];
@@ -1196,13 +1201,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (self->_debugMode == SensorsAnalyticsDebugOnly) {
             [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
         }
-        
+
         //Cookie
         [request setValue:[[SensorsAnalyticsSDK sharedInstance] getCookieWithDecode:NO] forHTTPHeaderField:@"Cookie"];
 
         dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
         __block BOOL flushSucc = YES;
-        
+
         void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
             if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
                 SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
@@ -1210,7 +1215,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 dispatch_semaphore_signal(flushSem);
                 return;
             }
-            
+
             NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
@@ -1245,34 +1250,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SAError(@"%@ ret_code: %ld", self, statusCode);
                 SAError(@"%@ ret_content: %@", self, urlResponseContent);
             }
+
             dispatch_semaphore_signal(flushSem);
         };
-        
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+
         NSURLSession *session = [NSURLSession sharedSession];
         NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
-        
         [task resume];
-#else
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
-         ^(NSURLResponse *response, NSData* data, NSError *error) {
-             return block(data, response, error);
-        }];
-#endif
-        
+
         dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
-        
+
         return flushSucc;
     };
     
     [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
-    
+
     if (vacuumAfterFlushing) {
         if (![self.messageQueue vacuum]) {
             SAError(@"failed to VACUUM SQLite.");
         }
     }
-    
+
     SADebug(@"events flushed.");
 }
 
@@ -1469,25 +1467,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-#ifndef SENSORS_ANALYTICS_DISABLE_CALL_STACK
-    NSArray *syms = [NSThread callStackSymbols];
-    
-    if ([syms count] > 2 && !lib_detail) {
-        NSString *trace = [syms objectAtIndex:2];
-        
-        NSRange start = [trace rangeOfString:@"["];
-        NSRange end = [trace rangeOfString:@"]"];
-        if (start.location != NSNotFound && end.location != NSNotFound && end.location > start.location) {
-            NSString *trace_info = [trace substringWithRange:NSMakeRange(start.location+1, end.location-(start.location+1))];
-            NSRange split = [trace_info rangeOfString:@" "];
-            NSString *class = [trace_info substringWithRange:NSMakeRange(0, split.location)];
-            NSString *function = [trace_info substringWithRange:NSMakeRange(split.location + 1, trace_info.length-(split.location + 1))];
-            
-            lib_detail = [NSString stringWithFormat:@"%@##%@####", class, function];
-        }
-    }
-#endif
-
     if (lib_detail) {
         [libProperties setValue:lib_detail forKey:SA_EVENT_COMMON_PROPERTY_LIB_DETAIL];
     }
@@ -1804,12 +1783,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     BOOL hasTrackInstallation = NO;
     NSString *userDefaultsKey = nil;
     userDefaultsKey = disableCallback?SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK:SA_HAS_TRACK_INSTALLATION;
+    
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
 #ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
     hasTrackInstallation = disableCallback?[SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback]:[SAKeyChainItemWrapper hasTrackInstallation];
     if (hasTrackInstallation) {
         return;
     }
 #endif
+#endif
+
     
     if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
         hasTrackInstallation = NO;
@@ -1818,13 +1801,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         hasTrackInstallation = YES;
     }
-    
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
 #ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
     if (disableCallback) {
         [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
     }else{
         [SAKeyChainItemWrapper markHasTrackInstallation];
     }
+#endif
 #endif
     if (!hasTrackInstallation) {
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
@@ -2008,9 +1992,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     return NO;
                 }
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-                if (objLength > PROPERTY_LENGTH_LIMITATION) {
+                if (objLength > SA_PROPERTY_LENGTH_LIMITATION) {
                     //截取再拼接 $ 末尾，替换原数据
-                    NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:(NSString *)object byteLength:PROPERTY_LENGTH_LIMITATION]];
+                    NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:(NSString *)object byteLength:SA_PROPERTY_LENGTH_LIMITATION - 1]];
                     [newObject appendString:@"$"];
                     if (!newProperties) {
                         newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
@@ -2032,13 +2016,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // NSString 检查长度，但忽略部分属性
         if ([propertyValue isKindOfClass:[NSString class]]) {
             NSUInteger objLength = [((NSString *)propertyValue) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-            NSUInteger valueMaxLength = PROPERTY_LENGTH_LIMITATION;
+            NSUInteger valueMaxLength = SA_PROPERTY_LENGTH_LIMITATION;
             if ([k isEqualToString:@"app_crashed_reason"]) {
-                valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
+                valueMaxLength = SA_PROPERTY_LENGTH_LIMITATION * 2;
             }
             if (objLength > valueMaxLength) {
                 //截取再拼接 $ 末尾，替换原数据
-                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:propertyValue byteLength:valueMaxLength]];
+                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:propertyValue byteLength:valueMaxLength - 1]];
                 [newObject appendString:@"$"];
                 if (!newProperties) {
                     newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
@@ -2089,7 +2073,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     UIDevice *device = [UIDevice currentDevice];
     _deviceModel = [self deviceModel];
     _osVersion = [device systemVersion];
-    struct CGSize size = [UIScreen mainScreen].bounds.size;
+    struct CGSize nativeSize = [UIScreen mainScreen].nativeBounds.size;
+    CGFloat scale = [UIScreen mainScreen].scale;
+    struct CGSize size = CGSizeMake(nativeSize.width / scale, nativeSize.height / scale);
     CTCarrier *carrier = [[[CTTelephonyNetworkInfo alloc] init] subscriberCellularProvider];
     // Use setValue semantics to avoid adding keys where value can be nil.
     [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
@@ -2271,10 +2257,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)unarchiveDistinctId {
     NSString *filePath = [self filePathForData:SA_EVENT_DISTINCT_ID];
     NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:filePath];
+
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain != nil && distinctIdInKeychain.length > 0) {
         self.distinctId = distinctIdInKeychain;
-       
         if (![archivedDistinctId isEqualToString:distinctIdInKeychain]) {
             //保存 Archiver
             NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete forKey:NSFileProtectionKey];
@@ -2284,14 +2271,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     } else {
+#endif
         if (archivedDistinctId.length == 0) {
             self.distinctId = [[self class] getUniqueHardwareId];
             [self archiveDistinctId];
         } else {
             self.distinctId = archivedDistinctId;
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
             //保存 KeyChain
             [SAKeyChainItemWrapper saveUdid:self.distinctId];
         }
+#endif
     }
 }
 
@@ -2325,7 +2315,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![NSKeyedArchiver archiveRootObject:[[self distinctId] copy] toFile:filePath]) {
         SAError(@"%@ unable to archive distinctId", self);
     }
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper saveUdid:self.distinctId];
+#endif
     SADebug(@"%@ archived distinctId", self);
 }
 
@@ -3098,14 +3090,26 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     _applicationWillResignActive = NO;
     self.launchedPassively = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
-
+    
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
 #endif
-
+    
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
     [self.locationManager stopUpdatingLocation];
 #endif
+
+    UIApplication *application = UIApplication.sharedApplication;
+    __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+    // 结束后台任务
+    void (^endBackgroundTask)(void) = ^(){
+        [application endBackgroundTask:backgroundTaskIdentifier];
+        backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+    };
+
+    backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
+        endBackgroundTask();
+    }];
 
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
@@ -3146,10 +3150,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self track:SA_EVENT_NAME_APP_END];
         }
     }
-    
+
     if (self.flushBeforeEnterBackground) {
         dispatch_async(self.serialQueue, ^{
             [self _flush:YES];
+            endBackgroundTask();
+        });
+    }else {
+        dispatch_async(self.serialQueue, ^{
+            endBackgroundTask();
         });
     }
 }
@@ -3165,6 +3174,20 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)set:(NSDictionary *)profileDict {
     [[self people] set:profileDict];
 }
+
+- (void)profilePushKey:(NSString *)pushKey pushId:(NSString *)pushId {
+    if ([pushKey isKindOfClass:NSString.class] && pushKey.length && [pushId isKindOfClass:NSString.class] && pushId.length) {
+        NSString * distinctId = self.getBestId;
+        NSString * keyOfPushId = [NSString stringWithFormat:@"sa_%@_%@",distinctId,pushKey];
+        NSString * valueOfPushId = [NSUserDefaults.standardUserDefaults valueForKey:keyOfPushId];
+        NSString * newValueOfPushId = [NSString stringWithFormat:@"%@_%@",distinctId,pushId];
+        if (![valueOfPushId isEqualToString:newValueOfPushId]) {
+            [self set:@{pushKey:pushId}];
+            [NSUserDefaults.standardUserDefaults setValue:newValueOfPushId forKey:keyOfPushId];
+        }
+    }
+}
+
 
 - (void)setOnce:(NSDictionary *)profileDict {
     [[self people] setOnce:profileDict];
@@ -3260,7 +3283,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    dispatch_barrier_async(self.readWriteQueue, ^{
+    dispatch_async(self.readWriteQueue, ^{
         self->_remoteConfig = remoteConfig;
     });
 }
@@ -3437,9 +3460,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)clearKeychainData {
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationAccount service:kSAService];
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
+#endif
+
 }
 
 @end
