@@ -3018,9 +3018,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 
         [self flush];//停止采集数据之后 flush 本地数据
-        dispatch_sync(self.serialQueue, ^{
-        });
-
     }else{
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
