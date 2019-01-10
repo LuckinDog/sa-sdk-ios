@@ -1169,7 +1169,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             break;
         }
         
-        if (![self.messageQueue removeFirstRecords:flushSize withType:type]) {
+        if (![self.messageQueue removeFirstRecords:recordArray.count withType:type]) {
             SAError(@"Failed to remove records from SQLite.");
             break;
         }
@@ -1211,8 +1211,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         }
 
-        NSURL *URL = [NSURL URLWithString:self.serverURL];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+        NSURL *url = [NSURL URLWithString:self.serverURL];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+        request.timeoutInterval = 30;
         [request setHTTPMethod:@"POST"];
         [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
         // 普通事件请求，使用标准 UserAgent
