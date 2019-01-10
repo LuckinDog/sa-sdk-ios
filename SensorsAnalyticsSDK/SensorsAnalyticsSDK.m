@@ -1175,7 +1175,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             break;
         }
         
-        if (![self.messageQueue removeFirstRecords:flushSize withType:type]) {
+        if (![self.messageQueue removeFirstRecords:recordArray.count withType:type]) {
             SAError(@"Failed to remove records from SQLite.");
             break;
         }
