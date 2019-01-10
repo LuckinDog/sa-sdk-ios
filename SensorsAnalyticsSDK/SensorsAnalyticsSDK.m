@@ -174,8 +174,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (atomic, copy) NSString *serverURL;
 
-@property (atomic, copy) NSString *distinctId;
+//@property (atomic, copy) NSString *distinctId;
 @property (atomic, copy) NSString *originalId;
+@property (nonatomic, copy) NSString *anonymousId;
 @property (atomic, copy) NSString *loginId;
 @property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
@@ -837,7 +838,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     self.loginId = newLoginId;
                     [self archiveLoginId];
                     if (![newLoginId isEqualToString:[self distinctId]]) {
-                        self.originalId = [self distinctId];
+                        self.originalId = [self anonymousId];
                         [self enqueueWithType:type andEvent:[eventDict copy]];
                     }
                 }
@@ -1016,7 +1017,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.loginId = loginId;
         [self archiveLoginId];
         if (![loginId isEqualToString:[self distinctId]]) {
-            self.originalId = [self distinctId];
+            self.originalId = [self anonymousId];
             [self track:@"$SignUp" withProperties:properties withType:@"track_signup"];
         }
     }
@@ -1028,11 +1029,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSString *)anonymousId {
-    return _distinctId;
+    return _anonymousId;
 }
 
 - (void)resetAnonymousId {
-    self.distinctId = [[self class] getUniqueHardwareId];
+//    self.distinctId = [[self class] getUniqueHardwareId];
+    _anonymousId = [self.class getUniqueHardwareId];
     [self archiveDistinctId];
 }
 
@@ -1594,7 +1596,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                  event, @"event",
                  [NSDictionary dictionaryWithDictionary:p], @"properties",
                  bestId, @"distinct_id",
-                 self.originalId, @"original_id",
+                 self.anonymousId, @"original_id",
                  timeStamp, @"time",
                  type, @"type",
                  libProperties, @"lib",
@@ -1925,9 +1927,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     dispatch_async(self.serialQueue, ^{
         // 先把之前的distinctId设为originalId
-        self.originalId = self.distinctId;
+        self.originalId = self.anonymousId;
         // 更新distinctId
-        self.distinctId = distinctId;
+        self.anonymousId = distinctId;
         [self archiveDistinctId];
     });
 }
@@ -2278,7 +2280,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain != nil && distinctIdInKeychain.length > 0) {
-        self.distinctId = distinctIdInKeychain;
+        self.anonymousId = distinctIdInKeychain;
         if (![archivedDistinctId isEqualToString:distinctIdInKeychain]) {
             //保存 Archiver
             NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete forKey:NSFileProtectionKey];
@@ -2290,10 +2292,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
 #endif
         if (archivedDistinctId.length == 0) {
-            self.distinctId = [[self class] getUniqueHardwareId];
+            self.anonymousId = [[self class] getUniqueHardwareId];
             [self archiveDistinctId];
         } else {
-            self.distinctId = archivedDistinctId;
+            self.anonymousId = archivedDistinctId;
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
             //保存 KeyChain
             [SAKeyChainItemWrapper saveUdid:self.distinctId];
