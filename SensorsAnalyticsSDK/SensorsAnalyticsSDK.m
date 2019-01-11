@@ -2588,17 +2588,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:@"$screen_name"];
-
-            NSString *controllerTitle = viewController.navigationItem.title;
-            if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-            }
-
-            //再获取 controller.navigationItem.titleView, 并且优先级比较高
-            NSString *elementContent = [self getUIViewControllerTitle:viewController];
-            if (elementContent != nil && [elementContent length] > 0) {
-                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                [properties setValue:elementContent forKey:@"$title"];
+            
+            NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
+            if (controllerTitle) {
+                [properties setValue:controllerTitle forKey:@"$title"];
             }
         }
 
@@ -2630,22 +2623,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
-}
-
-- (NSString *)getUIViewControllerTitle:(UIViewController *)controller {
-    @try {
-        if (controller == nil) {
-            return nil;
-        }
-
-        UIView *titleView = controller.navigationItem.titleView;
-        if (titleView != nil) {
-            return [AutoTrackUtils contentFromView:titleView];
-        }
-    } @catch (NSException *exception) {
-        SAError(@"%@: %@", self, exception);
-    }
-    return nil;
 }
 
 #pragma mark - UIApplication Events
@@ -2728,17 +2705,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [properties setValue:screenName forKey:SCREEN_NAME_PROPERTY];
 
     @try {
-        //先获取 controller.navigationItem.title
-        NSString *controllerTitle = controller.navigationItem.title;
-        if (controllerTitle != nil) {
+        NSString *controllerTitle = [AutoTrackUtils titleFromViewController:controller];
+        if (controllerTitle) {
             [properties setValue:controllerTitle forKey:@"$title"];
-        }
-
-        //再获取 controller.navigationItem.titleView, 并且优先级比较高
-        NSString *elementContent = [self getUIViewControllerTitle:controller];
-        if (elementContent != nil && [elementContent length] > 0) {
-            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-            [properties setValue:elementContent forKey:@"$title"];
         }
     } @catch (NSException *exception) {
         SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);

@@ -163,15 +163,9 @@
                 NSString *screenName = NSStringFromClass([viewController class]);
                 [properties setValue:screenName forKey:@"$screen_name"];
                 
-                NSString *controllerTitle = viewController.navigationItem.title;
-                if (controllerTitle != nil) {
-                    [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-                }
-                //再获取 controller.navigationItem.titleView, 并且优先级比较高
-                NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
-                if (elementContent != nil && [elementContent length] > 0) {
-                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                    [properties setValue:elementContent forKey:@"$title"];
+                NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
+                if (controllerTitle) {
+                    [properties setValue:controllerTitle forKey:@"$title"];
                 }
             }
             
