@@ -2091,9 +2091,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     UIDevice *device = [UIDevice currentDevice];
     _deviceModel = [self deviceModel];
     _osVersion = [device systemVersion];
-    struct CGSize nativeSize = [UIScreen mainScreen].nativeBounds.size;
-    CGFloat scale = [UIScreen mainScreen].scale;
-    struct CGSize size = CGSizeMake(nativeSize.width / scale, nativeSize.height / scale);
+    struct CGSize size = [UIScreen mainScreen].bounds.size;
     CTCarrier *carrier = [[[CTTelephonyNetworkInfo alloc] init] subscriberCellularProvider];
     // Use setValue semantics to avoid adding keys where value can be nil.
     [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:@"$app_version"];
