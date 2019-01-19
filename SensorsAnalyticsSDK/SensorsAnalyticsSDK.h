@@ -493,14 +493,16 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 设置当前用户的 distinctId
  *
  * @discussion
- * 一般情况下，如果是一个注册用户，则应该使用注册系统内的 user_id
+ * 一般情况下，如果是一个注册用户，则应该使用注册系统内的 user_id,
+ * 调用 SDK 的 login: 接口。
  * 如果是个未注册用户，则可以选择一个不会重复的匿名 ID，如设备 ID 等
  * 如果客户没有设置 indentify，则使用 SDK 自动生成的匿名 ID
  * SDK 会自动将设置的 distinctId 保存到文件中，下次启动时会从中读取
  *
  * @param distinctId 当前用户的 distinctId
  */
-- (void)identify:(NSString *)distinctId;
+- (void)identify:(NSString *)distinctId __attribute__((deprecated("已过时，请参考 login:")));
+- (void)bindingUserId:(NSString *)uid;
 #pragma mark - track event
 /**
  * @abstract
