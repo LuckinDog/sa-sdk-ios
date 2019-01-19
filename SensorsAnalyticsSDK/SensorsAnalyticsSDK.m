@@ -1426,7 +1426,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    [libProperties setValue:@"autoTrack" forKey:@"$lib_method"];
+    [libProperties setValue:@"autoTrack" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
 
     // 对于type是track数据，它们的event名称是有意义的
     if ([type isEqualToString:@"track"] || [type isEqualToString:@"codeTrack"]) {
@@ -1448,7 +1448,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         if ([type isEqualToString:@"codeTrack"]) {
-            [libProperties setValue:@"code" forKey:@"$lib_method"];
+            [libProperties setValue:@"code" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
             type = @"track";
         }
     }
