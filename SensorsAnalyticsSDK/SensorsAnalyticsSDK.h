@@ -501,7 +501,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @param distinctId 当前用户的 distinctId
  */
-- (void)identify:(NSString *)distinctId __attribute__((deprecated("已过时，请参考 login:")));
+- (void)identify:(NSString *)distinctId __attribute__((deprecated("已过时，对于注册/登录用户请参考 login:")));
 
 #pragma mark - track event
 /**
