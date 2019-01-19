@@ -486,8 +486,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)showDebugInfoView:(BOOL)show;
 
-- (NSString *)getUIViewControllerTitle:(UIViewController *)controller;
-
 /**
  * @abstract
  * 设置当前用户的 distinctId
@@ -928,7 +926,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @discussion
  * 设置用户的 pushId 比如 @{@"jgId":pushId}，并触发 profileSet 设置对应的用户属性。
  * 当 disctinct_id 或者 pushId 没有发生改变的时,不会触发 profileSet。
- * @param profileKey  pushId 的 key
+ * @param pushKey  pushId 的 key
  * @param pushId  pushId 的值
  */
 - (void)profilePushKey:(NSString *)pushKey pushId:(NSString *)pushId;

@@ -18,6 +18,8 @@
 #import "UIView+SAHelpers.h"
 #import "UIView+AutoTrack.h"
 #import "SAConstant.h"
+#import "SensorsAnalyticsSDK+Private.h"
+
 @implementation UIApplication (AutoTrack)
 
 - (BOOL)sa_sendAction:(SEL)action to:(id)to from:(id)from forEvent:(UIEvent *)event {
@@ -164,15 +166,9 @@
                 NSString *screenName = NSStringFromClass([viewController class]);
                 [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
                 
-                NSString *controllerTitle = viewController.navigationItem.title;
-                if (controllerTitle != nil) {
-                    [properties setValue:viewController.navigationItem.title forKey:SA_EVENT_PROPERTY_TITLE];
-                }
-                //再获取 controller.navigationItem.titleView, 并且优先级比较高
-                NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
-                if (elementContent != nil && [elementContent length] > 0) {
-                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                    [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_TITLE];
+                NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
+                if (controllerTitle) {
+                    [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
                 }
             }
             
@@ -193,7 +189,8 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties];
+
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
                 return;
             }
 
@@ -212,7 +209,8 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties];
+
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
                 return;
             }
 
@@ -247,7 +245,8 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties];
+
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
                 return;
                 
             }
@@ -351,8 +350,8 @@
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
-                
-                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties];
+
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         }
     } @catch (NSException *exception) {
