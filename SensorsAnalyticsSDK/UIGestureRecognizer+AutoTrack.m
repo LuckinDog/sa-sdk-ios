@@ -16,6 +16,7 @@
 #import "UIView+AutoTrack.h"
 #import "AutoTrackUtils.h"
 #import "SALogger.h"
+#import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
 
 @implementation UIGestureRecognizer (AutoTrack)
@@ -119,7 +120,7 @@
             [properties addEntriesFromDictionary:propDict];
         }
         
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }

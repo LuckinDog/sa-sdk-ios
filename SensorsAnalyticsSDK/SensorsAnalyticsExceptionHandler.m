@@ -16,6 +16,7 @@
 #import "SALogger.h"
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
+#import "SensorsAnalyticsSDK+Private.h"
 
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
 #import <mach-o/dyld.h>
@@ -162,9 +163,9 @@ static void SAHandleException(NSException *exception) {
             } @catch(NSException *exception) {
                 SAError(@"%@ error: %@", self, exception);
             }
-            [instance track:@"AppCrashed" withProperties:properties];
+            [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                [instance track:@"$AppEnd"];
+                [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             
             dispatch_sync(instance.serialQueue, ^{

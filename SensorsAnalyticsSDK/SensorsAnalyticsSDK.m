@@ -48,6 +48,7 @@
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
 #import "UIGestureRecognizer+AutoTrack.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 #define VERSION @"1.10.21"
 
@@ -186,6 +187,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableDictionary *trackTimer;
 
 @property (nonatomic, strong) NSPredicate *regexTestName;
+
+@property (nonatomic, strong) NSPredicate *regexEventName;
 
 @property (atomic, strong) MessageQueueBySqlite *messageQueue;
 
@@ -435,6 +438,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
+            
+            NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick)|(SignUp))|(^AppCrashed)$";
+            self.regexEventName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",eventPattern];
+            
+            
             
             [self setUpListeners];
             
@@ -1066,7 +1074,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self track:@"$AppStartPassively" withProperties:@{
                                                                    RESUME_FROM_BACKGROUND_PROPERTY : @(self->_appRelaunched),
                                                              APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                             }];
+                                                             } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         } else {
             // 追踪 AppStart 事件
@@ -1074,7 +1082,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self track:APP_START_EVENT withProperties:@{
                                                              RESUME_FROM_BACKGROUND_PROPERTY : @(self->_appRelaunched),
                                                              APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                             }];
+                                                             } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             // 启动 AppEnd 事件计时器
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
@@ -1433,8 +1441,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (self.remoteConfig.disableSDK) {
         return;
     }
+
+    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
+    [libProperties setValue:@"autoTrack" forKey:@"$lib_method"];
+
     // 对于type是track数据，它们的event名称是有意义的
-    if ([type isEqualToString:@"track"]) {
+    if ([type isEqualToString:@"track"] || [type isEqualToString:@"codeTrack"]) {
         if (event == nil || [event length] == 0) {
             NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
             SAError(@"%@", errMsg);
@@ -1451,26 +1463,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             return;
         }
+
+        if ([type isEqualToString:@"codeTrack"]) {
+            [libProperties setValue:@"code" forKey:@"$lib_method"];
+            type = @"track";
+        }
     }
-    
+
     if (propertieDict) {
         if (![self assertPropertyTypes:&propertieDict withEventType:type]) {
             SAError(@"%@ failed to track event.", self);
             return;
         }
     }
-    
-    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    
+
     [libProperties setValue:[_automaticProperties objectForKey:@"$lib"] forKey:@"$lib"];
     [libProperties setValue:[_automaticProperties objectForKey:@"$lib_version"] forKey:@"$lib_version"];
-    
+
     id app_version = [_automaticProperties objectForKey:@"$app_version"];
     if (app_version) {
         [libProperties setValue:app_version forKey:@"$app_version"];
     }
-    
-    [libProperties setValue:@"code" forKey:@"$lib_method"];
 
     NSString *lib_detail = nil;
     if ([self isAutoTrackEnabled] && propertieDict) {
@@ -1484,7 +1497,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     }
-    
+
     if (lib_detail) {
         [libProperties setValue:lib_detail forKey:@"$lib_detail"];
     }
@@ -1533,7 +1546,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
                 NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
                 SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
-                
+
                 float eventDuration;
                 if (eventAccumulatedDuration) {
                     eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
@@ -1564,7 +1577,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
             }
         }
-        
+
         NSString *project = nil;
         NSString *token = nil;
         if (propertieDict) {
@@ -1624,7 +1637,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [p setObject:self.deviceOrientationConfig.deviceOrientation forKey:@"$screen_orientation"];
                 }
             } @catch (NSException *e) {
-                 SAError(@"%@: %@", self, e);
+                SAError(@"%@: %@", self, e);
             }
 #endif
 
@@ -1670,7 +1683,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (token) {
             [e setObject:token forKey:@"token"];
         }
-        
+
         //修正 $device_id，防止用户修改
         NSDictionary *infoProperties = [e objectForKey:@"properties"];
         if (infoProperties && [infoProperties.allKeys containsObject:@"$device_id"]) {
@@ -1683,9 +1696,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         SALog(@"\n【track event】:\n%@", e);
-        
+
         [self enqueueWithType:type andEvent:[e copy]];
-        
+
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
             [self flush];
@@ -1713,12 +1726,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return bestId;
 }
 
-- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
-    [self track:event withProperties:propertieDict withType:@"track"];
+- (void)track:(NSString *)event {
+    [self track:event withProperties:nil withTrackType:SensorsAnalyticsTrackTypeCode];;
 }
 
-- (void)track:(NSString *)event {
-    [self track:event withProperties:nil withType:@"track"];
+- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
+    [self track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeCode];
+}
+
+- (void)track:(NSString *)event withTrackType:(SensorsAnalyticsTrackType)trackType {
+    [self track:event withProperties:nil withTrackType:trackType];
+}
+
+- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
+    if (trackType == SensorsAnalyticsTrackTypeCode) {
+        //事件校验，预置事件提醒
+        if ([self.regexEventName evaluateWithObject:event]) {
+            SAError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one",event);
+        };
+        
+        [self track:event withProperties:propertieDict withType:@"codeTrack"];
+    }else {
+        [self track:event withProperties:propertieDict withType:@"track"];
+    }
 }
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
@@ -1774,11 +1804,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackTimerEnd:(NSString *)event {
-    [self track:event];
+    [self track:event withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self track:event withProperties:propertyDict];
+    [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)clearTrackTimer {
@@ -2619,7 +2649,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties addEntriesFromDictionary:propDict];
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
@@ -2742,7 +2772,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     [properties addEntriesFromDictionary:properties_];
-    [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
+    [self track:APP_VIEW_SCREEN_EVENT withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2817,7 +2847,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     }
                 }
                 
-                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
@@ -2937,7 +2967,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
-    [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties];
+    [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
@@ -2948,7 +2978,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
         if (eventArray) {
             for (NSDictionary *dict in eventArray) {
-                [[SensorsAnalyticsSDK sharedInstance] track:dict[@"event"] withProperties:dict[@"properties"]];
+                [[SensorsAnalyticsSDK sharedInstance] track:dict[@"event"] withProperties:dict[@"properties"] withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
             if (completion) {
@@ -3040,7 +3070,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                         }];
+                                                         } withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
         // 启动 AppEnd 事件计时器
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
@@ -3129,7 +3159,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
-            [self track:APP_END_EVENT];
+            [self track:APP_END_EVENT withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     }
 
@@ -3300,7 +3330,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     NSNumber *autoTrackMode = [configDict valueForKeyPath:@"configs.autoTrackMode"];
                     //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
                     if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
-                        [weakself track:@"DisableSensorsDataSDK" withProperties:@{}];
+                        [weakself track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeAuto];
                     }
                     //如果有字段缺失，需要设置为默认值
                     if (disableSDK == nil) {
