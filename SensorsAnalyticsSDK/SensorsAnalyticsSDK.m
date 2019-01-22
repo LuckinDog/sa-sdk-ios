@@ -364,12 +364,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _autoTrackEventType = SensorsAnalyticsEventTypeNone;
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
 
-            UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
-            //判断被动启动
-            if (applicationState == UIApplicationStateBackground) {
-                _launchedPassively = YES;
-            }
-
+            [NSThread sa_safelyRunOnMainThreadSync:^{
+                UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
+                //判断被动启动
+                if (applicationState == UIApplicationStateBackground) {
+                    self->_launchedPassively = YES;
+                }
+            }];
+           
             _people = [[SensorsAnalyticsPeople alloc] init];
 
             _debugMode = debugMode;
