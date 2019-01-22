@@ -168,7 +168,7 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
 
-@interface SensorsAnalyticsSDK()
+@interface SensorsAnalyticsSDK()<UIActionSheetDelegate>
 
 // 在内部，重新声明成可读写的
 @property (atomic, strong) SensorsAnalyticsPeople *people;
@@ -264,6 +264,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                          andLaunchOptions:launchOptions
                                              andDebugMode:debugMode];
+    });
+    return sharedInstance;
+}
+
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
+                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] initWithServerURL:serverURL
+                                        andLaunchOptions:launchOptions
+                                            andDebugMode:SensorsAnalyticsDebugOff];
     });
     return sharedInstance;
 }
@@ -623,11 +634,69 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
+- (void)showDebugModeActionSheet {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
+ 
+            NSString *sheetTitle = @"开启调试";
+            NSString *sheetMessage = @"请选择需要使用的调试模式，默认为 DebugOff";
+            UIWindow *sheetWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            sheetWindow.backgroundColor = [UIColor redColor];
+            sheetWindow.rootViewController = [[UIViewController alloc] init];
+            sheetWindow.windowLevel = UIWindowLevelAlert + 1;
+            sheetWindow.hidden = NO;
+            if (@available(iOS 8.0, *)) {
+                UIAlertController *connectActionSheet = [UIAlertController
+                                                   alertControllerWithTitle:sheetTitle
+                                                   message:sheetMessage
+                                                   preferredStyle:UIAlertControllerStyleActionSheet];
+
+                UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"DebugOnly" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    self->_debugMode = SensorsAnalyticsDebugOnly;
+                }];
+                UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"DebugAndTrack" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    self->_debugMode = SensorsAnalyticsDebugAndTrack;
+                }];
+
+                UIAlertAction *actionDebugOff = [UIAlertAction actionWithTitle:@"DebugOff" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    self->_debugMode = SensorsAnalyticsDebugOff;
+                }];
+
+                UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+
+                [connectActionSheet addAction:actionDebugOnly];
+                [connectActionSheet addAction:actionDebugAndTrack];
+                [connectActionSheet addAction:actionDebugOff];
+                [connectActionSheet addAction:cancle];
+
+                [sheetWindow.rootViewController presentViewController:connectActionSheet animated:YES completion:nil];
+            } else {
+                NSString *newSheetTitle = [NSString stringWithFormat:@"%@ \n %@",sheetTitle,sheetMessage];
+                UIActionSheet *connectActionSheet = [[UIActionSheet alloc] initWithTitle:newSheetTitle delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"DebugOnly",@"DebugAndTrack",@"DebugOff", nil];
+                
+                [connectActionSheet showInView:sheetWindow];
+            }
+        } @catch (NSException *exception) {
+        } @finally {
+        }
+    });
+}
+
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
     if (buttonIndex == 1) {
         _showDebugAlertView = NO;
     } else if (buttonIndex == 0) {
         _debugAlertViewHasShownNumber -= 1;
+    }
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == 0) {
+        _debugMode = SensorsAnalyticsDebugOnly;
+    }else if (buttonIndex == 1) {
+       _debugMode = SensorsAnalyticsDebugAndTrack;
+    }else if (buttonIndex == 2) {
+        _debugMode = SensorsAnalyticsDebugOff;
     }
 }
 
@@ -1308,6 +1377,50 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)deleteAll {
     [self.messageQueue deleteAll];
+}
+
+-(BOOL)handleSchemeUrl:(NSURL *)url {
+    @try {
+        if (!url) {
+            return NO;
+        }
+        
+        if ([@"heatmap" isEqualToString:url.host]) {//点击图
+            NSString *featureCode = nil;
+            NSString *postUrl = nil;
+            NSString *query = [url query];
+            if (query != nil) {
+                NSArray *subArray = [query componentsSeparatedByString:@"&"];
+                NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
+                if (subArray) {
+                    for (int j = 0 ; j < subArray.count; j++) {
+                        //在通过=拆分键和值
+                        NSArray *dicArray = [subArray[j] componentsSeparatedByString:@"="];
+                        //给字典加入元素
+                        [tempDic setObject:dicArray[1] forKey:dicArray[0]];
+                    }
+                    featureCode = [tempDic objectForKey:@"feature_code"];
+                    postUrl = [tempDic objectForKey:@"url"];
+                }
+            }
+            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+            BOOL isWifi = NO;
+            if ([networkType isEqualToString:@"WIFI"]) {
+                isWifi = YES;
+            }
+            SAHeatMapConnection *connection = [[SAHeatMapConnection alloc] initWithURL:nil];
+            if (connection) {
+                [connection showOpenHeatMapDialog:featureCode withUrl:postUrl isWifi:isWifi];
+                return YES;
+            }
+        } else if ([@"debugmode" isEqualToString:url.host]) {//动态 debug
+            [self showDebugModeActionSheet];
+            return YES;
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@: %@", self, exception);
+    }
+    return NO;
 }
 
 - (BOOL)handleHeatMapUrl:(NSURL *)url {

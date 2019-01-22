@@ -251,7 +251,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考sharedInstanceWithServerURL: andLaunchOptions:")));
 
 /**
  * @abstract
@@ -265,7 +265,18 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
                                     andLaunchOptions:(NSDictionary * _Nullable)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考sharedInstanceWithServerURL: andLaunchOptions:")));
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
+ *
+ * @param serverURL 收集事件的URL
+ * @param launchOptions launchOptions
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
+                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions;
 
 /**
  * @abstract
@@ -886,7 +897,15 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)deleteAll;
 #pragma mark- heatMap
-- (BOOL)handleHeatMapUrl:(NSURL *)url;
+- (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
+
+/**
+ * @abstract
+ * 处理 url scheme 跳转打开 App
+ *
+ * @param url 打开本 app 的回调的 url
+ */
+- (BOOL)handleSchemeUrl:(NSURL *)url;
 
 /**
  * @abstract
