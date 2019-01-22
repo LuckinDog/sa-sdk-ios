@@ -364,12 +364,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _autoTrackEventType = SensorsAnalyticsEventTypeNone;
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
 
-            if ([[NSThread currentThread] isMainThread]) {
-                [self configLaunchedPassivelyWithLaunchOptions:launchOptions];
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self configLaunchedPassivelyWithLaunchOptions:launchOptions];;
-                });
+            UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
+            //判断被动启动
+            if (applicationState == UIApplicationStateBackground) {
+                _launchedPassively = YES;
             }
 
             _people = [[SensorsAnalyticsPeople alloc] init];
@@ -470,14 +468,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ error: %@", self, exception);
     }
     return self;
-}
-
-- (void)configLaunchedPassivelyWithLaunchOptions:(NSDictionary *)launchOptions {
-    UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
-    //判断被动启动
-    if (applicationState == UIApplicationStateBackground) {
-        self.launchedPassively = YES;
-    }
 }
 
 - (NSDictionary *)getPresetProperties {
