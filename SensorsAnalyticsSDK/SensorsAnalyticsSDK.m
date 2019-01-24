@@ -1949,13 +1949,32 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
     }
     dispatch_async(self.serialQueue, ^{
-        // 先把之前的distinctId设为originalId
+        // 先把之前的anonymousId设为originalId
         self.originalId = self.anonymousId;
-        // 更新distinctId
+        // 更新anonymousId
         self.anonymousId = distinctId;
         [self archiveAnonymousId];
     });
 }
+
+- (void)identifyAnonymousId:(NSString *)anonymousId {
+    if (anonymousId.length == 0) {
+        SAError(@"%@ cannot identify blank anonymousId id: %@", self, anonymousId);
+        //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics anonymousId should not be nil or empty" userInfo:nil];
+        return;
+    }
+    if (anonymousId.length > 255) {
+        SAError(@"%@ max length of anonymousId is 255, anonymousId: %@", self, anonymousId);
+        //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of anonymousId is 255" userInfo:nil];
+    }
+    dispatch_async(self.serialQueue, ^{
+        // 先把之前的anonymousId设为originalId
+        self.originalId = self.anonymousId;
+        // 更新anonymousId
+        self.anonymousId = anonymousId;
+        [self archiveAnonymousId];
+    });}
+
 
 - (NSString *)deviceModel {
     size_t size;
