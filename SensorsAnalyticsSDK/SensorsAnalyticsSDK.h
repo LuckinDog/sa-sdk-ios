@@ -464,8 +464,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)showDebugInfoView:(BOOL)show;
 
-- (NSString *)getUIViewControllerTitle:(UIViewController *)controller;
-
 /**
  * @abstract
  * 设置当前用户的 distinctId

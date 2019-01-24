@@ -18,11 +18,11 @@
 
 //+ (void)sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController;
 
-
 + (void)__sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController;
 
 + (void)trackAppClickWithUITabBar:(UITabBar*)tabbar didSelectItem:(UITabBarItem *)item;
 
 + (void)trackAppClickWithUIGestureRecognizer:(UIGestureRecognizer*)gesture;
++ (NSString *)titleFromViewController:(UIViewController *)viewController;
 
 @end

@@ -16,6 +16,8 @@
 #import "SALogger.h"
 #import "UIView+SAHelpers.h"
 #import "UIView+AutoTrack.h"
+#import "SensorsAnalyticsSDK+Private.h"
+
 @implementation AutoTrackUtils
 
 //+ (void)sa_find_view_responder:(UIView *)view withViewPathArray:(NSMutableArray *)viewPathArray {
@@ -257,6 +259,31 @@
     }
 }
 
++ (NSString *)titleFromViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return nil;
+    }
+    
+    // 先获取 controller.navigationItem.title
+    NSString *controllerTitle = viewController.navigationItem.title;
+    
+    // 再获取 controller.navigationItem.titleView, 并且优先级比较高
+    UIView *titleView = viewController.navigationItem.titleView;
+    NSString *elementContent = nil;
+    if (titleView) {
+        elementContent = [AutoTrackUtils contentFromView:titleView];
+        if (elementContent.length > 0) {
+            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+        }
+    }
+    
+    if (elementContent.length > 0) {
+        return elementContent;
+    }else {
+        return controllerTitle;
+    }
+}
+
 + (void)trackAppClickWithUICollectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     @try {
         //关闭 AutoTrack
@@ -310,14 +337,9 @@
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:@"$screen_name"];
 
-            NSString *controllerTitle = viewController.navigationItem.title;
-            if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-            }
-            NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
-            if (elementContent != nil && [elementContent length] > 0) {
-                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                [properties setValue:elementContent forKey:@"$title"];
+            NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
+            if (controllerTitle) {
+                [properties setValue:controllerTitle forKey:@"$title"];
             }
         }
 
@@ -372,7 +394,7 @@
             SAError(@"%@ error: %@", self, exception);
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -431,15 +453,9 @@
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:@"$screen_name"];
 
-            NSString *controllerTitle = viewController.navigationItem.title;
-            if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-            }
-
-            NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
-            if (elementContent != nil && [elementContent length] > 0) {
-                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                [properties setValue:elementContent forKey:@"$title"];
+            NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
+            if (controllerTitle) {
+                [properties setValue:controllerTitle forKey:@"$title"];
             }
         }
 
@@ -499,7 +515,7 @@
             SAError(@"%@ error: %@", self, exception);
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -871,16 +887,9 @@
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:@"$screen_name"];
 
-            NSString *controllerTitle = viewController.navigationItem.title;
+            NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
             if (controllerTitle != nil) {
                 [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-            }
-
-            //再获取 controller.navigationItem.titleView, 并且优先级比较高
-            NSString *elementContent = [SensorsAnalyticsSDK.sharedInstance getUIViewControllerTitle:viewController];
-            if (elementContent != nil && [elementContent length] > 0) {
-                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                [properties setValue:elementContent forKey:@"$title"];
             }
         }
 
