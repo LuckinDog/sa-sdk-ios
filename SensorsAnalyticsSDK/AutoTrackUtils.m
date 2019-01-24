@@ -263,7 +263,6 @@
     if (!viewController) {
         return nil;
     }
-    
     // 先获取 controller.navigationItem.title
     NSString *controllerTitle = viewController.navigationItem.title;
     
@@ -276,7 +275,7 @@
             elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
         }
     }
-    
+
     if (elementContent.length > 0) {
         return elementContent;
     }else {
@@ -777,46 +776,9 @@
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:@"$screen_name"];
 
-            NSString *controllerTitle = viewController.navigationItem.title;
+            NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
             if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-            } else {
-                @try {
-                    UIView *titleView = viewController.navigationItem.titleView;
-                    if (titleView != nil) {
-                        if (titleView.subviews.count > 0) {
-                            NSString *elementContent = [[NSString alloc] init];
-                            for (UIView *subView in [titleView subviews]) {
-                                if (subView) {
-                                    if (subView.sensorsAnalyticsIgnoreView) {
-                                        continue;
-                                    }
-                                    if ([subView isKindOfClass:[UIButton class]]) {
-                                        UIButton *button = (UIButton *)subView;
-                                        NSString *currentTitle = button.sa_elementContent;
-                                        if (currentTitle != nil && currentTitle.length > 0) {
-                                            elementContent = [elementContent stringByAppendingString:currentTitle];
-                                            elementContent = [elementContent stringByAppendingString:@"-"];
-                                        }
-                                    } else if ([subView isKindOfClass:[UILabel class]]) {
-                                        UILabel *label = (UILabel *)subView;
-                                        NSString *currentTitle = label.sa_elementContent;
-                                        if (currentTitle != nil && currentTitle.length > 0) {
-                                            elementContent = [elementContent stringByAppendingString:currentTitle];
-                                            elementContent = [elementContent stringByAppendingString:@"-"];
-                                        }
-                                    }
-                                }
-                            }
-                            if (elementContent != nil && [elementContent length] > 0) {
-                                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                                [properties setValue:elementContent forKey:@"$title"];
-                            }
-                        }
-                    }
-                } @catch (NSException *exception) {
-                    SAError(@"%@: %@", self, exception);
-                }
+                [properties setValue:controllerTitle forKey:@"$title"];
             }
         }
 
