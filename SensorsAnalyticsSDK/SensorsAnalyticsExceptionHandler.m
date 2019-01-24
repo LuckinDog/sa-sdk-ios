@@ -92,8 +92,9 @@ static const int32_t UncaughtExceptionMaximum = 10;
 
 - (void)addSensorsAnalyticsInstance:(SensorsAnalyticsSDK *)instance {
     NSParameterAssert(instance != nil);
-    
-    [self.sensorsAnalyticsSDKInstances addObject:instance];
+    if (![self.sensorsAnalyticsSDKInstances containsObject:instance]) {
+        [self.sensorsAnalyticsSDKInstances addObject:instance];
+    }
 }
 
 static void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
