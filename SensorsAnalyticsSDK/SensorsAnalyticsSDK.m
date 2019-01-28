@@ -554,6 +554,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (void)configDebugModeServerUrl {
+    if (_debugMode  == SensorsAnalyticsDebugOff ) {
+        self.serverURL = _originServerUrl;
+    } else {
+        [self setServerUrl:_originServerUrl];
+    }
+}
+
 - (NSString *)debugModeCallBackUrl {
     NSURL *tempBaseUrl = [NSURL URLWithString:self.serverURL];
     if (tempBaseUrl.lastPathComponent.length > 0) {
@@ -668,15 +676,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"DebugOnly" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugOnly;
+                    [self configDebugModeServerUrl];
                     [self debugModeCallBackWithParams:params];
                 }];
                 UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"DebugAndTrack" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugAndTrack;
+                    [self configDebugModeServerUrl];
                     [self debugModeCallBackWithParams:params];
                 }];
 
                 UIAlertAction *actionDebugOff = [UIAlertAction actionWithTitle:@"DebugOff" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugOff;
+                    [self configDebugModeServerUrl];
                 }];
 
                 UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
