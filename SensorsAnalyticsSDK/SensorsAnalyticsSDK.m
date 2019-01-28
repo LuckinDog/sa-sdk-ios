@@ -26,7 +26,6 @@
 #import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
-#import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SASwizzle.h"
@@ -168,7 +167,7 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
 
-@interface SensorsAnalyticsSDK()<UIActionSheetDelegate>
+@interface SensorsAnalyticsSDK()
 
 // 在内部，重新声明成可读写的
 @property (atomic, strong) SensorsAnalyticsPeople *people;
@@ -555,6 +554,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (NSString *)debugModeCallBackUrl {
+    NSURL *tempBaseUrl = [NSURL URLWithString:self.serverURL];
+    if (tempBaseUrl.lastPathComponent.length > 0) {
+        tempBaseUrl = [tempBaseUrl URLByDeletingLastPathComponent];
+    }
+    
+    NSURL *url = [tempBaseUrl URLByAppendingPathComponent:@"debug"];
+    NSString *host = url.host;
+    if ([host containsString:@"_"]) { //包含下划线日志提示
+        NSString * referenceUrl = @"https://en.wikipedia.org/wiki/Hostname";
+        SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@",self.serverURL,referenceUrl);
+    }
+    
+    NSString *newServerUrl = [NSString stringWithString:url.absoluteString];
+    newServerUrl = [newServerUrl stringByReplacingOccurrencesOfString:url.query withString:@""];
+    return [newServerUrl copy];
+}
+
 - (void)disableDebugMode {
     _debugMode = SensorsAnalyticsDebugOff;
     _serverURL = _originServerUrl;
@@ -634,14 +651,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
-- (void)showDebugModeActionSheet {
+- (void)showDebugModeActionSheetWithParams:(NSDictionary *)params {
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
- 
             NSString *sheetTitle = @"开启调试";
             NSString *sheetMessage = @"请选择需要使用的调试模式，默认为 DebugOff";
             UIWindow *sheetWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-            sheetWindow.backgroundColor = [UIColor redColor];
             sheetWindow.rootViewController = [[UIViewController alloc] init];
             sheetWindow.windowLevel = UIWindowLevelAlert + 1;
             sheetWindow.hidden = NO;
@@ -653,9 +668,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"DebugOnly" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugOnly;
+                    [self debugModeCallBackWithParams:params];
                 }];
                 UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"DebugAndTrack" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugAndTrack;
+                    [self debugModeCallBackWithParams:params];
                 }];
 
                 UIAlertAction *actionDebugOff = [UIAlertAction actionWithTitle:@"DebugOff" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
@@ -671,10 +688,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 [sheetWindow.rootViewController presentViewController:connectActionSheet animated:YES completion:nil];
             } else {
-                NSString *newSheetTitle = [NSString stringWithFormat:@"%@ \n %@",sheetTitle,sheetMessage];
-                UIActionSheet *connectActionSheet = [[UIActionSheet alloc] initWithTitle:newSheetTitle delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"DebugOnly",@"DebugAndTrack",@"DebugOff", nil];
-                
-                [connectActionSheet showInView:sheetWindow];
+                UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅只是 iOS8 以上" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                [connectAlert show];
             }
         } @catch (NSException *exception) {
         } @finally {
@@ -682,21 +697,53 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+- (void)debugModeCallBackWithParams:(NSDictionary *)params {
+    NSString *urlString = [self debugModeCallBackUrl];
+    
+#warning 测试地址
+    urlString = @"http://10.42.131.112:8006/debug?";
+    
+    NSURLComponents *components = [NSURLComponents componentsWithString:urlString];
+    NSMutableArray<NSURLQueryItem *> *queryItems = [components.queryItems mutableCopy];
+    for(id key in params) {
+        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:[params objectForKey:key]];
+        [queryItems addObject:queryItem];
+    }
+    components.queryItems = queryItems;
+    NSURL *url = [components URL];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    request.timeoutInterval = 30;
+    [request setHTTPMethod:@"POST"];
+    
+    NSDictionary *callData = @{@"distinct_id":[self getBestId]};
+    JSONUtil *jsonUtil = [[JSONUtil alloc] init];
+    NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
+        if (statusCode == 200) {
+            NSError *err = NULL;
+            NSDictionary *dict = nil;
+            if (data.length ) {
+                dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
+            }
+        }else {
+            SAError(@"cinfig debugMode CallBack Faild");
+        }
+    }];
+    [task resume];
+}
+
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
     if (buttonIndex == 1) {
         _showDebugAlertView = NO;
     } else if (buttonIndex == 0) {
         _debugAlertViewHasShownNumber -= 1;
-    }
-}
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (buttonIndex == 0) {
-        _debugMode = SensorsAnalyticsDebugOnly;
-    }else if (buttonIndex == 1) {
-       _debugMode = SensorsAnalyticsDebugAndTrack;
-    }else if (buttonIndex == 2) {
-        _debugMode = SensorsAnalyticsDebugOff;
     }
 }
 
@@ -1413,8 +1460,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [connection showOpenHeatMapDialog:featureCode withUrl:postUrl isWifi:isWifi];
                 return YES;
             }
-        } else if ([@"debugmode" isEqualToString:url.host]) {//动态 debug
-            [self showDebugModeActionSheet];
+        } else if ([@"debugmode" isEqualToString:url.host]) {//动态 debug 配置
+            
+            NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+            
+            // url query 解析
+            NSMutableDictionary *paramDic = [NSMutableDictionary dictionary];
+            for (NSURLQueryItem *item in urlComponents.queryItems) {
+                [paramDic setValue:item.value forKey:item.name];
+            }
+    
+            [self showDebugModeActionSheetWithParams:paramDic];
             return YES;
         }
     } @catch (NSException *exception) {
