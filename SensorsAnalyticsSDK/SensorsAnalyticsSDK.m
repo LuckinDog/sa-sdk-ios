@@ -641,37 +641,37 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
-- (void)showDebugModeActionSheetWithParams:(NSDictionary *)params {
+- (void)showDebugModeAlertWithParams:(NSDictionary *)params {
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
-            NSString *sheetTitle = @"选择 Debug 模式";
-            NSString *sheetMessage = [NSString stringWithFormat:@"当前设备的 Debug 模式为 %@",[self debugModeToString:self->_debugMode]];
-            UIWindow *sheetWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-            sheetWindow.rootViewController = [[UIViewController alloc] init];
-            sheetWindow.windowLevel = UIWindowLevelAlert + 1;
-            sheetWindow.hidden = NO;
+            NSString *alertTitle = @"选择 Debug 模式";
+            NSString *alertMessage = [NSString stringWithFormat:@"当前设备的 Debug 模式为 %@",[self debugModeToString:self->_debugMode]];
+            UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            alertWindow.rootViewController = [[UIViewController alloc] init];
+            alertWindow.windowLevel = UIWindowLevelAlert + 1;
+            alertWindow.hidden = NO;
             
             dispatch_block_t alterViewBlock = ^{
                 
-                NSString *alertMessage = @"";
+                NSString *alterViewMessage = @"";
                 if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alertMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 app 进程后，将自动关闭 Debug 模式";
+                    alterViewMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 app 进程后，将自动关闭 Debug 模式";
                 }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
-                    alertMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 app 进程后，将自动关闭 Debug 模式";
+                    alterViewMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 app 进程后，将自动关闭 Debug 模式";
                 }else {
-                    alertMessage = @"已退出 Debug 模式";
+                    alterViewMessage = @"已退出 Debug 模式";
                 }
-                UIAlertController *connectAlert = [UIAlertController alertControllerWithTitle:@"SensorsData 重要提示" message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"SensorsData 重要提示" message:alterViewMessage preferredStyle:UIAlertControllerStyleAlert];
                
-                [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                    sheetWindow.hidden = YES;
+                [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    alertWindow.hidden = YES;
                 }]];
                 
-                [sheetWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
+                [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
             };
             
             if (@available(iOS 8.0, *)) {
-                UIAlertController *connectActionSheet = [UIAlertController alertControllerWithTitle:sheetTitle message:sheetMessage preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:alertTitle message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
                 
                 UIAlertAction *actionDebugOff = [UIAlertAction actionWithTitle:@"DebugOff" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugOff;
@@ -700,15 +700,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 
                 UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
                 
-                [connectActionSheet addAction:actionDebugOff];
-                [connectActionSheet addAction:actionDebugOnly];
-                [connectActionSheet addAction:actionDebugAndTrack];
-                [connectActionSheet addAction:cancle];
+                [alertController addAction:actionDebugOff];
+                [alertController addAction:actionDebugOnly];
+                [alertController addAction:actionDebugAndTrack];
+                [alertController addAction:cancle];
                 
-                [sheetWindow.rootViewController presentViewController:connectActionSheet animated:YES completion:nil];
+                [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
             } else {
-                UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅只是 iOS8 以上" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                [connectAlert show];
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅只是 iOS8 以上" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                [alertView show];
             }
         } @catch (NSException *exception) {
         } @finally {
@@ -1487,7 +1487,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
             }
     
-            [self showDebugModeActionSheetWithParams:paramDic];
+            [self showDebugModeAlertWithParams:paramDic];
             return YES;
         }
     } @catch (NSException *exception) {
