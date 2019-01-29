@@ -1497,7 +1497,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [connection showOpenHeatMapDialog:featureCode withUrl:postUrl isWifi:isWifi];
                 return YES;
             }
-        } else if ([@"debugMode" isEqualToString:url.host]) {//动态 debug 配置
+        } else if ([@"debugmode" isEqualToString:url.host]) {//动态 debug 配置
             
             NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
             
