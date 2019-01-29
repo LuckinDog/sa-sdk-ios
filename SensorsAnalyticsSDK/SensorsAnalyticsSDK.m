@@ -728,9 +728,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [queryItems addObject:queryItem];
     }
     urlComponents.queryItems = queryItems;
-    NSURL *url = [urlComponents URL];
+    NSURL *callBackUrl = [urlComponents URL];
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:callBackUrl];
     request.timeoutInterval = 30;
     [request setHTTPMethod:@"POST"];
     
@@ -751,7 +751,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
             }
         }else {
-            SAError(@"cinfig debugMode CallBack Faild statusCode：%d，url：%@",statusCode,url);
+            SAError(@"cinfig debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
         }
     }];
     [task resume];
