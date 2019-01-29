@@ -689,7 +689,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             };
             
             if (@available(iOS 8.0, *)) {
-                UIAlertController *connectActionSheet = [UIAlertController alertControllerWithTitle:sheetTitle message:sheetMessage preferredStyle:UIAlertControllerStyleActionSheet];
+                UIAlertController *connectActionSheet = [UIAlertController alertControllerWithTitle:sheetTitle message:sheetMessage preferredStyle:UIAlertControllerStyleAlert];
                 
                 UIAlertAction *actionDebugOff = [UIAlertAction actionWithTitle:@"DebugOff" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugOff;
