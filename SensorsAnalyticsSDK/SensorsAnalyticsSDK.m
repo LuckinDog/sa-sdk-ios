@@ -745,13 +745,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
         if (statusCode == 200) {
-            NSError *err = NULL;
-            NSDictionary *dict = nil;
-            if (data.length ) {
-                dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
-            }
+            SALog(@"config debugMode CallBack success");
         }else {
-            SAError(@"cinfig debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
+            SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
         }
     }];
     [task resume];
