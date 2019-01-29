@@ -562,24 +562,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (NSString *)debugModeCallBackUrl {
-    NSURL *tempBaseUrl = [NSURL URLWithString:self.serverURL];
-    if (tempBaseUrl.lastPathComponent.length > 0) {
-        tempBaseUrl = [tempBaseUrl URLByDeletingLastPathComponent];
-    }
-    
-    NSURL *url = [tempBaseUrl URLByAppendingPathComponent:@"debug"];
-    NSString *host = url.host;
-    if ([host containsString:@"_"]) { //包含下划线日志提示
-        NSString * referenceUrl = @"https://en.wikipedia.org/wiki/Hostname";
-        SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@",self.serverURL,referenceUrl);
-    }
-    
-    NSString *newServerUrl = [NSString stringWithString:url.absoluteString];
-    newServerUrl = [newServerUrl stringByReplacingOccurrencesOfString:url.query withString:@""];
-    return [newServerUrl copy];
-}
-
 - (void)disableDebugMode {
     _debugMode = SensorsAnalyticsDebugOff;
     _serverURL = _originServerUrl;
@@ -679,12 +661,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }else {
                     alertMessage = @"已退出 Debug 模式";
                 }
-                
                 UIAlertController *connectAlert = [UIAlertController alertControllerWithTitle:@"SensorsData 重要提示" message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
-                
+               
                 [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
                     sheetWindow.hidden = YES;
                 }]];
+                
                 [sheetWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
             };
             
@@ -735,19 +717,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)debugModeCallBackWithParams:(NSDictionary *)params {
-    NSString *urlString = [self debugModeCallBackUrl];
     
-#warning 测试地址
-    urlString = @"http://10.42.131.112:8006/debug?";
+    NSString *urlString = self.serverURL;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
     
-    NSURLComponents *components = [NSURLComponents componentsWithString:urlString];
-    NSMutableArray<NSURLQueryItem *> *queryItems = [components.queryItems mutableCopy];
+    NSMutableArray<NSURLQueryItem *> *queryItems = [urlComponents.queryItems mutableCopy];
+    //添加参数
     for(id key in params) {
         NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:[params objectForKey:key]];
         [queryItems addObject:queryItem];
     }
-    components.queryItems = queryItems;
-    NSURL *url = [components URL];
+    urlComponents.queryItems = queryItems;
+    NSURL *url = [urlComponents URL];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     request.timeoutInterval = 30;
@@ -770,7 +751,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
             }
         }else {
-            SAError(@"cinfig debugMode CallBack Faild");
+            SAError(@"cinfig debugMode CallBack Faild statusCode：%d，url：%@",statusCode,url);
         }
     }];
     [task resume];
@@ -1504,7 +1485,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // url query 解析
             NSMutableDictionary *paramDic = [NSMutableDictionary dictionary];
             for (NSURLQueryItem *item in urlComponents.queryItems) {
-                [paramDic setValue:item.value forKey:item.name];
+                
+                if ([item.name isEqualToString:@"info_id"]) {
+                   [paramDic setValue:item.value forKey:item.name];
+                }
             }
     
             [self showDebugModeActionSheetWithParams:paramDic];
