@@ -655,9 +655,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 
                 NSString *alterViewMessage = @"";
                 if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alterViewMessage = @"进入 DebugAndTrack 模式，数据会导入神策分析中，关闭 app 进程后，将自动关闭 Debug 模式";
+                    alterViewMessage = @"进入 DebugAndTrack 模式，数据会导入神策分析中，关闭 App 进程后，将自动关闭 Debug 模式";
                 }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
-                    alterViewMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 app 进程后，将自动关闭 Debug 模式";
+                    alterViewMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 App 进程后，将自动关闭 Debug 模式";
                 }else {
                     alterViewMessage = @"已退出 Debug 模式";
                 }
@@ -707,7 +707,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 
                 [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
             } else {
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅只是 iOS8 以上" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅支持 iOS8 以上设备" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
                 [alertView show];
             }
         } @catch (NSException *exception) {
