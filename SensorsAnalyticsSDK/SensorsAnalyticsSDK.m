@@ -655,7 +655,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 
                 NSString *alterViewMessage = @"";
                 if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alterViewMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 app 进程后，将自动关闭 Debug 模式";
+                    alterViewMessage = @"进入 DebugAndTrack 模式，数据会导入神策分析中，关闭 app 进程后，将自动关闭 Debug 模式";
                 }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
                     alterViewMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 app 进程后，将自动关闭 Debug 模式";
                 }else {
