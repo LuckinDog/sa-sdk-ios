@@ -645,23 +645,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             NSString *alertTitle = @"选择 Debug 模式";
-            NSString *alertMessage = [NSString stringWithFormat:@"当前设备的为 %@ 模式，选择您想进入的 Debug 模式",[self debugModeToString:self->_debugMode]];
+            NSString *alertMessage = [NSString stringWithFormat:@"当前设备的为 %@ 模式\n选择您想进入的 Debug 模式。",[self debugModeToString:self->_debugMode]];
             UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
             alertWindow.rootViewController = [[UIViewController alloc] init];
-            alertWindow.windowLevel = UIWindowLevelAlert + 1;
+            alertWindow.windowLevel = UIWindowLevelAlert + 2;
             alertWindow.hidden = NO;
             
             dispatch_block_t alterViewBlock = ^{
                 
+                NSString *alterViewTitle = [NSString stringWithFormat:@"进入 %@ 模式",[self debugModeToString:self->_debugMode]];
                 NSString *alterViewMessage = @"";
                 if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alterViewMessage = @"进入 DebugAndTrack 模式，数据会导入神策分析中，关闭 App 进程后，将自动关闭 Debug 模式";
+                    alterViewMessage = @"数据会导入神策分析中\n关闭 App 进程后，将自动关闭 Debug 模式。";
                 }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
-                    alterViewMessage = @"进入 DebugOnly 模式，数据不会进行导入，关闭 App 进程后，将自动关闭 Debug 模式";
+                    alterViewMessage = @"数据不会进行导入\n关闭 App 进程后，将自动关闭 Debug 模式。";
                 }else {
                     alterViewMessage = @"已退出 Debug 模式";
                 }
-                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"SensorsData 重要提示" message:alterViewMessage preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:alterViewTitle message:alterViewMessage preferredStyle:UIAlertControllerStyleAlert];
                
                 [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
                     alertWindow.hidden = YES;
@@ -690,7 +691,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [self debugModeCallBackWithParams:params];
                 }];
                 
-                UIAlertAction *actionCancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+                UIAlertAction *actionCancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    alertWindow.hidden = YES;
+                }];
                 
                 [alertController addAction:actionDebugOnly];
                 [alertController addAction:actionDebugAndTrack];
