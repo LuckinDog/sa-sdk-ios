@@ -645,7 +645,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             NSString *alertTitle = @"选择 Debug 模式";
-            NSString *alertMessage = [NSString stringWithFormat:@"当前设备的 Debug 模式为 %@",[self debugModeToString:self->_debugMode]];
+            NSString *alertMessage = [NSString stringWithFormat:@"当前设备的为 %@ 模式，选择您想进入的 Debug 模式",[self debugModeToString:self->_debugMode]];
             UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
             alertWindow.rootViewController = [[UIViewController alloc] init];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
@@ -673,14 +673,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (@available(iOS 8.0, *)) {
                 UIAlertController *alertController = [UIAlertController alertControllerWithTitle:alertTitle message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
                 
-                UIAlertAction *actionDebugOff = [UIAlertAction actionWithTitle:@"DebugOff" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    self->_debugMode = SensorsAnalyticsDebugOff;
-                    
-                    alterViewBlock();
-                    
-                    [self configDebugModeServerUrl];
-                }];
-                
                 UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"DebugOnly" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugOnly;
                     
@@ -698,12 +690,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [self debugModeCallBackWithParams:params];
                 }];
                 
-                UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+                UIAlertAction *actionCancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
                 
-                [alertController addAction:actionDebugOff];
                 [alertController addAction:actionDebugOnly];
                 [alertController addAction:actionDebugAndTrack];
-                [alertController addAction:cancle];
+                [alertController addAction:actionCancle];
                 
                 [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
             } else {
