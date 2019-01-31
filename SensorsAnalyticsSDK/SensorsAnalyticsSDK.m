@@ -645,7 +645,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             NSString *alertTitle = @"选择 Debug 模式";
-            NSString *alertMessage = [NSString stringWithFormat:@"当前设备的为 %@ 模式\n选择您想进入的 Debug 模式。",[self debugModeToString:self->_debugMode]];
+            NSString *alertMessage = [NSString stringWithFormat:@"当前设备为 %@ 模式\n选择您想进入的 Debug 模式。",[self debugModeToString:self->_debugMode]];
             UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
             alertWindow.rootViewController = [[UIViewController alloc] init];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
