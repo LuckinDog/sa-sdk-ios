@@ -1481,8 +1481,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
             }
     
-            [self showDebugModeAlertWithParams:paramDic];
-            return YES;
+            //如果没传 info_id，视为伪造二维码，不做处理
+            if ([paramDic.allKeys containsObject:@"info_id"]) {
+                [self showDebugModeAlertWithParams:paramDic];
+                return YES;
+            } else {
+                return NO;
+            }
         }
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
