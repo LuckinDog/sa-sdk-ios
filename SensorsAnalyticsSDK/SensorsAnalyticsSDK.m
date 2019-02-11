@@ -725,7 +725,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *urlString = self.serverURL;
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
     
-    NSMutableArray<NSURLQueryItem *> *queryItems = [urlComponents.queryItems mutableCopy];
+    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
     //添加参数
     for(id key in params) {
         NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:[params objectForKey:key]];
