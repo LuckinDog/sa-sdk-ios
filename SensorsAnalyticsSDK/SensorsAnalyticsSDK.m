@@ -644,8 +644,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)showDebugModeAlertWithParams:(NSDictionary *)params {
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
-            NSString *alertTitle = @"选择 Debug 模式";
-            NSString *alertMessage = [NSString stringWithFormat:@"当前设备为 %@ 模式\n选择您想进入的 Debug 模式。",[self debugModeToString:self->_debugMode]];
+            
             UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
             alertWindow.rootViewController = [[UIViewController alloc] init];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
@@ -653,17 +652,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             dispatch_block_t alterViewBlock = ^{
                 
-                NSString *alterViewTitle = [NSString stringWithFormat:@"进入 %@ 模式",[self debugModeToString:self->_debugMode]];
                 NSString *alterViewMessage = @"";
                 if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alterViewMessage = @"数据会导入神策分析中\n关闭 App 进程后，将自动关闭 Debug 模式。";
+                    alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
                 }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
-                    alterViewMessage = @"数据不会进行导入\n关闭 App 进程后，将自动关闭 Debug 模式。";
+                    alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
                 }else {
-                    alterViewMessage = @"已退出 Debug 模式";
+                    alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
                 }
-                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:alterViewTitle message:alterViewMessage preferredStyle:UIAlertControllerStyleAlert];
-               
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:alterViewMessage preferredStyle:UIAlertControllerStyleAlert];
+                
                 [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
                     alertWindow.hidden = YES;
                 }]];
@@ -672,18 +670,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             };
             
             if (@available(iOS 8.0, *)) {
-                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:alertTitle message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
-                
-                UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"DebugOnly" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    self->_debugMode = SensorsAnalyticsDebugOnly;
+                UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"开启调试模式（导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    self->_debugMode = SensorsAnalyticsDebugAndTrack;
                     
                     alterViewBlock();
                     
                     [self configDebugModeServerUrl];
                     [self debugModeCallBackWithParams:params];
                 }];
-                UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"DebugAndTrack" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    self->_debugMode = SensorsAnalyticsDebugAndTrack;
+                
+                UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"开启调试模式（不导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    self->_debugMode = SensorsAnalyticsDebugOnly;
                     
                     alterViewBlock();
                     
@@ -695,8 +692,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     alertWindow.hidden = YES;
                 }];
                 
-                [alertController addAction:actionDebugOnly];
+                NSString *alertTitle = @"SDK 调试模式选择";
+                NSString *alertMessage = @"";
+                
+                if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
+                    alertMessage = @"当前为 调试模式（导入数据）";
+                }else if (self.debugMode == SensorsAnalyticsDebugOnly) {
+                    alertMessage = @"当前为 调试模式（不导入数据）";
+                }else {
+                    alertMessage = @"调试模式已关闭";
+                }
+                
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:alertTitle message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
+                
                 [alertController addAction:actionDebugAndTrack];
+                [alertController addAction:actionDebugOnly];
                 [alertController addAction:actionCancle];
                 
                 [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
