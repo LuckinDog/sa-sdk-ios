@@ -26,7 +26,6 @@
 #import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
-#import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SASwizzle.h"
@@ -264,6 +263,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                          andLaunchOptions:launchOptions
                                              andDebugMode:debugMode];
+    });
+    return sharedInstance;
+}
+
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
+                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] initWithServerURL:serverURL
+                                        andLaunchOptions:launchOptions
+                                            andDebugMode:SensorsAnalyticsDebugOff];
     });
     return sharedInstance;
 }
@@ -544,6 +554,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (void)configDebugModeServerUrl {
+    if (_debugMode  == SensorsAnalyticsDebugOff ) {
+        self.serverURL = _originServerUrl;
+    } else {
+        [self setServerUrl:_originServerUrl];
+    }
+}
+
 - (void)disableDebugMode {
     _debugMode = SensorsAnalyticsDebugOff;
     _serverURL = _originServerUrl;
@@ -621,6 +639,122 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     });
 #endif
+}
+
+- (void)showDebugModeAlertWithParams:(NSDictionary *)params {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
+            
+            UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            alertWindow.rootViewController = [[UIViewController alloc] init];
+            alertWindow.windowLevel = UIWindowLevelAlert + 1;
+            alertWindow.hidden = NO;
+            
+            dispatch_block_t alterViewBlock = ^{
+                
+                NSString *alterViewMessage = @"";
+                if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
+                    alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
+                }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
+                    alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
+                }else {
+                    alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
+                }
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:alterViewMessage preferredStyle:UIAlertControllerStyleAlert];
+                
+                [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    alertWindow.hidden = YES;
+                }]];
+                
+                [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+            };
+            
+            if (@available(iOS 8.0, *)) {
+                UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"开启调试模式（导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    self->_debugMode = SensorsAnalyticsDebugAndTrack;
+                    
+                    alterViewBlock();
+                    
+                    [self configDebugModeServerUrl];
+                    [self debugModeCallBackWithParams:params];
+                }];
+                
+                UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"开启调试模式（不导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    self->_debugMode = SensorsAnalyticsDebugOnly;
+                    
+                    alterViewBlock();
+                    
+                    [self configDebugModeServerUrl];
+                    [self debugModeCallBackWithParams:params];
+                }];
+                
+                UIAlertAction *actionCancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    alertWindow.hidden = YES;
+                }];
+                
+                NSString *alertTitle = @"SDK 调试模式选择";
+                NSString *alertMessage = @"";
+                
+                if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
+                    alertMessage = @"当前为 调试模式（导入数据）";
+                }else if (self.debugMode == SensorsAnalyticsDebugOnly) {
+                    alertMessage = @"当前为 调试模式（不导入数据）";
+                }else {
+                    alertMessage = @"调试模式已关闭";
+                }
+                
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:alertTitle message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
+                
+                [alertController addAction:actionDebugAndTrack];
+                [alertController addAction:actionDebugOnly];
+                [alertController addAction:actionCancle];
+                
+                [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+            } else {
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅支持 iOS8 以上设备" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                [alertView show];
+            }
+        } @catch (NSException *exception) {
+        } @finally {
+        }
+    });
+}
+
+- (void)debugModeCallBackWithParams:(NSDictionary *)params {
+    
+    NSString *urlString = self.serverURL;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
+    
+    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
+    //添加参数
+    for(id key in params) {
+        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:[params objectForKey:key]];
+        [queryItems addObject:queryItem];
+    }
+    urlComponents.queryItems = queryItems;
+    NSURL *callBackUrl = [urlComponents URL];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:callBackUrl];
+    request.timeoutInterval = 30;
+    [request setHTTPMethod:@"POST"];
+    
+    NSDictionary *callData = @{@"distinct_id":[self getBestId]};
+    JSONUtil *jsonUtil = [[JSONUtil alloc] init];
+    NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
+        if (statusCode == 200) {
+            SALog(@"config debugMode CallBack success");
+        }else {
+            SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
+        }
+    }];
+    [task resume];
 }
 
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
@@ -1308,6 +1442,67 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)deleteAll {
     [self.messageQueue deleteAll];
+}
+
+-(BOOL)handleSchemeUrl:(NSURL *)url {
+    @try {
+        if (!url) {
+            return NO;
+        }
+        
+        if ([@"heatmap" isEqualToString:url.host]) {//点击图
+            NSString *featureCode = nil;
+            NSString *postUrl = nil;
+            NSString *query = [url query];
+            if (query != nil) {
+                NSArray *subArray = [query componentsSeparatedByString:@"&"];
+                NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
+                if (subArray) {
+                    for (int j = 0 ; j < subArray.count; j++) {
+                        //在通过=拆分键和值
+                        NSArray *dicArray = [subArray[j] componentsSeparatedByString:@"="];
+                        //给字典加入元素
+                        [tempDic setObject:dicArray[1] forKey:dicArray[0]];
+                    }
+                    featureCode = [tempDic objectForKey:@"feature_code"];
+                    postUrl = [tempDic objectForKey:@"url"];
+                }
+            }
+            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+            BOOL isWifi = NO;
+            if ([networkType isEqualToString:@"WIFI"]) {
+                isWifi = YES;
+            }
+            SAHeatMapConnection *connection = [[SAHeatMapConnection alloc] initWithURL:nil];
+            if (connection) {
+                [connection showOpenHeatMapDialog:featureCode withUrl:postUrl isWifi:isWifi];
+                return YES;
+            }
+        } else if ([@"debugmode" isEqualToString:url.host]) {//动态 debug 配置
+            
+            NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+            
+            // url query 解析
+            NSMutableDictionary *paramDic = [NSMutableDictionary dictionary];
+            for (NSURLQueryItem *item in urlComponents.queryItems) {
+                
+                if ([item.name isEqualToString:@"info_id"]) {
+                   [paramDic setValue:item.value forKey:item.name];
+                }
+            }
+    
+            //如果没传 info_id，视为伪造二维码，不做处理
+            if ([paramDic.allKeys containsObject:@"info_id"]) {
+                [self showDebugModeAlertWithParams:paramDic];
+                return YES;
+            } else {
+                return NO;
+            }
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@: %@", self, exception);
+    }
+    return NO;
 }
 
 - (BOOL)handleHeatMapUrl:(NSURL *)url {
