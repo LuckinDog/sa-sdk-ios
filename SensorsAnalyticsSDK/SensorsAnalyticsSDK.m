@@ -915,22 +915,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (urlstr == nil) {
             return YES;
         }
-        NSArray *urlArray = [urlstr componentsSeparatedByString:@"?"];
-        if (urlArray == nil) {
-            return YES;
-        }
+        
         //解析参数
         NSMutableDictionary *paramsDic = [[NSMutableDictionary alloc] init];
-        //判读是否有参数
-        if (urlArray.count > 1) {
-            //这里解析参数,将参数放入字典中
-            NSArray *paramsArray = [urlArray[1] componentsSeparatedByString:@"&"];
-            for (NSString *param in paramsArray) {
-                NSArray *keyValue = [param componentsSeparatedByString:@"="];
-                if (keyValue.count == 2) {
-                    [paramsDic setObject:keyValue[1] forKey:keyValue[0]];
-                }
-            }
+        NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlstr];
+        for (NSURLQueryItem *item in urlComponents.queryItems) {
+            [paramsDic setValue:item.value forKey:item.name];
         }
         
         if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
@@ -1318,21 +1308,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([@"heatmap" isEqualToString:url.host]) {
             NSString *featureCode = nil;
             NSString *postUrl = nil;
-            NSString *query = [url query];
-            if (query != nil) {
-                NSArray *subArray = [query componentsSeparatedByString:@"&"];
-                NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
-                if (subArray) {
-                    for (int j = 0 ; j < subArray.count; j++) {
-                        //在通过=拆分键和值
-                        NSArray *dicArray = [subArray[j] componentsSeparatedByString:@"="];
-                        //给字典加入元素
-                        [tempDic setObject:dicArray[1] forKey:dicArray[0]];
-                    }
-                    featureCode = [tempDic objectForKey:@"feature_code"];
-                    postUrl = [tempDic objectForKey:@"url"];
-                }
+            
+            NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
+            NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+            for (NSURLQueryItem *item in urlComponents.queryItems) {
+                [tempDic setValue:item.value forKey:item.name];
             }
+            
+            if (tempDic.count) {
+                featureCode = [tempDic objectForKey:@"feature_code"];
+                postUrl = [tempDic objectForKey:@"url"];
+            }
+            
             NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
             BOOL isWifi = NO;
             if ([networkType isEqualToString:@"WIFI"]) {
@@ -1345,7 +1332,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     } @catch (NSException *exception) {
-         SAError(@"%@: %@", self, exception);
+        SAError(@"%@: %@", self, exception);
     }
     return NO;
 }
