@@ -198,7 +198,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @proeprty
  *
  * @abstract
- * 当 App 进入后台时，是否执行flush将数据发送到 SensrosAnalytics
+ * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
  *
  * @discussion
  * 默认值为 YES
@@ -484,7 +484,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
  */
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
 
 /**
  * @abstract
@@ -649,7 +649,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param newDistinctId     用户完成注册后生成的注册 ID
  * @param propertyDict     event 的属性
  */
-- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考 login:")));
 
 /**
  * @abstract
@@ -660,7 +660,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @param newDistinctId     用户完成注册后生成的注册 ID
  */
-- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考login")));
+- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考 login:")));
 
 /**
  * @abstract
