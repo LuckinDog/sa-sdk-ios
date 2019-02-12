@@ -3642,26 +3642,33 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-    self.locationConfig.enableGPSLocation = enableGPSLocation;
-    if (enableGPSLocation) {
-        if (_locationManager == nil) {
-            _locationManager = [[SALocationManager alloc]init];
-            __weak SensorsAnalyticsSDK *weakSelf = self;
-            _locationManager.updateLocationBlock = ^(CLLocation * location,NSError *error){
-                __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
-                if (location) {
-                    strongSelf.locationConfig.coordinate = location.coordinate;
-                }
-                if (error) {
-                    SALog(@"%@",error);
-                }
-            };
+    dispatch_block_t block = ^{
+        self.locationConfig.enableGPSLocation = enableGPSLocation;
+        if (enableGPSLocation) {
+            if (self->_locationManager == nil) {
+                self->_locationManager = [[SALocationManager alloc]init];
+                __weak SensorsAnalyticsSDK *weakSelf = self;
+                self->_locationManager.updateLocationBlock = ^(CLLocation * location,NSError *error){
+                    __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
+                    if (location) {
+                        strongSelf.locationConfig.coordinate = location.coordinate;
+                    }
+                    if (error) {
+                        SALog(@"%@",error);
+                    }
+                };
+            }
+            [self->_locationManager startUpdatingLocation];
+        }else{
+            if (self->_locationManager != nil) {
+                [self->_locationManager stopUpdatingLocation];
+            }
         }
-        [_locationManager startUpdatingLocation];
-    }else{
-        if (_locationManager != nil) {
-            [_locationManager stopUpdatingLocation];
-        }
+    };
+    if (NSThread.isMainThread) {
+        block();
+    }else {
+        dispatch_async(dispatch_get_main_queue(), block);
     }
 #endif
 }
