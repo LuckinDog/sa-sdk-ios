@@ -3645,10 +3645,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     dispatch_block_t block = ^{
         self.locationConfig.enableGPSLocation = enableGPSLocation;
         if (enableGPSLocation) {
-            if (self->_locationManager == nil) {
-                self->_locationManager = [[SALocationManager alloc]init];
+            if (self.locationManager == nil) {
+                self.locationManager = [[SALocationManager alloc]init];
                 __weak SensorsAnalyticsSDK *weakSelf = self;
-                self->_locationManager.updateLocationBlock = ^(CLLocation * location,NSError *error){
+                self.locationManager.updateLocationBlock = ^(CLLocation * location,NSError *error){
                     __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
                     if (location) {
                         strongSelf.locationConfig.coordinate = location.coordinate;
@@ -3658,10 +3658,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     }
                 };
             }
-            [self->_locationManager startUpdatingLocation];
+            [self.locationManager startUpdatingLocation];
         }else{
-            if (self->_locationManager != nil) {
-                [self->_locationManager stopUpdatingLocation];
+            if (self.locationManager != nil) {
+                [self.locationManager stopUpdatingLocation];
             }
         }
     };
