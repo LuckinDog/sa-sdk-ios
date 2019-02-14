@@ -2712,7 +2712,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setFlushBulkSize:(UInt64)bulkSize {
     @synchronized(self) {
         //加上最小值保护，50
-        _flushBulkSize = bulkSize>=50 ? bulkSize:50;
+        _flushBulkSize = bulkSize >= 50 ? bulkSize : 50;
     }
 }
 
