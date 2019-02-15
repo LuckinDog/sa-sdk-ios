@@ -655,6 +655,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (@available(iOS 8.0, *)) {
                 UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"开启调试模式（导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugAndTrack;
+                    [self enableLog:YES];
                     
                     alterViewBlock();
                     
@@ -664,6 +665,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 
                 UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"开启调试模式（不导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     self->_debugMode = SensorsAnalyticsDebugOnly;
+                    [self enableLog:YES];
                     
                     alterViewBlock();
                     
@@ -3422,10 +3424,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     BOOL printLog = NO;
 #if (defined SENSORS_ANALYTICS_ENABLE_LOG)
     printLog = YES;
-#endif
-    
-#if (defined SENSORS_ANALYTICS_DISABLE_LOG)
-    printLog = NO;
 #endif
     
     if ( [self debugMode] != SensorsAnalyticsDebugOff) {
