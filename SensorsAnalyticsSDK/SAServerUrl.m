@@ -42,21 +42,19 @@
         _url = url;
         if (url != nil) {
             @try {
-                NSURL *u = [NSURL URLWithString:url];
-                _host = [u host];
-                
                 NSURLComponents *urlComponents = [NSURLComponents componentsWithString:url];
-                NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
-                
-                for (NSURLQueryItem *item in urlComponents.queryItems) {
-                    [tempDic setValue:item.value forKey:item.name];
+                if (urlComponents) {
+                    _host = urlComponents.host;
+                    NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
+                    for (NSURLQueryItem *item in urlComponents.queryItems) {
+                        [tempDic setValue:item.value forKey:item.name];
+                    }
+
+                    if (tempDic.count) {
+                        _project = [tempDic objectForKey:@"project"];
+                        _token = [tempDic objectForKey:@"token"];
+                    }
                 }
-                
-                if (tempDic.count) {
-                    _project = [tempDic objectForKey:@"project"];
-                    _token = [tempDic objectForKey:@"token"];
-                }
-                
             } @catch(NSException *exception) {
                 SAError(@"%@: %@", self, exception);
             } @finally {
