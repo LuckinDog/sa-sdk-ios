@@ -3654,7 +3654,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                         strongSelf.locationConfig.coordinate = location.coordinate;
                     }
                     if (error) {
-                        SALog(@"%@",error);
+                        SALog(@"enableTrackGPSLocation error：%@",error);
                     }
                 };
             }
