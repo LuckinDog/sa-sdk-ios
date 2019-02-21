@@ -2918,7 +2918,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 self.launchedPassivelyControllers = [NSMutableArray array];
             }
             
-            NSString *screenName = NSStringFromClass(controller.class);
             if ([self shouldTrackViewScreenClass:controller]) {
                 [self.launchedPassivelyControllers addObject:controller];
             }
@@ -2938,13 +2937,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!controller) {
         return;
     }
-
-    NSString *screenName = NSStringFromClass(controller.class);
+    
     if (![self shouldTrackViewScreenClass:controller]) {
         return;
     }
 
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    NSString *screenName = NSStringFromClass(controller.class);
     [properties setValue:screenName forKey:SCREEN_NAME_PROPERTY];
 
     @try {
