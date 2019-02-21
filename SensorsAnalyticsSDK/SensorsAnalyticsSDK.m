@@ -351,6 +351,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (BOOL)shouldTrackClassName:(NSString *)className {
     static NSSet *blacklistedClasses = nil;
     static dispatch_once_t onceToken;
+    
     dispatch_once(&onceToken, ^{
         NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
         //文件路径
@@ -364,6 +365,35 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     });
     return ![blacklistedClasses containsObject:className];
+}
+
+- (BOOL)shouldTrackViewScreenClass:(UIViewController *)class {
+    static NSSet *blacklistedClasses = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+        //文件路径
+        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
+        NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+        @try {
+            NSArray *_blacklistedViewControllerClassNames = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
+            blacklistedClasses = [NSSet setWithArray:_blacklistedViewControllerClassNames];
+        } @catch(NSException *exception) {  // json加载和解析可能失败
+            SAError(@"%@ error: %@", self, exception);
+        }
+    });
+    
+    __block BOOL shouldTrack = YES;
+    [blacklistedClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
+        NSString *blackClassName = (NSString *)obj;
+        Class blackClass = NSClassFromString(blackClassName);
+        if (blackClass && [class isKindOfClass:blackClass]) {
+            shouldTrack = NO;
+            *stop = YES;
+        }
+    }];
+    return shouldTrack;
 }
 
 - (instancetype)initWithServerURL:(NSString *)serverURL
@@ -2889,7 +2919,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             NSString *screenName = NSStringFromClass(controller.class);
-            if ([self shouldTrackClassName:screenName]) {
+            if ([self shouldTrackViewScreenClass:controller]) {
                 [self.launchedPassivelyControllers addObject:controller];
             }
         }
@@ -2910,7 +2940,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     NSString *screenName = NSStringFromClass(controller.class);
-    if (![self shouldTrackClassName:screenName]) {
+    if (![self shouldTrackViewScreenClass:controller]) {
         return;
     }
 
