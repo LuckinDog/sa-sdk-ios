@@ -347,7 +347,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return currentUA;
 }
 
-- (BOOL)shouldTrackViewScreenClass:(UIViewController *)class {
+- (BOOL)shouldTrackViewScreen:(UIViewController *)controller {
     static NSSet *blacklistedClasses = nil;
     static dispatch_once_t onceToken;
     
@@ -368,7 +368,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [blacklistedClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
         NSString *blackClassName = (NSString *)obj;
         Class blackClass = NSClassFromString(blackClassName);
-        if (blackClass && [class isKindOfClass:blackClass]) {
+        if (blackClass && [controller isKindOfClass:blackClass]) {
             shouldTrack = NO;
             *stop = YES;
         }
@@ -2898,7 +2898,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 self.launchedPassivelyControllers = [NSMutableArray array];
             }
             
-            if ([self shouldTrackViewScreenClass:controller]) {
+            if ([self shouldTrackViewScreen:controller]) {
                 [self.launchedPassivelyControllers addObject:controller];
             }
         }
@@ -2918,7 +2918,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    if (![self shouldTrackViewScreenClass:controller]) {
+    if (![self shouldTrackViewScreen:controller]) {
         return;
     }
 
