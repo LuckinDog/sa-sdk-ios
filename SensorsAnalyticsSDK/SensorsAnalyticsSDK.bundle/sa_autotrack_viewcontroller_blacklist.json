@@ -32,8 +32,6 @@
   "_UIActivityUserDefaultsViewController",
   "_UIActivityViewControllerContentController",
   "_UIRemoteInputViewController",
-  "UIViewController",
-  "UITableViewController",
   "_UIUserDefaultsActivityNavigationController",
   "UISnapshotModalViewController",
   "WKActionSheet",
