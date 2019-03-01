@@ -131,11 +131,12 @@
                 NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                                  options:NSJSONReadingMutableContainers
                                                                                    error:&err];
-                if (!err) {
+                if (!err && contentArray) {
                     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
                     [eventDict setValue:@(time) forKey:@"_flush_time"];
+                    
+                    [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
                 }
-                [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
             } @catch (NSException *exception) {
                 SAError(@"Found NON UTF8 String, ignore");
             }
