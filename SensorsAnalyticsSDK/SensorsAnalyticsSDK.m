@@ -374,14 +374,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _autoTrackEventType = SensorsAnalyticsEventTypeNone;
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
 
-            if ([[NSThread currentThread] isMainThread]) {
-                [self configLaunchedPassivelyWithLaunchOptions:launchOptions];
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self configLaunchedPassivelyWithLaunchOptions:launchOptions];;
-                });
-            }
-
+            [NSThread sa_safelyRunOnMainThreadSync:^{
+                UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
+                //判断被动启动
+                if (applicationState == UIApplicationStateBackground) {
+                    self->_launchedPassively = YES;
+                }
+            }];
+           
             _people = [[SensorsAnalyticsPeople alloc] init];
 
             _debugMode = debugMode;
@@ -480,23 +480,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ error: %@", self, exception);
     }
     return self;
-}
-
-- (void)configLaunchedPassivelyWithLaunchOptions:(NSDictionary *)launchOptions {
-    UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
-#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
-    //判断被动启动
-    if (applicationState == UIApplicationStateBackground) {
-        self.launchedPassively = YES;
-    }
-#else
-    //远程通知启动，位置变动启动
-    if ([launchOptions.allKeys containsObject:UIApplicationLaunchOptionsRemoteNotificationKey] || [launchOptions.allKeys containsObject:UIApplicationLaunchOptionsLocationKey]) {
-        if (applicationState == UIApplicationStateBackground) {
-            self.launchedPassively = YES;
-        }
-    }
- #endif
 }
 
 - (NSDictionary *)getPresetProperties {
@@ -2882,7 +2865,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (self.launchedPassively) {
-#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
         if (controller) {
             if (!self.launchedPassivelyControllers) {
                 self.launchedPassivelyControllers = [NSMutableArray array];
@@ -2893,7 +2875,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self.launchedPassivelyControllers addObject:controller];
             }
         }
-#endif
         return;
     }
     
@@ -3261,7 +3242,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     }
     
-#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY
     //track 被动启动的页面浏览
     if (self.launchedPassivelyControllers) {
         [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -3269,8 +3249,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }];
         self.launchedPassivelyControllers = nil;
     }
-#endif
-    
+
     [self startFlushTimer];
 }
 
