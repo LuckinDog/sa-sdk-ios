@@ -48,6 +48,7 @@
 #import "SACommonUtility.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SaAlterRootViewController.h"
 
 #define VERSION @"1.10.21"
 
@@ -631,7 +632,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }]];
                 }
 
-                alertWindow.rootViewController = [[UIViewController alloc] init];
+                alertWindow.rootViewController = [[SaAlterRootViewController alloc] init];
                 alertWindow.windowLevel = UIWindowLevelAlert + 1;
                 alertWindow.hidden = NO;
                 [alertWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
@@ -656,7 +657,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         @try {
             
             UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-            alertWindow.rootViewController = [[UIViewController alloc] init];
+            alertWindow.rootViewController = [[SaAlterRootViewController alloc] init];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
             alertWindow.hidden = NO;
             

@@ -62,5 +62,6 @@
   "UIWebRotatingAlertController",
   "UIEditUserWordController",
   "UISplitViewController",
-  "UITabBarController"
+  "UITabBarController",
+  "SaAlterRootViewController"
   ]
