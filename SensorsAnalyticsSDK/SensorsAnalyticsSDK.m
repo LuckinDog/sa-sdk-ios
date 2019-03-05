@@ -1608,6 +1608,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (self.remoteConfig.disableSDK) {
         return;
     }
+    propertieDict = [propertieDict copy];
 
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     [libProperties setValue:@"autoTrack" forKey:@"$lib_method"];
