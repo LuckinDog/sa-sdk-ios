@@ -2055,9 +2055,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self track:event withProperties:properties withType:@"track"];
 
         // 再发送 profile_set_once
-        NSMutableDictionary *profileProperties = [properties mutableCopy];
-        [profileProperties setValue:[NSDate date] forKey:@"$first_visit_time"];
-        [self track:nil withProperties:profileProperties withType:@"profile_set_once"];
+        [properties setValue:[NSDate date] forKey:@"$first_visit_time"];
+        
+        [self track:nil withProperties:[properties copy] withType:@"profile_set_once"];
 
         [self flush];
     }
@@ -2387,9 +2387,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 ///注销仅大小写不同的 SuperProperties
 - (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict {
     dispatch_block_t block =^{
-        NSArray *allNewKeys = [propertyDict.allKeys mutableCopy];
+        NSArray *allNewKeys = [propertyDict.allKeys copy];
         //如果包含仅大小写不同的 key ,unregisterSuperProperty
-        NSArray *superPropertyAllKeys = [self.superProperties.allKeys mutableCopy];
+        NSArray *superPropertyAllKeys = [self.superProperties.allKeys copy];
         NSMutableArray *unregisterPropertyKeys = [NSMutableArray array];
         for (NSString *newKey in allNewKeys) {
             [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
