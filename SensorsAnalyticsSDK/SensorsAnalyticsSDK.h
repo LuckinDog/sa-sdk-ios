@@ -847,7 +847,15 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
  * @param dynamicSuperProperties block 用来返回事件的动态公共属性
  */
--(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
+
+/**
+ * @abstract
+ * 修改入库之前的事件信息
+ *
+ * @param block 传入事件数据，请返回修改后的事件数据
+ */
+- (void)registerUpdateEventInfo:(nonnull NSDictionary<NSString *, id> * _Nonnull (^)(NSMutableDictionary<NSString *, id> * _Nonnull))block;
 
 /**
  * @abstract

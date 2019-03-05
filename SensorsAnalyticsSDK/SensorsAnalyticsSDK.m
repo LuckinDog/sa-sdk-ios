@@ -215,7 +215,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
 
-@property (nonatomic,copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
+@property (nonatomic, copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
+@property (nonatomic, copy) NSDictionary<NSString *, id> *(^updateEventInfoBlock)(NSMutableDictionary<NSString *, id> *);
 
 ///是否为被动启动
 @property(nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
@@ -1617,8 +1618,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:e];
-    [self.messageQueue addObejct:event withType:@"Post"];
+    NSDictionary *event = [NSDictionary dictionaryWithDictionary:e];
+    if (self.updateEventInfoBlock) {
+        event = self.updateEventInfoBlock([event mutableCopy]);
+    }
+    if (event) {
+        [self.messageQueue addObejct:event withType:@"Post"];
+    }
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
@@ -2395,9 +2401,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
--(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
     dispatch_async(self.serialQueue, ^{
         self.dynamicSuperProperties = dynamicSuperProperties;
+    });
+}
+
+- (void)registerUpdateEventInfo:(nonnull NSDictionary<NSString *, id> * _Nonnull (^)(NSMutableDictionary<NSString *, id> * _Nonnull))block {
+    dispatch_async(self.serialQueue, ^{
+        self.updateEventInfoBlock = block;
     });
 }
 
