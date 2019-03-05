@@ -48,7 +48,7 @@
 #import "SACommonUtility.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SaAlterRootViewController.h"
+#import "SaAlertRootViewController.h"
 
 #define VERSION @"1.10.21"
 
@@ -615,6 +615,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self->_debugAlertViewHasShownNumber += 1;
             NSString *alertTitle = @"SensorsData 重要提示";
             if (@available(iOS 8.0, *)) {
+//                SaAlertRootViewController *alterCobtroller = [[SaAlertRootViewController alloc] init];
                 UIAlertController *connectAlert = [UIAlertController
                                                    alertControllerWithTitle:alertTitle
                                                    message:message
@@ -632,7 +633,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }]];
                 }
 
-                alertWindow.rootViewController = [[SaAlterRootViewController alloc] init];
+                alertWindow.rootViewController = [SaAlertRootViewController new];
                 alertWindow.windowLevel = UIWindowLevelAlert + 1;
                 alertWindow.hidden = NO;
                 [alertWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
@@ -657,7 +658,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         @try {
             
             UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-            alertWindow.rootViewController = [[SaAlterRootViewController alloc] init];
+            alertWindow.rootViewController = [[SaAlertRootViewController alloc] init];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
             alertWindow.hidden = NO;
             
