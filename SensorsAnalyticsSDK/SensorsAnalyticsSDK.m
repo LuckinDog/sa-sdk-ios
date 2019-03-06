@@ -49,7 +49,7 @@
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
-#define VERSION @"1.10.22"
+#define VERSION @"1.10.23"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
