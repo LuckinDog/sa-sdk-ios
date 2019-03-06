@@ -888,7 +888,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventDict setValue:@([[self class] getCurrentTime]) forKey:@"time"];
 
             if([type isEqualToString:@"track_signup"]){
-                [eventDict setValue:self.originalId forKey:@"original_id"];
+                NSString *realOriginalId = self.originalId ?: self.distinctId;
+                [eventDict setValue:realOriginalId forKey:@"original_id"];
             } else {
                 [eventDict setValue:bestId forKey:@"distinct_id"];
             }
