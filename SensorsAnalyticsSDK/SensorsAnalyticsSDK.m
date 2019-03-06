@@ -48,7 +48,7 @@
 #import "SACommonUtility.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SaAlertRootViewController.h"
+#import "SAAlertController.h"
 
 #define VERSION @"1.10.21"
 
@@ -614,38 +614,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             self->_debugAlertViewHasShownNumber += 1;
             NSString *alertTitle = @"SensorsData 重要提示";
-            if (@available(iOS 8.0, *)) {
-//                SaAlertRootViewController *alterCobtroller = [[SaAlertRootViewController alloc] init];
-                UIAlertController *connectAlert = [UIAlertController
-                                                   alertControllerWithTitle:alertTitle
-                                                   message:message
-                                                   preferredStyle:UIAlertControllerStyleAlert];
-
-                UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-                [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                    alertWindow.hidden = YES;
-                    self->_debugAlertViewHasShownNumber -= 1;
-                }]];
-                if (showNoMore) {
-                    [connectAlert addAction:[UIAlertAction actionWithTitle:@"不再显示" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                        alertWindow.hidden = YES;
-                        self->_showDebugAlertView = NO;
-                    }]];
-                }
-
-                alertWindow.rootViewController = [SaAlertRootViewController new];
-                alertWindow.windowLevel = UIWindowLevelAlert + 1;
-                alertWindow.hidden = NO;
-                [alertWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
-            } else {
-                UIAlertView *connectAlert = nil;
-                if (showNoMore) {
-                    connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:message delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"不再显示",nil, nil];
-                } else {
-                    connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:message delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                }
-                [connectAlert show];
+            SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:message preferredStyle:SAAlertControllerStyleAlert];
+            [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:^(SAAlertAction * _Nonnull action) {
+                self->_debugAlertViewHasShownNumber -= 1;
+            }];
+            if (showNoMore) {
+                [alertController addActionWithTitle:@"不再显示" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+                    self->_showDebugAlertView = NO;
+                }];
             }
+            [alertController show];
         } @catch (NSException *exception) {
         } @finally {
         }
@@ -657,11 +635,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             
-            UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-            alertWindow.rootViewController = [[SaAlertRootViewController alloc] init];
-            alertWindow.windowLevel = UIWindowLevelAlert + 1;
-            alertWindow.hidden = NO;
-            
             dispatch_block_t alterViewBlock = ^{
                 
                 NSString *alterViewMessage = @"";
@@ -672,43 +645,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }else {
                     alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
                 }
-                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:alterViewMessage preferredStyle:UIAlertControllerStyleAlert];
-                
-                [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                    alertWindow.hidden = YES;
-                }]];
-                
-                [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"" message:alterViewMessage preferredStyle:SAAlertControllerStyleAlert];
+                [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:nil];
+                [alertController show];
             };
             
             if (@available(iOS 8.0, *)) {
-                UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"开启调试模式（导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    self->_debugMode = SensorsAnalyticsDebugAndTrack;
-                    [self enableLog:YES];
-                    
-                    alterViewBlock();
-                    
-                    [self configDebugModeServerUrl];
-                    [self debugModeCallBackWithParams:params];
-                }];
-                
-                UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"开启调试模式（不导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    self->_debugMode = SensorsAnalyticsDebugOnly;
-                    [self enableLog:YES];
-                    
-                    alterViewBlock();
-                    
-                    [self configDebugModeServerUrl];
-                    [self debugModeCallBackWithParams:params];
-                }];
-                
-                UIAlertAction *actionCancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                    alertWindow.hidden = YES;
-                }];
-                
                 NSString *alertTitle = @"SDK 调试模式选择";
                 NSString *alertMessage = @"";
-                
                 if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
                     alertMessage = @"当前为 调试模式（导入数据）";
                 }else if (self.debugMode == SensorsAnalyticsDebugOnly) {
@@ -716,17 +660,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }else {
                     alertMessage = @"调试模式已关闭";
                 }
-                
-                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:alertTitle message:alertMessage preferredStyle:UIAlertControllerStyleAlert];
-                
-                [alertController addAction:actionDebugAndTrack];
-                [alertController addAction:actionDebugOnly];
-                [alertController addAction:actionCancle];
-                
-                [alertWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
+                void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
+                    self->_debugMode = debugMode;
+                    [self enableLog:YES];
+                    
+                    alterViewBlock();
+                    
+                    [self configDebugModeServerUrl];
+                    [self debugModeCallBackWithParams:params];
+                };
+                [alertController addActionWithTitle:@"开启调试模式（导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+                    handler(SensorsAnalyticsDebugAndTrack);
+                }];
+                [alertController addActionWithTitle:@"开启调试模式（不导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+                    handler(SensorsAnalyticsDebugOnly);
+                }];
+                [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
+                [alertController show];
             } else {
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅支持 iOS8 以上设备" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                [alertView show];
+                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅支持 iOS8 以上设备" preferredStyle:SAAlertControllerStyleAlert];
+                [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:nil];
+                [alertController show];
             }
         } @catch (NSException *exception) {
         } @finally {
