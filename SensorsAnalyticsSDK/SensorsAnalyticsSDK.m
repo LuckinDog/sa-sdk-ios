@@ -216,7 +216,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
 
 @property (nonatomic, copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
-@property (nonatomic, copy) NSDictionary<NSString *, id> *(^updateEventInfoBlock)(NSMutableDictionary<NSString *, id> *);
+@property (nonatomic, copy) NSDictionary<NSString *, id> *(^updateEventPropertiesBlock)(NSString *, NSMutableDictionary<NSString *, id> *);
 
 ///是否为被动启动
 @property(nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
@@ -1618,13 +1618,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    NSDictionary *event = [NSDictionary dictionaryWithDictionary:e];
-    if (self.updateEventInfoBlock) {
-        event = self.updateEventInfoBlock([event mutableCopy]);
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:e];
+    NSDictionary *properties = event[@"properties"];
+    if (self.updateEventPropertiesBlock) {
+        properties = self.updateEventPropertiesBlock(event[@"event"], [properties mutableCopy]);
     }
-    if (event) {
-        [self.messageQueue addObejct:event withType:@"Post"];
+    if (properties.count > 0) {
+        event[@"properties"] = properties;
     }
+    
+    [self.messageQueue addObejct:event withType:@"Post"];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
@@ -2407,9 +2410,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)registerUpdateEventInfo:(nonnull NSDictionary<NSString *, id> * _Nonnull (^)(NSMutableDictionary<NSString *, id> * _Nonnull))block {
+- (void)registerUpdateEventProperties:(nonnull NSDictionary<NSString *, id> * _Nonnull (^)(NSString *eventName, NSMutableDictionary<NSString *, id> * _Nonnull properties))block {
     dispatch_async(self.serialQueue, ^{
-        self.updateEventInfoBlock = block;
+        self.updateEventPropertiesBlock = block;
     });
 }
 

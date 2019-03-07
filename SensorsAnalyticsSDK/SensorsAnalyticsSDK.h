@@ -851,11 +851,11 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 修改入库之前的事件信息
+ * 修改入库之前的事件属性
  *
- * @param block 传入事件数据，请返回修改后的事件数据
+ * @param block 传入事件名称和事件属性，请返回修改后的事件数据
  */
-- (void)registerUpdateEventInfo:(nonnull NSDictionary<NSString *, id> * _Nonnull (^)(NSMutableDictionary<NSString *, id> * _Nonnull))block;
+- (void)registerUpdateEventProperties:(nonnull NSDictionary<NSString *, id> * _Nonnull (^)(NSString *eventName, NSMutableDictionary<NSString *, id> * _Nonnull properties))block;
 
 /**
  * @abstract
