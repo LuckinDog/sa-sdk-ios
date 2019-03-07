@@ -267,6 +267,8 @@
     UIView *titleView = viewController.navigationItem.titleView;
     NSString *elementContent = nil;
     if (titleView) {
+        
+        #warning 如果 view 是 UILabel 之类，不能采集内容
         elementContent = [AutoTrackUtils contentFromView:titleView];
         if (elementContent.length > 0) {
             elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
