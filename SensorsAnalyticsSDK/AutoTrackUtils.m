@@ -164,6 +164,16 @@
 + (NSString *)contentFromView:(UIView *)rootView {
     @try {
         NSMutableString *elementContent = [NSMutableString string];
+        
+        if ([rootView isKindOfClass:UILabel.class]) {
+            UILabel *titleLabel = (UILabel *)rootView;
+            NSString *text = titleLabel.text;
+            if (text && !rootView.sensorsAnalyticsIgnoreView && !rootView.hidden) {
+                [elementContent appendString:text];
+                [elementContent appendString:@"-"];
+            }
+        }
+        
         for (UIView *subView in [rootView subviews]) {
             if (subView) {
                 if (subView.sensorsAnalyticsIgnoreView) {
@@ -398,8 +408,7 @@
             [properties setValue:viewPath forKey:@"$element_selector"];
         }
         
-        NSString *elementContent = [[NSString alloc] init];
-        elementContent = [self contentFromView:cell];
+        NSString *elementContent = [self contentFromView:cell];
         if (elementContent != nil && [elementContent length] > 0) {
             elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
             [properties setValue:elementContent forKey:@"$element_content"];

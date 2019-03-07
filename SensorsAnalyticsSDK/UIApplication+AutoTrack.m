@@ -280,8 +280,7 @@
                             [properties setValue:currentTitle forKey:@"$element_content"];
                         } else {
                             if (button.subviews.count > 0) {
-                                NSString *elementContent = [[NSString alloc] init];
-                                elementContent = [AutoTrackUtils contentFromView:button];
+                                NSString *elementContent = [AutoTrackUtils contentFromView:button];
                                 if (elementContent != nil && [elementContent length] > 0) {
                                     elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
                                     [properties setValue:elementContent forKey:@"$element_content"];
@@ -329,8 +328,7 @@
                         [properties setValue:@"UIControl" forKey:@"$element_type"];
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
-                            NSString *elementContent = [[NSString alloc] init];
-                            elementContent = [AutoTrackUtils contentFromView:fromView];
+                            NSString *elementContent = [AutoTrackUtils contentFromView:fromView];
                             if (elementContent != nil && [elementContent length] > 0) {
                                 elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
                                 [properties setValue:elementContent forKey:@"$element_content"];
