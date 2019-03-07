@@ -650,39 +650,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [alertController show];
             };
             
-            if (@available(iOS 8.0, *)) {
-                NSString *alertTitle = @"SDK 调试模式选择";
-                NSString *alertMessage = @"";
-                if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alertMessage = @"当前为 调试模式（导入数据）";
-                }else if (self.debugMode == SensorsAnalyticsDebugOnly) {
-                    alertMessage = @"当前为 调试模式（不导入数据）";
-                }else {
-                    alertMessage = @"调试模式已关闭";
-                }
-                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
-                void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-                    self->_debugMode = debugMode;
-                    [self enableLog:YES];
-                    
-                    alterViewBlock();
-                    
-                    [self configDebugModeServerUrl];
-                    [self debugModeCallBackWithParams:params];
-                };
-                [alertController addActionWithTitle:@"开启调试模式（导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-                    handler(SensorsAnalyticsDebugAndTrack);
-                }];
-                [alertController addActionWithTitle:@"开启调试模式（不导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-                    handler(SensorsAnalyticsDebugOnly);
-                }];
-                [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
-                [alertController show];
-            } else {
-                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"温馨提示!" message:@"开启调试模式仅支持 iOS8 以上设备" preferredStyle:SAAlertControllerStyleAlert];
-                [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:nil];
-                [alertController show];
+            NSString *alertTitle = @"SDK 调试模式选择";
+            NSString *alertMessage = @"";
+            if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
+                alertMessage = @"当前为 调试模式（导入数据）";
+            }else if (self.debugMode == SensorsAnalyticsDebugOnly) {
+                alertMessage = @"当前为 调试模式（不导入数据）";
+            }else {
+                alertMessage = @"调试模式已关闭";
             }
+            SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
+            void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
+                self->_debugMode = debugMode;
+                [self enableLog:YES];
+                
+                alterViewBlock();
+                
+                [self configDebugModeServerUrl];
+                [self debugModeCallBackWithParams:params];
+            };
+            [alertController addActionWithTitle:@"开启调试模式（导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+                handler(SensorsAnalyticsDebugAndTrack);
+            }];
+            [alertController addActionWithTitle:@"开启调试模式（不导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+                handler(SensorsAnalyticsDebugOnly);
+            }];
+            [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
+            [alertController show];
         } @catch (NSException *exception) {
         } @finally {
         }

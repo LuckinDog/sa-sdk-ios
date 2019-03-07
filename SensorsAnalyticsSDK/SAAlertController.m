@@ -62,7 +62,7 @@
 
 - (void)addActionWithTitle:(NSString *)title style:(SAAlertActionStyle)style handler:(void (^ __nullable)(SAAlertAction *))handler {
     SAAlertAction *action = [SAAlertAction actionWithTitle:title style:style handler:handler];
-    [_actions addObject:action];
+    [self.actions addObject:action];
 }
 
 - (void)show {
@@ -192,14 +192,14 @@
 
 #pragma mark - UIAlertViewDelegate
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    for (SAAlertAction *action in _actions) {
+    for (SAAlertAction *action in self.actions) {
         if (action.tag == buttonIndex && action.handler) {
             action.handler(action);
             break;
         }
     }
-    [_actions removeAllObjects];
-    _actions = nil;
+    [self.actions removeAllObjects];
+    self.actions = nil;
     
     [self.view removeFromSuperview];
     [self removeFromParentViewController];
@@ -207,14 +207,14 @@
 
 #pragma mark - UIActionSheetDelegate
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    for (SAAlertAction *action in _actions) {
+    for (SAAlertAction *action in self.actions) {
         if (action.tag == buttonIndex && action.handler) {
             action.handler(action);
             break;
         }
     }
-    [_actions removeAllObjects];
-    _actions = nil;
+    [self.actions removeAllObjects];
+    self.actions = nil;
     
     [self.view removeFromSuperview];
     [self removeFromParentViewController];
