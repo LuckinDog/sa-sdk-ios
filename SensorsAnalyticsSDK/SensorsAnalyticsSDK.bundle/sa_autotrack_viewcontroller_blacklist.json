@@ -63,5 +63,5 @@
   "UIEditUserWordController",
   "UISplitViewController",
   "UITabBarController",
-  "SaAlterRootViewController"
+  "SAAlertController"
   ]
