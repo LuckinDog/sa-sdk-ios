@@ -182,6 +182,8 @@
 		A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E3889E1D509B7100F6B9FC /* SAReachability.m */; };
 		A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3EEDCE81C4E084200D1362F /* DemoController.m */; };
 		A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
+		CB2CDD3022324875000C1F92 /* SensorsAnalyticsNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = CB2CDD2E22324875000C1F92 /* SensorsAnalyticsNetwork.h */; };
+		CB2CDD3122324875000C1F92 /* SensorsAnalyticsNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -376,6 +378,8 @@
 		A3EEDCE71C4E081F00D1362F /* DemoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoController.h; sourceTree = "<group>"; };
 		A3EEDCE81C4E084200D1362F /* DemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoController.m; sourceTree = "<group>"; };
 		A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
+		CB2CDD2E22324875000C1F92 /* SensorsAnalyticsNetwork.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsNetwork.h; sourceTree = "<group>"; };
+		CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsNetwork.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -516,6 +520,7 @@
 				0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */,
 				0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */,
 				0027C83C1FA201CE002EA41B /* SAHeatMapSnapshotMessage.m */,
+				CB2CDD2D223247C9000C1F92 /* Flush */,
 				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
 				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				002DB9491EB1647F00A9632C /* SASwizzle.h */,
@@ -622,6 +627,15 @@
 			path = SensorsDataSwiftDemo;
 			sourceTree = "<group>";
 		};
+		CB2CDD2D223247C9000C1F92 /* Flush */ = {
+			isa = PBXGroup;
+			children = (
+				CB2CDD2E22324875000C1F92 /* SensorsAnalyticsNetwork.h */,
+				CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */,
+			);
+			name = Flush;
+			sourceTree = "<group>";
+		};
 		F029B80BAB18852D4CE30358 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -656,6 +670,7 @@
 			files = (
 				008D82AE1F0E22ED00052CFF /* NSString+HashCode.h in Headers */,
 				A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */,
+				CB2CDD3022324875000C1F92 /* SensorsAnalyticsNetwork.h in Headers */,
 				A3746E9C1C313E15008A50A3 /* SAApplicationStateSerializer.h in Headers */,
 				A1280DFE217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h in Headers */,
 				0027C8491FA201CE002EA41B /* SAHeatMapSnapshotMessage.h in Headers */,
@@ -954,6 +969,7 @@
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
 				A15CBCA5208ED5D50014DE74 /* SASDKRemoteConfig.m in Sources */,
 				A3746EBF1C3190E7008A50A3 /* SAEnumDescription.m in Sources */,
+				CB2CDD3122324875000C1F92 /* SensorsAnalyticsNetwork.m in Sources */,
 				002DB94E1EB1647F00A9632C /* SASwizzle.m in Sources */,
 				A1280DFD217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.m in Sources */,
 				A3746E7F1C3115EB008A50A3 /* SAAbstractDesignerMessage.m in Sources */,
