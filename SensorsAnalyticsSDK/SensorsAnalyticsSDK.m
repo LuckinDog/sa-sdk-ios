@@ -2294,8 +2294,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     CTCarrier *carrier = nil;
     
     if (@available(iOS 12.0, *)) {
-        NSDictionary *cellularProviders = telephonyInfo.serviceSubscriberCellularProviders;
-        carrier = cellularProviders.allValues.firstObject;
+        carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
     }else {
         carrier = telephonyInfo.subscriberCellularProvider;
     }
@@ -2608,7 +2607,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 netinfo = [[CTTelephonyNetworkInfo alloc] init];
             }
             if (@available(iOS 12.0, *)) {
-                currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.firstObject;
+                currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
             } else {
                 currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
             }
