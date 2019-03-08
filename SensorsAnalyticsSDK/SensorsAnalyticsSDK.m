@@ -2295,7 +2295,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     if (@available(iOS 12.0, *)) {
         carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
-    }else {
+    } else {
         carrier = telephonyInfo.subscriberCellularProvider;
     }
 
