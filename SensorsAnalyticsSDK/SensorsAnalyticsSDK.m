@@ -529,7 +529,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         NSURL *url = [tempBaseUrl URLByAppendingPathComponent:@"debug"];
         NSString *host = url.host;
-        if ([host containsString:@"_"]) { //包含下划线日志提示
+        if ([host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
             NSString * referenceUrl = @"https://en.wikipedia.org/wiki/Hostname";
             SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@",serverUrl,referenceUrl);
         }
