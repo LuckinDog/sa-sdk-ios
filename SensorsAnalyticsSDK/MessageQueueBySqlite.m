@@ -131,7 +131,7 @@
                 NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                                  options:NSJSONReadingMutableContainers
                                                                                    error:&err];
-                if (!err && contentArray) {
+                if (!err && eventDict) {
                     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
                     [eventDict setValue:@(time) forKey:@"_flush_time"];
                     
