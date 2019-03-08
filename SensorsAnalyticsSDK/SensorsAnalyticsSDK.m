@@ -2602,40 +2602,40 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             network = @"WIFI";
         } else if (status == SAReachableViaWWAN) {
             static CTTelephonyNetworkInfo *netinfo = nil;
-            NSString *serviceCurrentRadioAccessTechnology = nil;
+            NSString *currentRadioAccessTechnology = nil;
             
             if (!netinfo) {
                 netinfo = [[CTTelephonyNetworkInfo alloc] init];
             }
             if (@available(iOS 12.0, *)) {
-                serviceCurrentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.firstObject;
-            }else {
-                serviceCurrentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
+                currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.firstObject;
+            } else {
+                currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
             }
             
-            if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
+            if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
                 network = @"2G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge]) {
                 network = @"2G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyWCDMA]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyWCDMA]) {
                 network = @"3G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSDPA]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSDPA]) {
                 network = @"3G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSUPA]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSUPA]) {
                 network = @"3G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
                 network = @"3G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
                 network = @"3G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
                 network = @"3G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
                 network = @"3G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyeHRPD]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyeHRPD]) {
                 network = @"3G";
-            } else if ([serviceCurrentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
                 network = @"4G";
-            } else if (serviceCurrentRadioAccessTechnology) {
+            } else if (currentRadioAccessTechnology) {
                 network = @"UNKNOWN";
             }
             
