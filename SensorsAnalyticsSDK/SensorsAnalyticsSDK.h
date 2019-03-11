@@ -319,7 +319,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * 设置获取远程 config 配置策略
- * @param configOptions 自定义策略
+ * @param remoteConfigOptions 自定义策略
  */
 - (void)setRemoteConfigOptions:(SaRemoteConfigOptions *)remoteConfigOptions;
 

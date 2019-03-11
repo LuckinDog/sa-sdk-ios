@@ -166,7 +166,7 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 }
 @end
 
-@interface SaRemoteConfigOptions()
+@implementation SaRemoteConfigOptions
 @end
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
