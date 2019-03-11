@@ -166,7 +166,7 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 }
 @end
 
-@implementation SaRemoteConfigOptions
+@implementation SARemoteConfigOptions
 @end
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -205,7 +205,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
-@property(nonatomic, strong, setter = setRemoteConfigOptions:) SaRemoteConfigOptions *remoteConfigOptions;
+@property(nonatomic, strong, setter = setRemoteConfigOptions:) SARemoteConfigOptions *remoteConfigOptions;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -552,7 +552,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)setRemoteConfigOptions:(SaRemoteConfigOptions *)remoteConfigOptions {
+- (void)setRemoteConfigOptions:(SARemoteConfigOptions *)remoteConfigOptions {
     _remoteConfigOptions = remoteConfigOptions;
 }
 

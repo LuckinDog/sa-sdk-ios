@@ -160,7 +160,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 /**
  请求远程配置 config 策略配置
  */
-@interface SaRemoteConfigOptions : NSObject
+@interface SARemoteConfigOptions : NSObject
 
 /**
  请求配置地址，默认从 ServerUrl 解析
@@ -321,7 +321,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 设置获取远程 config 配置策略
  * @param remoteConfigOptions 自定义策略
  */
-- (void)setRemoteConfigOptions:(nullable SaRemoteConfigOptions *)remoteConfigOptions;
+- (void)setRemoteConfigOptions:(nullable SARemoteConfigOptions *)remoteConfigOptions;
 
 
 #pragma mark- about webView
