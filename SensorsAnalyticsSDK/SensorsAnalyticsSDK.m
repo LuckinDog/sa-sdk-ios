@@ -166,6 +166,9 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 }
 @end
 
+@interface SaRemoteConfigOptions()
+@end
+
 static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @interface SensorsAnalyticsSDK()
@@ -202,6 +205,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
+@property(nonatomic, strong, setter = setRemoteConfigOptions:) SaRemoteConfigOptions *remoteConfigOptions;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -546,6 +550,41 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         _serverURL = [url absoluteString];
     }
+}
+
+- (void)setRemoteConfigOptions:(SaRemoteConfigOptions *)remoteConfigOptions {
+    _remoteConfigOptions = remoteConfigOptions;
+}
+
+- (NSString *)remoteConfigUrl {
+    if (!self.remoteConfigOptions.remoteConfigUrl) {
+        NSString *urlString = self.serverURL;
+        
+        @try {
+            if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
+                NSURL *url = [NSURL URLWithString:urlString];
+                if (url.lastPathComponent.length > 0) {
+                    url = [url URLByDeletingLastPathComponent];
+                }
+                NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+                if (componets == nil) {
+                    SALog(@"URLString is malformed, nil is returned.");
+                    return nil;
+                }
+                componets.query = nil;
+                componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+                if (self.remoteConfig.v && self.remoteConfig.v.length) {
+                    componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
+                }
+                return componets.URL.absoluteString;
+            }
+        } @catch (NSException *e) {
+            SAError(@"%@ error: %@", self, e);
+        }
+    } else {
+        return self.remoteConfigOptions.remoteConfigUrl;
+    }
+    return nil;
 }
 
 - (void)configDebugModeServerUrl {
@@ -3390,34 +3429,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SALogger enableLog:printLog];
 }
 
-- (NSString *)getSDKContollerUrl:(NSString *)urlString {
-    NSString *retStr = nil;
-    @try {
-        if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
-            NSURL *url = [NSURL URLWithString:urlString];
-            if (url.lastPathComponent.length > 0) {
-                url = [url URLByDeletingLastPathComponent];
-            }
-            NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-            if (componets == nil) {
-                SALog(@"URLString is malformed, nil is returned.");
-                return nil;
-            }
-            componets.query = nil;
-            componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
-            if (self.remoteConfig.v && self.remoteConfig.v.length) {
-                componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
-            }
-            retStr = componets.URL.absoluteString;
-        }
-    } @catch (NSException *e) {
-        retStr = nil;
-        SAError(@"%@ error: %@", self, e);
-    } @finally {
-        return retStr;
-    }
-}
-
 - (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
         self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
@@ -3510,11 +3521,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
          NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
         SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
         
-        NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
+        NSString *urlString = [self remoteConfigUrl];
         if (urlString == nil || urlString.length == 0 || networkType == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO,nil);
             return;
         }
+        
         NSURL *url = [NSURL URLWithString:urlString];
         NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
         NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
