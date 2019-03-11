@@ -557,7 +557,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSString *)remoteConfigUrl {
-    if (!self.remoteConfigOptions.remoteConfigUrl) {
+    
+    if (self.remoteConfigOptions.remoteConfigUrl) {
+        return self.remoteConfigOptions.remoteConfigUrl;
+    } else {
         NSString *urlString = self.serverURL;
         
         @try {
@@ -581,8 +584,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @catch (NSException *e) {
             SAError(@"%@ error: %@", self, e);
         }
-    } else {
-        return self.remoteConfigOptions.remoteConfigUrl;
     }
     return nil;
 }
