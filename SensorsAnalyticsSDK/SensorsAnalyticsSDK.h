@@ -814,6 +814,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion;
 
+- (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback;
+
 /**
  * @abstract
  * 用来设置每个事件都带有的一些公共属性

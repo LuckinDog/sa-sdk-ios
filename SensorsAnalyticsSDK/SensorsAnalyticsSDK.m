@@ -216,7 +216,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
 
 @property (nonatomic, copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
-@property (nonatomic, copy) NSDictionary<NSString *, id> *(^updateEventPropertiesBlock)(NSString *, NSMutableDictionary<NSString *, id> *);
+@property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
 ///是否为被动启动
 @property(nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
@@ -1618,13 +1618,44 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:e];
-    NSDictionary *properties = event[@"properties"];
-    if (self.updateEventPropertiesBlock) {
-        properties = self.updateEventPropertiesBlock(event[@"event"], [properties mutableCopy]);
-    }
-    if (properties.count > 0) {
-        event[@"properties"] = properties;
+    NSMutableDictionary *event = [e mutableCopy];
+    if (self.trackEventCallback) {
+        NSDictionary<NSString *, id> *originProperties = [event[@"properties"] copy];
+        // can only modify "$device_id"
+        NSArray *modifyKeys = @[@"$device_id"];
+//        NSArray *noModifyKeys = @[@"$app_version", @"$carrier", @"$is_first_day", @"$is_first_time", @"$lib", @"$lib_version", @"$manufacturer", @"$model", @"$network_type", @"$os", @"$os_version", @"$resume_from_background", @"$screen_height", @"$screen_name", @"$screen_width", @"$title", @"$wifi", @"$url"];
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+//            if (![noModifyKeys containsObject:key]) {
+//                properties[key] = obj;
+//            }
+            if (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]) {
+                properties[key] = obj;
+            }
+        }];
+        BOOL isIncluded = self.trackEventCallback(event[@"event"], properties);
+        if (!isIncluded) {
+            SALog(@"The \"%@\" is not saved.", event[@"event"]);
+            return;
+        }
+        
+        if (![self assertPropertyTypes:&properties withEventType:type]) {
+            SAError(@"%@ failed to track event.", self);
+            return;
+        }
+        // 事件属性修改、新增
+        [properties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            if (![key hasPrefix:@"$"]) {
+                event[@"properties"][key] = obj;
+            }
+        }];
+        
+        // 事件属性删除
+        for (NSString *key in originProperties) {
+            if (!properties[key]) {
+                event[@"properties"][key] = nil;
+            }
+        }
     }
     
     [self.messageQueue addObejct:event withType:@"Post"];
@@ -2410,9 +2441,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)registerUpdateEventProperties:(nonnull NSDictionary<NSString *, id> * _Nonnull (^)(NSString *eventName, NSMutableDictionary<NSString *, id> * _Nonnull properties))block {
+- (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
     dispatch_async(self.serialQueue, ^{
-        self.updateEventPropertiesBlock = block;
+        self.trackEventCallback = callback;
     });
 }
 
