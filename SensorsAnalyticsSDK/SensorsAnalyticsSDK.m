@@ -1617,43 +1617,49 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return filepath;
 }
 
-- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    NSMutableDictionary *event = [e mutableCopy];
-    if (self.trackEventCallback) {
-        NSDictionary<NSString *, id> *originProperties = [event[@"properties"] copy];
-        // can only modify "$device_id"
-        NSArray *modifyKeys = @[@"$device_id"];
-        BOOL(^canModifyProperties)(NSString *key, id value) = ^BOOL(NSString *key, id value) {
-            return (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]);
-        };
-        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-        // 添加可修改的事件属性
-        [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            if (canModifyProperties(key, obj)) {
-                properties[key] = obj;
-            }
-        }];
-        BOOL isIncluded = self.trackEventCallback(event[@"event"], properties);
-        if (!isIncluded) {
-            SALog(@"The \"%@\" is not saved.", event[@"event"]);
-            return;
-        }
-        // 校验 properties
-        if (![self assertPropertyTypes:&properties withEventType:type]) {
-            SAError(@"%@ failed to track event.", self);
-            return;
-        }
-        // 添加不可修改的事件属性，得到修改之后的所有属性
-        [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            if (!canModifyProperties(key, obj)) {
-                properties[key] = obj;
-            }
-        }];
-        // 对 properties 重新赋值
-        event[@"properties"] = properties;
+- (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
+    if (!self.trackEventCallback) {
+        return [e copy];
     }
+    NSMutableDictionary *event = [e mutableCopy];
     
-    [self.messageQueue addObejct:event withType:@"Post"];
+    NSDictionary<NSString *, id> *originProperties = [event[@"properties"] copy];
+    // can only modify "$device_id"
+    NSArray *modifyKeys = @[@"$device_id"];
+    BOOL(^canModifyProperties)(NSString *key, id value) = ^BOOL(NSString *key, id value) {
+        return (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]);
+    };
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    // 添加可修改的事件属性
+    [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if (canModifyProperties(key, obj)) {
+            properties[key] = obj;
+        }
+    }];
+    BOOL isIncluded = self.trackEventCallback(event[@"event"], properties);
+    if (!isIncluded) {
+        SALog(@"\n【track event】: %@ can not enter database.", event[@"event"]);
+        return nil;
+    }
+    // 校验 properties
+    if (![self assertPropertyTypes:&properties withEventType:type]) {
+        SAError(@"%@ failed to track event.", self);
+        return nil;
+    }
+    // 添加不可修改的事件属性，得到修改之后的所有属性
+    [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if (!canModifyProperties(key, obj)) {
+            properties[key] = obj;
+        }
+    }];
+    // 对 properties 重新赋值
+    event[@"properties"] = properties;
+
+    return event;
+}
+
+- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
+    [self.messageQueue addObejct:e withType:@"Post"];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
@@ -1914,9 +1920,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
 
-        SALog(@"\n【track event】:\n%@", e);
+        NSDictionary *event = [self willEnqueueWithType:type andEvent:e];
+        if (!event) {
+            return;
+        }
+        SALog(@"\n【track event】:\n%@", event);
 
-        [self enqueueWithType:type andEvent:[e copy]];
+        [self enqueueWithType:type andEvent:event];
 
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
@@ -2437,6 +2447,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
+    if (!callback) {
+        return;
+    }
+    SALog(@"SDK have set trackEvent callBack");
     dispatch_async(self.serialQueue, ^{
         self.trackEventCallback = callback;
     });

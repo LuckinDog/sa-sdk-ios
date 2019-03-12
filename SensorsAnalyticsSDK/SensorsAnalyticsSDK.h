@@ -814,6 +814,12 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion;
 
+/**
+ * @abstract
+ * 修改入库之前的事件属性
+ *
+ * @param callback 传入事件名称和事件属性，可以修改或删除事件属性。请返回一个 BOOL 值，true 表示事件将入库， false 表示事件将被抛弃
+ */
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback;
 
 /**
@@ -850,14 +856,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param dynamicSuperProperties block 用来返回事件的动态公共属性
  */
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
-
-/**
- * @abstract
- * 修改入库之前的事件属性
- *
- * @param block 传入事件名称和事件属性，请返回修改后的事件数据
- */
-- (void)registerUpdateEventProperties:(nonnull NSDictionary<NSString *, id> * _Nonnull (^)(NSString *eventName, NSMutableDictionary<NSString *, id> * _Nonnull properties))block;
 
 /**
  * @abstract
