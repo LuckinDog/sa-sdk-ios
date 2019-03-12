@@ -271,34 +271,27 @@
                     }
                 } else
 #endif
-                if ([from isKindOfClass:[UIButton class]]) {//UIButton
-                    UIButton *button = (UIButton *)from;
-                    [properties setValue:@"UIButton" forKey:@"$element_type"];
-                    if (button != nil) {
-                        NSString *currentTitle = button.sa_elementContent;
-                        if (currentTitle != nil) {
-                            [properties setValue:currentTitle forKey:@"$element_content"];
-                        } else {
-                            if (button.subviews.count > 0) {
-                                NSString *elementContent = [AutoTrackUtils contentFromView:button];
-                                if (elementContent != nil && [elementContent length] > 0) {
-                                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                                    [properties setValue:elementContent forKey:@"$element_content"];
-                                } else {
+                    if ([from isKindOfClass:[UIButton class]]) {//UIButton
+                        UIButton *button = (UIButton *)from;
+                        [properties setValue:@"UIButton" forKey:@"$element_type"];
+                        if (button) {
+                            
+                            NSString *currentTitle = [AutoTrackUtils contentFromView1:button];
+                            if (currentTitle.length > 0) {
+                                [properties setValue:currentTitle forKey:@"$element_content"];
+                            } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-                                    UIImage *image = button.currentImage;
-                                    if (image) {
-                                        NSString *imageName = image.sensorsAnalyticsImageName;
-                                        if (imageName != nil) {
-                                            [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
-                                        }
+                                UIImage *image = button.currentImage;
+                                if (image) {
+                                    NSString *imageName = image.sensorsAnalyticsImageName;
+                                    if (imageName.length > 0) {
+                                        [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
                                     }
-#endif
                                 }
+#endif
                             }
                         }
                     }
-                }
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
                 else if ([from isKindOfClass:[NSClassFromString(@"UITabBarButton") class]]) {//UITabBarButton
                     if ([to isKindOfClass:[UITabBar class]]) {//UITabBar
@@ -328,9 +321,8 @@
                         [properties setValue:@"UIControl" forKey:@"$element_type"];
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
-                            NSString *elementContent = [AutoTrackUtils contentFromView:fromView];
-                            if (elementContent != nil && [elementContent length] > 0) {
-                                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                            NSString *elementContent = [AutoTrackUtils contentFromView1:fromView];
+                            if (elementContent.length > 0) {
                                 [properties setValue:elementContent forKey:@"$element_content"];
                             }
                         }

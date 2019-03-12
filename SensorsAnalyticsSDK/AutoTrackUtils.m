@@ -165,15 +165,6 @@
     @try {
         NSMutableString *elementContent = [NSMutableString string];
         
-        if ([rootView isKindOfClass:UILabel.class]) {
-            UILabel *titleLabel = (UILabel *)rootView;
-            NSString *text = titleLabel.text;
-            if (text && !rootView.sensorsAnalyticsIgnoreView && !rootView.hidden) {
-                [elementContent appendString:text];
-                [elementContent appendString:@"-"];
-            }
-        }
-        
         for (UIView *subView in [rootView subviews]) {
             if (subView) {
                 if (subView.sensorsAnalyticsIgnoreView) {
@@ -314,23 +305,33 @@
         else if ([rootView isKindOfClass:[NSClassFromString(@"UITableViewCellContentView") class]] ||
                  [rootView isKindOfClass:[NSClassFromString(@"UICollectionViewCellContentView") class]] ||
                  rootView.subviews.count > 0) {
-            for (UIView *subview in rootView.subviews) {
+            
+            NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
+            
+            for (UIView *subView in rootView.subviews) {
                 NSString *temp = [self contentFromView1:subView];
                 if (temp.length > 0) {
-                    [elementContent appendString:temp];
-                    [elementContent appendString:@"-"];;
+                    [elementContentArray addObject:temp];
                 }
             }
+            if (elementContentArray.count > 0) {
+                [elementContent appendString:[elementContentArray componentsJoinedByString:@"-"]];
+            };
         }
 #else
         else {
+            NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
+            
             for (UIView *subview in rootView.subviews) {
                 NSString *temp = [self contentFromView1:subview];
                 if (temp.length > 0) {
-                    [elementContent appendString:temp];
-                    [elementContent appendString:@"-"];;
+                    [elementContentArray addObject:temp];
                 }
             }
+            if (elementContentArray.count > 0) {
+                [elementContent appendString:[elementContentArray componentsJoinedByString:@"-"]];
+            }
+            
         }
 #endif
         
@@ -353,12 +354,8 @@
     UIView *titleView = viewController.navigationItem.titleView;
     NSString *elementContent = nil;
     if (titleView) {
-        
         #warning 如果 view 是 UILabel 之类，不能采集内容
-        elementContent = [AutoTrackUtils contentFromView:titleView];
-        if (elementContent.length > 0) {
-            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-        }
+        elementContent = [AutoTrackUtils contentFromView1:titleView];
     }
     
     if (elementContent.length > 0) {
@@ -496,9 +493,8 @@
             [properties setValue:viewPath forKey:@"$element_selector"];
         }
         
-        NSString *elementContent = [self contentFromView:cell];
-        if (elementContent != nil && [elementContent length] > 0) {
-            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+        NSString *elementContent = [self contentFromView1:cell];
+        if (elementContent.length > 0) {
             [properties setValue:elementContent forKey:@"$element_content"];
         }
 
@@ -654,9 +650,8 @@
             [properties setValue:viewPath forKey:@"$element_selector"];
         }
 
-        elementContent = [self contentFromView:cell];
-        if (elementContent != nil && [elementContent length] > 0) {
-            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+        elementContent = [self contentFromView1:cell];
+        if (elementContent.length > 0) {
             [properties setValue:elementContent forKey:@"$element_content"];
         }
 

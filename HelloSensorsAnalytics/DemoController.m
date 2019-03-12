@@ -19,6 +19,11 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     self.tableView.sensorsAnalyticsDelegate = self;
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 30)];
+    label.text = @"你好啊";
+    self.navigationItem.titleView = label;
+    
 }
 
 - (NSDictionary *)getTrackProperties {

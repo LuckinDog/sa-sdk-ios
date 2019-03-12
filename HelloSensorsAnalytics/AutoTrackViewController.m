@@ -65,7 +65,7 @@
 */
 
 - (IBAction)onButton1Click:(id)sender {
-  NSString *content=  [AutoTrackUtils contentFromView:self.view ];
+  NSString *content=  [AutoTrackUtils contentFromView1:self.view ];
     NSLog(@"%@",content);
 }
 - (IBAction)segmentOnClick:(id)sender {
