@@ -1623,16 +1623,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     NSMutableDictionary *event = [e mutableCopy];
     
-    NSDictionary<NSString *, id> *originProperties = [event[@"properties"] copy];
+    NSDictionary<NSString *, id> *originProperties = event[@"properties"];
     // can only modify "$device_id"
     NSArray *modifyKeys = @[@"$device_id"];
-    BOOL(^canModifyProperties)(NSString *key, id value) = ^BOOL(NSString *key, id value) {
+    BOOL(^canModifyPropertyKeys)(NSString *key) = ^BOOL(NSString *key) {
         return (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]);
     };
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     // 添加可修改的事件属性
     [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (canModifyProperties(key, obj)) {
+        if (canModifyPropertyKeys(key)) {
             properties[key] = obj;
         }
     }];
@@ -1648,7 +1648,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     // 添加不可修改的事件属性，得到修改之后的所有属性
     [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (!canModifyProperties(key, obj)) {
+        if (!canModifyPropertyKeys(key)) {
             properties[key] = obj;
         }
     }];
@@ -1920,13 +1920,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
 
-        NSDictionary *event = [self willEnqueueWithType:type andEvent:e];
-        if (!event) {
+        NSDictionary *eventDic = [self willEnqueueWithType:type andEvent:e];
+        if (!eventDic) {
             return;
         }
         SALog(@"\n【track event】:\n%@", event);
 
-        [self enqueueWithType:type andEvent:event];
+        [self enqueueWithType:type andEvent:eventDic];
 
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
