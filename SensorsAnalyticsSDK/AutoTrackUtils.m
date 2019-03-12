@@ -255,6 +255,92 @@
     }
 }
 
+#warning 添加方法，同时采集自身和 subviews 的 content
++ (NSString *)contentFromView1:(UIView *)rootView {
+    
+    @try {
+        
+        NSMutableString *elementContent = [NSMutableString string];
+        
+        if (rootView.sensorsAnalyticsIgnoreView) {
+            return elementContent;
+        }
+        
+        if (rootView.isHidden) {
+            return elementContent;
+        }
+        
+        if ([rootView isKindOfClass:[UIButton class]]) {
+            UIButton *button = (UIButton *)rootView;
+            NSString *currentTitle = button.sa_elementContent;
+            if (currentTitle != nil && currentTitle.length) {
+                [elementContent appendString:currentTitle];
+            }
+        } else if ([rootView isKindOfClass:[UILabel class]]) {
+            UILabel *label = (UILabel *)rootView;
+            NSString *currentTitle = label.sa_elementContent;
+            if (currentTitle != nil && currentTitle.length) {
+                [elementContent appendString:currentTitle];
+            }
+        } else if ([rootView isKindOfClass:[UITextView class]]) {
+            UITextView *textView = (UITextView *)rootView;
+            NSString *currentTitle = textView.sa_elementContent;
+            if (currentTitle != nil && currentTitle.length) {
+                [elementContent appendString:currentTitle];
+            }
+            
+        } else if ([rootView isKindOfClass:NSClassFromString(@"RTLabel")]) {//RTLabel:https://github.com/honcheng/RTLabel
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            if ([rootView respondsToSelector:NSSelectorFromString(@"text")]) {
+                NSString *title = [rootView performSelector:NSSelectorFromString(@"text")];
+                if (title != nil && ![@"" isEqualToString:title]) {
+                    [elementContent appendString:title];
+                }
+            }
+#pragma clang diagnostic pop
+        } else if ([rootView isKindOfClass:NSClassFromString(@"YYLabel")]) {//RTLabel:https://github.com/ibireme/YYKit
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            if ([rootView respondsToSelector:NSSelectorFromString(@"text")]) {
+                NSString *title = [rootView performSelector:NSSelectorFromString(@"text")];
+                if (title != nil && ![@"" isEqualToString:title]) {
+                    [elementContent appendString:title];
+                }
+            }
+#pragma clang diagnostic pop
+        }
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
+        else if ([rootView isKindOfClass:[NSClassFromString(@"UITableViewCellContentView") class]] ||
+                 [rootView isKindOfClass:[NSClassFromString(@"UICollectionViewCellContentView") class]] ||
+                 rootView.subviews.count > 0) {
+            for (UIView *subview in rootView.subviews) {
+                NSString *temp = [self contentFromView1:subView];
+                if (temp.length > 0) {
+                    [elementContent appendString:temp];
+                    [elementContent appendString:@"-"];;
+                }
+            }
+        }
+#else
+        else {
+            for (UIView *subview in rootView.subviews) {
+                NSString *temp = [self contentFromView1:subview];
+                if (temp.length > 0) {
+                    [elementContent appendString:temp];
+                    [elementContent appendString:@"-"];;
+                }
+            }
+        }
+#endif
+        
+        return [elementContent copy];
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+        return nil;
+    }
+}
+
 + (NSString *)titleFromViewController:(UIViewController *)viewController {
     if (!viewController) {
         return nil;
