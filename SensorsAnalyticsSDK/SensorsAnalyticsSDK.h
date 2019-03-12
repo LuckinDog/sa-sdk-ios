@@ -268,8 +268,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithServerURL: andLaunchOptions:")));
 /**
  * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
- *
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
+ 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  * @param serverURL 收集事件的 URL
  * @param launchOptions launchOptions
  *
