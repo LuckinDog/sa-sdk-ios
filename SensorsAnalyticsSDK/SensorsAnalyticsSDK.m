@@ -1623,13 +1623,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary<NSString *, id> *originProperties = [event[@"properties"] copy];
         // can only modify "$device_id"
         NSArray *modifyKeys = @[@"$device_id"];
-//        NSArray *noModifyKeys = @[@"$app_version", @"$carrier", @"$is_first_day", @"$is_first_time", @"$lib", @"$lib_version", @"$manufacturer", @"$model", @"$network_type", @"$os", @"$os_version", @"$resume_from_background", @"$screen_height", @"$screen_name", @"$screen_width", @"$title", @"$wifi", @"$url"];
+        BOOL(^canModifyProperties)(NSString *key, id value) = ^BOOL(NSString *key, id value) {
+            return (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]);
+        };
         NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        // 添加可修改的事件属性
         [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-//            if (![noModifyKeys containsObject:key]) {
-//                properties[key] = obj;
-//            }
-            if (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]) {
+            if (canModifyProperties(key, obj)) {
                 properties[key] = obj;
             }
         }];
@@ -1638,24 +1638,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SALog(@"The \"%@\" is not saved.", event[@"event"]);
             return;
         }
-        
+        // 校验 properties
         if (![self assertPropertyTypes:&properties withEventType:type]) {
             SAError(@"%@ failed to track event.", self);
             return;
         }
-        // 事件属性修改、新增
-        [properties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            if (![key hasPrefix:@"$"]) {
-                event[@"properties"][key] = obj;
+        // 添加不可修改的事件属性，得到修改之后的所有属性
+        [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            if (!canModifyProperties(key, obj)) {
+                properties[key] = obj;
             }
         }];
-        
-        // 事件属性删除
-        for (NSString *key in originProperties) {
-            if (!properties[key]) {
-                event[@"properties"][key] = nil;
-            }
-        }
+        // 对 properties 重新赋值
+        event[@"properties"] = properties;
     }
     
     [self.messageQueue addObejct:event withType:@"Post"];
