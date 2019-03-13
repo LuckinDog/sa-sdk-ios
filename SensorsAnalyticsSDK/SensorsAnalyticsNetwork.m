@@ -7,6 +7,10 @@
 //
 
 #import "SensorsAnalyticsNetwork.h"
+#import "SensorsAnalyticsSDK.h"
+#import "NSString+HashCode.h"
+#import "SAGzipUtility.h"
+#import "SALogger.h"
 
 @interface SensorsAnalyticsNetwork () <NSURLSessionDelegate>
 
@@ -15,6 +19,8 @@
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 
 @property (nonatomic, strong) NSURLSession *session;
+
+@property (nonatomic, copy) NSString *cookie;
 
 @end
 
@@ -44,6 +50,64 @@
     return _session;
 }
 
+#pragma mark - cookie
+- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
+    if (encode) {
+        _cookie = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                (CFStringRef)cookie,
+                                                                                NULL,
+                                                                                CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                kCFStringEncodingUTF8));
+        
+    } else {
+        _cookie = cookie;
+    }
+}
+
+- (NSString *)cookieWithDecode:(BOOL)decode {
+    return decode ? (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)_cookie, CFSTR(""), CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) : _cookie;
+}
+
+#pragma mark - build
+- (NSURLRequest *)buildRequestWithEvents:(NSArray<NSString *> *)events HTTPMethod:(NSString *)HTTPMethod {
+    NSString *postBody;
+    @try {
+        // 1. 先完成这一系列Json字符串的拼接
+        NSString *jsonString = [NSString stringWithFormat:@"[%@]", [events componentsJoinedByString:@","]];
+        // 2. 使用gzip进行压缩
+        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+        // 3. base64
+        NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+        int hashCode = [b64String sensorsdata_hashCode];
+        b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                  (CFStringRef)b64String,
+                                                                                  NULL,
+                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                  kCFStringEncodingUTF8));
+        
+        postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
+    } @catch (NSException *exception) {
+        SAError(@"%@ flushByPost format data error: %@", self, exception);
+        return nil;
+    }
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.serverURL];
+    request.timeoutInterval = 30;
+    request.HTTPMethod = HTTPMethod;
+    request.HTTPBody = [postBody dataUsingEncoding:NSUTF8StringEncoding];
+    // 普通事件请求，使用标准 UserAgent
+    [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
+    if ([SensorsAnalyticsSDK sharedInstance].debugMode == SensorsAnalyticsDebugOnly) {
+        [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
+    }
+    
+    //Cookie
+    [request setValue:[self cookieWithDecode:NO] forHTTPHeaderField:@"Cookie"];
+    return request;
+}
+
+
+#pragma mark - flush
 - (void)flushEvents:(NSArray<NSString *> *)events {
     NSURLRequest *req = [[NSURLRequest alloc] initWithURL:self.serverURL];
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:req];
@@ -51,19 +115,69 @@
 }
 
 - (void)flushEvents:(NSArray<NSString *> *)events completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler {
-    NSURLRequest *req = [[NSURLRequest alloc] initWithURL:self.serverURL];
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:req completionHandler:completionHandler];
+    __block BOOL flushSucc = NO;
+    dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
+    void (^handler)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) = ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
+            SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
+            flushSucc = NO;
+            dispatch_semaphore_signal(flushSem);
+            return;
+        }
+        
+        NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
+        NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+        NSString *messageDesc = nil;
+        NSInteger statusCode = urlResponse.statusCode;
+        if(statusCode != 200) {
+            messageDesc = @"\n【invalid message】\n";
+            if ([SensorsAnalyticsSDK sharedInstance].debugMode != SensorsAnalyticsDebugOff) {
+                if (statusCode >= 300) {
+//                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+                }
+            } else {
+                if (statusCode >= 300) {
+                    flushSucc = NO;
+                }
+            }
+        } else {
+            messageDesc = @"\n【valid message】\n";
+        }
+        SAError(@"==========================================================================");
+        if ([SALogger isLoggerEnabled]) {
+//            @try {
+//                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+//                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+//                NSString *logString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+//                SAError(@"%@ %@: %@", self,messageDesc,logString);
+//            } @catch (NSException *exception) {
+//                SAError(@"%@: %@", self, exception);
+//            }
+        }
+        if (statusCode != 200) {
+            SAError(@"%@ ret_code: %ld", self, statusCode);
+            SAError(@"%@ ret_content: %@", self, urlResponseContent);
+        }
+        
+        dispatch_semaphore_signal(flushSem);
+    };
+    NSURLRequest *request = [self buildRequestWithEvents:events HTTPMethod:@"POST"];
+    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
     [task resume];
+    
+    dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
 }
 
-
+#pragma mark - NSURLSessionDelegate
 - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
     if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
         do {
             SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
             NSCAssert(serverTrust != nil, @"ServerTrust is nil");
-            if(nil == serverTrust)
+            if(nil == serverTrust){
                 break; /* failed */
+            }
 
             /**
              *  导入多张CA证书（Certification Authority，支持SSL证书以及自签名的CA），请替换掉你的证书名称
