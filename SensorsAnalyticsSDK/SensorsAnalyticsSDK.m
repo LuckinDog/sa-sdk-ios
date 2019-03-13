@@ -1646,6 +1646,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ failed to track event.", self);
         return nil;
     }
+    // assert 可能修改 properties 的类型
+    properties = [properties mutableCopy];
     // 添加不可修改的事件属性，得到修改之后的所有属性
     [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         if (!canModifyPropertyKeys(key)) {
