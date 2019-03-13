@@ -1926,7 +1926,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (!eventDic) {
             return;
         }
-        SALog(@"\n【track event】:\n%@", event);
+        SALog(@"\n【track event】:\n%@", eventDic);
 
         [self enqueueWithType:type andEvent:eventDic];
 
