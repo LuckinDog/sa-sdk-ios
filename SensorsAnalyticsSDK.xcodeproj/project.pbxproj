@@ -184,6 +184,11 @@
 		A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
 		CB2CDD3022324875000C1F92 /* SensorsAnalyticsNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = CB2CDD2E22324875000C1F92 /* SensorsAnalyticsNetwork.h */; };
 		CB2CDD3122324875000C1F92 /* SensorsAnalyticsNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */; };
+		CB2D018922379F7400A958C5 /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2D018822379F7400A958C5 /* SensorsAnalyticsTests.m */; };
+		CB2D018B22379F7400A958C5 /* libSensorsAnalyticsSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D5CA7771B43E92D00D7ACB7 /* libSensorsAnalyticsSDK.a */; };
+		CB2D019222379FB700A958C5 /* SensorsAnalyticsNetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2D019122379FB700A958C5 /* SensorsAnalyticsNetworkTests.m */; };
+		CB2D01932237A10800A958C5 /* SensorsAnalyticsNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */; };
+		CB2D019C2237B79100A958C5 /* cert.der in Resources */ = {isa = PBXBuildFile; fileRef = CB2D01992237B79100A958C5 /* cert.der */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -195,6 +200,13 @@
 			remoteInfo = share;
 		};
 		A1D1C5781FB445DE006685C1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D5CA76F1B43E92D00D7ACB7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D5CA7761B43E92D00D7ACB7;
+			remoteInfo = SensorsAnalyticsSDK;
+		};
+		CB2D018C22379F7400A958C5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D5CA76F1B43E92D00D7ACB7 /* Project object */;
 			proxyType = 1;
@@ -380,6 +392,11 @@
 		A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
 		CB2CDD2E22324875000C1F92 /* SensorsAnalyticsNetwork.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsNetwork.h; sourceTree = "<group>"; };
 		CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsNetwork.m; sourceTree = "<group>"; };
+		CB2D018622379F7300A958C5 /* SensorsAnalyticsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SensorsAnalyticsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB2D018822379F7400A958C5 /* SensorsAnalyticsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsTests.m; sourceTree = "<group>"; };
+		CB2D018A22379F7400A958C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CB2D019122379FB700A958C5 /* SensorsAnalyticsNetworkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsNetworkTests.m; sourceTree = "<group>"; };
+		CB2D01992237B79100A958C5 /* cert.der */ = {isa = PBXFileReference; lastKnownFileType = file; name = cert.der; path = SensorsAnalyticsSDK/cert.der; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -426,6 +443,14 @@
 				A1D1C5841FB44908006685C1 /* WebKit.framework in Frameworks */,
 				A1D1C5831FB44902006685C1 /* libz.tbd in Frameworks */,
 				A1D1C57A1FB445E4006685C1 /* libSensorsAnalyticsSDK.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB2D018322379F7300A958C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB2D018B22379F7400A958C5 /* libSensorsAnalyticsSDK.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,6 +506,7 @@
 				4D0EB7BF1B47A88C0019FD21 /* HelloSensorsAnalytics */,
 				A1D1C5671FB445BC006685C1 /* SensorsDataSwiftDemo */,
 				A1624B5D200894940088FBC9 /* share */,
+				CB2D018722379F7400A958C5 /* SensorsAnalyticsTests */,
 				4D5CA7781B43E92D00D7ACB7 /* Products */,
 				F029B80BAB18852D4CE30358 /* Frameworks */,
 			);
@@ -493,6 +519,7 @@
 				4D0EB7BE1B47A88C0019FD21 /* HelloSensorsAnalytics.app */,
 				A1D1C5661FB445BC006685C1 /* SensorsDataSwiftDemo.app */,
 				A1624B5C200894940088FBC9 /* share.appex */,
+				CB2D018622379F7300A958C5 /* SensorsAnalyticsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -634,6 +661,17 @@
 				CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */,
 			);
 			name = Flush;
+			sourceTree = "<group>";
+		};
+		CB2D018722379F7400A958C5 /* SensorsAnalyticsTests */ = {
+			isa = PBXGroup;
+			children = (
+				CB2D01992237B79100A958C5 /* cert.der */,
+				CB2D018822379F7400A958C5 /* SensorsAnalyticsTests.m */,
+				CB2D019122379FB700A958C5 /* SensorsAnalyticsNetworkTests.m */,
+				CB2D018A22379F7400A958C5 /* Info.plist */,
+			);
+			path = SensorsAnalyticsTests;
 			sourceTree = "<group>";
 		};
 		F029B80BAB18852D4CE30358 /* Frameworks */ = {
@@ -790,6 +828,24 @@
 			productReference = A1D1C5661FB445BC006685C1 /* SensorsDataSwiftDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
+		CB2D018522379F7300A958C5 /* SensorsAnalyticsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB2D019022379F7400A958C5 /* Build configuration list for PBXNativeTarget "SensorsAnalyticsTests" */;
+			buildPhases = (
+				CB2D018222379F7300A958C5 /* Sources */,
+				CB2D018322379F7300A958C5 /* Frameworks */,
+				CB2D018422379F7300A958C5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CB2D018D22379F7400A958C5 /* PBXTargetDependency */,
+			);
+			name = SensorsAnalyticsTests;
+			productName = SensorsAnalyticsTests;
+			productReference = CB2D018622379F7300A958C5 /* SensorsAnalyticsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -829,6 +885,11 @@
 						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
+					CB2D018522379F7300A958C5 = {
+						CreatedOnToolsVersion = 10.1;
+						DevelopmentTeam = 4Q2F4QV378;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 4D5CA7721B43E92D00D7ACB7 /* Build configuration list for PBXProject "SensorsAnalyticsSDK" */;
@@ -848,6 +909,7 @@
 				4D0EB7BD1B47A88C0019FD21 /* HelloSensorsAnalytics */,
 				A1D1C5651FB445BC006685C1 /* SensorsDataSwiftDemo */,
 				A1624B5B200894940088FBC9 /* share */,
+				CB2D018522379F7300A958C5 /* SensorsAnalyticsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -886,6 +948,14 @@
 				A1D1C5701FB445BC006685C1 /* Assets.xcassets in Resources */,
 				A1D1C56E1FB445BC006685C1 /* Main.storyboard in Resources */,
 				4D8DA86B2133BA5D0064DFEB /* SensorsAnalyticsSDK.bundle in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB2D018422379F7300A958C5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB2D019C2237B79100A958C5 /* cert.der in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1017,6 +1087,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CB2D018222379F7300A958C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB2D01932237A10800A958C5 /* SensorsAnalyticsNetwork.m in Sources */,
+				CB2D018922379F7400A958C5 /* SensorsAnalyticsTests.m in Sources */,
+				CB2D019222379FB700A958C5 /* SensorsAnalyticsNetworkTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1029,6 +1109,11 @@
 			isa = PBXTargetDependency;
 			target = 4D5CA7761B43E92D00D7ACB7 /* SensorsAnalyticsSDK */;
 			targetProxy = A1D1C5781FB445DE006685C1 /* PBXContainerItemProxy */;
+		};
+		CB2D018D22379F7400A958C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4D5CA7761B43E92D00D7ACB7 /* SensorsAnalyticsSDK */;
+			targetProxy = CB2D018C22379F7400A958C5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1386,6 +1471,54 @@
 			};
 			name = Release;
 		};
+		CB2D018E22379F7400A958C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4Q2F4QV378;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = SensorsAnalyticsTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsAnalyticsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CB2D018F22379F7400A958C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4Q2F4QV378;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = SensorsAnalyticsTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsAnalyticsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1430,6 +1563,15 @@
 			buildConfigurations = (
 				A1D1C5751FB445BC006685C1 /* Debug */,
 				A1D1C5761FB445BC006685C1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB2D019022379F7400A958C5 /* Build configuration list for PBXNativeTarget "SensorsAnalyticsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB2D018E22379F7400A958C5 /* Debug */,
+				CB2D018F22379F7400A958C5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

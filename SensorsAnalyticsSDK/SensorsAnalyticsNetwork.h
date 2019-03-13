@@ -12,7 +12,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SensorsAnalyticsNetwork : NSObject
 
+@property (nonatomic, strong) NSData *certificateData;
+
+- (instancetype)initWithServerURL:(NSURL *)serverURL;
+
 - (void)flushEvents:(NSArray<NSString *> *)events;
+- (void)flushEvents:(NSArray<NSString *> *)events completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler;
 
 @end
 
