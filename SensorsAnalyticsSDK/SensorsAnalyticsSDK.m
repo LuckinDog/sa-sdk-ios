@@ -559,33 +559,40 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (NSString *)remoteConfigUrl {
     
-    if (self.remoteConfigOptions.remoteConfigUrl) {
-        return self.remoteConfigOptions.remoteConfigUrl;
-    } else {
-        NSString *urlString = self.serverURL;
+    @try {
+        NSURLComponents *urlComponets = nil;
         
-        @try {
+        if (self.remoteConfigOptions.remoteConfigUrl) {
+            NSURL *url = [NSURL URLWithString:self.remoteConfigOptions.remoteConfigUrl];
+            urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+        } else {
+            NSString *urlString = self.serverURL;
+            NSURL *url = nil;
             if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
-                NSURL *url = [NSURL URLWithString:urlString];
+                url = [NSURL URLWithString:urlString];
                 if (url.lastPathComponent.length > 0) {
                     url = [url URLByDeletingLastPathComponent];
                 }
-                NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-                if (componets == nil) {
-                    SALog(@"URLString is malformed, nil is returned.");
-                    return nil;
-                }
-                componets.query = nil;
-                componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
-                if (self.remoteConfig.v && self.remoteConfig.v.length) {
-                    componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
-                }
-                return componets.URL.absoluteString;
             }
-        } @catch (NSException *e) {
-            SAError(@"%@ error: %@", self, e);
+            
+            urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+            urlComponets.query = nil;
+            urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
         }
+        
+        if (!urlComponets) {
+            SALog(@"URLString is malformed, nil is returned.");
+            return nil;
+        }
+        
+        if (self.remoteConfig.v && self.remoteConfig.v.length) {
+            urlComponets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
+        }
+        return urlComponets.URL.absoluteString;
+    } @catch (NSException *e) {
+        SAError(@"%@ error: %@", self, e);
     }
+    
     return nil;
 }
 
