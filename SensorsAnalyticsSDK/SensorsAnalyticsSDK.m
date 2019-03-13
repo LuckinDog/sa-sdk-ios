@@ -2799,10 +2799,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         [properties setValue:NSStringFromClass([view class]) forKey:@"$element_type"];
 
-        NSString *elementContent = [[NSString alloc] init];
-        
-#warning 如果 view 是 UILabel 之类，不能采集内容
-        elementContent = [AutoTrackUtils contentFromView1:view];
+        NSString *elementContent = [AutoTrackUtils contentFromView:view];
         if (elementContent.length > 0) {
             [properties setValue:elementContent forKey:@"$element_content"];
         }

@@ -276,7 +276,7 @@
                         [properties setValue:@"UIButton" forKey:@"$element_type"];
                         if (button) {
                             
-                            NSString *currentTitle = [AutoTrackUtils contentFromView1:button];
+                            NSString *currentTitle = [AutoTrackUtils contentFromView:button];
                             if (currentTitle.length > 0) {
                                 [properties setValue:currentTitle forKey:@"$element_content"];
                             } else {
@@ -321,7 +321,7 @@
                         [properties setValue:@"UIControl" forKey:@"$element_type"];
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
-                            NSString *elementContent = [AutoTrackUtils contentFromView1:fromView];
+                            NSString *elementContent = [AutoTrackUtils contentFromView:fromView];
                             if (elementContent.length > 0) {
                                 [properties setValue:elementContent forKey:@"$element_content"];
                             }

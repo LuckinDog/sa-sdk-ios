@@ -162,92 +162,6 @@
 }
 
 + (NSString *)contentFromView:(UIView *)rootView {
-    @try {
-        NSMutableString *elementContent = [NSMutableString string];
-        
-        for (UIView *subView in [rootView subviews]) {
-            if (subView) {
-                if (subView.sensorsAnalyticsIgnoreView) {
-                    continue;
-                }
-
-                if (subView.isHidden) {
-                    continue;
-                }
-
-                if ([subView isKindOfClass:[UIButton class]]) {
-                    UIButton *button = (UIButton *)subView;
-                    NSString *currentTitle = button.sa_elementContent;
-                    if (currentTitle != nil && currentTitle.length) {
-                        [elementContent appendString:currentTitle];
-                        [elementContent appendString:@"-"];
-                    }
-                } else if ([subView isKindOfClass:[UILabel class]]) {
-                    UILabel *label = (UILabel *)subView;
-                    NSString *currentTitle = label.sa_elementContent;
-                    if (currentTitle != nil && currentTitle.length) {
-                        [elementContent appendString:currentTitle];
-                        [elementContent appendString:@"-"];
-                    }
-                } else if ([subView isKindOfClass:[UITextView class]]) {
-                    UITextView *textView = (UITextView *)subView;
-                    NSString *currentTitle = textView.sa_elementContent;
-                    if (currentTitle != nil && currentTitle.length) {
-                        [elementContent appendString:currentTitle];
-                        [elementContent appendString:@"-"];
-                    }
-
-                } else if ([subView isKindOfClass:NSClassFromString(@"RTLabel")]) {//RTLabel:https://github.com/honcheng/RTLabel
-                    #pragma clang diagnostic push
-                    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                    if ([subView respondsToSelector:NSSelectorFromString(@"text")]) {
-                        NSString *title = [subView performSelector:NSSelectorFromString(@"text")];
-                        if (title != nil && ![@"" isEqualToString:title]) {
-                            [elementContent appendString:title];
-                            [elementContent appendString:@"-"];
-                        }
-                    }
-                    #pragma clang diagnostic pop
-                } else if ([subView isKindOfClass:NSClassFromString(@"YYLabel")]) {//RTLabel:https://github.com/ibireme/YYKit
-                    #pragma clang diagnostic push
-                    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                    if ([subView respondsToSelector:NSSelectorFromString(@"text")]) {
-                        NSString *title = [subView performSelector:NSSelectorFromString(@"text")];
-                        if (title != nil && ![@"" isEqualToString:title]) {
-                            [elementContent appendString:title];
-                            [elementContent appendString:@"-"];
-                        }
-                    }
-                    #pragma clang diagnostic pop
-                }
-#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-                else if ([subView isKindOfClass:[NSClassFromString(@"UITableViewCellContentView") class]] ||
-                            [subView isKindOfClass:[NSClassFromString(@"UICollectionViewCellContentView") class]] ||
-                            subView.subviews.count > 0){
-                    NSString *temp = [self contentFromView:subView];
-                    if (temp != nil && ![@"" isEqualToString:temp]) {
-                        [elementContent appendString:temp];
-                    }
-                }
-#else
-                else {
-                    NSString *temp = [self contentFromView:subView];
-                    if (temp != nil && ![@"" isEqualToString:temp]) {
-                        [elementContent appendString:temp];
-                    }
-                }
-#endif
-            }
-        }
-        return elementContent;
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
-        return nil;
-    }
-}
-
-#warning 添加方法，同时采集自身和 subviews 的 content
-+ (NSString *)contentFromView1:(UIView *)rootView {
     
     @try {
         
@@ -309,7 +223,7 @@
             NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
             
             for (UIView *subView in rootView.subviews) {
-                NSString *temp = [self contentFromView1:subView];
+                NSString *temp = [self contentFromView:subView];
                 if (temp.length > 0) {
                     [elementContentArray addObject:temp];
                 }
@@ -323,7 +237,7 @@
             NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
             
             for (UIView *subview in rootView.subviews) {
-                NSString *temp = [self contentFromView1:subview];
+                NSString *temp = [self contentFromView:subview];
                 if (temp.length > 0) {
                     [elementContentArray addObject:temp];
                 }
@@ -352,10 +266,10 @@
     
     // 再获取 controller.navigationItem.titleView, 并且优先级比较高
     UIView *titleView = viewController.navigationItem.titleView;
+
     NSString *elementContent = nil;
     if (titleView) {
-        #warning 如果 view 是 UILabel 之类，不能采集内容
-        elementContent = [AutoTrackUtils contentFromView1:titleView];
+        elementContent = [AutoTrackUtils contentFromView:titleView];
     }
     
     if (elementContent.length > 0) {
@@ -493,7 +407,7 @@
             [properties setValue:viewPath forKey:@"$element_selector"];
         }
         
-        NSString *elementContent = [self contentFromView1:cell];
+        NSString *elementContent = [self contentFromView:cell];
         if (elementContent.length > 0) {
             [properties setValue:elementContent forKey:@"$element_content"];
         }
@@ -650,7 +564,7 @@
             [properties setValue:viewPath forKey:@"$element_selector"];
         }
 
-        elementContent = [self contentFromView1:cell];
+        elementContent = [self contentFromView:cell];
         if (elementContent.length > 0) {
             [properties setValue:elementContent forKey:@"$element_content"];
         }

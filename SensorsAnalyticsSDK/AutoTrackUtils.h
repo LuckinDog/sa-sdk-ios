@@ -15,7 +15,6 @@
 + (void)trackAppClickWithUICollectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
 
 + (NSString *)contentFromView:(UIView *)rootView;
-+ (NSString *)contentFromView1:(UIView *)rootView;
 
 + (NSString *)titleFromViewController:(UIViewController *)viewController;
 

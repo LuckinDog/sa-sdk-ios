@@ -36,7 +36,7 @@
 
 - (IBAction)onButtonClick:(id)sender {
     NSLog(@"****:onButtonClick");
-    NSString *content = [AutoTrackUtils contentFromView1:self.view];
+    NSString *content = [AutoTrackUtils contentFromView:self.view];
     NSLog(@"%@",content);
 }
 
