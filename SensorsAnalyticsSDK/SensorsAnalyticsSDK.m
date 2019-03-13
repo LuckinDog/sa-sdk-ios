@@ -561,11 +561,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     @try {
         NSURLComponents *urlComponets = nil;
-        
         if (self.remoteConfigOptions.remoteConfigUrl) {
+            
             NSURL *url = [NSURL URLWithString:self.remoteConfigOptions.remoteConfigUrl];
             urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         } else {
+            
             NSString *urlString = self.serverURL;
             NSURL *url = nil;
             if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
@@ -574,7 +575,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     url = [url URLByDeletingLastPathComponent];
                 }
             }
-            
             urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
             urlComponets.query = nil;
             urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
@@ -584,7 +584,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SALog(@"URLString is malformed, nil is returned.");
             return nil;
         }
-        
         if (self.remoteConfig.v && self.remoteConfig.v.length) {
             urlComponets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
         }
@@ -592,7 +591,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
     }
-    
     return nil;
 }
 
