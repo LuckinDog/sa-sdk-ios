@@ -69,7 +69,11 @@
 }
 
 #pragma mark - build
-- (NSURLRequest *)buildRequestWithEvents:(NSArray<NSString *> *)events HTTPMethod:(NSString *)HTTPMethod {
+- (NSString *)buildJSONStringWithEvents:(NSArray<NSString *> *)events {
+    return [NSString stringWithFormat:@"[%@]", [events componentsJoinedByString:@","]];
+}
+
+- (NSURLRequest *)buildRequestWithJSONString:(NSString *)jsonString HTTPMethod:(NSString *)HTTPMethod {
     NSString *postBody;
     @try {
         // 1. 先完成这一系列Json字符串的拼接
@@ -115,6 +119,8 @@
 }
 
 - (void)flushEvents:(NSArray<NSString *> *)events completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler {
+    NSString *jsonString = [self buildJSONStringWithEvents:events];
+    
     __block BOOL flushSucc = NO;
     dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
     void (^handler)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) = ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -146,14 +152,14 @@
         }
         SAError(@"==========================================================================");
         if ([SALogger isLoggerEnabled]) {
-//            @try {
-//                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-//                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-//                NSString *logString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-//                SAError(@"%@ %@: %@", self,messageDesc,logString);
-//            } @catch (NSException *exception) {
-//                SAError(@"%@: %@", self, exception);
-//            }
+            @try {
+                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                NSString *logString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+                SAError(@"%@ %@: %@", self,messageDesc,logString);
+            } @catch (NSException *exception) {
+                SAError(@"%@: %@", self, exception);
+            }
         }
         if (statusCode != 200) {
             SAError(@"%@ ret_code: %ld", self, statusCode);
@@ -162,7 +168,8 @@
         
         dispatch_semaphore_signal(flushSem);
     };
-    NSURLRequest *request = [self buildRequestWithEvents:events HTTPMethod:@"POST"];
+    
+    NSURLRequest *request = [self buildRequestWithJSONString:jsonString HTTPMethod:@"POST"];
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
     [task resume];
     
