@@ -166,7 +166,22 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 }
 @end
 
+@interface SAConfigOptions()
+/**
+ 数据接收地址 Url
+ */
+@property(nonatomic,copy) NSString *serverUrl;
+@end
+
 @implementation SAConfigOptions
+
+- (instancetype)initWithServerUrl:(nonnull NSString *)serverUrl {
+    self = [super init];
+    if (self) {
+        _serverUrl = serverUrl;
+    }
+    return self;
+}
 
 @end
 
@@ -206,7 +221,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
-@property(nonatomic, strong, setter = setRemoteConfigOptions:) SARemoteConfigOptions *remoteConfigOptions;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -280,6 +295,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
+    });
+    return sharedInstance;
+}
+
++ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] initWithServerURL:configOptions.serverUrl
+                                        andLaunchOptions:configOptions.launchOptions
+                                            andDebugMode:SensorsAnalyticsDebugOff];
+        
+        sharedInstance.configOptions = configOptions;
     });
     return sharedInstance;
 }
@@ -418,7 +445,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
             
-
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
@@ -553,17 +579,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)setRemoteConfigOptions:(SARemoteConfigOptions *)remoteConfigOptions {
-    _remoteConfigOptions = remoteConfigOptions;
-}
 
-- (NSString *)remoteConfigUrl {
+- (NSString *)collectRemoteConfigUrl {
     
     @try {
         NSURLComponents *urlComponets = nil;
-        if (self.remoteConfigOptions.remoteConfigUrl) {
+        if (self.configOptions.remoteConfigUrl) {
             
-            NSURL *url = [NSURL URLWithString:self.remoteConfigOptions.remoteConfigUrl];
+            NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigUrl];
             urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         } else {
             
@@ -2764,6 +2787,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
      ];
 }
 
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    _debugMode = debugMode;
+}
 
 - (SensorsAnalyticsDebugMode)debugMode {
     return _debugMode;
@@ -3528,7 +3554,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
          NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
         SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
         
-        NSString *urlString = [self remoteConfigUrl];
+        NSString *urlString = [self collectRemoteConfigUrl];
         if (urlString == nil || urlString.length == 0 || networkType == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO,nil);
             return;
