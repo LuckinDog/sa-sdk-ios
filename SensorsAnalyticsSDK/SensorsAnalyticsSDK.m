@@ -704,9 +704,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             NSString *alertTitle = @"SDK 调试模式选择";
             NSString *alertMessage = @"";
-            if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
+            if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
                 alertMessage = @"当前为 调试模式（导入数据）";
-            }else if (self.debugMode == SensorsAnalyticsDebugOnly) {
+            }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
                 alertMessage = @"当前为 调试模式（不导入数据）";
             }else {
                 alertMessage = @"调试模式已关闭";
@@ -2789,6 +2789,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     _debugMode = debugMode;
+    [self enableLog];
+    [self configDebugModeServerUrl];
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
