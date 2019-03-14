@@ -166,7 +166,7 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 }
 @end
 
-@implementation SARemoteConfigOptions
+@implementation SAConfigOptions
 
 @end
 

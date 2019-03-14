@@ -157,16 +157,26 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 @end
 
+
 /**
- 请求远程配置 config 策略配置
+ /**
+ * @class
+ *  SensorsAnalyticsSDK 初始化配置
  */
-@interface SARemoteConfigOptions : NSObject
+ */
+@interface SAConfigOptions : NSObject
+
+/**
+数据接收地址 Url
+ */
+@property(nonatomic,copy) NSString *serverUrl;
 
 /**
  请求配置地址，默认从 ServerUrl 解析
  */
 @property(nonatomic,copy) NSString *remoteConfigUrl;
 
+@property(nonatomic,copy) NSDictionary<NSString *, id> *launchOptions;
 @end
 
 
