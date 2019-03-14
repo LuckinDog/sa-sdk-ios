@@ -690,9 +690,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dispatch_block_t alterViewBlock = ^{
                 
                 NSString *alterViewMessage = @"";
-                if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
+                if (self -> _debugMode == SensorsAnalyticsDebugAndTrack) {
                     alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
-                }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
+                }else if (self -> _debugMode == SensorsAnalyticsDebugOnly) {
                     alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
                 }else {
                     alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
@@ -713,7 +713,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
             void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-                self->_debugMode = debugMode;
+                self -> _debugMode = debugMode;
                 [self enableLog:YES];
                 
                 alterViewBlock();
