@@ -325,7 +325,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 返回之前所初始化好的单例
  *
  * @discussion
- * 调用这个方法之前，必须先调用 sharedInstanceWithServerURL 这个方法
+ * 调用这个方法之前，必须先调用 sharedInstanceWithConfig 这个方法
  *
  * @return 返回的单例
  */
