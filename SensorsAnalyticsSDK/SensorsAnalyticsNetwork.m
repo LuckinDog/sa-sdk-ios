@@ -44,6 +44,7 @@
         if (!_session) {
             NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
             config.timeoutIntervalForRequest = 30.0;
+            config.HTTPShouldUsePipelining = NO;
             _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:self.operationQueue];
         }
     }
@@ -69,6 +70,7 @@
 }
 
 #pragma mark - build
+// 1. 先完成这一系列Json字符串的拼接
 - (NSString *)buildJSONStringWithEvents:(NSArray<NSString *> *)events {
     return [NSString stringWithFormat:@"[%@]", [events componentsJoinedByString:@","]];
 }
@@ -76,8 +78,6 @@
 - (NSURLRequest *)buildRequestWithJSONString:(NSString *)jsonString HTTPMethod:(NSString *)HTTPMethod {
     NSString *postBody;
     @try {
-        // 1. 先完成这一系列Json字符串的拼接
-        NSString *jsonString = [NSString stringWithFormat:@"[%@]", [events componentsJoinedByString:@","]];
         // 2. 使用gzip进行压缩
         NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
         // 3. base64
@@ -110,45 +110,26 @@
     return request;
 }
 
-
 #pragma mark - flush
-- (void)flushEvents:(NSArray<NSString *> *)events {
-    NSURLRequest *req = [[NSURLRequest alloc] initWithURL:self.serverURL];
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:req];
-    [task resume];
-}
-
-- (void)flushEvents:(NSArray<NSString *> *)events completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler {
+- (BOOL)flushEvents:(NSArray<NSString *> *)events {
     NSString *jsonString = [self buildJSONStringWithEvents:events];
     
-    __block BOOL flushSucc = NO;
-    dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
+    __block BOOL flushSuccess;
+    dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
     void (^handler)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) = ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
             SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
-            flushSucc = NO;
-            dispatch_semaphore_signal(flushSem);
+            dispatch_semaphore_signal(flushSemaphore);
             return;
         }
         
         NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
         NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-        NSString *messageDesc = nil;
         NSInteger statusCode = urlResponse.statusCode;
-        if(statusCode != 200) {
-            messageDesc = @"\n【invalid message】\n";
-            if ([SensorsAnalyticsSDK sharedInstance].debugMode != SensorsAnalyticsDebugOff) {
-                if (statusCode >= 300) {
-//                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                }
-            } else {
-                if (statusCode >= 300) {
-                    flushSucc = NO;
-                }
-            }
-        } else {
-            messageDesc = @"\n【valid message】\n";
+        NSString *messageDesc = statusCode == 200 ? @"\n【valid message】\n" : @"\n【invalid message】\n";
+        if (statusCode >= 300 && [SensorsAnalyticsSDK sharedInstance].debugMode != SensorsAnalyticsDebugOff) {
+//            NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+//            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
         }
         SAError(@"==========================================================================");
         if ([SALogger isLoggerEnabled]) {
@@ -156,7 +137,7 @@
                 NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
                 NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
                 NSString *logString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                SAError(@"%@ %@: %@", self,messageDesc,logString);
+                SAError(@"%@ %@: %@", self, messageDesc, logString);
             } @catch (NSException *exception) {
                 SAError(@"%@: %@", self, exception);
             }
@@ -166,14 +147,18 @@
             SAError(@"%@ ret_content: %@", self, urlResponseContent);
         }
         
-        dispatch_semaphore_signal(flushSem);
+        flushSuccess = YES;
+        
+        dispatch_semaphore_signal(flushSemaphore);
     };
     
     NSURLRequest *request = [self buildRequestWithJSONString:jsonString HTTPMethod:@"POST"];
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
     [task resume];
     
-    dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
+    dispatch_semaphore_wait(flushSemaphore, DISPATCH_TIME_FOREVER);
+    
+    return flushSuccess;
 }
 
 #pragma mark - NSURLSessionDelegate
@@ -189,7 +174,7 @@
             /**
              *  导入多张CA证书（Certification Authority，支持SSL证书以及自签名的CA），请替换掉你的证书名称
              */
-            NSCAssert(self.certificateData != nil, @"certificateData is nil");
+//            NSCAssert(self.certificateData != nil, @"certificateData is nil");
             if (!self.certificateData) {
                 break; /* failed */
             }

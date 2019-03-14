@@ -34,6 +34,7 @@
 #import "SAHeatMapConnection.h"
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
+#import "SensorsAnalyticsNetwork.h"
 #import "SAAppExtensionDataManager.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
@@ -173,6 +174,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, strong) SensorsAnalyticsPeople *people;
 
 @property (atomic, copy) NSString *serverURL;
+@property (nonatomic, strong) SensorsAnalyticsNetwork *network;
 
 @property (atomic, copy) NSString *distinctId;
 @property (atomic, copy) NSString *originalId;
@@ -402,6 +404,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
             
+            
 
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -535,6 +538,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         _serverURL = [url absoluteString];
     }
+    
+    _network = [[SensorsAnalyticsNetwork alloc] initWithServerURL:[NSURL URLWithString:_serverURL]];
 }
 
 - (void)configDebugModeServerUrl {
@@ -1273,23 +1278,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     _showDebugAlertView = show;
 }
 
-- (void)flushByType:(NSString *)type withSize:(int)flushSize andFlushMethod:(BOOL (^)(NSArray *, NSString *))flushMethod {
-    while (true) {
-        NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:type];
-        if (recordArray == nil) {
-            SAError(@"Failed to get records from SQLite.");
-            break;
-        }
-        
-        if ([recordArray count] == 0 || !flushMethod(recordArray, type)) {
-            break;
-        }
-        
-        if (![self.messageQueue removeFirstRecords:recordArray.count withType:type]) {
-            SAError(@"Failed to remove records from SQLite.");
-            break;
-        }
+- (void)flushByType:(NSString *)type withSize:(int)flushSize {
+    // 1、获取前 n 条数据
+    NSArray *recordArray = [self.messageQueue getFirstRecords:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) withType:@"POST"];
+    if (recordArray == nil) {
+        SAError(@"Failed to get records from SQLite.");
+        return;
     }
+    // 2、上传获取到的记录。如果数据上传完成，结束递归
+    if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
+        return;
+    }
+    // 3、删除已上传的记录。删除失败，结束递归
+    if (![self.messageQueue removeFirstRecords:recordArray.count withType:@"POST"]) {
+        SAError(@"Failed to remove records from SQLite.");
+        return;
+    }
+    // 4、继续上传剩余数据
+    [self flushByType:type withSize:flushSize];
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
@@ -1301,105 +1307,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
         return;
     }
-    // 使用 Post 发送数据
-    BOOL (^flushByPost)(NSArray *, NSString *) = ^(NSArray *recordArray, NSString *type) {
-        NSString *jsonString;
-        NSData *zippedData;
-        NSString *b64String;
-        NSString *postBody;
-        @try {
-            // 1. 先完成这一系列Json字符串的拼接
-            jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
-            // 2. 使用gzip进行压缩
-            zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-            // 3. base64
-            b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-            int hashCode = [b64String sensorsdata_hashCode];
-            b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                      (CFStringRef)b64String,
-                                                                                      NULL,
-                                                                                      CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                      kCFStringEncodingUTF8));
-
-            postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
-        } @catch (NSException *exception) {
-            SAError(@"%@ flushByPost format data error: %@", self, exception);
-            return YES;
-        }
-
-        NSURL *url = [NSURL URLWithString:self.serverURL];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-        request.timeoutInterval = 30;
-        [request setHTTPMethod:@"POST"];
-        [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
-        // 普通事件请求，使用标准 UserAgent
-        [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-        if (self->_debugMode == SensorsAnalyticsDebugOnly) {
-            [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
-        }
-
-        //Cookie
-        [request setValue:[[SensorsAnalyticsSDK sharedInstance] getCookieWithDecode:NO] forHTTPHeaderField:@"Cookie"];
-
-        dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
-        __block BOOL flushSucc = YES;
-
-        void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-            if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
-                SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
-                flushSucc = NO;
-                dispatch_semaphore_signal(flushSem);
-                return;
-            }
-
-            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
-            NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-            NSString *messageDesc = nil;
-            NSInteger statusCode = urlResponse.statusCode;
-            if(statusCode != 200) {
-                messageDesc = @"\n【invalid message】\n";
-                if (self->_debugMode != SensorsAnalyticsDebugOff) {
-                    if (statusCode >= 300) {
-                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                    }
-                } else {
-                    if (statusCode >= 300) {
-                        flushSucc = NO;
-                    }
-                }
-            } else {
-                messageDesc = @"\n【valid message】\n";
-            }
-            SAError(@"==========================================================================");
-            if ([SALogger isLoggerEnabled]) {
-                @try {
-                    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                    NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                    SAError(@"%@ %@: %@", self,messageDesc,logString);
-                } @catch (NSException *exception) {
-                    SAError(@"%@: %@", self, exception);
-                }
-            }
-            if (statusCode != 200) {
-                SAError(@"%@ ret_code: %ld", self, statusCode);
-                SAError(@"%@ ret_content: %@", self, urlResponseContent);
-            }
-
-            dispatch_semaphore_signal(flushSem);
-        };
-
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
-        [task resume];
-
-        dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
-
-        return flushSucc;
-    };
     
-    [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
+    [self flushByType:@"Post" withSize:(self.debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
 
     if (vacuumAfterFlushing) {
         if (![self.messageQueue vacuum]) {

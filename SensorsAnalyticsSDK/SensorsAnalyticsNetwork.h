@@ -34,8 +34,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSString *)cookieWithDecode:(BOOL)decode;
 
-- (void)flushEvents:(NSArray<NSString *> *)events;
-- (void)flushEvents:(NSArray<NSString *> *)events completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
+ 将数据上传到 Sensors Analytics 的服务器上
+ 数据将同步发送，请在异步线程中调用
+
+ @param events 事件的 json 字符串组成的数组
+ @return 同步返回数据是否上传成功
+ */
+- (BOOL)flushEvents:(NSArray<NSString *> *)events;
 
 @end
 

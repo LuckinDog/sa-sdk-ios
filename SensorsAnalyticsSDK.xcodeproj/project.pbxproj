@@ -182,6 +182,7 @@
 		A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E3889E1D509B7100F6B9FC /* SAReachability.m */; };
 		A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3EEDCE81C4E084200D1362F /* DemoController.m */; };
 		A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
+		CB1646932239F216003AA635 /* SensorsAnalyticsNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */; };
 		CB2CDD3022324875000C1F92 /* SensorsAnalyticsNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = CB2CDD2E22324875000C1F92 /* SensorsAnalyticsNetwork.h */; };
 		CB2CDD3122324875000C1F92 /* SensorsAnalyticsNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SensorsAnalyticsNetwork.m */; };
 		CB2D018922379F7400A958C5 /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2D018822379F7400A958C5 /* SensorsAnalyticsTests.m */; };
@@ -977,6 +978,7 @@
 				A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */,
 				0041360D1FFB4938009F2097 /* SAServerUrl.m in Sources */,
 				0038C5D41FCFA16600C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */,
+				CB1646932239F216003AA635 /* SensorsAnalyticsNetwork.m in Sources */,
 				0027C84B1FA201DA002EA41B /* SAAbstractHeatMapMessage.m in Sources */,
 				0027C84C1FA201DA002EA41B /* SAHeatMapConnection.m in Sources */,
 				0027C8501FA201DA002EA41B /* SAHeatMapSnapshotMessage.m in Sources */,
