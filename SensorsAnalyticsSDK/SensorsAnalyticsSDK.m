@@ -583,11 +583,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (NSString *)collectRemoteConfigUrl {
     
     @try {
-        NSURLComponents *urlComponets = nil;
+        NSURLComponents *urlComponents = nil;
+        
         if (self.configOptions.remoteConfigUrl) {
             
             NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigUrl];
-            urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+            urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         } else {
             
             NSString *urlString = self.serverURL;
@@ -598,19 +599,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     url = [url URLByDeletingLastPathComponent];
                 }
             }
-            urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-            urlComponets.query = nil;
-            urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+            urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+            urlComponents.query = nil;
+            urlComponents.path = [urlComponents.path stringByAppendingPathComponent:@"/config/iOS.conf"];
         }
         
-        if (!urlComponets) {
+        if (!urlComponents) {
             SALog(@"URLString is malformed, nil is returned.");
             return nil;
         }
-        if (self.remoteConfig.v && self.remoteConfig.v.length) {
-            urlComponets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
+        
+        NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
+        if (self.remoteConfig.v.length) {
+            NSURLQueryItem *vesionItem = [NSURLQueryItem queryItemWithName:@"v" value:self.remoteConfig.v];
+            [queryItems addObject:vesionItem];
         }
-        return urlComponets.URL.absoluteString;
+        urlComponents.queryItems = queryItems;
+        
+        return urlComponents.URL.absoluteString;
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
     }
