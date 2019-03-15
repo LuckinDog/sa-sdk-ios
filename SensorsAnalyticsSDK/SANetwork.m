@@ -1,18 +1,23 @@
 //
-//  SensorsAnalyticsNetwork.m
+//  SANetwork.m
 //  SensorsAnalyticsSDK
 //
 //  Created by MC on 2019/3/8.
 //  Copyright © 2019 Sensors Data Inc. All rights reserved.
 //
 
-#import "SensorsAnalyticsNetwork.h"
+#import "SANetwork.h"
+#import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "NSString+HashCode.h"
 #import "SAGzipUtility.h"
 #import "SALogger.h"
 
-@interface SensorsAnalyticsNetwork () <NSURLSessionDelegate>
+
+typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
+typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
+
+@interface SANetwork () <NSURLSessionDelegate, NSURLSessionTaskDelegate>
 
 @property (nonatomic, strong) NSURL *serverURL;
 
@@ -22,9 +27,12 @@
 
 @property (nonatomic, copy) NSString *cookie;
 
+@property (nonatomic, copy) SAURLSessionDidReceiveAuthenticationChallengeBlock sessionDidReceiveAuthenticationChallenge;
+@property (nonatomic, copy) SAURLSessionTaskDidReceiveAuthenticationChallengeBlock taskDidReceiveAuthenticationChallenge;
+
 @end
 
-@implementation SensorsAnalyticsNetwork
+@implementation SANetwork
 
 #pragma mark - init
 - (instancetype)initWithServerURL:(NSURL *)serverURL {
@@ -32,13 +40,15 @@
     if (self) {
         _serverURL = serverURL;
         
+        _securityPolicy = [SASecurityPolicy defaultPolicy];
+        
         _operationQueue = [[NSOperationQueue alloc] init];
         _operationQueue.maxConcurrentOperationCount = 1;
     }
     return self;
 }
 
-#pragma mark - getter
+#pragma mark - property
 - (NSURLSession *)session {
     @synchronized (self) {
         if (!_session) {
@@ -49,6 +59,20 @@
         }
     }
     return _session;
+}
+
+- (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
+    if (securityPolicy.SSLPinningMode != SASSLPinningModeNone && ![self.serverURL.scheme isEqualToString:@"https"]) {
+        NSString *pinningMode = @"Unknown Pinning Mode";
+        switch (securityPolicy.SSLPinningMode) {
+            case SASSLPinningModeNone:        pinningMode = @"SASSLPinningModeNone"; break;
+            case SASSLPinningModeCertificate: pinningMode = @"SASSLPinningModeCertificate"; break;
+            case SASSLPinningModePublicKey:   pinningMode = @"SASSLPinningModePublicKey"; break;
+        }
+        NSString *reason = [NSString stringWithFormat:@"A security policy configured with `%@` can only be applied on a manager with a secure base URL (i.e. https)", pinningMode];
+        @throw [NSException exceptionWithName:@"Invalid Security Policy" reason:reason userInfo:nil];
+    }
+    _securityPolicy = securityPolicy;
 }
 
 #pragma mark - cookie
@@ -128,8 +152,8 @@
         NSInteger statusCode = urlResponse.statusCode;
         NSString *messageDesc = statusCode == 200 ? @"\n【valid message】\n" : @"\n【invalid message】\n";
         if (statusCode >= 300 && [SensorsAnalyticsSDK sharedInstance].debugMode != SensorsAnalyticsDebugOff) {
-//            NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-//            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+            NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+            [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
         }
         SAError(@"==========================================================================");
         if ([SALogger isLoggerEnabled]) {
@@ -163,82 +187,69 @@
 
 #pragma mark - NSURLSessionDelegate
 - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
-    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-        do {
-            SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
-            NSCAssert(serverTrust != nil, @"ServerTrust is nil");
-            if(nil == serverTrust){
-                break; /* failed */
-            }
-
-            /**
-             *  导入多张CA证书（Certification Authority，支持SSL证书以及自签名的CA），请替换掉你的证书名称
-             */
-//            NSCAssert(self.certificateData != nil, @"certificateData is nil");
-            if (!self.certificateData) {
-                break; /* failed */
-            }
-
-            SecCertificateRef certificateRef = SecCertificateCreateWithData(NULL, (__bridge CFDataRef)self.certificateData);
-            NSCAssert(certificateRef != nil, @"certificateRef is nil");
-            if(!certificateRef) {
-                break; /* failed */
-            }
-
-            // 可以添加多张证书
-            NSArray *certificates = @[(__bridge id)(certificateRef)];
-            NSCAssert(certificates != nil, @"certificates is nil");
-            if(!certificates) {
-                break; /* failed */
-            }
-
-            // 将读取的证书设置为服务端帧数的根证书
-            OSStatus status = SecTrustSetAnchorCertificates(serverTrust, (__bridge CFArrayRef)certificates);
-            NSCAssert(errSecSuccess == status, @"SecTrustSetAnchorCertificates failed");
-            if(status != errSecSuccess) {
-                break; /* failed */
-            }
-
-            SecTrustResultType result = -1;
-            // 通过本地导入的证书来验证服务器的证书是否可信
-            status = SecTrustEvaluate(serverTrust, &result);
-            if(status != errSecSuccess) {
-                break; /* failed */
-            }
-
-            NSLog(@"stutas: %d",(int)status);
-            NSLog(@"Result: %d", result);
-            BOOL allowConnect = (result == kSecTrustResultUnspecified) || (result == kSecTrustResultProceed);
-            if (allowConnect) {
-                NSLog(@"success");
+    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+    __block NSURLCredential *credential = nil;
+    
+    if (self.sessionDidReceiveAuthenticationChallenge) {
+        disposition = self.sessionDidReceiveAuthenticationChallenge(session, challenge, &credential);
+    } else {
+        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+            if ([self.securityPolicy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) {
+                credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+                if (credential) {
+                    disposition = NSURLSessionAuthChallengeUseCredential;
+                } else {
+                    disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+                }
             } else {
-                NSLog(@"error");
+                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
             }
-            /* kSecTrustResultUnspecified and kSecTrustResultProceed are success */
-            if(!allowConnect) {
-                break; /* failed */
-            }
-#if 0
-            /* Treat kSecTrustResultConfirm and kSecTrustResultRecoverableTrustFailure as success */
-            /* since the user will likely tap-through to see the dancing bunnies */
-            if(result == kSecTrustResultDeny || result == kSecTrustResultFatalTrustFailure || result == kSecTrustResultOtherError) {
-                break; /* failed to trust cert (good in this case) */
-            }
-#endif
-            // The only good exit point
-            NSLog(@"信任该证书");
-
-            NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-            completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
-            return [challenge.sender useCredential:credential forAuthenticationChallenge:challenge];
-
-        } while(0);
+        } else {
+            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+        }
     }
+    
+    if (completionHandler) {
+        completionHandler(disposition, credential);
+    }
+}
 
-    // Bad dog
-    NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-    completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, credential);
-    return [challenge.sender cancelAuthenticationChallenge:challenge];
+#pragma mark - NSURLSessionTaskDelegate
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
+    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+    __block NSURLCredential *credential = nil;
+    
+    if (self.taskDidReceiveAuthenticationChallenge) {
+        disposition = self.taskDidReceiveAuthenticationChallenge(session, task, challenge, &credential);
+    } else {
+        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+            if ([self.securityPolicy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) {
+                disposition = NSURLSessionAuthChallengeUseCredential;
+                credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+            } else {
+                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
+            }
+        } else {
+            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+        }
+    }
+    
+    if (completionHandler) {
+        completionHandler(disposition, credential);
+    }
+}
+
+@end
+
+#pragma mark -
+@implementation SANetwork (SessionAndTask)
+
+- (void)setSessionDidReceiveAuthenticationChallengeBlock:(NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential))block {
+    self.sessionDidReceiveAuthenticationChallenge = block;
+}
+
+- (void)setTaskDidReceiveAuthenticationChallengeBlock:(NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential))block {
+    self.taskDidReceiveAuthenticationChallenge = block;
 }
 
 @end

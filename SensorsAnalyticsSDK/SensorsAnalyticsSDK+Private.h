@@ -49,6 +49,9 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
  @param trackType trackType track 类型
  */
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType;
+
+- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
+
 @end
 
 #endif /* SensorsAnalyticsSDK_priv_h */

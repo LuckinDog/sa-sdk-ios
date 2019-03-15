@@ -34,7 +34,7 @@
 #import "SAHeatMapConnection.h"
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
-#import "SensorsAnalyticsNetwork.h"
+#import "SANetwork.h"
 #import "SAAppExtensionDataManager.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
@@ -174,7 +174,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, strong) SensorsAnalyticsPeople *people;
 
 @property (atomic, copy) NSString *serverURL;
-@property (nonatomic, strong) SensorsAnalyticsNetwork *network;
+@property (nonatomic, strong) SANetwork *network;
 
 @property (atomic, copy) NSString *distinctId;
 @property (atomic, copy) NSString *originalId;
@@ -539,7 +539,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _serverURL = [url absoluteString];
     }
     
-    _network = [[SensorsAnalyticsNetwork alloc] initWithServerURL:[NSURL URLWithString:_serverURL]];
+    _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_serverURL]];
 }
 
 - (void)configDebugModeServerUrl {
