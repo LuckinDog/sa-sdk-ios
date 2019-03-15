@@ -974,24 +974,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [eventDict setValue:token forKey:@"token"];
             }
 
-            NSDictionary *eventDic = [self willEnqueueWithType:type andEvent:eventDict];
-            if (!eventDic) {
+            NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
+            if (!enqueueEvent) {
                 return;
             }
-            SALog(@"\n【track event from H5】:\n%@", eventDic);
+            SALog(@"\n【track event from H5】:\n%@", enqueueEvent);
 
             if([type isEqualToString:@"track_signup"]) {
-                NSString *newLoginId = [eventDic objectForKey:@"distinct_id"];
+                NSString *newLoginId = [enqueueEvent objectForKey:@"distinct_id"];
                 if (![newLoginId isEqualToString:[self loginId]]) {
                     self.loginId = newLoginId;
                     [self archiveLoginId];
                     if (![newLoginId isEqualToString:[self distinctId]]) {
                         self.originalId = [self distinctId];
-                        [self enqueueWithType:type andEvent:[eventDic copy]];
+                        [self enqueueWithType:type andEvent:[enqueueEvent copy]];
                     }
                 }
             } else {
-                [self enqueueWithType:type andEvent:[eventDic copy]];
+                [self enqueueWithType:type andEvent:[enqueueEvent copy]];
             }
         } @catch (NSException *exception) {
             SAError(@"%@: %@", self, exception);
