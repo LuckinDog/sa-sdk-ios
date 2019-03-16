@@ -185,6 +185,7 @@
 		CB143B44223B528B00A2CBF2 /* cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB143B43223B528B00A2CBF2 /* cert.cer */; };
 		CB143B45223B606A00A2CBF2 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
 		CB143B46223B607700A2CBF2 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
+		CB143B47223BA17700A2CBF2 /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */; };
 		CB1646932239F216003AA635 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SANetwork.m */; };
 		CB164696223A4D1B003AA635 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
 		CB164697223A4D1B003AA635 /* SASecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = CB164695223A4D1B003AA635 /* SASecurityPolicy.h */; };
@@ -1112,6 +1113,7 @@
 				CB143B45223B606A00A2CBF2 /* SASecurityPolicy.m in Sources */,
 				CB2D018922379F7400A958C5 /* SensorsAnalyticsTests.m in Sources */,
 				CB2D019222379FB700A958C5 /* SensorsAnalyticsNetworkTests.m in Sources */,
+				CB143B47223BA17700A2CBF2 /* NSString+HashCode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

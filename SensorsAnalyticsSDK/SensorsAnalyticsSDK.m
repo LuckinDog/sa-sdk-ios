@@ -173,6 +173,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 // 在内部，重新声明成可读写的
 @property (atomic, strong) SensorsAnalyticsPeople *people;
 
+@property (nonatomic, readwrite) SensorsAnalyticsDebugMode debugMode;
+
 @property (atomic, copy) NSString *serverURL;
 @property (nonatomic, strong) SANetwork *network;
 
@@ -225,7 +227,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @end
 
 @implementation SensorsAnalyticsSDK {
-    SensorsAnalyticsDebugMode _debugMode;
     UInt64 _flushBulkSize;
     UInt64 _flushInterval;
     UInt64 _maxCacheSize;
@@ -521,39 +522,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
-    _originServerUrl = serverUrl;
-    if (serverUrl == nil || [serverUrl length] == 0 || _debugMode == SensorsAnalyticsDebugOff) {
-        _serverURL = serverUrl;
-    } else {
-        // 将 Server URI Path 替换成 Debug 模式的 '/debug'
-        NSURL *tempBaseUrl = [NSURL URLWithString:serverUrl];
-        if (tempBaseUrl.lastPathComponent.length > 0) {
-            tempBaseUrl = [tempBaseUrl URLByDeletingLastPathComponent];
-        }
-        NSURL *url = [tempBaseUrl URLByAppendingPathComponent:@"debug"];
-        NSString *host = url.host;
-        if ([host containsString:@"_"]) { //包含下划线日志提示
-            NSString * referenceUrl = @"https://en.wikipedia.org/wiki/Hostname";
-            SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@",serverUrl,referenceUrl);
-        }
-        _serverURL = [url absoluteString];
-    }
+    self.network.serverURL = [NSURL URLWithString:serverUrl];
+}
+
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    _debugMode = debugMode;
     
-    _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_serverURL]];
-}
-
-- (void)configDebugModeServerUrl {
-    if (_debugMode  == SensorsAnalyticsDebugOff ) {
-        self.serverURL = _originServerUrl;
-    } else {
-        [self setServerUrl:_originServerUrl];
-    }
-}
-
-- (void)disableDebugMode {
-    _debugMode = SensorsAnalyticsDebugOff;
-    _serverURL = _originServerUrl;
-    [self enableLog:NO];
+    self.network.debugMode = debugMode;
+    [self enableLog:debugMode != SensorsAnalyticsDebugOff];
 }
 
 - (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
@@ -641,9 +617,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dispatch_block_t alterViewBlock = ^{
                 
                 NSString *alterViewMessage = @"";
-                if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
+                if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
                     alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
-                }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
+                }else if (self.debugMode == SensorsAnalyticsDebugOnly) {
                     alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
                 }else {
                     alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
@@ -659,22 +635,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             if (@available(iOS 8.0, *)) {
                 UIAlertAction *actionDebugAndTrack = [UIAlertAction actionWithTitle:@"开启调试模式（导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    self->_debugMode = SensorsAnalyticsDebugAndTrack;
-                    [self enableLog:YES];
-                    
+                    self.debugMode = SensorsAnalyticsDebugAndTrack;
                     alterViewBlock();
                     
-                    [self configDebugModeServerUrl];
                     [self debugModeCallBackWithParams:params];
                 }];
                 
                 UIAlertAction *actionDebugOnly = [UIAlertAction actionWithTitle:@"开启调试模式（不导入数据）" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    self->_debugMode = SensorsAnalyticsDebugOnly;
-                    [self enableLog:YES];
-                    
+                    self.debugMode = SensorsAnalyticsDebugOnly;
                     alterViewBlock();
                     
-                    [self configDebugModeServerUrl];
                     [self debugModeCallBackWithParams:params];
                 }];
                 
@@ -1776,7 +1746,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         [self enqueueWithType:type andEvent:[e copy]];
 
-        if (self->_debugMode != SensorsAnalyticsDebugOff) {
+        if (self.debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
             [self flush];
         } else {
@@ -2650,11 +2620,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
      ];
 }
 
-
-- (SensorsAnalyticsDebugMode)debugMode {
-    return _debugMode;
-}
-
 - (void)trackViewAppClick:(UIView *)view {
     [self trackViewAppClick:view withProperties:nil];
 }
@@ -3355,7 +3320,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     @try {
         self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
         if (self.remoteConfig.disableDebugMode) {
-            [self disableDebugMode];
+            self.debugMode = SensorsAnalyticsDebugOff;
         }
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);

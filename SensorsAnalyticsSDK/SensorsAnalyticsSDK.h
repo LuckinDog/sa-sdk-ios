@@ -239,6 +239,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */
 @property (atomic) UInt64 flushBulkSize;
+
+@property (nonatomic, readonly) SensorsAnalyticsDebugMode debugMode;
+
 #pragma mark- init instance
 
 /**
@@ -767,8 +770,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
 
-
-- (SensorsAnalyticsDebugMode)debugMode;
 
 /**
  * @abstract

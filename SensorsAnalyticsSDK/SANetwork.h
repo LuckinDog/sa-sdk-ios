@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SensorsAnalyticsSDK.h"
 #import "SASecurityPolicy.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -18,7 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 
-- (instancetype)initWithServerURL:(NSURL *)serverURL;
+@property (nonatomic, strong) NSURL *serverURL;
+
+@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
+
+- (instancetype)initWithServerURL:(NSURL *)serverURL debugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 /**
  * @abstract
@@ -37,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return NSString cookie
  */
 - (NSString *)cookieWithDecode:(BOOL)decode;
-
 
 /**
  将数据上传到 Sensors Analytics 的服务器上

@@ -18,13 +18,11 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionDidReceiveAuthenticat
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
 
 @interface SANetwork () <NSURLSessionDelegate, NSURLSessionTaskDelegate>
-
-@property (nonatomic, strong) NSURL *serverURL;
+/// 存储原始的 ServerURL，当修改 DebugMode 为 Off 时，会使用此值去设置 ServerURL
+@property (nonatomic, readwrite, strong) NSURL *originServerURL;
 
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
-
 @property (nonatomic, strong) NSURLSession *session;
-
 @property (nonatomic, copy) NSString *cookie;
 
 @property (nonatomic, copy) SAURLSessionDidReceiveAuthenticationChallengeBlock sessionDidReceiveAuthenticationChallenge;
@@ -35,10 +33,22 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 @implementation SANetwork
 
 #pragma mark - init
-- (instancetype)initWithServerURL:(NSURL *)serverURL {
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _securityPolicy = [SASecurityPolicy defaultPolicy];
+        
+        _operationQueue = [[NSOperationQueue alloc] init];
+        _operationQueue.maxConcurrentOperationCount = 1;
+    }
+    return self;
+}
+
+- (instancetype)initWithServerURL:(NSURL *)serverURL debugMode:(SensorsAnalyticsDebugMode)debugMode {
     self = [super init];
     if (self) {
         _serverURL = serverURL;
+        _debugMode = debugMode;
         
         _securityPolicy = [SASecurityPolicy defaultPolicy];
         
@@ -49,6 +59,29 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 #pragma mark - property
+- (void)setServerURL:(NSURL *)serverURL {
+    _originServerURL = serverURL;
+    if (self.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
+        _serverURL = serverURL;
+    } else {
+        // 将 Server URI Path 替换成 Debug 模式的 '/debug'
+        if (serverURL.lastPathComponent.length > 0) {
+            serverURL = [serverURL URLByDeletingLastPathComponent];
+        }
+        NSURL *url = [serverURL URLByAppendingPathComponent:@"debug"];
+        if ([url.host containsString:@"_"]) { //包含下划线日志提示
+            NSString * referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
+            SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
+        }
+        _serverURL = url;
+    }
+}
+
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    _debugMode = debugMode;
+    self.serverURL = _originServerURL;
+}
+
 - (NSURLSession *)session {
     @synchronized (self) {
         if (!_session) {
@@ -78,20 +111,17 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 #pragma mark - cookie
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
     if (encode) {
-        _cookie = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                (CFStringRef)cookie,
-                                                                                NULL,
-                                                                                CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                kCFStringEncodingUTF8));
-        
+        _cookie = [cookie stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
     } else {
         _cookie = cookie;
     }
 }
 
-- (NSString *)cookieWithDecode:(BOOL)decode {
-    return decode ? (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)_cookie, CFSTR(""), CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) : _cookie;
+- (NSString *)cookieWithDecode:(BOOL)decode {    
+    return decode ? _cookie.stringByRemovingPercentEncoding : _cookie;
 }
+
+#pragma mark -
 
 #pragma mark - build
 // 1. 先完成这一系列Json字符串的拼接
@@ -107,11 +137,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         // 3. base64
         NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
         int hashCode = [b64String sensorsdata_hashCode];
-        b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                  (CFStringRef)b64String,
-                                                                                  NULL,
-                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                  kCFStringEncodingUTF8));
+        b64String = [b64String stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
         
         postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
     } @catch (NSException *exception) {
@@ -125,7 +151,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     request.HTTPBody = [postBody dataUsingEncoding:NSUTF8StringEncoding];
     // 普通事件请求，使用标准 UserAgent
     [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-    if ([SensorsAnalyticsSDK sharedInstance].debugMode == SensorsAnalyticsDebugOnly) {
+    if (self.debugMode == SensorsAnalyticsDebugOnly) {
         [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
     }
     
@@ -151,7 +177,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         NSInteger statusCode = urlResponse.statusCode;
         NSString *messageDesc = statusCode == 200 ? @"\n【valid message】\n" : @"\n【invalid message】\n";
-        if (statusCode >= 300 && [SensorsAnalyticsSDK sharedInstance].debugMode != SensorsAnalyticsDebugOff) {
+        if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
             NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
             [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
         }
