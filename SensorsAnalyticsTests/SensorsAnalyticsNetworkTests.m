@@ -18,14 +18,25 @@
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    NSURL *url = [NSURL URLWithString:@"https://test.kbyte.cn:4106/sa"];
-    _network = [[SANetwork alloc] initWithServerURL:url];
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
+- (void)testServerURL {
+    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
+    SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
+    XCTAssertEqual(network.serverURL, url);
+    
+    network.debugMode = SensorsAnalyticsDebugOnly;
+    XCTAssertTrue([network.serverURL.lastPathComponent isEqualToString:@"debug"]);
+
+    network.debugMode = SensorsAnalyticsDebugAndTrack;
+    XCTAssertTrue([network.serverURL.lastPathComponent isEqualToString:@"debug"]);
+}
+
+#pragma mark - Certificate
 - (void)testCustomCertificate {
     NSURL *url = [NSURL URLWithString:@"https://test.kbyte.cn:4106/sa"];
     SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
@@ -47,6 +58,7 @@
     XCTAssertTrue(success, @"Error");
 }
 
+#pragma mark - Flush
 - (NSArray<NSString *> *)createEventStringWithTime:(NSInteger)time {
     NSMutableArray *strings = [NSMutableArray arrayWithCapacity:50];
     for (NSInteger i = 0; i < 50; i ++) {
@@ -84,12 +96,8 @@
     });
     
     [self waitForExpectationsWithTimeout:45 handler:^(NSError *error) {
-        //6: 如果15秒内没有收到fulfill方法通知调用次方法
-        //超时后执行一些操作:
+        XCTAssertNil(error);
     }];
-    
-    //7: 对象被回收
-//    XCTAssertNil(expect, @"expect should be nil");
 }
 
 - (void)testPerformanceExample {

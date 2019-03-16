@@ -244,7 +244,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *_deviceModel;
     NSString *_osVersion;
     NSString *_userAgent;
-    NSString *_cookie;
 }
 
 @synthesize remoteConfig = _remoteConfig;
@@ -679,9 +678,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)debugModeCallBackWithParams:(NSDictionary *)params {
     
-//    NSString *urlString = self.serverURL;
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.network.serverURL resolvingAgainstBaseURL:NO];
-//    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
     
     NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
     //添加参数
@@ -1797,23 +1794,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
-    if (encode) {
-        _cookie = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                (CFStringRef)cookie,
-                                                                                NULL,
-                                                                                CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                kCFStringEncodingUTF8));
-    } else {
-        _cookie = cookie;
-    }
+    [_network setCookie:cookie withEncode:encode];
 }
 
 - (NSString *)getCookieWithDecode:(BOOL)decode {
-    if (decode) {
-        return (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)_cookie, CFSTR(""),CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
-    } else {
-        return _cookie;
-    }
+    return [_network cookieWithDecode:decode];
 }
 
 - (void)trackTimer:(NSString *)event {
