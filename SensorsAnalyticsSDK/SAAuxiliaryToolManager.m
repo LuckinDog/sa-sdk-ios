@@ -27,7 +27,7 @@
 }
 
 -(BOOL)canHandleURL:(NSURL *)URL {
-    return [self isHeatMapURL:URL] || [self isVisualAutoTrackURL:URL];
+    return [self isHeatMapURL:URL] || [self isVisualAutoTrackURL:URL] || [self isVisualDebugModeURL:URL];
 }
 
 - (BOOL)handleURL:(NSURL *)URL isWifi:(BOOL)isWifi {
@@ -116,14 +116,17 @@
     return alertMessage;
 }
 
--(BOOL)isHeatMapURL:(NSURL *)URL {
-    return [URL.host isEqualToString:@"heatmap"];
+-(BOOL)isHeatMapURL:(NSURL *)url {
+    return [url.host isEqualToString:@"heatmap"];
 }
 
--(BOOL)isVisualAutoTrackURL:(NSURL *)URL {
-    return [URL.host isEqualToString:@"appcircle"];
+-(BOOL)isVisualAutoTrackURL:(NSURL *)url {
+    return [url.host isEqualToString:@"appcircle"];
 }
 
+-(BOOL)isVisualDebugModeURL:(NSURL *)url {
+     return [url.host isEqualToString:@"debugmode"];
+}
 
 -(void)getFeatureCode:(NSString **)featureCode andPostURL:(NSString **)postURL WithURL:(NSURL *)url {
     @try {

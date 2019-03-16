@@ -198,7 +198,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @proeprty
  *
  * @abstract
- * 当App进入后台时，是否执行flush将数据发送到SensrosAnalytics
+ * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
  *
  * @discussion
  * 默认值为 YES
@@ -212,9 +212,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 两次数据发送的最小时间间隔，单位毫秒
  *
  * @discussion
- * 默认值为 15 * 1000 毫秒， 在每次调用track、trackSignUp以及profileSet等接口的时候，
+ * 默认值为 15 * 1000 毫秒， 在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，
  * 都会检查如下条件，以判断是否向服务器上传数据:
- * 1. 是否WIFI/3G/4G网络
+ * 1. 是否 WIFI/3G/4G 网络
  * 2. 是否满足以下数据发送条件之一:
  *   1) 与上次发送的时间间隔是否大于 flushInterval
  *   2) 本地缓存日志数目是否达到 flushBulkSize
@@ -245,19 +245,19 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @abstract
  * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
  *
- * @param serverURL 收集事件的URL
+ * @param serverURL 收集事件的 URL
  * @param debugMode Sensors Analytics 的 Debug 模式
  *
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithServerURL: andLaunchOptions:")));
 
 /**
  * @abstract
  * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
  *
- * @param serverURL 收集事件的URL
+ * @param serverURL 收集事件的 URL
  * @param launchOptions launchOptions
  * @param debugMode Sensors Analytics 的 Debug 模式
  *
@@ -265,7 +265,18 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
                                     andLaunchOptions:(NSDictionary * _Nullable)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithServerURL: andLaunchOptions:")));
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
+ 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
+ * @param serverURL 收集事件的 URL
+ * @param launchOptions launchOptions
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
+                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions;
 
 /**
  * @abstract
@@ -367,7 +378,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 获取匿名id
+ * 获取匿名 id
  *
  * @return anonymousId 匿名 id
  */
@@ -375,7 +386,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 重置默认匿名id
+ * 重置默认匿名 id
  */
 - (void)resetAnonymousId;
 
@@ -452,6 +463,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @return YES:被忽略; NO:没有被忽略
  */
 - (BOOL)isViewControllerStringIgnored:(NSString*)viewController;
+
+/**
+ * @abstract
+ * 过滤掉 AutoTrack 的某个事件类型
+ *
+ * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
+ */
+- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
 
 /**
  * @abstract
@@ -579,7 +598,31 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
+ * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名 ID
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param newDistinctId     用户完成注册后生成的注册 ID
+ * @param propertyDict     event 的属性
+ */
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考 login:")));
+
+/**
+ * @abstract
+ * 不带私有属性的 trackSignUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名 ID
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param newDistinctId     用户完成注册后生成的注册 ID
+ */
+- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考 login:")));
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
+ *
  * @discussion
  * propertyDict 是一个 Map。
  * 其中的 key 是 Property 的名称，必须是 NSString
@@ -730,6 +773,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 修改入库之前的事件属性
+ *
+ * @param callback 传入事件名称和事件属性，可以修改或删除事件属性。请返回一个 BOOL 值，true 表示事件将入库， false 表示事件将被抛弃
+ */
+- (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback;
+
+/**
+ * @abstract
  * 用来设置每个事件都带有的一些公共属性
  *
  * @discussion
@@ -761,7 +812,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
  * @param dynamicSuperProperties block 用来返回事件的动态公共属性
  */
--(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
 
 /**
  * @abstract
@@ -810,14 +861,42 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 一旦调用该接口，将会删除本地缓存的全部事件，请慎用！
  */
 - (void)deleteAll;
+
 #pragma mark- heatMap && appcircle
-- (BOOL)canHandleURL:(NSURL *)URL;
-- (BOOL)handleURL:(NSURL *)URL;
+- (BOOL)canHandleURL:(NSURL *)url;
 
 - (void)enableTrackElementSelector;
 - (BOOL)isTrackElementSelectorEnabled;
 - (void)addTrackElementSelectorViewControllers:(NSArray *)controllers;
 - (BOOL)isTrackElementSelectorViewController:(UIViewController *)viewController;
+
+#pragma mark- heatMap
+- (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
+
+/**
+ * @abstract
+ * 处理 url scheme 跳转打开 App
+ *
+ * @param url 打开本 app 的回调的 url
+ */
+- (BOOL)handleSchemeUrl:(NSURL *)url;
+
+/**
+ * @abstract
+ * 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
+ */
+- (void)enableHeatMap;
+
+- (BOOL)isHeatMapEnabled;
+
+/**
+ * @abstract
+ * 指定哪些页面开启 HeatMap，如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
+ */
+- (void)addHeatMapViewControllers:(NSArray *)controllers;
+
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
+
 #pragma mark- profile
 /**
  * @abstract
@@ -1139,13 +1218,13 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 首次设置用户的单个Profile的内容
+ * 首次设置用户的单个 Profile 的内容
  *
  * @discussion
- * 与set类接口不同的是，如果这个Profile之前已经存在了，则这次会被忽略；不存在，则会创建
+ * 与 set 类接口不同的是，如果这个 Profile 之前已经存在了，则这次会被忽略；不存在，则会创建
  *
- * @param profile Profile的名称
- * @param content Profile的内容
+ * @param profile Profile 的名称
+ * @param content Profile 的内容
  */
 - (void)setOnce:(NSString *) profile to:(id)content;
 

@@ -14,8 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAAuxiliaryToolManager : NSObject
 +(instancetype)sharedInstance;
 
--(BOOL)canHandleURL:(NSURL *)URL;
--(BOOL)handleURL:(NSURL *)URL  isWifi:(BOOL)isWifi;
+-(BOOL)canHandleURL:(NSURL *)url;
+-(BOOL)handleURL:(NSURL *)url  isWifi:(BOOL)isWifi;
 @end
 
 NS_ASSUME_NONNULL_END

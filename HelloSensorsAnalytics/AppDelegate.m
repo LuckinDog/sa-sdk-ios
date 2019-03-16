@@ -9,18 +9,25 @@
 #import "AppDelegate.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
+
+/*
+http://cctest.datasink.sensorsdata.cn/sa?project=default&token=9f38cd99171313f2
+http://sdk-test.datasink.sensorsdata.cn/sa?project=default&token=95c73ae661f85aa0
+
+http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0
+ */
+static NSString* Sa_Default_ServerUrl = @"http://10.19.101.175:8106/sa?project=default";
+
 @interface AppDelegate ()
 
 @end
 @implementation AppDelegate
 
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    //http://cctest.datasink.sensorsdata.cn/sa?project=default&token=9f38cd99171313f2
-    //http://sdk-test.datasink.sensorsdata.cn/sa?project=default&token=95c73ae661f85aa0
     
-    
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://cctest.datasink.sensorsdata.cn/sa?project=default&token=9f38cd99171313f2"
-                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:Sa_Default_ServerUrl andLaunchOptions:launchOptions];
+
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;
@@ -50,9 +57,9 @@
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+
     if ([[SensorsAnalyticsSDK sharedInstance] canHandleURL:url]) {
-        [[SensorsAnalyticsSDK sharedInstance] handleURL:url];
-        return YES;
+        [[SensorsAnalyticsSDK sharedInstance] handleSchemeUrl:url];
     }
     return NO;
 }
