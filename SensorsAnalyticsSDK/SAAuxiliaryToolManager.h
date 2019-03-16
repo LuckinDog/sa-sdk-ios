@@ -14,8 +14,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAAuxiliaryToolManager : NSObject
 +(instancetype)sharedInstance;
 
--(BOOL)canHandleURL:(NSURL *)url;
--(BOOL)handleURL:(NSURL *)url  isWifi:(BOOL)isWifi;
+- (BOOL)canHandleURL:(NSURL *)url;
+- (BOOL)handleURL:(NSURL *)url  isWifi:(BOOL)isWifi;
+
+
+- (BOOL)isVisualHeatMapURL:(NSURL *)url;
+- (BOOL)isVisualAutoTrackURL:(NSURL *)url;
+- (BOOL)isVisualDebugModeURL:(NSURL *)url;
+
 @end
 
 NS_ASSUME_NONNULL_END

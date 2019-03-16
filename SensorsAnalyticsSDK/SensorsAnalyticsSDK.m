@@ -1402,10 +1402,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return NO;
         }
         
-        if ([@"heatmap" isEqualToString:url.host]) {//点击图
-           return [self handleCustomAutoTrackURL:url];
+        if ([[SAAuxiliaryToolManager sharedInstance] isVisualAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isVisualHeatMapURL:url]) {//点击图
             
-        } else if ([@"debugmode" isEqualToString:url.host]) {//动态 debug 配置
+            return [self handleCustomAutoTrackURL:url];
+        } else if ([[SAAuxiliaryToolManager sharedInstance] isVisualDebugModeURL:url]) {//动态 debug 配置
             
             NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
             

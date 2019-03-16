@@ -27,7 +27,7 @@
 }
 
 -(BOOL)canHandleURL:(NSURL *)URL {
-    return [self isHeatMapURL:URL] || [self isVisualAutoTrackURL:URL] || [self isVisualDebugModeURL:URL];
+    return [self isVisualHeatMapURL:URL] || [self isVisualAutoTrackURL:URL] || [self isVisualDebugModeURL:URL];
 }
 
 - (BOOL)handleURL:(NSURL *)URL isWifi:(BOOL)isWifi {
@@ -79,7 +79,7 @@
         [connectAlert addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             SADebug(@"Confirmed to open HeatMap ...");
             // start
-            if ([self isHeatMapURL:URL]) {
+            if ([self isVisualHeatMapURL:URL]) {
                 self.heatMapConnection = [[SAHeatMapConnection alloc]initWithURL:nil];
                 if (self.heatMapConnection) {
                     [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
@@ -105,7 +105,7 @@
 
 -(NSString *)alertMessageWithURL:(NSURL *)URL isWifi:(BOOL)isWifi {
     NSString *alertMessage = nil;
-    if ([self isHeatMapURL:URL]) {
+    if ([self isVisualHeatMapURL:URL]) {
         alertMessage = @"正在连接 APP 点击分析";
     }else if ([self isVisualAutoTrackURL:URL]) {
         alertMessage = @"正在连接 APP 自定义埋点";
@@ -116,7 +116,7 @@
     return alertMessage;
 }
 
--(BOOL)isHeatMapURL:(NSURL *)url {
+-(BOOL)isVisualHeatMapURL:(NSURL *)url {
     return [url.host isEqualToString:@"heatmap"];
 }
 
@@ -193,7 +193,7 @@
     } else {
         SADebug(@"Confirmed to open visualAutoTrack ...");
         //start
-        if ([self isHeatMapURL:self.originalURL]) {
+        if ([self isVisualHeatMapURL:self.originalURL]) {
             self.heatMapConnection = [[SAHeatMapConnection alloc]initWithURL:nil];
             if (self.heatMapConnection) {
                 [self.heatMapConnection startConnectionWithFeatureCode:self.featureCode url:self.postUrl];
