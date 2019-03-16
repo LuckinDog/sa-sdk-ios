@@ -244,7 +244,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *_deviceModel;
     NSString *_osVersion;
     NSString *_userAgent;
-    NSString *_originServerUrl;
     NSString *_cookie;
 }
 
