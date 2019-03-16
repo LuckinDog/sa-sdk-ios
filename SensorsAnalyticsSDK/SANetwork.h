@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 
-- (instancetype)initWithServerURL:(NSURL *)serverURL debugMode:(SensorsAnalyticsDebugMode)debugMode;
+- (instancetype)initWithServerURL:(NSURL *)serverURL;
 
 /**
  * @abstract

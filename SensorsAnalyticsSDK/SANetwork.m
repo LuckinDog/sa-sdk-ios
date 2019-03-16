@@ -44,16 +44,15 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return self;
 }
 
-- (instancetype)initWithServerURL:(NSURL *)serverURL debugMode:(SensorsAnalyticsDebugMode)debugMode {
+- (instancetype)initWithServerURL:(NSURL *)serverURL {
     self = [super init];
     if (self) {
-        _serverURL = serverURL;
-        _debugMode = debugMode;
-        
         _securityPolicy = [SASecurityPolicy defaultPolicy];
         
         _operationQueue = [[NSOperationQueue alloc] init];
         _operationQueue.maxConcurrentOperationCount = 1;
+        
+        self.serverURL = serverURL;
     }
     return self;
 }

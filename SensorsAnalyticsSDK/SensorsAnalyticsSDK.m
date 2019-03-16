@@ -175,7 +175,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, readwrite) SensorsAnalyticsDebugMode debugMode;
 
-@property (atomic, copy) NSString *serverURL;
 @property (nonatomic, strong) SANetwork *network;
 
 @property (atomic, copy) NSString *distinctId;
@@ -386,10 +385,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }];
            
             _people = [[SensorsAnalyticsPeople alloc] init];
-
-            _debugMode = debugMode;
-            [self enableLog];
-            [self setServerUrl:serverURL];
+            
+            _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:serverURL]];
+            self.debugMode = debugMode;
             
             _flushInterval = 15 * 1000;
             _flushBulkSize = 100;
@@ -682,8 +680,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)debugModeCallBackWithParams:(NSDictionary *)params {
     
-    NSString *urlString = self.serverURL;
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
+//    NSString *urlString = self.serverURL;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.network.serverURL resolvingAgainstBaseURL:NO];
+//    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
     
     NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
     //添加参数
@@ -847,7 +846,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSString *serverUrl = [eventDict valueForKey:@"server_url"];
                 if (serverUrl != nil) {
                     SAServerUrl *h5ServerUrl = [[SAServerUrl alloc] initWithUrl:serverUrl];
-                    SAServerUrl *appServerUrl = [[SAServerUrl alloc] initWithUrl:self->_serverURL];
+                    SAServerUrl *appServerUrl = [[SAServerUrl alloc] initWithUrl:self.network.serverURL.absoluteString];
                     if (![appServerUrl check:h5ServerUrl]) {
                         return;
                     }
@@ -1269,7 +1268,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
-    if (_serverURL == nil || [_serverURL isEqualToString:@""]) {
+    if (!self.network.serverURL) {
         return;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
@@ -2590,10 +2589,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [NSThread sa_safelyRunOnMainThreadSync:^{
         BOOL verify = enableVerify;
         @try {
-            if (self->_serverURL == nil || self->_serverURL.length == 0) {
+            if (!self.network.serverURL) {
                 verify = NO;
             }
-            SAServerUrl *ss = [[SAServerUrl alloc]initWithUrl:self->_serverURL];
+            SAServerUrl *ss = [[SAServerUrl alloc] initWithUrl:self.network.serverURL.absoluteString];
             NSString *oldAgent = nil;
             if (userAgent && userAgent.length) {
                 oldAgent = userAgent;
@@ -3408,7 +3407,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
          NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
         SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
         
-        NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
+        NSString *urlString = [self getSDKContollerUrl:self.network.serverURL.absoluteString];
         if (urlString == nil || urlString.length == 0 || networkType == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO,nil);
             return;
