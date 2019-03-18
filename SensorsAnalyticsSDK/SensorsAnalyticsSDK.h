@@ -138,6 +138,22 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * HTTPS 请求证书类型。默认为 None。
+ * 请将后缀为 cer 的证书文件（注：只支持 DER 编码格式）加入工程中，设置证书类型后，会自动读取证书内容
+ *
+ * @discussion
+ *   SASSLPinningModeNone - 不使用证书
+ *   SASSLPinningModePublicKey - 使用公众证书
+ *   SASSLPinningModeCertificate - 使用自签证书
+ */
+typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
+    SASSLPinningModeNone,
+    SASSLPinningModePublicKey,
+    SASSLPinningModeCertificate,
+};
+
+/**
+ * @abstract
  * 自动追踪 (AutoTrack) 中，实现该 Protocal 的 Controller 对象可以通过接口向自动采集的事件中加入属性
  *
  * @discussion
@@ -1095,6 +1111,18 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  */
 -(void)clearKeychainData;
+
+#pragma mark - Certificates
+/**
+ * @abstract
+ * HTTPS 证书相关接口
+ * 默认使用 Bundle 中后缀为 .cer 的证书文件
+ *
+ * @param SSLPinningMode SSL 方式
+ * @param isAllowed 是否允许使用无效证书
+ * @param isValidated 是否需要验证域名
+ */
+- (void)setSSLPinningMode:(SASSLPinningMode)SSLPinningMode allowInvalidCertificates:(BOOL)isAllowed validatesDomainName:(BOOL)isValidated;
 
 @end
 

@@ -7,17 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
-    SASSLPinningModeNone,
-    SASSLPinningModePublicKey,
-    SASSLPinningModeCertificate,
-};
+#import "SensorsAnalyticsSDK.h"
 
 /**
  SASecurityPolicy was copied from AFSecurityPolicy and renamed.
  Use it the same way as AFSecurityPolicy
- 
+ Thanks AFNetworking: https://github.com/AFNetworking/AFNetworking
  */
 
 /**

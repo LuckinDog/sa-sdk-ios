@@ -3275,34 +3275,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SALogger enableLog:printLog];
 }
 
-- (NSString *)getSDKContollerUrl:(NSString *)urlString {
-    NSString *retStr = nil;
-    @try {
-        if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
-            NSURL *url = [NSURL URLWithString:urlString];
-            if (url.lastPathComponent.length > 0) {
-                url = [url URLByDeletingLastPathComponent];
-            }
-            NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-            if (componets == nil) {
-                SALog(@"URLString is malformed, nil is returned.");
-                return nil;
-            }
-            componets.query = nil;
-            componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
-            if (self.remoteConfig.v && self.remoteConfig.v.length) {
-                componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
-            }
-            retStr = componets.URL.absoluteString;
-        }
-    } @catch (NSException *e) {
-        retStr = nil;
-        SAError(@"%@ error: %@", self, e);
-    } @finally {
-        return retStr;
-    }
-}
-
 - (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
         self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
@@ -3473,6 +3445,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 #endif
 
+}
+
+- (void)setSSLPinningMode:(SASSLPinningMode)SSLPinningMode allowInvalidCertificates:(BOOL)isAllowed validatesDomainName:(BOOL)isValidated {
+    SASecurityPolicy *securityPolicy = [SASecurityPolicy policyWithPinningMode:SSLPinningMode];
+    securityPolicy.allowInvalidCertificates = isAllowed;
+    securityPolicy.validatesDomainName = isValidated;
+    
+    self.network.securityPolicy = securityPolicy;
 }
 
 @end
