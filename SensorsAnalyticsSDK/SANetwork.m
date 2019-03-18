@@ -12,7 +12,7 @@
 #import "NSString+HashCode.h"
 #import "SAGzipUtility.h"
 #import "SALogger.h"
-
+#import "JSONUtil.h"
 
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
@@ -124,11 +124,11 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 #pragma mark - build
 // 1. 先完成这一系列Json字符串的拼接
-- (NSString *)buildJSONStringWithEvents:(NSArray<NSString *> *)events {
+- (NSString *)buildFlushJSONStringWithEvents:(NSArray<NSString *> *)events {
     return [NSString stringWithFormat:@"[%@]", [events componentsJoinedByString:@","]];
 }
 
-- (NSURLRequest *)buildRequestWithJSONString:(NSString *)jsonString HTTPMethod:(NSString *)HTTPMethod {
+- (NSURLRequest *)buildFlushRequestWithJSONString:(NSString *)jsonString HTTPMethod:(NSString *)HTTPMethod {
     NSString *postBody;
     @try {
         // 2. 使用gzip进行压缩
@@ -159,9 +159,51 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return request;
 }
 
-#pragma mark - flush
+- (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, id> *)params {
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
+    
+    //添加参数
+    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
+    [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:obj];
+        [queryItems addObject:queryItem];
+    }];
+    urlComponents.queryItems = queryItems;
+    return urlComponents.URL;
+}
+
+- (NSURLRequest *)buildDebugModeCallbackRequestWithURL:(NSURL *)url distinctId:(NSString *)distinctId {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    request.timeoutInterval = 30;
+    [request setHTTPMethod:@"POST"];
+    
+    NSDictionary *callData = @{@"distinct_id": distinctId};
+    JSONUtil *jsonUtil = [[JSONUtil alloc] init];
+    NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    return request;
+}
+
+- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithVersion:(NSString *)version {
+    NSURL *url = _serverURL.lastPathComponent.length > 0 ? [_serverURL URLByDeletingLastPathComponent] : _serverURL;
+    NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+    if (componets == nil) {
+        SALog(@"URLString is malformed, nil is returned.");
+        return nil;
+    }
+    componets.query = nil;
+    componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+    if (version.length) {
+        componets.query = [NSString stringWithFormat:@"v=%@", version];
+    }
+    return [NSURLRequest requestWithURL:componets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
+}
+
+#pragma mark - request
 - (BOOL)flushEvents:(NSArray<NSString *> *)events {
-    NSString *jsonString = [self buildJSONStringWithEvents:events];
+    NSString *jsonString = [self buildFlushJSONStringWithEvents:events];
     
     __block BOOL flushSuccess;
     dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
@@ -201,13 +243,52 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         dispatch_semaphore_signal(flushSemaphore);
     };
     
-    NSURLRequest *request = [self buildRequestWithJSONString:jsonString HTTPMethod:@"POST"];
+    NSURLRequest *request = [self buildFlushRequestWithJSONString:jsonString HTTPMethod:@"POST"];
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
     [task resume];
     
     dispatch_semaphore_wait(flushSemaphore, DISPATCH_TIME_FOREVER);
     
     return flushSuccess;
+}
+
+- (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
+    NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
+    NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
+
+    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
+        if (statusCode == 200) {
+            SALog(@"config debugMode CallBack success");
+        } else {
+            SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@", statusCode, url);
+        }
+    }];
+    [task resume];
+    return task;
+}
+
+- (NSURLSessionTask *)functionalManagermentConfigWithVersion:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
+    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithVersion:version];
+    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (!completion) {
+            return ;
+        }
+        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+        BOOL success = statusCode == 200 || statusCode == 304;
+        NSDictionary<NSString *, id> *config = nil;
+        @try{
+            if (statusCode == 200 && data.length) {
+                config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+            }
+        } @catch (NSException *e) {
+            SAError(@"%@ error: %@", self, e);
+            success = NO;
+        }
+        completion(success, config);
+    }];
+    [task resume];
+    return task;
 }
 
 #pragma mark - NSURLSessionDelegate

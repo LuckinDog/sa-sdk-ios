@@ -18,6 +18,9 @@
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
+//    NSURL *url = [NSURL URLWithString:@"http://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
+    _network = [[SANetwork alloc] initWithServerURL:url];
 }
 
 - (void)tearDown {
@@ -37,6 +40,7 @@
 }
 
 #pragma mark - Certificate
+// 测试项目中有两个证书。cert.der.cer DER 格式的证书；cert.cer1 为 CER 格式的原始证书，若修改后缀为 cer，会崩溃
 - (void)testCustomCertificate {
     NSURL *url = [NSURL URLWithString:@"https://test.kbyte.cn:4106/sa"];
     SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
@@ -52,13 +56,11 @@
 }
 
 - (void)testHTTPSServerURL {
-    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
-    SANetwork *network = [[SANetwork alloc] initWithServerURL:url];    
-    BOOL success = [network flushEvents:@[@"{\"distinct_id\":\"1231456789\"}"]];
+    BOOL success = [self.network flushEvents:@[@"{\"distinct_id\":\"1231456789\"}"]];
     XCTAssertTrue(success, @"Error");
 }
 
-#pragma mark - Flush
+#pragma mark - Request
 - (NSArray<NSString *> *)createEventStringWithTime:(NSInteger)time {
     NSMutableArray *strings = [NSMutableArray arrayWithCapacity:50];
     for (NSInteger i = 0; i < 50; i ++) {
@@ -68,34 +70,73 @@
     return strings;
 }
 
-- (void)testExample {
+- (void)testFlushEvents {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
-    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
-//    NSURL *url = [NSURL URLWithString:@"http://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
-    SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
     
-    //1: 创建XCTestExpectation对象
     XCTestExpectation *expect = [self expectationWithDescription:@"请求超时timeout!"];
     expect.expectedFulfillmentCount = 2;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        BOOL success1 = [network flushEvents:[self createEventStringWithTime:[NSDate date].timeIntervalSince1970 * 1000]];
-        BOOL success2 = [network flushEvents:[self createEventStringWithTime:[NSDate date].timeIntervalSince1970 * 1000 - 70000]];
+        BOOL success1 = [self.network flushEvents:[self createEventStringWithTime:[NSDate date].timeIntervalSince1970 * 1000]];
+        BOOL success2 = [self.network flushEvents:[self createEventStringWithTime:[NSDate date].timeIntervalSince1970 * 1000 - 70000]];
         XCTAssertTrue(success1 && success2, @"Error");
         
         [expect fulfill];
     });
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        BOOL success1 = [network flushEvents:[self createEventStringWithTime:[NSDate date].timeIntervalSince1970 * 1000 - 70000]];
-        BOOL success2 = [network flushEvents:[self createEventStringWithTime:[NSDate date].timeIntervalSince1970 * 1000]];
+        BOOL success1 = [self.network flushEvents:[self createEventStringWithTime:[NSDate date].timeIntervalSince1970 * 1000 - 70000]];
+        BOOL success2 = [self.network flushEvents:[self createEventStringWithTime:[NSDate date].timeIntervalSince1970 * 1000]];
         XCTAssertTrue(success1 && success2, @"Error");
         
         [expect fulfill];
     });
     
     [self waitForExpectationsWithTimeout:45 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
+}
+
+- (void)testDebugModeCallback {
+    XCTestExpectation *expect = [self expectationWithDescription:@"请求超时timeout!"];
+    
+    NSURLSessionTask *task = [self.network debugModeCallbackWithDistinctId:@"1234567890qwe" params:@{@"key": @"value"}];
+    NSURL *url = task.currentRequest.URL;
+    XCTAssertTrue([url.absoluteString rangeOfString:@"key=value"].location != NSNotFound);
+    XCTAssertTrue([url.absoluteString rangeOfString:self.network.serverURL.absoluteString].location != NSNotFound);
+    
+    // 请求超时时间为 30s
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (task.state == NSURLSessionTaskStateRunning) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                XCTAssertNil(task.error);
+                [expect fulfill];
+            });
+            return;
+        }
+        XCTAssertNil(task.error);
+        [expect fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
+}
+
+- (void)testFunctionalManagermentConfig {
+    NSString *version = @"1.2.qqq0";
+    
+    XCTestExpectation *expect = [self expectationWithDescription:@"请求超时timeout!"];
+    NSURLSessionTask *task = [self.network functionalManagermentConfigWithVersion:version completion:^(BOOL success, NSDictionary<NSString *,id> * _Nonnull config) {
+        XCTAssertTrue(success);
+        [expect fulfill];
+    }];
+    NSURL *url = task.currentRequest.URL;
+    NSString *string = [NSString stringWithFormat:@"v=%@", version];
+    XCTAssertTrue([url.absoluteString rangeOfString:string].location != NSNotFound);
+    
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
         XCTAssertNil(error);
     }];
 }

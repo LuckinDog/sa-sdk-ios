@@ -18,9 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
  The security policy used by created session to evaluate server trust for secure connections. `AFURLSessionManager` uses the `defaultPolicy` unless otherwise specified.
  */
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
-
+/// 服务器的 URL
 @property (nonatomic, strong) NSURL *serverURL;
-
+/// debug mode
 @property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 
 - (instancetype)initWithServerURL:(NSURL *)serverURL;
@@ -52,7 +52,26 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)flushEvents:(NSArray<NSString *> *)events;
 
+/**
+ 设置 DebugMode 时回调请求方法
+
+ @param distinctId 设备 ID 或 登录 ID
+ @param params 扫码得到的参数
+ @return request task
+ */
+- (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params;
+
+/**
+ 请求远程配置
+
+ @param version 远程配置的 version
+ @param completion 结束的回调
+ @return request task
+ */
+- (NSURLSessionTask *)functionalManagermentConfigWithVersion:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
+
 @end
+
 
 @interface SANetwork (SessionAndTask)
 

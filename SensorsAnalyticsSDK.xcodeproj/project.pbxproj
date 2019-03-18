@@ -185,7 +185,7 @@
 		A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E3889E1D509B7100F6B9FC /* SAReachability.m */; };
 		A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3EEDCE81C4E084200D1362F /* DemoController.m */; };
 		A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
-		CB143B44223B528B00A2CBF2 /* cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB143B43223B528B00A2CBF2 /* cert.cer */; };
+		CB143B44223B528B00A2CBF2 /* cert.cer1 in Resources */ = {isa = PBXBuildFile; fileRef = CB143B43223B528B00A2CBF2 /* cert.cer1 */; };
 		CB143B45223B606A00A2CBF2 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
 		CB143B46223B607700A2CBF2 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
 		CB143B47223BA17700A2CBF2 /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */; };
@@ -194,11 +194,11 @@
 		CB164697223A4D1B003AA635 /* SASecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = CB164695223A4D1B003AA635 /* SASecurityPolicy.h */; };
 		CB2CDD3022324875000C1F92 /* SANetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = CB2CDD2E22324875000C1F92 /* SANetwork.h */; };
 		CB2CDD3122324875000C1F92 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SANetwork.m */; };
-		CB2D018922379F7400A958C5 /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2D018822379F7400A958C5 /* SensorsAnalyticsTests.m */; };
 		CB2D018B22379F7400A958C5 /* libSensorsAnalyticsSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D5CA7771B43E92D00D7ACB7 /* libSensorsAnalyticsSDK.a */; };
 		CB2D019222379FB700A958C5 /* SensorsAnalyticsNetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2D019122379FB700A958C5 /* SensorsAnalyticsNetworkTests.m */; };
 		CB2D01932237A10800A958C5 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SANetwork.m */; };
-		CB2D019C2237B79100A958C5 /* cert.der.cer1 in Resources */ = {isa = PBXBuildFile; fileRef = CB2D01992237B79100A958C5 /* cert.der.cer1 */; };
+		CB2D019C2237B79100A958C5 /* cert.der.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB2D01992237B79100A958C5 /* cert.der.cer */; };
+		CB54EF8B223D0E95007E648E /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB54EF8A223D0E95007E648E /* SensorsAnalyticsTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -402,16 +402,16 @@
 		A3EEDCE71C4E081F00D1362F /* DemoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoController.h; sourceTree = "<group>"; };
 		A3EEDCE81C4E084200D1362F /* DemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoController.m; sourceTree = "<group>"; };
 		A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
-		CB143B43223B528B00A2CBF2 /* cert.cer */ = {isa = PBXFileReference; lastKnownFileType = text; path = cert.cer; sourceTree = "<group>"; };
+		CB143B43223B528B00A2CBF2 /* cert.cer1 */ = {isa = PBXFileReference; lastKnownFileType = text; path = cert.cer1; sourceTree = "<group>"; };
 		CB164694223A4D1A003AA635 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		CB164695223A4D1B003AA635 /* SASecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASecurityPolicy.h; sourceTree = "<group>"; };
 		CB2CDD2E22324875000C1F92 /* SANetwork.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SANetwork.h; sourceTree = "<group>"; };
 		CB2CDD2F22324875000C1F92 /* SANetwork.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		CB2D018622379F7300A958C5 /* SensorsAnalyticsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SensorsAnalyticsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		CB2D018822379F7400A958C5 /* SensorsAnalyticsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsTests.m; sourceTree = "<group>"; };
 		CB2D018A22379F7400A958C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB2D019122379FB700A958C5 /* SensorsAnalyticsNetworkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsNetworkTests.m; sourceTree = "<group>"; };
-		CB2D01992237B79100A958C5 /* cert.der.cer1 */ = {isa = PBXFileReference; lastKnownFileType = file; name = cert.der.cer1; path = SensorsAnalyticsSDK/cert.der.cer1; sourceTree = SOURCE_ROOT; };
+		CB2D01992237B79100A958C5 /* cert.der.cer */ = {isa = PBXFileReference; lastKnownFileType = file; name = cert.der.cer; path = SensorsAnalyticsSDK/cert.der.cer; sourceTree = SOURCE_ROOT; };
+		CB54EF8A223D0E95007E648E /* SensorsAnalyticsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -562,7 +562,7 @@
 				0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */,
 				0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */,
 				0027C83C1FA201CE002EA41B /* SAHeatMapSnapshotMessage.m */,
-				CB2CDD2D223247C9000C1F92 /* Flush */,
+				CB2CDD2D223247C9000C1F92 /* Network */,
 				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
 				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				4D431F5D222D0E6800FCD8E4 /* SAAlertController.h */,
@@ -671,7 +671,7 @@
 			path = SensorsDataSwiftDemo;
 			sourceTree = "<group>";
 		};
-		CB2CDD2D223247C9000C1F92 /* Flush */ = {
+		CB2CDD2D223247C9000C1F92 /* Network */ = {
 			isa = PBXGroup;
 			children = (
 				CB164695223A4D1B003AA635 /* SASecurityPolicy.h */,
@@ -679,15 +679,15 @@
 				CB2CDD2E22324875000C1F92 /* SANetwork.h */,
 				CB2CDD2F22324875000C1F92 /* SANetwork.m */,
 			);
-			name = Flush;
+			name = Network;
 			sourceTree = "<group>";
 		};
 		CB2D018722379F7400A958C5 /* SensorsAnalyticsTests */ = {
 			isa = PBXGroup;
 			children = (
-				CB2D01992237B79100A958C5 /* cert.der.cer1 */,
-				CB143B43223B528B00A2CBF2 /* cert.cer */,
-				CB2D018822379F7400A958C5 /* SensorsAnalyticsTests.m */,
+				CB2D01992237B79100A958C5 /* cert.der.cer */,
+				CB143B43223B528B00A2CBF2 /* cert.cer1 */,
+				CB54EF8A223D0E95007E648E /* SensorsAnalyticsTests.m */,
 				CB2D019122379FB700A958C5 /* SensorsAnalyticsNetworkTests.m */,
 				CB2D018A22379F7400A958C5 /* Info.plist */,
 			);
@@ -977,8 +977,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB143B44223B528B00A2CBF2 /* cert.cer in Resources */,
-				CB2D019C2237B79100A958C5 /* cert.der.cer1 in Resources */,
+				CB143B44223B528B00A2CBF2 /* cert.cer1 in Resources */,
+				CB2D019C2237B79100A958C5 /* cert.der.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1121,8 +1121,8 @@
 			files = (
 				CB2D01932237A10800A958C5 /* SANetwork.m in Sources */,
 				CB143B45223B606A00A2CBF2 /* SASecurityPolicy.m in Sources */,
-				CB2D018922379F7400A958C5 /* SensorsAnalyticsTests.m in Sources */,
 				CB2D019222379FB700A958C5 /* SensorsAnalyticsNetworkTests.m in Sources */,
+				CB54EF8B223D0E95007E648E /* SensorsAnalyticsTests.m in Sources */,
 				CB143B47223BA17700A2CBF2 /* NSString+HashCode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

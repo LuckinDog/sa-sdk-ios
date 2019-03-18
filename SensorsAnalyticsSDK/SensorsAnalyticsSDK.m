@@ -624,8 +624,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
                 self.debugMode = debugMode;
                 alterViewBlock();
-                
-                [self debugModeCallBackWithParams:params];
+                [self.network debugModeCallbackWithDistinctId:[self getBestId] params:params];
             };
             [alertController addActionWithTitle:@"开启调试模式（导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
                 handler(SensorsAnalyticsDebugAndTrack);
@@ -639,42 +638,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @finally {
         }
     });
-}
-
-- (void)debugModeCallBackWithParams:(NSDictionary *)params {
-    
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.network.serverURL resolvingAgainstBaseURL:NO];
-    
-    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
-    //添加参数
-    for(id key in params) {
-        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:[params objectForKey:key]];
-        [queryItems addObject:queryItem];
-    }
-    urlComponents.queryItems = queryItems;
-    NSURL *callBackUrl = [urlComponents URL];
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:callBackUrl];
-    request.timeoutInterval = 30;
-    [request setHTTPMethod:@"POST"];
-    
-    NSDictionary *callData = @{@"distinct_id":[self getBestId]};
-    JSONUtil *jsonUtil = [[JSONUtil alloc] init];
-    NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
-        NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
-        if (statusCode == 200) {
-            SALog(@"config debugMode CallBack success");
-        }else {
-            SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
-        }
-    }];
-    [task resume];
 }
 
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
@@ -3429,46 +3392,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)requestFunctionalManagermentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
     @try {
-         NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
+        NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
         SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
-        
-        NSString *urlString = [self getSDKContollerUrl:self.network.serverURL.absoluteString];
-        if (urlString == nil || urlString.length == 0 || networkType == SensorsAnalyticsNetworkTypeNONE) {
-            completion(NO,nil);
+        if (networkType == SensorsAnalyticsNetworkTypeNONE) {
+            completion(NO, nil);
             return;
         }
-        NSURL *url = [NSURL URLWithString:urlString];
-        NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
-        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            @try{
-                NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
-                if (statusCode == 200) {
-                    NSError *err = NULL;
-                    NSDictionary *dict = nil;
-                    if (data !=nil && data.length ) {
-                        dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
-                    }
-                    if (completion) {
-                        completion(YES,dict);
-                    }
-                } else if (statusCode == 304) {
-                    //304 config 没有更新
-                    if (completion) {
-                        completion(YES,nil);
-                    }
-                } else {
-                    if (completion) {
-                        completion(NO,nil);
-                    }
-                }
-            } @catch (NSException *e) {
-                SAError(@"%@ error: %@", self, e);
-                if (completion) {
-                    completion(NO,nil);
-                }
-            }
-        }];
-        [task resume];
+        
+        [self.network functionalManagermentConfigWithVersion:self.remoteConfig.v completion:completion];
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
     }
