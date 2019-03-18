@@ -29,11 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 -(NSDictionary *) sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
 
-//@optional
-//-(NSDictionary *) sensorsAnalytics_alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-//
-//@optional
-//-(NSDictionary *) sensorsAnalytics_actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
 @end
 
 @interface UIImage (SensorsAnalytics)
