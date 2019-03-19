@@ -301,8 +301,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
 /**
  * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
- *
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
+ 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  * @param serverURL 收集事件的 URL
  * @param launchOptions launchOptions
  *
@@ -865,6 +865,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 修改入库之前的事件属性
+ *
+ * @param callback 传入事件名称和事件属性，可以修改或删除事件属性。请返回一个 BOOL 值，true 表示事件将入库， false 表示事件将被抛弃
+ */
+- (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback;
+
+/**
+ * @abstract
  * 用来设置每个事件都带有的一些公共属性
  *
  * @discussion
@@ -896,7 +904,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
  * @param dynamicSuperProperties block 用来返回事件的动态公共属性
  */
--(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
 
 /**
  * @abstract
