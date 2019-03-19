@@ -200,7 +200,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
 
-@property (nonatomic,copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
+@property (nonatomic, copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
+@property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
 ///是否为被动启动
 @property(nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
@@ -901,20 +902,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
 
-            SALog(@"\n【track event from H5】:\n%@", eventDict);
+            NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
+            if (!enqueueEvent) {
+                return;
+            }
+            SALog(@"\n【track event from H5】:\n%@", enqueueEvent);
 
             if([type isEqualToString:@"track_signup"]) {
+
                 NSString *newLoginId = [eventDict objectForKey:SA_EVENT_DISTINCT_ID];
+
                 if (![newLoginId isEqualToString:[self loginId]]) {
                     self.loginId = newLoginId;
                     [self archiveLoginId];
                     if (![newLoginId isEqualToString:[self distinctId]]) {
                         self.originalId = [self distinctId];
-                        [self enqueueWithType:type andEvent:[eventDict copy]];
+                        [self enqueueWithType:type andEvent:[enqueueEvent copy]];
                     }
                 }
             } else {
-                [self enqueueWithType:type andEvent:[eventDict copy]];
+                [self enqueueWithType:type andEvent:[enqueueEvent copy]];
             }
         } @catch (NSException *exception) {
             SAError(@"%@: %@", self, exception);
@@ -1545,9 +1552,51 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return filepath;
 }
 
+- (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
+    if (!self.trackEventCallback) {
+        return [e copy];
+    }
+    NSMutableDictionary *event = [e mutableCopy];
+    
+    NSDictionary<NSString *, id> *originProperties = event[@"properties"];
+    // can only modify "$device_id"
+    NSArray *modifyKeys = @[@"$device_id"];
+    BOOL(^canModifyPropertyKeys)(NSString *key) = ^BOOL(NSString *key) {
+        return (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]);
+    };
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    // 添加可修改的事件属性
+    [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if (canModifyPropertyKeys(key)) {
+            properties[key] = obj;
+        }
+    }];
+    BOOL isIncluded = self.trackEventCallback(event[@"event"], properties);
+    if (!isIncluded) {
+        SALog(@"\n【track event】: %@ can not enter database.", event[@"event"]);
+        return nil;
+    }
+    // 校验 properties
+    if (![self assertPropertyTypes:&properties withEventType:type]) {
+        SAError(@"%@ failed to track event.", self);
+        return nil;
+    }
+    // assert 可能修改 properties 的类型
+    properties = [properties mutableCopy];
+    // 添加不可修改的事件属性，得到修改之后的所有属性
+    [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if (!canModifyPropertyKeys(key)) {
+            properties[key] = obj;
+        }
+    }];
+    // 对 properties 重新赋值
+    event[@"properties"] = properties;
+
+    return event;
+}
+
 - (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:e];
-    [self.messageQueue addObejct:event withType:@"Post"];
+    [self.messageQueue addObejct:e withType:@"Post"];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
@@ -1807,9 +1856,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
 
-        SALog(@"\n【track event】:\n%@", e);
+        NSDictionary *eventDic = [self willEnqueueWithType:type andEvent:e];
+        if (!eventDic) {
+            return;
+        }
+        SALog(@"\n【track event】:\n%@", eventDic);
 
-        [self enqueueWithType:type andEvent:[e copy]];
+        [self enqueueWithType:type andEvent:eventDic];
 
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
@@ -2331,9 +2384,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
--(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
     dispatch_async(self.serialQueue, ^{
         self.dynamicSuperProperties = dynamicSuperProperties;
+    });
+}
+
+- (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
+    if (!callback) {
+        return;
+    }
+    SALog(@"SDK have set trackEvent callBack");
+    dispatch_async(self.serialQueue, ^{
+        self.trackEventCallback = callback;
     });
 }
 
