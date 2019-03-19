@@ -669,39 +669,49 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)debugModeCallBackWithParams:(NSDictionary *)params {
     
-    NSString *urlString = self.serverURL;
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
-    
-    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
-    //添加参数
-    for(id key in params) {
-        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:[params objectForKey:key]];
-        [queryItems addObject:queryItem];
-    }
-    urlComponents.queryItems = queryItems;
-    NSURL *callBackUrl = [urlComponents URL];
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:callBackUrl];
-    request.timeoutInterval = 30;
-    [request setHTTPMethod:@"POST"];
-    
-    NSDictionary *callData = @{@"distinct_id":[self getBestId]};
-    JSONUtil *jsonUtil = [[JSONUtil alloc] init];
-    NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
-        NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
-        if (statusCode == 200) {
-            SALog(@"config debugMode CallBack success");
-        }else {
-            SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
+    @try {
+        NSString *urlString = self.serverURL;
+        if (!urlString) {
+            SAError(@"serverURL error，Please check the serverURL");
+            return;
         }
-    }];
-    [task resume];
+        
+        NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
+        
+        NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
+        //添加参数
+        for(id key in params) {
+            NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:[params objectForKey:key]];
+            [queryItems addObject:queryItem];
+        }
+        urlComponents.queryItems = queryItems;
+        NSURL *callBackUrl = [urlComponents URL];
+        
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:callBackUrl];
+        request.timeoutInterval = 30;
+        [request setHTTPMethod:@"POST"];
+        
+        NSDictionary *callData = @{@"distinct_id":[self getBestId]};
+        JSONUtil *jsonUtil = [[JSONUtil alloc] init];
+        NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+        
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            
+            NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
+            if (statusCode == 200) {
+                SALog(@"config debugMode CallBack success");
+            }else {
+                SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
+            }
+        }];
+        [task resume];
+        
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
 }
 
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
