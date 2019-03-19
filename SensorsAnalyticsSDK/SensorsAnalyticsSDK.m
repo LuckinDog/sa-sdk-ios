@@ -670,13 +670,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)debugModeCallBackWithParams:(NSDictionary *)params {
     
     @try {
-        NSString *urlString = self.serverURL;
-        if (!urlString) {
+        if (!self.serverURL) {
             SAError(@"serverURL error，Please check the serverURL");
             return;
         }
         
-        NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
+        NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self.serverURL];
         
         NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
         //添加参数
