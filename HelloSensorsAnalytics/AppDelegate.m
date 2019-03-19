@@ -20,7 +20,10 @@ static NSString* Sa_Default_ServerUrl = @"http://sdk-test.cloud.sensorsdata.cn:8
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:Sa_Default_ServerUrl andLaunchOptions:launchOptions];
+    
+    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerUrl:Sa_Default_ServerUrl];
+    options.launchOptions = launchOptions;
+    [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
 
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
