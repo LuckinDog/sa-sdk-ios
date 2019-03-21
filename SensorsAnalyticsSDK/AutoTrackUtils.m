@@ -165,41 +165,22 @@
     
     @try {
         
+        if (rootView.isHidden || rootView.sensorsAnalyticsIgnoreView) {
+            return nil;
+        }
+        
         NSMutableString *elementContent = [NSMutableString string];
         
-        if (rootView.sensorsAnalyticsIgnoreView) {
-            return elementContent;
-        }
-        
-        if (rootView.isHidden) {
-            return elementContent;
-        }
-        
-        if ([rootView isKindOfClass:[UIButton class]]) {
-            UIButton *button = (UIButton *)rootView;
-            NSString *currentTitle = button.sa_elementContent;
-            if (currentTitle != nil && currentTitle.length) {
-                [elementContent appendString:currentTitle];
-            }
-        } else if ([rootView isKindOfClass:[UILabel class]]) {
-            UILabel *label = (UILabel *)rootView;
-            NSString *currentTitle = label.sa_elementContent;
-            if (currentTitle != nil && currentTitle.length) {
-                [elementContent appendString:currentTitle];
-            }
-        } else if ([rootView isKindOfClass:[UITextView class]]) {
-            UITextView *textView = (UITextView *)rootView;
-            NSString *currentTitle = textView.sa_elementContent;
-            if (currentTitle != nil && currentTitle.length) {
-                [elementContent appendString:currentTitle];
-            }
+        NSString *currentTitle = rootView.sa_elementContent;
+        if (currentTitle.length > 0) {
+            [elementContent appendString:currentTitle];
             
         } else if ([rootView isKindOfClass:NSClassFromString(@"RTLabel")]) {//RTLabel:https://github.com/honcheng/RTLabel
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
             if ([rootView respondsToSelector:NSSelectorFromString(@"text")]) {
                 NSString *title = [rootView performSelector:NSSelectorFromString(@"text")];
-                if (title != nil && ![@"" isEqualToString:title]) {
+                if (title.length > 0) {
                     [elementContent appendString:title];
                 }
             }
@@ -209,7 +190,7 @@
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
             if ([rootView respondsToSelector:NSSelectorFromString(@"text")]) {
                 NSString *title = [rootView performSelector:NSSelectorFromString(@"text")];
-                if (title != nil && ![@"" isEqualToString:title]) {
+                if (title.length > 0) {
                     [elementContent appendString:title];
                 }
             }

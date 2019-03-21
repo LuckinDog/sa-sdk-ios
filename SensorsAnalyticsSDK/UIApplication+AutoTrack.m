@@ -259,12 +259,9 @@
                             [properties setValue:currentTitle forKey:@"$element_content"];
                         } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-                            UIImage *image = button.currentImage;
-                            if (image) {
-                                NSString *imageName = image.sensorsAnalyticsImageName;
-                                if (imageName != nil) {
-                                    [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
-                                }
+                            NSString *imageName = button.currentImage.sensorsAnalyticsImageName;
+                            if (imageName.length > 0) {
+                                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
                             }
 #endif
                         }
@@ -274,22 +271,17 @@
                     if ([from isKindOfClass:[UIButton class]]) {//UIButton
                         UIButton *button = (UIButton *)from;
                         [properties setValue:@"UIButton" forKey:@"$element_type"];
-                        if (button) {
-                            
-                            NSString *currentTitle = [AutoTrackUtils contentFromView:button];
-                            if (currentTitle.length > 0) {
-                                [properties setValue:currentTitle forKey:@"$element_content"];
-                            } else {
+                        
+                        NSString *currentTitle = [AutoTrackUtils contentFromView:button];
+                        if (currentTitle.length > 0) {
+                            [properties setValue:currentTitle forKey:@"$element_content"];
+                        } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-                                UIImage *image = button.currentImage;
-                                if (image) {
-                                    NSString *imageName = image.sensorsAnalyticsImageName;
-                                    if (imageName.length > 0) {
-                                        [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
-                                    }
-                                }
-#endif
+                            NSString *imageName = button.currentImage.sensorsAnalyticsImageName;
+                            if (imageName.length > 0) {
+                                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
                             }
+#endif
                         }
                     }
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
