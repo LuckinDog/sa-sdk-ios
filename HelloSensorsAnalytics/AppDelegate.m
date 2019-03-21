@@ -9,7 +9,6 @@
 #import "AppDelegate.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
-#import "SAConstant.h"
 
 static NSString* Sa_Default_ServerUrl = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
