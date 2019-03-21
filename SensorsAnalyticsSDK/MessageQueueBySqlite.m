@@ -17,7 +17,7 @@
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SAConstant.h"
+#import "SAConstants.h"
 #define MAX_MESSAGE_SIZE 10000   // 最多缓存10000条
 
 @implementation MessageQueueBySqlite {

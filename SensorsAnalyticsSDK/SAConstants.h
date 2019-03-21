@@ -1,5 +1,5 @@
 //
-//  SAConstant.h
+//  SAConstants.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/8/9.

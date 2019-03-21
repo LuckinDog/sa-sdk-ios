@@ -18,7 +18,7 @@
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
-#import "SAConstant.h"
+#import "SAConstants.h"
 
 @implementation UIGestureRecognizer (AutoTrack)
 
