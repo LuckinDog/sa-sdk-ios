@@ -170,22 +170,22 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- 指定初始化方法，设置 serverUrl
+ 指定初始化方法，设置 serverURL
 
  @param serverUrl 数据接收地址
  @return 配置对象
  */
-- (instancetype)initWithServerUrl:(nonnull NSString *)serverUrl NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithServerURL:(nonnull NSString *)serverURL NS_DESIGNATED_INITIALIZER;
 
 /**
  请求配置地址，默认从 ServerUrl 解析
  */
-@property(nonatomic,copy) NSString *remoteConfigUrl;
+@property(nonatomic, copy) NSString *remoteConfigURL;
 
 /**
  App 启动的 launchOptions
  */
-@property(nonatomic,copy) NSDictionary<NSString *, id> *launchOptions;
+@property(nonatomic, copy) NSDictionary<NSString *, id> *launchOptions;
 
 @end
 

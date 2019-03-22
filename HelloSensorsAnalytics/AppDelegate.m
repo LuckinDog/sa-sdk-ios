@@ -10,7 +10,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
 
-static NSString* Sa_Default_ServerUrl = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
+static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
 @interface AppDelegate ()
 
@@ -21,7 +21,7 @@ static NSString* Sa_Default_ServerUrl = @"http://sdk-test.cloud.sensorsdata.cn:8
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
     
-    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerUrl:Sa_Default_ServerUrl];
+    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:Sa_Default_ServerURL];
     options.launchOptions = launchOptions;
     [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
 

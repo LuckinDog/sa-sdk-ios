@@ -170,15 +170,15 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 /**
  数据接收地址 Url
  */
-@property(nonatomic,copy) NSString *serverUrl;
+@property(nonatomic,copy) NSString *serverURL;
 @end
 
 @implementation SAConfigOptions
 
-- (instancetype)initWithServerUrl:(nonnull NSString *)serverUrl {
+- (instancetype)initWithServerURL:(nonnull NSString *)serverURL {
     self = [super init];
     if (self) {
-        _serverUrl = serverUrl;
+        _serverURL = serverURL;
     }
     return self;
 }
@@ -303,7 +303,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] initWithServerURL:configOptions.serverUrl
+        sharedInstance = [[self alloc] initWithServerURL:configOptions.serverURL
                                         andLaunchOptions:configOptions.launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         
@@ -586,9 +586,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @try {
         NSURLComponents *urlComponents = nil;
         
-        if (self.configOptions.remoteConfigUrl) {
+        if (self.configOptions.remoteConfigURL) {
             
-            NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigUrl];
+            NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
             urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         } else {
             
