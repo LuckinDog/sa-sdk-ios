@@ -16,6 +16,7 @@
 #import "SALogger.h"
 #import "UIView+SAHelpers.h"
 #import "UIView+AutoTrack.h"
+#import "SAConstants.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
 @implementation AutoTrackUtils
@@ -291,11 +292,11 @@
 
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
-        [properties setValue:@"UICollectionView" forKey:@"$element_type"];
+        [properties setValue:@"UICollectionView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
         //ViewID
         if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
 
         UIViewController *viewController = [view sensorsAnalyticsViewController];
@@ -311,16 +312,16 @@
 
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:@"$screen_name"];
+            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
 
             NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
             if (controllerTitle) {
-                [properties setValue:controllerTitle forKey:@"$title"];
+                [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
             }
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:@"$element_position"];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
@@ -385,12 +386,12 @@
                     viewPath = [viewPath stringByAppendingString:@"/"];
                 }
             }
-            [properties setValue:viewPath forKey:@"$element_selector"];
+            [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
         }
         
         NSString *elementContent = [self contentFromView:cell];
         if (elementContent.length > 0) {
-            [properties setValue:elementContent forKey:@"$element_content"];
+            [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
         }
 
         //View Properties
@@ -409,7 +410,7 @@
             SAError(@"%@ error: %@", self, exception);
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -446,11 +447,11 @@
 
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
-        [properties setValue:@"UITableView" forKey:@"$element_type"];
+        [properties setValue:@"UITableView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
         //ViewID
         if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
 
         UIViewController *viewController = [tableView sensorsAnalyticsViewController];
@@ -466,16 +467,16 @@
 
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:@"$screen_name"];
+            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
 
             NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
             if (controllerTitle) {
-                [properties setValue:controllerTitle forKey:@"$title"];
+                [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
             }
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:@"$element_position"];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
@@ -542,12 +543,12 @@
             if (range.length) {
                 [viewPath deleteCharactersInRange:range];
             }
-            [properties setValue:viewPath forKey:@"$element_selector"];
+            [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
         }
 
         elementContent = [self contentFromView:cell];
         if (elementContent.length > 0) {
-            [properties setValue:elementContent forKey:@"$element_content"];
+            [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
         }
 
         //View Properties
@@ -566,7 +567,7 @@
             SAError(@"%@ error: %@", self, exception);
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -598,7 +599,7 @@
                 viewPath = [viewPath stringByAppendingString:@"/"];
             }
         }
-        [properties setValue:viewPath forKey:@"$element_selector"];
+        [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
