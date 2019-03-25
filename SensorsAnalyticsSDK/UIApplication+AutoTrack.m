@@ -263,47 +263,32 @@
                             [properties setValue:currentTitle forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                         } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-                            UIImage *image = button.currentImage;
-                            if (image) {
-                                NSString *imageName = image.sensorsAnalyticsImageName;
-                                if (imageName != nil) {
-                                    [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                                }
+
+                            NSString *imageName = button.currentImage.sensorsAnalyticsImageName;
+                            if (imageName.length > 0) {
+                                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                             }
 #endif
                         }
                     }
                 } else
 #endif
-                if ([from isKindOfClass:[UIButton class]]) {//UIButton
-                    UIButton *button = (UIButton *)from;
-                    [properties setValue:@"UIButton" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-                    if (button != nil) {
-                        NSString *currentTitle = button.sa_elementContent;
-                        if (currentTitle != nil) {
+                    if ([from isKindOfClass:[UIButton class]]) {//UIButton
+                        UIButton *button = (UIButton *)from;
+                        [properties setValue:@"UIButton" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
+                        
+                        NSString *currentTitle = [AutoTrackUtils contentFromView:button];
+                        if (currentTitle.length > 0) {
                             [properties setValue:currentTitle forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                         } else {
-                            if (button.subviews.count > 0) {
-                                NSString *elementContent = [[NSString alloc] init];
-                                elementContent = [AutoTrackUtils contentFromView:button];
-                                if (elementContent != nil && [elementContent length] > 0) {
-                                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                                    [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                                } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-                                    UIImage *image = button.currentImage;
-                                    if (image) {
-                                        NSString *imageName = image.sensorsAnalyticsImageName;
-                                        if (imageName != nil) {
-                                            [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                                        }
-                                    }
-#endif
-                                }
+                            NSString *imageName = button.currentImage.sensorsAnalyticsImageName;
+                            if (imageName.length > 0) {
+                                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                             }
+#endif
                         }
                     }
-                }
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
                 else if ([from isKindOfClass:[NSClassFromString(@"UITabBarButton") class]]) {//UITabBarButton
                     if ([to isKindOfClass:[UITabBar class]]) {//UITabBar
@@ -333,10 +318,8 @@
                         [properties setValue:@"UIControl" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
-                            NSString *elementContent = [[NSString alloc] init];
-                            elementContent = [AutoTrackUtils contentFromView:fromView];
-                            if (elementContent != nil && [elementContent length] > 0) {
-                                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                            NSString *elementContent = [AutoTrackUtils contentFromView:fromView];
+                            if (elementContent.length > 0) {
                                 [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                             }
                         }

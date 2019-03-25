@@ -102,13 +102,10 @@
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
             UIImageView *imageView = (UIImageView *)view;
             [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-            if (imageView) {
-                if (imageView.image) {
-                    NSString *imageName = imageView.image.sensorsAnalyticsImageName;
-                    if (imageName != nil) {
-                        [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                    }
-                }
+
+            NSString *imageName = imageView.image.sensorsAnalyticsImageName;
+            if (imageName.length > 0) {
+                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
             }
 #endif
         }else {

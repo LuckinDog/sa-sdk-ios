@@ -2821,10 +2821,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         [properties setValue:NSStringFromClass([view class]) forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
-        NSString *elementContent = [[NSString alloc] init];
-        elementContent = [AutoTrackUtils contentFromView:view];
-        if (elementContent != nil && [elementContent length] > 0) {
-            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+        NSString *elementContent = [AutoTrackUtils contentFromView:view];
+        if (elementContent.length > 0) {
             [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
         }
 
