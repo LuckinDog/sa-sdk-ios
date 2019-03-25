@@ -159,6 +159,37 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @class
+ *  SensorsAnalyticsSDK 初始化配置
+ */
+@interface SAConfigOptions : NSObject
+
+/**
+ 指定初始化方法，设置 serverURL
+ 
+ @param serverUrl 数据接收地址
+ @return 配置对象
+ */
+- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions NS_DESIGNATED_INITIALIZER;
+
+/**
+ 禁用 init 初始化
+ */
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ 禁用 new 初始化
+ */
++ (instancetype)new NS_UNAVAILABLE;
+
+/**
+ 请求配置地址，默认从 ServerUrl 解析
+ */
+@property(nonatomic, copy) NSString *remoteConfigURL;
+@end
+
+
+/**
+ * @class
  * SensorsAnalyticsSDK 类
  *
  * @abstract
@@ -251,7 +282,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithServerURL: andLaunchOptions:")));
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
 
 /**
  * @abstract
@@ -265,25 +296,34 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
                                     andLaunchOptions:(NSDictionary * _Nullable)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithServerURL: andLaunchOptions:")));
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
 /**
  * @abstract
  * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
- 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
+ * 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  * @param serverURL 收集事件的 URL
  * @param launchOptions launchOptions
  *
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
-                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions;
+                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions  __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
+ *
+ @param configOptions 参数配置
+ @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions;
 
 /**
  * @abstract
  * 返回之前所初始化好的单例
  *
  * @discussion
- * 调用这个方法之前，必须先调用 sharedInstanceWithServerURL 这个方法
+ * 调用这个方法之前，必须先调用 sharedInstanceWithConfig 这个方法
  *
  * @return 返回的单例
  */
@@ -767,6 +807,13 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
 
+
+/**
+ 设置调试模式
+ 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
+ @param debugMode 调试模式
+ */
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式")));
 
 - (SensorsAnalyticsDebugMode)debugMode;
 

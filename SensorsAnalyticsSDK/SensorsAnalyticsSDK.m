@@ -150,6 +150,30 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 }
 @end
 
+@interface SAConfigOptions()
+/**
+ 数据接收地址 Url
+ */
+@property(nonatomic, copy) NSString *serverURL;
+/**
+ App 启动的 launchOptions
+ */
+@property(nonatomic, copy) NSDictionary<NSString *, id> *launchOptions;
+@end
+
+@implementation SAConfigOptions
+
+- (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(NSDictionary<NSString *,id> *)launchOptions {
+    self = [super init];
+    if (self) {
+        _serverURL = serverURL;
+        _launchOptions = launchOptions;
+    }
+    return self;
+}
+
+@end
+
 static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @interface SensorsAnalyticsSDK()
@@ -186,6 +210,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -260,6 +285,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
+    });
+    return sharedInstance;
+}
+
++ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] initWithServerURL:configOptions.serverURL
+                                        andLaunchOptions:configOptions.launchOptions
+                                            andDebugMode:SensorsAnalyticsDebugOff];
+        
+        sharedInstance.configOptions = configOptions;
     });
     return sharedInstance;
 }
@@ -532,6 +569,50 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+
+- (NSString *)collectRemoteConfigUrl {
+    
+    @try {
+        NSURLComponents *urlComponents = nil;
+        
+        if (self.configOptions.remoteConfigURL) {
+            
+            NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
+            urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+        } else {
+            
+            NSString *urlString = self.serverURL;
+            NSURL *url = nil;
+            if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
+                url = [NSURL URLWithString:urlString];
+                if (url.lastPathComponent.length > 0) {
+                    url = [url URLByDeletingLastPathComponent];
+                }
+            }
+            urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+            urlComponents.query = nil;
+            urlComponents.path = [urlComponents.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+        }
+        
+        if (!urlComponents) {
+            SALog(@"URLString is malformed, nil is returned.");
+            return nil;
+        }
+        
+        NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
+        if (self.remoteConfig.v.length) {
+            NSURLQueryItem *vesionItem = [NSURLQueryItem queryItemWithName:@"v" value:self.remoteConfig.v];
+            [queryItems addObject:vesionItem];
+        }
+        urlComponents.queryItems = queryItems;
+        
+        return urlComponents.URL.absoluteString;
+    } @catch (NSException *e) {
+        SAError(@"%@ error: %@", self, e);
+    }
+    return nil;
+}
+
 - (void)configDebugModeServerUrl {
     if (_debugMode  == SensorsAnalyticsDebugOff ) {
         self.serverURL = _originServerUrl;
@@ -605,9 +686,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dispatch_block_t alterViewBlock = ^{
                 
                 NSString *alterViewMessage = @"";
-                if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
+                if (self -> _debugMode == SensorsAnalyticsDebugAndTrack) {
                     alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
-                }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
+                }else if (self -> _debugMode == SensorsAnalyticsDebugOnly) {
                     alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
                 }else {
                     alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
@@ -619,16 +700,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             NSString *alertTitle = @"SDK 调试模式选择";
             NSString *alertMessage = @"";
-            if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
+            if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
                 alertMessage = @"当前为 调试模式（导入数据）";
-            }else if (self.debugMode == SensorsAnalyticsDebugOnly) {
+            }else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
                 alertMessage = @"当前为 调试模式（不导入数据）";
             }else {
                 alertMessage = @"调试模式已关闭";
             }
             SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
             void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-                self->_debugMode = debugMode;
+                self -> _debugMode = debugMode;
                 [self enableLog:YES];
                 
                 alterViewBlock();
@@ -2764,6 +2845,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
      ];
 }
 
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    _debugMode = debugMode;
+    [self enableLog];
+    [self configDebugModeServerUrl];
+}
 
 - (SensorsAnalyticsDebugMode)debugMode {
     return _debugMode;
@@ -3436,34 +3522,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SALogger enableLog:printLog];
 }
 
-- (NSString *)getSDKContollerUrl:(NSString *)urlString {
-    NSString *retStr = nil;
-    @try {
-        if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
-            NSURL *url = [NSURL URLWithString:urlString];
-            if (url.lastPathComponent.length > 0) {
-                url = [url URLByDeletingLastPathComponent];
-            }
-            NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-            if (componets == nil) {
-                SALog(@"URLString is malformed, nil is returned.");
-                return nil;
-            }
-            componets.query = nil;
-            componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
-            if (self.remoteConfig.v && self.remoteConfig.v.length) {
-                componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
-            }
-            retStr = componets.URL.absoluteString;
-        }
-    } @catch (NSException *e) {
-        retStr = nil;
-        SAError(@"%@ error: %@", self, e);
-    } @finally {
-        return retStr;
-    }
-}
-
 - (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
         self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
@@ -3556,11 +3614,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
          NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
         SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
         
-        NSString *urlString = [self getSDKContollerUrl:self->_serverURL];
+        NSString *urlString = [self collectRemoteConfigUrl];
         if (urlString == nil || urlString.length == 0 || networkType == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO,nil);
             return;
         }
+        
         NSURL *url = [NSURL URLWithString:urlString];
         NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
         NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
