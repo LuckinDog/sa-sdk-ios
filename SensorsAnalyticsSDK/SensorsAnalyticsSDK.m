@@ -679,7 +679,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
-- (void)showDebugModeAlertWithParams:(NSDictionary *)params {
+- (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, id> *)params {
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             
@@ -731,17 +731,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)debugModeCallBackWithParams:(NSDictionary *)params {
+- (void)debugModeCallBackWithParams:(NSDictionary<NSString *,id> *)params {
     
-    NSString *urlString = self.serverURL;
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlString];
+    if (!self.serverURL) {
+        SAError(@"serverURL error，Please check the serverURL");
+        return;
+    }
+    
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self.serverURL];
     
     NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
     //添加参数
-    for(id key in params) {
-        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:[params objectForKey:key]];
+    [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:obj];
         [queryItems addObject:queryItem];
-    }
+    }];
+    
     urlComponents.queryItems = queryItems;
     NSURL *callBackUrl = [urlComponents URL];
     
@@ -761,7 +766,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
         if (statusCode == 200) {
             SALog(@"config debugMode CallBack success");
-        }else {
+        } else {
             SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
         }
     }];
