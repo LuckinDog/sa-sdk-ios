@@ -615,7 +615,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
-- (void)showDebugModeAlertWithParams:(NSDictionary *)params {
+- (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, id> *)params {
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             
@@ -667,7 +667,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)debugModeCallBackWithParams:(NSDictionary <NSString *,id>*)params {
+- (void)debugModeCallBackWithParams:(NSDictionary<NSString *,id> *)params {
     
     if (!self.serverURL) {
         SAError(@"serverURL error，Please check the serverURL");
