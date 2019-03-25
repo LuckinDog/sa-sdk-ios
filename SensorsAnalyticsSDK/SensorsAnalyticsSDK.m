@@ -702,7 +702,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
             if (statusCode == 200) {
                 SALog(@"config debugMode CallBack success");
-            }else {
+            } else {
                 SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@",statusCode,callBackUrl);
             }
         }];
