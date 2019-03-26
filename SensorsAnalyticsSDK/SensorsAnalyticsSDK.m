@@ -3310,7 +3310,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     }
     
-    [self requestFunctionalManagermentConfig];
+    [self whetherRequestRemoteConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
         if (self.timer == nil || ![self.timer isValid]) {
@@ -3550,6 +3550,31 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         remoteConfig = self->_remoteConfig;
     });
     return remoteConfig;
+}
+
+- (void)whetherRequestRemoteConfig {
+    
+    double randomTime = [[NSUserDefaults standardUserDefaults] doubleForKey:SA_REQUEST_REMOTECONFIG_TIME];
+    
+    NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
+    
+    if (randomTime > 0) {
+        if (currentTime >= randomTime) {
+            [self requestFunctionalManagermentConfig];
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:SA_REQUEST_REMOTECONFIG_TIME];
+        }
+    } else {
+        //生成随机时间
+        if (self.configOptions.minHourInterval && self.configOptions.maxHourInterval && self.configOptions.maxHourInterval > self.configOptions.minHourInterval) {
+            
+            NSInteger durationSecond = (self.configOptions.maxHourInterval - self.configOptions.minHourInterval) * 60 * 60;
+            double randomDurationTime = random() % durationSecond;
+            randomTime = currentTime + (self.configOptions.minHourInterval * 60 * 60) + randomDurationTime;
+            [[NSUserDefaults standardUserDefaults] setDouble:currentTime forKey:SA_REQUEST_REMOTECONFIG_TIME];
+        }else {
+            [self requestFunctionalManagermentConfig];
+        }
+    }
 }
 
 - (void)requestFunctionalManagermentConfig {

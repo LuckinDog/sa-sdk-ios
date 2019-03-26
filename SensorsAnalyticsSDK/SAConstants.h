@@ -103,6 +103,7 @@ extern NSString * const SA_PROFILE_INCREMENT;
 
 #pragma mark--others
 extern NSString * const SA_SDK_TRACK_CONFIG;
+extern NSString * const SA_REQUEST_REMOTECONFIG_TIME;
 extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
