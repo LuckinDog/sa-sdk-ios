@@ -1175,9 +1175,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     _showDebugAlertView = show;
 }
 
-- (void)flushByType:(NSString *)type withSize:(int)flushSize {
+- (void)flushByType:(NSString *)type flushSize:(int)flushSize {
     // 1、获取前 n 条数据
-    NSArray *recordArray = [self.messageQueue getFirstRecords:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) withType:@"POST"];
+    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
     if (recordArray == nil) {
         SAError(@"Failed to get records from SQLite.");
         return;
@@ -1192,7 +1192,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     // 4、继续上传剩余数据
-    [self flushByType:type withSize:flushSize];
+    [self flushByType:type flushSize:flushSize];
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
@@ -1205,7 +1205,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    [self flushByType:@"Post" withSize:(self.debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
+    [self flushByType:@"Post" flushSize:(self.debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
 
     if (vacuumAfterFlushing) {
         if (![self.messageQueue vacuum]) {
