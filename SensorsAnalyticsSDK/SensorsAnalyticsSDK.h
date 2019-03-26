@@ -185,6 +185,18 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  请求配置地址，默认从 ServerUrl 解析
  */
 @property(nonatomic, copy) NSString *remoteConfigURL;
+
+/**
+ * 最小间隔时长，单位：小时
+ * 默认 24
+ */
+@property(nonatomic,assign) NSInteger minHourInterval;
+
+/**
+ * 最大间隔时长，单位：小时
+ * 默认 48
+ */
+@property(nonatomic,assign) NSInteger maxHourInterval;
 @end
 
 
