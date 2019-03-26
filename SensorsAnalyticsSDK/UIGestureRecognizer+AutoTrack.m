@@ -30,9 +30,6 @@
     }
     
     @try {
-        if (target == nil) {
-            return;
-        }
         UIGestureRecognizer *gesture = target;
         if (gesture == nil) {
             return;

@@ -199,7 +199,9 @@ static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SE
     SASwizzle *swizzle = [self swizzleForMethod:aMethod];
     
     if (isLocal) {
-        if (!swizzle) {
+        if (swizzle) {
+            [swizzle.blocks setObject:aBlock forKey:aName];
+        } else {
             IMP originalMethod = method_getImplementation(aMethod);
             
             // Replace the local implementation of this method with the swizzled one
@@ -212,8 +214,6 @@ static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SE
                 SAError(@"%@ error: %@", self, exception);
             }
             [self setSwizzle:swizzle forMethod:aMethod];
-        } else {
-            [swizzle.blocks setObject:aBlock forKey:aName];
         }
     } else {
         IMP originalMethod = swizzle ? swizzle.originalMethod : method_getImplementation(aMethod);
@@ -266,7 +266,8 @@ static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SE
 @implementation SASwizzle
 
 - (instancetype)init {
-    if ((self = [super init])) {
+    self = [super init];
+    if (self) {
         self.blocks = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPersonality)
                                             valueOptions:(NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPointerPersonality)];
     }
@@ -278,7 +279,8 @@ static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SE
            forClass:(Class)aClass
            selector:(SEL)aSelector
      originalMethod:(IMP)aMethod {
-    if ((self = [self init])) {
+    self = [self init];
+    if (self) {
         self.class = aClass;
         self.selector = aSelector;
         self.originalMethod = aMethod;
