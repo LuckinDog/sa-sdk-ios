@@ -282,9 +282,9 @@
                                 }
 #endif
                             }
-#endif
                         }
                     }
+                }
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
                 else if ([from isKindOfClass:[NSClassFromString(@"UITabBarButton") class]]) {//UITabBarButton
                     if ([to isKindOfClass:[UITabBar class]]) {//UITabBar
@@ -310,7 +310,6 @@
                         if (fromView.subviews.count > 0) {
                             NSString *elementContent = [AutoTrackUtils contentFromView:fromView];
                             if (elementContent.length > 0) {
-                                elementContent = [elementContent substringWithRange:NSMakeRange(0, elementContent.length - 1)];
                                 [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                             }
                         }
