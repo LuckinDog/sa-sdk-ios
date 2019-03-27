@@ -3311,6 +3311,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     
     [self whetherRequestRemoteConfig];
+    
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
         if (self.timer == nil || ![self.timer isValid]) {
@@ -3554,26 +3555,34 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)whetherRequestRemoteConfig {
     
-    double randomTime = [[NSUserDefaults standardUserDefaults] doubleForKey:SA_REQUEST_REMOTECONFIG_TIME];
-    
-    NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
-    
-    if (randomTime > 0) {
-        if (currentTime >= randomTime) {
-            [self requestFunctionalManagermentConfig];
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:SA_REQUEST_REMOTECONFIG_TIME];
+    //判断是否符合分散 remoteconfig 请求条件
+    if (self.configOptions.minHourInterval && self.configOptions.maxHourInterval && self.configOptions.maxHourInterval > self.configOptions.minHourInterval) {
+        
+         double randomTime = [[NSUserDefaults standardUserDefaults] doubleForKey:SA_REQUEST_REMOTECONFIG_TIME];
+        
+        //当前时间，以开机时间为准
+        NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
+        
+        dispatch_block_t createRandomTimeBlock = ^(){
+            //转换成 秒 进行处理
+            NSInteger durationSecond = (self.configOptions.maxHourInterval - self.configOptions.minHourInterval) * 60 * 60;
+            NSInteger randomDurationTime = rand() % durationSecond;
+            double createRandomTime = currentTime + (self.configOptions.minHourInterval * 60 * 60) + randomDurationTime;
+            [[NSUserDefaults standardUserDefaults] setDouble:createRandomTime forKey:SA_REQUEST_REMOTECONFIG_TIME];
+        };
+        
+        if (randomTime > 0) {
+            if (currentTime >= randomTime) {
+                [self requestFunctionalManagermentConfig];
+                
+                createRandomTimeBlock();
+            }
+        } else {
+            createRandomTimeBlock();
         }
     } else {
-        //生成随机时间
-        if (self.configOptions.minHourInterval && self.configOptions.maxHourInterval && self.configOptions.maxHourInterval > self.configOptions.minHourInterval) {
-            
-            NSInteger durationSecond = (self.configOptions.maxHourInterval - self.configOptions.minHourInterval) * 60 * 60;
-            double randomDurationTime = random() % durationSecond;
-            randomTime = currentTime + (self.configOptions.minHourInterval * 60 * 60) + randomDurationTime;
-            [[NSUserDefaults standardUserDefaults] setDouble:currentTime forKey:SA_REQUEST_REMOTECONFIG_TIME];
-        }else {
-            [self requestFunctionalManagermentConfig];
-        }
+        [self requestFunctionalManagermentConfig];
+        SALog(@"minHourInterval or maxHourInterval error，Please check the value");
     }
 }
 
