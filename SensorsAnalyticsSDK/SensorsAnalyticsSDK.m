@@ -2779,10 +2779,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if (view.sensorsAnalyticsIgnoreView) {
-            return;
-        }
-
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
         UIViewController *viewController = [self currentViewController];
