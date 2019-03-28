@@ -56,14 +56,8 @@
             return;
         }
         
-        if ([view isKindOfClass:[UILabel class]]) {//UILabel
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UILabel class]]) {
-                return;
-            }
-        } else if ([view isKindOfClass:[UIImageView class]]) {//UIImageView
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UIImageView class]]) {
-                return;
-            }
+        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[view class]]) {
+            return;
         }
         
         UIViewController *viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];

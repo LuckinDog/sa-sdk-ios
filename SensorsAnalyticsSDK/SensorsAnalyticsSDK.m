@@ -2779,10 +2779,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if ([self isViewTypeIgnored:[view class]]) {
-            return;
-        }
-
         if (view.sensorsAnalyticsIgnoreView) {
             return;
         }
