@@ -50,13 +50,18 @@
         if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
             return;
         }
-        
+       
         //忽略 $AppClick 事件
         if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
             return;
         }
         
         if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[view class]]) {
+            return;
+        }
+        
+        //忽略这个 view
+        if (view.sensorsAnalyticsIgnoreView) {
             return;
         }
         
