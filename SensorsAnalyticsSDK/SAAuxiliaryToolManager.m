@@ -9,7 +9,9 @@
 #import "SAAuxiliaryToolManager.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
-@interface SAAuxiliaryToolManager()<UIAlertViewDelegate>
+#import "SAAlertController.h"
+
+@interface SAAuxiliaryToolManager()
 @property (nonatomic, strong) SAVisualAutoTrackConnection *visualAutoTrackConnection;
 @property (nonatomic, strong) SAHeatMapConnection *heatMapConnection;
 @property (nonatomic,copy) NSString *postUrl;
@@ -53,54 +55,33 @@
     self.originalURL = URL;
     NSString *alertTitle = @"提示";
     NSString *alertMessage = [self alertMessageWithURL:URL isWifi:isWifi];
-    if (@available(iOS 8.0, *)) {
-        UIWindow *mainWindow = UIApplication.sharedApplication.keyWindow;
-        if (mainWindow == nil) {
-            mainWindow = [[UIApplication sharedApplication] delegate].window;
-        }
-        if (mainWindow == nil) {
-            return;
-        }
-        
-        UIAlertController *connectAlert = [UIAlertController
-                                           alertControllerWithTitle:alertTitle
-                                           message:alertMessage
-                                           preferredStyle:UIAlertControllerStyleAlert];
-        
-        [connectAlert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-            SADebug(@"Canceled to open HeatMap ...");
-            //do nothing
-            [self.visualAutoTrackConnection close];
-            [self.heatMapConnection close];
-            self.visualAutoTrackConnection = nil;
-            self.heatMapConnection = nil;
-        }]];
-        
-        [connectAlert addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            SADebug(@"Confirmed to open HeatMap ...");
-            // start
-            if ([self isVisualHeatMapURL:URL]) {
-                self.heatMapConnection = [[SAHeatMapConnection alloc]initWithURL:nil];
-                if (self.heatMapConnection) {
-                    [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
-                }
-            }else if ([self isVisualAutoTrackURL:URL]) {
-                 self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
-                if (self.visualAutoTrackConnection) {
-                    [self.visualAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
-                }
+    
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
+    
+    [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:^(SAAlertAction * _Nonnull action) {
+        [self.visualAutoTrackConnection close];
+        [self.heatMapConnection close];
+        self.visualAutoTrackConnection = nil;
+        self.heatMapConnection = nil;
+    }];
+    
+    [alertController addActionWithTitle:@"继续" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+        SADebug(@"Confirmed to open HeatMap ...");
+        // start
+        if ([self isVisualHeatMapURL:URL]) {
+            self.heatMapConnection = [[SAHeatMapConnection alloc]initWithURL:nil];
+            if (self.heatMapConnection) {
+                [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
             }
-        }]];
-        
-        UIViewController *viewController = mainWindow.rootViewController;
-        while (viewController.presentedViewController) {
-            viewController = viewController.presentedViewController;
+        }else if ([self isVisualAutoTrackURL:URL]) {
+            self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
+            if (self.visualAutoTrackConnection) {
+                [self.visualAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
+            }
         }
-        [viewController presentViewController:connectAlert animated:YES completion:nil];
-    } else {
-        UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"继续", nil];
-        [connectAlert show];
-    }
+    }];
+    
+    [alertController show];
 }
 
 -(NSString *)alertMessageWithURL:(NSURL *)URL isWifi:(BOOL)isWifi {
@@ -152,58 +133,12 @@
     }
 }
 -(void)showParameterError:(NSString *)alertTitle message:(NSString *)alertMessage {
-    if (@available(iOS 8.0, *)) {
-        UIWindow *mainWindow = UIApplication.sharedApplication.keyWindow;
-        if (mainWindow == nil) {
-            mainWindow = [[UIApplication sharedApplication] delegate].window;
-        }
-        if (mainWindow == nil) {
-            return;
-        }
+        SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
+        [alertController addActionWithTitle:@"OK" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+            
+        }];
         
-        UIAlertController *connectAlert = [UIAlertController
-                                           alertControllerWithTitle:alertTitle
-                                           message:alertMessage
-                                           preferredStyle:UIAlertControllerStyleAlert];
-        
-    
-        [connectAlert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-           
-        }]];
-        
-        UIViewController *viewController = mainWindow.rootViewController;
-        while (viewController.presentedViewController) {
-            viewController = viewController.presentedViewController;
-        }
-        [viewController presentViewController:connectAlert animated:YES completion:nil];
-    } else {
-        UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-        [connectAlert show];
-    }
-}
+        [alertController show];
 
-#pragma mark -UIAlertViewDelagete
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex == 0) {
-        SADebug(@"Canceled to open visualAutoTrack ...");
-        [self.visualAutoTrackConnection close];
-        [self.heatMapConnection close];
-        self.visualAutoTrackConnection = nil;
-        self.heatMapConnection = nil;
-    } else {
-        SADebug(@"Confirmed to open visualAutoTrack ...");
-        //start
-        if ([self isVisualHeatMapURL:self.originalURL]) {
-            self.heatMapConnection = [[SAHeatMapConnection alloc]initWithURL:nil];
-            if (self.heatMapConnection) {
-                [self.heatMapConnection startConnectionWithFeatureCode:self.featureCode url:self.postUrl];
-            }
-        }else if ([self isVisualAutoTrackURL:self.originalURL]) {
-            self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
-            if (self.visualAutoTrackConnection) {
-                [self.visualAutoTrackConnection startConnectionWithFeatureCode:self.featureCode url:self.postUrl];
-            }
-        }
-    }
 }
 @end

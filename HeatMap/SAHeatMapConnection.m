@@ -125,17 +125,6 @@
     return designerMessage;
 }
 
-#pragma mark - UIAlertViewDelegate Methods
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex == 0) {
-        SADebug(@"Canceled to open HeatMap ...");
-        [self close];
-    } else {
-        SADebug(@"Confirmed to open HeatMap ...");
-    }
-}
-
 #pragma mark -  Methods
 
 - (void)startHeatMapTimer:(id)message withFeatureCode:(NSString *)featureCode withUrl:(NSString *)postUrl {

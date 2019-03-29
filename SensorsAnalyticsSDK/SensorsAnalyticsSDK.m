@@ -705,14 +705,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [task resume];
 }
 
--(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex == 1) {
-        _showDebugAlertView = NO;
-    } else if (buttonIndex == 0) {
-        _debugAlertViewHasShownNumber -= 1;
-    }
-}
-
 - (BOOL)isFirstDay {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd"];
