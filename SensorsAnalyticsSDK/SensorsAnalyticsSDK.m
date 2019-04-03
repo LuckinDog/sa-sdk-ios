@@ -158,12 +158,12 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 /**
  App 启动的 launchOptions
  */
-@property(nonatomic, copy) NSDictionary<NSString *, id> *launchOptions;
+@property(nonatomic, copy) NSDictionary *launchOptions;
 @end
 
 @implementation SAConfigOptions
 
-- (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(NSDictionary<NSString *,id> *)launchOptions {
+- (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(NSDictionary *)launchOptions {
     self = [super init];
     if (self) {
         _serverURL = serverURL;
