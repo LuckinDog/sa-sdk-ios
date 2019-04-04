@@ -583,11 +583,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             NSString *urlString = self.serverURL;
             NSURL *url = nil;
-            if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
+            if ([urlString isKindOfClass:NSString.class] && urlString.length){
                 url = [NSURL URLWithString:urlString];
                 if (url.lastPathComponent.length > 0) {
                     url = [url URLByDeletingLastPathComponent];
                 }
+            }
+            
+            if (!url) {
+                SALog(@"serverURL error");
+                return nil;
             }
             urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
             urlComponents.query = nil;
@@ -1069,7 +1074,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         Class wkWebViewClass = NSClassFromString(@"WKWebView");
         
         NSString *urlstr = request.URL.absoluteString;
-        if (urlstr == nil) {
+        if (!urlstr) {
             return YES;
         }
         
