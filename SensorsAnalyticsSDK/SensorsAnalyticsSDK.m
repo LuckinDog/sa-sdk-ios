@@ -51,7 +51,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
 
-#define VERSION @"1.10.25"
+#define VERSION @"1.10.26"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
