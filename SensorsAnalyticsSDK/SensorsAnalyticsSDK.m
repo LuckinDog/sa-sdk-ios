@@ -591,7 +591,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             if (!url) {
-                SALog(@"serverURL error");
+                SALog(@"serverURL error，unable request remoteConfig");
                 return nil;
             }
             urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
