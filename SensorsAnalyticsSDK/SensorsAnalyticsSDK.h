@@ -144,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 如果满足这两个条件之一，则向服务器发送一次数据；如果都不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
  */
-@property (atomic) UInt64 flushInterval __attribute__((deprecated("已过时，请参考 ...")));
+@property (atomic) UInt64 flushInterval __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushInterval")));
 
 /**
  * @property
@@ -161,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */
-@property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 ...")));
+@property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
 #pragma mark- init instance
 
 /**
@@ -278,7 +278,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param maxCacheSize 本地缓存最多事件条数
  */
-@property (atomic) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 ...")));
+@property (atomic) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
 
 /**
  * @abstract
@@ -325,7 +325,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract
  * 自动收集 App Crash 日志，该功能默认是关闭的
  */
-- (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 ...")));
+- (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash")));
 
 /**
  * @property
@@ -351,7 +351,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType   __attribute__((deprecated("已过时，请参考 ...")));
+- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackTEventType")));
 
 /**
  * @abstract

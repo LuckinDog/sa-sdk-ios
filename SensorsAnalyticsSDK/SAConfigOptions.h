@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-@property(nonatomic) SensorsAnalyticsAutoTrackEventType eventType;
+@property(nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackTEventType;
 
 /**
  * @abstract
