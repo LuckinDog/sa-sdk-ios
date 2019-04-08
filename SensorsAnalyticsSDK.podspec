@@ -22,11 +22,6 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_LOG=1'}
   end
 
-  s.subspec 'AUTOTRACK_APPVIEWSCREEN_URL' do |f|
-        f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_AUTOTRACK_APPVIEWSCREEN_URL=1'}
-  end
-
   s.subspec 'DISABLE_TRACK_GPS' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_GPS=1'}
@@ -52,16 +47,6 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW=1'}
   end
 
-  s.subspec 'DISABLE_AUTOTRACK_UILABEL' do |f|
-        f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UILABEL=1'}
-  end
-
-  s.subspec 'DISABLE_AUTOTRACK_UIIMAGEVIEW' do |f|
-        f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGEVIEW=1'}
-  end
-
   s.subspec 'DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME=1'}
@@ -80,11 +65,6 @@ Pod::Spec.new do |s|
   s.subspec 'ENABLE_NO_PUBLIC_APIS' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS=1'}
-  end
-
-  s.subspec 'DISABLE_AUTOTRACK_UITABBAR' do |f|
-        f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABBAR=1'}
   end
 
   s.subspec 'CRASH_SLIDEADDRESS' do |f|
