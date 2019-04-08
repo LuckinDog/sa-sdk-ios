@@ -212,9 +212,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @implementation SensorsAnalyticsSDK {
     SensorsAnalyticsDebugMode _debugMode;
-    UInt64 _flushBulkSize;
-    UInt64 _flushInterval;
-    UInt64 _maxCacheSize;
     NSDateFormatter *_dateFormatter;
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
@@ -225,7 +222,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSDictionary *_lastScreenTrackProperties;
     BOOL _applicationWillResignActive;
     BOOL _clearReferrerWhenAppEnd;
-	SensorsAnalyticsAutoTrackEventType _autoTrackEventType;
     SensorsAnalyticsNetworkType _networkTypePolicy;
     NSString *_deviceModel;
     NSString *_osVersion;
@@ -269,11 +265,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] initWithServerURL:configOptions.serverURL
-                                        andLaunchOptions:configOptions.launchOptions
-                                            andDebugMode:SensorsAnalyticsDebugOff];
-        
-        sharedInstance.configOptions = configOptions;
+        sharedInstance = [[self alloc] initWithConfigOptions:configOptions];
     });
     return sharedInstance;
 }
@@ -376,14 +368,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return shouldTrack;
 }
 
-- (instancetype)initWithServerURL:(NSString *)serverURL
-                    andLaunchOptions:(NSDictionary *)launchOptions
-                     andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+- (instancetype)initWithConfigOptions:(nonnull SAConfigOptions *)configOptions {
     @try {
-        if (self = [self init]) {
-            _autoTrackEventType = SensorsAnalyticsEventTypeNone;
-            _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
+        
+        self = [super init];
+        if (self) {
+            _configOptions = configOptions;
 
+            _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
+            
             [NSThread sa_safelyRunOnMainThreadSync:^{
                 UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
                 //判断被动启动
@@ -391,16 +384,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     self->_launchedPassively = YES;
                 }
             }];
-           
-            _people = [[SensorsAnalyticsPeople alloc] init];
-
-            _debugMode = debugMode;
-            [self enableLog];
-            [self setServerUrl:serverURL];
             
-            _flushInterval = 15 * 1000;
-            _flushBulkSize = 100;
-            _maxCacheSize = 10000;
+            _people = [[SensorsAnalyticsPeople alloc] init];
+            
+            _debugMode = SensorsAnalyticsDebugOff;
+            [self enableLog];
+            [self setServerUrl:configOptions.serverURL];
+            
             _autoTrack = NO;
             _heatMap = NO;
             _appRelaunched = NO;
@@ -411,7 +401,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
-
+            
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
@@ -421,11 +411,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
-
+            
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
 #endif
-
+            
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
             _locationConfig = [[SAGPSLocationConfig alloc]init];
 #endif
@@ -434,27 +424,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _heatMapViewControllers = [[NSMutableArray alloc] init];
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
-
+            
             self.flushBeforeEnterBackground = YES;
-
+            
             self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
             if (self.messageQueue == nil) {
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
-
+            
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
-
+            
             if (self.firstDay == nil) {
                 NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
                 [dateFormatter setDateFormat:@"yyyy-MM-dd"];
                 self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
                 [self archiveFirstDay];
             }
-
+            
             self.automaticProperties = [self collectAutomaticProperties];
             self.trackTimer = [NSMutableDictionary dictionary];
-
+            
             NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
             
@@ -464,12 +454,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             
             [self setUpListeners];
+            if (configOptions.enableTrackAppCrash) {
+                // Install uncaught exception handlers first
+                [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
+            }
             
             // XXX: App Active 的时候会启动计时器，此处不需要启动
             //        [self startFlushTimer];
             NSString *logMessage = nil;
             logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
-                              self, serverURL, [self debugModeToString:debugMode]];
+                          self, configOptions.serverURL, [self debugModeToString:_debugMode]];
             SALog(@"%@", logMessage);
             
             //打开debug模式，弹出提示
@@ -485,6 +479,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 #endif
         }
+        
+    } @catch(NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithServerURL:(NSString *)serverURL
+                    andLaunchOptions:(NSDictionary *)launchOptions
+                     andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    @try {
+        
+        SAConfigOptions * options = [[SAConfigOptions alloc]initWithServerURL:serverURL launchOptions:launchOptions];
+        
+        self = [self initWithConfigOptions:options];
+        _debugMode = debugMode;
+
     } @catch(NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -1109,17 +1121,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setMaxCacheSize:(UInt64)maxCacheSize {
-    if (maxCacheSize > 0) {
-        //防止设置的值太小导致事件丢失
-        if (maxCacheSize < 10000) {
-            maxCacheSize = 10000;
+    __block UInt64 temMaxCacheSize = maxCacheSize;
+    dispatch_async(self.serialQueue, ^{
+        if (temMaxCacheSize > 0) {
+            //防止设置的值太小导致事件丢失
+            if (temMaxCacheSize < 10000) {
+                temMaxCacheSize = 10000;
+            }
+            self.configOptions.maxCacheSize = temMaxCacheSize;
         }
-        _maxCacheSize = maxCacheSize;
-    }
+    });
 }
 
-- (UInt64)getMaxCacheSize {
-    return _maxCacheSize;
+- (UInt64)maxCacheSize {
+     __block UInt64 maxCacheSize = 0;
+    dispatch_sync(self.serialQueue, ^{
+        maxCacheSize = (UInt64)self.configOptions.maxCacheSize;
+    });
+    return maxCacheSize;
 }
 
 - (NSMutableDictionary *)webViewJavascriptBridgeCallbackInfo {
@@ -1182,9 +1201,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if (_autoTrackEventType != eventType) {
-        _autoTrackEventType = eventType;
-        _autoTrack = (_autoTrackEventType != SensorsAnalyticsEventTypeNone);
+    if (self.configOptions.autoTrackTEventType != eventType) {
+        self.configOptions.autoTrackTEventType = eventType;
+        _autoTrack = (self.configOptions.autoTrackTEventType != SensorsAnalyticsEventTypeNone);
         [self _enableAutoTrack];
     }
     // 是否首次启动
@@ -1247,7 +1266,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return !(self.remoteConfig.autoTrackMode & eventType);
         }
     }
-    return !(_autoTrackEventType & eventType);
+    return !(self.configOptions.autoTrackTEventType & eventType);
 }
 
 - (void)ignoreViewType:(Class)aClass {
@@ -1285,7 +1304,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
-    _autoTrackEventType = _autoTrackEventType ^ eventType;
+    self.configOptions.autoTrackTEventType = self.configOptions.autoTrackTEventType ^ eventType;
 }
 
 - (void)showDebugInfoView:(BOOL)show {
@@ -1936,7 +1955,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self flush];
         } else {
             // 否则，在满足发送条件时，发送事件
-            if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.flushBulkSize) {
+            if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.configOptions.flushBulkSize) {
                 [self flush];
             }
         }
@@ -2721,7 +2740,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (UInt64)flushInterval {
     @synchronized(self) {
-        return _flushInterval;
+        return self.configOptions.flushInterval;
     }
 }
 
@@ -2730,7 +2749,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (interval < 5 * 1000) {
             interval = 5 * 1000;
         }
-        _flushInterval = interval;
+        self.configOptions.flushInterval = interval;
     }
     [self flush];
     [self startFlushTimer];
@@ -2743,8 +2762,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     SADebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self->_flushInterval > 0) {
-            double interval = self->_flushInterval > 100 ? (double)self->_flushInterval / 1000.0 : 0.1f;
+        if (self.configOptions.flushInterval > 0) {
+            double interval = self.configOptions.flushInterval > 100 ? (double)self.configOptions.flushInterval / 1000.0 : 0.1f;
             self.timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                           target:self
                                                         selector:@selector(flush)
@@ -2766,14 +2785,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (UInt64)flushBulkSize {
     @synchronized(self) {
-        return _flushBulkSize;
+        return self.configOptions.flushBulkSize;
     }
 }
 
 - (void)setFlushBulkSize:(UInt64)bulkSize {
     @synchronized(self) {
         //加上最小值保护，50
-        _flushBulkSize = bulkSize >= 50 ? bulkSize : 50;
+        self.configOptions.flushBulkSize = bulkSize >= 50 ? bulkSize : 50;
     }
 }
 

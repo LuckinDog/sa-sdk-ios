@@ -278,7 +278,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param maxCacheSize 本地缓存最多事件条数
  */
-@property (atomic) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
+@property (nonatomic) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
 
 /**
  * @abstract
