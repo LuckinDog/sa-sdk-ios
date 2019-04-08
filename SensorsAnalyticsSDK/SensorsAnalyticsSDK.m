@@ -46,7 +46,7 @@
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
-#import "SAConstants.h"
+#import "SAConstants+Private.h"
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
@@ -150,29 +150,6 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 }
 @end
 
-@interface SAConfigOptions()
-/**
- 数据接收地址 Url
- */
-@property(nonatomic, copy) NSString *serverURL;
-/**
- App 启动的 launchOptions
- */
-@property(nonatomic, copy) NSDictionary *launchOptions;
-@end
-
-@implementation SAConfigOptions
-
-- (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(NSDictionary *)launchOptions {
-    self = [super init];
-    if (self) {
-        _serverURL = serverURL;
-        _launchOptions = launchOptions;
-    }
-    return self;
-}
-
-@end
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
 
@@ -568,7 +545,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _serverURL = [url absoluteString];
     }
 }
-
 
 - (NSString *)collectRemoteConfigUrl {
     

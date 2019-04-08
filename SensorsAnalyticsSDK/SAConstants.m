@@ -7,6 +7,9 @@
 //
 
 #import "SAConstants.h"
+#import "SAConstants+Private.h"
+
+@implementation SAConstants
 
 #pragma mark - event
 NSString * const SA_EVENT_TIME = @"time";
@@ -99,3 +102,9 @@ NSString * const SA_SDK_TRACK_CONFIG = @"SASDKConfig";
 NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
+
+@end
+
+@implementation SAConstants (Private)
+
+@end

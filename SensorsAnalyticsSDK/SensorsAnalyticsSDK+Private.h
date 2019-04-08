@@ -51,4 +51,22 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType;
 @end
 
+
+
+/**
+ SAConfigOptions 实现
+ 私有 property
+ */
+@interface SAConfigOptions()
+/**
+ 数据接收地址 Url
+ */
+@property(nonatomic, copy) NSString *serverURL;
+/**
+ App 启动的 launchOptions
+ */
+@property(nonatomic, copy) NSDictionary *launchOptions;
+
+@end
+
 #endif /* SensorsAnalyticsSDK_priv_h */
