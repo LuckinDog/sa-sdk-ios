@@ -1121,24 +1121,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setMaxCacheSize:(UInt64)maxCacheSize {
-    __block UInt64 temMaxCacheSize = maxCacheSize;
-    dispatch_async(self.serialQueue, ^{
-        if (temMaxCacheSize > 0) {
-            //防止设置的值太小导致事件丢失
-            if (temMaxCacheSize < 10000) {
-                temMaxCacheSize = 10000;
-            }
-            self.configOptions.maxCacheSize = temMaxCacheSize;
-        }
-    });
+    @synchronized(self) {
+        //防止设置的值太小导致事件丢失
+        UInt64 temMaxCacheSize = maxCacheSize > 10000 ? maxCacheSize : 10000;
+        self.configOptions.maxCacheSize = (NSInteger)temMaxCacheSize;
+    };
 }
 
 - (UInt64)maxCacheSize {
-     __block UInt64 maxCacheSize = 0;
-    dispatch_sync(self.serialQueue, ^{
-        maxCacheSize = (UInt64)self.configOptions.maxCacheSize;
-    });
-    return maxCacheSize;
+    @synchronized(self) {
+        return self.configOptions.maxCacheSize;
+    };
 }
 
 - (NSMutableDictionary *)webViewJavascriptBridgeCallbackInfo {
