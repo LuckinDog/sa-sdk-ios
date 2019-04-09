@@ -98,6 +98,7 @@
 		A1624B67200894940088FBC9 /* share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1624B5C200894940088FBC9 /* share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A1753DD72074AEC400425771 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1753DD62074AEC400425771 /* SALogger.m */; };
 		A1753DD82074AEC400425771 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1753DD62074AEC400425771 /* SALogger.m */; };
+		A17F4C0F2175BFD30044F316 /* SAAppExtensionDataManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; };
 		A18C83432142597D00D7DCB4 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A18C833C2142597D00D7DCB4 /* SAHeatMapSnapshotMessage.m */; };
 		A18C83442142597D00D7DCB4 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A18C833C2142597D00D7DCB4 /* SAHeatMapSnapshotMessage.m */; };
 		A18C83452142597D00D7DCB4 /* SAHeatMapConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = A18C833D2142597D00D7DCB4 /* SAHeatMapConnection.h */; };
@@ -111,7 +112,6 @@
 		A18C835421426AF800D7DCB4 /* SAAuxiliaryToolManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A18C835221426AF800D7DCB4 /* SAAuxiliaryToolManager.h */; };
 		A18C835521426AF800D7DCB4 /* SAAuxiliaryToolManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A18C835321426AF800D7DCB4 /* SAAuxiliaryToolManager.m */; };
 		A18C835621426AF800D7DCB4 /* SAAuxiliaryToolManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A18C835321426AF800D7DCB4 /* SAAuxiliaryToolManager.m */; };
-		A17F4C0F2175BFD30044F316 /* SAAppExtensionDataManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; };
 		A190A8C520CE58F6002C4202 /* UIView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A190A8C320CE58F6002C4202 /* UIView+AutoTrack.h */; };
 		A190A8C620CE58F6002C4202 /* UIView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A190A8C420CE58F6002C4202 /* UIView+AutoTrack.m */; };
 		A190A8C720CE5E83002C4202 /* UIView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A190A8C420CE58F6002C4202 /* UIView+AutoTrack.m */; };
@@ -528,9 +528,9 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				4D6FF98921086B8900241224 /* Resources */,
 				A18C833B2142597D00D7DCB4 /* HeatMap */,
 				A1D97AC9213690FF00B2005E /* VisualAutoTrack */,
-				4D6FF98921086B8900241224 /* Resources */,
 				A161A05220B540E400A3CA14 /* SALocationManager.h */,
 				A161A05320B540E400A3CA14 /* SALocationManager.m */,
 				A1280DFC217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h */,
@@ -543,7 +543,6 @@
 				A11C5458201075020074E817 /* SAAppExtensionDataManager.m */,
 				0038C5CF1FCFA13D00C1BBC1 /* SensorsAnalyticsExceptionHandler.h */,
 				0038C5D01FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.m */,
-
 				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
 				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				4D431F5D222D0E6800FCD8E4 /* SAAlertController.h */,
@@ -612,7 +611,6 @@
 				A190A8C420CE58F6002C4202 /* UIView+AutoTrack.m */,
 				007BE5A620E1F1D2006CB1ED /* NSThread+SAHelpers.h */,
 				007BE5A720E1F1D2006CB1ED /* NSThread+SAHelpers.m */,
-				A1C18E8E211C42DD000A1194 /* SensorsAnalyticsSDK+Private.h */,
 				A18C835221426AF800D7DCB4 /* SAAuxiliaryToolManager.h */,
 				A18C835321426AF800D7DCB4 /* SAAuxiliaryToolManager.m */,
 				A1100B10219BC93C00E14E9A /* SAConstants.h */,
@@ -1068,7 +1066,6 @@
 				4D23EFB52109643400DBDB9F /* SACommonUtility.m in Sources */,
 				4D14F1721B4A51B7006AD786 /* SAGzipUtility.m in Sources */,
 				4DD9E8502181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */,
-				0027C8471FA201CE002EA41B /* SAHeatMapConnection.m in Sources */,
 				A3997A261C3AC1DE005A9374 /* SAObjectSelector.m in Sources */,
 				A161A04D20B3E2DC00A3CA14 /* SADeviceOrientationManager.m in Sources */,
 				4D5CA77D1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m in Sources */,
