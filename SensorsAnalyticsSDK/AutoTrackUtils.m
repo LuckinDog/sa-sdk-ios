@@ -347,7 +347,7 @@
             [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.item]];
 
             id responder = [self __sa_find_view_responder:collectionView  withViewPathArray:viewPathArray];
-            [self __sa_find_responder:responder withViewPathArray:viewPathArray];
+            [self sa_find_responder:responder withViewPathArray:viewPathArray];
 
             NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
 
@@ -463,7 +463,7 @@
             [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.row]];
 
             id responder = [self __sa_find_view_responder:tableView withViewPathArray:viewPathArray];
-            [self __sa_find_responder:responder withViewPathArray:viewPathArray];
+            [self sa_find_responder:responder withViewPathArray:viewPathArray];
 
             NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
 
@@ -541,7 +541,7 @@
 //}
 
 
-+ (void)__sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController {
++ (void)sa_addViewPathProperties:(NSMutableDictionary *)properties object:(UIView *)view viewController:(UIViewController *)viewController {
     @try {
         if (![[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled]) {
             return;
@@ -553,7 +553,7 @@
 
         NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
         id  responder= [self __sa_find_view_responder:view withViewPathArray:viewPathArray];
-        [self __sa_find_responder:responder withViewPathArray:viewPathArray];
+        [self sa_find_responder:responder withViewPathArray:viewPathArray];
         NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
         NSString *viewPath = [[NSString alloc] init];
         for (int i = 0; i < array.count; i++) {
@@ -677,7 +677,7 @@
     return view;
 }
 
-+ (void)__sa_find_responder:(id)responder withViewPathArray:(NSMutableArray *)viewPathArray {
++ (void)sa_find_responder:(id)responder withViewPathArray:(NSMutableArray *)viewPathArray {
     if (responder && [responder isKindOfClass:[UIViewController class]]) {
         while ([responder parentViewController]) {
             UIViewController *viewController = [responder parentViewController];
@@ -708,7 +708,7 @@
         }
         [viewPathArray addObject:NSStringFromClass([responder class])];
         if ([(UIViewController *)responder presentingViewController]) {
-            [self __sa_find_responder:[responder presentingViewController] withViewPathArray:viewPathArray];
+            [self sa_find_responder:[responder presentingViewController] withViewPathArray:viewPathArray];
         }
     }
 }
@@ -780,7 +780,7 @@
             [properties addEntriesFromDictionary:propDict];
         }
 
-        [AutoTrackUtils __sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+        [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
         [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
@@ -855,12 +855,12 @@
             if (sa_elementContent && sa_elementContent.length > 0) {
                 [properties setValue:sa_elementContent forKey:@"$element_content"];
             }
-            [AutoTrackUtils __sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
         } else if ([view isKindOfClass:[UIImageView class]]) {
             [properties setValue:@"UIImageView" forKey:@"$element_type"];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
             UIImageView *imageView = (UIImageView *)view;
-            [AutoTrackUtils __sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
             if (imageView) {
                 if (imageView.image) {
                     NSString *imageName = imageView.image.sensorsAnalyticsImageName;

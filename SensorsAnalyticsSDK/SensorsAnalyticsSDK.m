@@ -3663,6 +3663,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 @end
 
+#pragma mark - Deprecated
 @implementation SensorsAnalyticsSDK (Deprecated)
 - (void)enableAutoTrack {
     [self enableAutoTrack:SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppViewScreen];
@@ -3708,8 +3709,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     return [self isTrackElementSelectorViewController:viewController];
 }
 @end
-
-#pragma mark - People analytics
 
 #pragma mark - People analytics
 

@@ -182,7 +182,7 @@
                     [properties setValue:@"unchecked" forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 }
                 
-                [AutoTrackUtils __sa_addViewPathProperties:properties withObject:uiSwitch withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:uiSwitch viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -202,7 +202,7 @@
                     [properties setValue:[NSString stringWithFormat:@"%g", stepper.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 }
                 
-                [AutoTrackUtils __sa_addViewPathProperties:properties withObject:stepper withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:stepper viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -238,7 +238,7 @@
                 [properties setValue:[NSString stringWithFormat: @"%ld", (long)[segmented selectedSegmentIndex]] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
                 [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 
-                [AutoTrackUtils __sa_addViewPathProperties:properties withObject:segmented withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:segmented viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -327,7 +327,7 @@
                     }
                 }
                 
-                [AutoTrackUtils __sa_addViewPathProperties:properties withObject:view withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
