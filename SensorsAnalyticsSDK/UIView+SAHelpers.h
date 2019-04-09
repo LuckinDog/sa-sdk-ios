@@ -23,17 +23,17 @@
 @end
 
 @interface UITableViewCell (SAHelpers)
--(NSString*)sa_indexPath;
+- (NSString *)sa_indexPath;
 @end
 
 @interface UICollectionViewCell (SAHelpers)
--(NSString*)sa_indexPath;
+- (NSString *)sa_indexPath;
 @end
 
 @interface UISegmentedControl (SAHelpers)
--(NSArray *)sa_subviewsFixed;
+- (NSArray *)sa_subviewsFixed;
 @end
 
 @interface UITableViewHeaderFooterView (SAHelpers)
--(NSString *)sa_section;
+- (NSString *)sa_section;
 @end

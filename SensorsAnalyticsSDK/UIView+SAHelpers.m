@@ -32,7 +32,7 @@
     CGFloat offsetHeight = 0.0f;
     
     //Avoid the status bar on phones running iOS < 7
-    if (@available(iOS 7.0,*)) {
+    if (@available(iOS 7.0, *)) {
         if (![UIApplication sharedApplication].statusBarHidden) {
             offsetHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
         }
@@ -149,8 +149,8 @@
         CGContextRef context = CGBitmapContextCreate(data32, 8, 8, 8, 8*4, space, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Little);
         CGContextSetAllowsAntialiasing(context, NO);
         CGContextClearRect(context, CGRectMake(0, 0, 8, 8));
-        CGContextSetInterpolationQuality(context, kCGInterpolationNone);
-        CGContextDrawImage(context, CGRectMake(0,0,8,8), [originalImage CGImage]);
+        CGContextSetInterpolationQuality (context, kCGInterpolationNone);
+        CGContextDrawImage(context, CGRectMake(0, 0, 8, 8), [originalImage CGImage]);
         CGColorSpaceRelease(space);
         CGContextRelease(context);
         for(int i = 0; i < 32; i++) {
@@ -245,14 +245,14 @@ static NSString* sa_encryptHelper(id input) {
 
 @end
 @implementation UITableViewCell (SAHelpers)
--(NSString*)sa_indexPath {
+- (NSString *)sa_indexPath {
     UITableView *tableView = (UITableView *)[self superview];
-    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]){
+    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]) {
         tableView = (UITableView *)[tableView superview];
     }
     if ([tableView isKindOfClass:UITableView.class]) {
         NSIndexPath *indexPath = [tableView indexPathForCell:self];
-        NSString *pathString = [[NSString alloc]initWithFormat:@"[%ld][%ld]",(long)indexPath.section,(long)indexPath.row];
+        NSString *pathString = [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)indexPath.section, (long)indexPath.row];
         return pathString;
     }
     return @"";
@@ -260,27 +260,27 @@ static NSString* sa_encryptHelper(id input) {
 
 @end
 @implementation UICollectionViewCell (SAHelpers)
--(NSString*)sa_indexPath {
+- (NSString *)sa_indexPath {
     UICollectionView *collectionView = (UICollectionView *)[self superview];
     if([collectionView isKindOfClass:UICollectionView.class] == NO) return @"";
     NSIndexPath *indexPath = [collectionView indexPathForCell:self];
-    NSString *pathString = [[NSString alloc]initWithFormat:@"[%ld][%ld]",(long)indexPath.section,(long)indexPath.item];
+    NSString *pathString = [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)indexPath.section, (long)indexPath.item];
     return pathString;
 }
 
 @end
 
 @implementation UISegmentedControl (SAHelpers)
--(NSArray *)sa_subviewsFixed {
+- (NSArray *)sa_subviewsFixed {
     NSArray *segments = [self valueForKey:@"segments"];
     return segments;
 }
 @end
 
 @implementation UITableViewHeaderFooterView (SAHelpers)
--(NSString *)sa_section {
+- (NSString *)sa_section {
     UITableView *tableView = (UITableView *)[self superview];
-    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]){
+    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]) {
         tableView = (UITableView *)[tableView superview];
     }
     if ([tableView isKindOfClass:UITableView.class]) {
@@ -310,10 +310,10 @@ static NSString* sa_encryptHelper(id input) {
         NSString *desc = nil;
         if (isHeader) {
             desc = @"SectionHeader";
-        }else {
+        } else {
             desc = @"SectionFooter";
         }
-        NSString *pathString = [[NSString alloc]initWithFormat:@"[%@][%ld]",desc,(long)sa_section];
+        NSString *pathString = [[NSString alloc] initWithFormat:@"[%@][%ld]", desc, (long)sa_section];
         return pathString;
     }
     return @"";

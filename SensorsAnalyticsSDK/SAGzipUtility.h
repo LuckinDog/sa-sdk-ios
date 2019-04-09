@@ -26,6 +26,6 @@
  @param pUncompressedData memory buffer of bytes to compress
  @return Compressed data as an NSData object
  */
-+(NSData*) gzipData: (NSData*)pUncompressedData;
++ (NSData *)gzipData:(NSData *)pUncompressedData;
 
 @end

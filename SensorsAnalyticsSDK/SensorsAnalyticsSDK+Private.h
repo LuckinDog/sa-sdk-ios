@@ -25,11 +25,11 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 };
 
 @interface SensorsAnalyticsSDK(Private)
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
 
--(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item;
--(void)onGestureRecognizer:(UIGestureRecognizer *)gesture;
+- (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item;
+- (void)onGestureRecognizer:(UIGestureRecognizer *)gesture;
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
 
 /**

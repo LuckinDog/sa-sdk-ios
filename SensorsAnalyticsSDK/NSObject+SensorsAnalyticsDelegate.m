@@ -14,25 +14,25 @@
 #import "AutoTrackUtils.h"
 #import "SensorsAnalyticsSDK.h"
 
-static void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath){
+static void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath) {
     SEL selector = NSSelectorFromString(@"sa_tableView:didSelectRowAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, tableView, indexPath);
     [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
-static void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id collectionView, id indexPath){
+static void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id collectionView, id indexPath) {
     SEL selector = NSSelectorFromString(@"sa_collectionView:didSelectItemAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, collectionView, indexPath);
     [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
 }
 
-static void sa_setDelegate(id obj ,SEL sel, id delegate){
+static void sa_setDelegate(id obj , SEL sel, id delegate) {
     SEL swizzileSel = sel_getUid("sa_setDelegate:");
-    ((void (*)(id, SEL,id))objc_msgSend)(obj,swizzileSel,delegate);
+    ((void (*)(id, SEL, id))objc_msgSend)(obj, swizzileSel, delegate);
     if (delegate == nil) {
         return;
     }
-    if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]){
+    if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
         if ([obj isKindOfClass:UITableView.class]) {
             if ([delegate isKindOfClass:[UITableView class]]) {
                 return;
@@ -53,7 +53,7 @@ static void sa_setDelegate(id obj ,SEL sel, id delegate){
                     }
                 }
             } while ((class = class_getSuperclass(class)));
-        }else if ([obj isKindOfClass:UICollectionView.class]){
+        } else if ([obj isKindOfClass:UICollectionView.class]) {
             if ([delegate isKindOfClass:[UICollectionView class]]) {
                 return;
             }

@@ -301,7 +301,7 @@
                     }
                 }
 #endif
-                else if([from isKindOfClass:[UITabBarItem class]]){//For iOS7 TabBar
+                else if([from isKindOfClass:[UITabBarItem class]]) {//For iOS7 TabBar
                     UITabBarItem *tabBarItem = (UITabBarItem *)from;
                     if (tabBarItem) {
                         [properties setValue:@"UITabbar" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
@@ -311,7 +311,7 @@
                     UISlider *slide = (UISlider *)from;
                     if (slide != nil) {
                         [properties setValue:@"UISlider" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-                        [properties setValue:[NSString stringWithFormat:@"%f",slide.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
+                        [properties setValue:[NSString stringWithFormat:@"%f", slide.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                     }
                 } else {
                     if ([from isKindOfClass:[UIControl class]]) {

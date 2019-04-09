@@ -74,7 +74,7 @@
         }
         NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip withFeatuerCode:_featureCode] encoding:NSUTF8StringEncoding];
         void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
+            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)response;
             
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             if ([urlResponse statusCode] == 200) {
@@ -129,7 +129,7 @@
 
 - (void)startHeatMapTimer:(id)message withFeatureCode:(NSString *)featureCode withUrl:(NSString *)postUrl {
     _featureCode = featureCode;
-    _postUrl =  (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)postUrl, CFSTR(""),CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+    _postUrl =  (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)postUrl, CFSTR(""),  CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     _designerMessage = [self designerMessageForMessage:message];
 
     if (timer) {
@@ -153,13 +153,13 @@
     }
 }
 
-- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)postUrl{
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)postUrl {
     
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
     //文件路径
     NSString *jsonPath = [sensorsBundle pathForResource:@"sa_headmap_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-    NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     _commandQueue.suspended = NO;
     if (!self->_connected) {
         self->_connected = YES;

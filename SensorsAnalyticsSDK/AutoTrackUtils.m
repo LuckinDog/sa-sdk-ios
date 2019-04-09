@@ -75,7 +75,7 @@
 //        if ([view isKindOfClass:UISegmentedControl.class]) {
 //            NSInteger selectedSegmentIndex = [(UISegmentedControl *)view  selectedSegmentIndex];
 //            Class aClass = view.subviews[selectedSegmentIndex].class;
-//            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",NSStringFromClass(aClass),(long)selectedSegmentIndex];
+//            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]", NSStringFromClass(aClass), (long)selectedSegmentIndex];
 //            [viewPathArray insertObject:selectedSegmentPath atIndex:0];
 //        }
 //    } else {
@@ -93,7 +93,7 @@
 //        if ([view isKindOfClass:UISegmentedControl.class]) {
 //            NSInteger selectedSegmentIndex = [(UISegmentedControl *)view  selectedSegmentIndex];
 //            Class aClass = view.subviews[selectedSegmentIndex].class;
-//            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",NSStringFromClass(aClass),(long)selectedSegmentIndex];
+//            NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]", NSStringFromClass(aClass), (long)selectedSegmentIndex];
 //            [viewPathArray insertObject:selectedSegmentPath atIndex:0];
 //        }
 //    }
@@ -269,7 +269,7 @@
 
     if (elementContent.length > 0) {
         return elementContent;
-    }else {
+    } else {
         return controllerTitle;
     }
 }
@@ -334,7 +334,7 @@
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.item] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section, (unsigned long)indexPath.item] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
@@ -344,7 +344,7 @@
         }
         if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.item]];
+            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.item]];
 
             id responder = [self __sa_find_view_responder:collectionView  withViewPathArray:viewPathArray];
             [self sa_find_responder:responder withViewPathArray:viewPathArray];
@@ -373,10 +373,8 @@
         }
 
         @try {
-            if (view.sensorsAnalyticsDelegate) {
-                if ([view.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [view.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
-                        [properties addEntriesFromDictionary:[view.sensorsAnalyticsDelegate sensorsAnalytics_collectionView:collectionView autoTrackPropertiesAtIndexPath:indexPath]];
-                }
+            if ([view.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [view.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
+                    [properties addEntriesFromDictionary:[view.sensorsAnalyticsDelegate sensorsAnalytics_collectionView:collectionView autoTrackPropertiesAtIndexPath:indexPath]];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
@@ -448,7 +446,7 @@
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section, (unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
@@ -460,7 +458,7 @@
 
         if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]",NSStringFromClass([cell class]), (long)indexPath.section,(long)indexPath.row]];
+            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.row]];
 
             id responder = [self __sa_find_view_responder:tableView withViewPathArray:viewPathArray];
             [self sa_find_responder:responder withViewPathArray:viewPathArray];
@@ -493,10 +491,8 @@
         }
 
         @try {
-            if (view.sensorsAnalyticsDelegate) {
-                if ([view.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [view.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)]) {
-                        [properties addEntriesFromDictionary:[view.sensorsAnalyticsDelegate sensorsAnalytics_tableView:tableView autoTrackPropertiesAtIndexPath:indexPath]];
-                }
+            if ([view.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [view.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)]) {
+                    [properties addEntriesFromDictionary:[view.sensorsAnalyticsDelegate sensorsAnalytics_tableView:tableView autoTrackPropertiesAtIndexPath:indexPath]];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
@@ -612,7 +608,7 @@
             if (sameTypeViews.count > 1) {
                 NSString * className = nil;
                 NSUInteger index = [sameTypeViews indexOfObject:view];
-                className = [NSString stringWithFormat:@"%@[%lu]",NSStringFromClass([view class]),(unsigned long)index];
+                className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([view class]), (unsigned long)index];
                 [viewPathArray addObject:className];
             } else {
                 [viewPathArray addObject:NSStringFromClass([view class])];
@@ -623,20 +619,20 @@
                 NSString *headerFooterSection = [view performSelector:@selector(sa_section)];
                 if (headerFooterSection.length) {
                     [viewPathArray removeLastObject];
-                    [viewPathArray addObject:[NSString stringWithFormat:@"%@%@",NSStringFromClass(view.class),headerFooterSection]];
+                    [viewPathArray addObject:[NSString stringWithFormat:@"%@%@", NSStringFromClass(view.class), headerFooterSection]];
                 }
             }
             //UISegmentedControl 点击的 index 问题
             if ([view isKindOfClass:UISegmentedControl.class]) {
                 NSInteger selectedSegmentIndex = [(UISegmentedControl *)view selectedSegmentIndex];
-                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",@"UISegment",(long)selectedSegmentIndex];
+                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]", @"UISegment", (long)selectedSegmentIndex];
                 [viewPathArray insertObject:selectedSegmentPath atIndex:0];
             }
             //UITabBar 点击的 index 问题
             if ([view isKindOfClass:UITabBar.class]) {
                 UITabBar *tabBar = (UITabBar *)view;
                 NSInteger selectedIndex = [[tabBar items] indexOfObject:tabBar.selectedItem];
-                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",@"UITabBarButton",(long)selectedIndex];
+                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]", @"UITabBarButton", (long)selectedIndex];
                 [viewPathArray insertObject:selectedSegmentPath atIndex:0];
             }
         } else {
@@ -656,20 +652,20 @@
                 NSString *headerFooterSection = [view performSelector:@selector(sa_section)];
                 if (headerFooterSection.length) {
                     [viewPathArray removeLastObject];
-                    [viewPathArray addObject:[NSString stringWithFormat:@"%@%@",NSStringFromClass(view.class),headerFooterSection]];
+                    [viewPathArray addObject:[NSString stringWithFormat:@"%@%@", NSStringFromClass(view.class), headerFooterSection]];
                 }
             }
             //UISegmentedControl 点击的 index 问题
             if ([view isKindOfClass:UISegmentedControl.class]) {
                 NSInteger selectedSegmentIndex = [(UISegmentedControl *)view selectedSegmentIndex];
-                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",@"UISegment",(long)selectedSegmentIndex];
+                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]", @"UISegment", (long)selectedSegmentIndex];
                 [viewPathArray insertObject:selectedSegmentPath atIndex:0];
             }
             //UITabBar 点击的 index 问题
             if ([view isKindOfClass:UITabBar.class]) {
                 UITabBar *tabBar = (UITabBar *)view;
                 NSInteger selectedIndex = [[tabBar items] indexOfObject:tabBar.selectedItem];
-                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]",@"UITabBarButton",(long)selectedIndex];
+                NSString *selectedSegmentPath = [NSString stringWithFormat:@"%@[%ld]", @"UITabBarButton", (long)selectedIndex];
                 [viewPathArray insertObject:selectedSegmentPath atIndex:0];
             }
         }
@@ -713,7 +709,7 @@
     }
 }
 
-+ (void)trackAppClickWithUITabBar:(UITabBar*)tabBar didSelectItem:(UITabBarItem *)item{
++ (void)trackAppClickWithUITabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item{
     //插入埋点
     @try {
         //关闭 AutoTrack
@@ -787,7 +783,7 @@
     }
 }
 
-+ (void)trackAppClickWithUIGestureRecognizer:(UIGestureRecognizer*)gesture{
++ (void)trackAppClickWithUIGestureRecognizer:(UIGestureRecognizer *)gesture{
     @try {
         if (gesture == nil) {
             return;
@@ -850,7 +846,7 @@
 
         if ([view isKindOfClass:[UILabel class]]) {
             [properties setValue:@"UILabel" forKey:@"$element_type"];
-            UILabel *label = (UILabel*)view;
+            UILabel *label = (UILabel *)view;
             NSString *sa_elementContent = label.sa_elementContent;
             if (sa_elementContent && sa_elementContent.length > 0) {
                 [properties setValue:sa_elementContent forKey:@"$element_content"];
@@ -870,7 +866,7 @@
                 }
             }
 #endif
-        }else {
+        } else {
             return;
         }
 

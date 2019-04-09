@@ -20,9 +20,9 @@
 
 + (void)sa_addViewPathProperties:(NSMutableDictionary *)properties object:(UIView *)view viewController:(UIViewController *)viewController;
 
-+ (void)trackAppClickWithUITabBar:(UITabBar*)tabbar didSelectItem:(UITabBarItem *)item;
++ (void)trackAppClickWithUITabBar:(UITabBar *)tabbar didSelectItem:(UITabBarItem *)item;
 
-+ (void)trackAppClickWithUIGestureRecognizer:(UIGestureRecognizer*)gesture;
++ (void)trackAppClickWithUIGestureRecognizer:(UIGestureRecognizer *)gesture;
 + (NSString *)titleFromViewController:(UIViewController *)viewController;
 
 @end

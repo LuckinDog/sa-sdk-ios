@@ -14,12 +14,12 @@
 @interface SAAuxiliaryToolManager()
 @property (nonatomic, strong) SAVisualAutoTrackConnection *visualAutoTrackConnection;
 @property (nonatomic, strong) SAHeatMapConnection *heatMapConnection;
-@property (nonatomic,copy) NSString *postUrl;
-@property (nonatomic,copy) NSString *featureCode;
-@property (nonatomic,strong) NSURL *originalURL;
+@property (nonatomic, copy) NSString *postUrl;
+@property (nonatomic, copy) NSString *featureCode;
+@property (nonatomic, strong) NSURL *originalURL;
 @end
 @implementation SAAuxiliaryToolManager
-+(instancetype)sharedInstance {
++ (instancetype)sharedInstance {
     static SAAuxiliaryToolManager *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -28,7 +28,7 @@
     return sharedInstance;
 }
 
--(BOOL)canHandleURL:(NSURL *)URL {
+- (BOOL)canHandleURL:(NSURL *)URL {
     return [self isVisualHeatMapURL:URL] || [self isVisualAutoTrackURL:URL] || [self isVisualDebugModeURL:URL];
 }
 
@@ -38,18 +38,18 @@
     }
     NSString *featureCode = nil;
     NSString *postURLStr = nil;
-    [self getFeatureCode:&featureCode andPostURL:&postURLStr WithURL:URL];
+    [self featureCode:&featureCode postURL:&postURLStr URL:URL];
     if (featureCode != nil && postURLStr != nil) {
         [self showOpenDialogWithURL:URL featureCode:featureCode postURL:postURLStr isWifi:isWifi ];
         return YES;
-    }else { //feature_code  url 参数错误
+    } else { //feature_code  url 参数错误
         [self showParameterError:@"ERROR" message:@"参数错误"];
         return NO;
     }
     return NO;
 }
 
-- (void)showOpenDialogWithURL:(NSURL*)URL featureCode:(NSString *)featureCode postURL:(NSString *)postURL isWifi:(BOOL)isWifi {
+- (void)showOpenDialogWithURL:(NSURL *)URL featureCode:(NSString *)featureCode postURL:(NSString *)postURL isWifi:(BOOL)isWifi {
     self.featureCode = featureCode;
     self.postUrl = postURL;
     self.originalURL = URL;
@@ -69,26 +69,22 @@
         SADebug(@"Confirmed to open HeatMap ...");
         // start
         if ([self isVisualHeatMapURL:URL]) {
-            self.heatMapConnection = [[SAHeatMapConnection alloc]initWithURL:nil];
-            if (self.heatMapConnection) {
-                [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
-            }
-        }else if ([self isVisualAutoTrackURL:URL]) {
+            self.heatMapConnection = [[SAHeatMapConnection alloc] initWithURL:nil];
+            [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
+        } else if ([self isVisualAutoTrackURL:URL]) {
             self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
-            if (self.visualAutoTrackConnection) {
-                [self.visualAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
-            }
+            [self.visualAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
         }
     }];
     
     [alertController show];
 }
 
--(NSString *)alertMessageWithURL:(NSURL *)URL isWifi:(BOOL)isWifi {
+- (NSString *)alertMessageWithURL:(NSURL *)URL isWifi:(BOOL)isWifi {
     NSString *alertMessage = nil;
     if ([self isVisualHeatMapURL:URL]) {
         alertMessage = @"正在连接 APP 点击分析";
-    }else if ([self isVisualAutoTrackURL:URL]) {
+    } else if ([self isVisualAutoTrackURL:URL]) {
         alertMessage = @"正在连接 APP 自定义埋点";
     }
     if (isWifi ==NO && alertMessage != nil) {
@@ -97,19 +93,19 @@
     return alertMessage;
 }
 
--(BOOL)isVisualHeatMapURL:(NSURL *)url {
+- (BOOL)isVisualHeatMapURL:(NSURL *)url {
     return [url.host isEqualToString:@"heatmap"];
 }
 
--(BOOL)isVisualAutoTrackURL:(NSURL *)url {
+- (BOOL)isVisualAutoTrackURL:(NSURL *)url {
     return [url.host isEqualToString:@"appcircle"];
 }
 
--(BOOL)isVisualDebugModeURL:(NSURL *)url {
+- (BOOL)isVisualDebugModeURL:(NSURL *)url {
      return [url.host isEqualToString:@"debugmode"];
 }
 
--(void)getFeatureCode:(NSString **)featureCode andPostURL:(NSString **)postURL WithURL:(NSURL *)url {
+- (void)featureCode:(NSString **)featureCode postURL:(NSString **)postURL URL:(NSURL *)url {
     @try {
         NSString *query = [url query];
         if (query != nil) {
@@ -132,7 +128,7 @@
         
     }
 }
--(void)showParameterError:(NSString *)alertTitle message:(NSString *)alertMessage {
+- (void)showParameterError:(NSString *)alertTitle message:(NSString *)alertMessage {
         SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
         [alertController addActionWithTitle:@"OK" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
             

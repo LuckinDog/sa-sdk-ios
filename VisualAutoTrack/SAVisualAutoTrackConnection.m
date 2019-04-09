@@ -76,14 +76,14 @@
         if (_featureCode == nil || _postUrl == nil) {
             return;
         }
-        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip withFeatuerCode:_featureCode] encoding:NSUTF8StringEncoding];
+        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip featuerCode:_featureCode] encoding:NSUTF8StringEncoding];
         NSURL *URL = [NSURL URLWithString:_postUrl];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
         [request setHTTPMethod:@"POST"];
         [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
         [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
         [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData* data, NSError *error) {
-             NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
+             NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)response;
              NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
              if ([urlResponse statusCode] == 200) {
                  NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
@@ -125,9 +125,9 @@
 
 #pragma mark -  Methods
 
-- (void)startVisualAutoTrackTimer:(id)message withFeatureCode:(NSString *)featureCode withUrl:(NSString *)postUrl {
+- (void)startVisualAutoTrackTimer:(id)message featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
     _featureCode = featureCode;
-    _postUrl =  (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)postUrl, CFSTR(""),CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+    _postUrl = (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)postURL, CFSTR(""),  CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     _designerMessage = [self designerMessageForMessage:message];
 
     if (timer) {
@@ -136,10 +136,10 @@
     }
 
     timer = [NSTimer scheduledTimerWithTimeInterval:1
-                                     target:self
-                                   selector:@selector(handleMessage)
-                                   userInfo:nil
-                                    repeats:YES];
+                                             target:self
+                                           selector:@selector(handleMessage)
+                                           userInfo:nil
+                                            repeats:YES];
 }
 
 - (void)handleMessage {
@@ -151,18 +151,18 @@
     }
 }
 
-- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr{
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr {
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
     //文件路径
     NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visual_autoTrack_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-    NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     _commandQueue.suspended = NO;
     if (!self->_connected) {
         self->_connected = YES;
-        [self startVisualAutoTrackTimer:jsonString withFeatureCode:featureCode withUrl:urlStr];
-    }else {
-        [self startVisualAutoTrackTimer:jsonString withFeatureCode:featureCode withUrl:urlStr];
+        [self startVisualAutoTrackTimer:jsonString featureCode:featureCode postURL:urlStr];
+    } else {
+        [self startVisualAutoTrackTimer:jsonString featureCode:featureCode postURL:urlStr];
     }
 }
 

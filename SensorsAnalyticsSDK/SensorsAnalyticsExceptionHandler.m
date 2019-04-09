@@ -153,7 +153,7 @@ static void SAHandleException(NSException *exception) {
                 if ([exception callStackSymbols]) {
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
                     long slide_address = [SensorsAnalyticsExceptionHandler sa_computeImageSlide];
-                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address,[exception callStackSymbols]] forKey:@"app_crashed_reason"];
+                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address, [exception callStackSymbols]] forKey:@"app_crashed_reason"];
                     
 #else
                     [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [exception callStackSymbols]] forKey:@"app_crashed_reason"];

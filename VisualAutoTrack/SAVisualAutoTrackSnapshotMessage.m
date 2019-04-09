@@ -49,7 +49,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         // Update the class descriptions in the connection session if provided as part of the message.
         if (serializerConfig) {
             [connection setSessionObject:serializerConfig forKey:kSnapshotSerializerConfigKey];
-        } else if ([connection sessionObjectForKey:kSnapshotSerializerConfigKey]){
+        } else if ([connection sessionObjectForKey:kSnapshotSerializerConfigKey]) {
             // Get the class descriptions from the connection session store.
             serializerConfig = [connection sessionObjectForKey:kSnapshotSerializerConfigKey];
         } else {
@@ -108,7 +108,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         NSData *jpegSnapshotImageData = UIImageJPEGRepresentation(screenshot, 0.5);
         if (jpegSnapshotImageData) {
             payloadObject = [jpegSnapshotImageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-            imageHash = [self getImageHash:jpegSnapshotImageData];
+            imageHash = [self imageHashWithData:jpegSnapshotImageData];
         }
     }
     
@@ -131,7 +131,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
     return [self payloadObjectForKey:@"serialized_objects"];
 }
 
-- (NSString *)getImageHash:(NSData *)imageData {
+- (NSString *)imageHashWithData:(NSData *)imageData {
     unsigned char result[CC_MD5_DIGEST_LENGTH];
     CC_MD5(imageData.bytes, (uint)imageData.length, result);
     NSString *imageHash = [NSString stringWithFormat:@"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
