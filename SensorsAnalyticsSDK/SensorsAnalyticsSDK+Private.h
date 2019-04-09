@@ -25,6 +25,8 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 };
 
 @interface SensorsAnalyticsSDK(Private)
+
+#pragma mark - method
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
 
 /**
@@ -49,6 +51,10 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
  @param trackType trackType track 类型
  */
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType;
+
+#pragma mark - property
+@property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
+
 @end
 
 

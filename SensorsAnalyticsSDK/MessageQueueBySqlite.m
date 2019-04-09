@@ -17,6 +17,7 @@
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
+#import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #define MAX_MESSAGE_SIZE 10000   // 最多缓存10000条
 
@@ -75,7 +76,7 @@
 }
 
 - (void)addObejct:(id)obj withType:(NSString *)type {
-    UInt64 maxCacheSize = [[SensorsAnalyticsSDK sharedInstance] maxCacheSize];
+    UInt64 maxCacheSize = [SensorsAnalyticsSDK sharedInstance].configOptions.maxCacheSize;
     if (_messageCount >= maxCacheSize) {
         SAError(@"touch MAX_MESSAGE_SIZE:%d, try to delete some old events", maxCacheSize);
         BOOL ret = [self removeFirstRecords:100 withType:@"Post"];

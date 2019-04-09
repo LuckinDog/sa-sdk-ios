@@ -34,13 +34,16 @@
     return self;
 }
 
+- (void)setFlushInterval:(NSInteger)flushInterval {
+    _flushInterval = flushInterval >= 5000 ? flushInterval : 5000;
+}
+
+- (void)setFlushBulkSize:(NSInteger)flushBulkSize {
+    _flushBulkSize = flushBulkSize >= 50 ? flushBulkSize : 50;
+}
+
 - (void)setMaxCacheSize:(NSInteger)maxCacheSize {
-    if (maxCacheSize > 0) {
-        //防止设置的值太小导致事件丢失
-        if (maxCacheSize < 10000) {
-            maxCacheSize = 10000;
-        }
-        _maxCacheSize = maxCacheSize;
-    }
+    //防止设置的值太小导致事件丢失
+    _maxCacheSize = maxCacheSize >= 10000 ? maxCacheSize : 10000;
 }
 @end

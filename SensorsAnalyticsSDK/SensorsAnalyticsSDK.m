@@ -2749,7 +2749,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (interval < 5 * 1000) {
             interval = 5 * 1000;
         }
-        self.configOptions.flushInterval = interval;
+        self.configOptions.flushInterval = (NSInteger)interval;
     }
     [self flush];
     [self startFlushTimer];
