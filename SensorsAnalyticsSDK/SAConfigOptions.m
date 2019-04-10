@@ -19,7 +19,6 @@
 
 - (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(NSDictionary *)launchOptions {
     
-    
     self = [super init];
     if (self) {
         _serverURL = serverURL;
@@ -29,7 +28,6 @@
         _flushInterval = 15 * 1000;
         _flushBulkSize = 100;
         _maxCacheSize = 10000;
-        
     }
     return self;
 }
