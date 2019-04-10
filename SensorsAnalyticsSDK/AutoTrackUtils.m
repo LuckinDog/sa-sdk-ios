@@ -180,7 +180,7 @@
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section, (unsigned long)indexPath.item] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section, (unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
@@ -190,7 +190,7 @@
         }
         if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.item]];
+            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.row]];
 
             id responder = [self sa_find_view_responder:collectionView  withViewPathArray:viewPathArray];
             [self sa_find_responder:responder withViewPathArray:viewPathArray];
