@@ -1128,7 +1128,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
 }
 
-- (UInt64)maxCacheSize {
+- (UInt64)getMaxCacheSize {
     @synchronized(self) {
         return self.configOptions.maxCacheSize;
     };
