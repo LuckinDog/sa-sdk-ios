@@ -2948,7 +2948,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
-static inline void __sa_methodExchange(const char *className, const char *originalMethodName, const char *replacementMethodName, IMP imp) {
+static inline void sa_methodExchange(const char *className, const char *originalMethodName, const char *replacementMethodName, IMP imp) {
     @try {
         Class cls = objc_getClass(className);//得到指定类的类定义
         SEL oriSEL = sel_getUid(originalMethodName);//把originalMethodName注册到RunTime系统中
@@ -3118,7 +3118,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
     if (NSClassFromString(@"RCTUIManager")) {
         //        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
-        __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
+        sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
     }
 #endif
 }
