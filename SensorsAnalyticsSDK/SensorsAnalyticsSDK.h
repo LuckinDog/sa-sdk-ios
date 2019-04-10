@@ -828,12 +828,41 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)deleteAll;
 
-#pragma mark- heatMap && appcircle
+#pragma mark- heatMap && visualizedEvent
 - (BOOL)canHandleURL:(NSURL *)url;
 
+/**
+ * 开启 点击图分析/可视化全埋点 分析，默认不开启，
+ * $AppClick 事件将会采集控件的 viewPath。
+ */
 - (void)enableTrackElementSelector;
+
+/**
+ 是否开启 点击图分析/可视化全埋点 分析，默认不开启
+
+ @return YES/NO
+ */
 - (BOOL)isTrackElementSelectorEnabled;
+
+/**
+ * 指定哪些页面开启 点击图分析/可视化全埋点，如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
+ */
+
+
+/**
+* 指定哪些页面开启 点击图分析/可视化全埋点 分析，
+* 如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
+
+ @param controllers 指定的页面
+ */
 - (void)addTrackElementSelectorViewControllers:(NSArray *)controllers;
+
+/**
+ 当前页面是否开启 点击图分析/可视化全埋点 分析；
+
+ @param viewController 当前页面 viewController
+ @return YES/NO
+ */
 - (BOOL)isTrackElementSelectorViewController:(UIViewController *)viewController;
 
 /**
