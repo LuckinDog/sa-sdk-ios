@@ -97,18 +97,21 @@
                 [properties setValue:sa_elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
             }
             [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
+            
         } else if ([view isKindOfClass:[UIImageView class]]) {
             [properties setValue:@"UIImageView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
+            
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
+            
             UIImageView *imageView = (UIImageView *)view;
-
-            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
-
             NSString *imageName = imageView.image.sensorsAnalyticsImageName;
             if (imageName.length > 0) {
                 [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
             }
 #endif
+            
+            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
+            
         } else {
             return;
         }
