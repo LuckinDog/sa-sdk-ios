@@ -38,7 +38,7 @@
     }
     NSString *featureCode = nil;
     NSString *postURLStr = nil;
-    [self featureCode:&featureCode postURL:&postURLStr URL:URL];
+    [self getFeatureCode:&featureCode postURL:&postURLStr URL:URL];
     if (featureCode != nil && postURLStr != nil) {
         [self showOpenDialogWithURL:URL featureCode:featureCode postURL:postURLStr isWifi:isWifi ];
         return YES;
@@ -105,7 +105,7 @@
      return [url.host isEqualToString:@"debugmode"];
 }
 
-- (void)featureCode:(NSString **)featureCode postURL:(NSString **)postURL URL:(NSURL *)url {
+- (void)getFeatureCode:(NSString **)featureCode postURL:(NSString **)postURL URL:(NSURL *)url {
     @try {
         NSString *query = [url query];
         if (query != nil) {
