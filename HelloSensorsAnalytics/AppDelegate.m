@@ -41,10 +41,10 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppClick|SensorsAnalyticsEventTypeAppViewScreen];
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
-    [[SensorsAnalyticsSDK sharedInstance] enableTrackElementSelector];
+    [[SensorsAnalyticsSDK sharedInstance] enableVirtualAutoTrackEvent];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
-//    [[SensorsAnalyticsSDK sharedInstance] addTrackElementSelectorViewControllers:[NSArray arrayWithObject:@"DemoController"]];
+//    [[SensorsAnalyticsSDK sharedInstance] addVirtualAutoTrackEventViewControllers:[NSArray arrayWithObject:@"DemoController"]];
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];

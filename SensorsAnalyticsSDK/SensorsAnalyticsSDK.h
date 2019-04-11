@@ -842,30 +842,59 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 开启 点击图/可视化全埋点 分析，默认不开启，
  * $AppClick 事件将会采集控件的 viewPath。
  */
-- (void)enableTrackElementSelector;
+- (void)enableVirtualAutoTrackEvent;
 
 /**
- * 是否开启 点击图/可视化全埋点 分析，默认不开启。
+ 是否开启 点击图/可视化全埋点 分析，默认不
 
- * @return YES/NO
+ @return YES/NO
  */
-- (BOOL)isTrackElementSelectorEnabled;
+- (BOOL)isVirtualAutoTrackEventEnabled;
 
 /**
-* 指定哪些页面开启 点击图/可视化全埋点 分析，
-* 如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath。
+ 指定哪些页面开启 点击图/可视化全埋点 分析，
+ 如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath。
 
-* @param controllers 指定的页面的类名数组
+ @param controllers 指定的页面的类名数组
  */
-- (void)addTrackElementSelectorViewControllers:(NSArray <NSString *> *)controllers;
+- (void)addVirtualAutoTrackEventViewControllers:(NSArray<NSString *> *)controllers;
 
 /**
- * 当前页面是否开启 点击图/可视化全埋点 分析。
+ 当前页面是否开启 点击图/可视化全埋点 分析。
 
- * @param viewController 当前页面 viewController
- * @return YES/NO
+ @param viewController 当前页面 viewController
+ @return YES/NO
  */
-- (BOOL)isTrackElementSelectorViewController:(UIViewController *)viewController;
+- (BOOL)isVirtualAutoTrackEventViewController:(UIViewController *)viewController;
+
+/**
+ 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
+ */
+- (void)enableHeatMap;
+
+
+/**
+ 是否开启点击图
+
+ @return YES/NO 是否开启了点击图
+ */
+- (BOOL)isHeatMapEnabled;
+
+/**
+ 指定哪些页面开启 HeatMap，如果指定了页面
+ 只有这些页面的 $AppClick 事件会采集控件的 viwPath
+
+ @param controllers 需要开启点击图的 ViewController 的类名
+ */
+- (void)addHeatMapViewControllers:(NSArray<NSString *> *)controllers;
+
+/**
+ 当前页面是否开启 点击图 分析。
+
+ @param viewController 当前页面 viewController
+ @return 当前 viewController 是否支持点击图分析
+ */
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
 
 /**
  * @abstract
@@ -1293,22 +1322,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @return YES/NO
  */
 - (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
-
-/**
- * @abstract
- * 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
- */
-- (void)enableHeatMap __attribute__((deprecated("已过时，请参考enableTrackElementSelector")));
-
-- (BOOL)isHeatMapEnabled __attribute__((deprecated("已过时，请参考isTrackElementSelectorEnabled")));
-
-/**
- * @abstract
- * 指定哪些页面开启 HeatMap，如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
- */
-- (void)addHeatMapViewControllers:(NSArray *)controllers __attribute__((deprecated("已过时，请参考addTrackElementSelectorViewControllers:(NSArray *)controllers")));
-
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController __attribute__((deprecated("已过时，请参考isTrackElementSelectorViewController:(UIViewController *)viewController")));
 
 @end
 

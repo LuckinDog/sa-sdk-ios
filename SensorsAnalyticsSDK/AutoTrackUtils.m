@@ -184,11 +184,15 @@
         }
 
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
-        if (cell==nil) {
+        if (!cell) {
             [collectionView layoutIfNeeded];
             cell = [collectionView cellForItemAtIndexPath:indexPath];
         }
-        if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
+
+        SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
+        BOOL isEnabled = [sa isVirtualAutoTrackEventEnabled] || [sa isHeatMapEnabled];
+        BOOL isContains = [sa isVirtualAutoTrackEventViewController:viewController] || [sa isHeatMapViewController:viewController];
+        if (isEnabled && isContains) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
             [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.row]];
 
@@ -302,7 +306,10 @@
         }
         NSString *elementContent = [[NSString alloc] init];
 
-        if ([[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled] && [[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
+        SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
+        BOOL isEnabled = [sa isVirtualAutoTrackEventEnabled] || [sa isHeatMapEnabled];
+        BOOL isContains = [sa isVirtualAutoTrackEventViewController:viewController] || [sa isHeatMapViewController:viewController];
+        if (isEnabled && isContains) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
             [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.row]];
 
@@ -352,11 +359,10 @@
 
 + (void)sa_addViewPathProperties:(NSMutableDictionary *)properties object:(UIView *)view viewController:(UIViewController *)viewController {
     @try {
-        if (![[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorEnabled]) {
-            return;
-        }
-
-        if (![[SensorsAnalyticsSDK sharedInstance] isTrackElementSelectorViewController:viewController]) {
+        SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
+        BOOL isEnabled = [sa isVirtualAutoTrackEventEnabled] || [sa isHeatMapEnabled];
+        BOOL isContains = [sa isVirtualAutoTrackEventViewController:viewController] || [sa isHeatMapViewController:viewController];
+        if (!isEnabled || !isContains) {
             return;
         }
 

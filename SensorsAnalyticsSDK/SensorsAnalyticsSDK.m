@@ -206,7 +206,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //用户设置的不被AutoTrack的Controllers
 @property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
 
-@property (nonatomic, strong) NSMutableArray *trackElementSelectorViewControllers;
+@property (nonatomic, strong) NSMutableSet<NSString *> *heatMapViewControllers;
+@property (nonatomic, strong) NSMutableSet<NSString *> *virtualAutoTrackEventViewControllers;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
@@ -243,7 +244,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
-    BOOL _shouldTrackElementSelector;
+    BOOL _shouldHeatMap;
+    BOOL _shouldVirtualAutoTrackEvent;
     UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
@@ -398,7 +400,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _flushBulkSize = 100;
             _maxCacheSize = 10000;
             _autoTrack = NO;
-            _shouldTrackElementSelector = NO;
+            _shouldVirtualAutoTrackEvent = NO;
             _appRelaunched = NO;
             _showDebugAlertView = YES;
             _debugAlertViewHasShownNumber = 0;
@@ -427,7 +429,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
-            _trackElementSelectorViewControllers = [[NSMutableArray alloc] init];
+            _heatMapViewControllers = [[NSMutableSet alloc] init];
+            _virtualAutoTrackEventViewControllers = [[NSMutableSet alloc] init];
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
 
@@ -1473,51 +1476,62 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return NO;
 }
 
-- (void)enableTrackElementSelector {
-    _shouldTrackElementSelector = YES;
+#pragma mark - Virtual Auto Track Event
+- (void)enableVirtualAutoTrackEvent {
+    _shouldVirtualAutoTrackEvent = YES;
 }
 
-- (BOOL)isTrackElementSelectorEnabled {
-    return _shouldTrackElementSelector;
+- (BOOL)isVirtualAutoTrackEventEnabled {
+    return _shouldVirtualAutoTrackEvent;
 }
 
-- (void)addTrackElementSelectorViewControllers:(NSArray *)controllers {
-    @try {
-        if (controllers == nil || controllers.count == 0) {
-            return;
-        }
-        [_trackElementSelectorViewControllers addObjectsFromArray:controllers];
-        
-        //去重
-        NSSet *set = [NSSet setWithArray:_trackElementSelectorViewControllers];
-        if (set != nil) {
-            _trackElementSelectorViewControllers = [NSMutableArray arrayWithArray:[set allObjects]];
-        } else {
-            _trackElementSelectorViewControllers = [[NSMutableArray alloc] init];
-        }
-    } @catch (NSException *exception) {
-        SAError(@"%@: %@", self, exception);
+- (void)addVirtualAutoTrackEventViewControllers:(NSArray<NSString *> *)controllers {
+    if (![controllers isKindOfClass:[NSArray class]] || controllers.count == 0) {
+        return;
     }
+    [_virtualAutoTrackEventViewControllers addObjectsFromArray:controllers];
 }
 
-- (BOOL)isTrackElementSelectorViewController:(UIViewController *)viewController {
-    @try {
-        if (viewController == nil) {
-            return NO;
-        }
-        
-        if (_trackElementSelectorViewControllers == nil || _trackElementSelectorViewControllers.count == 0) {
-            return YES;
-        }
-        
-        NSString *screenName = NSStringFromClass([viewController class]);
-        if ([_trackElementSelectorViewControllers containsObject:screenName]) {
-            return YES;
-        }
-    } @catch (NSException *exception) {
-        SAError(@"%@: %@", self, exception);
+- (BOOL)isVirtualAutoTrackEventViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return NO;
     }
-    return NO;
+
+    if (_virtualAutoTrackEventViewControllers.count == 0) {
+        return YES;
+    }
+
+    NSString *screenName = NSStringFromClass([viewController class]);
+    return [_virtualAutoTrackEventViewControllers containsObject:screenName];
+}
+
+#pragma mark - Heat Map
+- (void)enableHeatMap {
+    _shouldHeatMap = YES;
+}
+
+- (BOOL)isHeatMapEnabled {
+    return _shouldHeatMap;
+}
+
+- (void)addHeatMapViewControllers:(NSArray<NSString *> *)controllers {
+    if (![controllers isKindOfClass:[NSArray class]] || controllers.count == 0) {
+        return;
+    }
+    [_heatMapViewControllers addObjectsFromArray:controllers];
+}
+
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return NO;
+    }
+
+    if (_heatMapViewControllers.count == 0) {
+        return YES;
+    }
+
+    NSString *screenName = NSStringFromClass([viewController class]);
+    return [_heatMapViewControllers containsObject:screenName];
 }
 
 #pragma mark --track event
@@ -3755,19 +3769,4 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     return [self handleCustomAutoTrackURL:URL];
 }
 
-- (void)enableHeatMap {
-    [self enableTrackElementSelector];
-}
-
-- (BOOL)isHeatMapEnabled {
-    return [self isTrackElementSelectorEnabled];
-}
-
-- (void)addHeatMapViewControllers:(NSArray *)controllers {
-    [self addTrackElementSelectorViewControllers:controllers];
-}
-
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController {
-    return [self isTrackElementSelectorViewController:viewController];
-}
 @end
