@@ -128,7 +128,7 @@
     NSString *version = @"1.2.qqq0";
     
     XCTestExpectation *expect = [self expectationWithDescription:@"请求超时timeout!"];
-    NSURLSessionTask *task = [self.network functionalManagermentConfigWithVersion:version completion:^(BOOL success, NSDictionary<NSString *,id> * _Nonnull config) {
+    NSURLSessionTask *task = [self.network functionalManagermentConfigWithRemoteConfigURL:nil version:version completion:^(BOOL success, NSDictionary<NSString *,id> * _Nonnull config) {
         XCTAssertTrue(success);
         [expect fulfill];
     }];

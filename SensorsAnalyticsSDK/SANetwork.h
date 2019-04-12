@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param params 扫码得到的参数
  @return request task
  */
-- (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params;
+- (nullable NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params;
 
 /**
  请求远程配置
@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param completion 结束的回调
  @return request task
  */
-- (NSURLSessionTask *)functionalManagermentConfigWithVersion:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
+- (nullable NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
 
 @end
 

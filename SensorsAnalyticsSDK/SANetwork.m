@@ -192,15 +192,23 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return request;
 }
 
-- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithVersion:(NSString *)version {
-    NSURL *url = _serverURL.lastPathComponent.length > 0 ? [_serverURL URLByDeletingLastPathComponent] : _serverURL;
-    NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-    if (componets == nil) {
-        SALog(@"URLString is malformed, nil is returned.");
-        return nil;
+- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version {
+
+    NSURLComponents *componets = nil;
+    if (remoteConfigURL) {
+        componets = [NSURLComponents componentsWithURL:remoteConfigURL resolvingAgainstBaseURL:YES];
     }
-    componets.query = nil;
-    componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+    if (!componets.host) {
+        NSURL *url = _serverURL.lastPathComponent.length > 0 ? [_serverURL URLByDeletingLastPathComponent] : _serverURL;
+        NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+        if (componets == nil) {
+            SALog(@"URLString is malformed, nil is returned.");
+            return nil;
+        }
+        componets.query = nil;
+        componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+    }
+
     if (version.length) {
         componets.query = [NSString stringWithFormat:@"v=%@", version];
     }
@@ -209,6 +217,11 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 #pragma mark - request
 - (BOOL)flushEvents:(NSArray<NSString *> *)events {
+    if (!self.serverURL) {
+        SAError(@"serverURL error，Please check the serverURL");
+        return NO;
+    }
+
     NSString *jsonString = [self buildFlushJSONStringWithEvents:events];
     
     __block BOOL flushSuccess;
@@ -259,6 +272,10 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 - (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
+    if (!self.serverURL) {
+        SAError(@"serverURL error，Please check the serverURL");
+        return nil;
+    }
     NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
     NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
 
@@ -274,8 +291,12 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return task;
 }
 
-- (NSURLSessionTask *)functionalManagermentConfigWithVersion:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
-    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithVersion:version];
+- (NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
+    if (!self.serverURL) {
+        SAError(@"serverURL error，Please check the serverURL");
+        return nil;
+    }
+    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL version:version];
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (!completion) {
             return ;

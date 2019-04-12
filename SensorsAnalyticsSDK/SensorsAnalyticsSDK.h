@@ -175,6 +175,37 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
 
 /**
  * @class
+ *  SensorsAnalyticsSDK 初始化配置
+ */
+@interface SAConfigOptions : NSObject
+
+/**
+ 指定初始化方法，设置 serverURL
+ 
+ @param serverUrl 数据接收地址
+ @return 配置对象
+ */
+- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;
+
+/**
+ 禁用 init 初始化
+ */
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ 禁用 new 初始化
+ */
++ (instancetype)new NS_UNAVAILABLE;
+
+/**
+ 请求配置地址，默认从 ServerUrl 解析
+ */
+@property(nonatomic, copy) NSString *remoteConfigURL;
+@end
+
+
+/**
+ * @class
  * SensorsAnalyticsSDK 类
  *
  * @abstract
@@ -255,9 +286,6 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */
 @property (atomic) UInt64 flushBulkSize;
-
-@property (nonatomic, readonly) SensorsAnalyticsDebugMode debugMode;
-
 #pragma mark- init instance
 
 /**
@@ -270,7 +298,7 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithServerURL: andLaunchOptions:")));
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
 
 /**
  * @abstract
@@ -284,25 +312,34 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
                                     andLaunchOptions:(NSDictionary * _Nullable)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithServerURL: andLaunchOptions:")));
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
 /**
  * @abstract
  * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
- 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
+ * 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  * @param serverURL 收集事件的 URL
  * @param launchOptions launchOptions
  *
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
-                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions;
+                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions  __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
+ *
+ @param configOptions 参数配置
+ @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions;
 
 /**
  * @abstract
  * 返回之前所初始化好的单例
  *
  * @discussion
- * 调用这个方法之前，必须先调用 sharedInstanceWithServerURL 这个方法
+ * 调用这个方法之前，必须先调用 sharedInstanceWithConfig 这个方法
  *
  * @return 返回的单例
  */
@@ -788,6 +825,15 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
 
 
 /**
+ 设置调试模式
+ 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
+ @param debugMode 调试模式
+ */
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式")));
+
+- (SensorsAnalyticsDebugMode)debugMode;
+
+/**
  * @abstract
  * 通过代码触发 UIView 的 $AppClick 事件
  *
@@ -1111,18 +1157,6 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
  *
  */
 -(void)clearKeychainData;
-
-#pragma mark - Certificates
-/**
- * @abstract
- * HTTPS 证书相关接口
- * 默认使用 Bundle 中后缀为 .cer 的证书文件
- *
- * @param SSLPinningMode SSL 方式
- * @param isAllowed 是否允许使用无效证书
- * @param isValidated 是否需要验证域名
- */
-- (void)setSSLPinningMode:(SASSLPinningMode)SSLPinningMode allowInvalidCertificates:(BOOL)isAllowed validatesDomainName:(BOOL)isValidated;
 
 @end
 
