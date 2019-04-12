@@ -457,6 +457,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
             
+            if (configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
+                [self configAutoTrack];
+            }
             // XXX: App Active 的时候会启动计时器，此处不需要启动
             //        [self startFlushTimer];
             NSString *logMessage = nil;
@@ -1196,6 +1199,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.configOptions.autoTrackEventType = eventType;
         [self _enableAutoTrack];
     }
+
+    [self configAutoTrack];
+}
+
+- (void)configAutoTrack {
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
@@ -1208,19 +1216,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([self isLaunchedPassively]) {
             // 追踪 AppStart 事件
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-
+                
                 [self track:SA_EVENT_NAME_APP_START_PASSIVELY withProperties:@{
-                                                                   SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(self->_appRelaunched),
-                                                                   SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
-                                                             } withTrackType:SensorsAnalyticsTrackTypeAuto];
+                                                                               SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(self->_appRelaunched),
+                                                                               SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
+                                                                               } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         } else {
             // 追踪 AppStart 事件
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
                 [self track:SA_EVENT_NAME_APP_START withProperties:@{
-                                                             SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(self->_appRelaunched),
-                                                             SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
-                                                             } withTrackType:SensorsAnalyticsTrackTypeAuto];
+                                                                     SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(self->_appRelaunched),
+                                                                     SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
+                                                                     } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             // 启动 AppEnd 事件计时器
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
