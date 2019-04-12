@@ -213,7 +213,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @implementation SensorsAnalyticsSDK {
     SensorsAnalyticsDebugMode _debugMode;
     NSDateFormatter *_dateFormatter;
-    BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
     BOOL _heatMap;
@@ -391,7 +390,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self enableLog];
             [self setServerUrl:configOptions.serverURL];
             
-            _autoTrack = NO;
             _heatMap = NO;
             _appRelaunched = NO;
             _showDebugAlertView = YES;
@@ -1196,7 +1194,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
     if (self.configOptions.autoTrackEventType != eventType) {
         self.configOptions.autoTrackEventType = eventType;
-        _autoTrack = (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
         [self _enableAutoTrack];
     }
     // 是否首次启动
@@ -1244,7 +1241,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         }
     }
-    return _autoTrack;
+    return (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
