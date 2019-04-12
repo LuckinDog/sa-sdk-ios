@@ -1194,9 +1194,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if (self.configOptions.autoTrackTEventType != eventType) {
-        self.configOptions.autoTrackTEventType = eventType;
-        _autoTrack = (self.configOptions.autoTrackTEventType != SensorsAnalyticsEventTypeNone);
+    if (self.configOptions.autoTrackEventType != eventType) {
+        self.configOptions.autoTrackEventType = eventType;
+        _autoTrack = (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
         [self _enableAutoTrack];
     }
     // 是否首次启动
@@ -1259,7 +1259,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return !(self.remoteConfig.autoTrackMode & eventType);
         }
     }
-    return !(self.configOptions.autoTrackTEventType & eventType);
+    return !(self.configOptions.autoTrackEventType & eventType);
 }
 
 - (void)ignoreViewType:(Class)aClass {
@@ -1297,7 +1297,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
-    self.configOptions.autoTrackTEventType = self.configOptions.autoTrackTEventType ^ eventType;
+    self.configOptions.autoTrackEventType = self.configOptions.autoTrackEventType ^ eventType;
 }
 
 - (void)showDebugInfoView:(BOOL)show {

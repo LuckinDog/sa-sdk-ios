@@ -24,7 +24,7 @@
         _serverURL = serverURL;
         _launchOptions = launchOptions;
         
-        _autoTrackTEventType = SensorsAnalyticsEventTypeNone;
+        _autoTrackEventType = SensorsAnalyticsEventTypeNone;
         _flushInterval = 15 * 1000;
         _flushBulkSize = 100;
         _maxCacheSize = 10000;
