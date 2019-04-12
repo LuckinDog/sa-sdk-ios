@@ -96,8 +96,6 @@
             if (sa_elementContent && sa_elementContent.length > 0) {
                 [properties setValue:sa_elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
             }
-            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
-            
         } else if ([view isKindOfClass:[UIImageView class]]) {
             [properties setValue:@"UIImageView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
             
@@ -110,8 +108,6 @@
             }
 #endif
             
-            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
-            
         } else {
             return;
         }
@@ -122,6 +118,7 @@
             [properties addEntriesFromDictionary:propDict];
         }
         
+        [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);

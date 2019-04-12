@@ -189,27 +189,7 @@
             cell = [collectionView cellForItemAtIndexPath:indexPath];
         }
 
-        SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
-        BOOL isEnabled = [sa isVirtualAutoTrackEventEnabled] || [sa isHeatMapEnabled];
-        BOOL isContains = [sa isVirtualAutoTrackEventViewController:viewController] || [sa isHeatMapViewController:viewController];
-        if (isEnabled && isContains) {
-            NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.row]];
-
-            id responder = [self sa_find_view_responder:collectionView  withViewPathArray:viewPathArray];
-            [self sa_find_responder:responder withViewPathArray:viewPathArray];
-
-            NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
-
-            NSString *viewPath = [[NSString alloc] init];
-            for (int i = 0; i < array.count; i++) {
-                viewPath = [viewPath stringByAppendingString:array[i]];
-                if (i != (array.count - 1)) {
-                    viewPath = [viewPath stringByAppendingString:@"/"];
-                }
-            }
-            [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
-        }
+        [self sa_addIndexPathProperties:properties object:collectionView cell:cell indexPath:indexPath viewController:viewController];
         
         NSString *elementContent = [self contentFromView:cell];
         if (elementContent.length > 0) {
@@ -300,38 +280,14 @@
         }
 
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-        if (cell == nil) {
+        if (!cell) {
             [tableView layoutIfNeeded];
             cell = [tableView cellForRowAtIndexPath:indexPath];
         }
+
+        [self sa_addIndexPathProperties:properties object:tableView cell:cell indexPath:indexPath viewController:viewController];
+
         NSString *elementContent = [[NSString alloc] init];
-
-        SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
-        BOOL isEnabled = [sa isVirtualAutoTrackEventEnabled] || [sa isHeatMapEnabled];
-        BOOL isContains = [sa isVirtualAutoTrackEventViewController:viewController] || [sa isHeatMapViewController:viewController];
-        if (isEnabled && isContains) {
-            NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
-            [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.row]];
-
-            id responder = [self sa_find_view_responder:tableView withViewPathArray:viewPathArray];
-            [self sa_find_responder:responder withViewPathArray:viewPathArray];
-
-            NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
-
-            NSMutableString *viewPath = [[NSMutableString alloc] init];
-            for (int i = 0; i < array.count; i++) {
-                [viewPath appendString:array[i]];
-                if (i != (array.count - 1)) {
-                    [viewPath appendString:@"/"];
-                }
-            }
-            NSRange range = [viewPath rangeOfString:@"UITableViewWrapperView/"];
-            if (range.length) {
-                [viewPath deleteCharactersInRange:range];
-            }
-            [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
-        }
-
         elementContent = [self contentFromView:cell];
         if (elementContent.length > 0) {
             [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
@@ -380,6 +336,37 @@
         [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
+    }
+}
+
++ (void)sa_addIndexPathProperties:(NSMutableDictionary *)properties object:(UIScrollView *)scrollView cell:(UIView *)cell indexPath:(NSIndexPath *)indexPath viewController:(UIViewController *)viewController {
+    SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
+    BOOL isEnabled = [sa isVirtualAutoTrackEventEnabled] || [sa isHeatMapEnabled];
+    BOOL isContains = [sa isVirtualAutoTrackEventViewController:viewController] || [sa isHeatMapViewController:viewController];
+    if (isEnabled && isContains) {
+        NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
+        [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.row]];
+        
+        id responder = [self sa_find_view_responder:scrollView withViewPathArray:viewPathArray];
+        [self sa_find_responder:responder withViewPathArray:viewPathArray];
+        
+        NSArray *array = [[viewPathArray reverseObjectEnumerator] allObjects];
+        
+        NSMutableString *viewPath = [[NSMutableString alloc] init];
+        for (int i = 0; i < array.count; i++) {
+            [viewPath appendString:array[i]];
+            if (i != (array.count - 1)) {
+                [viewPath appendString:@"/"];
+            }
+        }
+        
+        if ([scrollView isKindOfClass:UITableView.class]) {
+            NSRange range = [viewPath rangeOfString:@"UITableViewWrapperView/"];
+            if (range.length) {
+                [viewPath deleteCharactersInRange:range];
+            }
+        }
+        [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
     }
 }
 
@@ -670,12 +657,10 @@
             if (sa_elementContent && sa_elementContent.length > 0) {
                 [properties setValue:sa_elementContent forKey:@"$element_content"];
             }
-            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
         } else if ([view isKindOfClass:[UIImageView class]]) {
             [properties setValue:@"UIImageView" forKey:@"$element_type"];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
             UIImageView *imageView = (UIImageView *)view;
-            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
             if (imageView) {
                 if (imageView.image) {
                     NSString *imageName = imageView.image.sensorsAnalyticsImageName;
@@ -695,6 +680,7 @@
             [properties addEntriesFromDictionary:propDict];
         }
 
+        [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
         [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);

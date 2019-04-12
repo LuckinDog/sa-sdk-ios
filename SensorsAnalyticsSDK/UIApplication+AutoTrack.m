@@ -326,15 +326,14 @@
                         }
                     }
                 }
-                
-                [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
-                
+        
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
 
+                [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
                 [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         }

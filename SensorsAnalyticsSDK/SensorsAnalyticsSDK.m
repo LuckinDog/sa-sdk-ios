@@ -400,7 +400,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _flushBulkSize = 100;
             _maxCacheSize = 10000;
             _autoTrack = NO;
-            _shouldVirtualAutoTrackEvent = NO;
             _appRelaunched = NO;
             _showDebugAlertView = YES;
             _debugAlertViewHasShownNumber = 0;
