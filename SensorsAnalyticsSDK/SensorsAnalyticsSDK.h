@@ -828,7 +828,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)deleteAll;
 
-#pragma mark - VisualizedEvent
+#pragma mark - VisualizedAutoTrack
 
 /**
  * 判断是否为符合要求的 openURL
