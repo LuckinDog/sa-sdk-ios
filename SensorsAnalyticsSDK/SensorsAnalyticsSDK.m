@@ -1421,7 +1421,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)deleteAll {
     [self.messageQueue deleteAll];
 }
-#pragma mark-- heatmap && appcircle
+#pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url];
 }
@@ -1533,7 +1533,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [_heatMapViewControllers containsObject:screenName];
 }
 
-#pragma mark --track event
+#pragma mark - track event
 
 - (BOOL) isValidName : (NSString *) name {
     @try {

@@ -828,7 +828,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)deleteAll;
 
-#pragma mark - VisualizedAutoTrack
+
 
 /**
  * 判断是否为符合要求的 openURL
@@ -838,6 +838,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (BOOL)canHandleURL:(NSURL *)url;
 
+#pragma mark - VisualizedAutoTrack
 /**
  * 开启 可视化全埋点 分析，默认不开启，
  * $AppClick 事件将会采集控件的 viewPath。
@@ -904,7 +905,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (BOOL)handleSchemeUrl:(NSURL *)url;
 
-#pragma mark- profile
+#pragma mark - profile
 /**
  * @abstract
  * 直接设置用户的一个或者几个 Profiles
