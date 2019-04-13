@@ -120,32 +120,22 @@
     }
 }
 
++ (BOOL)isTrackAppClickIgnoredWithView:(nullable UIView *)view {
+    if (!view) {
+        return YES;
+    }
+    SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
+
+    BOOL isAutoTrackEnabled = [sa isAutoTrackEnabled];
+    BOOL isAutoTrackEventTypeIgnored = [sa isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
+    BOOL isViewTypeIgnored = [sa isViewTypeIgnored:[view class]];
+    BOOL isViewIgnored = view.sensorsAnalyticsIgnoreView;
+    return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored || isViewIgnored;
+}
+
 + (void)trackAppClickWithUICollectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     @try {
-        //关闭 AutoTrack
-        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
-            return;
-        }
-
-        //忽略 $AppClick 事件
-        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-
-        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UICollectionView class]]) {
-            return;
-        }
-
-        if (!collectionView) {
-            return;
-        }
-
-        UIView *view = (UIView *)collectionView;
-        if (!view) {
-            return;
-        }
-
-        if (view.sensorsAnalyticsIgnoreView) {
+        if ([AutoTrackUtils isTrackAppClickIgnoredWithView:collectionView]) {
             return;
         }
 
@@ -154,11 +144,11 @@
         [properties setValue:@"UICollectionView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
         //ViewID
-        if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
+        if (collectionView.sensorsAnalyticsViewID != nil) {
+            [properties setValue:collectionView.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
 
-        UIViewController *viewController = [view sensorsAnalyticsViewController];
+        UIViewController *viewController = [collectionView sensorsAnalyticsViewController];
 
         if (viewController == nil || [viewController isKindOfClass:UINavigationController.class]) {
             viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
@@ -197,14 +187,14 @@
         }
 
         //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        NSDictionary* propDict = collectionView.sensorsAnalyticsViewProperties;
         if (propDict != nil) {
             [properties addEntriesFromDictionary:propDict];
         }
 
         @try {
-            if ([view.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [view.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
-                    [properties addEntriesFromDictionary:[view.sensorsAnalyticsDelegate sensorsAnalytics_collectionView:collectionView autoTrackPropertiesAtIndexPath:indexPath]];
+            if ([collectionView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [collectionView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
+                    [properties addEntriesFromDictionary:[collectionView.sensorsAnalyticsDelegate sensorsAnalytics_collectionView:collectionView autoTrackPropertiesAtIndexPath:indexPath]];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
@@ -218,30 +208,7 @@
 
 + (void)trackAppClickWithUITableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     @try {
-        //关闭 AutoTrack
-        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
-            return;
-        }
-
-        //忽略 $AppClick 事件
-        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-
-        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UITableView class]]) {
-            return;
-        }
-
-        if (!tableView) {
-            return;
-        }
-
-        UIView *view = (UIView *)tableView;
-        if (!view) {
-            return;
-        }
-
-        if (view.sensorsAnalyticsIgnoreView) {
+        if ([AutoTrackUtils isTrackAppClickIgnoredWithView:tableView]) {
             return;
         }
 
@@ -250,8 +217,8 @@
         [properties setValue:@"UITableView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
         //ViewID
-        if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
+        if (tableView.sensorsAnalyticsViewID != nil) {
+            [properties setValue:tableView.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
 
         UIViewController *viewController = [tableView sensorsAnalyticsViewController];
@@ -294,14 +261,14 @@
         }
 
         //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        NSDictionary* propDict = tableView.sensorsAnalyticsViewProperties;
         if (propDict != nil) {
             [properties addEntriesFromDictionary:propDict];
         }
 
         @try {
-            if ([view.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [view.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)]) {
-                    [properties addEntriesFromDictionary:[view.sensorsAnalyticsDelegate sensorsAnalytics_tableView:tableView autoTrackPropertiesAtIndexPath:indexPath]];
+            if ([tableView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [tableView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)]) {
+                    [properties addEntriesFromDictionary:[tableView.sensorsAnalyticsDelegate sensorsAnalytics_tableView:tableView autoTrackPropertiesAtIndexPath:indexPath]];
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
@@ -518,39 +485,17 @@
 + (void)trackAppClickWithUITabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item{
     //插入埋点
     @try {
-        //关闭 AutoTrack
-        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
+        if ([AutoTrackUtils isTrackAppClickIgnoredWithView:tabBar]) {
             return;
         }
 
-        //忽略 $AppClick 事件
-        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-
-        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UITabBar class]]) {
-            return;
-        }
-
-        if (!tabBar) {
-            return;
-        }
-
-        UIView *view = (UIView *)tabBar;
-        if (!view) {
-            return;
-        }
-
-        if (view.sensorsAnalyticsIgnoreView) {
-            return;
-        }
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         [properties setValue:@"UITabBar" forKey:@"$element_type"];
         //ViewID
-        if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+        if (tabBar.sensorsAnalyticsViewID != nil) {
+            [properties setValue:tabBar.sensorsAnalyticsViewID forKey:@"$element_id"];
         }
-        UIViewController *viewController = [view sensorsAnalyticsViewController];
+        UIViewController *viewController = [tabBar sensorsAnalyticsViewController];
 
         if (viewController == nil ||
             [@"UINavigationController" isEqualToString:NSStringFromClass([viewController class])]) {
@@ -577,12 +522,12 @@
         }
 
         //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        NSDictionary* propDict = tabBar.sensorsAnalyticsViewProperties;
         if (propDict != nil) {
             [properties addEntriesFromDictionary:propDict];
         }
 
-        [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
+        [AutoTrackUtils sa_addViewPathProperties:properties object:tabBar viewController:viewController];
         [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
@@ -600,30 +545,7 @@
         }
 
         UIView *view = gesture.view;
-        if (view == nil) {
-            return;
-        }
-        //关闭 AutoTrack
-        if (![SensorsAnalyticsSDK.sharedInstance isAutoTrackEnabled]) {
-            return;
-        }
-
-        //忽略 $AppClick 事件
-        if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-
-        if ([view isKindOfClass:[UILabel class]]) {//UILabel
-            if ([SensorsAnalyticsSDK.sharedInstance isViewTypeIgnored:[UILabel class]]) {
-                return;
-            }
-        } else if ([view isKindOfClass:[UIImageView class]]) {//UIImageView
-            if ([SensorsAnalyticsSDK.sharedInstance isViewTypeIgnored:[UIImageView class]]) {
-                return;
-            }
-        }
-
-        if (view.sensorsAnalyticsIgnoreView) {
+        if ([AutoTrackUtils isTrackAppClickIgnoredWithView:view]) {
             return;
         }
 
