@@ -1,5 +1,5 @@
 //
-//  SAVisualAutoTrackConnection.h
+//  SAVisualizedAutoTrackConnection.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/9/4.
@@ -8,9 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol SAVisualAutoTrackMessage;
+@protocol SAVisualizedAutoTrackMessage;
 
-@interface SAVisualAutoTrackConnection : NSObject
+@interface SAVisualizedAutoTrackConnection : NSObject
 
 @property (nonatomic, readonly) BOOL connected;
 @property (nonatomic, assign) BOOL useGzip;
@@ -18,7 +18,7 @@
 - (instancetype)initWithURL:(NSURL *)url;
 - (void)setSessionObject:(id)object forKey:(NSString *)key;
 - (id)sessionObjectForKey:(NSString *)key;
-- (void)sendMessage:(id<SAVisualAutoTrackMessage>)message;
+- (void)sendMessage:(id<SAVisualizedAutoTrackMessage>)message;
 - (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr;
 - (void)close;
 

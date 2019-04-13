@@ -1,5 +1,5 @@
 //
-//  SAVisualAutoTrackConnection.m,
+//  SAVisualizedAutoTrackConnection.m,
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/9/4.
@@ -11,24 +11,24 @@
 #endif
 
 
-#import "SAVisualAutoTrackConnection.h"
-#import "SAVisualAutoTrackMessage.h"
-#import "SAVisualAutoTrackSnapshotMessage.h"
+#import "SAVisualizedAutoTrackConnection.h"
+#import "SAVisualizedAutoTrackMessage.h"
+#import "SAVisualizedAutoTrackSnapshotMessage.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
 
-@interface SAVisualAutoTrackConnection ()
+@interface SAVisualizedAutoTrackConnection ()
 
 @end
 
-@implementation SAVisualAutoTrackConnection {
+@implementation SAVisualizedAutoTrackConnection {
     BOOL _connected;
 
     NSURL *_url;
     NSDictionary *_typeToMessageClassMap;
     NSOperationQueue *_commandQueue;
     NSTimer *timer;
-    id<SAVisualAutoTrackMessage> _designerMessage;
+    id<SAVisualizedAutoTrackMessage> _designerMessage;
     NSString *_featureCode;
     NSString *_postUrl;
 }
@@ -37,7 +37,7 @@
     self = [super init];
     if (self) {
         _typeToMessageClassMap = @{
-            SAVisualAutoTrackSnapshotRequestMessageType : [SAVisualAutoTrackSnapshotRequestMessage class],
+            SAVisualizedAutoTrackSnapshotRequestMessageType : [SAVisualizedAutoTrackSnapshotRequestMessage class],
         };
         _connected = NO;
         _useGzip = YES;
@@ -71,7 +71,7 @@
     return key;
 }
 
-- (void)sendMessage:(id<SAVisualAutoTrackMessage>)message {
+- (void)sendMessage:(id<SAVisualizedAutoTrackMessage>)message {
     if (_connected) {
         if (_featureCode == nil || _postUrl == nil) {
             return;
@@ -100,10 +100,10 @@
     }
 }
 
-- (id <SAVisualAutoTrackMessage>)designerMessageForMessage:(id)message {
+- (id <SAVisualizedAutoTrackMessage>)designerMessageForMessage:(id)message {
     NSParameterAssert([message isKindOfClass:[NSString class]] || [message isKindOfClass:[NSData class]]);
 
-    id <SAVisualAutoTrackMessage> designerMessage = nil;
+    id <SAVisualizedAutoTrackMessage> designerMessage = nil;
 
     NSData *jsonData = [message isKindOfClass:[NSString class]] ? [(NSString *)message dataUsingEncoding:NSUTF8StringEncoding] : message;
    // SADebug(@"%@ VTrack received message: %@", self, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
@@ -125,7 +125,7 @@
 
 #pragma mark -  Methods
 
-- (void)startVisualAutoTrackTimer:(id)message featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
+- (void)startVisualizedAutoTrackTimer:(id)message featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
     _featureCode = featureCode;
     _postUrl = (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)postURL, CFSTR(""),  CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     _designerMessage = [self designerMessageForMessage:message];
@@ -154,15 +154,15 @@
 - (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr {
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
     //文件路径
-    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visual_autoTrack_path.json" ofType:nil];
+    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visualizedautotrack_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     _commandQueue.suspended = NO;
     if (!self->_connected) {
         self->_connected = YES;
-        [self startVisualAutoTrackTimer:jsonString featureCode:featureCode postURL:urlStr];
+        [self startVisualizedAutoTrackTimer:jsonString featureCode:featureCode postURL:urlStr];
     } else {
-        [self startVisualAutoTrackTimer:jsonString featureCode:featureCode postURL:urlStr];
+        [self startVisualizedAutoTrackTimer:jsonString featureCode:featureCode postURL:urlStr];
     }
 }
 

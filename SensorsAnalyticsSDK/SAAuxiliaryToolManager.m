@@ -12,7 +12,7 @@
 #import "SAAlertController.h"
 
 @interface SAAuxiliaryToolManager()
-@property (nonatomic, strong) SAVisualAutoTrackConnection *visualAutoTrackConnection;
+@property (nonatomic, strong) SAVisualizedAutoTrackConnection *VisualizedAutoTrackConnection;
 @property (nonatomic, strong) SAHeatMapConnection *heatMapConnection;
 @property (nonatomic, copy) NSString *postUrl;
 @property (nonatomic, copy) NSString *featureCode;
@@ -29,7 +29,7 @@
 }
 
 - (BOOL)canHandleURL:(NSURL *)URL {
-    return [self isVisualHeatMapURL:URL] || [self isVisualAutoTrackURL:URL] || [self isVisualDebugModeURL:URL];
+    return [self isVisualHeatMapURL:URL] || [self isVisualizedAutoTrackURL:URL] || [self isVisualDebugModeURL:URL];
 }
 
 - (BOOL)handleURL:(NSURL *)URL isWifi:(BOOL)isWifi {
@@ -59,9 +59,9 @@
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
     
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:^(SAAlertAction * _Nonnull action) {
-        [self.visualAutoTrackConnection close];
+        [self.VisualizedAutoTrackConnection close];
         [self.heatMapConnection close];
-        self.visualAutoTrackConnection = nil;
+        self.VisualizedAutoTrackConnection = nil;
         self.heatMapConnection = nil;
     }];
     
@@ -71,9 +71,9 @@
         if ([self isVisualHeatMapURL:URL]) {
             self.heatMapConnection = [[SAHeatMapConnection alloc] initWithURL:nil];
             [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
-        } else if ([self isVisualAutoTrackURL:URL]) {
-            self.visualAutoTrackConnection = [[SAVisualAutoTrackConnection alloc] initWithURL:nil];
-            [self.visualAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
+        } else if ([self isVisualizedAutoTrackURL:URL]) {
+            self.VisualizedAutoTrackConnection = [[SAVisualizedAutoTrackConnection alloc] initWithURL:nil];
+            [self.VisualizedAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
         }
     }];
     
@@ -84,7 +84,7 @@
     NSString *alertMessage = nil;
     if ([self isVisualHeatMapURL:URL]) {
         alertMessage = @"正在连接 APP 点击分析";
-    } else if ([self isVisualAutoTrackURL:URL]) {
+    } else if ([self isVisualizedAutoTrackURL:URL]) {
         alertMessage = @"正在连接 APP 可视化全埋点";
     }
     if (isWifi ==NO && alertMessage != nil) {
@@ -97,7 +97,7 @@
     return [url.host isEqualToString:@"heatmap"];
 }
 
-- (BOOL)isVisualAutoTrackURL:(NSURL *)url {
+- (BOOL)isVisualizedAutoTrackURL:(NSURL *)url {
     return [url.host isEqualToString:@"appcircle"];
 }
 

@@ -1445,7 +1445,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return NO;
         }
         
-        if ([[SAAuxiliaryToolManager sharedInstance] isVisualAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isVisualHeatMapURL:url]) {//点击图
+        if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isVisualHeatMapURL:url]) {//点击图
             
             return [self handleCustomAutoTrackURL:url];
         } else if ([[SAAuxiliaryToolManager sharedInstance] isVisualDebugModeURL:url]) {//动态 debug 配置

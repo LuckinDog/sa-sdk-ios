@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAVisualAutoTrackConnection.h"
+#import "SAVisualizedAutoTrackConnection.h"
 #import "SAHeatMapConnection.h"
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 - (BOOL)isVisualHeatMapURL:(NSURL *)url;
-- (BOOL)isVisualAutoTrackURL:(NSURL *)url;
+- (BOOL)isVisualizedAutoTrackURL:(NSURL *)url;
 - (BOOL)isVisualDebugModeURL:(NSURL *)url;
 
 @end

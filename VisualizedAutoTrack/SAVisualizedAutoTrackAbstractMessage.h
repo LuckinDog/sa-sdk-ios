@@ -1,5 +1,5 @@
 //
-//  SAVisualAutoTrackMessage.h
+//  SAVisualizedAutoTrackAbstractMessage.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/9/4.
@@ -8,17 +8,21 @@
 
 #import <Foundation/Foundation.h>
 
-@class SAVisualAutoTrackConnection;
+#import "SAVisualizedAutoTrackMessage.h"
 
-@protocol SAVisualAutoTrackMessage <NSObject>
+@interface SAVisualizedAutoTrackAbstractMessage : NSObject <SAVisualizedAutoTrackMessage>
 
 @property (nonatomic, copy, readonly) NSString *type;
 
++ (instancetype)messageWithType:(NSString *)type payload:(NSDictionary *)payload;
+
+- (instancetype)initWithType:(NSString *)type;
+- (instancetype)initWithType:(NSString *)type payload:(NSDictionary *)payload;
+
 - (void)setPayloadObject:(id)object forKey:(NSString *)key;
 - (id)payloadObjectForKey:(NSString *)key;
+- (NSDictionary *)payload;
 
 - (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)fetureCode;
-
-- (NSOperation *)responseCommandWithConnection:(SAVisualAutoTrackConnection *)connection;
 
 @end

@@ -13,24 +13,24 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "SAVisualAutoTrackSnapshotMessage.h"
+#import "SAVisualizedAutoTrackSnapshotMessage.h"
 #import "SAApplicationStateSerializer.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAObjectSerializerConfig.h"
-#import "SAVisualAutoTrackConnection.h"
+#import "SAVisualizedAutoTrackConnection.h"
 #import "SensorsAnalyticsSDK.h"
 
 #pragma mark -- Snapshot Request
 
-NSString * const SAVisualAutoTrackSnapshotRequestMessageType = @"snapshot_request";
+NSString * const SAVisualizedAutoTrackSnapshotRequestMessageType = @"snapshot_request";
 
 static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descriptions";
 static NSString * const kObjectIdentityProviderKey = @"object_identity_provider";
 
-@implementation SAVisualAutoTrackSnapshotRequestMessage
+@implementation SAVisualizedAutoTrackSnapshotRequestMessage
 
 + (instancetype)message {
-    return [(SAVisualAutoTrackSnapshotRequestMessage *)[self alloc] initWithType:SAVisualAutoTrackSnapshotRequestMessageType];
+    return [(SAVisualizedAutoTrackSnapshotRequestMessage *)[self alloc] initWithType:SAVisualizedAutoTrackSnapshotRequestMessageType];
 }
 
 - (SAObjectSerializerConfig *)configuration {
@@ -38,13 +38,13 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
     return config ? [[SAObjectSerializerConfig alloc] initWithDictionary:config] : nil;
 }
 
-- (NSOperation *)responseCommandWithConnection:(SAVisualAutoTrackConnection *)connection {
+- (NSOperation *)responseCommandWithConnection:(SAVisualizedAutoTrackConnection *)connection {
     __block SAObjectSerializerConfig *serializerConfig = self.configuration;
     __block NSString *imageHash = [self payloadObjectForKey:@"last_image_hash"];
 
-    __weak SAVisualAutoTrackConnection *weak_connection = connection;
+    __weak SAVisualizedAutoTrackConnection *weak_connection = connection;
     NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-        __strong SAVisualAutoTrackConnection *conn = weak_connection;
+        __strong SAVisualizedAutoTrackConnection *conn = weak_connection;
         
         // Update the class descriptions in the connection session if provided as part of the message.
         if (serializerConfig) {
@@ -64,7 +64,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
                                                                                                configuration:serializerConfig
                                                                                       objectIdentityProvider:objectIdentityProvider];
 
-        SAVisualAutoTrackSnapshotResponseMessage *snapshotMessage = [SAVisualAutoTrackSnapshotResponseMessage message];
+        SAVisualizedAutoTrackSnapshotResponseMessage *snapshotMessage = [SAVisualizedAutoTrackSnapshotResponseMessage message];
         __block UIImage *screenshot = nil;
         __block NSDictionary *serializedObjects = nil;
 
@@ -75,7 +75,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         snapshotMessage.screenshot = screenshot;
 
         if (imageHash && [imageHash isEqualToString:snapshotMessage.imageHash]) {
-            [conn sendMessage:[SAVisualAutoTrackSnapshotResponseMessage message]];
+            [conn sendMessage:[SAVisualizedAutoTrackSnapshotResponseMessage message]];
             return;
         }
         
@@ -95,10 +95,10 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
 
 #pragma mark -- Snapshot Response
 
-@implementation SAVisualAutoTrackSnapshotResponseMessage
+@implementation SAVisualizedAutoTrackSnapshotResponseMessage
 
 + (instancetype)message {
-    return [(SAVisualAutoTrackSnapshotResponseMessage *)[self alloc] initWithType:@"snapshot_response"];
+    return [(SAVisualizedAutoTrackSnapshotResponseMessage *)[self alloc] initWithType:@"snapshot_response"];
 }
 
 - (void)setScreenshot:(UIImage *)screenshot {

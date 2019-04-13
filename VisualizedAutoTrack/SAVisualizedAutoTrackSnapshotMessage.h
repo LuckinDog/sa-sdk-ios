@@ -9,15 +9,15 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "SAVisualAutoTrackAbstractMessage.h"
+#import "SAVisualizedAutoTrackAbstractMessage.h"
 
 @class SAObjectSerializerConfig;
 
-extern NSString *const SAVisualAutoTrackSnapshotRequestMessageType;
+extern NSString *const SAVisualizedAutoTrackSnapshotRequestMessageType;
 
 #pragma mark -- Snapshot Request
 
-@interface SAVisualAutoTrackSnapshotRequestMessage : SAVisualAutoTrackAbstractMessage
+@interface SAVisualizedAutoTrackSnapshotRequestMessage : SAVisualizedAutoTrackAbstractMessage
 
 + (instancetype)message;
 
@@ -27,7 +27,7 @@ extern NSString *const SAVisualAutoTrackSnapshotRequestMessageType;
 
 #pragma mark -- Snapshot Response
 
-@interface SAVisualAutoTrackSnapshotResponseMessage : SAVisualAutoTrackAbstractMessage
+@interface SAVisualizedAutoTrackSnapshotResponseMessage : SAVisualizedAutoTrackAbstractMessage
 
 + (instancetype)message;
 

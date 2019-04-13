@@ -1,5 +1,5 @@
 //
-//  SAVisualAutoTrackAbstractMessage.m
+//  SAVisualizedAutoTrackAbstractMessage.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/9/4.
@@ -12,17 +12,17 @@
 
 
 #import "SAGzipUtility.h"
-#import "SAVisualAutoTrackAbstractMessage.h"
+#import "SAVisualizedAutoTrackAbstractMessage.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 
-@interface SAVisualAutoTrackAbstractMessage ()
+@interface SAVisualizedAutoTrackAbstractMessage ()
 
 @property (nonatomic, copy, readwrite) NSString *type;
 
 @end
 
-@implementation SAVisualAutoTrackAbstractMessage {
+@implementation SAVisualizedAutoTrackAbstractMessage {
     NSMutableDictionary *_payload;
 }
 
@@ -99,7 +99,7 @@
     return jsonData;
 }
 
-- (NSOperation *)responseCommandWithConnection:(SAVisualAutoTrackConnection *)connection {
+- (NSOperation *)responseCommandWithConnection:(SAVisualizedAutoTrackConnection *)connection {
     return nil;
 }
 
