@@ -104,7 +104,3 @@ NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
 
 @end
-
-@implementation SAConstants (Private)
-
-@end
