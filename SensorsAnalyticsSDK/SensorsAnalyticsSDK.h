@@ -842,14 +842,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 开启 可视化全埋点 分析，默认不开启，
  * $AppClick 事件将会采集控件的 viewPath。
  */
-- (void)enableVirtualAutoTrackEvent;
+- (void)enableVisualizedAutoTrack;
 
 /**
  是否开启 可视化全埋点 分析，默认不
 
  @return YES/NO
  */
-- (BOOL)isVirtualAutoTrackEventEnabled;
+- (BOOL)isVisualizedAutoTrackEnabled;
 
 /**
  指定哪些页面开启 可视化全埋点 分析，
@@ -857,7 +857,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
  @param controllers 指定的页面的类名数组
  */
-- (void)addVirtualAutoTrackEventViewControllers:(NSArray<NSString *> *)controllers;
+- (void)addVisualizedAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
 
 /**
  当前页面是否开启 可视化全埋点 分析。
@@ -865,7 +865,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  @param viewController 当前页面 viewController
  @return YES/NO
  */
-- (BOOL)isVirtualAutoTrackEventViewController:(UIViewController *)viewController;
+- (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController;
 
 #pragma mark HeatMap
 /**

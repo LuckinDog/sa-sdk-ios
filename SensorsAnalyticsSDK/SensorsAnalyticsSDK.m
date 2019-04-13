@@ -207,7 +207,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *heatMapViewControllers;
-@property (nonatomic, strong) NSMutableSet<NSString *> *virtualAutoTrackEventViewControllers;
+@property (nonatomic, strong) NSMutableSet<NSString *> *visualizedAutoTrackViewControllers;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
@@ -245,7 +245,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
     BOOL _shouldHeatMap;
-    BOOL _shouldVirtualAutoTrackEvent;
+    BOOL _shouldVisualizedAutoTrack;
     UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
@@ -429,7 +429,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _heatMapViewControllers = [[NSMutableSet alloc] init];
-            _virtualAutoTrackEventViewControllers = [[NSMutableSet alloc] init];
+            _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
 
@@ -1475,33 +1475,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return NO;
 }
 
-#pragma mark - Virtual Auto Track Event
-- (void)enableVirtualAutoTrackEvent {
-    _shouldVirtualAutoTrackEvent = YES;
+#pragma mark - VisualizedAutoTrack
+- (void)enableVisualizedAutoTrack {
+    _shouldVisualizedAutoTrack = YES;
 }
 
-- (BOOL)isVirtualAutoTrackEventEnabled {
-    return _shouldVirtualAutoTrackEvent;
+- (BOOL)isVisualizedAutoTrackEnabled {
+    return _shouldVisualizedAutoTrack;
 }
 
-- (void)addVirtualAutoTrackEventViewControllers:(NSArray<NSString *> *)controllers {
+- (void)addVisualizedAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
     if (![controllers isKindOfClass:[NSArray class]] || controllers.count == 0) {
         return;
     }
-    [_virtualAutoTrackEventViewControllers addObjectsFromArray:controllers];
+    [_visualizedAutoTrackViewControllers addObjectsFromArray:controllers];
 }
 
-- (BOOL)isVirtualAutoTrackEventViewController:(UIViewController *)viewController {
+- (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController {
     if (!viewController) {
         return NO;
     }
 
-    if (_virtualAutoTrackEventViewControllers.count == 0) {
+    if (_visualizedAutoTrackViewControllers.count == 0) {
         return YES;
     }
 
     NSString *screenName = NSStringFromClass([viewController class]);
-    return [_virtualAutoTrackEventViewControllers containsObject:screenName];
+    return [_visualizedAutoTrackViewControllers containsObject:screenName];
 }
 
 #pragma mark - Heat Map

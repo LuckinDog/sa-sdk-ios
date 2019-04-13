@@ -283,8 +283,8 @@
 + (void)sa_addViewPathProperties:(NSMutableDictionary *)properties object:(UIView *)view viewController:(UIViewController *)viewController {
     @try {
         SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
-        BOOL isEnabled = [sa isVirtualAutoTrackEventEnabled] || [sa isHeatMapEnabled];
-        BOOL isContains = [sa isVirtualAutoTrackEventViewController:viewController] || [sa isHeatMapViewController:viewController];
+        BOOL isEnabled = [sa isVisualizedAutoTrackEnabled] || [sa isHeatMapEnabled];
+        BOOL isContains = [sa isVisualizedAutoTrackViewController:viewController] || [sa isHeatMapViewController:viewController];
         if (!isEnabled || !isContains) {
             return;
         }
@@ -308,8 +308,8 @@
 
 + (void)sa_addIndexPathProperties:(NSMutableDictionary *)properties object:(UIScrollView *)scrollView cell:(UIView *)cell indexPath:(NSIndexPath *)indexPath viewController:(UIViewController *)viewController {
     SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
-    BOOL isEnabled = [sa isVirtualAutoTrackEventEnabled] || [sa isHeatMapEnabled];
-    BOOL isContains = [sa isVirtualAutoTrackEventViewController:viewController] || [sa isHeatMapViewController:viewController];
+    BOOL isEnabled = [sa isVisualizedAutoTrackEnabled] || [sa isHeatMapEnabled];
+    BOOL isContains = [sa isVisualizedAutoTrackViewController:viewController] || [sa isHeatMapViewController:viewController];
     if (isEnabled && isContains) {
         NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
         [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass([cell class]), (long)indexPath.section, (long)indexPath.row]];

@@ -42,8 +42,8 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
      SensorsAnalyticsEventTypeAppClick|SensorsAnalyticsEventTypeAppViewScreen];
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
     
-//    [[SensorsAnalyticsSDK sharedInstance] enableVirtualAutoTrackEvent];
-//    [[SensorsAnalyticsSDK sharedInstance] addVirtualAutoTrackEventViewControllers:@[@"DemoController"]];
+//    [[SensorsAnalyticsSDK sharedInstance] enableVisualizedAutoTrack];
+//    [[SensorsAnalyticsSDK sharedInstance] addVisualizedAutoTrackViewControllers:@[@"DemoController"]];
 //    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
 //    [[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:@[@"DemoController"]];
     
