@@ -23,8 +23,8 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:Sa_Default_ServerURL launchOptions:launchOptions];
     options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
     options.enableTrackAppCrash = YES;
-    options.flushInterval = 10 * 1000;
-    options.flushBulkSize = 100;
+//    options.flushInterval = 10 * 1000;
+//    options.flushBulkSize = 100;
     options.maxCacheSize = 20000;
     [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
     
