@@ -2,7 +2,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/1.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015－2019 Sensors Data Inc. All rights reserved.
 
 #if ! __has_feature(objc_arc)
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.

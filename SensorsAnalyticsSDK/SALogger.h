@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/6.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015－2019 Sensors Data Inc. All rights reserved.
 //
 #import <UIKit/UIKit.h>
 #ifndef __SensorsAnalyticsSDK__SALogger__

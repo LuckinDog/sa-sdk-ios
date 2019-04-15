@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 8/1/17.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015－2019 Sensors Data Inc. All rights reserved.
 //
 
 #import "SAHeatMapConnection.h"

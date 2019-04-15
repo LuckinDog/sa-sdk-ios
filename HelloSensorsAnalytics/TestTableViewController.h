@@ -3,7 +3,7 @@
 //  HelloSensorsAnalytics
 //
 //  Created by ziven.mac on 2017/10/16.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015－2019 Sensors Data Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

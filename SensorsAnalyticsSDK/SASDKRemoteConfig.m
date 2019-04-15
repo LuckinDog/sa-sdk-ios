@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/4/24.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015－2019 Sensors Data Inc. All rights reserved.
 //
 
 #if ! __has_feature(objc_arc)
