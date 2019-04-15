@@ -18,9 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)handleURL:(NSURL *)url  isWifi:(BOOL)isWifi;
 
 
-- (BOOL)isVisualHeatMapURL:(NSURL *)url;
+- (BOOL)isHeatMapURL:(NSURL *)url;
 - (BOOL)isVisualizedAutoTrackURL:(NSURL *)url;
-- (BOOL)isVisualDebugModeURL:(NSURL *)url;
+- (BOOL)isDebugModeURL:(NSURL *)url;
 
 @end
 

@@ -1445,10 +1445,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return NO;
         }
         
-        if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isVisualHeatMapURL:url]) {//点击图
+        if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {//点击图
             
             return [self handleAutoTrackURL:url];
-        } else if ([[SAAuxiliaryToolManager sharedInstance] isVisualDebugModeURL:url]) {//动态 debug 配置
+        } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
             
             NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
             
