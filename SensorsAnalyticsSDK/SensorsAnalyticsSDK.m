@@ -1426,7 +1426,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url];
 }
 
-- (BOOL)handleCustomAutoTrackURL:(NSURL *)URL{
+- (BOOL)handleAutoTrackURL:(NSURL *)URL{
     if (URL == nil) {
         return NO;
     }
@@ -1447,7 +1447,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isVisualHeatMapURL:url]) {//点击图
             
-            return [self handleCustomAutoTrackURL:url];
+            return [self handleAutoTrackURL:url];
         } else if ([[SAAuxiliaryToolManager sharedInstance] isVisualDebugModeURL:url]) {//动态 debug 配置
             
             NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
@@ -3765,7 +3765,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (BOOL)handleHeatMapUrl:(NSURL *)URL {
-    return [self handleCustomAutoTrackURL:URL];
+    return [self handleAutoTrackURL:URL];
 }
 
 @end
