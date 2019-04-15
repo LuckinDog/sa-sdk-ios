@@ -98,7 +98,7 @@
 }
 
 - (BOOL)isVisualizedAutoTrackURL:(NSURL *)url {
-    return [url.host isEqualToString:@"appcircle"];
+    return [url.host isEqualToString:@"visualized"];
 }
 
 - (BOOL)isVisualDebugModeURL:(NSURL *)url {
