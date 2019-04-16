@@ -1316,9 +1316,9 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 #pragma mark- heatMap
 /**
  * @abstract
- * 神策 SDK 会处理 点击图，圈选的url
+ * 神策 SDK 会处理 点击图，可视化全埋点url
  * @discussion
- *  目前处理 heatmap，appcircle
+ *  目前处理 heatmap，visualized
  * @param url
  * @return YES/NO
  */
