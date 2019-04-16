@@ -3558,8 +3558,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     //判断是否符合分散 remoteconfig 请求条件
     if (self.configOptions.minHourInterval && self.configOptions.maxHourInterval && self.configOptions.maxHourInterval > self.configOptions.minHourInterval) {
         
-         double randomTime = [[NSUserDefaults standardUserDefaults] doubleForKey:SA_REQUEST_REMOTECONFIG_TIME];
-        
+         NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
+        double randomTime = [[requestTimeConfig objectForKey:@"randomTim"] doubleValue];
+        double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
         //当前时间，以开机时间为准
         NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
         
@@ -3568,16 +3569,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             NSInteger durationSecond = (self.configOptions.maxHourInterval - self.configOptions.minHourInterval) * 60 * 60;
             NSInteger randomDurationTime = rand() % durationSecond;
             double createRandomTime = currentTime + (self.configOptions.minHourInterval * 60 * 60) + randomDurationTime;
-            [[NSUserDefaults standardUserDefaults] setDouble:createRandomTime forKey:SA_REQUEST_REMOTECONFIG_TIME];
+            
+            NSDictionary *createRequestTimeConfig = @{@"randomTim":@(createRandomTime),@"startDeviceTime":@(currentTime)};
+            [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
         };
         
-        if (randomTime > 0) {
-            if (currentTime >= randomTime) {
+        if (randomTime > 0 && startDeviceTime > 0) {
+            if (currentTime >= randomTime || currentTime < startDeviceTime) {
                 [self requestFunctionalManagermentConfig];
                 
                 createRandomTimeBlock();
             }
         } else {
+            [self requestFunctionalManagermentConfig];
             createRandomTimeBlock();
         }
     } else {
