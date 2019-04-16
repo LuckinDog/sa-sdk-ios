@@ -44,11 +44,10 @@
             @try {
                 NSURLComponents *urlComponents = [NSURLComponents componentsWithString:url];
                 NSDictionary *tempDic = [SAServerUrl analysisQueryItemWithURLComponent:urlComponents];
-                
-                    if (tempDic.count) {
-                        _project = [tempDic objectForKey:@"project"];
-                        _token = [tempDic objectForKey:@"token"];
-                    }
+                if (tempDic.count) {
+                    _project = [tempDic objectForKey:@"project"];
+                    _token = [tempDic objectForKey:@"token"];
+                }
                 
             } @catch(NSException *exception) {
                 SAError(@"%@: %@", self, exception);
