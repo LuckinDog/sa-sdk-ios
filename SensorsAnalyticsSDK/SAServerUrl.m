@@ -43,6 +43,7 @@
         if (url != nil) {
             @try {
                 NSURLComponents *urlComponents = [NSURLComponents componentsWithString:url];
+                _host = urlComponents.host;
                 NSDictionary *tempDic = [SAServerUrl analysisQueryItemWithURLComponent:urlComponents];
                 if (tempDic.count) {
                     _project = [tempDic objectForKey:@"project"];
