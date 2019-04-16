@@ -86,12 +86,9 @@
         
         if (tempDic.count) {
             return tempDic;
-        } else {
-            return nil;
         }
-    } else {
-        return nil;
     }
+    return nil;
 }
 
 + (nullable NSString *)collectURLQueryWithParams:(NSDictionary <NSString *, NSString*>*)params {
