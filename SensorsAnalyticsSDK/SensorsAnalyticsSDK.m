@@ -725,7 +725,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         queryDic[key] = obj;
     }];
-    NSString *queryString = [SAServerUrl collectURLQueryWithParams:params];
+    NSString *queryString = [SAServerUrl collectURLQueryWithParams:queryDic];
     urlComponents.query = queryString;
     
     NSURL *callBackUrl = [urlComponents URL];
