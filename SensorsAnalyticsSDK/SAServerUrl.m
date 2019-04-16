@@ -43,18 +43,13 @@
         if (url != nil) {
             @try {
                 NSURLComponents *urlComponents = [NSURLComponents componentsWithString:url];
-                if (urlComponents) {
-                    _host = urlComponents.host;
-                    NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
-                    for (NSURLQueryItem *item in urlComponents.queryItems) {
-                        [tempDic setValue:item.value forKey:item.name];
-                    }
-
+                NSDictionary *tempDic = [SAServerUrl analysisQueryItemWithURLComponent:urlComponents];
+                
                     if (tempDic.count) {
                         _project = [tempDic objectForKey:@"project"];
                         _token = [tempDic objectForKey:@"token"];
                     }
-                }
+                
             } @catch(NSException *exception) {
                 SAError(@"%@: %@", self, exception);
             } @finally {
@@ -71,5 +66,43 @@
         }
     }
     return self;
+}
+
++ (nullable NSDictionary *)analysisQueryItemWithURLComponent:(NSURLComponents *)urlComponents {
+    if (urlComponents) {
+        NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
+        NSString *query = urlComponents.query;
+        NSArray *queryArray = [query componentsSeparatedByString:@"&"];
+        
+        for (NSString *queryItemString in queryArray) {
+            NSArray *queryItemArray = [queryItemString componentsSeparatedByString:@"="];
+            NSString *queryName = [queryItemArray firstObject];
+            NSString *queryValue = [queryItemArray lastObject];
+            if (queryName && queryValue) {
+                [tempDic setValue:queryValue forKey:queryName];
+            }
+        }
+        
+        if (tempDic.count) {
+            return tempDic;
+        } else {
+            return nil;
+        }
+    } else {
+        return nil;
+    }
+}
+
++ (nullable NSString *)collectURLQueryWithParams:(NSDictionary <NSString *, NSString*>*)params {
+    NSMutableArray *queryArray = [[NSMutableArray alloc] init];
+    [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        NSString *query = [NSString stringWithFormat:@"%@=%@",key,obj];
+        [queryArray addObject:query];
+    }];
+    if (queryArray.count) {
+        return [queryArray componentsJoinedByString:@"&"];
+    } else {
+        return nil;
+    }
 }
 @end

@@ -579,12 +579,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return nil;
         }
         
-        NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
+        NSMutableDictionary *queryDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
         if (self.remoteConfig.v.length) {
-            NSURLQueryItem *vesionItem = [NSURLQueryItem queryItemWithName:@"v" value:self.remoteConfig.v];
-            [queryItems addObject:vesionItem];
+            queryDic[@"v"] = self.remoteConfig.v;
         }
-        urlComponents.queryItems = queryItems;
+        
+        NSString *queryString = [SAServerUrl collectURLQueryWithParams:queryDic];
+        urlComponents.query = queryString;
         
         return urlComponents.URL.absoluteString;
     } @catch (NSException *e) {
@@ -719,15 +720,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self.serverURL];
-    
-    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
+    NSMutableDictionary *queryDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
     //添加参数
     [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:obj];
-        [queryItems addObject:queryItem];
+        queryDic[key] = obj;
     }];
+    NSString *queryString = [SAServerUrl collectURLQueryWithParams:params];
+    urlComponents.query = queryString;
     
-    urlComponents.queryItems = queryItems;
     NSURL *callBackUrl = [urlComponents URL];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:callBackUrl];
@@ -1045,12 +1045,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         }
         
-        //解析参数
-        NSMutableDictionary *paramsDic = [[NSMutableDictionary alloc] init];
         NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlstr];
-        for (NSURLQueryItem *item in urlComponents.queryItems) {
-            [paramsDic setValue:item.value forKey:item.name];
-        }
+         //解析参数
+        NSMutableDictionary *paramsDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
         
         if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
             SADebug(@"showUpWebView: UIWebView");
@@ -1451,18 +1448,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
             
             NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-            
             // url query 解析
-            NSMutableDictionary *paramDic = [NSMutableDictionary dictionary];
-            for (NSURLQueryItem *item in urlComponents.queryItems) {
-                
-                if ([item.name isEqualToString:@"info_id"]) {
-                   [paramDic setValue:item.value forKey:item.name];
-                }
-            }
-    
+            NSMutableDictionary *paramDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
+
             //如果没传 info_id，视为伪造二维码，不做处理
-            if ([paramDic.allKeys containsObject:@"info_id"]) {
+            if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
                 [self showDebugModeAlertWithParams:paramDic];
                 return YES;
             } else {
