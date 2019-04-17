@@ -17,12 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         //MARK:初始化sdk
-        SensorsAnalyticsSDK.sharedInstance(withServerURL: "http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f", andDebugMode: SensorsAnalyticsDebugMode.andTrack)
-      //MARK:自动埋点开启
-        SensorsAnalyticsSDK.sharedInstance()?.enableAutoTrack(
-              [.eventTypeAppClick,.eventTypeAppStart,.eventTypeAppEnd,.eventTypeAppViewScreen]
-        )
-        SensorsAnalyticsSDK.sharedInstance()?.setMaxCacheSize(10000)
+        let options = SAConfigOptions(serverURL: "http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f", launchOptions: launchOptions)
+        options.maxCacheSize = 10000;
+        options.autoTrackEventType = [.eventTypeAppClick,.eventTypeAppStart,.eventTypeAppEnd,.eventTypeAppViewScreen]
+        SensorsAnalyticsSDK.sharedInstance(withConfig: options)
+        
         SensorsAnalyticsSDK.sharedInstance()?.setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
         SensorsAnalyticsSDK.sharedInstance()?.enableHeatMap()
         SensorsAnalyticsSDK.sharedInstance()?.addWebViewUserAgentSensorsDataFlag()
