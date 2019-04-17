@@ -24,14 +24,14 @@ SALogLevel(SALoggerLevelInfo,(fmt), ## __VA_ARGS__)
 #define SADebug SALog
 
 #endif/* defined(__SensorsAnalyticsSDK__SALogger__) */
-typedef NS_ENUM(NSUInteger,SALoggerLevel){
+typedef NS_ENUM(NSUInteger, SALoggerLevel) {
     SALoggerLevelInfo = 1,
-    SALoggerLevelWarning ,
-    SALoggerLevelError ,
+    SALoggerLevelWarning,
+    SALoggerLevelError,
 };
 
-@interface SALogger:NSObject
-@property(class , readonly, strong) SALogger *sharedInstance;
+@interface SALogger : NSObject
+@property (class , readonly, strong) SALogger *sharedInstance;
 + (BOOL)isLoggerEnabled;
 + (void)enableLog:(BOOL)enableLog;
 + (void)log:(BOOL)asynchronous

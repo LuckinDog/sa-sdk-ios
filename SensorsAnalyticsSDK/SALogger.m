@@ -56,13 +56,13 @@ static dispatch_queue_t __logQueue__ ;
     if (systemVersion == 10) {
         return;
     }
-    @try{
+    @try {
         va_list args;
         va_start(args, format);
         NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
         [self.sharedInstance log:asynchronous message:message level:level file:file function:function line:line];
         va_end(args);
-    } @catch(NSException *e){
+    } @catch(NSException *e) {
        
     }
 }
@@ -73,17 +73,17 @@ static dispatch_queue_t __logQueue__ ;
        file:(const char *)file
    function:(const char *)function
        line:(NSUInteger)line {
-    @try{
-        NSString *logMessage = [[NSString alloc]initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@",[self descriptionForLevel:level],function,(unsigned long)line,[@"" UTF8String],message];
+    @try {
+        NSString *logMessage = [[NSString alloc] initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@", [self descriptionForLevel:level], function, (unsigned long)line, [@"" UTF8String], message];
         if ([SALogger isLoggerEnabled]) {
             NSLog(@"%@",logMessage);
         }
-    } @catch(NSException *e){
+    } @catch(NSException *e) {
        
     }
 }
 
--(NSString *)descriptionForLevel:(SALoggerLevel)level {
+- (NSString *)descriptionForLevel:(SALoggerLevel)level {
     NSString *desc = nil;
     switch (level) {
         case SALoggerLevelInfo:
