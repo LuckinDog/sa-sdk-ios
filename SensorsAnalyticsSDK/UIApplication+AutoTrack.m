@@ -132,6 +132,10 @@
             }
             
             UIView* view = (UIView *)from;
+            if (!view) {
+                return;
+            }
+            
             if (view.sensorsAnalyticsIgnoreView) {
                 return;
             }
