@@ -83,9 +83,9 @@
 - (NSString *)alertMessageWithURL:(NSURL *)URL isWifi:(BOOL)isWifi {
     NSString *alertMessage = nil;
     if ([self isHeatMapURL:URL]) {
-        alertMessage = @"正在连接 APP 点击分析";
+        alertMessage = @"正在连接 App 点击分析";
     } else if ([self isVisualizedAutoTrackURL:URL]) {
-        alertMessage = @"正在连接 APP 可视化全埋点";
+        alertMessage = @"正在连接 App 可视化全埋点";
     }
     if (!isWifi && alertMessage) {
         alertMessage = [alertMessage stringByAppendingString: @"，建议在 WiFi 环境下使用"];
