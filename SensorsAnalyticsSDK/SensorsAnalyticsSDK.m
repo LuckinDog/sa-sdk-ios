@@ -1699,11 +1699,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
-    [_network setCookie:cookie withEncode:encode];
+    [_network setCookie:cookie isEncoded:encode];
 }
 
 - (NSString *)getCookieWithDecode:(BOOL)decode {
-    return [_network cookieWithDecode:decode];
+    return [_network cookieWithDecoded:decode];
 }
 
 - (void)trackTimer:(NSString *)event {

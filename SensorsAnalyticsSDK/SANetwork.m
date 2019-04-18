@@ -21,7 +21,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 @interface SANetwork () <NSURLSessionDelegate, NSURLSessionTaskDelegate>
 /// 存储原始的 ServerURL，当修改 DebugMode 为 Off 时，会使用此值去设置 ServerURL
 @property (nonatomic, readwrite, strong) NSURL *originServerURL;
-
+/// 网络请求调用结束的 Block 所在的线程
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, copy) NSString *cookie;
@@ -115,16 +115,16 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 #pragma mark - cookie
-- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
-    if (encode) {
+- (void)setCookie:(NSString *)cookie isEncoded:(BOOL)encoded {
+    if (encoded) {
         _cookie = [cookie stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
     } else {
         _cookie = cookie;
     }
 }
 
-- (NSString *)cookieWithDecode:(BOOL)decode {    
-    return decode ? _cookie.stringByRemovingPercentEncoding : _cookie;
+- (NSString *)cookieWithDecoded:(BOOL)isDecoded {
+    return isDecoded ? _cookie.stringByRemovingPercentEncoding : _cookie;
 }
 
 #pragma mark -
@@ -162,7 +162,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     }
     
     //Cookie
-    [request setValue:[self cookieWithDecode:NO] forHTTPHeaderField:@"Cookie"];
+    [request setValue:[self cookieWithDecoded:NO] forHTTPHeaderField:@"Cookie"];
     return request;
 }
 
@@ -193,7 +193,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         componets = [NSURLComponents componentsWithURL:remoteConfigURL resolvingAgainstBaseURL:YES];
     }
     if (!componets.host) {
-        NSURL *url = _serverURL.lastPathComponent.length > 0 ? [_serverURL URLByDeletingLastPathComponent] : _serverURL;
+        NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
         NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         if (componets == nil) {
             SALog(@"URLString is malformed, nil is returned.");

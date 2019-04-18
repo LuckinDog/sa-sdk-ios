@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param cookie NSString cookie
  * @param encode BOOL 是否 encode
  */
-- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode;
+- (void)setCookie:(NSString *)cookie isEncoded:(BOOL)encode;
 
 /**
  * @abstract
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param decode BOOL 是否 decode
  * @return NSString cookie
  */
-- (NSString *)cookieWithDecode:(BOOL)decode;
+- (NSString *)cookieWithDecoded:(BOOL)decode;
 
 /**
  将数据上传到 Sensors Analytics 的服务器上
