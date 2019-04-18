@@ -100,13 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) NSInteger maxCacheSize;
 
-@end
-
 
 #pragma mark - 请求远程配置策略
-
-@interface SAConfigOptions()
-
 /**
  请求配置地址，默认从 ServerUrl 解析
  */

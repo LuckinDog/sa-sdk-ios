@@ -28,8 +28,8 @@
         _flushBulkSize = 100;
         _maxCacheSize = 10000;
         
-        _minRequestHourInterval = 12;
-        _maxRequestHourInterval = 24;
+        _minRequestHourInterval = 24;
+        _maxRequestHourInterval = 48;
     }
     return self;
 }
