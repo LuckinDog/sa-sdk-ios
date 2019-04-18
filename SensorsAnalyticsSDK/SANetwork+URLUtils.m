@@ -1,14 +1,28 @@
 //
-//  SANetwork+URLQuery.m
+//  SANetwork+URLUtils.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 张敏超 on 2019/4/18.
 //  Copyright © 2019 Sensors Data Inc. All rights reserved.
 //
 
-#import "SANetwork+URLQuery.h"
+#import "SANetwork+URLUtils.h"
 
-@implementation SANetwork (URLQuery)
+@implementation SANetwork (URLUtils)
+
++ (NSString *)hostWithURL:(NSURL *)url {
+    if (!url) {
+        return nil;
+    }
+    return [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO].host;
+}
+
++ (NSString *)hostWithURLString:(NSString *)URLString {
+    if (URLString.length == 0) {
+        return nil;
+    }
+    return [NSURLComponents componentsWithString:URLString].host;
+}
 
 + (NSDictionary<NSString *, NSString *> *)queryItemsWithURL:(NSURL *)url {
     if (!url) {
@@ -19,7 +33,7 @@
 }
 
 + (NSDictionary<NSString *, NSString *> *)queryItemsWithURLString:(NSString *)URLString {
-    if (URLString.length) {
+    if (URLString.length == 0) {
         return nil;
     }
     NSURLComponents *components = [NSURLComponents componentsWithString:URLString];

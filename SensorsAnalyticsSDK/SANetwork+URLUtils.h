@@ -1,5 +1,5 @@
 //
-//  SANetwork+URLQuery.h
+//  SANetwork+URLUtils.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 张敏超 on 2019/4/18.
@@ -8,7 +8,10 @@
 
 #import "SANetwork.h"
 
-@interface SANetwork (URLQuery)
+@interface SANetwork (URLUtils)
+
++ (NSString *)hostWithURL:(NSURL *)url;
++ (NSString *)hostWithURLString:(NSString *)URLString;
 
 + (NSDictionary<NSString *, NSString *> *)queryItemsWithURL:(NSURL *)url;
 + (NSDictionary<NSString *, NSString *> *)queryItemsWithURLString:(NSString *)URLString;

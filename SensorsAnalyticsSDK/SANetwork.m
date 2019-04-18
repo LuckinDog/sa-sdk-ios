@@ -7,7 +7,7 @@
 //
 
 #import "SANetwork.h"
-#import "SANetwork+URLQuery.h"
+#import "SANetwork+URLUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "NSString+HashCode.h"
@@ -364,6 +364,32 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     if (completionHandler) {
         completionHandler(disposition, credential);
     }
+}
+
+@end
+
+#pragma mark -
+@implementation SANetwork (ServerURL)
+
+- (NSString *)host {
+    return [SANetwork hostWithURL:self.serverURL];
+}
+
+- (NSString *)project {
+    return [SANetwork queryItemsWithURL:self.serverURL][@"project"];
+}
+
+- (NSString *)token {
+    return [SANetwork queryItemsWithURL:self.serverURL][@"token"];
+}
+
+- (BOOL)isSameProjectWithURLString:(NSString *)URLString {
+    if (!self.serverURL || URLString.length == 0) {
+        return NO;
+    }
+    BOOL isEqualHost = [self.host isEqualToString:[SANetwork hostWithURLString:URLString]];
+    BOOL isEqualProject = [self.project isEqualToString:[SANetwork queryItemsWithURLString:URLString][@"project"]];
+    return isEqualHost && isEqualProject;
 }
 
 @end

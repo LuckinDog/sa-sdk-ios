@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 #import "SASecurityPolicy.h"
 #import "SANetwork.h"
-#import "SANetwork+URLQuery.h"
+#import "SANetwork+URLUtils.h"
 
 @interface SANetworkTests : XCTestCase
 @property (nonatomic, strong) NSURL *url;
@@ -29,7 +29,27 @@
     _network = nil;
 }
 
-#pragma mark - URLQuery
+#pragma mark - URL Method
+- (void)testGetHostWithURL {
+    NSString *host = [SANetwork hostWithURL:_url];
+    XCTAssertEqualObjects(host, @"sdk-test.datasink.sensorsdata.cn");
+}
+
+- (void)testGetHostWithNilURL {
+    NSString *host = [SANetwork hostWithURL:nil];
+    XCTAssertNil(host);
+}
+
+- (void)testGetHostWithURLString {
+    NSString *host = [SANetwork hostWithURLString:@"https://www.google.com"];
+    XCTAssertEqualObjects(host, @"www.google.com");
+}
+
+- (void)testGetHostWithMalformedURLString {
+    NSString *host = [SANetwork hostWithURLString:@"google.com"];
+    XCTAssertNil(host);
+}
+
 - (void)testGetQueryItemsWithURL {
     NSDictionary *items = [SANetwork queryItemsWithURL:_url];
     BOOL isEqual = [items isEqualToDictionary:@{@"project": @"zhangminchao", @"token": @"95c73ae661f85aa0"}];

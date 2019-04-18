@@ -14,9 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SANetwork : NSObject
 
-/**
- The security policy used by created session to evaluate server trust for secure connections. `AFURLSessionManager` uses the `defaultPolicy` unless otherwise specified.
- */
+/// The security policy used by created session to evaluate server trust for secure connections. `AFURLSessionManager` uses the `defaultPolicy` unless otherwise specified.
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 /// 服务器的 URL
 @property (nonatomic, strong) NSURL *serverURL;
@@ -72,6 +70,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SANetwork (ServerURL)
+
+/// 通过 serverURL 获取的 host
+@property (nonatomic, copy, readonly, nullable) NSString *host;
+/// 在 serverURL 中获取的 project 名称
+@property (nonatomic, copy, readonly, nullable) NSString *project;
+/// 在 serverURL 中获取的 token 名称
+@property (nonatomic, copy, readonly, nullable) NSString *token;
+
+- (BOOL)isSameProjectWithURLString:(NSString *)URLString;
+
+@end
 
 @interface SANetwork (SessionAndTask)
 

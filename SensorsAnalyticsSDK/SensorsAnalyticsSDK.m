@@ -32,9 +32,8 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#import "SAServerUrl.h"
 #import "SANetwork.h"
-#import "SANetwork+URLQuery.h"
+#import "SANetwork+URLUtils.h"
 #import "SAAppExtensionDataManager.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
@@ -754,14 +753,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             if (enableVerify) {
                 NSString *serverUrl = [eventDict valueForKey:@"server_url"];
-                if (serverUrl != nil) {
-                    SAServerUrl *h5ServerUrl = [[SAServerUrl alloc] initWithUrl:serverUrl];
-                    SAServerUrl *appServerUrl = [[SAServerUrl alloc] initWithUrl:self.network.serverURL.absoluteString];
-                    if (![appServerUrl check:h5ServerUrl]) {
-                        return;
-                    }
-                } else {
-                    //防止 H5 集成的 JS SDK 版本太老，没有发 server_url
+                if (![self.network isSameProjectWithURLString:serverUrl]) {
                     return;
                 }
             }
@@ -2497,7 +2489,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (!self.network.serverURL) {
                 verify = NO;
             }
-            SAServerUrl *ss = [[SAServerUrl alloc] initWithUrl:self.network.serverURL.absoluteString];
             NSString *oldAgent = nil;
             if (userAgent && userAgent.length) {
                 oldAgent = userAgent;
@@ -2507,7 +2498,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *newAgent = oldAgent;
             if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
                 if (verify) {
-                    newAgent = [oldAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ", ss.host, ss.project]];
+                    newAgent = [oldAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ", self.network.host, self.network.project]];
                 } else {
                     newAgent = [oldAgent stringByAppendingString:@" /sa-sdk-ios"];
                 }
