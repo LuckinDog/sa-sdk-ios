@@ -2589,7 +2589,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SADebug(@"In unit test, set NetWorkStates to wifi");
     return @"WIFI";
 #endif
-    NSString* network = @"NULL";
+    NSString *network = @"NULL";
     @try {
         SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
         SANetworkStatus status = [reachability currentReachabilityStatus];
@@ -2605,7 +2605,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             if (@available(iOS 12.0, *)) {
                 currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
-            } else {
+            }
+            //测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
+            if (!currentRadioAccessTechnology) {
                 currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
             }
             
@@ -2631,12 +2633,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 network = @"3G";
             } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
                 network = @"4G";
-            } else if (currentRadioAccessTechnology) {
+            } else {
                 network = @"UNKNOWN";
             }
-            
         }
-    } @catch(NSException *exception) {
+    } @catch (NSException *exception) {
         SADebug(@"%@: %@", self, exception);
     }
     return network;
