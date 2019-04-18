@@ -19,7 +19,7 @@
 static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
 
 @implementation SADeviceOrientationConfig
--(instancetype)init{
+- (instancetype)init{
     if (self = [super init]) {
         self.enableTrackScreenOrientation = NO;
         self.deviceOrientation = @"";
@@ -28,16 +28,16 @@ static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
 }
 @end
 @interface SADeviceOrientationManager()
-@property(nonatomic,strong)CMMotionManager *cmmotionManager;
-@property(nonatomic,strong)NSOperationQueue *updateQueue;
+@property (nonatomic, strong) CMMotionManager *cmmotionManager;
+@property (nonatomic, strong) NSOperationQueue *updateQueue;
 @end
 @implementation SADeviceOrientationManager
 - (instancetype)init {
     if (self = [super init]) {
         @try {
-            self.cmmotionManager = [[CMMotionManager alloc]init];
+            self.cmmotionManager = [[CMMotionManager alloc] init];
             self.cmmotionManager.deviceMotionUpdateInterval = kSADefaultDeviceMotionUpdateInterval;
-            self.updateQueue = [[NSOperationQueue alloc]init];
+            self.updateQueue = [[NSOperationQueue alloc] init];
             self.updateQueue.name = @"com.sensorsdata.analytics.deviceMotionUpdatesQueue";
         } @catch (NSException *e) {
              SAError(@"%@: %@", self, e);

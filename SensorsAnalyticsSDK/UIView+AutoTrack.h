@@ -11,21 +11,21 @@
 
 @protocol SAUIViewAutoTrack
 @optional
--(NSString *)sa_elementContent;
+- (NSString *)sa_elementContent;
 @end;
 
-@interface UIView (AutoTrack)<SAUIViewAutoTrack>
--(NSString *)sa_elementContent;
+@interface UIView (AutoTrack) <SAUIViewAutoTrack>
+- (NSString *)sa_elementContent;
 @end
 
-@interface UIButton (AutoTrack)<SAUIViewAutoTrack>
--(NSString *)sa_elementContent;
+@interface UIButton (AutoTrack) <SAUIViewAutoTrack>
+- (NSString *)sa_elementContent;
 @end
 
-@interface UILabel (AutoTrack)<SAUIViewAutoTrack>
--(NSString *)sa_elementContent;
+@interface UILabel (AutoTrack) <SAUIViewAutoTrack>
+- (NSString *)sa_elementContent;
 @end
 
-@interface UITextView (AutoTrack)<SAUIViewAutoTrack>
--(NSString *)sa_elementContent;
+@interface UITextView (AutoTrack) <SAUIViewAutoTrack>
+- (NSString *)sa_elementContent;
 @end

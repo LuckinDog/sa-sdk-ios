@@ -19,7 +19,7 @@
 /*******************************************************************************
  See header for documentation.
  */
-+(NSData*) gzipData: (NSData*)pUncompressedData
++ (NSData*)gzipData:(NSData *)pUncompressedData
 {
     /*
      Special thanks to Robbie Hanson of Deusty Designs for sharing sample code
@@ -57,7 +57,7 @@
         zlibStreamStruct.zfree     = Z_NULL; // that when we call deflateInit2 they will be
         zlibStreamStruct.opaque    = Z_NULL; // updated to use default allocation functions.
         zlibStreamStruct.total_out = 0; // Total number of output bytes produced so far
-        zlibStreamStruct.next_in   = (Bytef*)[pUncompressedData bytes]; // Pointer to input bytes
+        zlibStreamStruct.next_in   = (Bytef *)[pUncompressedData bytes]; // Pointer to input bytes
         zlibStreamStruct.avail_in  = (uInt)[pUncompressedData length]; // Number of input bytes left to process
         
         /* Initialize the zlib deflation (i.e. compression) internals with deflateInit2().

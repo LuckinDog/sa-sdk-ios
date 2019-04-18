@@ -10,6 +10,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
 
+
 static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
 @interface AppDelegate ()
@@ -40,10 +41,14 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppClick|SensorsAnalyticsEventTypeAppViewScreen];
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
-    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
+    
+//    [[SensorsAnalyticsSDK sharedInstance] enableVisualizedAutoTrack];
+//    [[SensorsAnalyticsSDK sharedInstance] addVisualizedAutoTrackViewControllers:@[@"DemoController"]];
+//    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
+//    [[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:@[@"DemoController"]];
+    
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
-    //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
@@ -52,8 +57,9 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    if ([[SensorsAnalyticsSDK sharedInstance] handleSchemeUrl:url]) {
-        return YES;
+
+    if ([[SensorsAnalyticsSDK sharedInstance] canHandleURL:url]) {
+        [[SensorsAnalyticsSDK sharedInstance] handleSchemeUrl:url];
     }
     return NO;
 }

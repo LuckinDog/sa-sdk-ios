@@ -32,7 +32,7 @@
     CGFloat offsetHeight = 0.0f;
     
     //Avoid the status bar on phones running iOS < 7
-    if (@available(iOS 7.0,*)) {
+    if (@available(iOS 7.0, *)) {
         if (![UIApplication sharedApplication].statusBarHidden) {
             offsetHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
         }
@@ -149,8 +149,8 @@
         CGContextRef context = CGBitmapContextCreate(data32, 8, 8, 8, 8*4, space, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Little);
         CGContextSetAllowsAntialiasing(context, NO);
         CGContextClearRect(context, CGRectMake(0, 0, 8, 8));
-        CGContextSetInterpolationQuality(context, kCGInterpolationNone);
-        CGContextDrawImage(context, CGRectMake(0,0,8,8), [originalImage CGImage]);
+        CGContextSetInterpolationQuality (context, kCGInterpolationNone);
+        CGContextDrawImage(context, CGRectMake(0, 0, 8, 8), [originalImage CGImage]);
         CGColorSpaceRelease(space);
         CGContextRelease(context);
         for(int i = 0; i < 32; i++) {
@@ -193,9 +193,6 @@ static NSString* sa_encryptHelper(id input) {
         for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
             [encryptedStuff appendFormat:@"%02x", digest[i]];
         }
-    }
-    if ([input isKindOfClass:[NSString class]]) {
-        
     }
     return encryptedStuff;
 }
@@ -246,4 +243,79 @@ static NSString* sa_encryptHelper(id input) {
     return [self mp_varE];
 }
 
+@end
+@implementation UITableViewCell (SAHelpers)
+- (NSString *)sa_indexPath {
+    UITableView *tableView = (UITableView *)[self superview];
+    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]) {
+        tableView = (UITableView *)[tableView superview];
+    }
+    if ([tableView isKindOfClass:UITableView.class]) {
+        NSIndexPath *indexPath = [tableView indexPathForCell:self];
+        NSString *pathString = [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)indexPath.section, (long)indexPath.row];
+        return pathString;
+    }
+    return @"";
+}
+
+@end
+@implementation UICollectionViewCell (SAHelpers)
+- (NSString *)sa_indexPath {
+    UICollectionView *collectionView = (UICollectionView *)[self superview];
+    if([collectionView isKindOfClass:UICollectionView.class] == NO) return @"";
+    NSIndexPath *indexPath = [collectionView indexPathForCell:self];
+    NSString *pathString = [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)indexPath.section, (long)indexPath.item];
+    return pathString;
+}
+
+@end
+
+@implementation UISegmentedControl (SAHelpers)
+- (NSArray *)sa_subviewsFixed {
+    NSArray *segments = [self valueForKey:@"segments"];
+    return segments;
+}
+@end
+
+@implementation UITableViewHeaderFooterView (SAHelpers)
+- (NSString *)sa_section {
+    UITableView *tableView = (UITableView *)[self superview];
+    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]) {
+        tableView = (UITableView *)[tableView superview];
+    }
+    if ([tableView isKindOfClass:UITableView.class]) {
+        NSInteger sectionCount = tableView.numberOfSections;
+        NSInteger sa_section = -1;
+        UITableViewHeaderFooterView *headerFooterView = nil;
+        BOOL isHeader = YES;
+        for (int i = 0; i<sectionCount; i++) {
+            headerFooterView = [tableView headerViewForSection:i];
+            if (headerFooterView == self) {
+                isHeader = YES;
+                sa_section = i;
+                break;
+            }
+            headerFooterView = [tableView footerViewForSection:i];
+            if (headerFooterView == self) {
+                sa_section = i;
+                isHeader = NO;
+                break;
+            }
+        }
+
+        if (sa_section == -1) {
+            return @"";
+        }
+
+        NSString *desc = nil;
+        if (isHeader) {
+            desc = @"SectionHeader";
+        } else {
+            desc = @"SectionFooter";
+        }
+        NSString *pathString = [[NSString alloc] initWithFormat:@"[%@][%ld]", desc, (long)sa_section];
+        return pathString;
+    }
+    return @"";
+}
 @end

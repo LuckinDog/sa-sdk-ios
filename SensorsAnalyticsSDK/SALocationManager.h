@@ -9,17 +9,17 @@
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
-@interface SAGPSLocationConfig:NSObject
-@property (nonatomic,assign) BOOL enableGPSLocation; //default is NO .
-@property (nonatomic,assign) CLLocationCoordinate2D coordinate;//default is kCLLocationCoordinate2DInvalid
+@interface SAGPSLocationConfig : NSObject
+@property (nonatomic, assign) BOOL enableGPSLocation; //default is NO .
+@property (nonatomic, assign) CLLocationCoordinate2D coordinate;//default is kCLLocationCoordinate2DInvalid
 @end;
 
 @interface SALocationManager : NSObject {
     CLLocationManager *_locationManager;
 }
-@property(nonatomic,copy) void(^updateLocationBlock)(CLLocation *location,NSError *error);
--(void)startUpdatingLocation;
--(void)stopUpdatingLocation;
+@property (nonatomic, copy) void(^updateLocationBlock)(CLLocation *location, NSError *error);
+- (void)startUpdatingLocation;
+- (void)stopUpdatingLocation;
 
 @end
 #endif
