@@ -375,9 +375,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             [self setUpListeners];
             
-            if (!_configOptions.remoteConfigOptions) {
-                _configOptions.remoteConfigOptions = [[SARemoteConfigOptions alloc] init];
-            }
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
@@ -565,9 +562,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @try {
         NSURLComponents *urlComponents = nil;
         
-        if (self.configOptions.remoteConfigOptions.remoteConfigURL) {
+        if (self.configOptions.remoteConfigURL) {
             
-            NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigOptions.remoteConfigURL];
+            NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
             urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         } else {
             
@@ -3555,19 +3552,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)whetherRequestRemoteConfig {
     
     //判断是否符合分散 remoteconfig 请求条件
-    if (self.configOptions.remoteConfigOptions.disableRandomTimeRequestRemoteConfig && self.configOptions.remoteConfigOptions.maxHourInterval > self.configOptions.remoteConfigOptions.minHourInterval) {
+    if (self.configOptions.disableRandomTimeRequestRemoteConfig && self.configOptions.maxRequestHourInterval > self.configOptions.minRequestHourInterval) {
         
          NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
         double randomTime = [[requestTimeConfig objectForKey:@"randomTim"] doubleValue];
         double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
-        //当前时间，以开机时间为准
+        //当前时间，以开机时间为准，单位：秒
         NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
         
         dispatch_block_t createRandomTimeBlock = ^(){
             //转换成 秒 进行处理
-            NSInteger durationSecond = (self.configOptions.remoteConfigOptions.maxHourInterval - self.configOptions.remoteConfigOptions.minHourInterval) * 60 * 60;
+            NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
             NSInteger randomDurationTime = rand() % durationSecond;
-            double createRandomTime = currentTime + (self.configOptions.remoteConfigOptions.minHourInterval * 60 * 60) + randomDurationTime;
+            double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
             
             NSDictionary *createRequestTimeConfig = @{@"randomTim":@(createRandomTime),@"startDeviceTime":@(currentTime)};
             [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];

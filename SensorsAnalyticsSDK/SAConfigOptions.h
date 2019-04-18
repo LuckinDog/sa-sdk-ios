@@ -11,33 +11,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
-@interface SARemoteConfigOptions : NSObject
-
-/**
- 请求配置地址，默认从 ServerUrl 解析
- */
-@property(nonatomic, copy) NSString *remoteConfigURL;
-
-/**
- 禁用随机时间请求远程配置
- */
-@property(nonatomic,assign) BOOL disableRandomTimeRequestRemoteConfig;
-
-/**
- * 最小间隔时长，单位：小时，
- * 默认 24
- */
-@property(nonatomic,assign) NSInteger minHourInterval;
-
-/**
- * 最大间隔时长，单位：小时，
- * 默认 48
- */
-@property(nonatomic,assign) NSInteger maxHourInterval;
-
-@end
-
 /**
  * @class
  *  SensorsAnalyticsSDK 初始化配置
@@ -127,7 +100,35 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) NSInteger maxCacheSize;
 
-@property(nonatomic,strong) SARemoteConfigOptions *remoteConfigOptions;
+@end
+
+
+#pragma mark - 请求远程配置策略
+
+@interface SAConfigOptions()
+
+/**
+ 请求配置地址，默认从 ServerUrl 解析
+ */
+@property(nonatomic, copy) NSString *remoteConfigURL;
+
+/**
+ 禁用随机时间请求远程配置
+ */
+@property(nonatomic,assign) BOOL disableRandomTimeRequestRemoteConfig;
+
+/**
+ * 最小间隔时长，单位：小时，
+ * 默认 24
+ */
+@property(nonatomic,assign) NSInteger minRequestHourInterval;
+
+/**
+ * 最大间隔时长，单位：小时，
+ * 默认 48
+ */
+@property(nonatomic,assign) NSInteger maxRequestHourInterval;
+
 @end
 
 NS_ASSUME_NONNULL_END
