@@ -2,7 +2,7 @@
 //  SASecurityPolicy.h
 //  SensorsAnalyticsSDK
 //
-//  Created by MC on 2019/3/9.
+//  Created by 张敏超 on 2019/3/9.
 //  Copyright © 2019 Sensors Data Inc. All rights reserved.
 //
 

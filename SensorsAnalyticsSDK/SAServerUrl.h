@@ -17,21 +17,4 @@
 - (instancetype)initWithUrl:(NSString *)url;
 - (BOOL)check:(SAServerUrl *)serverUrl;
 
-
-/**
- 解析 URL 的参数
-
- @param urlComponents URL 的 urlComponents
- @return 参数字典
- */
-+ (NSDictionary *)analysisQueryItemWithURLComponent:(NSURLComponents *)urlComponents;
-
-
-/**
- 根据参数拼接 URL Query
-
- @param params 参数字典
- @return query 字符串
- */
-+ (NSString *)collectURLQueryWithParams:(NSDictionary <NSString *, NSString*>*)params;
 @end

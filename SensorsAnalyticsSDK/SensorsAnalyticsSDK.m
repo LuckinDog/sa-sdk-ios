@@ -34,6 +34,7 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SANetwork.h"
+#import "SANetwork+URLQuery.h"
 #import "SAAppExtensionDataManager.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
@@ -925,9 +926,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         }
         
-        NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlstr];
          //解析参数
-        NSMutableDictionary *paramsDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
+        NSMutableDictionary *paramsDic = [[SANetwork queryItemsWithURLString:urlstr] mutableCopy];
         
         if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
             SADebug(@"showUpWebView: UIWebView");
@@ -1230,10 +1230,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             return [self handleAutoTrackURL:url];
         } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
-            
-            NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
             // url query 解析
-            NSMutableDictionary *paramDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
+            NSMutableDictionary *paramDic = [[SANetwork queryItemsWithURL:url] mutableCopy];
 
             //如果没传 info_id，视为伪造二维码，不做处理
             if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
@@ -2523,10 +2521,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SADebug(@"%@: %@", self, exception);
         }
     }];
-}
-
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    [self configServerURLWithDebugMode:debugMode];
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {

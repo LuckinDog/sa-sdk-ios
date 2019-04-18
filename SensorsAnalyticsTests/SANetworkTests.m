@@ -1,43 +1,72 @@
 //
-//  SensorsAnalyticsNetworkTests.m
-//  SensorsAnalyticsTests
+//  SANetworkTests.m
+//  SANetworkTests
 //
-//  Created by MC on 2019/3/12.
+//  Created by 张敏超 on 2019/3/12.
 //  Copyright © 2019 Sensors Data Inc. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>
 #import "SASecurityPolicy.h"
 #import "SANetwork.h"
+#import "SANetwork+URLQuery.h"
 
-@interface SensorsAnalyticsNetworkTests : XCTestCase
+@interface SANetworkTests : XCTestCase
+@property (nonatomic, strong) NSURL *url;
 @property (nonatomic, strong) SANetwork *network;
 @end
 
-@implementation SensorsAnalyticsNetworkTests
+@implementation SANetworkTests
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
-//    NSURL *url = [NSURL URLWithString:@"http://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
-    _network = [[SANetwork alloc] initWithServerURL:url];
+    _url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
+    _network = [[SANetwork alloc] initWithServerURL:_url];
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    _url = nil;
+    _network = nil;
 }
 
-- (void)testServerURL {
-    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
-    SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
-    XCTAssertEqual(network.serverURL, url);
-    
-    network.debugMode = SensorsAnalyticsDebugOnly;
-    XCTAssertTrue([network.serverURL.lastPathComponent isEqualToString:@"debug"]);
-
-    network.debugMode = SensorsAnalyticsDebugAndTrack;
-    XCTAssertTrue([network.serverURL.lastPathComponent isEqualToString:@"debug"]);
+#pragma mark - URLQuery
+- (void)testGetQueryItemsWithURL {
+    NSDictionary *items = [SANetwork queryItemsWithURL:_url];
+    BOOL isEqual = [items isEqualToDictionary:@{@"project": @"zhangminchao", @"token": @"95c73ae661f85aa0"}];
+    XCTAssertTrue(isEqual);
 }
+
+- (void)testGetQueryItemsWithNilURL {
+    NSDictionary *items = [SANetwork queryItemsWithURL:nil];
+    XCTAssertNil(items);
+}
+
+- (void)testGetQueryItemsWithURLString {
+    NSDictionary *items = [SANetwork queryItemsWithURLString:@"https://sdk-test.datasink.sensorsdata.cn/sa?project=zhangminchao&token=95c73ae661f85aa0"];
+    BOOL isEqual = [items isEqualToDictionary:@{@"project": @"zhangminchao", @"token": @"95c73ae661f85aa0"}];
+    XCTAssertTrue(isEqual);
+}
+
+- (void)testGetQueryItemsWithNilURLString {
+    NSDictionary *items = [SANetwork queryItemsWithURLString:nil];
+    XCTAssertNil(items);
+}
+
+#pragma mark - Server URL
+- (void)testDebugOffServerURL {
+    XCTAssertEqual(self.network.serverURL, self.url);
+}
+
+- (void)testDebugOnlyServerURL {
+    self.network.debugMode = SensorsAnalyticsDebugOnly;
+    XCTAssertTrue([self.network.serverURL.lastPathComponent isEqualToString:@"debug"]);
+}
+
+- (void)testDebugAndTrackServerURL {
+    self.network.debugMode = SensorsAnalyticsDebugAndTrack;
+    XCTAssertTrue([self.network.serverURL.lastPathComponent isEqualToString:@"debug"]);
+}
+
 
 #pragma mark - Certificate
 // 测试项目中有两个证书。cert.der.cer DER 格式的证书；cert.cer1 为 CER 格式的原始证书，若修改后缀为 cer，会崩溃
@@ -71,9 +100,6 @@
 }
 
 - (void)testFlushEvents {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
-    
     XCTestExpectation *expect = [self expectationWithDescription:@"请求超时timeout!"];
     expect.expectedFulfillmentCount = 2;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

@@ -13,6 +13,7 @@
 
 #import "SAServerUrl.h"
 #import "SALogger.h"
+#import "SANetwork+URLQuery.h"
 
 @interface SAServerUrl ()
 
@@ -45,7 +46,7 @@
                 NSURLComponents *urlComponents = [NSURLComponents componentsWithString:url];
                 _host = urlComponents.host;
                 
-                NSDictionary *tempDic = [SAServerUrl analysisQueryItemWithURLComponent:urlComponents];
+                NSDictionary *tempDic = [SANetwork queryItemsWithURLString:url];
                 if (tempDic.count) {
                     _project = [tempDic objectForKey:@"project"];
                     _token = [tempDic objectForKey:@"token"];
@@ -69,38 +70,4 @@
     return self;
 }
 
-+ (nullable NSDictionary *)analysisQueryItemWithURLComponent:(NSURLComponents *)urlComponents {
-    if (urlComponents) {
-        NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
-        NSString *query = urlComponents.query;
-        NSArray *queryArray = [query componentsSeparatedByString:@"&"];
-        
-        for (NSString *queryItemString in queryArray) {
-            NSArray *queryItemArray = [queryItemString componentsSeparatedByString:@"="];
-            NSString *queryName = [queryItemArray firstObject];
-            NSString *queryValue = [queryItemArray lastObject];
-            if (queryName && queryValue) {
-                [tempDic setValue:queryValue forKey:queryName];
-            }
-        }
-        
-        if (tempDic.count) {
-            return tempDic;
-        }
-    }
-    return nil;
-}
-
-+ (nullable NSString *)collectURLQueryWithParams:(NSDictionary <NSString *, NSString*>*)params {
-    NSMutableArray *queryArray = [[NSMutableArray alloc] init];
-    [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-        NSString *query = [NSString stringWithFormat:@"%@=%@",key,obj];
-        [queryArray addObject:query];
-    }];
-    if (queryArray.count) {
-        return [queryArray componentsJoinedByString:@"&"];
-    } else {
-        return nil;
-    }
-}
 @end

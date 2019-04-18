@@ -2,11 +2,12 @@
 //  SANetwork.m
 //  SensorsAnalyticsSDK
 //
-//  Created by MC on 2019/3/8.
+//  Created by 张敏超 on 2019/3/8.
 //  Copyright © 2019 Sensors Data Inc. All rights reserved.
 //
 
 #import "SANetwork.h"
+#import "SANetwork+URLQuery.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "NSString+HashCode.h"
@@ -167,14 +168,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 - (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, id> *)params {
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
-    
-    //添加参数
-    NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithArray:urlComponents.queryItems];
-    [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        NSURLQueryItem *queryItem = [NSURLQueryItem queryItemWithName:key value:obj];
-        [queryItems addObject:queryItem];
-    }];
-    urlComponents.queryItems = queryItems;
+    urlComponents.query = [SANetwork urlQueryStringWithParams:params];
     return urlComponents.URL;
 }
 
