@@ -3552,7 +3552,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)whetherRequestRemoteConfig {
     
     //判断是否符合分散 remoteconfig 请求条件
-    if (self.configOptions.disableRandomTimeRequestRemoteConfig && self.configOptions.maxRequestHourInterval > self.configOptions.minRequestHourInterval) {
+    if (!self.configOptions.disableRandomTimeRequestRemoteConfig && self.configOptions.maxRequestHourInterval > self.configOptions.minRequestHourInterval) {
         
          NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
         double randomTime = [[requestTimeConfig objectForKey:@"randomTim"] doubleValue];
