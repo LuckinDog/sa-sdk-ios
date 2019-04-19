@@ -1,5 +1,5 @@
 //
-//  NSString.m
+//  NSString+HashCode.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 2017/7/6.

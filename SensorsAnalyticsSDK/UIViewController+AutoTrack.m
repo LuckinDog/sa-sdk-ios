@@ -1,6 +1,6 @@
 //
-//  UIViewController.m
-//  HookTest
+//  UIViewController+AutoTrack.m
+//  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 2017/10/18.
 //  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.

@@ -644,13 +644,13 @@
 		A18C833B2142597D00D7DCB4 /* HeatMap */ = {
 			isa = PBXGroup;
 			children = (
+				A18C83412142597D00D7DCB4 /* SAHeatMapMessage.h */,
 				A18C83402142597D00D7DCB4 /* SAHeatMapSnapshotMessage.h */,
 				A18C833C2142597D00D7DCB4 /* SAHeatMapSnapshotMessage.m */,
 				A18C833D2142597D00D7DCB4 /* SAHeatMapConnection.h */,
 				A18C833F2142597D00D7DCB4 /* SAHeatMapConnection.m */,
 				A18C833E2142597D00D7DCB4 /* SAAbstractHeatMapMessage.h */,
 				A18C83422142597D00D7DCB4 /* SAAbstractHeatMapMessage.m */,
-				A18C83412142597D00D7DCB4 /* SAHeatMapMessage.h */,
 			);
 			path = HeatMap;
 			sourceTree = SOURCE_ROOT;

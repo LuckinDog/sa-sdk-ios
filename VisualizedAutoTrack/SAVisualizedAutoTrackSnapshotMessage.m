@@ -1,5 +1,5 @@
 //
-//  SADesignerSnapshotMessage.m
+//  SAVisualizedAutoTrackSnapshotMessage.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/9/4.
