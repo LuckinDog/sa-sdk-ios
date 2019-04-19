@@ -2280,9 +2280,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = nil;
     
-    if (@available(iOS 12.0, *)) {
+    if (@available(iOS 12.1, *)) {
         carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
-    } else {
+    }
+    if(!carrier) {
         carrier = telephonyInfo.subscriberCellularProvider;
     }
 
@@ -2603,7 +2604,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (!netinfo) {
                 netinfo = [[CTTelephonyNetworkInfo alloc] init];
             }
-            if (@available(iOS 12.0, *)) {
+            if (@available(iOS 12.1, *)) {
                 currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
             }
             //测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
