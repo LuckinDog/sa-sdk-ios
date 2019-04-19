@@ -35,7 +35,7 @@
  *
  *  @return 初始化的结果
  */
-- (id)initWithFilePath:(NSString*)filePath;
+- (id)initWithFilePath:(NSString *)filePath;
 
 /**
  *  @abstract

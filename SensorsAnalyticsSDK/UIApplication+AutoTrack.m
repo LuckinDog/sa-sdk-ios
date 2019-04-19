@@ -194,7 +194,7 @@
                     [properties setValue:@"unchecked" forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 }
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:uiSwitch withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:uiSwitch viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -214,7 +214,7 @@
                     [properties setValue:[NSString stringWithFormat:@"%g", stepper.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 }
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:stepper withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:stepper viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -250,7 +250,7 @@
                 [properties setValue:[NSString stringWithFormat: @"%ld", (long)[segmented selectedSegmentIndex]] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
                 [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:segmented withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:segmented viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -313,7 +313,7 @@
                     }
                 }
 #endif
-                else if([from isKindOfClass:[UITabBarItem class]]){//For iOS7 TabBar
+                else if([from isKindOfClass:[UITabBarItem class]]) {//For iOS7 TabBar
                     UITabBarItem *tabBarItem = (UITabBarItem *)from;
                     if (tabBarItem) {
                         [properties setValue:@"UITabbar" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
@@ -323,11 +323,12 @@
                     UISlider *slide = (UISlider *)from;
                     if (slide != nil) {
                         [properties setValue:@"UISlider" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-                        [properties setValue:[NSString stringWithFormat:@"%f",slide.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
+                        [properties setValue:[NSString stringWithFormat:@"%f", slide.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                     }
                 } else {
                     if ([from isKindOfClass:[UIControl class]]) {
                         [properties setValue:@"UIControl" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
+                        
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
                             NSString *elementContent = [AutoTrackUtils contentFromView:fromView];
@@ -337,15 +338,14 @@
                         }
                     }
                 }
-                
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-                
+        
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
 
+                [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
                 [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         }

@@ -66,7 +66,7 @@
         if (sqlite3_exec(_database, [_sql UTF8String], NULL, NULL, &errorMsg)==SQLITE_OK) {
             SADebug(@"Create dataCache Success.");
         } else {
-            SAError(@"Create dataCache Failure %s",errorMsg);
+            SAError(@"Create dataCache Failure %s", errorMsg);
             return nil;
         }
         CFDictionaryKeyCallBacks keyCallbacks = kCFCopyStringDictionaryKeyCallBacks;
@@ -133,7 +133,7 @@
     if(stmt) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             @try {
-                char* jsonChar = (char*)sqlite3_column_text(stmt, 0);
+                char* jsonChar = (char *)sqlite3_column_text(stmt, 0);
                 if (!jsonChar) {
                     SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
                     return nil;
@@ -167,7 +167,7 @@
             SAError(@"Failed to delete record msg=%s", errMsg);
         }
     } @catch (NSException *exception) {
-        SAError(@"Failed to delete record exception=%@",exception);
+        SAError(@"Failed to delete record exception=%@", exception);
     }
 
     _messageCount = [self sqliteCount];
@@ -183,7 +183,7 @@
             return NO;
         }
     } @catch (NSException *exception) {
-        SAError(@"Failed to delete record exception=%@",exception);
+        SAError(@"Failed to delete record exception=%@", exception);
         return NO;
     }
     _messageCount = [self sqliteCount];

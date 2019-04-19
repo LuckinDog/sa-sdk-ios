@@ -22,13 +22,13 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreMotion/CoreMotion.h>
-@interface SADeviceOrientationConfig:NSObject
-@property (nonatomic,strong) NSString *deviceOrientation;
-@property (nonatomic,assign) BOOL enableTrackScreenOrientation;//default is NO
+@interface SADeviceOrientationConfig : NSObject
+@property (nonatomic, strong) NSString *deviceOrientation;
+@property (nonatomic, assign) BOOL enableTrackScreenOrientation;//default is NO
 @end
 
 @interface SADeviceOrientationManager : NSObject
-@property (nonatomic,strong) void(^deviceOrientationBlock)(NSString * deviceOrientation);
+@property (nonatomic, strong) void(^deviceOrientationBlock)(NSString * deviceOrientation);
 - (void)startDeviceMotionUpdates;
 - (void)stopDeviceMotionUpdates;
 @end

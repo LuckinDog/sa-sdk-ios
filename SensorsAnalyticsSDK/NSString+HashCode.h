@@ -21,5 +21,5 @@
 #import <UIKit/UIKit.h>
 
 @interface NSString (HashCode)
--(int)sensorsdata_hashCode;
+- (int)sensorsdata_hashCode;
 @end

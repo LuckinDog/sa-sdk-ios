@@ -33,7 +33,7 @@
  * @abstract
  * ApplicationGroupIdentifier数组
  */
-@property(nonatomic,strong) NSArray *groupIdentifierArray;
+@property (nonatomic, strong) NSArray *groupIdentifierArray;
 
 + (instancetype)sharedInstance;
 

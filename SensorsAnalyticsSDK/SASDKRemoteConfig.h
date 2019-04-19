@@ -24,10 +24,10 @@ static NSInteger kSAAutoTrackModeDisabledAll = 0;
 static NSInteger kSAAutoTrackModeEnabledAll = 15;
 
 @interface SASDKRemoteConfig : NSObject
-@property(nonatomic,copy)NSString *v;
-@property(nonatomic,assign)BOOL disableSDK;
-@property(nonatomic,assign)BOOL disableDebugMode;
-@property(nonatomic,assign)NSInteger autoTrackMode;//-1,0,1~15
+@property (nonatomic, copy) NSString *v;
+@property (nonatomic, assign) BOOL disableSDK;
+@property (nonatomic, assign) BOOL disableDebugMode;
+@property (nonatomic, assign) NSInteger autoTrackMode;//-1,0,1~15
 
 + (instancetype)configWithDict:(NSDictionary *)dict;
 - (instancetype)initWithDict:(NSDictionary *)dict;
