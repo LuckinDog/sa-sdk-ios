@@ -2,8 +2,20 @@
 //  SADesignerSnapshotMessage.m
 //  SensorsAnalyticsSDK
 //
-//  Created by 向作为 on 2018/9/4.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Created by 王灼洲 on 8/1/17.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -13,24 +25,24 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "SAVisualizedAutoTrackSnapshotMessage.h"
+#import "SAHeatMapSnapshotMessage.h"
 #import "SAApplicationStateSerializer.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAObjectSerializerConfig.h"
-#import "SAVisualizedAutoTrackConnection.h"
+#import "SAHeatMapConnection.h"
 #import "SensorsAnalyticsSDK.h"
 
 #pragma mark -- Snapshot Request
 
-NSString * const SAVisualizedAutoTrackSnapshotRequestMessageType = @"snapshot_request";
+NSString * const SAHeatMapSnapshotRequestMessageType = @"snapshot_request";
 
 static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descriptions";
 static NSString * const kObjectIdentityProviderKey = @"object_identity_provider";
 
-@implementation SAVisualizedAutoTrackSnapshotRequestMessage
+@implementation SAHeatMapSnapshotRequestMessage
 
 + (instancetype)message {
-    return [(SAVisualizedAutoTrackSnapshotRequestMessage *)[self alloc] initWithType:SAVisualizedAutoTrackSnapshotRequestMessageType];
+    return [(SAHeatMapSnapshotRequestMessage *)[self alloc] initWithType:SAHeatMapSnapshotRequestMessageType];
 }
 
 - (SAObjectSerializerConfig *)configuration {
@@ -38,13 +50,13 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
     return config ? [[SAObjectSerializerConfig alloc] initWithDictionary:config] : nil;
 }
 
-- (NSOperation *)responseCommandWithConnection:(SAVisualizedAutoTrackConnection *)connection {
+- (NSOperation *)responseCommandWithConnection:(SAHeatMapConnection *)connection {
     __block SAObjectSerializerConfig *serializerConfig = self.configuration;
     __block NSString *imageHash = [self payloadObjectForKey:@"last_image_hash"];
 
-    __weak SAVisualizedAutoTrackConnection *weak_connection = connection;
+    __weak SAHeatMapConnection *weak_connection = connection;
     NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-        __strong SAVisualizedAutoTrackConnection *conn = weak_connection;
+        __strong SAHeatMapConnection *conn = weak_connection;
         
         // Update the class descriptions in the connection session if provided as part of the message.
         if (serializerConfig) {
@@ -64,7 +76,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
                                                                                                configuration:serializerConfig
                                                                                       objectIdentityProvider:objectIdentityProvider];
 
-        SAVisualizedAutoTrackSnapshotResponseMessage *snapshotMessage = [SAVisualizedAutoTrackSnapshotResponseMessage message];
+        SAHeatMapSnapshotResponseMessage *snapshotMessage = [SAHeatMapSnapshotResponseMessage message];
         __block UIImage *screenshot = nil;
         __block NSDictionary *serializedObjects = nil;
 
@@ -75,7 +87,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         snapshotMessage.screenshot = screenshot;
 
         if (imageHash && [imageHash isEqualToString:snapshotMessage.imageHash]) {
-            [conn sendMessage:[SAVisualizedAutoTrackSnapshotResponseMessage message]];
+            [conn sendMessage:[SAHeatMapSnapshotResponseMessage message]];
             return;
         }
         
@@ -95,10 +107,10 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
 
 #pragma mark -- Snapshot Response
 
-@implementation SAVisualizedAutoTrackSnapshotResponseMessage
+@implementation SAHeatMapSnapshotResponseMessage
 
 + (instancetype)message {
-    return [(SAVisualizedAutoTrackSnapshotResponseMessage *)[self alloc] initWithType:@"snapshot_response"];
+    return [(SAHeatMapSnapshotResponseMessage *)[self alloc] initWithType:@"snapshot_response"];
 }
 
 - (void)setScreenshot:(UIImage *)screenshot {

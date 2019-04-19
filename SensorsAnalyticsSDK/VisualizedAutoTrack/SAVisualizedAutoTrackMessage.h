@@ -1,8 +1,8 @@
 //
-//  UIApplication+AutoTrack.h
+//  SAVisualizedAutoTrackMessage.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 17/3/22.
+//  Created by 向作为 on 2018/9/4.
 //  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,17 +18,19 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@class SAVisualizedAutoTrackConnection;
 
-@interface UIApplication (AutoTrack)
+@protocol SAVisualizedAutoTrackMessage <NSObject>
 
-- (BOOL)sa_sendAction:(SEL)action
-                   to:(nullable id)to
-                 from:(nullable id)from
-             forEvent:(nullable UIEvent *)event;
+@property (nonatomic, copy, readonly) NSString *type;
+
+- (void)setPayloadObject:(id)object forKey:(NSString *)key;
+- (id)payloadObjectForKey:(NSString *)key;
+
+- (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)fetureCode;
+
+- (NSOperation *)responseCommandWithConnection:(SAVisualizedAutoTrackConnection *)connection;
 
 @end
-
-NS_ASSUME_NONNULL_END

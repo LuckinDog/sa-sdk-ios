@@ -1,8 +1,8 @@
 //
-//  UIApplication+AutoTrack.h
+//  SAHeatMapConnection.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 17/3/22.
+//  Created by 王灼洲 on 8/1/17.
 //  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,17 +18,20 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@protocol SAHeatMapMessage;
 
-@interface UIApplication (AutoTrack)
+@interface SAHeatMapConnection : NSObject
 
-- (BOOL)sa_sendAction:(SEL)action
-                   to:(nullable id)to
-                 from:(nullable id)from
-             forEvent:(nullable UIEvent *)event;
+@property (nonatomic, readonly) BOOL connected;
+@property (nonatomic, assign) BOOL useGzip;
+
+- (instancetype)initWithURL:(NSURL *)url;
+- (void)setSessionObject:(id)object forKey:(NSString *)key;
+- (id)sessionObjectForKey:(NSString *)key;
+- (void)sendMessage:(id<SAHeatMapMessage>)message;
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr;
+- (void)close;
 
 @end
-
-NS_ASSUME_NONNULL_END
