@@ -3,7 +3,19 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 17/3/22.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -178,7 +190,7 @@
                     [properties setValue:@"unchecked" forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 }
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:uiSwitch withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:uiSwitch viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -198,7 +210,7 @@
                     [properties setValue:[NSString stringWithFormat:@"%g", stepper.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 }
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:stepper withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:stepper viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -234,7 +246,7 @@
                 [properties setValue:[NSString stringWithFormat: @"%ld", (long)[segmented selectedSegmentIndex]] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
                 [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:segmented withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:segmented viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -310,6 +322,7 @@
                 } else {
                     if ([from isKindOfClass:[UIControl class]]) {
                         [properties setValue:@"UIControl" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
+                        
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
                             NSString *elementContent = [AutoTrackUtils contentFromView:fromView];
@@ -319,15 +332,14 @@
                         }
                     }
                 }
-                
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-                
+        
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict) {
                     [properties addEntriesFromDictionary:propDict];
                 }
 
+                [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
                 [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         }
