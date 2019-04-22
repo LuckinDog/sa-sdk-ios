@@ -59,6 +59,7 @@
 		4D431F61222D0F4400FCD8E4 /* SAAlertController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D431F5E222D0E6800FCD8E4 /* SAAlertController.m */; };
 		4D5CA77B1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */; };
 		4D5CA77D1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */; };
+		4D5D579F226DAD3600ABFD13 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SANetwork.m */; };
 		4D8D0F172269699100663D00 /* SAHeatMapConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F102269699100663D00 /* SAHeatMapConnection.m */; };
 		4D8D0F182269699100663D00 /* SAHeatMapConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F102269699100663D00 /* SAHeatMapConnection.m */; };
 		4D8D0F192269699100663D00 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
@@ -571,6 +572,7 @@
 				4D6FF98921086B8900241224 /* Resources */,
 				4D8D0EEC2269695C00663D00 /* HeatMap */,
 				4D8D0EF42269695C00663D00 /* VisualizedAutoTrack */,
+				CB2CDD2D223247C9000C1F92 /* Network */,
 				A161A05220B540E400A3CA14 /* SALocationManager.h */,
 				A161A05320B540E400A3CA14 /* SALocationManager.m */,
 				A1280DFC217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h */,
@@ -583,7 +585,6 @@
 				A11C5458201075020074E817 /* SAAppExtensionDataManager.m */,
 				0038C5CF1FCFA13D00C1BBC1 /* SensorsAnalyticsExceptionHandler.h */,
 				0038C5D01FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.m */,
-				CB2CDD2D223247C9000C1F92 /* Network */,
 				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
 				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				4D431F5D222D0E6800FCD8E4 /* SAAlertController.h */,
@@ -1111,12 +1112,9 @@
 				4D14F1741B4A5469006AD786 /* SAGzipUtility.m in Sources */,
 				4D14F16E1B47D5E2006AD786 /* SensorsAnalyticsSDK.m in Sources */,
 				4D8D0F29226969B900663D00 /* SAVisualizedAutoTrackAbstractMessage.m in Sources */,
+				4D5D579F226DAD3600ABFD13 /* SANetwork.m in Sources */,
 				4D0EB7C91B47A88C0019FD21 /* ViewController.m in Sources */,
-<<<<<<< HEAD
 				CB143B46223B607700A2CBF2 /* SASecurityPolicy.m in Sources */,
-				A18C834C2142597D00D7DCB4 /* SAAbstractHeatMapMessage.m in Sources */,
-=======
->>>>>>> ecfa05153ad80a291fadebcf6654d7e7b09e0a02
 				4D0EB7C61B47A88C0019FD21 /* AppDelegate.m in Sources */,
 				4D23EFB62109643400DBDB9F /* SACommonUtility.m in Sources */,
 				4D0EB7C31B47A88C0019FD21 /* main.m in Sources */,
@@ -1137,22 +1135,15 @@
 				4D8D0F192269699100663D00 /* SAAbstractHeatMapMessage.m in Sources */,
 				A3746EB11C318B65008A50A3 /* SAObjectSerializerContext.m in Sources */,
 				A3746EA91C318B54008A50A3 /* SAObjectSerializer.m in Sources */,
-<<<<<<< HEAD
 				CB164696223A4D1B003AA635 /* SASecurityPolicy.m in Sources */,
-				A1D97AD4213690FF00B2005E /* SAVisualizedAutoTrackConnection.m in Sources */,
-=======
->>>>>>> ecfa05153ad80a291fadebcf6654d7e7b09e0a02
 				A1100B13219BC93C00E14E9A /* SAConstants.m in Sources */,
 				A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */,
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
 				4D8D0F30226969B900663D00 /* SAVisualizedAutoTrackConnection.m in Sources */,
 				A15CBCA5208ED5D50014DE74 /* SASDKRemoteConfig.m in Sources */,
 				A3746EBF1C3190E7008A50A3 /* SAEnumDescription.m in Sources */,
-<<<<<<< HEAD
 				CB2CDD3122324875000C1F92 /* SANetwork.m in Sources */,
-=======
 				4D8D0F2C226969B900663D00 /* SAVisualizedAutoTrackSnapshotMessage.m in Sources */,
->>>>>>> ecfa05153ad80a291fadebcf6654d7e7b09e0a02
 				002DB94E1EB1647F00A9632C /* SASwizzle.m in Sources */,
 				A1280DFD217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.m in Sources */,
 				A3746E7F1C3115EB008A50A3 /* SAAbstractDesignerMessage.m in Sources */,
