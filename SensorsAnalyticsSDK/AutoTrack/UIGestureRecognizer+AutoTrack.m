@@ -104,7 +104,7 @@
         if ([view isKindOfClass:[UILabel class]]) {
             [properties setValue:@"UILabel" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
             UILabel *label = (UILabel *)view;
-            NSString *sa_elementContent = label.sa_elementContent;
+            NSString *sa_elementContent = label.sensorsdata_elementContent;
             if (sa_elementContent && sa_elementContent.length > 0) {
                 [properties setValue:sa_elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
             }

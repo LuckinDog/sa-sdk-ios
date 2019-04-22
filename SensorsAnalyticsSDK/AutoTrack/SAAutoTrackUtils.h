@@ -1,9 +1,9 @@
 //
-//  UIView+sa_autoTrack.h
+//  SAAutoTrackUtils.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 向作为 on 2018/6/11.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Created by MC on 2019/4/22.
+//  Copyright © 2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -17,27 +17,23 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+    
 
 #import <UIKit/UIKit.h>
-#import <Foundation/Foundation.h>
 
-@protocol SAUIViewAutoTrack
-@optional
-- (NSString *)sa_elementContent;
-@end;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface UIView (AutoTrack) <SAUIViewAutoTrack>
-- (NSString *)sa_elementContent;
+@interface SAAutoTrackUtils : NSObject
+
+#if UIKIT_DEFINE_AS_PROPERTIES
+@property(class, nonatomic, readonly) UIViewController *currentViewController;
+#else
++ (UIViewController *)currentViewController;
+#endif
+
++ (UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
++ (UIViewController *)findSuperViewControllerByView:(UIView *)view;
+
 @end
 
-@interface UIButton (AutoTrack) <SAUIViewAutoTrack>
-- (NSString *)sa_elementContent;
-@end
-
-@interface UILabel (AutoTrack) <SAUIViewAutoTrack>
-- (NSString *)sa_elementContent;
-@end
-
-@interface UITextView (AutoTrack) <SAUIViewAutoTrack>
-- (NSString *)sa_elementContent;
-@end
+NS_ASSUME_NONNULL_END

@@ -201,6 +201,9 @@
 		A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E3889E1D509B7100F6B9FC /* SAReachability.m */; };
 		A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3EEDCE81C4E084200D1362F /* DemoController.m */; };
 		A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
+		CB790290226D7DB100115890 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB79028E226D7DB000115890 /* SAAutoTrackUtils.h */; };
+		CB790291226D7DB100115890 /* SAAutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB79028F226D7DB000115890 /* SAAutoTrackUtils.m */; };
+		CB790292226DB4AA00115890 /* SAAutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB79028F226D7DB000115890 /* SAAutoTrackUtils.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -408,6 +411,8 @@
 		A3EEDCE71C4E081F00D1362F /* DemoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoController.h; sourceTree = "<group>"; };
 		A3EEDCE81C4E084200D1362F /* DemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoController.m; sourceTree = "<group>"; };
 		A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
+		CB79028E226D7DB000115890 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
+		CB79028F226D7DB000115890 /* SAAutoTrackUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtils.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -531,6 +536,7 @@
 				4D6FF98921086B8900241224 /* Resources */,
 				4D8D0EEC2269695C00663D00 /* HeatMap */,
 				4D8D0EF42269695C00663D00 /* VisualizedAutoTrack */,
+				CBADC0E62269F19900D55A09 /* AutoTrack */,
 				A161A05220B540E400A3CA14 /* SALocationManager.h */,
 				A161A05320B540E400A3CA14 /* SALocationManager.m */,
 				A1280DFC217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h */,
@@ -543,16 +549,10 @@
 				A11C5458201075020074E817 /* SAAppExtensionDataManager.m */,
 				0038C5CF1FCFA13D00C1BBC1 /* SensorsAnalyticsExceptionHandler.h */,
 				0038C5D01FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.m */,
-				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
-				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				4D431F5D222D0E6800FCD8E4 /* SAAlertController.h */,
 				4D431F5E222D0E6800FCD8E4 /* SAAlertController.m */,
 				002DB9491EB1647F00A9632C /* SASwizzle.h */,
 				002DB94A1EB1647F00A9632C /* SASwizzle.m */,
-				002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */,
-				002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */,
-				4DD9E84D2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h */,
-				4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */,
 				A3E388A01D509B8900F6B9FC /* SAReachability.h */,
 				A3E3889E1D509B7100F6B9FC /* SAReachability.m */,
 				A3746E791C3115EB008A50A3 /* SAAbstractDesignerMessage.h */,
@@ -599,16 +599,12 @@
 				4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */,
 				4D23EFB22109643400DBDB9F /* SACommonUtility.h */,
 				4D23EFB32109643400DBDB9F /* SACommonUtility.m */,
-				0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */,
-				0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */,
 				008D82AC1F0E22ED00052CFF /* NSString+HashCode.h */,
 				008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */,
 				004136081FFB4682009F2097 /* SAServerUrl.h */,
 				004136091FFB4682009F2097 /* SAServerUrl.m */,
 				A15CBCA2208ED5D50014DE74 /* SASDKRemoteConfig.h */,
 				A15CBCA3208ED5D50014DE74 /* SASDKRemoteConfig.m */,
-				A190A8C320CE58F6002C4202 /* UIView+AutoTrack.h */,
-				A190A8C420CE58F6002C4202 /* UIView+AutoTrack.m */,
 				007BE5A620E1F1D2006CB1ED /* NSThread+SAHelpers.h */,
 				007BE5A720E1F1D2006CB1ED /* NSThread+SAHelpers.m */,
 				A18C835221426AF800D7DCB4 /* SAAuxiliaryToolManager.h */,
@@ -683,6 +679,25 @@
 			path = SensorsDataSwiftDemo;
 			sourceTree = "<group>";
 		};
+		CBADC0E62269F19900D55A09 /* AutoTrack */ = {
+			isa = PBXGroup;
+			children = (
+				002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */,
+				002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */,
+				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
+				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
+				4DD9E84D2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h */,
+				4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */,
+				A190A8C320CE58F6002C4202 /* UIView+AutoTrack.h */,
+				A190A8C420CE58F6002C4202 /* UIView+AutoTrack.m */,
+				CB79028E226D7DB000115890 /* SAAutoTrackUtils.h */,
+				CB79028F226D7DB000115890 /* SAAutoTrackUtils.m */,
+				0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */,
+				0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */,
+			);
+			path = AutoTrack;
+			sourceTree = "<group>";
+		};
 		F029B80BAB18852D4CE30358 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -745,6 +760,7 @@
 				4D8D0F2F226969B900663D00 /* SAVisualizedAutoTrackConnection.h in Headers */,
 				4D8D0F2B226969B900663D00 /* SAVisualizedAutoTrackMessage.h in Headers */,
 				A14EF2B921B90E8200892492 /* SensorsAnalyticsSDK+Private.h in Headers */,
+				CB790290226D7DB100115890 /* SAAutoTrackUtils.h in Headers */,
 				4D8D0F2E226969B900663D00 /* SAVisualizedAutoTrackAbstractMessage.h in Headers */,
 				A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */,
 				A399F50D1C3C281D00B44340 /* SAValueTransformers.h in Headers */,
@@ -1006,6 +1022,7 @@
 				002DB9571EB1681900A9632C /* AutoTrackViewController.m in Sources */,
 				4D1EFDD51B4BC6930008D3EA /* MessageQueueBySqlite.m in Sources */,
 				A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */,
+				CB790292226DB4AA00115890 /* SAAutoTrackUtils.m in Sources */,
 				A1100B14219BC93C00E14E9A /* SAConstants.m in Sources */,
 				00DC9CDF1D7E9EC900C7DF6C /* JSCallOCViewController2.m in Sources */,
 				4D1EFDD61B4BC6930008D3EA /* JSONUtil.m in Sources */,
@@ -1052,6 +1069,7 @@
 				0009198C1F974CE100E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
 				A1753DD72074AEC400425771 /* SALogger.m in Sources */,
 				A18C835521426AF800D7DCB4 /* SAAuxiliaryToolManager.m in Sources */,
+				CB790291226D7DB100115890 /* SAAutoTrackUtils.m in Sources */,
 				A11C545A201075020074E817 /* SAAppExtensionDataManager.m in Sources */,
 				4D2AF15D1B4BAE77007716F8 /* JSONUtil.m in Sources */,
 				A3746EBD1C3190E7008A50A3 /* SAClassDescription.m in Sources */,

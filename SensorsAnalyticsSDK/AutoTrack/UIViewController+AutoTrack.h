@@ -21,5 +21,10 @@
 #import <UIKit/UIKit.h>
 
 @interface UIViewController (AutoTrack)
+
+@property (nonatomic, copy, readonly) NSString *sensorsdata_screenName;
+@property (nonatomic, copy, readonly) NSString *sensorsdata_title;
+
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated;
+
 @end

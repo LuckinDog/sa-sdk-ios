@@ -29,7 +29,26 @@
 #import "SASwizzler.h"
 #import "AutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "UIView+AutoTrack.h"
+
 @implementation UIViewController (AutoTrack)
+
+- (NSString *)sensorsdata_screenName {
+    return NSStringFromClass([self class]);
+}
+
+- (NSString *)sensorsdata_title {
+    NSString *titleViewContent = self.navigationItem.titleView.sensorsdata_elementContent;
+    if (titleViewContent.length > 0) {
+        return titleViewContent;
+    }
+    NSString *controllerTitle = self.navigationItem.title;
+    if (controllerTitle.length > 0) {
+        return controllerTitle;
+    }
+    return nil;
+}
+
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated {
     @try {
         

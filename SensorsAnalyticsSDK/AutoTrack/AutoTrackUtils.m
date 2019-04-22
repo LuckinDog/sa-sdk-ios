@@ -44,7 +44,7 @@
         
         NSMutableString *elementContent = [NSMutableString string];
         
-        NSString *currentTitle = rootView.sa_elementContent;
+        NSString *currentTitle = rootView.sensorsdata_elementContent;
         if (currentTitle.length > 0) {
             [elementContent appendString:currentTitle];
             
@@ -597,7 +597,7 @@
         if ([view isKindOfClass:[UILabel class]]) {
             [properties setValue:@"UILabel" forKey:@"$element_type"];
             UILabel *label = (UILabel *)view;
-            NSString *sa_elementContent = label.sa_elementContent;
+            NSString *sa_elementContent = label.sensorsdata_elementContent;
             if (sa_elementContent && sa_elementContent.length > 0) {
                 [properties setValue:sa_elementContent forKey:@"$element_content"];
             }
