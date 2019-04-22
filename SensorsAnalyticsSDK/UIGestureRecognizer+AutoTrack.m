@@ -62,20 +62,19 @@
         if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
             return;
         }
-        
+       
         //忽略 $AppClick 事件
         if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
             return;
         }
         
-        if ([view isKindOfClass:[UILabel class]]) {//UILabel
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UILabel class]]) {
-                return;
-            }
-        } else if ([view isKindOfClass:[UIImageView class]]) {//UIImageView
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UIImageView class]]) {
-                return;
-            }
+        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[view class]]) {
+            return;
+        }
+        
+        //忽略这个 view
+        if (view.sensorsAnalyticsIgnoreView) {
+            return;
         }
         
         UIViewController *viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
