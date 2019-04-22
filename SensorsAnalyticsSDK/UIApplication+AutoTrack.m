@@ -3,7 +3,19 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 17/3/22.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -182,7 +194,7 @@
                     [properties setValue:@"unchecked" forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 }
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:uiSwitch withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:uiSwitch viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -202,7 +214,7 @@
                     [properties setValue:[NSString stringWithFormat:@"%g", stepper.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 }
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:stepper withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:stepper viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -238,7 +250,7 @@
                 [properties setValue:[NSString stringWithFormat: @"%ld", (long)[segmented selectedSegmentIndex]] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
                 [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                 
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:segmented withViewController:viewController];
+                [AutoTrackUtils sa_addViewPathProperties:properties object:segmented viewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
@@ -263,47 +275,32 @@
                             [properties setValue:currentTitle forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                         } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-                            UIImage *image = button.currentImage;
-                            if (image) {
-                                NSString *imageName = image.sensorsAnalyticsImageName;
-                                if (imageName != nil) {
-                                    [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                                }
+
+                            NSString *imageName = button.currentImage.sensorsAnalyticsImageName;
+                            if (imageName.length > 0) {
+                                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                             }
 #endif
                         }
                     }
                 } else
 #endif
-                if ([from isKindOfClass:[UIButton class]]) {//UIButton
-                    UIButton *button = (UIButton *)from;
-                    [properties setValue:@"UIButton" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-                    if (button != nil) {
-                        NSString *currentTitle = button.sa_elementContent;
-                        if (currentTitle != nil) {
+                    if ([from isKindOfClass:[UIButton class]]) {//UIButton
+                        UIButton *button = (UIButton *)from;
+                        [properties setValue:@"UIButton" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
+                        
+                        NSString *currentTitle = [AutoTrackUtils contentFromView:button];
+                        if (currentTitle.length > 0) {
                             [properties setValue:currentTitle forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                         } else {
-                            if (button.subviews.count > 0) {
-                                NSString *elementContent = [[NSString alloc] init];
-                                elementContent = [AutoTrackUtils contentFromView:button];
-                                if (elementContent != nil && [elementContent length] > 0) {
-                                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                                    [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                                } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-                                    UIImage *image = button.currentImage;
-                                    if (image) {
-                                        NSString *imageName = image.sensorsAnalyticsImageName;
-                                        if (imageName != nil) {
-                                            [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                                        }
-                                    }
-#endif
-                                }
+                            NSString *imageName = button.currentImage.sensorsAnalyticsImageName;
+                            if (imageName.length > 0) {
+                                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                             }
+#endif
                         }
                     }
-                }
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
                 else if ([from isKindOfClass:[NSClassFromString(@"UITabBarButton") class]]) {//UITabBarButton
                     if ([to isKindOfClass:[UITabBar class]]) {//UITabBar
@@ -316,7 +313,7 @@
                     }
                 }
 #endif
-                else if([from isKindOfClass:[UITabBarItem class]]){//For iOS7 TabBar
+                else if([from isKindOfClass:[UITabBarItem class]]) {//For iOS7 TabBar
                     UITabBarItem *tabBarItem = (UITabBarItem *)from;
                     if (tabBarItem) {
                         [properties setValue:@"UITabbar" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
@@ -326,31 +323,29 @@
                     UISlider *slide = (UISlider *)from;
                     if (slide != nil) {
                         [properties setValue:@"UISlider" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-                        [properties setValue:[NSString stringWithFormat:@"%f",slide.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
+                        [properties setValue:[NSString stringWithFormat:@"%f", slide.value] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                     }
                 } else {
                     if ([from isKindOfClass:[UIControl class]]) {
                         [properties setValue:@"UIControl" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
+                        
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
-                            NSString *elementContent = [[NSString alloc] init];
-                            elementContent = [AutoTrackUtils contentFromView:fromView];
-                            if (elementContent != nil && [elementContent length] > 0) {
-                                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                            NSString *elementContent = [AutoTrackUtils contentFromView:fromView];
+                            if (elementContent.length > 0) {
                                 [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
                             }
                         }
                     }
                 }
-                
-                [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-                
+        
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
                     [properties addEntriesFromDictionary:propDict];
                 }
 
+                [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
                 [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         }
