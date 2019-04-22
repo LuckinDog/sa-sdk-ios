@@ -41,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 //UICollectionView
 @optional
 - (NSDictionary *)sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
-
 @end
 
 @interface UIImage (SensorsAnalytics)

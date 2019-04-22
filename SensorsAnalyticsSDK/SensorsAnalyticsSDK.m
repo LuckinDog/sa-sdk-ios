@@ -297,13 +297,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (UInt64)getCurrentTime {
-    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-    return time;
+    return [[NSDate date] timeIntervalSince1970] * 1000;
 }
 
 + (UInt64)getSystemUpTime {
-    UInt64 time = NSProcessInfo.processInfo.systemUptime * 1000;
-    return time;
+    return NSProcessInfo.processInfo.systemUptime * 1000;
 }
 
 + (NSString *)getUniqueHardwareId {
@@ -2293,9 +2291,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = nil;
     
-    if (@available(iOS 12.0, *)) {
+    if (@available(iOS 12.1, *)) {
         carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
-    } else {
+    }
+    if(!carrier) {
         carrier = telephonyInfo.subscriberCellularProvider;
     }
 
@@ -2602,7 +2601,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SADebug(@"In unit test, set NetWorkStates to wifi");
     return @"WIFI";
 #endif
-    NSString* network = @"NULL";
+    NSString *network = @"NULL";
     @try {
         SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
         SANetworkStatus status = [reachability currentReachabilityStatus];
@@ -2616,9 +2615,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (!netinfo) {
                 netinfo = [[CTTelephonyNetworkInfo alloc] init];
             }
-            if (@available(iOS 12.0, *)) {
+            if (@available(iOS 12.1, *)) {
                 currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
-            } else {
+            }
+            //测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
+            if (!currentRadioAccessTechnology) {
                 currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
             }
             
@@ -2644,12 +2645,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 network = @"3G";
             } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
                 network = @"4G";
-            } else if (currentRadioAccessTechnology) {
+            } else {
                 network = @"UNKNOWN";
             }
-            
         }
-    } @catch(NSException *exception) {
+    } @catch (NSException *exception) {
         SADebug(@"%@: %@", self, exception);
     }
     return network;
@@ -2781,32 +2781,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        //关闭 AutoTrack
-        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
-            return;
-        }
-
-        //忽略 $AppClick 事件
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-
-        if ([self isViewTypeIgnored:[view class]]) {
-            return;
-        }
-
-        if (view.sensorsAnalyticsIgnoreView) {
-            return;
-        }
-
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
         UIViewController *viewController = [self currentViewController];
         if (viewController != nil) {
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
-                return;
-            }
-
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
