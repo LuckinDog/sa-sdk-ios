@@ -263,7 +263,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return sharedInstance;
 }
 
-
 - (instancetype)initWithServerURL:(NSString *)serverURL
                  andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
@@ -2775,32 +2774,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        //关闭 AutoTrack
-        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
-            return;
-        }
-
-        //忽略 $AppClick 事件
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-
-        if ([self isViewTypeIgnored:[view class]]) {
-            return;
-        }
-
-        if (view.sensorsAnalyticsIgnoreView) {
-            return;
-        }
-
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
         UIViewController *viewController = [self currentViewController];
         if (viewController != nil) {
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
-                return;
-            }
-
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
