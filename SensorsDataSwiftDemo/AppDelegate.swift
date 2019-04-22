@@ -28,28 +28,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        //MARK:初始化sdk
+
+        // MARK: 初始化sdk
+
         let options = SAConfigOptions(serverURL: "http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f", launchOptions: launchOptions)
-        options.maxCacheSize = 10000;
-        options.autoTrackEventType = [.eventTypeAppClick,.eventTypeAppStart,.eventTypeAppEnd,.eventTypeAppViewScreen]
+        options.maxCacheSize = 10000
+        options.autoTrackEventType = [.eventTypeAppClick, .eventTypeAppStart, .eventTypeAppEnd, .eventTypeAppViewScreen]
         SensorsAnalyticsSDK.sharedInstance(withConfig: options)
-        
+
         SensorsAnalyticsSDK.sharedInstance()?.setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
         SensorsAnalyticsSDK.sharedInstance()?.enableHeatMap()
         SensorsAnalyticsSDK.sharedInstance()?.addWebViewUserAgentSensorsDataFlag()
-      
-        
-        let dict :Dictionary  = ["key":"value","key1":"value1"]
-        SensorsAnalyticsSDK.sharedInstance()?.track("testEvent" ,withProperties: dict )
+
+        let dict: Dictionary = ["key": "value", "key1": "value1"]
+        SensorsAnalyticsSDK.sharedInstance()?.track("testEvent", withProperties: dict)
         SensorsAnalyticsSDK.sharedInstance()?.enableTrackScreenOrientation(true)
-        
-        
-        self.window = UIWindow()
-        let rootVC:UIViewController = ViewController()
-        self.window?.rootViewController = UINavigationController(rootViewController :rootVC);
-        self.window?.makeKeyAndVisible()
-        
-        
+
+        window = UIWindow()
+        let rootVC: UIViewController = ViewController()
+        window?.rootViewController = UINavigationController(rootViewController: rootVC)
+        window?.makeKeyAndVisible()
+
         return true
     }
 
