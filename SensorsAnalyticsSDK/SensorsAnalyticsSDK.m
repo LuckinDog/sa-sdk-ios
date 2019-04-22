@@ -3552,37 +3552,37 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)whetherRequestRemoteConfig {
     
     //判断是否符合分散 remoteconfig 请求条件
-    if (!self.configOptions.disableRandomTimeRequestRemoteConfig && self.configOptions.maxRequestHourInterval > self.configOptions.minRequestHourInterval) {
-        
-         NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
-        double randomTime = [[requestTimeConfig objectForKey:@"randomTim"] doubleValue];
-        double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
-        //当前时间，以开机时间为准，单位：秒
-        NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
-        
-        dispatch_block_t createRandomTimeBlock = ^(){
-            //转换成 秒 进行处理
-            NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
-            NSInteger randomDurationTime = rand() % durationSecond;
-            double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
-            
-            NSDictionary *createRequestTimeConfig = @{@"randomTim":@(createRandomTime),@"startDeviceTime":@(currentTime)};
-            [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
-        };
-        
-        if (randomTime > 0 && startDeviceTime > 0) {
-            if (currentTime >= randomTime || currentTime < startDeviceTime) {
-                [self requestFunctionalManagermentConfig];
-                
-                createRandomTimeBlock();
-            }
-        } else {
+    if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval <= self.configOptions.minRequestHourInterval) {
+        [self requestFunctionalManagermentConfig];
+        SALog(@"disableRandomTimeRequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
+        return;
+    }
+
+    NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
+    double randomTime = [[requestTimeConfig objectForKey:@"randomTim"] doubleValue];
+    double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
+    //当前时间，以开机时间为准，单位：秒
+    NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
+
+    dispatch_block_t createRandomTimeBlock = ^() {
+        //转换成 秒 进行处理
+        NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
+        NSInteger randomDurationTime = rand() % durationSecond;
+        double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
+
+        NSDictionary *createRequestTimeConfig = @{ @"randomTim": @(createRandomTime), @"startDeviceTime": @(currentTime) };
+        [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
+    };
+
+    if (randomTime > 0 && startDeviceTime > 0) {
+        if (currentTime >= randomTime || currentTime < startDeviceTime) {
             [self requestFunctionalManagermentConfig];
+
             createRandomTimeBlock();
         }
     } else {
         [self requestFunctionalManagermentConfig];
-        SALog(@"minHourInterval or maxHourInterval error，Please check the value");
+        createRandomTimeBlock();
     }
 }
 

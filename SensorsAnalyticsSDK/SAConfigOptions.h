@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - 请求远程配置策略
 /**
- 请求配置地址，默认从 ServerUrl 解析
+ 请求远程配置地址，默认从 ServerUrl 解析
  */
 @property(nonatomic, copy) NSString *remoteConfigURL;
 
