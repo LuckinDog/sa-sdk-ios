@@ -50,7 +50,8 @@
 }
 
 - (instancetype)initWithUrl:(NSString *)url {
-    if (self = [super init]) {
+    self = [super init];
+    if (self) {
         _url = url;
         if (url != nil) {
             @try {

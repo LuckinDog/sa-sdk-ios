@@ -297,13 +297,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (UInt64)getCurrentTime {
-    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-    return time;
+    return [[NSDate date] timeIntervalSince1970] * 1000;
 }
 
 + (UInt64)getSystemUpTime {
-    UInt64 time = NSProcessInfo.processInfo.systemUptime * 1000;
-    return time;
+    return NSProcessInfo.processInfo.systemUptime * 1000;
 }
 
 + (NSString *)getUniqueHardwareId {
