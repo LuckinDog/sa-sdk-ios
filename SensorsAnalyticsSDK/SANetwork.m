@@ -200,25 +200,25 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 - (NSURLRequest *)buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version {
 
-    NSURLComponents *componets = nil;
+    NSURLComponents *urlComponets = nil;
     if (remoteConfigURL) {
-        componets = [NSURLComponents componentsWithURL:remoteConfigURL resolvingAgainstBaseURL:YES];
+        urlComponets = [NSURLComponents componentsWithURL:remoteConfigURL resolvingAgainstBaseURL:YES];
     }
-    if (!componets.host) {
+    if (!urlComponets.host) {
         NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
-        NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-        if (componets == nil) {
+        urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+        if (urlComponets == nil) {
             SALog(@"URLString is malformed, nil is returned.");
             return nil;
         }
-        componets.query = nil;
-        componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+        urlComponets.query = nil;
+        urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
     }
 
     if (version.length) {
-        componets.query = [NSString stringWithFormat:@"v=%@", version];
+        urlComponets.query = [NSString stringWithFormat:@"v=%@", version];
     }
-    return [NSURLRequest requestWithURL:componets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
+    return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
 }
 
 #pragma mark - request
