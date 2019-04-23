@@ -1173,7 +1173,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 -(NSString *)distinctId {
     NSString *distinctId = self.loginId;
-    if (distinctId == nil || distinctId.length == 0) {
+    if (distinctId.length == 0) {
         distinctId = self.anonymousId;
     }
     return distinctId;
@@ -2488,7 +2488,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     NSString *anonymousIdInKeychain = [SAKeyChainItemWrapper saUdid];
-    if (anonymousIdInKeychain != nil && anonymousIdInKeychain.length > 0) {
+    if (anonymousIdInKeychain.length > 0) {
         self.anonymousId = anonymousIdInKeychain;
         if (![archivedAnonymousId isEqualToString:anonymousIdInKeychain]) {
             //保存 Archiver
