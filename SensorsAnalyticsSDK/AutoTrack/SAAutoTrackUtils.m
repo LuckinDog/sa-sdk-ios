@@ -107,7 +107,29 @@
 }
 
 #pragma mark - Property
++ (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewController> *)viewController {
+    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
+    properties[SA_EVENT_PROPERTY_TITLE] = viewController.sensorsdata_title;
+    return [properties copy];
+}
+
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object {
+    return [self propertiesWithAutoTrackObject:object viewController:nil isIgnoredViewPath:NO];
+}
+
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object isIgnoredViewPath:(BOOL)isIgnoredViewPath {
+    return [self propertiesWithAutoTrackObject:object viewController:nil isIgnoredViewPath:isIgnoredViewPath];
+}
+
 + (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController {
+    return [self propertiesWithAutoTrackObject:object viewController:viewController isIgnoredViewPath:NO];
+}
+
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController isIgnoredViewPath:(BOOL)isIgnoredViewPath {
+    if (object.sensorsdata_isIgnored) {
+        return nil;
+    }
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     // ViewID
     properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
@@ -116,24 +138,24 @@
     if (viewController.sensorsdata_isIgnored) {
         return nil;
     }
-
-    properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
-    properties[SA_EVENT_PROPERTY_TITLE] = viewController.sensorsdata_title;
+    NSDictionary *dic = [self propertiesWithViewController:viewController];
+    [properties addEntriesFromDictionary:dic];
 
     properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = object.sensorsdata_elementType;
     properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = object.sensorsdata_elementContent;
     properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = object.sensorsdata_elementPosition;
 
-    if ([object isKindOfClass:[UIView class]]) {
-        UIView *view = (UIView *)object;
-        //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
-        if (propDict != nil) {
-            [properties addEntriesFromDictionary:propDict];
-        }
-
-        [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
+    if (isIgnoredViewPath || ![object isKindOfClass:UIView.class]) {
+        return [properties copy];
     }
+    UIView *view = (UIView *)object;
+    //View Properties
+    NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+    if (propDict != nil) {
+        [properties addEntriesFromDictionary:propDict];
+    }
+
+    [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
 
     return [properties copy];
 }

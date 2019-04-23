@@ -23,7 +23,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIGestureRecognizer (AutoTrack) <SAAutoTrackView>
+@interface UIGestureRecognizer (AutoTrack)
 
 @end
 

@@ -29,6 +29,9 @@
 @interface UILabel (AutoTrack) <SAAutoTrackView>
 @end
 
+@interface UIImageView (AutoTrack) <SAAutoTrackView>
+@end
+
 @interface UITextView (AutoTrack) <SAAutoTrackView>
 @end
 

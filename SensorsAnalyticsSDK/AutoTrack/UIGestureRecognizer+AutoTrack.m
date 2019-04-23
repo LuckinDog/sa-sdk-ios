@@ -26,7 +26,7 @@
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+AutoTrack.h"
-#import "AutoTrackUtils.h"
+#import "SAAutoTrackUtils.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
@@ -34,98 +34,17 @@
 
 @implementation UIGestureRecognizer (AutoTrack)
 
-- (BOOL)sensorsdata_isIgnored {
-    BOOL isIgnored = ![self.view isKindOfClass:UILabel.class] && ![self.view isKindOfClass:UIImageView.class];
-    return isIgnored || self.view.sensorsdata_isIgnored;
-}
-
-- (NSString *)sensorsdata_elementType {
-    return NSStringFromClass(self.class);
-}
-
-- (NSString *)sensorsdata_elementContent {
-    return nil;
-}
-
-- (NSString *)sensorsdata_elementPosition {
-    return nil;
-}
-
-- (NSString *)sensorsdata_elementId {
-    return nil;
-}
-
-- (UIViewController *)sensorsdata_superViewController {
-    return nil;
-}
-
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
-    
-    //暂定只采集 UILabel 和 UIImageView
-    if (![self.view isKindOfClass:UILabel.class] && ![self.view isKindOfClass:UIImageView.class]) {
-        return;
-    }
-    
     @try {
         UIView *view = gesture.view;
-        if (gesture.sensorsdata_isIgnored) {
+        // 暂定只采集 UILabel 和 UIImageView
+        BOOL isTrackClass = [view isKindOfClass:UILabel.class] || [view isKindOfClass:UIImageView.class];
+        BOOL isIgnored = ![view conformsToProtocol:@protocol(SAAutoTrackView)] || view.sensorsdata_isIgnored;
+        if (!isTrackClass || isIgnored) {
             return;
         }
 
-        
-        UIViewController *viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        
-        if (viewController != nil) {
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
-                return;
-            }
-            
-            //获取 Controller 名称($screen_name)
-            NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
-            
-            NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
-            if (controllerTitle) {
-                [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
-            }
-        }
-        
-        //ViewID
-        if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
-        }
-        
-        if ([view isKindOfClass:[UILabel class]]) {
-            [properties setValue:@"UILabel" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-            UILabel *label = (UILabel *)view;
-            NSString *sa_elementContent = label.sensorsdata_elementContent;
-            if (sa_elementContent && sa_elementContent.length > 0) {
-                [properties setValue:sa_elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-            }
-        } else if ([view isKindOfClass:[UIImageView class]]) {
-            [properties setValue:@"UIImageView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-            
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-            
-            UIImageView *imageView = (UIImageView *)view;
-            NSString *imageName = imageView.image.sensorsAnalyticsImageName;
-            if (imageName.length > 0) {
-                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-            }
-#endif
-            
-        } else {
-            return;
-        }
-        
-        //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
-        if (propDict != nil) {
-            [properties addEntriesFromDictionary:propDict];
-        }
-        
-        [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
+        NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view];
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);

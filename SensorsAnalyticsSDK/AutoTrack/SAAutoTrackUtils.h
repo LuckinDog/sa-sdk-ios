@@ -35,6 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
 + (UIViewController *)findSuperViewControllerByView:(UIView *)view;
 
++ (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewController> *)viewController;
+
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object;
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object isIgnoredViewPath:(BOOL)isIgnoredViewPath;
 + (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController;
 
 @end

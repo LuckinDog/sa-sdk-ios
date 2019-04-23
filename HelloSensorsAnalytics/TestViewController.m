@@ -19,7 +19,7 @@
 //
 
 #import "TestViewController.h"
-#import "AutoTrackUtils.h"
+#import "UIView+AutoTrack.h"
 @interface TestViewController ()
 
 @end
@@ -48,11 +48,12 @@
 
 - (IBAction)onButtonClick:(id)sender {
     NSLog(@"****:onButtonClick");
-    NSString *content = [AutoTrackUtils contentFromView:self.view];
-    NSLog(@"%@",content);
+    NSString *content = self.view.sensorsdata_elementContent;
+    NSLog(@"%@", content);
 }
 
 - (IBAction)onButtonClick2:(id)sender {
     NSLog(@"****:onButtonClick2");
 }
+
 @end

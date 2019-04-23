@@ -103,6 +103,9 @@
 
     NSObject<SAAutoTrackView> *object = (NSObject<SAAutoTrackView> *)(isTabBar ? [(UITabBarController *)to tabBar] : from);
     NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:isTabBar ? (UITabBarController *)to : nil];
+    if (!properties) {
+        return;
+    }
 
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
