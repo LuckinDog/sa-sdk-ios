@@ -53,16 +53,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SensorsAnalytics)
 - (nullable UIViewController *)sensorsAnalyticsViewController;
 
-//viewID
+/// viewID
 @property (nonatomic, copy) NSString* sensorsAnalyticsViewID;
 
-//AutoTrack 时，是否忽略该 View
+/// AutoTrack 时，是否忽略该 View
 @property (nonatomic, assign) BOOL sensorsAnalyticsIgnoreView;
 
-//AutoTrack 发生在 SendAction 之前还是之后，默认是 SendAction 之前
+/// AutoTrack 发生在 SendAction 之前还是之后，默认是 SendAction 之前
 @property (nonatomic, assign) BOOL sensorsAnalyticsAutoTrackAfterSendAction;
 
-//AutoTrack 时，View 的扩展属性
+/// AutoTrack 时，View 的扩展属性
 @property (nonatomic, strong) NSDictionary* sensorsAnalyticsViewProperties;
 
 @property (nonatomic, weak, nullable) id sensorsAnalyticsDelegate;

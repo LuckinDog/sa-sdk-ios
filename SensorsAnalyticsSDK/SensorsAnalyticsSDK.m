@@ -283,7 +283,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         self = [super init];
         if (self) {
-            _configOptions = configOptions;
+            _configOptions = [configOptions copy];
             
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
             
@@ -321,11 +321,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self setSDKWithRemoteConfigDict:sdkConfig];
             
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-            _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
+            _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
 #endif
             
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-            _locationConfig = [[SAGPSLocationConfig alloc]init];
+            _locationConfig = [[SAGPSLocationConfig alloc] init];
 #endif
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
@@ -360,7 +360,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
             
             NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick)|(SignUp))|(^AppCrashed)$";
-            self.regexEventName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",eventPattern];
+            self.regexEventName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", eventPattern];
             
             [self setUpListeners];
             
@@ -3260,7 +3260,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
     self.launchedPassively = NO;
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+    
+    if (self.reqConfigBlock) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+        self.reqConfigBlock = nil;
+    }
     
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
@@ -3438,38 +3442,33 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)whetherRequestRemoteConfig {
     
     //判断是否符合分散 remoteconfig 请求条件
-    if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval <= self.configOptions.minRequestHourInterval) {
+    if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval < self.configOptions.minRequestHourInterval) {
         [self requestFunctionalManagermentConfig];
         SALog(@"disableRandomTimeRequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
         return;
     }
 
     NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
-    double randomTime = [[requestTimeConfig objectForKey:@"randomTim"] doubleValue];
+    double randomTime = [[requestTimeConfig objectForKey:@"randomTime"] doubleValue];
     double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
     //当前时间，以开机时间为准，单位：秒
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
 
     dispatch_block_t createRandomTimeBlock = ^() {
-        //转换成 秒 进行处理
+        //转换成 秒 再取随机时间
         NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
-        NSInteger randomDurationTime = rand() % durationSecond;
+        NSInteger randomDurationTime = arc4random() % durationSecond;
         double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
 
-        NSDictionary *createRequestTimeConfig = @{ @"randomTim": @(createRandomTime), @"startDeviceTime": @(currentTime) };
+        NSDictionary *createRequestTimeConfig = @{@"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
         [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
     };
 
-    if (randomTime > 0 && startDeviceTime > 0) {
-        if (currentTime >= randomTime || currentTime < startDeviceTime) {
-            [self requestFunctionalManagermentConfig];
-
-            createRandomTimeBlock();
-        }
-    } else {
-        [self requestFunctionalManagermentConfig];
-        createRandomTimeBlock();
+    if (currentTime >= startDeviceTime && currentTime < randomTime) {
+        return;
     }
+    [self requestFunctionalManagermentConfig];
+    createRandomTimeBlock();
 }
 
 - (void)requestFunctionalManagermentConfig {
