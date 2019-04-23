@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  指定初始化方法，设置 serverURL
  
- @param serverUrl 数据接收地址
+ @param serverURL 数据接收地址
  @return 配置对象
  */
 - (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;
@@ -102,13 +102,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSInteger flushBulkSize;
 
 /**
- * @abstract
- * 设置本地缓存最多事件条数
- *
- * @discussion
- * 默认为 10000 条事件
- *
- * @param maxCacheSize 本地缓存最多事件条数
+ 设置本地缓存最多事件条数，
+ 默认为 10000 条事件
  */
 @property (nonatomic) NSInteger maxCacheSize;
 
