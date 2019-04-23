@@ -2701,7 +2701,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setFlushBulkSize:(UInt64)bulkSize {
     @synchronized(self) {
         //加上最小值保护，50
-        self.configOptions.flushBulkSize = bulkSize >= 50 ? bulkSize : 50;
+        NSInteger newBulkSize = (NSInteger)bulkSize;
+        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
     }
 }
 
