@@ -53,6 +53,7 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
         }
         return @{@"__APPState__":@(appState)};
     }];
+    
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
 
     [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
@@ -63,6 +64,7 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
+    
     return YES;
 }
 
