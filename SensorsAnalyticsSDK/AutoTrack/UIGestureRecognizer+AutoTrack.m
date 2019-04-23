@@ -34,7 +34,32 @@
 
 @implementation UIGestureRecognizer (AutoTrack)
 
-- (void)trackGestureRecognizerAppClick:(id)target {
+- (BOOL)sensorsdata_isIgnored {
+    BOOL isIgnored = ![self.view isKindOfClass:UILabel.class] && ![self.view isKindOfClass:UIImageView.class];
+    return isIgnored || self.view.sensorsdata_isIgnored;
+}
+
+- (NSString *)sensorsdata_elementType {
+    return NSStringFromClass(self.class);
+}
+
+- (NSString *)sensorsdata_elementContent {
+    return nil;
+}
+
+- (NSString *)sensorsdata_elementPosition {
+    return nil;
+}
+
+- (NSString *)sensorsdata_elementId {
+    return nil;
+}
+
+- (UIViewController *)sensorsdata_superViewController {
+    return nil;
+}
+
+- (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
     
     //暂定只采集 UILabel 和 UIImageView
     if (![self.view isKindOfClass:UILabel.class] && ![self.view isKindOfClass:UIImageView.class]) {
@@ -42,37 +67,11 @@
     }
     
     @try {
-        UIGestureRecognizer *gesture = target;
-        if (gesture == nil) {
-            return;
-        }
-        
-        if (gesture.state != UIGestureRecognizerStateEnded) {
-            return;
-        }
-        
         UIView *view = gesture.view;
-        if (view == nil) {
+        if (gesture.sensorsdata_isIgnored) {
             return;
         }
-        //关闭 AutoTrack
-        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
-            return;
-        }
-       
-        //忽略 $AppClick 事件
-        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-            return;
-        }
-        
-        if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[view class]]) {
-            return;
-        }
-        
-        //忽略这个 view
-        if (view.sensorsAnalyticsIgnoreView) {
-            return;
-        }
+
         
         UIViewController *viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];

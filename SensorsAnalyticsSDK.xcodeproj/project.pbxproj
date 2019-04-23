@@ -204,6 +204,7 @@
 		CB790290226D7DB100115890 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB79028E226D7DB000115890 /* SAAutoTrackUtils.h */; };
 		CB790291226D7DB100115890 /* SAAutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB79028F226D7DB000115890 /* SAAutoTrackUtils.m */; };
 		CB790292226DB4AA00115890 /* SAAutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB79028F226D7DB000115890 /* SAAutoTrackUtils.m */; };
+		CBCF0B62226EB90E00991BA0 /* SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CBCF0B61226EB90E00991BA0 /* SAAutoTrack.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -413,6 +414,7 @@
 		A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
 		CB79028E226D7DB000115890 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
 		CB79028F226D7DB000115890 /* SAAutoTrackUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtils.m; sourceTree = "<group>"; };
+		CBCF0B61226EB90E00991BA0 /* SAAutoTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAutoTrack.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -684,6 +686,7 @@
 			children = (
 				002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */,
 				002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */,
+				CBCF0B61226EB90E00991BA0 /* SAAutoTrack.h */,
 				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
 				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				4DD9E84D2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h */,
@@ -781,6 +784,7 @@
 				4D8D0F1D2269699100663D00 /* SAHeatMapConnection.h in Headers */,
 				A3746E821C3115EB008A50A3 /* SADesignerMessage.h in Headers */,
 				4D23EFB42109643400DBDB9F /* SACommonUtility.h in Headers */,
+				CBCF0B62226EB90E00991BA0 /* SAAutoTrack.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -19,61 +19,47 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Foundation/Foundation.h>
-
-#pragma mark - 
-@protocol SAUIViewAutoTrack
-@property (nonatomic, readonly) BOOL sensorsdata_isIgnored;
-
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementType;
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementContent;
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementId;
-/// 只在 UISegmentedControl 中返回选中的 index，其他类型返回 nil
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementPosition;
-
-/// 获取 view 所在的 viewController，或者当前的 viewController
-@property (nonatomic, readonly) UIViewController *sensorsdata_superViewController;
-@end
+#import "SAAutoTrack.h"
 
 #pragma mark - UIView
 
-@interface UIView (AutoTrack) <SAUIViewAutoTrack>
+@interface UIView (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UILabel (AutoTrack) <SAUIViewAutoTrack>
+@interface UILabel (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UITextView (AutoTrack) <SAUIViewAutoTrack>
+@interface UITextView (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UITabBar (AutoTrack) <SAUIViewAutoTrack>
+@interface UITabBar (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UISearchBar (AutoTrack) <SAUIViewAutoTrack>
+@interface UISearchBar (AutoTrack) <SAAutoTrackView>
 @end
 
 #pragma mark - UIControl
 
-@interface UIButton (AutoTrack) <SAUIViewAutoTrack>
+@interface UIButton (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UISwitch (AutoTrack) <SAUIViewAutoTrack>
+@interface UISwitch (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UIStepper (AutoTrack) <SAUIViewAutoTrack>
+@interface UIStepper (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UISegmentedControl (AutoTrack) <SAUIViewAutoTrack>
+@interface UISegmentedControl (AutoTrack) <SAAutoTrackView>
 @end
 
 #pragma mark - UIBarItem
 
-@interface UIBarItem (AutoTrack) <SAUIViewAutoTrack>
+@interface UIBarItem (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UIBarButtonItem (AutoTrack) <SAUIViewAutoTrack>
+@interface UIBarButtonItem (AutoTrack) <SAAutoTrackView>
 @end
 
-@interface UITabBarItem (AutoTrack) <SAUIViewAutoTrack>
+@interface UITabBarItem (AutoTrack) <SAAutoTrackView>
 @end
 

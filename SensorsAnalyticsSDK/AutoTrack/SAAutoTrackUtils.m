@@ -20,6 +20,10 @@
     
 
 #import "SAAutoTrackUtils.h"
+#import "SAAutoTrack.h"
+#import "SAConstants.h"
+#import "SensorsAnalyticsSDK.h"
+#import "AutoTrackUtils.h"
 
 @implementation SAAutoTrackUtils
 
@@ -100,6 +104,38 @@
         currentViewController = viewController;
     }
     return currentViewController;
+}
+
+#pragma mark - Property
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController {
+    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    // ViewID
+    properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
+
+    viewController = viewController ?: object.sensorsdata_superViewController;
+    if (viewController.sensorsdata_isIgnored) {
+        return nil;
+    }
+
+    properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
+    properties[SA_EVENT_PROPERTY_TITLE] = viewController.sensorsdata_title;
+
+    properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = object.sensorsdata_elementType;
+    properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = object.sensorsdata_elementContent;
+    properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = object.sensorsdata_elementPosition;
+
+    if ([object isKindOfClass:[UIView class]]) {
+        UIView *view = (UIView *)object;
+        //View Properties
+        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        if (propDict != nil) {
+            [properties addEntriesFromDictionary:propDict];
+        }
+
+        [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
+    }
+
+    return [properties copy];
 }
 
 @end

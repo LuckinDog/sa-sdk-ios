@@ -20,6 +20,7 @@
     
 
 #import <UIKit/UIKit.h>
+#import "UIView+AutoTrack.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
 + (UIViewController *)findSuperViewControllerByView:(UIView *)view;
+
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController;
 
 @end
 

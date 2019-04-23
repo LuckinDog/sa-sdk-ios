@@ -33,6 +33,10 @@
 
 @implementation UIViewController (AutoTrack)
 
+- (BOOL)sensorsdata_isIgnored {
+    return [[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:self];
+}
+
 - (NSString *)sensorsdata_screenName {
     return NSStringFromClass([self class]);
 }

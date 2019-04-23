@@ -32,6 +32,7 @@
 #import "SAConstants.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIViewController+AutoTrack.h"
+#import "SAAutoTrackUtils.h"
 
 @implementation UIApplication (AutoTrack)
 
@@ -94,54 +95,19 @@
         return;
     } else
 #endif
-    if (![from conformsToProtocol:@protocol(SAUIViewAutoTrack)] && ![to isKindOfClass:[UITabBarController class]]) {
+    if (![from conformsToProtocol:@protocol(SAAutoTrackView)] && ![to isKindOfClass:[UITabBarController class]]) {
         return;
     }
 
     BOOL isTabBar = [from isKindOfClass:[UITabBarItem class]] && [to isKindOfClass:[UITabBarController class]];
 
-    NSObject<SAUIViewAutoTrack> *object = (NSObject<SAUIViewAutoTrack> *)(isTabBar ? [(UITabBarController *)to tabBar] : from);
-    if (object.sensorsdata_isIgnored) {
-        return;
-    }
-
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    // ViewID
-    properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
-
-    UIViewController *viewController = isTabBar ? (UITabBarController *)to : object.sensorsdata_superViewController;
-    if (viewController) {
-        if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
-            return;
-        }
-
-        properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
-        properties[SA_EVENT_PROPERTY_TITLE] = viewController.sensorsdata_title;
-    }
-
-    void(^trackViewProperties)(NSObject<SAUIViewAutoTrack> *, UIViewController *) = ^(NSObject<SAUIViewAutoTrack> *object, UIViewController *viewController) {
-        properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = object.sensorsdata_elementType;
-        properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = object.sensorsdata_elementContent;
-        properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = object.sensorsdata_elementPosition;
-
-        if ([object isKindOfClass:[UIView class]]) {
-            UIView *view = (UIView *)object;
-            //View Properties
-            NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
-            if (propDict != nil) {
-                [properties addEntriesFromDictionary:propDict];
-            }
-
-            [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
-        }
-    };
+    NSObject<SAAutoTrackView> *object = (NSObject<SAAutoTrackView> *)(isTabBar ? [(UITabBarController *)to tabBar] : from);
+    NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:isTabBar ? (UITabBarController *)to : nil];
 
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
         [object isKindOfClass:[UITabBar class]]) {
-        trackViewProperties(object, viewController);
-
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         return;
     }
@@ -149,12 +115,9 @@
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
         if ([from isKindOfClass:NSClassFromString(@"UINavigationButton")]) {
-            trackViewProperties(view, viewController);
             properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = @"UIBarButtonItem";
-        } else
+        }
 #endif
-            trackViewProperties(object, viewController);
-
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         return;
     }
