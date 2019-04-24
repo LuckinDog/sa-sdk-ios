@@ -27,18 +27,60 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAAutoTrackUtils : NSObject
 
 #if UIKIT_DEFINE_AS_PROPERTIES
+/// 返回当前的 ViewController
 @property(class, nonatomic, readonly) UIViewController *currentViewController;
 #else
 + (UIViewController *)currentViewController;
 #endif
 
+/**
+ 获取响应链中的下一个 UIViewController
+
+ @param responder 响应链中的对象
+ @return 下一个 ViewController
+ */
 + (UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
+
+/**
+ 找到 view 所在的直接 ViewController
+
+ @param view 需要寻找的 View
+ @return SuperViewController
+ */
 + (UIViewController *)findSuperViewControllerByView:(UIView *)view;
 
+/**
+ 采集 ViewController 中的事件属性
+
+ @param viewController 需要采集的 ViewController
+ @return 事件中与 ViewController 相关的属性字典
+ */
 + (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewController> *)viewController;
 
+/**
+ 通过 AutoTrack 控件，获取事件的属性
+
+ @param object 控件的对象，UIView 及其子类或 UIBarItem 的子类
+ @return 事件属性字典
+ */
 + (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object;
+
+/**
+ 通过 AutoTrack 控件，获取事件的属性
+
+ @param object 控件的对象，UIView 及其子类或 UIBarItem 的子类
+ @param isIgnoredViewPath 是否采集控件的 ViewPath
+ @return 事件属性字典
+ */
 + (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object isIgnoredViewPath:(BOOL)isIgnoredViewPath;
+
+/**
+ 通过 AutoTrack 控件，获取事件的属性
+
+ @param object 控件的对象，UIView 及其子类或 UIBarItem 的子类
+ @param viewController 控件所在的 ViewController，当为 nil 时，自动采集当前界面上的 ViewController
+ @return 事件属性字典
+ */
 + (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController;
 
 @end

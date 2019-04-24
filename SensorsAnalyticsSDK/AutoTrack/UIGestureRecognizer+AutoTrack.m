@@ -45,7 +45,9 @@
         }
 
         NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view];
-        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        if (properties) {
+            [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        }
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
