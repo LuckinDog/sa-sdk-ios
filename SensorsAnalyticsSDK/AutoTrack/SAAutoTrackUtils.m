@@ -209,7 +209,14 @@
         return nil;
     }
     NSArray *viewPaths = [[[self viewPathsForView:view] reverseObjectEnumerator] allObjects];
-    return [viewPaths componentsJoinedByString:@"/"];
+    NSString *viewPath = [viewPaths componentsJoinedByString:@"/"];
+
+    NSRange range = [viewPath rangeOfString:@"UITableViewWrapperView/"];
+    if (range.location != NSNotFound) {
+        viewPath = [viewPath stringByReplacingCharactersInRange:range withString:@""];
+    }
+
+    return viewPath;
 }
 
 + (NSString *)itemPathForResponder:(UIResponder *)responder {
@@ -227,11 +234,11 @@
     }
 
     for (UIResponder *res in subResponder) {
-        if ([classString isEqualToString:NSStringFromClass(res.class)]) {
-            index++;
-        }
         if (res == responder) {
             break;
+        }
+        if ([classString isEqualToString:NSStringFromClass(res.class)]) {
+            index++;
         }
     }
     return index == -1 ? classString : [NSString stringWithFormat:@"%@[%lu]", classString, index];
@@ -262,4 +269,9 @@
     return [NSString stringWithFormat:@"%@[(%@)]", NSStringFromClass([view class]), viewVarString];
 }
 
+@end
+
+
+#pragma mark -
+@implementation SAAutoTrackUtils (IndexPath)
 @end

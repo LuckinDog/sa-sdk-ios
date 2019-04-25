@@ -103,4 +103,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark -
+@interface SAAutoTrackUtils (IndexPath)
+
+
+
+@end
+
 NS_ASSUME_NONNULL_END
