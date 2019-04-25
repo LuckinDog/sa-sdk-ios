@@ -2,8 +2,20 @@
 //  AppDelegate.swift
 //  SensorsDataSwiftDemo
 //
-//  Created by ziven.mac on 2017/11/9.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Created by 王灼洲 on 2017/11/9.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 import UIKit
@@ -16,29 +28,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        //MARK:初始化sdk
-        SensorsAnalyticsSDK.sharedInstance(withServerURL: "http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f", andDebugMode: SensorsAnalyticsDebugMode.andTrack)
-      //MARK:自动埋点开启
-        SensorsAnalyticsSDK.sharedInstance().enableAutoTrack(
-              [.eventTypeAppClick,.eventTypeAppStart,.eventTypeAppEnd,.eventTypeAppViewScreen]
-        )
-        SensorsAnalyticsSDK.sharedInstance().setMaxCacheSize(10000)
-        SensorsAnalyticsSDK.sharedInstance().setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
-        SensorsAnalyticsSDK.sharedInstance().enableHeatMap()
-        SensorsAnalyticsSDK.sharedInstance().addWebViewUserAgentSensorsDataFlag()
-      
-        
-        let dict :Dictionary  = ["key":"value","key1":"value1"]
-        SensorsAnalyticsSDK.sharedInstance().track("testEvent" ,withProperties: dict )
-        SensorsAnalyticsSDK.sharedInstance().enableTrackScreenOrientation(true)
-        
-        
-        self.window = UIWindow()
-        let rootVC:UIViewController = ViewController()
-        self.window?.rootViewController = UINavigationController(rootViewController :rootVC);
-        self.window?.makeKeyAndVisible()
-        
-        
+
+        // MARK: 初始化sdk
+
+        let options = SAConfigOptions(serverURL: "http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f", launchOptions: launchOptions)
+        options.maxCacheSize = 10000
+        options.autoTrackEventType = [.eventTypeAppClick, .eventTypeAppStart, .eventTypeAppEnd, .eventTypeAppViewScreen]
+        SensorsAnalyticsSDK.sharedInstance(withConfig: options)
+
+        SensorsAnalyticsSDK.sharedInstance()?.setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
+        SensorsAnalyticsSDK.sharedInstance()?.enableHeatMap()
+        SensorsAnalyticsSDK.sharedInstance()?.addWebViewUserAgentSensorsDataFlag()
+
+        let dict: Dictionary = ["key": "value", "key1": "value1"]
+        SensorsAnalyticsSDK.sharedInstance()?.track("testEvent", withProperties: dict)
+        SensorsAnalyticsSDK.sharedInstance()?.enableTrackScreenOrientation(true)
+
+        window = UIWindow()
+        let rootVC: UIViewController = ViewController()
+        window?.rootViewController = UINavigationController(rootViewController: rootVC)
+        window?.makeKeyAndVisible()
+
         return true
     }
 

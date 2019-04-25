@@ -32,8 +32,6 @@
   "_UIActivityUserDefaultsViewController",
   "_UIActivityViewControllerContentController",
   "_UIRemoteInputViewController",
-  "UIViewController",
-  "UITableViewController",
   "_UIUserDefaultsActivityNavigationController",
   "UISnapshotModalViewController",
   "WKActionSheet",
@@ -61,5 +59,9 @@
   "SFAppAutoFillPasswordViewController",
   "PUUIMomentsGridViewController",
   "SFPasswordRemoteViewController",
-  "UIWebRotatingAlertController"
+  "UIWebRotatingAlertController",
+  "UIEditUserWordController",
+  "UISplitViewController",
+  "UITabBarController",
+  "SAAlertController"
   ]

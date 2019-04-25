@@ -3,8 +3,21 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by ZouYuhan on 1/19/16.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
 #import "TestTableViewController.h"
 #import "TestCollectionViewController.h"
 #import <Foundation/Foundation.h>
@@ -17,6 +30,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     self.tableView.sensorsAnalyticsDelegate = self;
 }
 
@@ -37,7 +51,7 @@
 }
 
 - (void)testTrack {
-    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:nil];
+    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:@{@"testNSNull":NSNull.null}];
 }
 
 - (void)testTrackSignup {
@@ -81,8 +95,8 @@
     switch (row) {
         case 0:{
             NSLog(@"测试track");
-            //[self testTrack];
-            TestTableViewController *vc =  [[TestTableViewController alloc]init ];
+            [self testTrack];
+            TestTableViewController *vc =  [[TestTableViewController alloc] init];
             //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
             [self.navigationController pushViewController:vc  animated:YES];
         }
@@ -90,14 +104,18 @@
         case 1l: {
             NSLog(@"测试track_signup");
             [self testTrackSignup];
-            TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc] init];
+            TestCollectionViewController_A *collectionVC = [[TestCollectionViewController_A alloc] init];
             [self.navigationController pushViewController:collectionVC animated:YES];
         }
             break;
-        case 2l:
+        case 2l:{
             NSLog(@"测试track_installation");
             [self testTrackInstallation];
+            TestCollectionViewController_B *vc =  [[TestCollectionViewController_B alloc] init];
+            //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
+            [self.navigationController pushViewController:vc  animated:YES];
             break;
+        }
         case 3l:
             NSLog(@"测试profile_set");
             [self testProfileSet];

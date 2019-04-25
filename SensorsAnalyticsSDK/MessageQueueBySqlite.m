@@ -3,8 +3,25 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 
 #import <sqlite3.h>
 
@@ -12,13 +29,14 @@
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
-
+#import "SensorsAnalyticsSDK+Private.h"
+#import "SAConstants+Private.h"
 #define MAX_MESSAGE_SIZE 10000   // 最多缓存10000条
 
 @implementation MessageQueueBySqlite {
     sqlite3 *_database;
     JSONUtil *_jsonUtil;
-    NSUInteger _messageCount;
+    NSInteger _messageCount;
     CFMutableDictionaryRef _dbStmtCache;
 }
 
@@ -49,14 +67,14 @@
         if (sqlite3_exec(_database, [_sql UTF8String], NULL, NULL, &errorMsg)==SQLITE_OK) {
             SADebug(@"Create dataCache Success.");
         } else {
-            SAError(@"Create dataCache Failure %s",errorMsg);
+            SAError(@"Create dataCache Failure %s", errorMsg);
             return nil;
         }
-        _messageCount = [self sqliteCount];
-        
         CFDictionaryKeyCallBacks keyCallbacks = kCFCopyStringDictionaryKeyCallBacks;
         CFDictionaryValueCallBacks valueCallbacks = {0};
         _dbStmtCache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &keyCallbacks, &valueCallbacks);
+        
+        _messageCount = [self sqliteCount];
         
         SADebug(@"SQLites is opened. current count is %ul", _messageCount);
     } else {
@@ -70,7 +88,7 @@
 }
 
 - (void)addObejct:(id)obj withType:(NSString *)type {
-    UInt64 maxCacheSize = [[SensorsAnalyticsSDK sharedInstance] getMaxCacheSize];
+    UInt64 maxCacheSize = [SensorsAnalyticsSDK sharedInstance].configOptions.maxCacheSize;
     if (_messageCount >= maxCacheSize) {
         SAError(@"touch MAX_MESSAGE_SIZE:%d, try to delete some old events", maxCacheSize);
         BOOL ret = [self removeFirstRecords:100 withType:@"Post"];
@@ -105,8 +123,6 @@
     }
 }
 
-
-
 - (NSArray *) getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     if (_messageCount == 0) {
         return @[];
@@ -118,7 +134,7 @@
     if(stmt) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             @try {
-                char* jsonChar = (char*)sqlite3_column_text(stmt, 0);
+                char* jsonChar = (char *)sqlite3_column_text(stmt, 0);
                 if (!jsonChar) {
                     SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
                     return nil;
@@ -128,11 +144,11 @@
                 NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                                  options:NSJSONReadingMutableContainers
                                                                                    error:&err];
-                if (!err) {
+                if (!err && eventDict) {
                     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-                    [eventDict setValue:@(time) forKey:@"_flush_time"];
+                    [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
+                    [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
                 }
-                [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
             } @catch (NSException *exception) {
                 SAError(@"Found NON UTF8 String, ignore");
             }
@@ -152,7 +168,7 @@
             SAError(@"Failed to delete record msg=%s", errMsg);
         }
     } @catch (NSException *exception) {
-        SAError(@"Failed to delete record exception=%@",exception);
+        SAError(@"Failed to delete record exception=%@", exception);
     }
 
     _messageCount = [self sqliteCount];
@@ -168,20 +184,20 @@
             return NO;
         }
     } @catch (NSException *exception) {
-        SAError(@"Failed to delete record exception=%@",exception);
+        SAError(@"Failed to delete record exception=%@", exception);
         return NO;
     }
     _messageCount = [self sqliteCount];
     return YES;
 }
 
-- (NSUInteger) count {
+- (NSInteger) count {
     return _messageCount;
 }
 
 - (NSInteger) sqliteCount {
     NSString* query = @"select count(*) from dataCache";
-    NSInteger count = -1;
+    NSInteger count = 0;
     sqlite3_stmt* statement = [self dbCacheStmt:query];
     if(statement) {
         while (sqlite3_step(statement) == SQLITE_ROW) {

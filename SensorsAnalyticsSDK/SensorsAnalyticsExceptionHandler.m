@@ -3,14 +3,33 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 2017/5/26.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
+#import "SAConstants+Private.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
 #import <mach-o/dyld.h>
@@ -21,6 +40,10 @@ static NSString * const UncaughtExceptionHandlerSignalKey = @"UncaughtExceptionH
 
 static volatile int32_t UncaughtExceptionCount = 0;
 static const int32_t UncaughtExceptionMaximum = 10;
+
+@interface SensorsAnalyticsSDK()
+@property (nonatomic, strong) dispatch_queue_t serialQueue;
+@end
 
 @interface SensorsAnalyticsExceptionHandler ()
 
@@ -81,11 +104,12 @@ static const int32_t UncaughtExceptionMaximum = 10;
 
 - (void)addSensorsAnalyticsInstance:(SensorsAnalyticsSDK *)instance {
     NSParameterAssert(instance != nil);
-    
-    [self.sensorsAnalyticsSDKInstances addObject:instance];
+    if (![self.sensorsAnalyticsSDKInstances containsObject:instance]) {
+        [self.sensorsAnalyticsSDKInstances addObject:instance];
+    }
 }
 
-void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
+static void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
     SensorsAnalyticsExceptionHandler *handler = [SensorsAnalyticsExceptionHandler sharedHandler];
     
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
@@ -119,7 +143,7 @@ void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
     }
 }
 
-void SAHandleException(NSException *exception) {
+static void SAHandleException(NSException *exception) {
     SensorsAnalyticsExceptionHandler *handler = [SensorsAnalyticsExceptionHandler sharedHandler];
     
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
@@ -141,7 +165,7 @@ void SAHandleException(NSException *exception) {
                 if ([exception callStackSymbols]) {
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
                     long slide_address = [SensorsAnalyticsExceptionHandler sa_computeImageSlide];
-                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address,[exception callStackSymbols]] forKey:@"app_crashed_reason"];
+                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address, [exception callStackSymbols]] forKey:@"app_crashed_reason"];
                     
 #else
                     [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [exception callStackSymbols]] forKey:@"app_crashed_reason"];
@@ -153,10 +177,14 @@ void SAHandleException(NSException *exception) {
             } @catch(NSException *exception) {
                 SAError(@"%@ error: %@", self, exception);
             }
-            [instance track:@"AppCrashed" withProperties:properties];
+            [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                [instance track:@"$AppEnd"];
+                [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
+            
+            dispatch_sync(instance.serialQueue, ^{
+                
+            });
         }
         SALog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
     } @catch(NSException *exception) {

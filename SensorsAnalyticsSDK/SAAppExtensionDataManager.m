@@ -3,8 +3,25 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/1/18.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 
 #import "SAAppExtensionDataManager.h"
 #import "SALogger.h"
@@ -12,7 +29,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 
 @interface SAAppExtensionDataManager() {
 }
-@property(nonatomic,strong) dispatch_queue_t appExtensionQueue;
+@property (nonatomic, strong) dispatch_queue_t appExtensionQueue;
 @end
 
 @implementation SAAppExtensionDataManager
@@ -35,7 +52,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 }
 
 - (void)setGroupIdentifierArray:(NSArray *)groupIdentifierArray {
-    dispatch_block_t block = ^(){
+    dispatch_block_t block = ^() {
         self->_groupIdentifierArray = groupIdentifierArray;
     };
     if (dispatch_get_specific(SAAppExtensionQueueTag)) {
@@ -48,7 +65,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 - (NSArray *)groupIdentifierArray {
     @try {
         __block NSArray *groupArray = nil;
-        dispatch_block_t block = ^(){
+        dispatch_block_t block = ^() {
             groupArray = self->_groupIdentifierArray;
         };
         if (dispatch_get_specific(SAAppExtensionQueueTag)) {
@@ -69,7 +86,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
             return nil;
         }
         __block NSString *filePath = nil;
-        dispatch_block_t block = ^(){
+        dispatch_block_t block = ^() {
             NSURL *pathUrl = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:@"sensors_event_data.plist"];
             filePath = pathUrl.path;
         };
@@ -91,7 +108,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
         }
         
         __block NSInteger count = 0;
-        dispatch_block_t block = ^(){
+        dispatch_block_t block = ^() {
             NSString *path = [self filePathForApplicationGroupIdentifier:groupIdentifier];
             NSArray *array = [[NSMutableArray alloc] initWithContentsOfFile:path];
             count = array.count;
@@ -116,9 +133,9 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
             return @[];
         }
         __block NSArray *dataArray = @[];
-        dispatch_block_t block = ^(){
+        dispatch_block_t block = ^() {
             NSArray *array = [[NSArray alloc] initWithContentsOfFile:path];
-            if (array.count >= limit){
+            if (array.count >= limit) {
                 array = [array subarrayWithRange:NSMakeRange(0, limit)];
             }
             dataArray = array;
@@ -148,9 +165,9 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
         
         __block BOOL result = NO;
         dispatch_block_t block = ^{
-            NSDictionary *event = @{@"event":eventName,@"properties":properties?properties:@{}};
+            NSDictionary *event = @{@"event": eventName, @"properties": properties?properties:@{}};
             NSString *path = [self filePathForApplicationGroupIdentifier:groupIdentifier];
-            if(![[NSFileManager defaultManager]fileExistsAtPath:path]){
+            if(![[NSFileManager defaultManager] fileExistsAtPath:path]) {
                 BOOL success = [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
                 if (success) {
                     SALog(@"create plist file success!!!!!!! APPEXtension...");
@@ -188,7 +205,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
             return @[];
         }
         __block NSArray *dataArray = @[];
-        dispatch_block_t block = ^(){
+        dispatch_block_t block = ^() {
             NSString *path = [self filePathForApplicationGroupIdentifier:groupIdentifier];
             NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:path];
             dataArray = array;
