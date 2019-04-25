@@ -3203,7 +3203,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         return;
     }
     
-    [self whetherRequestRemoteConfig];
+    [self shouldRequestRemoteConfig];
 
     // 是否首次启动
     BOOL isFirstStart = NO;
@@ -3443,7 +3443,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     return remoteConfig;
 }
 
-- (void)whetherRequestRemoteConfig {
+- (void)shouldRequestRemoteConfig {
     
     //判断是否符合分散 remoteconfig 请求条件
     if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval < self.configOptions.minRequestHourInterval) {
