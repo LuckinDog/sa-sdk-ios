@@ -17,13 +17,11 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-    
 
 #import "SAAutoTrackUtils.h"
-#import "SAAutoTrack.h"
 #import "SAConstants.h"
 #import "SensorsAnalyticsSDK.h"
-#import "AutoTrackUtils.h"
+#import "UIView+SAHelpers.h"
 
 @implementation SAAutoTrackUtils
 
@@ -106,7 +104,11 @@
     return currentViewController;
 }
 
-#pragma mark - Property
+@end
+
+#pragma mark -
+@implementation SAAutoTrackUtils (Property)
+
 + (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewController> *)viewController {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
@@ -134,7 +136,7 @@
     // ViewID
     properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
 
-    viewController = viewController ?: object.sensorsdata_superViewController;
+    viewController = viewController ? : object.sensorsdata_superViewController;
     if (viewController.sensorsdata_isIgnored) {
         return nil;
     }
@@ -150,14 +152,114 @@
     }
     UIView *view = (UIView *)object;
     //View Properties
-    NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+    NSDictionary *propDict = view.sensorsAnalyticsViewProperties;
     if (propDict != nil) {
         [properties addEntriesFromDictionary:propDict];
     }
 
-    [AutoTrackUtils sa_addViewPathProperties:properties object:view viewController:viewController];
+    NSString *viewPath = [self viewPathForView:view atViewController:viewController];
+    if (viewPath) {
+        properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = viewPath;
+    }
 
     return [properties copy];
+}
+
+@end
+
+#pragma mark -
+@implementation SAAutoTrackUtils (ViewPath)
+
++ (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController {
+    SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
+
+    BOOL isEnableVisualizedAutoTrack = [sa isVisualizedAutoTrackEnabled] && [sa isVisualizedAutoTrackViewController:viewController];
+    BOOL isEnableHeatMap = [sa isHeatMapEnabled] && [sa isHeatMapViewController:viewController];
+    return !isEnableVisualizedAutoTrack && !isEnableHeatMap;
+}
+
++ (NSArray<NSString *> *)viewPathsForViewController:(UIViewController<SAAutoTrackViewPath> *)viewController {
+    NSMutableArray *viewPaths = [NSMutableArray array];
+    do {
+        [viewPaths addObject:viewController.sensorsdata_itemPath];
+        viewController = (UIViewController<SAAutoTrackViewPath> *)viewController.parentViewController;
+    } while (viewController);
+
+    UIViewController<SAAutoTrackViewPath> *vc = (UIViewController<SAAutoTrackViewPath> *)viewController.presentingViewController;
+    if ([vc conformsToProtocol:@protocol(SAAutoTrackViewPath)]) {
+        [viewPaths addObjectsFromArray:[self viewPathsForViewController:vc]];
+    }
+    return viewPaths;
+}
+
++ (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPath> *)view {
+    NSMutableArray *viewPathArray = [NSMutableArray array];
+    do {
+        [viewPathArray addObject:view.sensorsdata_itemPath];
+    } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class] && ![view isKindOfClass:UIWindow.class]);
+
+    if ([view isKindOfClass:UIViewController.class] && [view conformsToProtocol:@protocol(SAAutoTrackViewPath)]) {
+        [viewPathArray addObjectsFromArray:[self viewPathsForViewController:(UIViewController<SAAutoTrackViewPath> *)view]];
+    }
+    return viewPathArray;
+}
+
++ (NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController {
+    if ([self isIgnoredViewPathForViewController:viewController]) {
+        return nil;
+    }
+    NSArray *viewPaths = [[[self viewPathsForView:view] reverseObjectEnumerator] allObjects];
+    return [viewPaths componentsJoinedByString:@"/"];
+}
+
++ (NSString *)itemPathForResponder:(UIResponder *)responder {
+    NSInteger index = -1;
+    NSString *classString = NSStringFromClass(responder.class);
+
+    NSArray *subResponder = nil;
+    if ([responder isKindOfClass:UIView.class]) {
+        UIResponder *next = [responder nextResponder];
+        if ([next isKindOfClass:UIView.class]) {
+            subResponder = [(UIView *)next subviews];
+        }
+    } else if ([responder isKindOfClass:UIViewController.class]) {
+        subResponder = [(UIViewController *)responder parentViewController].childViewControllers;
+    }
+
+    for (UIResponder *res in subResponder) {
+        if ([classString isEqualToString:NSStringFromClass(res.class)]) {
+            index++;
+        }
+        if (res == responder) {
+            break;
+        }
+    }
+    return index == -1 ? classString : [NSString stringWithFormat:@"%@[%lu]", classString, index];
+}
+
++ (NSString *)viewIdentifierForView:(UIView *)view {
+    NSMutableArray *valueArray = [[NSMutableArray alloc] init];
+    NSString *value = [view jjf_varE];
+    if (value) {
+        [valueArray addObject:[NSString stringWithFormat:@"jjf_varE='%@'", value]];
+    }
+    value = [view jjf_varC];
+    if (value) {
+        [valueArray addObject:[NSString stringWithFormat:@"jjf_varC='%@'", value]];
+    }
+    value = [view jjf_varB];
+    if (value) {
+        [valueArray addObject:[NSString stringWithFormat:@"jjf_varB='%@'", value]];
+    }
+    value = [view jjf_varA];
+    if (value) {
+        [valueArray addObject:[NSString stringWithFormat:@"jjf_varA='%@'", value]];
+    }
+    if (valueArray.count == 0) {
+        return nil;
+    }
+    NSString *viewVarString = [valueArray componentsJoinedByString:@" AND "];
+    return [NSString stringWithFormat:@"%@[(%@)]", NSStringFromClass([view class]), viewVarString];
 }
 
 @end

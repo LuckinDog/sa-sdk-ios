@@ -23,7 +23,7 @@
 
 #pragma mark - UIView
 
-@interface UIView (AutoTrack) <SAAutoTrackView>
+@interface UIView (AutoTrack) <SAAutoTrackView, SAAutoTrackViewPath>
 @end
 
 @interface UILabel (AutoTrack) <SAAutoTrackView>
@@ -39,6 +39,9 @@
 @end
 
 @interface UISearchBar (AutoTrack) <SAAutoTrackView>
+@end
+
+@interface UITableViewHeaderFooterView (AutoTrack) <SAAutoTrackViewPath>
 @end
 
 #pragma mark - UIControl

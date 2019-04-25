@@ -25,6 +25,7 @@
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK.h"
+#import "UIView+SAHelpers.h"
 
 #pragma mark - UIView
 
@@ -100,6 +101,14 @@
     return viewController;
 }
 
+- (NSString *)sensorsdata_itemPath {
+    NSString *identifier = [SAAutoTrackUtils viewIdentifierForView:self];
+    if (identifier) {
+        return identifier;
+    }
+    return [SAAutoTrackUtils itemPathForResponder:self];
+}
+
 @end
 
 @implementation UILabel (AutoTrack)
@@ -150,6 +159,12 @@
     return self.selectedItem.title;
 }
 
+- (NSString *)sensorsdata_itemPath {
+    NSInteger selectedIndex = [self.items indexOfObject:self.selectedItem];
+    NSString *subPath = [NSString stringWithFormat:@"%@[%ld]", @"UITabBarButton", (long)selectedIndex];
+    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_itemPath, subPath];
+}
+
 @end
 
 @implementation UISearchBar (AutoTrack)
@@ -160,6 +175,31 @@
 
 - (NSString *)sensorsdata_elementContent {
     return self.text;
+}
+
+@end
+
+@implementation UITableViewHeaderFooterView (AutoTrack)
+
+- (NSString *)sensorsdata_itemPath {
+    UITableView *tableView = (UITableView *)self.superview;
+
+    while (![tableView isKindOfClass:UITableView.class]) {
+        tableView = (UITableView *)tableView.superview;
+        if (!tableView) {
+            return super.sensorsdata_itemPath;
+        }
+    }
+    for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
+        if (self == [tableView headerViewForSection:i]) {
+            return [NSString stringWithFormat:@"[SectionHeader][%ld]", i];
+        }
+        if (self == [tableView footerViewForSection:i]) {
+            return [NSString stringWithFormat:@"[SectionFooter][%ld]", i];
+        }
+    }
+
+    return super.sensorsdata_itemPath;
 }
 
 @end
@@ -235,6 +275,11 @@
 
 - (NSString *)sensorsdata_elementPosition {
     return [NSString stringWithFormat: @"%ld", (long)self.selectedSegmentIndex];
+}
+
+- (NSString *)sensorsdata_itemPath {
+    NSString *subPath = [NSString stringWithFormat:@"%@[%ld]", @"UISegment", (long)self.selectedSegmentIndex];
+    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_itemPath, subPath];
 }
 
 @end

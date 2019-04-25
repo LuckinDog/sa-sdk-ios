@@ -20,7 +20,7 @@
     
 
 #import <UIKit/UIKit.h>
-#import "UIView+AutoTrack.h"
+#import "SAAutoTrack.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,6 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
  @return SuperViewController
  */
 + (UIViewController *)findSuperViewControllerByView:(UIView *)view;
+
+@end
+
+#pragma mark -
+@interface SAAutoTrackUtils (Property)
 
 /**
  采集 ViewController 中的事件属性
@@ -82,6 +87,19 @@ NS_ASSUME_NONNULL_BEGIN
  @return 事件属性字典
  */
 + (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController;
+
+@end
+
+#pragma mark -
+@interface SAAutoTrackUtils (ViewPath)
+
++ (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController;
+
++ (NSString *)viewIdentifierForView:(UIView *)view;
++ (NSString *)itemPathForResponder:(UIResponder *)responder;
+
++ (NSArray<NSString *> *)viewPathsForView:(UIView *)view;
++ (NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController;
 
 @end
 

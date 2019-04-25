@@ -41,3 +41,7 @@
 @property (nonatomic, readonly) UIViewController<SAAutoTrackViewController> *sensorsdata_superViewController;
 @end
 
+#pragma mark -
+@protocol SAAutoTrackViewPath <NSObject>
+@property (nonatomic, copy, readonly) NSString *sensorsdata_itemPath;
+@end

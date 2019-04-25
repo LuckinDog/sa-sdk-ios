@@ -30,6 +30,7 @@
 #import "AutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIView+AutoTrack.h"
+#import "SAAutoTrackUtils.h"
 
 @implementation UIViewController (AutoTrack)
 
@@ -51,6 +52,10 @@
         return controllerTitle;
     }
     return nil;
+}
+
+- (NSString *)sensorsdata_itemPath {
+    return [SAAutoTrackUtils itemPathForResponder:self];
 }
 
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated {
