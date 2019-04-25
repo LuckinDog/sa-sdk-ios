@@ -28,7 +28,7 @@ See our [full manual](http://www.sensorsdata.cn/manual/ios_sdk.html)
 
 ## License
 
-Copyright 2015－2017 Sensors Data Inc.
+Copyright 2015－2019 Sensors Data Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,3 +41,5 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+**禁止一切基于神策数据 Android & iOS 开源 SDK 的所有商业活动！**
