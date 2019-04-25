@@ -284,7 +284,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         self = [super init];
         if (self) {
-            _configOptions = configOptions;
+            _configOptions = [configOptions copy];
             
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
             
@@ -327,10 +327,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
             _locationConfig = [[SAGPSLocationConfig alloc] init];
 #endif
+            
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _heatMapViewControllers = [[NSMutableSet alloc] init];
             _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
+            
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
             
@@ -365,14 +367,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             self.automaticProperties = [self collectAutomaticProperties];
-           
+
             [self setUpListeners];
-            if (configOptions.enableTrackAppCrash) {
+            
+            if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
             
-            if (configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
+            if (_configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
                 //全埋点
                 [self configAutoTrack];
             }
@@ -404,13 +407,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (UInt64)getCurrentTime {
-    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-    return time;
+    return [[NSDate date] timeIntervalSince1970] * 1000;
 }
 
 + (UInt64)getSystemUpTime {
-    UInt64 time = NSProcessInfo.processInfo.systemUptime * 1000;
-    return time;
+    return NSProcessInfo.processInfo.systemUptime * 1000;
 }
 
 + (NSString *)getUniqueHardwareId {
@@ -423,7 +424,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
         id sharedManager = ((id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);
         SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
-        NSUUID *uuid = ((NSUUID* (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
+        NSUUID *uuid = ((NSUUID * (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
         distinctId = [uuid UUIDString];
         // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
         // 00000000-0000-0000-0000-000000000000
@@ -446,7 +447,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return distinctId;
 }
 
-+(NSString *)getUserAgent {
++ (NSString *)getUserAgent {
     //在此之前调用过 addWebViewUserAgentSensorsDataFlag ，可以直接从 _userAgent 获取 ua
     __block  NSString *currentUA = self.sharedInstance->_userAgent;
     if (currentUA  == nil)  {
@@ -2706,7 +2707,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setFlushBulkSize:(UInt64)bulkSize {
     @synchronized(self) {
         //加上最小值保护，50
-        self.configOptions.flushBulkSize = bulkSize >= 50 ? bulkSize : 50;
+        NSInteger newBulkSize = (NSInteger)bulkSize;
+        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
     }
 }
 
@@ -3196,12 +3198,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     }
     
-   
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
         return;
     }
-     [self requestFunctionalManagermentConfig];
+    
+    [self shouldRequestRemoteConfig];
 
     // 是否首次启动
     BOOL isFirstStart = NO;
@@ -3262,7 +3264,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self stopFlushTimer];
     
     self.launchedPassively = NO;
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+    
+    if (self.reqConfigBlock) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+        self.reqConfigBlock = nil;
+    }
     
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
@@ -3435,6 +3441,38 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         remoteConfig = self->_remoteConfig;
     });
     return remoteConfig;
+}
+
+- (void)shouldRequestRemoteConfig {
+    
+    //判断是否符合分散 remoteconfig 请求条件
+    if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval < self.configOptions.minRequestHourInterval) {
+        [self requestFunctionalManagermentConfig];
+        SALog(@"disableRandomTimeRequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
+        return;
+    }
+
+    NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
+    double randomTime = [[requestTimeConfig objectForKey:@"randomTime"] doubleValue];
+    double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
+    //当前时间，以开机时间为准，单位：秒
+    NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
+
+    dispatch_block_t createRandomTimeBlock = ^() {
+        //转换成 秒 再取随机时间
+        NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
+        NSInteger randomDurationTime = arc4random() % durationSecond;
+        double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
+
+        NSDictionary *createRequestTimeConfig = @{@"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
+        [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
+    };
+
+    if (currentTime >= startDeviceTime && currentTime < randomTime) {
+        return;
+    }
+    [self requestFunctionalManagermentConfig];
+    createRandomTimeBlock();
 }
 
 - (void)requestFunctionalManagermentConfig {

@@ -23,7 +23,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 /**
  * @class
  *  SensorsAnalyticsSDK 初始化配置
@@ -32,26 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  指定初始化方法，设置 serverURL
- 
- @param serverUrl 数据接收地址
+
+ @param serverURL 数据接收地址
  @return 配置对象
  */
 - (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;
 
-/**
- 禁用 init 初始化
- */
+/// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
 
-/**
- 禁用 new 初始化
- */
+/// 禁用 new 初始化
 + (instancetype)new NS_UNAVAILABLE;
-
-/**
- 请求配置地址，默认从 ServerUrl 解析
- */
-@property(nonatomic, copy) NSString *remoteConfigURL;
 
 /**
  * @property
@@ -64,13 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-@property(nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType;
+@property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType;
 
-/**
- * @abstract
- * 是否自动收集 App Crash 日志，该功能默认是关闭的
- */
-@property(nonatomic) BOOL enableTrackAppCrash;
+/// 是否自动收集 App Crash 日志，该功能默认是关闭的
+@property (nonatomic) BOOL enableTrackAppCrash;
 
 /**
  * @property
@@ -107,16 +94,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) NSInteger flushBulkSize;
 
-/**
- * @abstract
- * 设置本地缓存最多事件条数
- *
- * @discussion
- * 默认为 10000 条事件
- *
- * @param maxCacheSize 本地缓存最多事件条数
- */
+/// 设置本地缓存最多事件条数，默认为 10000 条事件
 @property (nonatomic) NSInteger maxCacheSize;
+
+#pragma mark - 请求远程配置策略
+/// 请求远程配置地址，默认从 serverURL 解析
+@property (nonatomic, copy) NSString *remoteConfigURL;
+
+/// 禁用随机时间请求远程配置
+@property (nonatomic, assign) BOOL disableRandomTimeRequestRemoteConfig;
+
+/// 最小间隔时长，单位：小时，默认 24
+@property (nonatomic, assign) NSInteger minRequestHourInterval;
+
+/// 最大间隔时长，单位：小时，默认 48
+@property (nonatomic, assign) NSInteger maxRequestHourInterval;
 
 @end
 
