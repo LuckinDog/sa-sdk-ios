@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSInteger maxCacheSize;
 
 #pragma mark - 请求远程配置策略
-/// 请求远程配置地址，默认从 ServerUrl 解析
+/// 请求远程配置地址，默认从 serverURL 解析
 @property (nonatomic, copy) NSString *remoteConfigURL;
 
 /// 禁用随机时间请求远程配置
