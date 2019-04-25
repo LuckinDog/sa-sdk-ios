@@ -235,6 +235,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
+    //进入非活动状态，比如双击 home、系统授权弹框
     BOOL _applicationWillResignActive;
     BOOL _clearReferrerWhenAppEnd;
     SensorsAnalyticsNetworkType _networkTypePolicy;
@@ -298,8 +299,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _people = [[SensorsAnalyticsPeople alloc] init];
             
             _debugMode = SensorsAnalyticsDebugOff;
-            [self enableLog];
-            [self setServerUrl:configOptions.serverURL];
             
             _appRelaunched = NO;
             _showDebugAlertView = YES;
@@ -309,13 +308,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
+            _flushBeforeEnterBackground = YES;
             
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
-            self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-            dispatch_queue_set_specific(self.serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
+            _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
             
             NSString *readWriteLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
-            self.readWriteQueue = dispatch_queue_create([readWriteLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+            _readWriteQueue = dispatch_queue_create([readWriteLabel UTF8String], DISPATCH_QUEUE_SERIAL);
             
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
@@ -336,12 +336,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
             
-            self.flushBeforeEnterBackground = YES;
+             _trackTimer = [NSMutableDictionary dictionary];
             
-            self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
+            _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
             if (self.messageQueue == nil) {
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
+            
+            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+            _regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
+            
+            NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick)|(SignUp))|(^AppCrashed)$";
+            _regexEventName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", eventPattern];
+            
+            if (!_launchedPassively) {
+                [self startFlushTimer];
+            }
+            
+            [self enableLog];
+            [self setServerUrl:configOptions.serverURL];
             
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
@@ -354,14 +367,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             self.automaticProperties = [self collectAutomaticProperties];
-            self.trackTimer = [NSMutableDictionary dictionary];
-            
-            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
-            self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
-            
-            NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick)|(SignUp))|(^AppCrashed)$";
-            self.regexEventName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", eventPattern];
-            
+
             [self setUpListeners];
             
             if (_configOptions.enableTrackAppCrash) {
@@ -2661,12 +2667,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.configOptions.flushInterval = (NSInteger)interval;
     }
     [self flush];
+    [self stopFlushTimer];
     [self startFlushTimer];
 }
 
 - (void)startFlushTimer {
-    [self stopFlushTimer];
-    if (self.remoteConfig.disableSDK) {
+    if (self.remoteConfig.disableSDK || (self.timer && [self.timer isValid])) {
         return;
     }
     SADebug(@"starting flush timer.");
@@ -3192,16 +3198,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     }
     
-    [self whetherRequestRemoteConfig];
-    
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
-        if (self.timer == nil || ![self.timer isValid]) {
-            [self startFlushTimer];
-        }
         return;
     }
-    _applicationWillResignActive = NO;
+    
+    [self whetherRequestRemoteConfig];
 
     // 是否首次启动
     BOOL isFirstStart = NO;
@@ -3253,12 +3255,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationWillResignActive:(NSNotification *)notification {
     SADebug(@"%@ application will resign active", self);
     _applicationWillResignActive = YES;
-    [self stopFlushTimer];
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
+    
+    [self stopFlushTimer];
+    
     self.launchedPassively = NO;
     
     if (self.reqConfigBlock) {
