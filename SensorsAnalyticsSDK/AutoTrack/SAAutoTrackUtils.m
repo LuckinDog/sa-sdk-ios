@@ -220,7 +220,6 @@
 }
 
 + (NSString *)itemPathForResponder:(UIResponder *)responder {
-    NSInteger index = -1;
     NSString *classString = NSStringFromClass(responder.class);
 
     NSArray *subResponder = nil;
@@ -233,15 +232,17 @@
         subResponder = [(UIViewController *)responder parentViewController].childViewControllers;
     }
 
+    NSInteger count = 0;
+    NSInteger index = -1;
     for (UIResponder *res in subResponder) {
-        if (res == responder) {
-            break;
-        }
         if ([classString isEqualToString:NSStringFromClass(res.class)]) {
-            index++;
+            count++;
+        }
+        if (res == responder) {
+            index = count - 1;
         }
     }
-    return index == -1 ? classString : [NSString stringWithFormat:@"%@[%lu]", classString, index];
+    return count == 1 ? classString : [NSString stringWithFormat:@"%@[%lu]", classString, index];
 }
 
 + (NSString *)viewIdentifierForView:(UIView *)view {
