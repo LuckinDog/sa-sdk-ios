@@ -219,6 +219,7 @@
 		CB8F40BE22685F75009FF904 /* SANetwork+URLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB8F40BC22685F75009FF904 /* SANetwork+URLUtils.h */; };
 		CB8F40BF22685F75009FF904 /* SANetwork+URLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB8F40BD22685F75009FF904 /* SANetwork+URLUtils.m */; };
 		CB8F40C3226883BC009FF904 /* SANetwork+URLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB8F40BD22685F75009FF904 /* SANetwork+URLUtils.m */; };
+		CBACB9F122731172008E2116 /* SANetwork+URLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB8F40BD22685F75009FF904 /* SANetwork+URLUtils.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1100,6 +1101,7 @@
 				4D8D0F182269699100663D00 /* SAHeatMapConnection.m in Sources */,
 				A3746ED21C32E5BB008A50A3 /* SAObjectIdentityProvider.m in Sources */,
 				0027C8591FA201FC002EA41B /* TestViewController.m in Sources */,
+				CBACB9F122731172008E2116 /* SANetwork+URLUtils.m in Sources */,
 				A1A5A1A81FAC640800D06C7F /* TestCollectionViewController.m in Sources */,
 				A3746ED31C32E5BB008A50A3 /* SAApplicationStateSerializer.m in Sources */,
 				A3746ED41C32E5BB008A50A3 /* SAObjectSerializer.m in Sources */,

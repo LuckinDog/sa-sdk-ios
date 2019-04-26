@@ -222,6 +222,15 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 #pragma mark - request
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(SAURLSessionTaskCompletionHandler)completionHandler {
+    return [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
+            return completionHandler(nil, nil, error);
+        }
+        return completionHandler(data, (NSHTTPURLResponse *)response, error);
+    }];
+}
+
 - (BOOL)flushEvents:(NSArray<NSString *> *)events {
     if (!self.serverURL) {
         SAError(@"serverURL error，Please check the serverURL");
@@ -232,16 +241,15 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     
     __block BOOL flushSuccess;
     dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
-    void (^handler)(NSData * _Nullable, NSURLResponse * _Nullable, NSError * _Nullable) = ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
             SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
             dispatch_semaphore_signal(flushSemaphore);
             return;
         }
         
-        NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
         NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSInteger statusCode = urlResponse.statusCode;
+        NSInteger statusCode = response.statusCode;
         NSString *messageDesc = statusCode == 200 ? @"\n【valid message】\n" : @"\n【invalid message】\n";
         if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
             NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
@@ -269,7 +277,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     };
     
     NSURLRequest *request = [self buildFlushRequestWithJSONString:jsonString HTTPMethod:@"POST"];
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
+    NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:handler];
     [task resume];
     
     dispatch_semaphore_wait(flushSemaphore, DISPATCH_TIME_FOREVER);
@@ -285,8 +293,8 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
     NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
 
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
+    NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSInteger statusCode = response.statusCode;
         if (statusCode == 200) {
             SALog(@"config debugMode CallBack success");
         } else {
@@ -303,11 +311,11 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         return nil;
     }
     NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL version:version];
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (!completion) {
             return ;
         }
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+        NSInteger statusCode = response.statusCode;
         BOOL success = statusCode == 200 || statusCode == 304;
         NSDictionary<NSString *, id> *config = nil;
         @try{

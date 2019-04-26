@@ -22,6 +22,8 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SASecurityPolicy.h"
 
+typedef void(^SAURLSessionTaskCompletionHandler)(NSData *data, NSHTTPURLResponse *response, NSError *error);
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SANetwork : NSObject
@@ -52,6 +54,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @return NSString cookie
  */
 - (NSString *)cookieWithDecoded:(BOOL)decode;
+
+
+/**
+ 通过 URLRequest 创建一个 task，并设置完成的回调
+
+ @param request 请求对象
+ @param completionHandler 完成回调
+ @return 数据 task
+ */
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(SAURLSessionTaskCompletionHandler)completionHandler;
 
 /**
  将数据上传到 Sensors Analytics 的服务器上

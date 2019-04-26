@@ -29,7 +29,7 @@
 - (void)setPayloadObject:(id)object forKey:(NSString *)key;
 - (id)payloadObjectForKey:(NSString *)key;
 
-- (NSData *)JSONData:(BOOL)useGzip withFeatuerCode:(NSString *)fetureCode;
+- (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)fetureCode;
 
 - (NSOperation *)responseCommandWithConnection:(SAHeatMapConnection *)connection;
 

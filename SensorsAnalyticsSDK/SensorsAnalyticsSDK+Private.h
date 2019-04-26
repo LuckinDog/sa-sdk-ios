@@ -23,6 +23,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "SANetwork.h"
 
 
 /**
@@ -69,6 +70,8 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
+
+@property (nonatomic, strong, readonly) SANetwork *network;
 
 @end
 
