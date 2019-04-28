@@ -100,6 +100,7 @@
 		4DD9E84F2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD9E84D2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h */; };
 		4DD9E8502181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */; };
 		4DD9E8512181CCFC00191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */; };
+		4DDAD1152275B58800728E11 /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4D8DA8692133BA5D0064DFEB /* SensorsAnalyticsSDK.bundle */; };
 		4DEF0D0C225AF2CB00724A78 /* SAConfigOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DEF0D0A225AF2CB00724A78 /* SAConfigOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4DEF0D0E225AF36800724A78 /* SAConfigOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DEF0D0B225AF2CB00724A78 /* SAConfigOptions.m */; };
 		4DEF0D15225AFB3700724A78 /* SAConstants+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DEF0D13225AFB3700724A78 /* SAConstants+Private.h */; };
@@ -869,6 +870,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DDAD1152275B58800728E11 /* SensorsAnalyticsSDK.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
