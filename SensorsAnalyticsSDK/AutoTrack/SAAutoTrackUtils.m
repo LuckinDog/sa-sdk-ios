@@ -19,7 +19,7 @@
 //
 
 #import "SAAutoTrackUtils.h"
-#import "SAConstants.h"
+#import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+SAHelpers.h"
 

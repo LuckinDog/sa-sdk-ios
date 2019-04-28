@@ -29,6 +29,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAConstants+Private.h"
 #import <objc/runtime.h>
 #import "SAConstants.h"
 
