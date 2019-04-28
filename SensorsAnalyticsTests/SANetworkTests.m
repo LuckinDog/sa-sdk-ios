@@ -162,7 +162,7 @@
     NSURLSessionTask *task = [self.network debugModeCallbackWithDistinctId:@"1234567890qwe" params:@{@"key": @"value"}];
     NSURL *url = task.currentRequest.URL;
     XCTAssertTrue([url.absoluteString rangeOfString:@"key=value"].location != NSNotFound);
-    XCTAssertTrue([url.absoluteString rangeOfString:self.network.serverURL.absoluteString].location != NSNotFound);
+    XCTAssertTrue([url.absoluteString rangeOfString:self.network.serverURL.host].location != NSNotFound);
     
     // 请求超时时间为 30s
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

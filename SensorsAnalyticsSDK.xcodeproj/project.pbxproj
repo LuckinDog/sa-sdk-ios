@@ -216,6 +216,8 @@
 		CB2D01932237A10800A958C5 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SANetwork.m */; };
 		CB2D019C2237B79100A958C5 /* cert.der.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB2D01992237B79100A958C5 /* cert.der.cer */; };
 		CB54EF8B223D0E95007E648E /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB54EF8A223D0E95007E648E /* SensorsAnalyticsTests.m */; };
+		CB7D065C2275987A0067F2A9 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F152269699100663D00 /* SAHeatMapSnapshotMessage.m */; };
+		CB7D065D227598830067F2A9 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
 		CB8F40BE22685F75009FF904 /* SANetwork+URLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB8F40BC22685F75009FF904 /* SANetwork+URLUtils.h */; };
 		CB8F40BF22685F75009FF904 /* SANetwork+URLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB8F40BD22685F75009FF904 /* SANetwork+URLUtils.m */; };
 		CB8F40C3226883BC009FF904 /* SANetwork+URLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB8F40BD22685F75009FF904 /* SANetwork+URLUtils.m */; };
@@ -1166,7 +1168,9 @@
 				008D82AF1F0E22ED00052CFF /* NSString+HashCode.m in Sources */,
 				A161A05520B540E500A3CA14 /* SALocationManager.m in Sources */,
 				0009198C1F974CE100E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
+				CB7D065D227598830067F2A9 /* SAAbstractHeatMapMessage.m in Sources */,
 				A1753DD72074AEC400425771 /* SALogger.m in Sources */,
+				CB7D065C2275987A0067F2A9 /* SAHeatMapSnapshotMessage.m in Sources */,
 				A18C835521426AF800D7DCB4 /* SAAuxiliaryToolManager.m in Sources */,
 				A11C545A201075020074E817 /* SAAppExtensionDataManager.m in Sources */,
 				4D2AF15D1B4BAE77007716F8 /* JSONUtil.m in Sources */,
