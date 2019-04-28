@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  指定初始化方法，设置 serverURL
  
- @param serverUrl 数据接收地址
+ @param serverURL 数据接收地址
  @return 配置对象
  */
 - (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;

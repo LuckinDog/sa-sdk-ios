@@ -16,7 +16,6 @@ DerivedData/
 *.perspectivev3
 !default.perspectivev3
 xcuserdata/
-xcshareddata/
 
 ## Other
 *.moved-aside
@@ -43,6 +42,7 @@ xcshareddata/
 # Carthage/Checkouts
 
 Carthage/Build
+Carthage/Checkouts
 
 # fastlane
 #
