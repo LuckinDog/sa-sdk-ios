@@ -23,6 +23,8 @@
 		00DC9CDA1D7E9D9D00C7DF6C /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */; };
 		00DC9CDC1D7E9E3F00C7DF6C /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
 		00DC9CDF1D7E9EC900C7DF6C /* JSCallOCViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CDE1D7E9EC900C7DF6C /* JSCallOCViewController2.m */; };
+		4D0E41C3226EB9B800D775C5 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
+		4D0E41C4226EB9D100D775C5 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F152269699100663D00 /* SAHeatMapSnapshotMessage.m */; };
 		4D0EB7C31B47A88C0019FD21 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C21B47A88C0019FD21 /* main.m */; };
 		4D0EB7C61B47A88C0019FD21 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C51B47A88C0019FD21 /* AppDelegate.m */; };
 		4D0EB7C91B47A88C0019FD21 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C81B47A88C0019FD21 /* ViewController.m */; };
@@ -74,12 +76,10 @@
 		4D5CA77D1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */; };
 		4D8D0F172269699100663D00 /* SAHeatMapConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F102269699100663D00 /* SAHeatMapConnection.m */; };
 		4D8D0F182269699100663D00 /* SAHeatMapConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F102269699100663D00 /* SAHeatMapConnection.m */; };
-		4D8D0F192269699100663D00 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
 		4D8D0F1A2269699100663D00 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
 		4D8D0F1B2269699100663D00 /* SAHeatMapSnapshotMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D8D0F122269699100663D00 /* SAHeatMapSnapshotMessage.h */; };
 		4D8D0F1C2269699100663D00 /* SAAbstractHeatMapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D8D0F132269699100663D00 /* SAAbstractHeatMapMessage.h */; };
 		4D8D0F1D2269699100663D00 /* SAHeatMapConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D8D0F142269699100663D00 /* SAHeatMapConnection.h */; };
-		4D8D0F1E2269699100663D00 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F152269699100663D00 /* SAHeatMapSnapshotMessage.m */; };
 		4D8D0F1F2269699100663D00 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F152269699100663D00 /* SAHeatMapSnapshotMessage.m */; };
 		4D8D0F202269699100663D00 /* SAHeatMapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D8D0F162269699100663D00 /* SAHeatMapMessage.h */; };
 		4D8D0F28226969B900663D00 /* SAVisualizedAutoTrackAbstractMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F21226969B800663D00 /* SAVisualizedAutoTrackAbstractMessage.m */; };
@@ -101,6 +101,12 @@
 		4DD9E8502181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */; };
 		4DD9E8512181CCFC00191E9C /* UIGestureRecognizer+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD9E84E2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.m */; };
 		4DDAD1152275B58800728E11 /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4D8DA8692133BA5D0064DFEB /* SensorsAnalyticsSDK.bundle */; };
+		4DDAD11E2275C32300728E11 /* SASwizzler.h in Headers */ = {isa = PBXBuildFile; fileRef = A3997A271C3AC342005A9374 /* SASwizzler.h */; };
+		4DDAD11F2275C37400728E11 /* SAObjectSerializerContext.h in Headers */ = {isa = PBXBuildFile; fileRef = A3746EAC1C318B65008A50A3 /* SAObjectSerializerContext.h */; };
+		4DDAD1202275C38000728E11 /* SAServerUrl.h in Headers */ = {isa = PBXBuildFile; fileRef = 004136081FFB4682009F2097 /* SAServerUrl.h */; };
+		4DDAD1212275C39F00728E11 /* SAObjectSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = A3746EA61C318B54008A50A3 /* SAObjectSerializer.h */; };
+		4DDAD1222275C3F300728E11 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
+		4DDAD1232275C3F300728E11 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F152269699100663D00 /* SAHeatMapSnapshotMessage.m */; };
 		4DEF0D0C225AF2CB00724A78 /* SAConfigOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DEF0D0A225AF2CB00724A78 /* SAConfigOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4DEF0D0E225AF36800724A78 /* SAConfigOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DEF0D0B225AF2CB00724A78 /* SAConfigOptions.m */; };
 		4DEF0D15225AFB3700724A78 /* SAConstants+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DEF0D13225AFB3700724A78 /* SAConstants+Private.h */; };
@@ -677,7 +683,9 @@
 			files = (
 				4D2A807422758BF000677C80 /* SensorsAnalyticsSDK.h in Headers */,
 				A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */,
+				4DDAD1212275C39F00728E11 /* SAObjectSerializer.h in Headers */,
 				A1280DFE217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h in Headers */,
+				4DDAD11F2275C37400728E11 /* SAObjectSerializerContext.h in Headers */,
 				4D8D0F1B2269699100663D00 /* SAHeatMapSnapshotMessage.h in Headers */,
 				4D8D0F1C2269699100663D00 /* SAAbstractHeatMapMessage.h in Headers */,
 				4D8D0F2A226969B900663D00 /* SAVisualizedAutoTrackSnapshotMessage.h in Headers */,
@@ -691,6 +699,7 @@
 				4D8D0F2B226969B900663D00 /* SAVisualizedAutoTrackMessage.h in Headers */,
 				A14EF2B921B90E8200892492 /* SensorsAnalyticsSDK+Private.h in Headers */,
 				4D8D0F2E226969B900663D00 /* SAVisualizedAutoTrackAbstractMessage.h in Headers */,
+				4DDAD11E2275C32300728E11 /* SASwizzler.h in Headers */,
 				A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */,
 				4D2A807622759BCB00677C80 /* SAConstants.h in Headers */,
 				4D2AF15C1B4BAE77007716F8 /* JSONUtil.h in Headers */,
@@ -698,6 +707,7 @@
 				4D8D0F202269699100663D00 /* SAHeatMapMessage.h in Headers */,
 				4DD9E84F2181C7E300191E9C /* UIGestureRecognizer+AutoTrack.h in Headers */,
 				4D8D0F1D2269699100663D00 /* SAHeatMapConnection.h in Headers */,
+				4DDAD1202275C38000728E11 /* SAServerUrl.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -989,6 +999,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DDAD1222275C3F300728E11 /* SAAbstractHeatMapMessage.m in Sources */,
+				4DDAD1232275C3F300728E11 /* SAHeatMapSnapshotMessage.m in Sources */,
 				4D2A805622758AF400677C80 /* SALocationManager.m in Sources */,
 				4D2A805722758AF400677C80 /* SADeviceOrientationManager.m in Sources */,
 				4D2A805822758AF400677C80 /* SensorsAnalyticsExceptionHandler.m in Sources */,
@@ -1020,10 +1032,8 @@
 				4D2A807222758AF400677C80 /* SAServerUrl.m in Sources */,
 				4D2A807322758AF400677C80 /* NSThread+SAHelpers.m in Sources */,
 				4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */,
-				4D8D0F1E2269699100663D00 /* SAHeatMapSnapshotMessage.m in Sources */,
 				A14938C8207B8730006EF04A /* SAKeyChainItemWrapper.m in Sources */,
 				A190A8C620CE58F6002C4202 /* UIView+AutoTrack.m in Sources */,
-				4D8D0F192269699100663D00 /* SAAbstractHeatMapMessage.m in Sources */,
 				A1100B13219BC93C00E14E9A /* SAConstants.m in Sources */,
 				4D8D0F30226969B900663D00 /* SAVisualizedAutoTrackConnection.m in Sources */,
 				A15CBCA5208ED5D50014DE74 /* SASDKRemoteConfig.m in Sources */,
@@ -1055,6 +1065,8 @@
 			files = (
 				A1D1C56B1FB445BC006685C1 /* ViewController.swift in Sources */,
 				A1D1C5691FB445BC006685C1 /* AppDelegate.swift in Sources */,
+				4D0E41C4226EB9D100D775C5 /* SAHeatMapSnapshotMessage.m in Sources */,
+				4D0E41C3226EB9B800D775C5 /* SAAbstractHeatMapMessage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

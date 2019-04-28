@@ -102,8 +102,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
     SensorsAnalyticsNetworkTypeWIFI     = 1 << 3,
     SensorsAnalyticsNetworkTypeALL      = 0xFF,
 };
-
-
 @end
 
 NS_ASSUME_NONNULL_END
