@@ -19,53 +19,53 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SAAutoTrack.h"
+#import "SAAutoTrackProperty.h"
 
 #pragma mark - UIView
 
-@interface UIView (AutoTrack) <SAAutoTrackView, SAAutoTrackViewPath>
+@interface UIView (AutoTrack) <SAAutoTrackViewProperty, SAAutoTrackViewPathProperty>
 @end
 
-@interface UILabel (AutoTrack) <SAAutoTrackView>
+@interface UILabel (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UIImageView (AutoTrack) <SAAutoTrackView>
+@interface UIImageView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UITextView (AutoTrack) <SAAutoTrackView>
+@interface UITextView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UITabBar (AutoTrack) <SAAutoTrackView>
+@interface UITabBar (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UISearchBar (AutoTrack) <SAAutoTrackView>
+@interface UISearchBar (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UITableViewHeaderFooterView (AutoTrack) <SAAutoTrackViewPath>
+@interface UITableViewHeaderFooterView (AutoTrack) <SAAutoTrackViewPathProperty>
 @end
 
 #pragma mark - UIControl
 
-@interface UIButton (AutoTrack) <SAAutoTrackView>
+@interface UIButton (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UISwitch (AutoTrack) <SAAutoTrackView>
+@interface UISwitch (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UIStepper (AutoTrack) <SAAutoTrackView>
+@interface UIStepper (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UISegmentedControl (AutoTrack) <SAAutoTrackView>
+@interface UISegmentedControl (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
 #pragma mark - UIBarItem
 
-@interface UIBarItem (AutoTrack) <SAAutoTrackView>
+@interface UIBarItem (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UIBarButtonItem (AutoTrack) <SAAutoTrackView>
+@interface UIBarButtonItem (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UITabBarItem (AutoTrack) <SAAutoTrackView>
+@interface UITabBarItem (AutoTrack) <SAAutoTrackViewProperty>
 @end
 

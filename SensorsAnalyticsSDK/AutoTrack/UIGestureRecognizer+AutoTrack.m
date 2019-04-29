@@ -40,7 +40,7 @@
         UIView *view = gesture.view;
         // 暂定只采集 UILabel 和 UIImageView
         BOOL isTrackClass = [view isKindOfClass:UILabel.class] || [view isKindOfClass:UIImageView.class];
-        BOOL isIgnored = ![view conformsToProtocol:@protocol(SAAutoTrackView)] || view.sensorsdata_isIgnored;
+        BOOL isIgnored = ![view conformsToProtocol:@protocol(SAAutoTrackViewProperty)] || view.sensorsdata_isIgnored;
         if (!isTrackClass || isIgnored) {
             return;
         }

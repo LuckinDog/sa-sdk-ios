@@ -2,7 +2,7 @@
 //  SAAutoTrackUtils.h
 //  SensorsAnalyticsSDK
 //
-//  Created by MC on 2019/4/22.
+//  Created by 张敏超 on 2019/4/22.
 //  Copyright © 2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@
     
 
 #import <UIKit/UIKit.h>
-#import "SAAutoTrack.h"
+#import "SAAutoTrackProperty.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController 需要采集的 ViewController
  @return 事件中与 ViewController 相关的属性字典
  */
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewController> *)viewController;
++ (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController;
 
 /**
  通过 AutoTrack 控件，获取事件的属性
@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param object 控件的对象，UIView 及其子类或 UIBarItem 的子类
  @return 事件属性字典
  */
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object;
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object;
 
 /**
  通过 AutoTrack 控件，获取事件的属性
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param isIgnoredViewPath 是否采集控件的 ViewPath
  @return 事件属性字典
  */
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object isIgnoredViewPath:(BOOL)isIgnoredViewPath;
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object isIgnoredViewPath:(BOOL)isIgnoredViewPath;
 
 /**
  通过 AutoTrack 控件，获取事件的属性
@@ -86,19 +86,52 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController 控件所在的 ViewController，当为 nil 时，自动采集当前界面上的 ViewController
  @return 事件属性字典
  */
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController;
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController;
 
 @end
 
 #pragma mark -
 @interface SAAutoTrackUtils (ViewPath)
 
+/**
+ 自动采集时，是否忽略这个 viewController 对象
+
+ @param viewController 需要判断的对象
+ @return 是否忽略
+ */
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController;
 
+/**
+ 创建 view 的唯一标识符
+
+ @param view 需要创建的对象
+ @return 唯一标识符
+ */
 + (NSString *)viewIdentifierForView:(UIView *)view;
+
+/**
+ 通过响应链找到 viewPath
+
+ @param responder 响应链中的对象，可以是 UIView 或者 UIViewController
+ @return 路径
+ */
 + (NSString *)itemPathForResponder:(UIResponder *)responder;
 
+/**
+ 找到 view 的路径数组
+
+ @param view 需要获取路径的 view
+ @return 路径数组
+ */
 + (NSArray<NSString *> *)viewPathsForView:(UIView *)view;
+
+/**
+ 获取 view 的路径字符串
+
+ @param view 需要获取路径的 view
+ @param viewController view 所在的 viewController
+ @return 路径字符串
+ */
 + (NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController;
 
 @end

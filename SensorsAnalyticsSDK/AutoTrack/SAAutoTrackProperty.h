@@ -1,8 +1,8 @@
 //
-//  SAAutoTrack.h
+//  SAAutoTrackProperty.h
 //  SensorsAnalyticsSDK
 //
-//  Created by MC on 2019/4/23.
+//  Created by 张敏超 on 2019/4/23.
 //  Copyright © 2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,14 +21,14 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol SAAutoTrackViewController <NSObject>
+@protocol SAAutoTrackViewControllerProperty <NSObject>
 @property (nonatomic, readonly) BOOL sensorsdata_isIgnored;
 @property (nonatomic, copy, readonly) NSString *sensorsdata_screenName;
 @property (nonatomic, copy, readonly) NSString *sensorsdata_title;
 @end
 
 #pragma mark -
-@protocol SAAutoTrackView <NSObject>
+@protocol SAAutoTrackViewProperty <NSObject>
 @property (nonatomic, readonly) BOOL sensorsdata_isIgnored;
 
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementType;
@@ -38,10 +38,10 @@
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementPosition;
 
 /// 获取 view 所在的 viewController，或者当前的 viewController
-@property (nonatomic, readonly) UIViewController<SAAutoTrackViewController> *sensorsdata_superViewController;
+@property (nonatomic, readonly) UIViewController<SAAutoTrackViewControllerProperty> *sensorsdata_superViewController;
 @end
 
 #pragma mark -
-@protocol SAAutoTrackViewPath <NSObject>
+@protocol SAAutoTrackViewPathProperty <NSObject>
 @property (nonatomic, copy, readonly) NSString *sensorsdata_itemPath;
 @end

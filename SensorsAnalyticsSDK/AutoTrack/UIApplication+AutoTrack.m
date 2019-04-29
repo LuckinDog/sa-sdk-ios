@@ -95,13 +95,13 @@
         return;
     } else
 #endif
-    if (![from conformsToProtocol:@protocol(SAAutoTrackView)] && ![to isKindOfClass:[UITabBarController class]]) {
+    if (![from conformsToProtocol:@protocol(SAAutoTrackViewProperty)] && ![to isKindOfClass:[UITabBarController class]]) {
         return;
     }
 
     BOOL isTabBar = [from isKindOfClass:[UITabBarItem class]] && [to isKindOfClass:[UITabBarController class]];
 
-    NSObject<SAAutoTrackView> *object = (NSObject<SAAutoTrackView> *)(isTabBar ? [(UITabBarController *)to tabBar] : from);
+    NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)(isTabBar ? [(UITabBarController *)to tabBar] : from);
     NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:isTabBar ? (UITabBarController *)to : nil];
     if (!properties) {
         return;

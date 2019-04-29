@@ -109,26 +109,26 @@
 #pragma mark -
 @implementation SAAutoTrackUtils (Property)
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewController> *)viewController {
++ (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
     properties[SA_EVENT_PROPERTY_TITLE] = viewController.sensorsdata_title;
     return [properties copy];
 }
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object {
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object {
     return [self propertiesWithAutoTrackObject:object viewController:nil isIgnoredViewPath:NO];
 }
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object isIgnoredViewPath:(BOOL)isIgnoredViewPath {
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object isIgnoredViewPath:(BOOL)isIgnoredViewPath {
     return [self propertiesWithAutoTrackObject:object viewController:nil isIgnoredViewPath:isIgnoredViewPath];
 }
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController {
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
     return [self propertiesWithAutoTrackObject:object viewController:viewController isIgnoredViewPath:NO];
 }
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackView>)object viewController:(nullable UIViewController<SAAutoTrackViewController> *)viewController isIgnoredViewPath:(BOOL)isIgnoredViewPath {
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController isIgnoredViewPath:(BOOL)isIgnoredViewPath {
     if (object.sensorsdata_isIgnored) {
         return nil;
     }
@@ -178,28 +178,28 @@
     return !isEnableVisualizedAutoTrack && !isEnableHeatMap;
 }
 
-+ (NSArray<NSString *> *)viewPathsForViewController:(UIViewController<SAAutoTrackViewPath> *)viewController {
++ (NSArray<NSString *> *)viewPathsForViewController:(UIViewController<SAAutoTrackViewPathProperty> *)viewController {
     NSMutableArray *viewPaths = [NSMutableArray array];
     do {
         [viewPaths addObject:viewController.sensorsdata_itemPath];
-        viewController = (UIViewController<SAAutoTrackViewPath> *)viewController.parentViewController;
+        viewController = (UIViewController<SAAutoTrackViewPathProperty> *)viewController.parentViewController;
     } while (viewController);
 
-    UIViewController<SAAutoTrackViewPath> *vc = (UIViewController<SAAutoTrackViewPath> *)viewController.presentingViewController;
-    if ([vc conformsToProtocol:@protocol(SAAutoTrackViewPath)]) {
+    UIViewController<SAAutoTrackViewPathProperty> *vc = (UIViewController<SAAutoTrackViewPathProperty> *)viewController.presentingViewController;
+    if ([vc conformsToProtocol:@protocol(SAAutoTrackViewPathProperty)]) {
         [viewPaths addObjectsFromArray:[self viewPathsForViewController:vc]];
     }
     return viewPaths;
 }
 
-+ (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPath> *)view {
++ (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPathProperty> *)view {
     NSMutableArray *viewPathArray = [NSMutableArray array];
     do {
         [viewPathArray addObject:view.sensorsdata_itemPath];
     } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class] && ![view isKindOfClass:UIWindow.class]);
 
-    if ([view isKindOfClass:UIViewController.class] && [view conformsToProtocol:@protocol(SAAutoTrackViewPath)]) {
-        [viewPathArray addObjectsFromArray:[self viewPathsForViewController:(UIViewController<SAAutoTrackViewPath> *)view]];
+    if ([view isKindOfClass:UIViewController.class] && [view conformsToProtocol:@protocol(SAAutoTrackViewPathProperty)]) {
+        [viewPathArray addObjectsFromArray:[self viewPathsForViewController:(UIViewController<SAAutoTrackViewPathProperty> *)view]];
     }
     return viewPathArray;
 }
