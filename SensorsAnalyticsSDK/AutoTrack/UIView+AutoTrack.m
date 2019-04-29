@@ -113,10 +113,6 @@
 
 @implementation UILabel (AutoTrack)
 
-- (NSString *)sensorsdata_elementType {
-    return @"UILabel";
-}
-
 - (NSString *)sensorsdata_elementContent {
     return self.text;
 }
@@ -124,10 +120,6 @@
 @end
 
 @implementation UIImageView (AutoTrack)
-
-- (NSString *)sensorsdata_elementType {
-    return @"UIImageView";
-}
 
 - (NSString *)sensorsdata_elementContent {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
@@ -151,10 +143,6 @@
 
 @implementation UITabBar (AutoTrack)
 
-- (NSString *)sensorsdata_elementType {
-    return @"UITabBar";
-}
-
 - (NSString *)sensorsdata_elementContent {
     return self.selectedItem.title;
 }
@@ -168,10 +156,6 @@
 @end
 
 @implementation UISearchBar (AutoTrack)
-
-- (NSString *)sensorsdata_elementType {
-    return @"UISearchBar";
-}
 
 - (NSString *)sensorsdata_elementContent {
     return self.text;
@@ -206,19 +190,7 @@
 
 #pragma mark - UIControl
 
-@implementation UIControl (AutoTrack)
-
-- (NSString *)sensorsdata_elementType {
-    return @"UIControl";
-}
-
-@end
-
 @implementation UIButton (AutoTrack)
-
-- (NSString *)sensorsdata_elementType {
-    return @"UIButton";
-}
 
 - (NSString *)sensorsdata_elementContent {
     NSString *text = super.sensorsdata_elementContent;
@@ -237,10 +209,6 @@
 
 @implementation UISwitch (AutoTrack)
 
-- (NSString *)sensorsdata_elementType {
-    return @"UISwitch";
-}
-
 - (NSString *)sensorsdata_elementContent {
     return self.on ? @"checked" : @"unchecked";
 }
@@ -248,10 +216,6 @@
 @end
 
 @implementation UIStepper (AutoTrack)
-
-- (NSString *)sensorsdata_elementType {
-    return @"UIStepper";
-}
 
 - (NSString *)sensorsdata_elementContent {
     return [NSString stringWithFormat:@"%g", self.value];
@@ -263,10 +227,6 @@
 
 - (BOOL)sensorsdata_isIgnored {
     return super.sensorsdata_isIgnored && self.selectedSegmentIndex == UISegmentedControlNoSegment;
-}
-
-- (NSString *)sensorsdata_elementType {
-    return @"UISegmentedControl";
 }
 
 - (NSString *)sensorsdata_elementContent {
@@ -289,10 +249,6 @@
 - (BOOL)sensorsdata_isIgnored {
     NSLog(@"%d, %d", self.tracking, self.touchInside);
     return (!self.tracking && self.touchInside) || super.sensorsdata_isIgnored;
-}
-
-- (NSString *)sensorsdata_elementType {
-    return @"UISlider";
 }
 
 - (NSString *)sensorsdata_elementContent {
