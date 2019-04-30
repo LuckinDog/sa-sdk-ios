@@ -242,7 +242,7 @@
             index = count - 1;
         }
     }
-    return count == 1 ? classString : [NSString stringWithFormat:@"%@[%lu]", classString, index];
+    return count == 1 ? classString : [NSString stringWithFormat:@"%@[%ld]", classString, (long)index];
 }
 
 + (NSString *)viewIdentifierForView:(UIView *)view {

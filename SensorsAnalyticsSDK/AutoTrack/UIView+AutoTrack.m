@@ -176,10 +176,10 @@
     }
     for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
         if (self == [tableView headerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionHeader][%ld]", i];
+            return [NSString stringWithFormat:@"[SectionHeader][%ld]", (long)i];
         }
         if (self == [tableView footerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionFooter][%ld]", i];
+            return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
         }
     }
 
