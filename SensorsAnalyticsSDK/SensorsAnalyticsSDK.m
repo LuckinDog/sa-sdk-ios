@@ -3396,18 +3396,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 @end
 
-@implementation SensorsAnalyticsSDK (AuthenticationChallenge)
-
-- (void)setSessionDidReceiveAuthenticationChallengeBlock:(NSURLSessionAuthChallengeDisposition (^)(NSURLSession * _Nonnull, NSURLAuthenticationChallenge * _Nonnull, NSURLCredential *__autoreleasing  _Nullable * _Nullable))block {
-    [self.network setSessionDidReceiveAuthenticationChallengeBlock:block];
-}
-
-- (void)setTaskDidReceiveAuthenticationChallengeBlock:(NSURLSessionAuthChallengeDisposition (^)(NSURLSession * _Nonnull, NSURLSessionTask * _Nonnull, NSURLAuthenticationChallenge * _Nonnull, NSURLCredential *__autoreleasing  _Nullable * _Nullable))block {
-    [self.network setTaskDidReceiveAuthenticationChallengeBlock:block];
-}
-
-@end
-
 #pragma mark - People analytics
 
 @implementation SensorsAnalyticsPeople

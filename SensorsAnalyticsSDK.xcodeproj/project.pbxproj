@@ -203,7 +203,9 @@
 		A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E3889E1D509B7100F6B9FC /* SAReachability.m */; };
 		A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3EEDCE81C4E084200D1362F /* DemoController.m */; };
 		A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
-		CB143B44223B528B00A2CBF2 /* cert.cer1 in Resources */ = {isa = PBXBuildFile; fileRef = CB143B43223B528B00A2CBF2 /* cert.cer1 */; };
+		CB08B0372278276A00C7B698 /* ca.der.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB08B0362278276A00C7B698 /* ca.der.cer */; };
+		CB08B03B227827FB00C7B698 /* cert.outdate.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB08B03A227827FB00C7B698 /* cert.outdate.cer */; };
+		CB08B03E2278286F00C7B698 /* ca.cer1 in Resources */ = {isa = PBXBuildFile; fileRef = CB08B03D2278286F00C7B698 /* ca.cer1 */; };
 		CB143B45223B606A00A2CBF2 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
 		CB143B46223B607700A2CBF2 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
 		CB143B47223BA17700A2CBF2 /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */; };
@@ -214,7 +216,6 @@
 		CB2D018B22379F7400A958C5 /* libSensorsAnalyticsSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D5CA7771B43E92D00D7ACB7 /* libSensorsAnalyticsSDK.a */; };
 		CB2D019222379FB700A958C5 /* SANetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2D019122379FB700A958C5 /* SANetworkTests.m */; };
 		CB2D01932237A10800A958C5 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SANetwork.m */; };
-		CB2D019C2237B79100A958C5 /* cert.der.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB2D01992237B79100A958C5 /* cert.der.cer */; };
 		CB54EF8B223D0E95007E648E /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB54EF8A223D0E95007E648E /* SensorsAnalyticsTests.m */; };
 		CB7D065C2275987A0067F2A9 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F152269699100663D00 /* SAHeatMapSnapshotMessage.m */; };
 		CB7D065D227598830067F2A9 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
@@ -437,7 +438,9 @@
 		A3EEDCE71C4E081F00D1362F /* DemoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoController.h; sourceTree = "<group>"; };
 		A3EEDCE81C4E084200D1362F /* DemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoController.m; sourceTree = "<group>"; };
 		A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
-		CB143B43223B528B00A2CBF2 /* cert.cer1 */ = {isa = PBXFileReference; lastKnownFileType = text; path = cert.cer1; sourceTree = "<group>"; };
+		CB08B0362278276A00C7B698 /* ca.der.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = ca.der.cer; sourceTree = "<group>"; };
+		CB08B03A227827FB00C7B698 /* cert.outdate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = cert.outdate.cer; sourceTree = "<group>"; };
+		CB08B03D2278286F00C7B698 /* ca.cer1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ca.cer1; sourceTree = "<group>"; };
 		CB164694223A4D1A003AA635 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		CB164695223A4D1B003AA635 /* SASecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASecurityPolicy.h; sourceTree = "<group>"; };
 		CB2CDD2E22324875000C1F92 /* SANetwork.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SANetwork.h; sourceTree = "<group>"; };
@@ -445,7 +448,6 @@
 		CB2D018622379F7300A958C5 /* SensorsAnalyticsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SensorsAnalyticsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB2D018A22379F7400A958C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB2D019122379FB700A958C5 /* SANetworkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SANetworkTests.m; sourceTree = "<group>"; };
-		CB2D01992237B79100A958C5 /* cert.der.cer */ = {isa = PBXFileReference; lastKnownFileType = file; name = cert.der.cer; path = SensorsAnalyticsSDK/cert.der.cer; sourceTree = SOURCE_ROOT; };
 		CB54EF8A223D0E95007E648E /* SensorsAnalyticsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsTests.m; sourceTree = "<group>"; };
 		CB8F40BC22685F75009FF904 /* SANetwork+URLUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SANetwork+URLUtils.h"; sourceTree = "<group>"; };
 		CB8F40BD22685F75009FF904 /* SANetwork+URLUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SANetwork+URLUtils.m"; sourceTree = "<group>"; };
@@ -736,6 +738,16 @@
 			path = SensorsDataSwiftDemo;
 			sourceTree = "<group>";
 		};
+		CB08B03C227827FF00C7B698 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CB08B03D2278286F00C7B698 /* ca.cer1 */,
+				CB08B0362278276A00C7B698 /* ca.der.cer */,
+				CB08B03A227827FB00C7B698 /* cert.outdate.cer */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		CB2CDD2D223247C9000C1F92 /* Network */ = {
 			isa = PBXGroup;
 			children = (
@@ -752,8 +764,7 @@
 		CB2D018722379F7400A958C5 /* SensorsAnalyticsTests */ = {
 			isa = PBXGroup;
 			children = (
-				CB2D01992237B79100A958C5 /* cert.der.cer */,
-				CB143B43223B528B00A2CBF2 /* cert.cer1 */,
+				CB08B03C227827FF00C7B698 /* Resources */,
 				CB54EF8A223D0E95007E648E /* SensorsAnalyticsTests.m */,
 				CB2D019122379FB700A958C5 /* SANetworkTests.m */,
 				CB2D018A22379F7400A958C5 /* Info.plist */,
@@ -1063,8 +1074,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB143B44223B528B00A2CBF2 /* cert.cer1 in Resources */,
-				CB2D019C2237B79100A958C5 /* cert.der.cer in Resources */,
+				CB08B03E2278286F00C7B698 /* ca.cer1 in Resources */,
+				CB08B03B227827FB00C7B698 /* cert.outdate.cer in Resources */,
+				CB08B0372278276A00C7B698 /* ca.der.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

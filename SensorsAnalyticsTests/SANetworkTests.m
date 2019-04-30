@@ -101,7 +101,7 @@
 
 
 #pragma mark - Certificate
-// 测试项目中有两个证书。cert.der.cer DER 格式的证书；cert.cer1 为 CER 格式的原始证书，若修改后缀为 cer，会崩溃
+// 测试项目中有两个证书。ca.der.cer DER 格式的证书；ca.cer1 为 CER 格式的过期原始证书，若修改后缀为 cer，会崩溃；ca.outdate.cer 为过期证书
 - (void)testCustomCertificate {
     NSURL *url = [NSURL URLWithString:@"https://test.kbyte.cn:4106/sa"];
     SANetwork *network = [[SANetwork alloc] initWithServerURL:url];

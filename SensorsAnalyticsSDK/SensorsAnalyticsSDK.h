@@ -1108,67 +1108,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark -
-/**
- 使用下面的两个接口可以自定义 Https 请求的证书验证方式，如果使用了 AFNetworking，可以使用 AFSecurityPolicy 进行证书验证，代码如下：
-    [[SensorsAnalyticsSDK sharedInstance] setSessionDidReceiveAuthenticationChallengeBlock:^NSURLSessionAuthChallengeDisposition(NSURLSession * _Nonnull session,  NSURLAuthenticationChallenge * _Nonnull challenge,  NSURLCredential *__autoreleasing  _Nullable * _Nullable credential) {
-        AFSecurityPolicy *policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeCertificate];
-        policy.allowInvalidCertificates = YES;
-        policy.validatesDomainName = NO;
-        NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-            if ([policy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) {
-                *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-                if (credential) {
-                    disposition = NSURLSessionAuthChallengeUseCredential;
-                } else {
-                    disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-                }
-            } else {
-                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
-            }
-        } else {
-            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-        }
-        return disposition;
-    }];
-
-    [[SensorsAnalyticsSDK sharedInstance] setTaskDidReceiveAuthenticationChallengeBlock:^NSURLSessionAuthChallengeDisposition(NSURLSession * _Nonnull session, NSURLSessionTask * _Nonnull  task, NSURLAuthenticationChallenge * _Nonnull challenge, NSURLCredential *__autoreleasing  _Nullable * _Nullable credential) {
-        AFSecurityPolicy *policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeCertificate];
-        policy.allowInvalidCertificates = YES;
-        policy.validatesDomainName = NO;
-        NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-            if ([policy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) {
-                disposition = NSURLSessionAuthChallengeUseCredential;
-                *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-            } else {
-                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
-            }
-        } else {
-            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-        }
-        return disposition;
-    }];
- */
-@interface SensorsAnalyticsSDK (AuthenticationChallenge)
-
-/**
- 设置自定义的证书验证回调，在 `NSURLSessionDelegate` 的 `URLSession:didReceiveChallenge:completionHandler:` 方法中处理。
-
- @param block 自定义的证书验证回调
- */
-- (void)setSessionDidReceiveAuthenticationChallengeBlock:(nullable NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * _Nullable __autoreleasing * _Nullable credential))block;
-
-/**
- 设置 NSURLSessionTask 发送一个请求的时候需要执行的证书验证回调，在 `NSURLSessionTaskDelegate` 的 `URLSession:task:didReceiveChallenge:completionHandler:` 方法中处理。
-
- @param block 回调的 Block
- */
-- (void)setTaskDidReceiveAuthenticationChallengeBlock:(nullable NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * _Nullable __autoreleasing * _Nullable credential))block;
-
-@end
-
 #pragma mark - Deprecated
 @interface SensorsAnalyticsSDK (Deprecated)
 

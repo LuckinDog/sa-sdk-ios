@@ -81,7 +81,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
             serverURL = [serverURL URLByDeletingLastPathComponent];
         }
         NSURL *url = [serverURL URLByAppendingPathComponent:@"debug"];
-        if ([url.host containsString:@"_"]) { //包含下划线日志提示
+        if ([url.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
             NSString * referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
             SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
         }
