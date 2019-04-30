@@ -35,8 +35,6 @@
 		00DC9CDA1D7E9D9D00C7DF6C /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */; };
 		00DC9CDC1D7E9E3F00C7DF6C /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
 		00DC9CDF1D7E9EC900C7DF6C /* JSCallOCViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CDE1D7E9EC900C7DF6C /* JSCallOCViewController2.m */; };
-		4D0E41C3226EB9B800D775C5 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
-		4D0E41C4226EB9D100D775C5 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F152269699100663D00 /* SAHeatMapSnapshotMessage.m */; };
 		4D0EB7C31B47A88C0019FD21 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C21B47A88C0019FD21 /* main.m */; };
 		4D0EB7C61B47A88C0019FD21 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C51B47A88C0019FD21 /* AppDelegate.m */; };
 		4D0EB7C91B47A88C0019FD21 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C81B47A88C0019FD21 /* ViewController.m */; };
@@ -208,7 +206,7 @@
 		CB143B46223B607700A2CBF2 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
 		CB143B47223BA17700A2CBF2 /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */; };
 		CB164696223A4D1B003AA635 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB164694223A4D1A003AA635 /* SASecurityPolicy.m */; };
-		CB164697223A4D1B003AA635 /* SASecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = CB164695223A4D1B003AA635 /* SASecurityPolicy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CB164697223A4D1B003AA635 /* SASecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = CB164695223A4D1B003AA635 /* SASecurityPolicy.h */; };
 		CB2CDD3022324875000C1F92 /* SANetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = CB2CDD2E22324875000C1F92 /* SANetwork.h */; };
 		CB2CDD3122324875000C1F92 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SANetwork.m */; };
 		CB2D018B22379F7400A958C5 /* libSensorsAnalyticsSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D5CA7771B43E92D00D7ACB7 /* libSensorsAnalyticsSDK.a */; };
@@ -1210,8 +1208,6 @@
 			files = (
 				A1D1C56B1FB445BC006685C1 /* ViewController.swift in Sources */,
 				A1D1C5691FB445BC006685C1 /* AppDelegate.swift in Sources */,
-				4D0E41C4226EB9D100D775C5 /* SAHeatMapSnapshotMessage.m in Sources */,
-				4D0E41C3226EB9B800D775C5 /* SAAbstractHeatMapMessage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
