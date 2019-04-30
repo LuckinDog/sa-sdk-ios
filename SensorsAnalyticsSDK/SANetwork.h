@@ -22,13 +22,13 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SASecurityPolicy.h"
 
-typedef void(^SAURLSessionTaskCompletionHandler)(NSData *data, NSHTTPURLResponse *response, NSError *error);
-
 NS_ASSUME_NONNULL_BEGIN
+
+typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error);
 
 @interface SANetwork : NSObject
 
-/// The security policy used by created session to evaluate server trust for secure connections. `AFURLSessionManager` uses the `defaultPolicy` unless otherwise specified.
+/// 用于评价请求是否是服务器信任的链接，默认为：defaultPolicy
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 /// 服务器的 URL
 @property (nonatomic, strong) NSURL *serverURL;

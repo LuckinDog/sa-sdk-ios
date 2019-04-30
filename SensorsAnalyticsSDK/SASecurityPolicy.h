@@ -19,13 +19,18 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SensorsAnalyticsSDK.h"
 
 /**
  SASecurityPolicy was copied from AFSecurityPolicy and renamed.
  Use it the same way as AFSecurityPolicy
  Thanks AFNetworking: https://github.com/AFNetworking/AFNetworking
  */
+
+typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
+    SASSLPinningModeNone,
+    SASSLPinningModePublicKey,
+    SASSLPinningModeCertificate,
+};
 
 /**
  `SASecurityPolicy` evaluates server trust against pinned X.509 certificates and public keys over secure connections.

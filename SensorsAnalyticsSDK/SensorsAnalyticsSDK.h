@@ -20,6 +20,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
+#import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
 
@@ -69,22 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-
-/**
- * @abstract
- * HTTPS 请求证书类型。默认为 None。
- * 请将后缀为 cer 的证书文件（注：只支持 DER 编码格式）加入工程中，设置证书类型后，会自动读取证书内容
- *
- * @discussion
- *   SASSLPinningModeNone - 不使用证书
- *   SASSLPinningModePublicKey - 使用公众证书
- *   SASSLPinningModeCertificate - 使用自签证书
- */
-typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
-    SASSLPinningModeNone,
-    SASSLPinningModePublicKey,
-    SASSLPinningModeCertificate,
-};
 
 /**
  * @abstract
@@ -154,6 +139,15 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
  * 默认值为 YES
  */
 @property (atomic) BOOL flushBeforeEnterBackground;
+
+/**
+ @abstract
+ 用于评估是否为服务器信任的安全链接。
+
+ @discussion
+ 默认使用 defaultPolicy
+ */
+@property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 
 /**
  * @property
@@ -266,7 +260,6 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
  * @discussion
  * 默认为 10000 条事件
  *
- * @param maxCacheSize 本地缓存最多事件条数
  */
 @property (nonatomic, getter = getMaxCacheSize) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
 - (UInt64)getMaxCacheSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
@@ -1115,6 +1108,67 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
 
 @end
 
+#pragma mark -
+/**
+ 使用下面的两个接口可以自定义 Https 请求的证书验证方式，如果使用了 AFNetworking，可以使用 AFSecurityPolicy 进行证书验证，代码如下：
+    [[SensorsAnalyticsSDK sharedInstance] setSessionDidReceiveAuthenticationChallengeBlock:^NSURLSessionAuthChallengeDisposition(NSURLSession * _Nonnull session,  NSURLAuthenticationChallenge * _Nonnull challenge,  NSURLCredential *__autoreleasing  _Nullable * _Nullable credential) {
+        AFSecurityPolicy *policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeCertificate];
+        policy.allowInvalidCertificates = YES;
+        policy.validatesDomainName = NO;
+        NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+            if ([policy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) {
+                *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+                if (credential) {
+                    disposition = NSURLSessionAuthChallengeUseCredential;
+                } else {
+                    disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+                }
+            } else {
+                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
+            }
+        } else {
+            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+        }
+        return disposition;
+    }];
+
+    [[SensorsAnalyticsSDK sharedInstance] setTaskDidReceiveAuthenticationChallengeBlock:^NSURLSessionAuthChallengeDisposition(NSURLSession * _Nonnull session, NSURLSessionTask * _Nonnull  task, NSURLAuthenticationChallenge * _Nonnull challenge, NSURLCredential *__autoreleasing  _Nullable * _Nullable credential) {
+        AFSecurityPolicy *policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeCertificate];
+        policy.allowInvalidCertificates = YES;
+        policy.validatesDomainName = NO;
+        NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+            if ([policy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) {
+                disposition = NSURLSessionAuthChallengeUseCredential;
+                *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+            } else {
+                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
+            }
+        } else {
+            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+        }
+        return disposition;
+    }];
+ */
+@interface SensorsAnalyticsSDK (AuthenticationChallenge)
+
+/**
+ 设置自定义的证书验证回调，在 `NSURLSessionDelegate` 的 `URLSession:didReceiveChallenge:completionHandler:` 方法中处理。
+
+ @param block 自定义的证书验证回调
+ */
+- (void)setSessionDidReceiveAuthenticationChallengeBlock:(nullable NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * _Nullable __autoreleasing * _Nullable credential))block;
+
+/**
+ 设置 NSURLSessionTask 发送一个请求的时候需要执行的证书验证回调，在 `NSURLSessionTaskDelegate` 的 `URLSession:task:didReceiveChallenge:completionHandler:` 方法中处理。
+
+ @param block 回调的 Block
+ */
+- (void)setTaskDidReceiveAuthenticationChallengeBlock:(nullable NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * _Nullable __autoreleasing * _Nullable credential))block;
+
+@end
+
 #pragma mark - Deprecated
 @interface SensorsAnalyticsSDK (Deprecated)
 
@@ -1243,7 +1297,7 @@ typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
  * 神策 SDK 会处理 点击图，可视化全埋点url
  * @discussion
  *  目前处理 heatmap，visualized
- * @param url
+ * @param url 点击图的 url
  * @return YES/NO
  */
 - (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));

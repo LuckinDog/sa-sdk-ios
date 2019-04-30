@@ -3386,12 +3386,24 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 }
 
-- (void)setSSLPinningMode:(SASSLPinningMode)SSLPinningMode allowInvalidCertificates:(BOOL)isAllowed validatesDomainName:(BOOL)isValidated {
-    SASecurityPolicy *securityPolicy = [SASecurityPolicy policyWithPinningMode:SSLPinningMode];
-    securityPolicy.allowInvalidCertificates = isAllowed;
-    securityPolicy.validatesDomainName = isValidated;
-    
+- (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
     self.network.securityPolicy = securityPolicy;
+}
+
+- (SASecurityPolicy *)securityPolicy {
+    return self.network.securityPolicy;
+}
+
+@end
+
+@implementation SensorsAnalyticsSDK (AuthenticationChallenge)
+
+- (void)setSessionDidReceiveAuthenticationChallengeBlock:(NSURLSessionAuthChallengeDisposition (^)(NSURLSession * _Nonnull, NSURLAuthenticationChallenge * _Nonnull, NSURLCredential *__autoreleasing  _Nullable * _Nullable))block {
+    [self.network setSessionDidReceiveAuthenticationChallengeBlock:block];
+}
+
+- (void)setTaskDidReceiveAuthenticationChallengeBlock:(NSURLSessionAuthChallengeDisposition (^)(NSURLSession * _Nonnull, NSURLSessionTask * _Nonnull, NSURLAuthenticationChallenge * _Nonnull, NSURLCredential *__autoreleasing  _Nullable * _Nullable))block {
+    [self.network setTaskDidReceiveAuthenticationChallengeBlock:block];
 }
 
 @end
