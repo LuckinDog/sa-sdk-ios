@@ -26,7 +26,6 @@
 #import "UIApplication+AutoTrack.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
-#import "AutoTrackUtils.h"
 #import "UIView+SAHelpers.h"
 #import "UIView+AutoTrack.h"
 #import "SAConstants+Private.h"

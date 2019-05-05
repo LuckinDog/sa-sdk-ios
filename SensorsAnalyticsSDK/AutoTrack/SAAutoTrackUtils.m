@@ -22,6 +22,7 @@
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+SAHelpers.h"
+#import "UIScrollView+AutoTrack.h"
 
 @implementation SAAutoTrackUtils
 
@@ -242,7 +243,7 @@
             index = count - 1;
         }
     }
-    return count == 1 ? classString : [NSString stringWithFormat:@"%@[%ld]", classString, (long)index];
+    return count <= 1 ? classString : [NSString stringWithFormat:@"%@[%ld]", classString, (long)index];
 }
 
 + (NSString *)viewIdentifierForView:(UIView *)view {
@@ -275,4 +276,58 @@
 
 #pragma mark -
 @implementation SAAutoTrackUtils (IndexPath)
+
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtindexPath:(NSIndexPath *)indexPath {
+    if (object.sensorsdata_isIgnored) {
+        return nil;
+    }
+    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+
+    id<SAAutoTrackCellProperty> cell = nil;
+    if ([object isKindOfClass:UITableView.class]) {
+        UITableView *tableView = (UITableView *)object;
+        cell = [tableView cellForRowAtIndexPath:indexPath];
+        if (!cell) {
+            [tableView layoutIfNeeded];
+            cell = [tableView cellForRowAtIndexPath:indexPath];
+        }
+    } else if ([object isKindOfClass:UICollectionView.class]) {
+        UICollectionView *collectionView = (UICollectionView *)object;
+        cell = [collectionView cellForItemAtIndexPath:indexPath];
+        if (!cell) {
+            [collectionView layoutIfNeeded];
+            cell = [collectionView cellForItemAtIndexPath:indexPath];
+        }
+    } else {
+        return nil;
+    }
+
+    // ViewID
+    properties[SA_EVENT_PROPERTY_ELEMENT_ID] = cell.sensorsdata_elementId;
+
+    UIViewController<SAAutoTrackViewControllerProperty> *viewController = cell.sensorsdata_superViewController;
+    if (viewController.sensorsdata_isIgnored) {
+        return nil;
+    }
+    NSDictionary *dic = [self propertiesWithViewController:viewController];
+    [properties addEntriesFromDictionary:dic];
+
+    properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = cell.sensorsdata_elementType;
+    properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = cell.sensorsdata_elementContent;
+    properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = [cell sensorsdata_elementPositionWithIndexPath:indexPath];
+
+    //View Properties
+    NSDictionary *propDict = ((UIView *)object).sensorsAnalyticsViewProperties;
+    if (propDict != nil) {
+        [properties addEntriesFromDictionary:propDict];
+    }
+
+    NSString *viewPath = [self viewPathForView:((UIView *)cell).superview atViewController:viewController];
+    if (viewPath) {
+        properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@[%ld][%ld]", viewPath, NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.row];
+    }
+
+    return [properties copy];
+}
+
 @end

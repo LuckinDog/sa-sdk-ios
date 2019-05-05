@@ -42,7 +42,6 @@
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SASwizzle.h"
-#import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
@@ -93,31 +92,7 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 @implementation UIView (SensorsAnalytics)
 - (UIViewController *)sensorsAnalyticsViewController {
-    UIResponder *next = self.nextResponder;
-    do {
-        if ([next isKindOfClass:UIViewController.class]) {
-            UIViewController *vc = (UIViewController *)next;
-            if ([vc isKindOfClass:UINavigationController.class]) {
-                next = [(UINavigationController *)vc topViewController];
-                break;
-            } else if([vc isKindOfClass:UITabBarController.class]) {
-                next = [(UITabBarController *)vc selectedViewController];
-                break;
-            }
-            UIViewController *parentVC = vc.parentViewController;
-            if (parentVC) {
-                if ([parentVC isKindOfClass:UINavigationController.class]||
-                    [parentVC isKindOfClass:UITabBarController.class]||
-                    [parentVC isKindOfClass:UIPageViewController.class]||
-                    [parentVC isKindOfClass:UISplitViewController.class]) {
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-    } while ((next=next.nextResponder));
-    return [next isKindOfClass:UIViewController.class]?(UIViewController *)next:nil;
+    return self.sensorsdata_superViewController;
 }
 
 //viewID
