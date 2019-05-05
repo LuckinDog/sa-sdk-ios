@@ -20,6 +20,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
+#import "SAConfigOptions.h"
+#import "SAConstants.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class SensorsAnalyticsPeople;
@@ -41,7 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 //UICollectionView
 @optional
 - (NSDictionary *)sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
-
 @end
 
 @interface UIImage (SensorsAnalytics)
@@ -51,98 +53,22 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SensorsAnalytics)
 - (nullable UIViewController *)sensorsAnalyticsViewController;
 
-//viewID
+/// viewID
 @property (nonatomic, copy) NSString* sensorsAnalyticsViewID;
 
-//AutoTrack 时，是否忽略该 View
+/// AutoTrack 时，是否忽略该 View
 @property (nonatomic, assign) BOOL sensorsAnalyticsIgnoreView;
 
-//AutoTrack 发生在 SendAction 之前还是之后，默认是 SendAction 之前
+/// AutoTrack 发生在 SendAction 之前还是之后，默认是 SendAction 之前
 @property (nonatomic, assign) BOOL sensorsAnalyticsAutoTrackAfterSendAction;
 
-//AutoTrack 时，View 的扩展属性
+/// AutoTrack 时，View 的扩展属性
 @property (nonatomic, strong) NSDictionary* sensorsAnalyticsViewProperties;
 
 @property (nonatomic, weak, nullable) id sensorsAnalyticsDelegate;
 @end
 
-/**
- * @abstract
- * Debug 模式，用于检验数据导入是否正确。该模式下，事件会逐条实时发送到 SensorsAnalytics，并根据返回值检查
- * 数据导入是否正确。
- *
- * @discussion
- * Debug 模式的具体使用方式，请参考:
- *  http://www.sensorsdata.cn/manual/debug_mode.html
- *
- * Debug模式有三种选项:
- *   SensorsAnalyticsDebugOff - 关闭 DEBUG 模式
- *   SensorsAnalyticsDebugOnly - 打开 DEBUG 模式，但该模式下发送的数据仅用于调试，不进行数据导入
- *   SensorsAnalyticsDebugAndTrack - 打开 DEBUG 模式，并将数据导入到 SensorsAnalytics 中
- */
-typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
-    SensorsAnalyticsDebugOff,
-    SensorsAnalyticsDebugOnly,
-    SensorsAnalyticsDebugAndTrack,
-};
 
-/**
- * @abstract
- * TrackTimer 接口的时间单位。调用该接口时，传入时间单位，可以设置 event_duration 属性的时间单位。
- *
- * @discuss
- * 时间单位有以下选项：
- *   SensorsAnalyticsTimeUnitMilliseconds - 毫秒
- *   SensorsAnalyticsTimeUnitSeconds - 秒
- *   SensorsAnalyticsTimeUnitMinutes - 分钟
- *   SensorsAnalyticsTimeUnitHours - 小时
- */
-typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
-    SensorsAnalyticsTimeUnitMilliseconds,
-    SensorsAnalyticsTimeUnitSeconds,
-    SensorsAnalyticsTimeUnitMinutes,
-    SensorsAnalyticsTimeUnitHours
-};
-
-
-/**
- * @abstract
- * AutoTrack 中的事件类型
- *
- * @discussion
- *   SensorsAnalyticsEventTypeAppStart - $AppStart
- *   SensorsAnalyticsEventTypeAppEnd - $AppEnd
- *   SensorsAnalyticsEventTypeAppClick - $AppClick
- *   SensorsAnalyticsEventTypeAppViewScreen - $AppViewScreen
- */
-typedef NS_OPTIONS(NSInteger, SensorsAnalyticsAutoTrackEventType) {
-    SensorsAnalyticsEventTypeNone      = 0,
-    SensorsAnalyticsEventTypeAppStart      = 1 << 0,
-    SensorsAnalyticsEventTypeAppEnd        = 1 << 1,
-    SensorsAnalyticsEventTypeAppClick      = 1 << 2,
-    SensorsAnalyticsEventTypeAppViewScreen = 1 << 3,
-};
-
-/**
- * @abstract
- * 网络类型
- *
- * @discussion
- *   SensorsAnalyticsNetworkTypeNONE - NULL
- *   SensorsAnalyticsNetworkType2G - 2G
- *   SensorsAnalyticsNetworkType3G - 3G
- *   SensorsAnalyticsNetworkType4G - 4G
- *   SensorsAnalyticsNetworkTypeWIFI - WIFI
- *   SensorsAnalyticsNetworkTypeALL - ALL
- */
-typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
-    SensorsAnalyticsNetworkTypeNONE      = 0,
-    SensorsAnalyticsNetworkType2G       = 1 << 0,
-    SensorsAnalyticsNetworkType3G       = 1 << 1,
-    SensorsAnalyticsNetworkType4G       = 1 << 2,
-    SensorsAnalyticsNetworkTypeWIFI     = 1 << 3,
-    SensorsAnalyticsNetworkTypeALL      = 0xFF,
-};
 
 /**
  * @abstract
@@ -164,37 +90,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 - (NSString *)getScreenUrl;
 
 @end
-
-/**
- * @class
- *  SensorsAnalyticsSDK 初始化配置
- */
-@interface SAConfigOptions : NSObject
-
-/**
- 指定初始化方法，设置 serverURL
- 
- @param serverUrl 数据接收地址
- @return 配置对象
- */
-- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;
-
-/**
- 禁用 init 初始化
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-/**
- 禁用 new 初始化
- */
-+ (instancetype)new NS_UNAVAILABLE;
-
-/**
- 请求配置地址，默认从 ServerUrl 解析
- */
-@property (nonatomic, copy) NSString *remoteConfigURL;
-@end
-
 
 /**
  * @class
@@ -260,7 +155,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 如果满足这两个条件之一，则向服务器发送一次数据；如果都不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
  */
-@property (atomic) UInt64 flushInterval;
+@property (atomic) UInt64 flushInterval __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushInterval")));
 
 /**
  * @property
@@ -277,7 +172,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */
-@property (atomic) UInt64 flushBulkSize;
+@property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
 #pragma mark- init instance
 
 /**
@@ -347,6 +242,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(nullable NSDictionary *)propertyDict;
 
 #pragma mark--cache and flush
+
 /**
  * @abstract
  * 设置本地缓存最多事件条数
@@ -356,9 +252,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @param maxCacheSize 本地缓存最多事件条数
  */
-- (void)setMaxCacheSize:(UInt64)maxCacheSize;
-
-- (UInt64)getMaxCacheSize;
+@property (nonatomic, getter = getMaxCacheSize) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
+- (UInt64)getMaxCacheSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
 
 /**
  * @abstract
@@ -405,7 +300,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @abstract
  * 自动收集 App Crash 日志，该功能默认是关闭的
  */
-- (void)trackAppCrash;
+- (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash")));
 
 /**
  * @property
@@ -417,7 +312,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType;
+- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
 
 /**
  * @abstract
