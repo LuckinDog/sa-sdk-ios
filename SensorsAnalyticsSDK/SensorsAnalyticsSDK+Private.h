@@ -76,13 +76,11 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
  私有 property
  */
 @interface SAConfigOptions()
-/**
- 数据接收地址 Url
- */
+
+/// 数据接收地址 serverURL
 @property(nonatomic, copy) NSString *serverURL;
-/**
- App 启动的 launchOptions
- */
+
+/// App 启动的 launchOptions
 @property(nonatomic, copy) NSDictionary *launchOptions;
 
 @end
