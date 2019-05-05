@@ -44,7 +44,8 @@
 #import "SASwizzle.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#import "SAServerUrl.h"
+#import "SANetwork.h"
+#import "SANetwork+URLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAAutoTrackUtils.h"
 
@@ -148,7 +149,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 // 在内部，重新声明成可读写的
 @property (atomic, strong) SensorsAnalyticsPeople *people;
 
-@property (atomic, copy) NSString *serverURL;
+@property (nonatomic, strong) SANetwork *network;
 
 @property (atomic, copy) NSString *distinctId;
 @property (atomic, copy) NSString *originalId;
@@ -218,8 +219,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *_deviceModel;
     NSString *_osVersion;
     NSString *_userAgent;
-    NSString *_originServerUrl;
-    NSString *_cookie;
 }
 
 @synthesize remoteConfig = _remoteConfig;
@@ -273,6 +272,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }];
             
             _people = [[SensorsAnalyticsPeople alloc] init];
+            
+            _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_configOptions.serverURL]];
             
             _debugMode = SensorsAnalyticsDebugOff;
             
@@ -507,86 +508,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
-    _originServerUrl = serverUrl;
-    if (serverUrl == nil || [serverUrl length] == 0 || _debugMode == SensorsAnalyticsDebugOff) {
-        _serverURL = serverUrl;
-    } else {
-        // 将 Server URI Path 替换成 Debug 模式的 '/debug'
-        NSURL *tempBaseUrl = [NSURL URLWithString:serverUrl];
-        if (tempBaseUrl.lastPathComponent.length > 0) {
-            tempBaseUrl = [tempBaseUrl URLByDeletingLastPathComponent];
-        }
-        NSURL *url = [tempBaseUrl URLByAppendingPathComponent:@"debug"];
-        NSString *host = url.host;
-        if ([host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
-            NSString * referenceUrl = @"https://en.wikipedia.org/wiki/Hostname";
-            SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverUrl, referenceUrl);
-        }
-        _serverURL = [url absoluteString];
-    }
+    self.network.serverURL = [NSURL URLWithString:serverUrl];
 }
 
-- (NSString *)collectRemoteConfigUrl {
-    
-    @try {
-        NSURLComponents *urlComponents = nil;
-        
-        if (self.configOptions.remoteConfigURL) {
-            
-            NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
-            urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-        } else {
-            
-            NSString *urlString = self.serverURL;
-            NSURL *url = nil;
-            if ([urlString isKindOfClass:NSString.class] && urlString.length) {
-                url = [NSURL URLWithString:urlString];
-                if (url.lastPathComponent.length > 0) {
-                    url = [url URLByDeletingLastPathComponent];
-                }
-            }
-            
-            if (!url) {
-                SALog(@"serverURL error，unable request remoteConfig");
-                return nil;
-            }
-            urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-            urlComponents.query = nil;
-            urlComponents.path = [urlComponents.path stringByAppendingPathComponent:@"/config/iOS.conf"];
-        }
-        
-        if (!urlComponents) {
-            SALog(@"URLString is malformed, nil is returned.");
-            return nil;
-        }
-        
-        NSMutableDictionary *queryDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
-        if (self.remoteConfig.v.length) {
-            queryDic[@"v"] = self.remoteConfig.v;
-        }
-        
-        NSString *queryString = [SAServerUrl collectURLQueryWithParams:queryDic];
-        urlComponents.query = queryString;
-        
-        return urlComponents.URL.absoluteString;
-    } @catch (NSException *e) {
-        SAError(@"%@ error: %@", self, e);
-    }
-    return nil;
-}
+- (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    _debugMode = debugMode;
 
-- (void)configDebugModeServerUrl {
-    if (_debugMode  == SensorsAnalyticsDebugOff ) {
-        self.serverURL = _originServerUrl;
-    } else {
-        [self setServerUrl:_originServerUrl];
-    }
-}
-
-- (void)disableDebugMode {
-    _debugMode = SensorsAnalyticsDebugOff;
-    _serverURL = _originServerUrl;
-    [self enableLog:NO];
+    self.network.debugMode = debugMode;
+    [self enableLog:debugMode != SensorsAnalyticsDebugOff];
 }
 
 - (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
@@ -648,7 +577,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dispatch_block_t alterViewBlock = ^{
                 
                 NSString *alterViewMessage = @"";
-                if (self -> _debugMode == SensorsAnalyticsDebugAndTrack) {
+                if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
                     alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
                 } else if (self -> _debugMode == SensorsAnalyticsDebugOnly) {
                     alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
@@ -671,13 +600,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
             void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-                self -> _debugMode = debugMode;
-                [self enableLog:YES];
-                
+                [self configServerURLWithDebugMode:debugMode];
                 alterViewBlock();
-                
-                [self configDebugModeServerUrl];
-                [self debugModeCallBackWithParams:params];
+                [self.network debugModeCallbackWithDistinctId:[self getBestId] params:params];
             };
             [alertController addActionWithTitle:@"开启调试模式（导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
                 handler(SensorsAnalyticsDebugAndTrack);
@@ -691,47 +616,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @finally {
         }
     });
-}
-
-- (void)debugModeCallBackWithParams:(NSDictionary<NSString *, id> *)params {
-    
-    if (!self.serverURL) {
-        SAError(@"serverURL error，Please check the serverURL");
-        return;
-    }
-    
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:self.serverURL];
-    NSMutableDictionary *queryDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
-    //添加参数
-    [params enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        queryDic[key] = obj;
-    }];
-    NSString *queryString = [SAServerUrl collectURLQueryWithParams:queryDic];
-    urlComponents.query = queryString;
-    
-    NSURL *callBackUrl = [urlComponents URL];
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:callBackUrl];
-    request.timeoutInterval = 30;
-    [request setHTTPMethod:@"POST"];
-    
-    NSDictionary *callData = @{@"distinct_id":[self getBestId]};
-    JSONUtil *jsonUtil = [[JSONUtil alloc] init];
-    NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 200) {
-            SALog(@"config debugMode CallBack success");
-        } else {
-            SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@", statusCode, callBackUrl);
-        }
-    }];
-    [task resume];
 }
 
 - (BOOL)isFirstDay {
@@ -791,14 +675,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             if (enableVerify) {
                 NSString *serverUrl = [eventDict valueForKey:@"server_url"];
-                if (serverUrl != nil) {
-                    SAServerUrl *h5ServerUrl = [[SAServerUrl alloc] initWithUrl:serverUrl];
-                    SAServerUrl *appServerUrl = [[SAServerUrl alloc] initWithUrl:self->_serverURL];
-                    if (![appServerUrl check:h5ServerUrl]) {
-                        return;
-                    }
-                } else {
-                    //防止 H5 集成的 JS SDK 版本太老，没有发 server_url
+                if (![self.network isSameProjectWithURLString:serverUrl]) {
                     return;
                 }
             }
@@ -963,9 +840,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         }
         
-        NSURLComponents *urlComponents = [NSURLComponents componentsWithString:urlstr];
          //解析参数
-        NSMutableDictionary *paramsDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
+        NSMutableDictionary *paramsDic = [[SANetwork queryItemsWithURLString:urlstr] mutableCopy];
         
         if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
             SADebug(@"showUpWebView: UIWebView");
@@ -1194,27 +1070,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     _showDebugAlertView = show;
 }
 
-- (void)flushByType:(NSString *)type withSize:(int)flushSize andFlushMethod:(BOOL (^)(NSArray *, NSString *))flushMethod {
-    while (true) {
-        NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:type];
-        if (recordArray == nil) {
-            SAError(@"Failed to get records from SQLite.");
-            break;
-        }
-        
-        if ([recordArray count] == 0 || !flushMethod(recordArray, type)) {
-            break;
-        }
-        
-        if (![self.messageQueue removeFirstRecords:recordArray.count withType:type]) {
-            SAError(@"Failed to remove records from SQLite.");
-            break;
-        }
+- (void)flushByType:(NSString *)type flushSize:(int)flushSize {
+    // 1、获取前 n 条数据
+    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
+    if (recordArray == nil) {
+        SAError(@"Failed to get records from SQLite.");
+        return;
     }
+    // 2、上传获取到的记录。如果数据上传完成，结束递归
+    if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
+        return;
+    }
+    // 3、删除已上传的记录。删除失败，结束递归
+    if (![self.messageQueue removeFirstRecords:recordArray.count withType:@"POST"]) {
+        SAError(@"Failed to remove records from SQLite.");
+        return;
+    }
+    // 4、继续上传剩余数据
+    [self flushByType:type flushSize:flushSize];
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
-    if (_serverURL == nil || [_serverURL isEqualToString:@""]) {
+    if (!self.network.serverURL) {
         return;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
@@ -1222,105 +1099,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
         return;
     }
-    // 使用 Post 发送数据
-    BOOL (^flushByPost)(NSArray *, NSString *) = ^(NSArray *recordArray, NSString *type) {
-        NSString *jsonString;
-        NSData *zippedData;
-        NSString *b64String;
-        NSString *postBody;
-        @try {
-            // 1. 先完成这一系列Json字符串的拼接
-            jsonString = [NSString stringWithFormat:@"[%@]", [recordArray componentsJoinedByString:@","]];
-            // 2. 使用gzip进行压缩
-            zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-            // 3. base64
-            b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-            int hashCode = [b64String sensorsdata_hashCode];
-            b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                      (CFStringRef)b64String,
-                                                                                      NULL,
-                                                                                      CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                      kCFStringEncodingUTF8));
-
-            postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
-        } @catch (NSException *exception) {
-            SAError(@"%@ flushByPost format data error: %@", self, exception);
-            return YES;
-        }
-
-        NSURL *url = [NSURL URLWithString:self.serverURL];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-        request.timeoutInterval = 30;
-        [request setHTTPMethod:@"POST"];
-        [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
-        // 普通事件请求，使用标准 UserAgent
-        [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-        if (self->_debugMode == SensorsAnalyticsDebugOnly) {
-            [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
-        }
-
-        //Cookie
-        [request setValue:[[SensorsAnalyticsSDK sharedInstance] getCookieWithDecode:NO] forHTTPHeaderField:@"Cookie"];
-
-        dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
-        __block BOOL flushSucc = YES;
-
-        void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-            if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
-                SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
-                flushSucc = NO;
-                dispatch_semaphore_signal(flushSem);
-                return;
-            }
-
-            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)response;
-            NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-            NSString *messageDesc = nil;
-            NSInteger statusCode = urlResponse.statusCode;
-            if(statusCode != 200) {
-                messageDesc = @"\n【invalid message】\n";
-                if (self->_debugMode != SensorsAnalyticsDebugOff) {
-                    if (statusCode >= 300) {
-                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                    }
-                } else {
-                    if (statusCode >= 300) {
-                        flushSucc = NO;
-                    }
-                }
-            } else {
-                messageDesc = @"\n【valid message】\n";
-            }
-            SAError(@"==========================================================================");
-            if ([SALogger isLoggerEnabled]) {
-                @try {
-                    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                    NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                    SAError(@"%@ %@: %@", self, messageDesc, logString);
-                } @catch (NSException *exception) {
-                    SAError(@"%@: %@", self, exception);
-                }
-            }
-            if (statusCode != 200) {
-                SAError(@"%@ ret_code: %ld", self, statusCode);
-                SAError(@"%@ ret_content: %@", self, urlResponseContent);
-            }
-
-            dispatch_semaphore_signal(flushSem);
-        };
-
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
-        [task resume];
-
-        dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
-
-        return flushSucc;
-    };
     
-    [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
+    [self flushByType:@"Post" flushSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
 
     if (vacuumAfterFlushing) {
         if (![self.messageQueue vacuum]) {
@@ -1368,10 +1148,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             return [self handleAutoTrackURL:url];
         } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
-            
-            NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
             // url query 解析
-            NSMutableDictionary *paramDic = [NSMutableDictionary dictionaryWithDictionary:[SAServerUrl analysisQueryItemWithURLComponent:urlComponents]];
+            NSMutableDictionary *paramDic = [[SANetwork queryItemsWithURL:url] mutableCopy];
 
             //如果没传 info_id，视为伪造二维码，不做处理
             if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
@@ -1847,23 +1625,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
-    if (encode) {
-        _cookie = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                (CFStringRef)cookie,
-                                                                                NULL,
-                                                                                CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                kCFStringEncodingUTF8));
-    } else {
-        _cookie = cookie;
-    }
+    [_network setCookie:cookie isEncoded:encode];
 }
 
 - (NSString *)getCookieWithDecode:(BOOL)decode {
-    if (decode) {
-        return (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)_cookie, CFSTR(""), CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
-    } else {
-        return _cookie;
-    }
+    return [_network cookieWithDecoded:decode];
 }
 
 - (void)trackTimer:(NSString *)event {
@@ -2649,10 +2415,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [NSThread sa_safelyRunOnMainThreadSync:^{
         BOOL verify = enableVerify;
         @try {
-            if (self->_serverURL == nil || self->_serverURL.length == 0) {
+            if (!self.network.serverURL) {
                 verify = NO;
             }
-            SAServerUrl *ss = [[SAServerUrl alloc] initWithUrl:self->_serverURL];
             NSString *oldAgent = nil;
             if (userAgent && userAgent.length) {
                 oldAgent = userAgent;
@@ -2662,7 +2427,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *newAgent = oldAgent;
             if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
                 if (verify) {
-                    newAgent = [oldAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ", ss.host, ss.project]];
+                    newAgent = [oldAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ", self.network.host, self.network.project]];
                 } else {
                     newAgent = [oldAgent stringByAppendingString:@" /sa-sdk-ios"];
                 }
@@ -2675,8 +2440,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
-    }
-     ];
+    }];
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
@@ -3291,7 +3055,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     @try {
         self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
         if (self.remoteConfig.disableDebugMode) {
-            [self disableDebugMode];
+            [self configServerURLWithDebugMode:SensorsAnalyticsDebugOff];
         }
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
@@ -3408,47 +3172,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)requestFunctionalManagermentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
     @try {
-         NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
+        NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
         SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
-        
-        NSString *urlString = [self collectRemoteConfigUrl];
-        if (urlString == nil || urlString.length == 0 || networkType == SensorsAnalyticsNetworkTypeNONE) {
-            completion(NO,nil);
+        if (networkType == SensorsAnalyticsNetworkTypeNONE) {
+            completion(NO, nil);
             return;
         }
-        
-        NSURL *url = [NSURL URLWithString:urlString];
-        NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
-        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            @try {
-                NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-                if (statusCode == 200) {
-                    NSError *err = NULL;
-                    NSDictionary *dict = nil;
-                    if (data !=nil && data.length ) {
-                        dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
-                    }
-                    if (completion) {
-                        completion(YES,dict);
-                    }
-                } else if (statusCode == 304) {
-                    //304 config 没有更新
-                    if (completion) {
-                        completion(YES,nil);
-                    }
-                } else {
-                    if (completion) {
-                        completion(NO,nil);
-                    }
-                }
-            } @catch (NSException *e) {
-                SAError(@"%@ error: %@", self, e);
-                if (completion) {
-                    completion(NO,nil);
-                }
-            }
-        }];
-        [task resume];
+        NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
+        [self.network functionalManagermentConfigWithRemoteConfigURL:url version:self.remoteConfig.v completion:completion];
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
     }
@@ -3522,6 +3253,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 #endif
 
+}
+
+- (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
+    self.network.securityPolicy = securityPolicy;
+}
+
+- (SASecurityPolicy *)securityPolicy {
+    return self.network.securityPolicy;
 }
 
 @end
@@ -3619,9 +3358,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    _debugMode = debugMode;
-    [self enableLog];
-    [self configDebugModeServerUrl];
+    [self configServerURLWithDebugMode:debugMode];
 }
 
 - (void)enableAutoTrack {

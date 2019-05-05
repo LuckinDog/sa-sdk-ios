@@ -22,10 +22,6 @@
 #import "SAConstants.h"
 
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface SAConstants (Private)
-
 #pragma mark--evnet
 extern NSString * const SA_EVENT_TIME;
 extern NSString * const SA_EVENT_TRACK_ID;
@@ -124,7 +120,3 @@ extern NSString * const SA_REQUEST_REMOTECONFIG_TIME;
 extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
-
-@end
-
-NS_ASSUME_NONNULL_END

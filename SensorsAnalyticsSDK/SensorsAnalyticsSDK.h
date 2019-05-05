@@ -20,6 +20,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
+#import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
 
@@ -140,6 +141,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic) BOOL flushBeforeEnterBackground;
 
 /**
+ @abstract
+ 用于评估是否为服务器信任的安全链接。
+
+ @discussion
+ 默认使用 defaultPolicy
+ */
+@property (nonatomic, strong) SASecurityPolicy *securityPolicy;
+
+/**
  * @property
  *
  * @abstract
@@ -250,7 +260,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 默认为 10000 条事件
  *
- * @param maxCacheSize 本地缓存最多事件条数
  */
 @property (nonatomic, getter = getMaxCacheSize) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
 - (UInt64)getMaxCacheSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
@@ -1227,7 +1236,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 神策 SDK 会处理 点击图，可视化全埋点url
  * @discussion
  *  目前处理 heatmap，visualized
- * @param url
+ * @param url 点击图的 url
  * @return YES/NO
  */
 - (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
