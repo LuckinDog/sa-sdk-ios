@@ -193,7 +193,10 @@
 @implementation UIButton (AutoTrack)
 
 - (NSString *)sensorsdata_elementContent {
-    NSString *text = super.sensorsdata_elementContent;
+    NSString *text = self.currentTitle;
+    if (text.length == 0) {
+        text = super.sensorsdata_elementContent;
+    }
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
     if (text.length == 0) {
         NSString *imageName = self.currentImage.sensorsAnalyticsImageName;
@@ -226,7 +229,7 @@
 @implementation UISegmentedControl (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
-    return super.sensorsdata_isIgnored && self.selectedSegmentIndex == UISegmentedControlNoSegment;
+    return super.sensorsdata_isIgnored || self.selectedSegmentIndex == UISegmentedControlNoSegment;
 }
 
 - (NSString *)sensorsdata_elementContent {

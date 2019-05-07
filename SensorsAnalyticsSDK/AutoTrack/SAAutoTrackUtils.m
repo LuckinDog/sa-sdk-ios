@@ -324,7 +324,7 @@
 
     NSString *viewPath = [self viewPathForView:((UIView *)cell).superview atViewController:viewController];
     if (viewPath) {
-        properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@[%ld][%ld]", viewPath, NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.row];
+        properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@[%ld][%ld]", viewPath, NSStringFromClass(cell.class), (long)indexPath.section, (long)indexPath.row];
     }
 
     return [properties copy];
