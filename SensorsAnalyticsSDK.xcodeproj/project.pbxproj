@@ -722,7 +722,6 @@
 				4D0EB7BB1B47A88C0019FD21 /* Frameworks */,
 				4D0EB7BC1B47A88C0019FD21 /* Resources */,
 				A1624B6B200894950088FBC9 /* Embed App Extensions */,
-				4DB25EEF2177407200213575 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -907,27 +906,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		4DB25EEF2177407200213575 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Carthage/Build/iOS/SensorsAnalyticsSDK.framework",
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n/usr/local/bin/carthage copy-frameworks\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4D0EB7BA1B47A88C0019FD21 /* Sources */ = {
