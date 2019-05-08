@@ -2879,26 +2879,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 }
 
-
-- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
-    NSMutableDictionary *trackProperties = [[NSMutableDictionary alloc] init];
-    if (properties) {
-        [trackProperties addEntriesFromDictionary:properties];
-    }
-    @synchronized(_lastScreenTrackProperties) {
-        _lastScreenTrackProperties = properties;
-    }
-
-    [trackProperties setValue:url forKey:SA_EVENT_PROPERTY_SCREEN_URL];
-    @synchronized(_referrerScreenUrl) {
-        if (_referrerScreenUrl) {
-            [trackProperties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
-        }
-        _referrerScreenUrl = url;
-    }
-    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
-}
-
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
     @try {
         if (groupIdentifier == nil || [groupIdentifier isEqualToString:@""]) {
@@ -3520,4 +3500,22 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     return [self handleAutoTrackURL:URL];
 }
 
+- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
+    NSMutableDictionary *trackProperties = [[NSMutableDictionary alloc] init];
+    if (properties) {
+        [trackProperties addEntriesFromDictionary:properties];
+    }
+    @synchronized(_lastScreenTrackProperties) {
+        _lastScreenTrackProperties = properties;
+    }
+    
+    [trackProperties setValue:url forKey:SA_EVENT_PROPERTY_SCREEN_URL];
+    @synchronized(_referrerScreenUrl) {
+        if (_referrerScreenUrl) {
+            [trackProperties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
+        }
+        _referrerScreenUrl = url;
+    }
+    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
+}
 @end

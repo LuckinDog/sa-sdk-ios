@@ -640,15 +640,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackViewAppClick:(nonnull UIView *)view withProperties:(nullable NSDictionary *)properties;
 
 /**
- * @abstract
- * Track $AppViewScreen事件
- *
- * @param url 当前页面url
- * @param properties 用户扩展属性
- */
-- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties;
-
-/**
  @abstract
  * Track App Extension groupIdentifier 中缓存的数据
  *
@@ -1244,6 +1235,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
 
+/**
+ * @abstract
+ * Track $AppViewScreen事件
+ *
+ * @param url 当前页面url
+ * @param properties 用户扩展属性
+ */
+- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties __attribute__((deprecated("已过时，请参考 trackViewScreen: properties:")));
 @end
 
 NS_ASSUME_NONNULL_END
