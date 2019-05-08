@@ -62,18 +62,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)defaultPolicy;
 
-///---------------------
-/// @name Initialization
-///---------------------
-
-/**
- Creates and returns a security policy with the specified pinning mode.
-
- @param pinningMode The SSL pinning mode.
-
- @return A new security policy.
- */
-
 /**
  根据 mode 创建对象
 
@@ -90,21 +78,6 @@ NS_ASSUME_NONNULL_BEGIN
  @return 初始化对象
  */
 + (instancetype)policyWithPinningMode:(SASSLPinningMode)pinningMode withPinnedCertificates:(NSSet <NSData *> *)pinnedCertificates;
-
-///------------------------------
-/// @name Evaluating Server Trust
-///------------------------------
-
-/**
- Whether or not the specified server trust should be accepted, based on the security policy.
-
- This method should be used when responding to an authentication challenge from a server.
-
- @param serverTrust The X.509 certificate trust of the server.
- @param domain The domain of serverTrust. If `nil`, the domain will not be validated.
-
- @return Whether or not to trust the server.
- */
 
 /**
  是否通过验证
