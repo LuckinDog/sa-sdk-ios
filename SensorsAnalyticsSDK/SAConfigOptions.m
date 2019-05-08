@@ -52,9 +52,14 @@
     options.launchOptions = self.launchOptions;
 
     options.autoTrackEventType = self.autoTrackEventType;
+    options.enableTrackAppCrash = self.enableTrackAppCrash;
     options.flushInterval = self.flushInterval;
+    options.flushBulkSize = self.flushBulkSize;
     options.maxCacheSize = self.maxCacheSize;
 
+    options.remoteConfigURL = self.remoteConfigURL;
+    options.disableRandomTimeRequestRemoteConfig = self.disableRandomTimeRequestRemoteConfig;
+    
     options.minRequestHourInterval = self.minRequestHourInterval;
     options.maxRequestHourInterval = self.maxRequestHourInterval;
     return options;

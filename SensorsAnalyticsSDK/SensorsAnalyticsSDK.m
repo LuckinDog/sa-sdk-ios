@@ -252,7 +252,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions];
+        sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
     });
     return sharedInstance;
 }
@@ -270,16 +270,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @try {
         
         SAConfigOptions * options = [[SAConfigOptions alloc]initWithServerURL:serverURL launchOptions:launchOptions];
-        self = [self initWithConfigOptions:options];
-        _debugMode = debugMode;
-        
+        self = [self initWithConfigOptions:options debugMode:debugMode];
     } @catch(NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
     return self;
 }
 
-- (instancetype)initWithConfigOptions:(nonnull SAConfigOptions *)configOptions {
+- (instancetype)initWithConfigOptions:(nonnull SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     @try {
         
         self = [super init];
@@ -298,7 +296,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
             
-            _debugMode = SensorsAnalyticsDebugOff;
+            _debugMode = debugMode;
             
             _appRelaunched = NO;
             _showDebugAlertView = YES;
