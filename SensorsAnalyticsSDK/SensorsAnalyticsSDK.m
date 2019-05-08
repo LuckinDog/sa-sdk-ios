@@ -351,9 +351,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self startFlushTimer];
             }
             
-            [self enableLog];
-            [self setServerUrl:configOptions.serverURL];
-            
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
             
@@ -377,24 +374,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 //全埋点
                 [self configAutoTrack];
             }
-
-            NSString *logMessage = nil;
-            logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
-                          self, configOptions.serverURL, [self debugModeToString:_debugMode]];
-            SALog(@"%@", logMessage);
             
-            //打开debug模式，弹出提示
-#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                NSString *alertMessage = nil;
-                if (_debugMode == SensorsAnalyticsDebugOnly) {
-                    alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-                } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-                }
-                [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
-            }
-#endif
+            [self configServerURLWithDebugMode:_debugMode showDebugModeWarning:YES];
         }
         
     } @catch(NSException *exception) {
@@ -532,11 +513,32 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     self.network.serverURL = [NSURL URLWithString:serverUrl];
 }
 
-- (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+- (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode showDebugModeWarning:(BOOL)isShow {
     _debugMode = debugMode;
 
     self.network.debugMode = debugMode;
     [self enableLog:debugMode != SensorsAnalyticsDebugOff];
+    
+    if (isShow) {
+        NSString *logMessage = nil;
+        logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
+                      self, self.configOptions.serverURL, [self debugModeToString:_debugMode]];
+        SALog(@"%@", logMessage);
+        
+        //打开debug模式，弹出提示
+#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            NSString *alertMessage = nil;
+            if (_debugMode == SensorsAnalyticsDebugOnly) {
+                alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+            } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
+                alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+            }
+            [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
+        }
+#endif
+        
+    }
 }
 
 - (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
@@ -621,7 +623,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
             void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-                [self configServerURLWithDebugMode:debugMode];
+                [self configServerURLWithDebugMode:debugMode showDebugModeWarning:NO];
                 alterViewBlock();
                 [self.network debugModeCallbackWithDistinctId:self.distinctId params:params];
             };
@@ -3165,7 +3167,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     @try {
         self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
         if (self.remoteConfig.disableDebugMode) {
-            [self configServerURLWithDebugMode:SensorsAnalyticsDebugOff];
+            [self configServerURLWithDebugMode:SensorsAnalyticsDebugOff  showDebugModeWarning:NO];
         }
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
@@ -3468,7 +3470,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    [self configServerURLWithDebugMode:debugMode];
+    [self configServerURLWithDebugMode:debugMode  showDebugModeWarning:NO];
 }
 
 - (void)enableAutoTrack {
