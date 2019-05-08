@@ -1577,14 +1577,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     NSDictionary<NSString *, id> *originProperties = event[@"properties"];
     // can only modify "$device_id"
-    NSArray *modifyKeys = @[@"$device_id"];
+    NSArray *modifyKeys = @[SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
+    NSArray *returnKeys = @[SA_EVENT_PROPERTY_ELEMENT_ID,
+                            SA_EVENT_PROPERTY_SCREEN_NAME,
+                            SA_EVENT_PROPERTY_TITLE,
+                            SA_EVENT_PROPERTY_ELEMENT_POSITION,
+                            SA_EVENT_PROPERTY_ELEMENT_CONTENT,
+                            SA_EVENT_PROPERTY_ELEMENT_TYPE];
     BOOL(^canModifyPropertyKeys)(NSString *key) = ^BOOL(NSString *key) {
         return (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]);
     };
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     // 添加可修改的事件属性
     [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (canModifyPropertyKeys(key)) {
+        if (canModifyPropertyKeys(key) || [returnKeys containsObject:key]) {
             properties[key] = obj;
         }
     }];
