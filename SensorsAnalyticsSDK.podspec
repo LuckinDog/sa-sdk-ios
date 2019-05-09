@@ -13,11 +13,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'core' do |c|
         c.source_files  = "SensorsAnalyticsSDK/VisualizedAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","SensorsAnalyticsSDK/HeatMap/*.{h,m}"
-<<<<<<< HEAD
         c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h","SensorsAnalyticsSDK/SASecurityPolicy.h","SensorsAnalyticsSDK/SAConfigOptions.h","SensorsAnalyticsSDK/SAConstants.h"
-=======
-        c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h","SensorsAnalyticsSDK/SAConfigOptions.h","SensorsAnalyticsSDK/SAConstants.h"
->>>>>>> 66d2e04fae3b651183608449bf3792ba1dc4962c
         c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
