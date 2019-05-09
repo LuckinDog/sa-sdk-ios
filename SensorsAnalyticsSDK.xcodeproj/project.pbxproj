@@ -217,6 +217,7 @@
 		CB2D018B22379F7400A958C5 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		CB2D019222379FB700A958C5 /* SANetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2D019122379FB700A958C5 /* SANetworkTests.m */; };
 		CB2D01932237A10800A958C5 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = CB2CDD2F22324875000C1F92 /* SANetwork.m */; };
+		CB30BD232283D9580004061D /* SALocationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A161A05220B540E400A3CA14 /* SALocationManager.h */; };
 		CB54EF8B223D0E95007E648E /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB54EF8A223D0E95007E648E /* SensorsAnalyticsTests.m */; };
 		CB7D065C2275987A0067F2A9 /* SAHeatMapSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F152269699100663D00 /* SAHeatMapSnapshotMessage.m */; };
 		CB7D065D227598830067F2A9 /* SAAbstractHeatMapMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D8D0F112269699100663D00 /* SAAbstractHeatMapMessage.m */; };
@@ -838,6 +839,7 @@
 				65EB3C2922830CBE00E59F65 /* SADesignerMessage.h in Headers */,
 				65EB3C2722830CB400E59F65 /* SAReachability.h in Headers */,
 				65EB3C2522830CA400E59F65 /* SASwizzle.h in Headers */,
+				CB30BD232283D9580004061D /* SALocationManager.h in Headers */,
 				4D8D0F2E226969B900663D00 /* SAVisualizedAutoTrackAbstractMessage.h in Headers */,
 				65EB3C3A22830D5600E59F65 /* NSThread+SAHelpers.h in Headers */,
 				65EB3C2622830CAA00E59F65 /* UIApplication+AutoTrack.h in Headers */,
