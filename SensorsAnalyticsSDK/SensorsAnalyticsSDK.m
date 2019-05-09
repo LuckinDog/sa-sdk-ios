@@ -47,7 +47,7 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SANetwork.h"
 #import "SANetwork+URLUtils.h"
-#import "SAAppExtensionDataManager.h"
+
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
      #import "SAKeyChainItemWrapper.h"

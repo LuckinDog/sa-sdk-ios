@@ -30,6 +30,7 @@
 		4D0EB7D11B47A88C0019FD21 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4D0EB7CF1B47A88C0019FD21 /* LaunchScreen.xib */; };
 		4D14F16E1B47D5E2006AD786 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */; };
 		4D14F1741B4A5469006AD786 /* SAGzipUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1701B4A51B7006AD786 /* SAGzipUtility.m */; };
+		4D1CE5DB2284645D00F72966 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB25E5B217719C700213575 /* SensorsAnalyticsSDK.framework */; };
 		4D1EFDD51B4BC6930008D3EA /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
 		4D1EFDD61B4BC6930008D3EA /* JSONUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2AF15B1B4BAE77007716F8 /* JSONUtil.m */; };
 		4D23EFB62109643400DBDB9F /* SACommonUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D23EFB32109643400DBDB9F /* SACommonUtility.m */; };
@@ -138,7 +139,6 @@
 		A1100B14219BC93C00E14E9A /* SAConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = A1100B11219BC93C00E14E9A /* SAConstants.m */; };
 		A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A11C545A201075020074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
-		A11C545D2010751F0074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */; };
 		A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
 		A1280DFD217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1280DFB217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.m */; settings = {COMPILER_FLAGS = "-all_load"; }; };
 		A1280DFE217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = A1280DFC217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h */; };
@@ -252,6 +252,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		4D1CE5ED2284670900F72966 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		65EB3C4222830F2300E59F65 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -355,8 +365,6 @@
 		A1100B11219BC93C00E14E9A /* SAConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAConstants.m; sourceTree = "<group>"; };
 		A11C5457201075020074E817 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppExtensionDataManager.h; sourceTree = "<group>"; };
 		A11C5458201075020074E817 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppExtensionDataManager.m; sourceTree = "<group>"; };
-		A11C545B2010751E0074E817 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppExtensionDataManager.h; sourceTree = "<group>"; };
-		A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppExtensionDataManager.m; sourceTree = "<group>"; };
 		A1280DFB217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SensorsAnalyticsDelegate.m"; sourceTree = "<group>"; };
 		A1280DFC217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SensorsAnalyticsDelegate.h"; sourceTree = "<group>"; };
 		A14938C5207B8730006EF04A /* SAKeyChainItemWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAKeyChainItemWrapper.h; sourceTree = "<group>"; };
@@ -488,6 +496,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D1CE5DB2284645D00F72966 /* SensorsAnalyticsSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -715,8 +724,6 @@
 		A1624B5D200894940088FBC9 /* share */ = {
 			isa = PBXGroup;
 			children = (
-				A11C545B2010751E0074E817 /* SAAppExtensionDataManager.h */,
-				A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */,
 				A1624B6D200894E10088FBC9 /* share.entitlements */,
 				A1624B5E200894940088FBC9 /* ShareViewController.h */,
 				A1624B5F200894940088FBC9 /* ShareViewController.m */,
@@ -876,6 +883,7 @@
 				4D0EB7BB1B47A88C0019FD21 /* Frameworks */,
 				4D0EB7BC1B47A88C0019FD21 /* Resources */,
 				A1624B6B200894950088FBC9 /* Embed App Extensions */,
+				4D1CE5ED2284670900F72966 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1229,7 +1237,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1624B60200894940088FBC9 /* ShareViewController.m in Sources */,
-				A11C545D2010751F0074E817 /* SAAppExtensionDataManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

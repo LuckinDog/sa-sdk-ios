@@ -23,6 +23,7 @@
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
+#import "SAAppExtensionDataManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
