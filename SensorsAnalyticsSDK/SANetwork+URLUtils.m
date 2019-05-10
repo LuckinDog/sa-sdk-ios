@@ -57,7 +57,7 @@
         return nil;
     }
     NSMutableDictionary *items = [NSMutableDictionary dictionary];
-    NSArray<NSString *> *queryArray = [components.query componentsSeparatedByString:@"&"];
+    NSArray<NSString *> *queryArray = [components.percentEncodedQuery componentsSeparatedByString:@"&"];
     for (NSString *itemString in queryArray) {
         NSArray<NSString *> *itemArray = [itemString componentsSeparatedByString:@"="];
         if (itemArray.count >= 2) {

@@ -391,18 +391,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showDebugInfoView:(BOOL)show;
 
 /**
- * @abstract
- * 设置当前用户的 distinctId
- *
- * @discussion
- * 一般情况下，如果是一个注册用户，则应该使用注册系统内的 user_id
- * 如果是个未注册用户，则可以选择一个不会重复的匿名 ID，如设备 ID 等
- * 如果客户没有设置 indentify，则使用 SDK 自动生成的匿名 ID
- * SDK 会自动将设置的 distinctId 保存到文件中，下次启动时会从中读取
- *
- * @param distinctId 当前用户的 distinctId
+ @abstract
+ 在初始化 SDK 之后立即调用，替换神策分析默认分配的 *匿名 ID*
+
+ @discussion
+ 一般情况下，如果是一个注册用户，则应该使用注册系统内的 user_id，调用 SDK 的 login: 接口。
+ 对于未注册用户，则可以选择一个不会重复的匿名 ID，如设备 ID 等
+ 如果没有调用此方法，则使用 SDK 自动生成的匿名 ID
+ SDK 会自动将设置的 anonymousId 保存到文件中，下次启动时会从中读取
+
+ 重要:该方法在 SDK 初始化之后立即调用，可以自定义匿名 ID,不要重复调用。
+
+ @param anonymousId 当前用户的 anonymousId
  */
-- (void)identify:(NSString *)distinctId;
+- (void)identify:(NSString *)anonymousId;
+
 #pragma mark - track event
 /**
  * @abstract
@@ -635,15 +638,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @param properties 自定义属性
  */
 - (void)trackViewAppClick:(nonnull UIView *)view withProperties:(nullable NSDictionary *)properties;
-
-/**
- * @abstract
- * Track $AppViewScreen事件
- *
- * @param url 当前页面url
- * @param properties 用户扩展属性
- */
-- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties;
 
 /**
  @abstract
@@ -1241,6 +1235,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
 
+/**
+ * @abstract
+ * Track $AppViewScreen事件
+ *
+ * @param url 当前页面url
+ * @param properties 用户扩展属性
+ */
+- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties __attribute__((deprecated("已过时，请参考 trackViewScreen: properties:")));
 @end
 
 NS_ASSUME_NONNULL_END
+

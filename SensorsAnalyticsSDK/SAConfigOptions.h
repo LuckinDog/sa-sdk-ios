@@ -31,7 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  指定初始化方法，设置 serverURL
-
  @param serverURL 数据接收地址
  @return 配置对象
  */

@@ -20,110 +20,73 @@
 
 #import <Foundation/Foundation.h>
 
-/**
- SASecurityPolicy was copied from AFSecurityPolicy and renamed.
- Use it the same way as AFSecurityPolicy
- Thanks AFNetworking: https://github.com/AFNetworking/AFNetworking
- */
-
 typedef NS_ENUM(NSUInteger, SASSLPinningMode) {
     SASSLPinningModeNone,
     SASSLPinningModePublicKey,
     SASSLPinningModeCertificate,
 };
 
-/**
- `SASecurityPolicy` evaluates server trust against pinned X.509 certificates and public keys over secure connections.
-
- Adding pinned SSL certificates to your app helps prevent man-in-the-middle attacks and other vulnerabilities. Applications dealing with sensitive customer data or financial information are strongly encouraged to route all communication over an HTTPS connection with SSL pinning configured and enabled.
- */
-
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ SASecurityPolicy 是参考 AFSecurityPolicy 实现
+ 使用方法与 AFSecurityPolicy 相同
+ 感谢 AFNetworking: https://github.com/AFNetworking/AFNetworking
+ */
 @interface SASecurityPolicy : NSObject <NSSecureCoding, NSCopying>
 
-/**
- The criteria by which server trust should be evaluated against the pinned SSL certificates. Defaults to `SASSLPinningModeNone`.
- */
+/// 证书验证类型，默认为：SASSLPinningModeNone
 @property (readonly, nonatomic, assign) SASSLPinningMode SSLPinningMode;
 
-/**
- The certificates used to evaluate server trust according to the SSL pinning mode. 
-
-  By default, this property is set to any (`.cer`) certificates included in the target compiling SANetworking. Note that if you are using SANetworking as embedded framework, no certificates will be pinned by default. Use `certificatesInBundle` to load certificates from your target, and then create a new policy by calling `policyWithPinningMode:withPinnedCertificates`.
- 
- Note that if pinning is enabled, `evaluateServerTrust:forDomain:` will return true if any pinned certificate matches.
- */
+/// 证书数据
 @property (nonatomic, strong, nullable) NSSet <NSData *> *pinnedCertificates;
 
-/**
- Whether or not to trust servers with an invalid or expired SSL certificates. Defaults to `NO`.
- */
+/// 是否信任无效或者过期证书，默认为：NO
 @property (nonatomic, assign) BOOL allowInvalidCertificates;
 
-/**
- Whether or not to validate the domain name in the certificate's CN field. Defaults to `YES`.
- */
+/// 是否验证 domain
 @property (nonatomic, assign) BOOL validatesDomainName;
 
-///-----------------------------------------
-/// @name Getting Certificates from the Bundle
-///-----------------------------------------
-
 /**
- Returns any certificates included in the bundle. If you are using SANetworking as an embedded framework, you must use this method to find the certificates you have included in your app bundle, and use them when creating your security policy by calling `policyWithPinningMode:withPinnedCertificates`.
+ 从一个 Bundle 中获取证书
 
- @return The certificates included in the given bundle.
+ @param bundle 目标 Bundle
+ @return 证书数据
  */
 + (NSSet <NSData *> *)certificatesInBundle:(NSBundle *)bundle;
 
-///-----------------------------------------
-/// @name Getting Specific Security Policies
-///-----------------------------------------
-
 /**
- Returns the shared default security policy, which does not allow invalid certificates, validates domain name, and does not validate against pinned certificates or public keys.
+ 创建一个默认的验证对象
 
- @return The default security policy.
+ @return 默认的对象
  */
 + (instancetype)defaultPolicy;
 
-///---------------------
-/// @name Initialization
-///---------------------
-
 /**
- Creates and returns a security policy with the specified pinning mode.
+ 根据 mode 创建对象
 
- @param pinningMode The SSL pinning mode.
-
- @return A new security policy.
+ @param pinningMode 类型
+ @return 初始化对象
  */
 + (instancetype)policyWithPinningMode:(SASSLPinningMode)pinningMode;
 
 /**
- Creates and returns a security policy with the specified pinning mode.
+ 通过 mode 及 证书数据，初始化一个验证对象
 
- @param pinningMode The SSL pinning mode.
- @param pinnedCertificates The certificates to pin against.
-
- @return A new security policy.
+ @param pinningMode mode
+ @param pinnedCertificates 证书数据
+ @return 初始化对象
  */
 + (instancetype)policyWithPinningMode:(SASSLPinningMode)pinningMode withPinnedCertificates:(NSSet <NSData *> *)pinnedCertificates;
 
-///------------------------------
-/// @name Evaluating Server Trust
-///------------------------------
-
 /**
- Whether or not the specified server trust should be accepted, based on the security policy.
+ 是否通过验证
 
- This method should be used when responding to an authentication challenge from a server.
+ 一般在 `URLSession:didReceiveChallenge:completionHandler:` 和 `URLSession:task: didReceiveChallenge:completionHandler:` 两个回调方法中进行验证。
 
- @param serverTrust The X.509 certificate trust of the server.
- @param domain The domain of serverTrust. If `nil`, the domain will not be validated.
-
- @return Whether or not to trust the server.
+ @param serverTrust 服务端信任的证书
+ @param domain 域名
+ @return 是否信任
  */
 - (BOOL)evaluateServerTrust:(SecTrustRef)serverTrust forDomain:(nullable NSString *)domain;
 

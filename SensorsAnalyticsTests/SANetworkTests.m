@@ -41,6 +41,21 @@
     _network = nil;
 }
 
+#pragma mark - Fix Bug
+/**
+ 版本：1.11.0（已删除）
+
+ NSURLComponents 的 query 属性获取时，会做解码，导致 H5 数据打通失败
+ */
+- (void)testFixGetQueryItemsWithURLIsEncoded {
+    NSString *event = @"event";
+    NSString *eventValue = @"%7B%22server_url%22%3A%22http%3A%2F%2Fsdk-test.cloud.sensorsdata.cn%3A8006%2Fsa.gif%3Fproject%3Ddefault%26token%3D95c73ae661f85aa0%22%2C%22distinct_id%22%3A%2216a9a6af66b61-048f6185f2a9e5-34753c59-370944-16a9a6af66d0%22%2C%22lib%22%3A%7B%22%24lib%22%3A%22js%22%2C%22%24lib_method%22%3A%22code%22%2C%22%24lib_version%22%3A%221.9.7%22%7D%2C%22properties%22%3A%7B%22%24screen_height%22%3A896%2C%22%24screen_width%22%3A414%2C%22%24lib%22%3A%22js%22%2C%22%24lib_version%22%3A%221.9.7%22%2C%22%24referrer%22%3A%22%22%2C%22%24referrer_host%22%3A%22%22%2C%22%24url%22%3A%22file%3A%2F%2F%2FUsers%2Fminchao%2FLibrary%2FDeveloper%2FCoreSimulator%2FDevices%2FF412A5FF-7F06-4DDC-968C-D0A15F7FC91D%2Fdata%2FContainers%2FBundle%2FApplication%2F3F4101C3-48C2-4D6F-A4B9-FD2FB1B827C7%2FHelloSensorsAnalytics.app%2Ftest2.html%22%2C%22%24url_path%22%3A%22%2FUsers%2Fminchao%2FLibrary%2FDeveloper%2FCoreSimulator%2FDevices%2FF412A5FF-7F06-4DDC-968C-D0A15F7FC91D%2Fdata%2FContainers%2FBundle%2FApplication%2F3F4101C3-48C2-4D6F-A4B9-FD2FB1B827C7%2FHelloSensorsAnalytics.app%2Ftest2.html%22%2C%22%24title%22%3A%22Title%22%2C%22%24latest_referrer%22%3A%22%E5%8F%96%E5%80%BC%E5%BC%82%E5%B8%B8%22%2C%22%24latest_referrer_host%22%3A%22%E5%8F%96%E5%80%BC%E5%BC%82%E5%B8%B8%22%2C%22%24latest_search_keyword%22%3A%22%E5%8F%96%E5%80%BC%E5%BC%82%E5%B8%B8%22%2C%22%24latest_traffic_source_type%22%3A%22%E5%8F%96%E5%80%BC%E5%BC%82%E5%B8%B8%22%2C%22%24is_first_day%22%3Afalse%2C%22%24is_first_time%22%3Afalse%7D%2C%22type%22%3A%22track%22%2C%22event%22%3A%22%24pageview%22%2C%22_nocache%22%3A%22047035893734089%22%7D";
+    NSString *urlString = [NSString stringWithFormat:@"sensorsanalytics://trackEvent?%@=%@", event, eventValue];
+    NSDictionary *items = [SANetwork queryItemsWithURLString:urlString];
+    BOOL isEqual = [items isEqualToDictionary:@{event: eventValue}];
+    XCTAssertTrue(isEqual);
+}
+
 #pragma mark - URL Method
 - (void)testGetHostWithURL {
     NSString *host = [SANetwork hostWithURL:_url];
