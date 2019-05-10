@@ -1217,6 +1217,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)deleteAll {
     [self.messageQueue deleteAll];
 }
+
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url];
@@ -1318,6 +1319,56 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *screenName = NSStringFromClass([viewController class]);
     return [_heatMapViewControllers containsObject:screenName];
+}
+
+#pragma mark - Item 操作
+- (void)itemSetWithType:(NSString *)itemType itemId:(NSString *)itemId properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+    NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
+    itemDict[SA_EVENT_TYPE] = SA_EVENT_ITEM_SET;
+    itemDict[SA_EVENT_ITEM_TYPE] = itemType;
+    itemDict[SA_EVENT_ITEM_ID] = itemId;
+
+    [self trackItems:itemDict properties:propertyDict];
+}
+
+- (void)itemDeleteWithType:(NSString *)itemType itemId:(NSString *)itemId {
+    NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
+    itemDict[SA_EVENT_TYPE] = SA_EVENT_ITEM_DELETE;
+    itemDict[SA_EVENT_ITEM_TYPE] = itemType;
+    itemDict[SA_EVENT_ITEM_ID] = itemId;
+    
+    [self trackItems:itemDict properties:nil];
+}
+
+- (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+    NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
+    
+    if (propertyDict.count > 0) {
+        itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
+    }
+    
+    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
+    [libProperties setValue:@"code" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
+    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB] forKey:SA_EVENT_COMMON_PROPERTY_LIB];
+    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION] forKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION];
+    NSString *app_version = [_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+    if (app_version) {
+        [libProperties setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+    }
+    
+    if (libProperties.count > 0) {
+        itemProperties[SA_EVENT_LIB] = libProperties;
+    }
+
+    NSNumber *timeStamp = @([[self class] getCurrentTime]);
+    itemProperties[SA_EVENT_TIME] = timeStamp;
+    
+    if (!itemProperties) {
+        return;
+    }
+    SALog(@"\n【track event】:\n%@", itemProperties);
+    
+    [self enqueueWithType:@"Post" andEvent:itemProperties];
 }
 
 #pragma mark - track event
