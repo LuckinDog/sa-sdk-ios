@@ -45,9 +45,8 @@
 		CB30C269228422B40004061D /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C268228422B40004061D /* SafariServices.framework */; };
 		CB30C26A228423080004061D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2212284165A0004061D /* WebKit.framework */; };
 		CB30C26B2284230F0004061D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C25E2284227C0004061D /* libz.tbd */; };
-		CB30C32C22843F5E0004061D /* SensorsAnalyticsSDK_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C32B22843F5E0004061D /* SensorsAnalyticsSDK_Extension.framework */; };
 		CB30C32E2284402F0004061D /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C32D2284402F0004061D /* SensorsAnalyticsSDK.framework */; };
-		CB30C3302284404A0004061D /* SensorsAnalyticsSDK_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C32F2284404A0004061D /* SensorsAnalyticsSDK_Extension.framework */; };
+		CB6EBB2622855F0C003CFBA8 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -158,6 +157,7 @@
 		CB30C32B22843F5E0004061D /* SensorsAnalyticsSDK_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C32D2284402F0004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C32F2284404A0004061D /* SensorsAnalyticsSDK_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,7 +165,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB30C3302284404A0004061D /* SensorsAnalyticsSDK_Extension.framework in Frameworks */,
 				CB30C32E2284402F0004061D /* SensorsAnalyticsSDK.framework in Frameworks */,
 				CB30C261228422830004061D /* libsqlite3.tbd in Frameworks */,
 				CB30C25F2284227C0004061D /* libz.tbd in Frameworks */,
@@ -198,7 +197,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB30C32C22843F5E0004061D /* SensorsAnalyticsSDK_Extension.framework in Frameworks */,
+				CB6EBB2622855F0C003CFBA8 /* SensorsAnalyticsExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +284,7 @@
 		CB30C2202284165A0004061D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */,
 				CB30C32F2284404A0004061D /* SensorsAnalyticsSDK_Extension.framework */,
 				CB30C32D2284402F0004061D /* SensorsAnalyticsSDK.framework */,
 				CB30C32B22843F5E0004061D /* SensorsAnalyticsSDK_Extension.framework */,
@@ -408,6 +408,7 @@
 			knownRegions = (
 				en,
 				Base,
+				global,
 			);
 			mainGroup = CB30C0AF2284115D0004061D;
 			productRefGroup = CB30C0B92284115D0004061D /* Products */;
@@ -660,6 +661,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				INFOPLIST_FILE = "$(SRCROOT)/SensorsData/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -677,6 +679,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				INFOPLIST_FILE = "$(SRCROOT)/SensorsData/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -694,6 +697,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				INFOPLIST_FILE = SensorsDataSwift/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -714,6 +718,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				INFOPLIST_FILE = SensorsDataSwift/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

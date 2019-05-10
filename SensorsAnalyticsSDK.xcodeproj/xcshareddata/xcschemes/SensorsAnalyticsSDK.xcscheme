@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CB30C30E22843D3A0004061D"
-               BuildableName = "SensorsAnalyticsSDK_Extension.framework"
-               BlueprintName = "SensorsAnalyticsSDK Extension"
+               BlueprintIdentifier = "CB30BD5322840CA40004061D"
+               BuildableName = "SensorsAnalyticsSDK.framework"
+               BlueprintName = "SensorsAnalyticsSDK"
                ReferencedContainer = "container:SensorsAnalyticsSDK.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CB30C30E22843D3A0004061D"
-            BuildableName = "SensorsAnalyticsSDK_Extension.framework"
-            BlueprintName = "SensorsAnalyticsSDK Extension"
+            BlueprintIdentifier = "CB30BD5322840CA40004061D"
+            BuildableName = "SensorsAnalyticsSDK.framework"
+            BlueprintName = "SensorsAnalyticsSDK"
             ReferencedContainer = "container:SensorsAnalyticsSDK.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CB30C30E22843D3A0004061D"
-            BuildableName = "SensorsAnalyticsSDK_Extension.framework"
-            BlueprintName = "SensorsAnalyticsSDK Extension"
+            BlueprintIdentifier = "CB30BD5322840CA40004061D"
+            BuildableName = "SensorsAnalyticsSDK.framework"
+            BlueprintName = "SensorsAnalyticsSDK"
             ReferencedContainer = "container:SensorsAnalyticsSDK.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

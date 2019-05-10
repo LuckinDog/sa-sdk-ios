@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CB30C30E22843D3A0004061D"
-               BuildableName = "SensorsAnalyticsSDK_Extension.framework"
-               BlueprintName = "SensorsAnalyticsSDK Extension"
+               BuildableName = "SensorsAnalyticsExtension.framework"
+               BlueprintName = "SensorsAnalyticsExtension"
                ReferencedContainer = "container:../SensorsAnalyticsSDK.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
