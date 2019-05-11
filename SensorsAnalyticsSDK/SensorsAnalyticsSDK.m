@@ -1341,12 +1341,41 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+    //item_type 必须为合法变量名
+    NSString *itemType = itemDict[SA_EVENT_ITEM_TYPE];
+    if (!itemType || ![self isValidName:itemType]) {
+        NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
+        SAError(@"%@", errMsg);
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+        }
+        return;
+    }
+
+    NSString *itemId = itemDict[SA_EVENT_ITEM_ID];
+    if (itemId.length > 255) {
+        SAError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
+        return;
+    }
+
+    // 校验 properties
+    NSString *type = itemDict[SA_EVENT_TYPE];
+    if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
+        SAError(@"%@ failed to item properties", self);
+        return;
+    }
+
+    //校验 itemDict
+    if (![self assertPropertyTypes:&itemDict withEventType:type]) {
+        SAError(@"%@ failed to itemDict", self);
+        return;
+    }
+
     NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
-    
     if (propertyDict.count > 0) {
         itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
     }
-    
+
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     [libProperties setValue:@"code" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
     [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB] forKey:SA_EVENT_COMMON_PROPERTY_LIB];
@@ -1355,22 +1384,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (app_version) {
         [libProperties setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
     }
-    
+
     if (libProperties.count > 0) {
         itemProperties[SA_EVENT_LIB] = libProperties;
     }
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     itemProperties[SA_EVENT_TIME] = timeStamp;
-    
+
     if (!itemProperties) {
         return;
     }
     SALog(@"\n【track event】:\n%@", itemProperties);
-    
+
     [self enqueueWithType:@"Post" andEvent:itemProperties];
 }
-
 #pragma mark - track event
 
 - (BOOL) isValidName : (NSString *) name {
