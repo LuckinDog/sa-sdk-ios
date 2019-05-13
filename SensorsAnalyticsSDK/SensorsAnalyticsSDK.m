@@ -1343,7 +1343,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
     //item_type 必须为合法变量名
     NSString *itemType = itemDict[SA_EVENT_ITEM_TYPE];
-    if (!itemType || ![self isValidName:itemType]) {
+    if (itemType.length == 0 || ![self isValidName:itemType]) {
         NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
         SAError(@"%@", errMsg);
         if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -1353,7 +1353,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     NSString *itemId = itemDict[SA_EVENT_ITEM_ID];
-    if (itemId.length > 255) {
+    if (itemId.length == 0 || itemId.length > 255) {
         SAError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
         return;
     }
@@ -1362,12 +1362,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *type = itemDict[SA_EVENT_TYPE];
     if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
         SAError(@"%@ failed to item properties", self);
-        return;
-    }
-
-    //校验 itemDict
-    if (![self assertPropertyTypes:&itemDict withEventType:type]) {
-        SAError(@"%@ failed to itemDict", self);
         return;
     }
 
