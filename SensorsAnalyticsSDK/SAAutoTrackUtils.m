@@ -150,9 +150,8 @@
 
     UIView *view = (UIView *)object;
     //View Properties
-    NSDictionary *propDict = view.sensorsAnalyticsViewProperties;
-    if (propDict != nil) {
-        [properties addEntriesFromDictionary:propDict];
+    if ([object isKindOfClass:UIView.class]) {
+        [properties addEntriesFromDictionary:view.sensorsAnalyticsViewProperties];
     }
     
     if (isIgnoredViewPath || ![object isKindOfClass:UIView.class]) {
