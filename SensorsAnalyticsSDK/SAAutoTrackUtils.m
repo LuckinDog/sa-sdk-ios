@@ -148,14 +148,15 @@
     properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = object.sensorsdata_elementContent;
     properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = object.sensorsdata_elementPosition;
 
-    if (isIgnoredViewPath || ![object isKindOfClass:UIView.class]) {
-        return [properties copy];
-    }
     UIView *view = (UIView *)object;
     //View Properties
     NSDictionary *propDict = view.sensorsAnalyticsViewProperties;
     if (propDict != nil) {
         [properties addEntriesFromDictionary:propDict];
+    }
+    
+    if (isIgnoredViewPath || ![object isKindOfClass:UIView.class]) {
+        return [properties copy];
     }
 
     NSString *viewPath = [self viewPathForView:view atViewController:viewController];
