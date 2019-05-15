@@ -1060,7 +1060,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return true;
         }
     }
-    return false;
+    
+    return ![self shouldTrackViewScreen:viewController];
 }
 
 - (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerString {
