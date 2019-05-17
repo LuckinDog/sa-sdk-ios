@@ -1033,7 +1033,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         self.loginId = nil;
         [self archiveLoginId];
-    })
+    });
 }
 
 - (NSString *)anonymousId {
@@ -1891,19 +1891,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
     }
     
-    dispatch_block_t anonymousIdBlock = ^{
+    dispatch_async(self.serialQueue, ^{
         // 先把之前的anonymousId设为originalId
         self.originalId = self.anonymousId;
         // 更新anonymousId
         self.anonymousId = anonymousId;
         [self archiveAnonymousId];
-    };
-    
-    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
-        anonymousIdBlock();
-    } else {
-        dispatch_async(self.serialQueue, anonymousIdBlock);
-    }
+    });
 }
 
 - (NSString *)deviceModel {
