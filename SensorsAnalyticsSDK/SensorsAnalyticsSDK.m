@@ -1390,9 +1390,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     itemProperties[SA_EVENT_TIME] = timeStamp;
 
-    if (!itemProperties) {
-        return;
-    }
     SALog(@"\n【track event】:\n%@", itemProperties);
 
     [self enqueueWithType:@"Post" andEvent:itemProperties];
