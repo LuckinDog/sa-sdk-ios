@@ -1358,7 +1358,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    if (!self.trackEventCallback) {
+    if (!self.trackEventCallback || !e[@"event"]) {
         return [e copy];
     }
     NSMutableDictionary *event = [e mutableCopy];
