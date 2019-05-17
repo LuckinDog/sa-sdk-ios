@@ -1217,6 +1217,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)deleteAll {
     [self.messageQueue deleteAll];
 }
+
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url];
@@ -1320,6 +1321,79 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [_heatMapViewControllers containsObject:screenName];
 }
 
+#pragma mark - Item 操作
+- (void)itemSetWithType:(NSString *)itemType itemId:(NSString *)itemId properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+    NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
+    itemDict[SA_EVENT_TYPE] = SA_EVENT_ITEM_SET;
+    itemDict[SA_EVENT_ITEM_TYPE] = itemType;
+    itemDict[SA_EVENT_ITEM_ID] = itemId;
+
+    dispatch_async(self.serialQueue, ^{
+        [self trackItems:itemDict properties:propertyDict];
+    });
+}
+
+- (void)itemDeleteWithType:(NSString *)itemType itemId:(NSString *)itemId {
+    NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
+    itemDict[SA_EVENT_TYPE] = SA_EVENT_ITEM_DELETE;
+    itemDict[SA_EVENT_ITEM_TYPE] = itemType;
+    itemDict[SA_EVENT_ITEM_ID] = itemId;
+    
+    dispatch_async(self.serialQueue, ^{
+        [self trackItems:itemDict properties:nil];
+    });
+}
+
+- (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+    //item_type 必须为合法变量名
+    NSString *itemType = itemDict[SA_EVENT_ITEM_TYPE];
+    if (itemType.length == 0 || ![self isValidName:itemType]) {
+        NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
+        SAError(@"%@", errMsg);
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+        }
+        return;
+    }
+
+    NSString *itemId = itemDict[SA_EVENT_ITEM_ID];
+    if (itemId.length == 0 || itemId.length > 255) {
+        SAError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
+        return;
+    }
+
+    // 校验 properties
+    NSString *type = itemDict[SA_EVENT_TYPE];
+    if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
+        SAError(@"%@ failed to item properties", self);
+        return;
+    }
+
+    NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
+    if (propertyDict.count > 0) {
+        itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
+    }
+
+    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
+    [libProperties setValue:@"code" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
+    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB] forKey:SA_EVENT_COMMON_PROPERTY_LIB];
+    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION] forKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION];
+    NSString *app_version = [_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+    if (app_version) {
+        [libProperties setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+    }
+
+    if (libProperties.count > 0) {
+        itemProperties[SA_EVENT_LIB] = libProperties;
+    }
+
+    NSNumber *timeStamp = @([[self class] getCurrentTime]);
+    itemProperties[SA_EVENT_TIME] = timeStamp;
+
+    SALog(@"\n【track event】:\n%@", itemProperties);
+
+    [self enqueueWithType:@"Post" andEvent:itemProperties];
+}
 #pragma mark - track event
 
 - (BOOL) isValidName : (NSString *) name {

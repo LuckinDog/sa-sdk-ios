@@ -21,9 +21,14 @@
 #import <XCTest/XCTest.h>
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK.h"
+#import "MessageQueueBySqlite.h"
 
 @interface SensorsAnalyticsTests : XCTestCase
 @property (nonatomic, weak) SensorsAnalyticsSDK *sensorsAnalytics;
+@end
+
+@interface SensorsAnalyticsSDK()
+@property (atomic, strong) MessageQueueBySqlite *messageQueue;
 @end
 
 @implementation SensorsAnalyticsTests
@@ -64,4 +69,26 @@
     XCTAssertFalse(isTrackEventCallbackExecuted);
 }
 
+#pragma mark - event
+- (void)testItemSet {
+    NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+    [[SensorsAnalyticsSDK sharedInstance] itemSetWithType:@"itemSet0517" itemId:@"itemId0517" properties:@{@"itemSet":@"acsdfgvzscd"}];
+    
+    sleep(1);
+    
+    NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+    BOOL insertSucceed = lastCount == newCount - 1;
+    XCTAssertTrue(insertSucceed);
+}
+
+- (void)testItemDelete {
+    NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+    [[SensorsAnalyticsSDK sharedInstance] itemDeleteWithType:@"itemSet0517" itemId:@"itemId0517"];
+    
+    sleep(1);
+    
+    NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+    BOOL insertSucceed = lastCount == newCount - 1;
+    XCTAssertTrue(insertSucceed);
+}
 @end
