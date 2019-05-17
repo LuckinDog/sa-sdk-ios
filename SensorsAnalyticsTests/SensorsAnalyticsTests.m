@@ -19,19 +19,31 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "SAConfigOptions.h"
+#import "SensorsAnalyticsSDK.h"
 
 @interface SensorsAnalyticsTests : XCTestCase
-
+@property (nonatomic, weak) SensorsAnalyticsSDK *sensorsAnalytics;
 @end
 
 @implementation SensorsAnalyticsTests
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.sensorsAnalytics = [SensorsAnalyticsSDK sharedInstance];
+    if (!self.sensorsAnalytics) {
+        SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
+        [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
+        self.sensorsAnalytics = [SensorsAnalyticsSDK sharedInstance];
+    }
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat"
+    [self.sensorsAnalytics trackEventCallback:nil];
+#pragma clang diagnostic pop
+    self.sensorsAnalytics = nil;
 }
 
 - (void)testExample {
@@ -39,11 +51,17 @@
     // Use XCTAssert and related functions to verify your tests produce the correct results.
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
+#pragma mark - fix bug
+// 调用 Profile 相关的方法时，事件名称为 nil，不调用 callback
+- (void)testProfileEventWithoutCallback {
+    __block BOOL isTrackEventCallbackExecuted = NO;
+    [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL(NSString * _Nonnull eventName, NSMutableDictionary<NSString *,id> * _Nonnull properties) {
+        isTrackEventCallbackExecuted = YES;
+        return YES;
     }];
+    [[SensorsAnalyticsSDK sharedInstance] set:@"avatar_url" to:@"http://www.sensorsdata.cn"];
+    sleep(0.5);
+    XCTAssertFalse(isTrackEventCallbackExecuted);
 }
 
 @end
