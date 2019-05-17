@@ -1328,7 +1328,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
 
-    [self trackItems:itemDict properties:propertyDict];
+    dispatch_async(self.serialQueue, ^{
+        [self trackItems:itemDict properties:propertyDict];
+    });
 }
 
 - (void)itemDeleteWithType:(NSString *)itemType itemId:(NSString *)itemId {
@@ -1337,7 +1339,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
     
-    [self trackItems:itemDict properties:nil];
+    dispatch_async(self.serialQueue, ^{
+        [self trackItems:itemDict properties:nil];
+    });
 }
 
 - (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
@@ -1431,7 +1435,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    if (!self.trackEventCallback) {
+    if (!self.trackEventCallback || !e[@"event"]) {
         return [e copy];
     }
     NSMutableDictionary *event = [e mutableCopy];
