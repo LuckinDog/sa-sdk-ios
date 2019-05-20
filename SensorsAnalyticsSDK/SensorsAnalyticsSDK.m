@@ -2239,12 +2239,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Local caches
 
 - (void)unarchive {
-    dispatch_async(self.serialQueue, ^{
         [self unarchiveAnonymousId];
         [self unarchiveLoginId];
         [self unarchiveSuperProperties];
         [self unarchiveFirstDay];
-    });
 }
 
 - (id)unarchiveFromFile:(NSString *)filePath {
