@@ -57,7 +57,6 @@
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
-#import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
 #import "UIGestureRecognizer+AutoTrack.h"
@@ -285,13 +284,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
             
-            [NSThread sa_safelyRunOnMainThreadSync:^{
+            dispatch_block_t mainThreadBlock = ^(){
                 UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
                 //判断被动启动
                 if (applicationState == UIApplicationStateBackground) {
                     self->_launchedPassively = YES;
                 }
-            }];
+            };
+            sensorsdata_dispatch_main_safe_sync(mainThreadBlock);
             
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
@@ -2580,7 +2580,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent{
-    [NSThread sa_safelyRunOnMainThreadSync:^{
+    
+    dispatch_block_t mainThreadBlock = ^(){
         BOOL verify = enableVerify;
         @try {
             if (!self.network.serverURL) {
@@ -2608,7 +2609,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
-    }];
+    };
+    sensorsdata_dispatch_main_safe_sync(mainThreadBlock);
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
