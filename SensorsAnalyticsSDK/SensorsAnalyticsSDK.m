@@ -1016,19 +1016,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ max length of login_id is 255, login_id: %@", self, loginId);
         return;
     }
-    if (![loginId isEqualToString:self.loginId]) {
-        self.loginId = loginId;
-        [self archiveLoginId];
-        if (![loginId isEqualToString:self.anonymousId]) {
-            self.originalId = self.anonymousId;
-            [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:properties withType:@"track_signup"];
+    
+    dispatch_async(self.serialQueue, ^{
+        if (![loginId isEqualToString:self.loginId]) {
+            self.loginId = loginId;
+            [self archiveLoginId];
+            if (![loginId isEqualToString:self.anonymousId]) {
+                self.originalId = self.anonymousId;
+                [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:properties withType:@"track_signup"];
+            }
         }
-    }
+    });
 }
 
 - (void)logout {
-    self.loginId = nil;
-    [self archiveLoginId];
+    dispatch_async(self.serialQueue, ^{
+        self.loginId = nil;
+        [self archiveLoginId];
+    });
 }
 
 - (NSString *)anonymousId {
@@ -1959,6 +1964,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, anonymousId);
 //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
     }
+    
     dispatch_async(self.serialQueue, ^{
         // 先把之前的anonymousId设为originalId
         self.originalId = self.anonymousId;
@@ -2307,10 +2313,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Local caches
 
 - (void)unarchive {
-    [self unarchiveAnonymousId];
-    [self unarchiveLoginId];
-    [self unarchiveSuperProperties];
-    [self unarchiveFirstDay];
+        [self unarchiveAnonymousId];
+        [self unarchiveLoginId];
+        [self unarchiveSuperProperties];
+        [self unarchiveFirstDay];
 }
 
 - (id)unarchiveFromFile:(NSString *)filePath {
