@@ -457,23 +457,6 @@ NS_ASSUME_NONNULL_BEGIN
  * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
  * 间记录在事件属性 "event_duration" 中。
  *
- * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
- *
- * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
- *
- * @param event             event 的名称
- */
-- (void)trackTimer:(NSString *)event;
-
-/**
- * @abstract
- * 初始化事件的计时器。
- *
- * @discussion
- * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
- * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- * 间记录在事件属性 "event_duration" 中。
- *
  * 时间单位为秒，若需要以其他时间单位统计时长
  *
  * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
@@ -481,18 +464,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @param event             event 的名称
  */
 - (void)trackTimerStart:(NSString *)event;
-
-/**
- * @abstract
- * 初始化事件的计时器，允许用户指定计时单位。
- *
- * @discussion
- * 请参考 trackTimer
- *
- * @param event             event 的名称
- * @param timeUnit          计时单位，毫秒/秒/分钟/小时
- */
-- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
@@ -1242,7 +1213,34 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
+/**
+ * @abstract
+ * 初始化事件的计时器。
+ *
+ * @discussion
+ * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ * 间记录在事件属性 "event_duration" 中。
+ *
+ * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
+ *
+ * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
+ *
+ * @param event             event 的名称
+ */
+- (void)trackTimer:(NSString *)event __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
+/**
+ * @abstract
+ * 初始化事件的计时器，允许用户指定计时单位。
+ *
+ * @discussion
+ * 请参考 trackTimer
+ *
+ * @param event             event 的名称
+ * @param timeUnit          计时单位，毫秒/秒/分钟/小时
+ */
+- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 #pragma mark- heatMap
 /**
  * @abstract

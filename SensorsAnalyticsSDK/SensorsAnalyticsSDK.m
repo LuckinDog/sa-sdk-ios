@@ -1799,15 +1799,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [_network cookieWithDecoded:decode];
 }
 
-- (void)trackTimer:(NSString *)event {
-    [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitMilliseconds];
-}
-
 - (void)trackTimerStart:(NSString *)event {
-    [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+    [self trackTimerStart:event timeUnit:SensorsAnalyticsTimeUnitSeconds];
 }
 
-- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
+- (void)trackTimerStart:(NSString *)event timeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     if (![self isValidName:event]) {
         NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
         SAError(@"%@", errMsg);
@@ -3564,11 +3560,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackTimerBegin:(NSString *)event {
-    [self trackTimer:event];
+    [self trackTimerStart:event];
 }
 
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
-    [self trackTimer:event withTimeUnit:timeUnit];
+    [self trackTimerStart:event timeUnit:timeUnit];
+}
+
+- (void)trackTimer:(NSString *)event {
+    [self trackTimerStart:event timeUnit:SensorsAnalyticsTimeUnitMilliseconds];
+}
+
+- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
+    [self trackTimerStart:event timeUnit:timeUnit];
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
