@@ -406,48 +406,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)identify:(NSString *)anonymousId;
 
-#pragma mark - track event
-/**
- * @abstract
- * 调用 track 接口，追踪一个带有属性的 event
- *
- * @discussion
- * propertyDict 是一个 Map。
- * 其中的 key 是 Property 的名称，必须是 NSString
- * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
- * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
- *
- * @param event             event的名称
- * @param propertyDict     event的属性
- */
-- (void)track:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
-
-/**
- * @abstract
- * 调用 track 接口，追踪一个无私有属性的 event
- *
- * @param event event 的名称
- */
-- (void)track:(NSString *)event;
-
-/**
- * @abstract
- * 设置 Cookie
- *
- * @param cookie NSString cookie
- * @param encode BOOL 是否 encode
- */
-- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode;
-
-/**
- * @abstract
- * 返回已设置的 Cookie
- *
- * @param decode BOOL 是否 decode
- * @return NSString cookie
- */
-- (NSString *)getCookieWithDecode:(BOOL)decode;
-
+#pragma mark - trackTimer
 /**
  * @abstract
  * 初始化事件的计时器。
@@ -518,14 +477,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)trackTimerResume:(NSString *)event;
 
-- (UIViewController *_Nullable)currentViewController;
-
 /**
  * @abstract
  * 清除所有事件计时器
  */
 - (void)clearTrackTimer;
 
+- (UIViewController *_Nullable)currentViewController;
+
+#pragma mark trackInstallation
 /**
  * @abstract
  * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
@@ -572,6 +532,48 @@ NS_ASSUME_NONNULL_BEGIN
  * @param event             event 的名称
  */
 - (void)trackInstallation:(NSString *)event;
+
+#pragma mark track event
+/**
+ * @abstract
+ * 调用 track 接口，追踪一个带有属性的 event
+ *
+ * @discussion
+ * propertyDict 是一个 Map。
+ * 其中的 key 是 Property 的名称，必须是 NSString
+ * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
+ * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
+ *
+ * @param event             event的名称
+ * @param propertyDict     event的属性
+ */
+- (void)track:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
+
+/**
+ * @abstract
+ * 调用 track 接口，追踪一个无私有属性的 event
+ *
+ * @param event event 的名称
+ */
+- (void)track:(NSString *)event;
+
+/**
+ * @abstract
+ * 设置 Cookie
+ *
+ * @param cookie NSString cookie
+ * @param encode BOOL 是否 encode
+ */
+- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode;
+
+/**
+ * @abstract
+ * 返回已设置的 Cookie
+ *
+ * @param decode BOOL 是否 decode
+ * @return NSString cookie
+ */
+- (NSString *)getCookieWithDecode:(BOOL)decode;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo;
 
