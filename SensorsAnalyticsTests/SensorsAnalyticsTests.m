@@ -91,4 +91,82 @@
     BOOL insertSucceed = lastCount == newCount - 1;
     XCTAssertTrue(insertSucceed);
 }
+
+#pragma mark - trackTimer
+- (void)testTrackTimerStart {
+    __block NSDictionary *callBackProperties = nil;
+    dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
+    [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+        if ([eventName isEqualToString:@"timerEvent"]) {
+            callBackProperties = properties;
+            dispatch_semaphore_signal(flushSemaphore);
+        }
+        return YES;
+    }];
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
+    sleep(1);
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
+
+    dispatch_time_t waitTime = dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC);
+    dispatch_semaphore_wait(flushSemaphore, waitTime);
+
+    BOOL contentDuration = [callBackProperties.allKeys containsObject:@"event_duration"];
+    XCTAssertTrue(contentDuration);
+}
+
+- (void)testTrackTimerPause {
+    __block float event_duration = 2.0;
+    dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
+    [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+        if ([eventName isEqualToString:@"timerEvent"]) {
+            event_duration = [properties[@"event_duration"] floatValue];
+            dispatch_semaphore_signal(flushSemaphore);
+        }
+        return YES;
+    }];
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
+
+    sleep(1);
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:@"timerEvent"];
+    sleep(1);
+
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
+
+    dispatch_time_t waitTime = dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC);
+    dispatch_semaphore_wait(flushSemaphore, waitTime);
+    
+    //如果计时器成功被暂停，则事件时长 event_duration = 1 秒（不考虑多线程和其他操作延时）
+    // 如果计时器暂停失败，则事件时长 event_duration = 2 秒（不考虑多线程和其他操作延时）
+    XCTAssertLessThanOrEqual(event_duration, 1.1);
+}
+
+- (void)testTrackTimerResume {
+    __block float event_duration = 0;
+    dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
+    [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+        if ([eventName isEqualToString:@"timerEvent"]) {
+            event_duration = [properties[@"event_duration"] floatValue];
+            dispatch_semaphore_signal(flushSemaphore);
+        }
+        return YES;
+    }];
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
+
+    sleep(1);
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:@"timerEvent"];
+    sleep(1);
+
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerResume:@"timerEvent"];
+    sleep(1);
+
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
+
+    dispatch_time_t waitTime = dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC);
+    dispatch_semaphore_wait(flushSemaphore, waitTime);
+    
+    //判断是否恢复成功，如果恢复事件计时失败，事件时长 event_duration 只保留暂停前的计时：1 秒（不考虑多线程和其他操作延时）
+    //如果恢复计时器成功，事件时长 event_duration = 2（不考虑多线程和其他操作延时）；
+    XCTAssertGreaterThanOrEqual(event_duration, 1.1);
+}
+
 @end
