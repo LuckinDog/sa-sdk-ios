@@ -308,3 +308,61 @@
 }
 
 @end
+
+#pragma mark - Cell
+
+@implementation UITableViewCell (AutoTrack)
+
+- (UIScrollView *)sensorsdata_scrollView {
+    UITableView *tableView = nil;
+    do {
+        tableView = (UITableView *)self.superview;
+    } while (![tableView isKindOfClass:UITableView.class]);
+    return tableView;
+}
+
+- (NSString *)sensorsdata_elementId {
+    return self.sensorsdata_scrollView.sensorsdata_elementId;
+}
+
+- (NSString *)sensorsdata_elementType {
+    return NSStringFromClass(self.sensorsdata_scrollView.class);
+}
+
+- (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {
+    return [NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section, (long)indexPath.row];
+}
+
+- (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath {
+    return [NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.row];
+}
+
+@end
+
+@implementation UICollectionViewCell (AutoTrack)
+
+- (UIScrollView *)sensorsdata_scrollView {
+    UICollectionView *collectionView = nil;
+    do {
+        collectionView = (UICollectionView *)self.superview;
+    } while (![collectionView isKindOfClass:UICollectionView.class]);
+    return collectionView;
+}
+
+- (NSString *)sensorsdata_elementId {
+    return self.sensorsdata_scrollView.sensorsdata_elementId;
+}
+
+- (NSString *)sensorsdata_elementType {
+    return NSStringFromClass(self.sensorsdata_scrollView.class);
+}
+
+- (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {
+    return [NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section, (long)indexPath.row];
+}
+
+- (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath {
+    return [NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.row];
+}
+
+@end

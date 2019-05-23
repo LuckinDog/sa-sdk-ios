@@ -118,13 +118,11 @@
 		CB6EBB9D22857BC0003CFBA8 /* UIGestureRecognizer+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9222857BBF003CFBA8 /* UIGestureRecognizer+AutoTrack.h */; };
 		CB6EBB9E22857BC0003CFBA8 /* UIApplication+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBB9322857BBF003CFBA8 /* UIApplication+AutoTrack.m */; };
 		CB6EBB9F22857BC0003CFBA8 /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9422857BBF003CFBA8 /* UIApplication+AutoTrack.h */; };
-		CB6EBBA022857BC0003CFBA8 /* UIScrollView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBB9522857BBF003CFBA8 /* UIScrollView+AutoTrack.m */; };
 		CB6EBBA122857BC0003CFBA8 /* UIView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9622857BBF003CFBA8 /* UIView+AutoTrack.h */; };
 		CB6EBBA222857BC0003CFBA8 /* SAAutoTrackProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9722857BC0003CFBA8 /* SAAutoTrackProperty.h */; };
 		CB6EBBA322857BC0003CFBA8 /* UIView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBB9822857BC0003CFBA8 /* UIView+AutoTrack.m */; };
 		CB6EBBA422857BC0003CFBA8 /* SAAutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBB9922857BC0003CFBA8 /* SAAutoTrackUtils.m */; };
 		CB6EBBA522857BC0003CFBA8 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */; };
-		CB6EBBA622857BC0003CFBA8 /* UIScrollView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9B22857BC0003CFBA8 /* UIScrollView+AutoTrack.h */; };
 		CBE4DF03228AA1CB00DDE07D /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */; };
 		CBE4DF04228AA1CB00DDE07D /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */; };
 /* End PBXBuildFile section */
@@ -256,13 +254,11 @@
 		CB6EBB9222857BBF003CFBA8 /* UIGestureRecognizer+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+AutoTrack.h"; sourceTree = "<group>"; };
 		CB6EBB9322857BBF003CFBA8 /* UIApplication+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+AutoTrack.m"; sourceTree = "<group>"; };
 		CB6EBB9422857BBF003CFBA8 /* UIApplication+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+AutoTrack.h"; sourceTree = "<group>"; };
-		CB6EBB9522857BBF003CFBA8 /* UIScrollView+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+AutoTrack.m"; sourceTree = "<group>"; };
 		CB6EBB9622857BBF003CFBA8 /* UIView+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+AutoTrack.h"; sourceTree = "<group>"; };
 		CB6EBB9722857BC0003CFBA8 /* SAAutoTrackProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackProperty.h; sourceTree = "<group>"; };
 		CB6EBB9822857BC0003CFBA8 /* UIView+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+AutoTrack.m"; sourceTree = "<group>"; };
 		CB6EBB9922857BC0003CFBA8 /* SAAutoTrackUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtils.m; sourceTree = "<group>"; };
 		CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
-		CB6EBB9B22857BC0003CFBA8 /* UIScrollView+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+AutoTrack.h"; sourceTree = "<group>"; };
 		CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AutoTrack.h"; sourceTree = "<group>"; };
 		CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AutoTrack.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -496,8 +492,6 @@
 				CB6EBB9322857BBF003CFBA8 /* UIApplication+AutoTrack.m */,
 				CB6EBB9222857BBF003CFBA8 /* UIGestureRecognizer+AutoTrack.h */,
 				CB6EBB9122857BBF003CFBA8 /* UIGestureRecognizer+AutoTrack.m */,
-				CB6EBB9B22857BC0003CFBA8 /* UIScrollView+AutoTrack.h */,
-				CB6EBB9522857BBF003CFBA8 /* UIScrollView+AutoTrack.m */,
 				CB6EBB9622857BBF003CFBA8 /* UIView+AutoTrack.h */,
 				CB6EBB9822857BC0003CFBA8 /* UIView+AutoTrack.m */,
 			);
@@ -518,7 +512,6 @@
 				CB30C05022840EC00004061D /* SAConstants.h in Headers */,
 				CB30C08E22840EC00004061D /* SAAppExtensionDataManager.h in Headers */,
 				CB30C04622840EC00004061D /* SAObjectIdentityProvider.h in Headers */,
-				CB6EBBA622857BC0003CFBA8 /* UIScrollView+AutoTrack.h in Headers */,
 				CB30C05122840EC00004061D /* SASwizzle.h in Headers */,
 				CB30C05A22840EC00004061D /* SAConstants+Private.h in Headers */,
 				CB30C07622840EC00004061D /* NSString+HashCode.h in Headers */,
@@ -733,7 +726,6 @@
 				CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */,
 				CB30C06B22840EC00004061D /* SAKeyChainItemWrapper.m in Sources */,
 				CB30C07B22840EC00004061D /* SADeviceOrientationManager.m in Sources */,
-				CB6EBBA022857BC0003CFBA8 /* UIScrollView+AutoTrack.m in Sources */,
 				CB30C0A222840EC00004061D /* SAVisualizedAutoTrackConnection.m in Sources */,
 				CB30C07D22840EC00004061D /* SAConfigOptions.m in Sources */,
 				CB30C05722840EC00004061D /* JSONUtil.m in Sources */,

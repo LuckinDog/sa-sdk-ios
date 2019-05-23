@@ -2458,7 +2458,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (view == nil) {
             return;
         }
-        NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view isIgnoredViewPath:YES];
+        NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view isAutoTrack:NO];
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);

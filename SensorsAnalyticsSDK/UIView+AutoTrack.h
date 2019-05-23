@@ -69,3 +69,9 @@
 @interface UITabBarItem (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
+#pragma mark - Cell
+@interface UITableViewCell (AutoTrack) <SAAutoTrackCellProperty>
+@end
+
+@interface UICollectionViewCell (AutoTrack) <SAAutoTrackCellProperty>
+@end
