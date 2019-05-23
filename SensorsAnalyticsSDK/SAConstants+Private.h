@@ -34,6 +34,12 @@ extern NSString * const SA_EVENT_LIB;
 extern NSString * const SA_EVENT_PROJECT;
 extern NSString * const SA_EVENT_TOKEN;
 
+#pragma mark - Item
+extern NSString * const SA_EVENT_ITEM_TYPE;
+extern NSString * const SA_EVENT_ITEM_ID;
+extern NSString * const SA_EVENT_ITEM_SET;
+extern NSString * const SA_EVENT_ITEM_DELETE;
+
 #pragma mark--evnet nanme
 
 // App 启动或激活
@@ -120,3 +126,9 @@ extern NSString * const SA_REQUEST_REMOTECONFIG_TIME;
 extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
+
+
+#pragma mark - safe sync
+void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block);
+
+void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);

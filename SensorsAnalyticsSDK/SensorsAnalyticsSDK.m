@@ -57,7 +57,6 @@
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
-#import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
 #import "UIGestureRecognizer+AutoTrack.h"
@@ -66,7 +65,7 @@
 #import "SAAuxiliaryToolManager.h"
 
 
-#define VERSION @"1.11.1"
+#define VERSION @"1.11.2"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -261,13 +260,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
             
-            [NSThread sa_safelyRunOnMainThreadSync:^{
+            dispatch_block_t mainThreadBlock = ^(){
                 UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
                 //判断被动启动
                 if (applicationState == UIApplicationStateBackground) {
                     self->_launchedPassively = YES;
                 }
-            }];
+            };
+            sensorsdata_dispatch_main_safe_sync(mainThreadBlock);
             
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
@@ -929,19 +929,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ max length of login_id is 255, login_id: %@", self, loginId);
         return;
     }
-    if (![loginId isEqualToString:self.loginId]) {
-        self.loginId = loginId;
-        [self archiveLoginId];
-        if (![loginId isEqualToString:self.anonymousId]) {
-            self.originalId = self.anonymousId;
-            [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:properties withType:@"track_signup"];
+    
+    dispatch_async(self.serialQueue, ^{
+        if (![loginId isEqualToString:self.loginId]) {
+            self.loginId = loginId;
+            [self archiveLoginId];
+            if (![loginId isEqualToString:self.anonymousId]) {
+                self.originalId = self.anonymousId;
+                [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:properties withType:@"track_signup"];
+            }
         }
-    }
+    });
 }
 
 - (void)logout {
-    self.loginId = nil;
-    [self archiveLoginId];
+    dispatch_async(self.serialQueue, ^{
+        self.loginId = nil;
+        [self archiveLoginId];
+    });
 }
 
 - (NSString *)anonymousId {
@@ -1131,6 +1136,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)deleteAll {
     [self.messageQueue deleteAll];
 }
+
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url];
@@ -1234,6 +1240,79 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [_heatMapViewControllers containsObject:screenName];
 }
 
+#pragma mark - Item 操作
+- (void)itemSetWithType:(NSString *)itemType itemId:(NSString *)itemId properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+    NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
+    itemDict[SA_EVENT_TYPE] = SA_EVENT_ITEM_SET;
+    itemDict[SA_EVENT_ITEM_TYPE] = itemType;
+    itemDict[SA_EVENT_ITEM_ID] = itemId;
+
+    dispatch_async(self.serialQueue, ^{
+        [self trackItems:itemDict properties:propertyDict];
+    });
+}
+
+- (void)itemDeleteWithType:(NSString *)itemType itemId:(NSString *)itemId {
+    NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
+    itemDict[SA_EVENT_TYPE] = SA_EVENT_ITEM_DELETE;
+    itemDict[SA_EVENT_ITEM_TYPE] = itemType;
+    itemDict[SA_EVENT_ITEM_ID] = itemId;
+    
+    dispatch_async(self.serialQueue, ^{
+        [self trackItems:itemDict properties:nil];
+    });
+}
+
+- (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+    //item_type 必须为合法变量名
+    NSString *itemType = itemDict[SA_EVENT_ITEM_TYPE];
+    if (itemType.length == 0 || ![self isValidName:itemType]) {
+        NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
+        SAError(@"%@", errMsg);
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+        }
+        return;
+    }
+
+    NSString *itemId = itemDict[SA_EVENT_ITEM_ID];
+    if (itemId.length == 0 || itemId.length > 255) {
+        SAError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
+        return;
+    }
+
+    // 校验 properties
+    NSString *type = itemDict[SA_EVENT_TYPE];
+    if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
+        SAError(@"%@ failed to item properties", self);
+        return;
+    }
+
+    NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
+    if (propertyDict.count > 0) {
+        itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
+    }
+
+    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
+    [libProperties setValue:@"code" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
+    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB] forKey:SA_EVENT_COMMON_PROPERTY_LIB];
+    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION] forKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION];
+    NSString *app_version = [_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+    if (app_version) {
+        [libProperties setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+    }
+
+    if (libProperties.count > 0) {
+        itemProperties[SA_EVENT_LIB] = libProperties;
+    }
+
+    NSNumber *timeStamp = @([[self class] getCurrentTime]);
+    itemProperties[SA_EVENT_TIME] = timeStamp;
+
+    SALog(@"\n【track event】:\n%@", itemProperties);
+
+    [self enqueueWithType:@"Post" andEvent:itemProperties];
+}
 #pragma mark - track event
 
 - (BOOL) isValidName : (NSString *) name {
@@ -1272,7 +1351,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    if (!self.trackEventCallback) {
+    if (!self.trackEventCallback || !e[@"event"]) {
         return [e copy];
     }
     NSMutableDictionary *event = [e mutableCopy];
@@ -1799,6 +1878,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, anonymousId);
 //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
     }
+    
     dispatch_async(self.serialQueue, ^{
         // 先把之前的anonymousId设为originalId
         self.originalId = self.anonymousId;
@@ -2147,10 +2227,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Local caches
 
 - (void)unarchive {
-    [self unarchiveAnonymousId];
-    [self unarchiveLoginId];
-    [self unarchiveSuperProperties];
-    [self unarchiveFirstDay];
+        [self unarchiveAnonymousId];
+        [self unarchiveLoginId];
+        [self unarchiveSuperProperties];
+        [self unarchiveFirstDay];
 }
 
 - (id)unarchiveFromFile:(NSString *)filePath {
@@ -2414,7 +2494,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent{
-    [NSThread sa_safelyRunOnMainThreadSync:^{
+    
+    dispatch_block_t mainThreadBlock = ^(){
         BOOL verify = enableVerify;
         @try {
             if (!self.network.serverURL) {
@@ -2442,7 +2523,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
-    }];
+    };
+    sensorsdata_dispatch_main_safe_sync(mainThreadBlock);
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {

@@ -34,6 +34,12 @@ NSString * const SA_EVENT_LIB = @"lib";
 NSString * const SA_EVENT_PROJECT = @"project";
 NSString * const SA_EVENT_TOKEN = @"token";
 
+#pragma mark - Item
+NSString * const SA_EVENT_ITEM_TYPE = @"item_type";
+NSString * const SA_EVENT_ITEM_ID = @"item_id";
+NSString * const SA_EVENT_ITEM_SET = @"item_set";
+NSString * const SA_EVENT_ITEM_DELETE = @"item_delete";
+
 #pragma mark - event name
 // App 启动或激活
 NSString * const SA_EVENT_NAME_APP_START = @"$AppStart";
@@ -99,7 +105,6 @@ NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE = @"$app_state";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
 
-
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";
 NSString * const SA_PROFILE_SET_ONCE = @"profile_set_once";
@@ -116,3 +121,16 @@ NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTim
 NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
+
+
+void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block) {
+    sensorsdata_dispatch_safe_sync(dispatch_get_main_queue(),block);
+}
+
+void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block) {
+    if ((dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL)) == dispatch_queue_get_label(queue)) {
+        block();
+    } else {
+        dispatch_sync(queue, block);
+    }
+}
