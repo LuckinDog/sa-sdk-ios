@@ -465,9 +465,58 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)trackTimerStart:(NSString *)event;
 
+
+/**
+ @abstract
+ 结束事件计时
+
+ @discussion
+ 结束事件及时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ 间记录在事件属性 "event_duration" 中。
+ 
+ 多次调用 trackTimerEnd: 时，以首次调用为准。
+ 
+ @param event 事件名
+ @param propertyDict 自定义属性
+ */
 - (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
+/**
+ @abstract
+ 结束事件计时
+ 
+ @discussion
+ 结束事件及时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ 间记录在事件属性 "event_duration" 中。
+ 
+ 多次调用 trackTimerEnd: 时，以首次调用为准。
+ 
+ @param event 事件名
+ */
 - (void)trackTimerEnd:(NSString *)event;
+
+
+/**
+ @abstract
+ 暂停事件计时
+
+ @discussion
+ 多次调用 trackTimerPause: 时，以首次调用为准。
+ 
+ @param event 事件名
+ */
+- (void)trackTimerPause:(NSString *)event;
+
+/**
+ @abstract
+ 恢复事件计时
+
+ @discussion
+ 多次调用 trackTimerResume: 时，以首次调用为准。
+ 
+ @param event 事件名
+ */
+- (void)trackTimerResume:(NSString *)event;
 
 - (UIViewController *_Nullable)currentViewController;
 
