@@ -92,7 +92,7 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 @implementation UIView (SensorsAnalytics)
 - (UIViewController *)sensorsAnalyticsViewController {
-    return self.sensorsdata_superViewController;
+    return self.sensorsdata_viewController;
 }
 
 //viewID
@@ -1069,13 +1069,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return ![self shouldTrackViewScreen:viewController];
 }
 
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerString {
-    if (viewControllerString == nil) {
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
+    if (viewControllerClassName == nil) {
         return false;
     }
 
     if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
-        if ([_ignoredViewControllers containsObject:viewControllerString]) {
+        if ([_ignoredViewControllers containsObject:viewControllerClassName]) {
             return true;
         }
     }
@@ -2540,7 +2540,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (view == nil) {
             return;
         }
-        NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view isAutoTrack:NO];
+        NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view isCodeTrack:YES];
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
@@ -2582,27 +2582,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackViewScreen:(UIViewController *)controller {
-    NSString *screenName = NSStringFromClass(controller.class);
     //过滤用户设置的不被AutoTrack的Controllers
-    if (_ignoredViewControllers.count > 0 && screenName) {
-        if ([_ignoredViewControllers containsObject:screenName]) {
-            return;
-        }
+    if ([self isViewControllerIgnored:controller]) {
+        return;
     }
-    
+
     if (self.launchedPassively) {
         if (controller) {
             if (!self.launchedPassivelyControllers) {
                 self.launchedPassivelyControllers = [NSMutableArray array];
             }
-            
-            if ([self shouldTrackViewScreen:controller]) {
-                [self.launchedPassivelyControllers addObject:controller];
-            }
+            [self.launchedPassivelyControllers addObject:controller];
         }
         return;
     }
-    
+
     [self trackViewScreen:controller];
 }
 

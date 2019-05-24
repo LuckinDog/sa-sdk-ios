@@ -225,18 +225,19 @@
 }
 
 - (void)testAutoTrackPropertiesWithTableView {
-    NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackObject:self.viewController.tableView didSelectedAtindexPath:[NSIndexPath indexPathForRow:10 inSection:0]];
+    // row 太大可能未在屏幕显示，取不到 cell
+    NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackObject:self.viewController.tableView didSelectedAtindexPath:[NSIndexPath indexPathForRow:2 inSection:0]];
 
     XCTAssertTrue([dic[@"$title"] isEqualToString:@"Element"]);
     XCTAssertTrue([dic[@"$screen_name"] isEqualToString:@"ElementViewController"]);
 
     XCTAssertNil(dic[@"$element_id"]);
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UITableView"]);
-    XCTAssertTrue([dic[@"$element_content"] isEqualToString:@"Section: 0, Row: 10"]);
-    XCTAssertTrue([dic[@"$element_position"] isEqualToString:@"0:10"]);
+    XCTAssertTrue([dic[@"$element_content"] isEqualToString:@"Section: 0, Row: 2"]);
+    XCTAssertTrue([dic[@"$element_position"] isEqualToString:@"0:2"]);
 
     // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UITableView/UITableViewCell[0][10]";
+    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UITableView/UITableViewCell[0][2]";
     XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 

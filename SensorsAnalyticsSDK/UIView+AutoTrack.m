@@ -93,7 +93,7 @@
     return self.sensorsAnalyticsViewID;
 }
 
-- (UIViewController *)sensorsdata_superViewController {
+- (UIViewController *)sensorsdata_viewController {
     UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self];
     if ([viewController isKindOfClass:UINavigationController.class]) {
         viewController = [SAAutoTrackUtils currentViewController];
@@ -287,7 +287,7 @@
     return nil;
 }
 
-- (UIViewController *)sensorsdata_superViewController {
+- (UIViewController *)sensorsdata_viewController {
     return nil;
 }
 

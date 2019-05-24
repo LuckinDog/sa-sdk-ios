@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UIView (SensorsAnalytics)
-- (nullable UIViewController *)sensorsAnalyticsViewController;
+- (nullable UIViewController *)sensorsAnalyticsViewController __attribute__((deprecated("已过时")));
 
 /// viewID
 @property (nonatomic, copy) NSString* sensorsAnalyticsViewID;
@@ -373,11 +373,11 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract
  * 判断某个 ViewController 是否被忽略
  *
- * @param viewController UIViewController
+ * @param viewControllerClassName UIViewController 类名
  *
  * @return YES:被忽略; NO:没有被忽略
  */
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewController;
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName;
 
 /**
  * @abstract

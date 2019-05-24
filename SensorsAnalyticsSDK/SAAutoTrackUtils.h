@@ -74,10 +74,10 @@ NS_ASSUME_NONNULL_BEGIN
  通过 AutoTrack 控件，获取事件的属性
 
  @param object 控件的对象，UIView 及其子类或 UIBarItem 的子类
- @param isAutoTrack 是否代码埋点采集
+ @param isCodeTrack 是否代码埋点采集
  @return 事件属性字典
  */
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object isAutoTrack:(BOOL)isAutoTrack;
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object isCodeTrack:(BOOL)isCodeTrack;
 
 /**
  通过 AutoTrack 控件，获取事件的属性

@@ -118,26 +118,26 @@
 }
 
 + (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object {
-    return [self propertiesWithAutoTrackObject:object viewController:nil isAutoTrack:NO];
+    return [self propertiesWithAutoTrackObject:object viewController:nil isCodeTrack:NO];
 }
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object isAutoTrack:(BOOL)isAutoTrack {
-    return [self propertiesWithAutoTrackObject:object viewController:nil isAutoTrack:isAutoTrack];
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object isCodeTrack:(BOOL)isCodeTrack {
+    return [self propertiesWithAutoTrackObject:object viewController:nil isCodeTrack:isCodeTrack];
 }
 
 + (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
-    return [self propertiesWithAutoTrackObject:object viewController:viewController isAutoTrack:NO];
+    return [self propertiesWithAutoTrackObject:object viewController:viewController isCodeTrack:NO];
 }
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController isAutoTrack:(BOOL)isAutoTrack {
-    if (object.sensorsdata_isIgnored) {
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController isCodeTrack:(BOOL)isCodeTrack {
+    if (!isCodeTrack && object.sensorsdata_isIgnored) {
         return nil;
     }
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     // ViewID
     properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
 
-    viewController = viewController ? : object.sensorsdata_superViewController;
+    viewController = viewController ? : object.sensorsdata_viewController;
     if (viewController.sensorsdata_isIgnored) {
         return nil;
     }
@@ -154,7 +154,7 @@
         [properties addEntriesFromDictionary:view.sensorsAnalyticsViewProperties];
     }
     
-    if (isAutoTrack || ![object isKindOfClass:UIView.class]) {
+    if (![object isKindOfClass:UIView.class]) {
         return [properties copy];
     }
 
@@ -298,14 +298,15 @@
             [collectionView layoutIfNeeded];
             cell = [collectionView cellForItemAtIndexPath:indexPath];
         }
-    } else {
+    }
+    if (!cell) {
         return nil;
     }
 
     // ViewID
     properties[SA_EVENT_PROPERTY_ELEMENT_ID] = cell.sensorsdata_elementId;
 
-    UIViewController<SAAutoTrackViewControllerProperty> *viewController = object.sensorsdata_superViewController;
+    UIViewController<SAAutoTrackViewControllerProperty> *viewController = object.sensorsdata_viewController;
     if (viewController.sensorsdata_isIgnored) {
         return nil;
     }

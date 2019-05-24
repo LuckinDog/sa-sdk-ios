@@ -38,7 +38,7 @@
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementPosition;
 
 /// 获取 view 所在的 viewController，或者当前的 viewController
-@property (nonatomic, readonly) UIViewController<SAAutoTrackViewControllerProperty> *sensorsdata_superViewController;
+@property (nonatomic, readonly) UIViewController<SAAutoTrackViewControllerProperty> *sensorsdata_viewController;
 @end
 
 #pragma mark -
