@@ -26,7 +26,6 @@
 #import "ElementViewController.h"
 #import "UIView+AutoTrack.h"
 //#import "UIViewController+AutoTrack.h"
-#import "UIScrollView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 
 @interface SAAutoTrackUtilsTest : XCTestCase
