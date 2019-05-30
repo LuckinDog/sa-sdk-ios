@@ -360,9 +360,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
                 [self archiveFirstDay];
             }
-            
+
             self.automaticProperties = [self collectAutomaticProperties];
 
+            [self startAppEndTimer];
             [self setUpListeners];
             
             if (_configOptions.enableTrackAppCrash) {
@@ -1059,13 +1060,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
     if (self.configOptions.autoTrackEventType != eventType) {
         self.configOptions.autoTrackEventType = eventType;
+        
         [self _enableAutoTrack];
+        [self startAppEndTimer];
     }
-
-    [self configAutoTrack];
 }
 
-- (void)configAutoTrack {
+- (void)autoTrackAppStart {
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
@@ -1075,29 +1076,32 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        if ([self isLaunchedPassively]) {
-            // 追踪 AppStart 事件
-            if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-                
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
+            if ([self isLaunchedPassively]) {
+               // 追踪 被动启动
                 [self track:SA_EVENT_NAME_APP_START_PASSIVELY withProperties:@{
-                                                                               SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(self->_appRelaunched),
-                                                                               SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
-                                                                               } withTrackType:SensorsAnalyticsTrackTypeAuto];
-            }
-        } else {
-            // 追踪 AppStart 事件
-            if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
+                 SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(self->_appRelaunched),
+                 SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart),
+                 } withTrackType:SensorsAnalyticsTrackTypeAuto];
+            } else {
+               // 追踪 AppStart 事件
                 [self track:SA_EVENT_NAME_APP_START withProperties:@{
-                                                                     SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(self->_appRelaunched),
-                                                                     SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
-                                                                     } withTrackType:SensorsAnalyticsTrackTypeAuto];
-            }
-            // 启动 AppEnd 事件计时器
-            if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-                [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+                 SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(self->_appRelaunched),
+                 SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart),
+                 } withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         }
     });
+}
+
+- (void)startAppEndTimer {
+    // 启动 AppEnd 事件计时器
+    if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] && ![self isLaunchedPassively]) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+        });
+    }
 }
 
 - (BOOL)isAutoTrackEnabled {
@@ -2987,7 +2991,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
     if (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
         //全埋点
-        [self configAutoTrack];
+        [self autoTrackAppStart];
     }
 }
 
