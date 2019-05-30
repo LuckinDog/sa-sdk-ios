@@ -768,8 +768,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *type = [eventDict valueForKey:SA_EVENT_TYPE];
             NSString *bestId = self.distinctId;
-
-            [eventDict setValue:@([[self class] getCurrentTime]) forKey:SA_EVENT_TIME];
+            NSNumber *timeStamp = @([[self class] getCurrentTime]);
 
             if([type isEqualToString:@"track_signup"]) {
                 NSString *realOriginalId = self.originalId ?: self.distinctId;
@@ -832,6 +831,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
             NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+            
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
                 [eventDict setValue:project forKey:SA_EVENT_PROJECT];
@@ -841,6 +841,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
 
+            if ([propertiesDict.allKeys containsObject:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
+                //自定义时间
+                 NSInteger customTimeInt = [[propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] integerValue];
+                if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                    timeStamp = @(customTimeInt);
+                }
+                [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+            }
+            
+            [eventDict setValue:timeStamp forKey:SA_EVENT_TIME];
             NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
             if (!enqueueEvent) {
                 return;
@@ -1639,6 +1649,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     project = (NSString *)obj;
                 } else if ([SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN isEqualToString:key]) {
                     token = (NSString *)obj;
+                } else if ([SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME isEqualToString:key]) {
+                    //自定义时间
+                    if ([obj isKindOfClass:NSDate.class]) {
+                        NSDate *customTime = (NSDate *)obj;
+                        int64_t customTimeInt = [customTime timeIntervalSince1970] * 1000;
+                        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                            timeStamp = @(customTimeInt);
+                        }
+                    }
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
                         // 序列化所有 NSDate 类型
