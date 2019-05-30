@@ -831,6 +831,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
             NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+            NSInteger customTimeInt = [propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] integerValue];
             
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
@@ -840,12 +841,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
-
-            if ([propertiesDict.allKeys containsObject:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
-                //自定义时间
-                 NSInteger customTimeInt = [[propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] integerValue];
+            if (customTimeInt > 0) { //包含 $time
                 if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
                     timeStamp = @(customTimeInt);
+                } else {
+                    SALog(@"H5 $time error %ld，Please check the value", customTimeInt);
                 }
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
@@ -1653,9 +1653,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     //自定义时间
                     if ([obj isKindOfClass:NSDate.class]) {
                         NSDate *customTime = (NSDate *)obj;
-                        int64_t customTimeInt = [customTime timeIntervalSince1970] * 1000;
+                        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
                         if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
                             timeStamp = @(customTimeInt);
+                        } else {
+                            SALog(@"$time error %ld，Please check the value", customTimeInt);
                         }
                     }
                 } else {
