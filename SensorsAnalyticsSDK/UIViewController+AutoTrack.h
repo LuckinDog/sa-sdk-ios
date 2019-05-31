@@ -21,5 +21,5 @@
 #import <UIKit/UIKit.h>
 
 @interface UIViewController (AutoTrack)
-- (void)sa_autotrack_viewWillAppear:(BOOL)animated;
+- (void)sa_autotrack_viewDidAppear:(BOOL)animated;
 @end
