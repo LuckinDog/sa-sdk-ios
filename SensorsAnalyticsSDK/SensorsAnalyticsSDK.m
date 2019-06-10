@@ -1076,7 +1076,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
+        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
             if ([self isLaunchedPassively]) {
                // 追踪 被动启动
                 [self track:SA_EVENT_NAME_APP_START_PASSIVELY withProperties:@{
