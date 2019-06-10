@@ -42,12 +42,12 @@
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SASwizzle.h"
-#import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SANetwork.h"
 #import "SANetwork+URLUtils.h"
 #import "SAAppExtensionDataManager.h"
+#import "SAAutoTrackUtils.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
      #import "SAKeyChainItemWrapper.h"
@@ -92,31 +92,7 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 @implementation UIView (SensorsAnalytics)
 - (UIViewController *)sensorsAnalyticsViewController {
-    UIResponder *next = self.nextResponder;
-    do {
-        if ([next isKindOfClass:UIViewController.class]) {
-            UIViewController *vc = (UIViewController *)next;
-            if ([vc isKindOfClass:UINavigationController.class]) {
-                next = [(UINavigationController *)vc topViewController];
-                break;
-            } else if([vc isKindOfClass:UITabBarController.class]) {
-                next = [(UITabBarController *)vc selectedViewController];
-                break;
-            }
-            UIViewController *parentVC = vc.parentViewController;
-            if (parentVC) {
-                if ([parentVC isKindOfClass:UINavigationController.class]||
-                    [parentVC isKindOfClass:UITabBarController.class]||
-                    [parentVC isKindOfClass:UIPageViewController.class]||
-                    [parentVC isKindOfClass:UISplitViewController.class]) {
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-    } while ((next=next.nextResponder));
-    return [next isKindOfClass:UIViewController.class]?(UIViewController *)next:nil;
+    return self.sensorsdata_viewController;
 }
 
 //viewID
@@ -673,70 +649,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (UIViewController *)currentViewController {
-    __block UIViewController *currentVC = nil;
-    if ([NSThread isMainThread]) {
-        @try {
-            UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
-            if (rootViewController != nil) {
-                currentVC = [self getCurrentVCFrom:rootViewController isRoot:YES];
-            }
-        } @catch (NSException *exception) {
-            SAError(@"%@ error: %@", self, exception);
-        }
-        return currentVC;
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            @try {
-                UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
-                if (rootViewController != nil) {
-                    currentVC = [self getCurrentVCFrom:rootViewController isRoot:YES];
-                }
-            } @catch (NSException *exception) {
-                SAError(@"%@ error: %@", self, exception);
-            }
-        });
-        return currentVC;
-    }
-}
-
-- (UIViewController *)getCurrentVCFrom:(UIViewController *)rootVC isRoot:(BOOL)isRoot{
-    @try {
-        UIViewController *currentVC;
-        if ([rootVC presentedViewController]) {
-            // 视图是被presented出来的
-            rootVC = [self getCurrentVCFrom:rootVC.presentedViewController isRoot:NO];
-        }
-        
-        if ([rootVC isKindOfClass:[UITabBarController class]]) {
-            // 根视图为UITabBarController
-            currentVC = [self getCurrentVCFrom:[(UITabBarController *)rootVC selectedViewController] isRoot:NO];
-        } else if ([rootVC isKindOfClass:[UINavigationController class]]) {
-            // 根视图为UINavigationController
-            currentVC = [self getCurrentVCFrom:[(UINavigationController *)rootVC visibleViewController] isRoot:NO];
-        } else {
-            // 根视图为非导航类
-            if ([rootVC respondsToSelector:NSSelectorFromString(@"contentViewController")]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                UIViewController *tempViewController = [rootVC performSelector:NSSelectorFromString(@"contentViewController")];
-#pragma clang diagnostic pop
-                if (tempViewController) {
-                    currentVC = [self getCurrentVCFrom:tempViewController isRoot:NO];
-                }
-            } else {
-                if (rootVC.childViewControllers && rootVC.childViewControllers.count == 1 && isRoot) {
-                    currentVC = [self getCurrentVCFrom:rootVC.childViewControllers[0] isRoot:NO];
-                }
-                else {
-                    currentVC = rootVC;
-                }
-            }
-        }
-        
-        return currentVC;
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
-    }
+    return [SAAutoTrackUtils currentViewController];
 }
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
@@ -1152,16 +1065,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return true;
         }
     }
-    return false;
+    
+    return ![self shouldTrackViewScreen:viewController];
 }
 
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerString {
-    if (viewControllerString == nil) {
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
+    if (viewControllerClassName == nil) {
         return false;
     }
 
     if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
-        if ([_ignoredViewControllers containsObject:viewControllerString]) {
+        if ([_ignoredViewControllers containsObject:viewControllerClassName]) {
             return true;
         }
     }
@@ -2626,42 +2540,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (view == nil) {
             return;
         }
-
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-
-        UIViewController *viewController = [self currentViewController];
-        if (viewController != nil) {
-            //获取 Controller 名称($screen_name)
-            NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
-            NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
-            if (controllerTitle) {
-                [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
-            }
-        }
-
-        //ViewID
-        if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
-        }
-
-        [properties setValue:NSStringFromClass([view class]) forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-
-        NSString *elementContent = [AutoTrackUtils contentFromView:view];
-        if (elementContent.length > 0) {
-            [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-        }
-
-        if (p != nil) {
-            [properties addEntriesFromDictionary:p];
-        }
-
-        //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
-        if (propDict != nil) {
-            [properties addEntriesFromDictionary:propDict];
-        }
-
+        NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view isCodeTrack:YES];
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
@@ -2703,27 +2582,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackViewScreen:(UIViewController *)controller {
-    NSString *screenName = NSStringFromClass(controller.class);
     //过滤用户设置的不被AutoTrack的Controllers
-    if (_ignoredViewControllers.count > 0 && screenName) {
-        if ([_ignoredViewControllers containsObject:screenName]) {
-            return;
-        }
+    if ([self isViewControllerIgnored:controller]) {
+        return;
     }
-    
+
     if (self.launchedPassively) {
         if (controller) {
             if (!self.launchedPassivelyControllers) {
                 self.launchedPassivelyControllers = [NSMutableArray array];
             }
-            
-            if ([self shouldTrackViewScreen:controller]) {
-                [self.launchedPassivelyControllers addObject:controller];
-            }
+            [self.launchedPassivelyControllers addObject:controller];
         }
         return;
     }
-    
+
     [self trackViewScreen:controller];
 }
 
@@ -2742,17 +2615,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
-    NSString *screenName = NSStringFromClass(controller.class);
-    [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
-
-    @try {
-        NSString *controllerTitle = [AutoTrackUtils titleFromViewController:controller];
-        if (controllerTitle) {
-            [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
-        }
-    } @catch (NSException *exception) {
-        SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);
-    }
+    NSDictionary *dic = [SAAutoTrackUtils propertiesWithViewController:controller];
+    [properties addEntriesFromDictionary:dic];
 
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;

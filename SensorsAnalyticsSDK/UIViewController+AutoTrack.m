@@ -25,11 +25,39 @@
 
 #import "UIViewController+AutoTrack.h"
 #import "SensorsAnalyticsSDK.h"
+#import "SAConstants+Private.h"
 #import "SALogger.h"
 #import "SASwizzler.h"
-#import "AutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "UIView+AutoTrack.h"
+#import "SAAutoTrackUtils.h"
+
 @implementation UIViewController (AutoTrack)
+
+- (BOOL)sensorsdata_isIgnored {
+    return [[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:self];
+}
+
+- (NSString *)sensorsdata_screenName {
+    return NSStringFromClass([self class]);
+}
+
+- (NSString *)sensorsdata_title {
+    NSString *titleViewContent = self.navigationItem.titleView.sensorsdata_elementContent;
+    if (titleViewContent.length > 0) {
+        return titleViewContent;
+    }
+    NSString *controllerTitle = self.navigationItem.title;
+    if (controllerTitle.length > 0) {
+        return controllerTitle;
+    }
+    return nil;
+}
+
+- (NSString *)sensorsdata_itemPath {
+    return [SAAutoTrackUtils itemPathForResponder:self];
+}
+
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated {
     @try {
         
@@ -52,7 +80,19 @@
             //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
             void (^tableViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UITableView *tableView, NSIndexPath *indexPath) {
-                [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
+                NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UITableView<SAAutoTrackViewProperty> *)tableView didSelectedAtindexPath:indexPath] mutableCopy];
+                if (!properties) {
+                    return;
+                }
+                @try {
+                    if ([tableView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [tableView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)]) {
+                        [properties addEntriesFromDictionary:[tableView.sensorsAnalyticsDelegate sensorsAnalytics_tableView:tableView autoTrackPropertiesAtIndexPath:indexPath]];
+                    }
+                } @catch (NSException *exception) {
+                    SAError(@"%@ error: %@", self, exception);
+                }
+
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };
             if ([self respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
                 [SASwizzler swizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:self.class withBlock:tableViewBlock named:[NSString stringWithFormat:@"%@_%@", NSStringFromClass(self.class), @"UITableView_AutoTrack"]];
@@ -62,7 +102,19 @@
             //UICollectionView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
             void (^collectionViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UICollectionView *collectionView, NSIndexPath *indexPath) {
-                [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
+                NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UICollectionView<SAAutoTrackViewProperty> *)collectionView didSelectedAtindexPath:indexPath] mutableCopy];
+                if (!properties) {
+                    return;
+                }
+                @try {
+                    if ([collectionView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [collectionView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
+                        [properties addEntriesFromDictionary:[collectionView.sensorsAnalyticsDelegate sensorsAnalytics_collectionView:collectionView autoTrackPropertiesAtIndexPath:indexPath]];
+                    }
+                } @catch (NSException *exception) {
+                    SAError(@"%@ error: %@", self, exception);
+                }
+
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };
             if ([self respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
                 [SASwizzler swizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:self.class withBlock:collectionViewBlock named:[NSString stringWithFormat:@"%@_%@", NSStringFromClass(self.class), @"UICollectionView_AutoTrack"]];
