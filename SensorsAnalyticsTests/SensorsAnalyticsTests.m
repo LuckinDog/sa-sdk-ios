@@ -93,7 +93,8 @@
 }
 
 #pragma mark - trackTimer
-- (void)testTrackTimerStart {
+///测试是否开启事件计时
+- (void)testShouldTrackTimerStart {
     __block NSDictionary *callBackProperties = nil;
     XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
 
@@ -116,6 +117,7 @@
     }];
 }
 
+/// 测试事件计时暂停
 - (void)testTrackTimerPause {
     __block float event_duration = 2.0;
     XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
@@ -142,6 +144,7 @@
     }];
 }
 
+/// 测试事件计时暂停后恢复
 - (void)testTrackTimerResume {
     __block float event_duration = 0;
     XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
@@ -153,15 +156,20 @@
         }
         return YES;
     }];
+    
+    //开始计时
     [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
 
     sleep(1);
+    //暂停
     [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:@"timerEvent"];
     sleep(1);
 
+    //恢复
     [[SensorsAnalyticsSDK sharedInstance] trackTimerResume:@"timerEvent"];
     sleep(1);
 
+    //事件计时结束
     [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
 
     //判断是否恢复成功，如果恢复事件计时失败，事件时长 event_duration 只保留暂停前的计时：1 秒（不考虑多线程和其他操作延时）
