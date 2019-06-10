@@ -112,7 +112,7 @@
         @"class": [self classHierarchyArrayForObject:object],
         @"properties": propertyValues,
         @"delegate": @{
-                @"class": delegate ? NSStringFromClass([delegate class]) : @"",
+                @"class": delegate ? [NSString stringWithFormat:@"%@",[delegate class]] : @"",
                 @"selectors": delegateMethods
             }
     };
