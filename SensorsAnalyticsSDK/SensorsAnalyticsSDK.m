@@ -1077,13 +1077,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
-            if ([self isLaunchedPassively]) {
-                // 追踪 被动启动
-                [self track:SA_EVENT_NAME_APP_START_PASSIVELY withProperties:@{SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(self->_appRelaunched), SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart)} withTrackType:SensorsAnalyticsTrackTypeAuto];
-            } else {
-                // 追踪 AppStart 事件
-                [self track:SA_EVENT_NAME_APP_START withProperties:@{SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(self->_appRelaunched), SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart)} withTrackType:SensorsAnalyticsTrackTypeAuto];
-            }
+            NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
+            NSDictionary *properties = @{SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(self->_appRelaunched), SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart)};
+            [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     });
 }
