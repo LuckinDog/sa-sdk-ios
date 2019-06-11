@@ -33,6 +33,9 @@
 #import "SAAutoTrackUtils.h"
 
 @implementation UIViewController (AutoTrack)
+<<<<<<< HEAD
+- (void)sa_autotrack_viewDidAppear:(BOOL)animated {
+=======
 
 - (BOOL)sensorsdata_isIgnored {
     return [[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:self];
@@ -58,7 +61,8 @@
     return [SAAutoTrackUtils itemPathForResponder:self];
 }
 
-- (void)sa_autotrack_viewDidAppear:(BOOL)animated {
+- (void)sa_autotrack_viewWillAppear:(BOOL)animated {
+>>>>>>> fcecfd2152cae42352e57424f593d480a5fec2d6
     @try {
         
         if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] == NO) {
