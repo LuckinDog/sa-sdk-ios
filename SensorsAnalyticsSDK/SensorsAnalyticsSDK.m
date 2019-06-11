@@ -1074,24 +1074,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
+
+    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
+        return;
+    }
+
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
-            NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
-            NSDictionary *properties = @{SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(self->_appRelaunched), SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart)};
-            [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
-        }
+        NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
+        NSDictionary *properties = @{SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(self->_appRelaunched), SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart)};
+        [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     });
 }
 
 - (void)startAppEndTimer {
-    // 启动 AppEnd 事件计时器
-    if (![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] && ![self isLaunchedPassively]) {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
-        });
+    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] || [self isLaunchedPassively]) {
+        return;
     }
+
+    // 启动 AppEnd 事件计时器
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+    });
 }
 
 - (BOOL)isAutoTrackEnabled {
