@@ -1062,7 +1062,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.configOptions.autoTrackEventType = eventType;
         
         [self _enableAutoTrack];
-        [self startAppEndTimer];
     }
 }
 
@@ -1088,7 +1087,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)startAppEndTimer {
-    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] || [self isLaunchedPassively]) {
+    if ([self isLaunchedPassively]) {
         return;
     }
 
@@ -3007,16 +3006,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if (self.remoteConfig.disableSDK) {
         //停止 SDK 的 flushtimer
         [self stopFlushTimer];
-
+        
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         //停止采集设备方向信息
         [self.deviceOrientationManager stopDeviceMotionUpdates];
 #endif
-
+        
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         [self.locationManager stopUpdatingLocation];
 #endif
-
+        
         [self flush];//停止采集数据之后 flush 本地数据
     } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
@@ -3024,7 +3023,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self.deviceOrientationManager startDeviceMotionUpdates];
         }
 #endif
-
+        
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         if (self.locationConfig.enableGPSLocation) {
             [self.locationManager startUpdatingLocation];
@@ -3038,16 +3037,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     
     [self shouldRequestRemoteConfig];
-
+    
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
         isFirstStart = YES;
     }
-
+    
     // 遍历 trackTimer ,修改 eventBegin 为当前 currentSystemUpTime
     dispatch_async(self.serialQueue, ^{
-
+        
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
@@ -3060,20 +3059,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
         }
     });
-
+    
     if ([self isAutoTrackEnabled] && _appRelaunched) {
         // 追踪 AppStart 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
             [self track:SA_EVENT_NAME_APP_START withProperties:@{
-                                                         SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND : @(_appRelaunched),
-                                                         SA_EVENT_PROPERTY_APP_FIRST_START : @(isFirstStart),
-                                                         } withTrackType:SensorsAnalyticsTrackTypeAuto];
-        }
-        // 启动 AppEnd 事件计时器
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-            [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+                                                                 SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(_appRelaunched),
+                                                                 SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart),
+                                                                 } withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     }
+    
+    // 启动 AppEnd 事件计时器
+    [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
     
     //track 被动启动的页面浏览
     if (self.launchedPassivelyControllers) {
@@ -3082,7 +3080,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }];
         self.launchedPassivelyControllers = nil;
     }
-
+    
     [self startFlushTimer];
 }
 
