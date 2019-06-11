@@ -23,5 +23,6 @@
 
 @interface UIViewController (AutoTrack) <SAAutoTrackViewControllerProperty, SAAutoTrackViewPathProperty>
 
-- (void)sa_autotrack_viewDidAppear:(BOOL)animated;
+- (void)sa_autotrack_viewWillAppear:(BOOL)animated;
+
 @end
