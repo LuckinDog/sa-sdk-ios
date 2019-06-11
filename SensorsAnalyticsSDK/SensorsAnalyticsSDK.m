@@ -2767,7 +2767,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         //$AppViewScreen
-        [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
+        [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sa_autotrack_viewDidAppear:) error:NULL];
         NSError *error = NULL;
         //$AppClick
         // Actions & Events
