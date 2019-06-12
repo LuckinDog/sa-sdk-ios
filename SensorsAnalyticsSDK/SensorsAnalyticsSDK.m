@@ -1645,20 +1645,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSArray *keys = propertieDict.allKeys;
             for (id key in keys) {
                 NSObject *obj = propertieDict[key];
-                if ([SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT isEqualToString:key]) {
+                if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT]) {
                     project = (NSString *)obj;
-                } else if ([SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN isEqualToString:key]) {
+                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN]) {
                     token = (NSString *)obj;
-                } else if ([SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME isEqualToString:key]) {
-                    //自定义时间
-                    if ([obj isKindOfClass:NSDate.class]) {
-                        NSDate *customTime = (NSDate *)obj;
-                        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-                        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                            timeStamp = @(customTimeInt);
-                        } else {
-                            SALog(@"$time error %ld，Please check the value", customTimeInt);
-                        }
+                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] && [obj isKindOfClass:NSDate.class]) {
+                    NSDate *customTime = (NSDate *)obj;
+                    NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+                    if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                        timeStamp = @(customTimeInt);
+                    } else {
+                        SALog(@"$time error %ld，Please check the value", customTimeInt);
                     }
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
