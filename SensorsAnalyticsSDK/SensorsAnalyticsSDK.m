@@ -1012,7 +1012,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             // 启动 AppEnd 事件计时器
             if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-                [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+                [self trackTimerStart:SA_EVENT_NAME_APP_END timeUnit:SensorsAnalyticsTimeUnitSeconds];
             }
         }
     });
@@ -1511,35 +1511,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
                 NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
                 SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
+                BOOL isPause = [eventTimer[@"isPause"] boolValue];
 
-                float eventDuration;
+                float eventDuration = 0;
+                if (!isPause) {
+                    eventDuration = [self eventTimerDurationWithEventStart:eventBegin.longValue timeUnit:timeUnit];
+                }
+
                 if (eventAccumulatedDuration) {
-                    eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
-                } else {
-                    eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue];
+                    eventDuration += eventAccumulatedDuration.longValue;
                 }
 
-                if (eventDuration < 0) {
-                    eventDuration = 0;
-                }
-
-                if (eventDuration > 0 && eventDuration < 24 * 60 * 60 * 1000) {
-                    switch (timeUnit) {
-                        case SensorsAnalyticsTimeUnitHours:
-                            eventDuration = eventDuration / 60.0;
-                        case SensorsAnalyticsTimeUnitMinutes:
-                            eventDuration = eventDuration / 60.0;
-                        case SensorsAnalyticsTimeUnitSeconds:
-                            eventDuration = eventDuration / 1000.0;
-                        case SensorsAnalyticsTimeUnitMilliseconds:
-                            break;
-                    }
-                    @try {
-                        [p setObject:@([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]) forKey:@"event_duration"];
-                    } @catch (NSException *exception) {
-                        SAError(@"%@: %@", self, exception);
-                    }
-                }
+                p[@"event_duration"] = @([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]);
             }
         }
 
@@ -1713,15 +1696,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [_network cookieWithDecoded:decode];
 }
 
-- (void)trackTimer:(NSString *)event {
-    [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitMilliseconds];
-}
-
 - (void)trackTimerStart:(NSString *)event {
-    [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+    [self trackTimerStart:event timeUnit:SensorsAnalyticsTimeUnitSeconds];
 }
 
-- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
+- (void)trackTimerStart:(NSString *)event timeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     if (![self isValidName:event]) {
         NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
         SAError(@"%@", errMsg);
@@ -1733,7 +1712,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     NSNumber *eventBegin = @([[self class] getSystemUpTime]);
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : [NSNumber numberWithLong:0], @"timeUnit" : [NSNumber numberWithInt:timeUnit]};
+        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : [NSNumber numberWithLong:0], @"timeUnit" : [NSNumber numberWithInt:timeUnit],@"isPause":@(NO)};
     });
 }
 
@@ -1743,6 +1722,91 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
     [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeAuto];
+}
+
+- (void)trackTimerPause:(NSString *)event {
+    if (![self isValidName:event]) {
+        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
+        SAError(@"%@", errMsg);
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+        }
+        return;
+    }
+
+    dispatch_async(self.serialQueue, ^{
+        NSMutableDictionary *eventTimer = [self.trackTimer[event] mutableCopy];
+        BOOL isPause = [eventTimer[@"isPause"] boolValue];
+
+        if (eventTimer && !isPause) {
+            UInt64 eventBegin = [eventTimer[@"eventBegin"] longValue];
+            SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
+
+            isPause = YES;
+            float eventDuration = [self eventTimerDurationWithEventStart:eventBegin timeUnit:timeUnit];
+
+            eventTimer[@"eventBegin"] = @(eventBegin);
+            eventTimer[@"isPause"] = @(isPause);
+            if (eventDuration > 0) {
+                eventTimer[@"eventAccumulatedDuration"] = @([NSString stringWithFormat:@"%.3f", eventDuration].floatValue);
+            }
+
+            self.trackTimer[event] = [eventTimer copy];
+        }
+    });
+}
+
+- (void)trackTimerResume:(NSString *)event {
+    if (![self isValidName:event]) {
+        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
+        SAError(@"%@", errMsg);
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+        }
+        return;
+    }
+
+    dispatch_async(self.serialQueue, ^{
+        NSMutableDictionary *eventTimer = [self.trackTimer[event] mutableCopy];
+        BOOL isPause = [eventTimer[@"isPause"] boolValue];
+
+        if (eventTimer && isPause) {
+            UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+            isPause = NO;
+
+            eventTimer[@"eventBegin"] = @(currentSystemUpTime);
+            eventTimer[@"isPause"] = @(isPause);
+
+            self.trackTimer[event] = [eventTimer copy];
+        }
+    });
+}
+
+//计算事件时长
+- (float)eventTimerDurationWithEventStart:(UInt64)startTime timeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
+    if (startTime <= 0) {
+        return 0;
+    }
+    
+    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+    float eventDuration = currentSystemUpTime - startTime;
+    
+    if (eventDuration > 0 && eventDuration < 24 * 60 * 60 * 1000) {
+        switch (timeUnit) {
+            case SensorsAnalyticsTimeUnitHours:
+                eventDuration = eventDuration / 60.0;
+            case SensorsAnalyticsTimeUnitMinutes:
+                eventDuration = eventDuration / 60.0;
+            case SensorsAnalyticsTimeUnitSeconds:
+                eventDuration = eventDuration / 1000.0;
+            case SensorsAnalyticsTimeUnitMilliseconds:
+                break;
+        }
+    } else {
+        eventDuration = 0;
+    }
+    
+    return eventDuration;
 }
 
 - (void)clearTrackTimer {
@@ -2928,7 +2992,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         // 启动 AppEnd 事件计时器
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-            [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+            [self trackTimerStart:SA_EVENT_NAME_APP_END timeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     }
     
@@ -3428,11 +3492,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackTimerBegin:(NSString *)event {
-    [self trackTimer:event];
+    [self trackTimerStart:event];
 }
 
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
-    [self trackTimer:event withTimeUnit:timeUnit];
+    [self trackTimerStart:event timeUnit:timeUnit];
+}
+
+- (void)trackTimer:(NSString *)event {
+    [self trackTimerStart:event timeUnit:SensorsAnalyticsTimeUnitMilliseconds];
+}
+
+- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
+    [self trackTimerStart:event timeUnit:timeUnit];
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
