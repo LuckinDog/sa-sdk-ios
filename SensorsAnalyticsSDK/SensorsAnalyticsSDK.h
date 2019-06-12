@@ -408,55 +408,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - trackTimer
 /**
- * @abstract
- * 初始化事件的计时器。
- *
- * @discussion
- * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
- * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- * 间记录在事件属性 "event_duration" 中。
- *
- * 时间单位为秒，若需要以其他时间单位统计时长
- *
- * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
- *
- * @param event             event 的名称
+ 开始事件计时
+ 
+ @discussion
+ 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ 送事件；随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ 间记录在事件属性 "event_duration" 中，时间单位为秒。
+ 
+ @param event 事件名称
  */
 - (void)trackTimerStart:(NSString *)event;
 
-
 /**
- @abstract
  结束事件计时
 
  @discussion
- 结束事件及时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- 间记录在事件属性 "event_duration" 中。
+ 多次调用 trackTimerEnd: 时，以首次调用为准
  
- 多次调用 trackTimerEnd: 时，以首次调用为准。
- 
- @param event 事件名
+ @param event 事件名称
  @param propertyDict 自定义属性
  */
 - (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
 /**
- @abstract
  结束事件计时
  
  @discussion
- 结束事件及时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- 间记录在事件属性 "event_duration" 中。
+ 多次调用 trackTimerEnd: 时，以首次调用为准
  
- 多次调用 trackTimerEnd: 时，以首次调用为准。
- 
- @param event 事件名
+ @param event 事件名称
  */
 - (void)trackTimerEnd:(NSString *)event;
 
-
 /**
- @abstract
  暂停事件计时
 
  @discussion
@@ -467,7 +451,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackTimerPause:(NSString *)event;
 
 /**
- @abstract
  恢复事件计时
 
  @discussion
@@ -478,8 +461,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackTimerResume:(NSString *)event;
 
 /**
- * @abstract
- * 清除所有事件计时器
+ 清除所有事件计时器
  */
 - (void)clearTrackTimer;
 
