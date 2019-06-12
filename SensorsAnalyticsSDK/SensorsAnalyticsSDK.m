@@ -681,8 +681,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *type = [eventDict valueForKey:SA_EVENT_TYPE];
             NSString *bestId = self.distinctId;
-
-            [eventDict setValue:@([[self class] getCurrentTime]) forKey:SA_EVENT_TIME];
+            NSNumber *timeStamp = @([[self class] getCurrentTime]);
 
             if([type isEqualToString:@"track_signup"]) {
                 NSString *realOriginalId = self.originalId ?: self.distinctId;
@@ -745,6 +744,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
             NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+            NSInteger customTimeInt = [propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] integerValue];
+            
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
                 [eventDict setValue:project forKey:SA_EVENT_PROJECT];
@@ -753,7 +754,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
-
+            if (customTimeInt > 0) { //包含 $time
+                if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                    timeStamp = @(customTimeInt);
+                } else {
+                    SALog(@"H5 $time error %ld，Please check the value", customTimeInt);
+                }
+                [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+            }
+            
+            [eventDict setValue:timeStamp forKey:SA_EVENT_TIME];
             NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
             if (!enqueueEvent) {
                 return;
@@ -1532,10 +1542,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSArray *keys = propertieDict.allKeys;
             for (id key in keys) {
                 NSObject *obj = propertieDict[key];
-                if ([SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT isEqualToString:key]) {
+                if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT]) {
                     project = (NSString *)obj;
-                } else if ([SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN isEqualToString:key]) {
+                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN]) {
                     token = (NSString *)obj;
+                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] && [obj isKindOfClass:NSDate.class]) {
+                    NSDate *customTime = (NSDate *)obj;
+                    NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+                    if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                        timeStamp = @(customTimeInt);
+                    } else {
+                        SALog(@"$time error %ld，Please check the value", customTimeInt);
+                    }
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
                         // 序列化所有 NSDate 类型
