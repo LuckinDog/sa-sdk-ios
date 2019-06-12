@@ -19,7 +19,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SAAutoTrackProperty.h"
 
-@interface UIViewController (AutoTrack)
+@interface UIViewController (AutoTrack) <SAAutoTrackViewControllerProperty, SAAutoTrackViewPathProperty>
+
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated;
+
 @end

@@ -1,3 +1,12 @@
+![logo](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/logo.jpg)
+<br><br>
+[![License](https://img.shields.io/github/license/sensorsdata/sa-sdk-ios.svg)](https://github.com/sensorsdata/sa-sdk-ios/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/tag/sensorsdata/sa-sdk-ios.svg?label=release)](https://github.com/sensorsdata/sa-sdk-ios/releases)
+[![GitHub release date](https://img.shields.io/github/release-date/sensorsdata/sa-sdk-ios.svg)](https://github.com/sensorsdata/sa-sdk-ios/releases)
+[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/SensorsAnalyticsSDK.svg)](https://img.shields.io/cocoapods/v/SensorsAnalyticsSDK.svg)
+[![Platform](https://img.shields.io/cocoapods/p/SensorsAnalyticsSDK.svg?style=flat)](http://cocoadocs.org/docsets/SensorsAnalyticsSDK)
+
 # Sensors Analytics
 
 This is the official iOS SDK for Sensors Analytics.

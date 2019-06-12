@@ -104,6 +104,9 @@ NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE = @"$app_state";
 
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
+NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";
+//神策成立时间，2015-05-15 10:24:00.000，某些时间戳判断（毫秒）
+long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT = 1431656640000;
 
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";
