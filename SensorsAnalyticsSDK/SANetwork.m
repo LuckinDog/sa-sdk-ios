@@ -236,7 +236,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         SAError(@"serverURL error，Please check the serverURL");
         return NO;
     }
-
+    
     NSString *jsonString = [self buildFlushJSONStringWithEvents:events];
     
     __block BOOL flushSuccess = NO;
@@ -250,28 +250,32 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         
         NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         NSInteger statusCode = response.statusCode;
-        NSString *messageDesc = statusCode == 200 ? @"\n【valid message】\n" : @"\n【invalid message】\n";
-        if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-            [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
-        }
-        SAError(@"==========================================================================");
-        if ([SALogger isLoggerEnabled]) {
-            @try {
-                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                NSString *logString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                SAError(@"%@ %@: %@", self, messageDesc, logString);
-            } @catch (NSException *exception) {
-                SAError(@"%@: %@", self, exception);
+        NSString *messageDesc = nil;
+        if (statusCode >= 200 && statusCode < 300) {
+            messageDesc = @"\n【valid message】\n";
+            flushSuccess = YES;
+        } else {
+            messageDesc = @"\n【invalid message】\n";
+            if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
+                NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+                [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
+                flushSuccess = YES;
             }
         }
+        SAError(@"==========================================================================");
+        @try {
+            NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+            NSString *logString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+            SAError(@"%@ %@: %@", self, messageDesc, logString);
+        } @catch (NSException *exception) {
+            SAError(@"%@: %@", self, exception);
+        }
+        
         if (statusCode != 200) {
             SAError(@"%@ ret_code: %ld", self, statusCode);
             SAError(@"%@ ret_content: %@", self, urlResponseContent);
         }
-        
-        flushSuccess = YES;
         
         dispatch_semaphore_signal(flushSemaphore);
     };
