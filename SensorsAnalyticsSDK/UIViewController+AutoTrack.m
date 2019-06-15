@@ -35,7 +35,7 @@
 @implementation UIViewController (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
-    return [[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:self];
+    return [[SensorsAnalyticsSDK sharedInstance] shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppClick];
 }
 
 - (NSString *)sensorsdata_screenName {
@@ -80,7 +80,7 @@
             //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
             void (^tableViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UITableView *tableView, NSIndexPath *indexPath) {
-                NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UITableView<SAAutoTrackViewProperty> *)tableView didSelectedAtindexPath:indexPath] mutableCopy];
+                NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UITableView<SAAutoTrackViewProperty> *)tableView didSelectedAtIndexPath:indexPath] mutableCopy];
                 if (!properties) {
                     return;
                 }
@@ -102,7 +102,7 @@
             //UICollectionView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
             void (^collectionViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UICollectionView *collectionView, NSIndexPath *indexPath) {
-                NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UICollectionView<SAAutoTrackViewProperty> *)collectionView didSelectedAtindexPath:indexPath] mutableCopy];
+                NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UICollectionView<SAAutoTrackViewProperty> *)collectionView didSelectedAtIndexPath:indexPath] mutableCopy];
                 if (!properties) {
                     return;
                 }

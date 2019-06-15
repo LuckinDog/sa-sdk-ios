@@ -147,6 +147,10 @@
     return self.selectedItem.title;
 }
 
+- (NSString *)sensorsdata_elementPosition {
+    return [NSString stringWithFormat: @"%ld", (long)[self.items indexOfObject:self.selectedItem]];
+}
+
 - (NSString *)sensorsdata_itemPath {
     NSInteger selectedIndex = [self.items indexOfObject:self.selectedItem];
     NSString *subPath = [NSString stringWithFormat:@"%@[%ld]", @"UITabBarButton", (long)selectedIndex];
@@ -276,7 +280,7 @@
 }
 
 - (NSString *)sensorsdata_elementType {
-    return nil;
+    return NSStringFromClass(self.class);
 }
 
 - (NSString *)sensorsdata_elementContent {
@@ -302,10 +306,6 @@
 @end
 
 @implementation UITabBarItem (AutoTrack)
-
-- (NSString *)sensorsdata_elementType {
-    return @"UITabbar";
-}
 
 @end
 

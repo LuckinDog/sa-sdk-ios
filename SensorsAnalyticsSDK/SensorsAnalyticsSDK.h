@@ -371,16 +371,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @abstract
- * 判断某个 ViewController 是否被忽略
- *
- * @param viewControllerClassName UIViewController 类名
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName;
-
-/**
- * @abstract
  * 设置是否显示 debugInfoView，对于 iOS，是 UIAlertView／UIAlertController
  *
  * @discussion
@@ -1193,6 +1183,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
  */
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+
+/**
+ * @abstract
+ * 判断某个 ViewController 是否被忽略
+ *
+ * @param viewControllerClassName UIViewController 类名
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName __attribute__((deprecated("已过时，请参考 -(BOOL)isViewControllerIgnored:(UIViewController *)viewController")));
 
 /**
  * @abstract
