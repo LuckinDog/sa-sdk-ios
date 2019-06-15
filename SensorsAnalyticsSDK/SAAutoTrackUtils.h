@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param responder 响应链中的对象
  @return 下一个 ViewController
  */
-+ (UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
++ (nullable UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
 
 /**
  找到 view 所在的直接 ViewController
@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param view 需要创建的对象
  @return 唯一标识符
  */
-+ (NSString *)viewIdentifierForView:(UIView *)view;
++ (nullable NSString *)viewIdentifierForView:(UIView *)view;
 
 /**
  通过响应链找到 viewPath
@@ -132,14 +132,14 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController view 所在的 viewController
  @return 路径字符串
  */
-+ (NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController;
++ (nullable NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController;
 
 @end
 
 #pragma mark -
 @interface SAAutoTrackUtils (IndexPath)
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath;
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath;
 
 @end
 

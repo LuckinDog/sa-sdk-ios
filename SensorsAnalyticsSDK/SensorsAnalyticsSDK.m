@@ -1029,7 +1029,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 启动 AppEnd 事件计时器
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+        [self trackTimerStart:SA_EVENT_NAME_APP_END];
     });
 }
 
@@ -1480,7 +1480,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //去重
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
-        NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
@@ -2844,7 +2843,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         //$AppViewScreen
-        [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
+        [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sa_autotrack_viewDidAppear:) error:NULL];
         NSError *error = NULL;
         //$AppClick
         // Actions & Events
@@ -3014,7 +3013,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     
     // 启动 AppEnd 事件计时器
-    [self trackTimer:SA_EVENT_NAME_APP_END withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+    [self trackTimerStart:SA_EVENT_NAME_APP_END];
     
     //track 被动启动的页面浏览
     if (self.launchedPassivelyControllers) {
