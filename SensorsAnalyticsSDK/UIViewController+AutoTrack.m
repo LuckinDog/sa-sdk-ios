@@ -58,7 +58,7 @@
     return [SAAutoTrackUtils itemPathForResponder:self];
 }
 
-- (void)sa_autotrack_viewWillAppear:(BOOL)animated {
+- (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
         
         if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] == NO) {
@@ -125,6 +125,6 @@
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
-    [self sa_autotrack_viewWillAppear:animated];
+    [self sa_autotrack_viewDidAppear:animated];
 }
 @end
