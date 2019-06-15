@@ -1,4 +1,4 @@
-![logo](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/logo.jpg)
+![logo](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/logo.png)
 <br><br>
 [![License](https://img.shields.io/github/license/sensorsdata/sa-sdk-ios.svg)](https://github.com/sensorsdata/sa-sdk-ios/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/tag/sensorsdata/sa-sdk-ios.svg?label=release)](https://github.com/sensorsdata/sa-sdk-ios/releases)
