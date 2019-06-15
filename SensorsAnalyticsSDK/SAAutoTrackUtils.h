@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark -
 @interface SAAutoTrackUtils (IndexPath)
 
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtindexPath:(NSIndexPath *)indexPath;
++ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath;
 
 @end
 

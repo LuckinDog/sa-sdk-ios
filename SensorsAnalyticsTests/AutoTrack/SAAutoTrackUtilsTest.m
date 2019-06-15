@@ -226,7 +226,7 @@
 
 - (void)testAutoTrackPropertiesWithTableView {
     // row 太大可能未在屏幕显示，取不到 cell
-    NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackObject:self.viewController.tableView didSelectedAtindexPath:[NSIndexPath indexPathForRow:2 inSection:0]];
+    NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackObject:self.viewController.tableView didSelectedAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:0]];
 
     XCTAssertTrue([dic[@"$title"] isEqualToString:@"Element"]);
     XCTAssertTrue([dic[@"$screen_name"] isEqualToString:@"ElementViewController"]);

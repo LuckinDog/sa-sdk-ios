@@ -417,10 +417,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return currentUA;
 }
 
-- (BOOL)shouldTrackViewScreen:(UIViewController *)controller {
+- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
+    if ([self isViewControllerIgnored:controller]) {
+        return NO;
+    }
+    // 对于 UITabBar 的点击事件，不使用页面浏览的忽略事件
+    if (type == SensorsAnalyticsEventTypeAppClick && [controller isKindOfClass:[UITabBarController class]]) {
+        return YES;
+    }
+
+    return ![self isBlackListContainsViewController:controller];
+}
+
+- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
     static NSSet *blacklistedClasses = nil;
     static dispatch_once_t onceToken;
-    
+
     dispatch_once(&onceToken, ^{
         NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
         //文件路径
@@ -433,17 +445,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SAError(@"%@ error: %@", self, exception);
         }
     });
-    
-    __block BOOL shouldTrack = YES;
+
+    __block BOOL isContains = NO;
     [blacklistedClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
         NSString *blackClassName = (NSString *)obj;
         Class blackClass = NSClassFromString(blackClassName);
-        if (blackClass && [controller isKindOfClass:blackClass]) {
-            shouldTrack = NO;
+        if (blackClass && [viewController isKindOfClass:blackClass]) {
+            isContains = YES;
             *stop = YES;
         }
     }];
-    return shouldTrack;
+    return isContains;
 }
 
 - (NSDictionary *)getPresetProperties {
@@ -1060,29 +1072,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
     if (viewController == nil) {
-        return false;
+        return NO;
     }
     NSString *screenName = NSStringFromClass([viewController class]);
-    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
-        if ([_ignoredViewControllers containsObject:screenName]) {
-            return true;
-        }
+    if (_ignoredViewControllers.count > 0 && [_ignoredViewControllers containsObject:screenName]) {
+        return YES;
     }
     
-    return ![self shouldTrackViewScreen:viewController];
-}
-
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
-    if (viewControllerClassName == nil) {
-        return false;
-    }
-
-    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
-        if ([_ignoredViewControllers containsObject:viewControllerClassName]) {
-            return true;
-        }
-    }
-    return false;
+    return NO;
 }
 
 - (void)showDebugInfoView:(BOOL)show {
@@ -2662,7 +2659,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)autoTrackViewScreen:(UIViewController *)controller {
     //过滤用户设置的不被AutoTrack的Controllers
-    if ([self isViewControllerIgnored:controller]) {
+    if ([self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
 
@@ -2688,7 +2685,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    if (![self shouldTrackViewScreen:controller]) {
+    if ([self isBlackListContainsViewController:controller]) {
         return;
     }
 
@@ -3511,6 +3508,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
     self.configOptions.autoTrackEventType = self.configOptions.autoTrackEventType ^ eventType;
+}
+
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
+    if (viewControllerClassName == nil) {
+        return false;
+    }
+
+    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
+        if ([_ignoredViewControllers containsObject:viewControllerClassName]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 - (void)trackTimerBegin:(NSString *)event {

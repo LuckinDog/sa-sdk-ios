@@ -141,6 +141,7 @@
     if (viewController.sensorsdata_isIgnored) {
         return nil;
     }
+
     NSDictionary *dic = [self propertiesWithViewController:viewController];
     [properties addEntriesFromDictionary:dic];
 
@@ -152,9 +153,7 @@
     //View Properties
     if ([object isKindOfClass:UIView.class]) {
         [properties addEntriesFromDictionary:view.sensorsAnalyticsViewProperties];
-    }
-    
-    if (![object isKindOfClass:UIView.class]) {
+    } else {
         return [properties copy];
     }
 
@@ -277,7 +276,7 @@
 #pragma mark -
 @implementation SAAutoTrackUtils (IndexPath)
 
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtindexPath:(NSIndexPath *)indexPath {
++ (NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath {
     if (object.sensorsdata_isIgnored) {
         return nil;
     }

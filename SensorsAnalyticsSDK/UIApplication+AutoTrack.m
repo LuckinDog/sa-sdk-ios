@@ -100,7 +100,7 @@
 
     BOOL isTabBar = [from isKindOfClass:[UITabBarItem class]] && [to isKindOfClass:[UITabBarController class]];
 
-    NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)(isTabBar ? [(UITabBarController *)to tabBar] : from);
+    NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)from;
     NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:isTabBar ? (UITabBarController *)to : nil];
     if (!properties) {
         return;
@@ -109,7 +109,7 @@
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
-        [object isKindOfClass:[UITabBar class]]) {
+        [object isKindOfClass:[UITabBarItem class]]) {
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         return;
     }
