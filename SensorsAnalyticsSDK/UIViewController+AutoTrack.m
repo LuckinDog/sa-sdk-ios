@@ -35,7 +35,7 @@
 @implementation UIViewController (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
-    return [[SensorsAnalyticsSDK sharedInstance] shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppClick];
+    return ![[SensorsAnalyticsSDK sharedInstance] shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppClick];
 }
 
 - (NSString *)sensorsdata_screenName {

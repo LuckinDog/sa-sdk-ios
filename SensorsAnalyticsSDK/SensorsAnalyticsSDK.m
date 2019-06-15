@@ -446,16 +446,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     });
 
-    __block BOOL shouldTrack = YES;
+    __block BOOL isContains = NO;
     [blacklistedClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
         NSString *blackClassName = (NSString *)obj;
         Class blackClass = NSClassFromString(blackClassName);
         if (blackClass && [viewController isKindOfClass:blackClass]) {
-            shouldTrack = NO;
+            isContains = YES;
             *stop = YES;
         }
     }];
-    return shouldTrack;
+    return isContains;
 }
 
 - (NSDictionary *)getPresetProperties {
@@ -2686,7 +2686,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    if (![self isBlackListContainsViewController:controller]) {
+    if ([self isBlackListContainsViewController:controller]) {
         return;
     }
 
