@@ -65,7 +65,7 @@
 #import "SAAuxiliaryToolManager.h"
 
 
-#define VERSION @"1.11.4"
+#define VERSION @"1.11.5"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
