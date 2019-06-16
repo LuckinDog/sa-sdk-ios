@@ -2701,6 +2701,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
 #ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
+    NSString *screenName = NSStringFromClass(controller.class);
     [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_URL];
     @synchronized(_referrerScreenUrl) {
         if (_referrerScreenUrl) {

@@ -23,6 +23,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+SAHelpers.h"
 #import "UIView+AutoTrack.h"
+#import "SALogger.h"
 
 @implementation SAAutoTrackUtils
 
@@ -330,4 +331,24 @@
     return [properties copy];
 }
 
++ (NSDictionary *)propertiesWithAutoTrackDelegate:(UIScrollView *)scrollView didSelectedAtIndexPath:(NSIndexPath *)indexPath {
+    NSDictionary *properties = nil;
+    @try {
+        if ([scrollView isKindOfClass:UITableView.class]) {
+            UITableView *tableView = (UITableView *)scrollView;
+            
+            if ([tableView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [tableView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)] ) {
+                properties = [tableView.sensorsAnalyticsDelegate sensorsAnalytics_tableView:tableView autoTrackPropertiesAtIndexPath:indexPath];
+            }
+        } else if ([scrollView isKindOfClass:UICollectionView.class]) {
+            UICollectionView *collectionView = (UICollectionView *)scrollView;
+            if ([collectionView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [collectionView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
+                properties = [collectionView.sensorsAnalyticsDelegate sensorsAnalytics_collectionView:collectionView autoTrackPropertiesAtIndexPath:indexPath];
+            }
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+    return properties;
+}
 @end

@@ -101,7 +101,7 @@
     BOOL isTabBar = [from isKindOfClass:[UITabBarItem class]] && [to isKindOfClass:[UITabBarController class]];
 
     NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)from;
-    NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:isTabBar ? (UITabBarController *)to : nil];
+    NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:isTabBar ? (UITabBarController *)to : nil] mutableCopy];
     if (!properties) {
         return;
     }

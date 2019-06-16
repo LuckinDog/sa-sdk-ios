@@ -24,19 +24,34 @@
 #import <objc/runtime.h>
 #import <objc/objc.h>
 #import <objc/message.h>
-#import "AutoTrackUtils.h"
+#import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK.h"
+#import "SAConstants+Private.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 static void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath) {
     SEL selector = NSSelectorFromString(@"sa_tableView:didSelectRowAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, tableView, indexPath);
-    [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
+    
+    NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UITableView<SAAutoTrackViewProperty> *)tableView didSelectedAtIndexPath:indexPath] mutableCopy];
+    
+    if (!properties) {
+        return;
+    }
+    [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackDelegate:tableView didSelectedAtIndexPath:indexPath]];
+   [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 static void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id collectionView, id indexPath) {
     SEL selector = NSSelectorFromString(@"sa_collectionView:didSelectItemAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, collectionView, indexPath);
-    [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
+    
+      NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UICollectionView<SAAutoTrackViewProperty> *)collectionView didSelectedAtIndexPath:indexPath] mutableCopy];
+    if (!properties) {
+        return;
+    }
+    [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackDelegate:collectionView didSelectedAtIndexPath:indexPath]];
+    [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 static void sa_setDelegate(id obj , SEL sel, id delegate) {
