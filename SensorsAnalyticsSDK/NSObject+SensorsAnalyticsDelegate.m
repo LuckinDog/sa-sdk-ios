@@ -33,7 +33,7 @@ static void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, 
     SEL selector = NSSelectorFromString(@"sa_tableView:didSelectRowAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, tableView, indexPath);
     
-    NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UITableView<SAAutoTrackViewProperty> *)tableView didSelectedAtIndexPath:indexPath] mutableCopy];
+    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UITableView<SAAutoTrackViewProperty> *)tableView didSelectedAtIndexPath:indexPath];
     
     if (!properties) {
         return;
@@ -46,7 +46,7 @@ static void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id coll
     SEL selector = NSSelectorFromString(@"sa_collectionView:didSelectItemAtIndexPath:");
     ((void(*)(id, SEL, id, id))objc_msgSend)(self, selector, collectionView, indexPath);
     
-      NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:(UICollectionView<SAAutoTrackViewProperty> *)collectionView didSelectedAtIndexPath:indexPath] mutableCopy];
+      NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UICollectionView<SAAutoTrackViewProperty> *)collectionView didSelectedAtIndexPath:indexPath];
     if (!properties) {
         return;
     }

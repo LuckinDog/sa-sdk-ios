@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController 需要采集的 ViewController
  @return 事件中与 ViewController 相关的属性字典
  */
-+ (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController;
++ (NSMutableDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController;
 
 /**
  通过 AutoTrack 控件，获取事件的属性
@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param object 控件的对象，UIView 及其子类或 UIBarItem 的子类
  @return 事件属性字典
  */
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object;
++ (nullable NSMutableDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object;
 
 /**
  通过 AutoTrack 控件，获取事件的属性
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param isCodeTrack 是否代码埋点采集
  @return 事件属性字典
  */
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object isCodeTrack:(BOOL)isCodeTrack;
++ (nullable NSMutableDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object isCodeTrack:(BOOL)isCodeTrack;
 
 /**
  通过 AutoTrack 控件，获取事件的属性
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController 控件所在的 ViewController，当为 nil 时，自动采集当前界面上的 ViewController
  @return 事件属性字典
  */
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController;
++ (nullable NSMutableDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController;
 
 @end
 
@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark -
 @interface SAAutoTrackUtils (IndexPath)
 
-+ (nullable NSDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath;
++ (nullable NSMutableDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath;
 
 + (NSDictionary *)propertiesWithAutoTrackDelegate:(UIScrollView *)scrollView didSelectedAtIndexPath:(NSIndexPath *)indexPath;
 @end
