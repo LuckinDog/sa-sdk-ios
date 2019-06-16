@@ -2659,7 +2659,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)autoTrackViewScreen:(UIViewController *)controller {
     //过滤用户设置的不被AutoTrack的Controllers
-    if ([self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
+    if (![self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
 
@@ -3513,15 +3513,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
     if (viewControllerClassName == nil) {
-        return false;
+        return NO;
     }
-
-    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
-        if ([_ignoredViewControllers containsObject:viewControllerClassName]) {
-            return true;
-        }
+    
+    if (_ignoredViewControllers.count > 0 && [_ignoredViewControllers containsObject:viewControllerClassName]) {
+        return YES;
     }
-    return false;
+    return NO;
 }
 
 - (void)trackTimerBegin:(NSString *)event {
