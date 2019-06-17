@@ -304,7 +304,7 @@
     }
 
     // ViewID
-    properties[SA_EVENT_PROPERTY_ELEMENT_ID] = cell.sensorsdata_elementId;
+    properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
 
     UIViewController<SAAutoTrackViewControllerProperty> *viewController = object.sensorsdata_viewController;
     if (viewController.sensorsdata_isIgnored) {
@@ -313,7 +313,7 @@
     NSDictionary *dic = [self propertiesWithViewController:viewController];
     [properties addEntriesFromDictionary:dic];
 
-    properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = cell.sensorsdata_elementType;
+    properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = object.sensorsdata_elementType;
     properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = cell.sensorsdata_elementContent;
     properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = [cell sensorsdata_elementPositionWithIndexPath:indexPath];
 
@@ -337,18 +337,19 @@
         if ([scrollView isKindOfClass:UITableView.class]) {
             UITableView *tableView = (UITableView *)scrollView;
             
-            if ([tableView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [tableView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)] ) {
+            if ([tableView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)]) {
                 properties = [tableView.sensorsAnalyticsDelegate sensorsAnalytics_tableView:tableView autoTrackPropertiesAtIndexPath:indexPath];
             }
         } else if ([scrollView isKindOfClass:UICollectionView.class]) {
             UICollectionView *collectionView = (UICollectionView *)scrollView;
-            if ([collectionView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [collectionView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
+            if ([collectionView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
                 properties = [collectionView.sensorsAnalyticsDelegate sensorsAnalytics_collectionView:collectionView autoTrackPropertiesAtIndexPath:indexPath];
             }
         }
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
+    NSAssert(!properties || [properties isKindOfClass:[NSDictionary class]], @"You must return a dictionary object ❌");
     return properties;
 }
 @end

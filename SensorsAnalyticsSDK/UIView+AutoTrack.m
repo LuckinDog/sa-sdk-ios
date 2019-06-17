@@ -313,22 +313,6 @@
 
 @implementation UITableViewCell (AutoTrack)
 
-- (UIScrollView *)sensorsdata_scrollView {
-    UIView *tableView = self;
-    do {
-        tableView = tableView.superview;
-    } while (![tableView isKindOfClass:UITableView.class]);
-    return (UITableView *)tableView;
-}
-
-- (NSString *)sensorsdata_elementId {
-    return self.sensorsdata_scrollView.sensorsdata_elementId;
-}
-
-- (NSString *)sensorsdata_elementType {
-    return NSStringFromClass(self.sensorsdata_scrollView.class);
-}
-
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {
     return [NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section, (long)indexPath.row];
 }
@@ -340,22 +324,6 @@
 @end
 
 @implementation UICollectionViewCell (AutoTrack)
-
-- (UIScrollView *)sensorsdata_scrollView {
-    UIView *collectionView = self;
-    do {
-        collectionView = collectionView.superview;
-    } while (![collectionView isKindOfClass:UICollectionView.class]);
-    return (UICollectionView *)collectionView;
-}
-
-- (NSString *)sensorsdata_elementId {
-    return self.sensorsdata_scrollView.sensorsdata_elementId;
-}
-
-- (NSString *)sensorsdata_elementType {
-    return NSStringFromClass(self.sensorsdata_scrollView.class);
-}
 
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {
     return [NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section, (long)indexPath.row];

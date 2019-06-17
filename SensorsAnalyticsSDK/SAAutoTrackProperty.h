@@ -43,7 +43,6 @@
 
 #pragma mark -
 @protocol SAAutoTrackCellProperty <SAAutoTrackViewProperty>
-@property (nonatomic, copy, readonly) UIScrollView *sensorsdata_scrollView;
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath;
 - (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath;
 @end

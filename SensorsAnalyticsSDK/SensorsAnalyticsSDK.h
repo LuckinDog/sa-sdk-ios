@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@protocol SAUIViewAutoTrackDelegate
+@protocol SAUIViewAutoTrackDelegate <NSObject>
 
 //UITableView
 @optional
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// AutoTrack 时，View 的扩展属性
 @property (nonatomic, strong) NSDictionary* sensorsAnalyticsViewProperties;
 
-@property (nonatomic, weak, nullable) id sensorsAnalyticsDelegate;
+@property (nonatomic, weak, nullable) id<SAUIViewAutoTrackDelegate> sensorsAnalyticsDelegate;
 @end
 
 
@@ -78,14 +78,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 属性的约束请参考 track:withProperties:
  */
-@protocol SAAutoTracker
+@protocol SAAutoTracker <NSObject>
 
 @required
 - (NSDictionary *)getTrackProperties;
 
 @end
 
-@protocol SAScreenAutoTracker<SAAutoTracker>
+@protocol SAScreenAutoTracker <SAAutoTracker>
 
 @required
 - (NSString *)getScreenUrl;
