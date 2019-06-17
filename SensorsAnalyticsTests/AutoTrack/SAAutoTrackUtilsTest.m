@@ -237,7 +237,13 @@
     XCTAssertTrue([dic[@"$element_position"] isEqualToString:@"0:2"]);
 
     // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UITableView/UITableViewCell[0][2]";
+    NSString *selector = nil;
+    if (@available(iOS 11.0, *)) {
+        selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UITableView/UITableViewCell[0][2]";
+    } else {
+        // iOS 11 以下路径中多 UITableViewWrapperView
+        selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UITableView/UITableViewWrapperView/UITableViewCell[0][2]";
+    }
     XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 

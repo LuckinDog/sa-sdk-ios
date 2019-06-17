@@ -131,11 +131,11 @@ void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
     objc_setAssociatedObject(self, @"sensorsAnalyticsViewProperties", sensorsAnalyticsViewProperties, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (id)sensorsAnalyticsDelegate {
+- (id<SAUIViewAutoTrackDelegate>)sensorsAnalyticsDelegate {
     return objc_getAssociatedObject(self, @"sensorsAnalyticsDelegate");
 }
 
-- (void)setSensorsAnalyticsDelegate:(id)sensorsAnalyticsDelegate {
+- (void)setSensorsAnalyticsDelegate:(id<SAUIViewAutoTrackDelegate>)sensorsAnalyticsDelegate {
     objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", sensorsAnalyticsDelegate, OBJC_ASSOCIATION_ASSIGN);
 }
 @end

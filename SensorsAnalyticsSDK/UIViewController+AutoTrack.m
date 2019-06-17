@@ -84,13 +84,8 @@
                 if (!properties) {
                     return;
                 }
-                @try {
-                    if ([tableView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [tableView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_tableView:autoTrackPropertiesAtIndexPath:)]) {
-                        [properties addEntriesFromDictionary:[tableView.sensorsAnalyticsDelegate sensorsAnalytics_tableView:tableView autoTrackPropertiesAtIndexPath:indexPath]];
-                    }
-                } @catch (NSException *exception) {
-                    SAError(@"%@ error: %@", self, exception);
-                }
+                NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:tableView didSelectedAtIndexPath:indexPath];
+                [properties addEntriesFromDictionary:dic];
 
                 [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };
@@ -106,13 +101,8 @@
                 if (!properties) {
                     return;
                 }
-                @try {
-                    if ([collectionView.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)] && [collectionView.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_collectionView:autoTrackPropertiesAtIndexPath:)]) {
-                        [properties addEntriesFromDictionary:[collectionView.sensorsAnalyticsDelegate sensorsAnalytics_collectionView:collectionView autoTrackPropertiesAtIndexPath:indexPath]];
-                    }
-                } @catch (NSException *exception) {
-                    SAError(@"%@ error: %@", self, exception);
-                }
+                NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:collectionView didSelectedAtIndexPath:indexPath];
+                [properties addEntriesFromDictionary:dic];
 
                 [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };

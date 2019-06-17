@@ -15,7 +15,7 @@
 @end
 
 #pragma mark -
-@interface ElementViewController () <UITableViewDataSource, UITableViewDelegate>
+@interface ElementViewController () <UITableViewDataSource, UITableViewDelegate, SAUIViewAutoTrackDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
 @end
 
@@ -101,6 +101,7 @@
     _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_scrollView.frame), CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame)/2)];
     _tableView.dataSource = self;
     _tableView.delegate = self;
+    _tableView.sensorsAnalyticsDelegate = self;
     [self.view addSubview:_tableView];
 
     [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"];
@@ -161,6 +162,12 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"%@", indexPath);
+}
+
+#pragma mark - SAUIViewAutoTrackDelegate
+- (NSDictionary *)sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath {
+    return (NSDictionary *)[NSDate date];
+    return arc4random()%2 == 0 ? nil : @{@"SAUIViewAutoTrackDelegate": @"Sensors Data"};
 }
 
 @end
