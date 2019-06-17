@@ -314,11 +314,11 @@
 @implementation UITableViewCell (AutoTrack)
 
 - (UIScrollView *)sensorsdata_scrollView {
-    UITableView *tableView = (UITableView *)self;
+    UIView *tableView = self;
     do {
-        tableView = (UITableView *)tableView.superview;
+        tableView = tableView.superview;
     } while (![tableView isKindOfClass:UITableView.class]);
-    return tableView;
+    return (UITableView *)tableView;
 }
 
 - (NSString *)sensorsdata_elementId {
@@ -342,11 +342,11 @@
 @implementation UICollectionViewCell (AutoTrack)
 
 - (UIScrollView *)sensorsdata_scrollView {
-    UICollectionView *collectionView = (UICollectionView *)self;
+    UIView *collectionView = self;
     do {
-        collectionView = (UICollectionView *)collectionView.superview;
+        collectionView = collectionView.superview;
     } while (![collectionView isKindOfClass:UICollectionView.class]);
-    return collectionView;
+    return (UICollectionView *)collectionView;
 }
 
 - (NSString *)sensorsdata_elementId {
