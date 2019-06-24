@@ -114,7 +114,7 @@
 @implementation UILabel (AutoTrack)
 
 - (NSString *)sensorsdata_elementContent {
-    return self.text;
+    return self.text ?: super.sensorsdata_elementContent;
 }
 
 @end
@@ -128,7 +128,7 @@
         return [NSString stringWithFormat:@"$%@", imageName];
     }
 #endif
-    return nil;
+    return super.sensorsdata_elementContent;
 }
 
 @end
@@ -136,7 +136,7 @@
 @implementation UITextView (AutoTrack)
 
 - (NSString *)sensorsdata_elementContent {
-    return self.text;
+    return self.text ?: super.sensorsdata_elementContent;
 }
 
 @end
@@ -197,8 +197,8 @@
 @implementation UIButton (AutoTrack)
 
 - (NSString *)sensorsdata_elementContent {
-    NSString *text = self.currentTitle;
-    if (text.length == 0) {
+    NSString *text = self.titleLabel.text;
+    if (!text) {
         text = super.sensorsdata_elementContent;
     }
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
