@@ -46,6 +46,10 @@
 }
 */
 
+- (IBAction)onControlClick:(id)sender {
+    NSLog(@"****:onControlClick");
+}
+
 - (IBAction)onButtonClick:(id)sender {
     NSLog(@"****:onButtonClick");
 }

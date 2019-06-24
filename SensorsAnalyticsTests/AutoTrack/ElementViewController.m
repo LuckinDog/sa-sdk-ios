@@ -166,7 +166,6 @@
 
 #pragma mark - SAUIViewAutoTrackDelegate
 - (NSDictionary *)sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath {
-    return (NSDictionary *)[NSDate date];
     return arc4random()%2 == 0 ? nil : @{@"SAUIViewAutoTrackDelegate": @"Sensors Data"};
 }
 
