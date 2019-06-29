@@ -254,8 +254,7 @@
 @implementation UISlider (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
-    NSLog(@"%d, %d", self.tracking, self.touchInside);
-    return (!self.tracking && self.touchInside) || super.sensorsdata_isIgnored;
+    return self.tracking || super.sensorsdata_isIgnored;
 }
 
 - (NSString *)sensorsdata_elementContent {
