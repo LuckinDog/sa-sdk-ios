@@ -23,8 +23,8 @@
 #endif
 
 #import "SASecurityPolicy.h"
-
 #import <AssertMacros.h>
+#import "SALogger.h"
 
 #if !TARGET_OS_IOS && !TARGET_OS_WATCH && !TARGET_OS_TV
 static NSData * SASecKeyGetData(SecKeyRef key) {
@@ -235,7 +235,7 @@ static NSArray * SAPublicKeyTrustChainForServerTrust(SecTrustRef serverTrust) {
         //  From Apple Docs:
         //          "Do not implicitly trust self-signed certificates as anchors (kSecTrustOptionImplicitAnchors).
         //           Instead, add your own (self-signed) CA certificate to the list of trusted anchors."
-        NSLog(@"In order to validate a domain name for self signed certificates, you MUST use pinning.");
+        SALog(@"In order to validate a domain name for self signed certificates, you MUST use pinning.");
         return NO;
     }
 
