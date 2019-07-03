@@ -58,14 +58,7 @@
 @interface UISegmentedControl (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-#pragma mark - UIBarItem
-
-@interface UIBarItem (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-@interface UIBarButtonItem (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
+#pragma mark - UITabBarItem
 @interface UITabBarItem (AutoTrack) <SAAutoTrackViewProperty>
 @end
 

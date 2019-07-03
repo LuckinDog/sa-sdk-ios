@@ -20,6 +20,7 @@
 
 #import "AutoTrackViewController.h"
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+#import "TestViewController.h"
 
 @interface AutoTrackViewController ()<SAUIViewAutoTrackDelegate>
 
@@ -38,6 +39,9 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
 
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"下一页" style:UIBarButtonItemStyleDone target:self action:@selector(nextAction)];
+    self.navigationItem.rightBarButtonItem = rightItem;
+    
     self.myLabel.userInteractionEnabled = YES;
     UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(labelTouchUpInside:)];
     [self.myLabel addGestureRecognizer:labelTapGestureRecognizer];
@@ -81,6 +85,11 @@
 -(void) imageViewTouchUpInside:(UITapGestureRecognizer *)recognizer{
     NSLog(@"UIImageView被点击了");
 
+}
+
+- (void)nextAction {
+    TestViewController *nextVC = [[TestViewController alloc] init];
+    [self.navigationController pushViewController:nextVC animated:YES];
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
