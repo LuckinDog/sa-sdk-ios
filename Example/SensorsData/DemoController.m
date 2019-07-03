@@ -42,10 +42,6 @@
     return @"WoShiYiGeURL";
 }
 
-- (NSDictionary*)sa_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath {
-    return @{@"test": @"test"};
-}
-
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     
 }
