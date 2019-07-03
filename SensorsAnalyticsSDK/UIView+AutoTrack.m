@@ -263,9 +263,8 @@
 
 @end
 
-#pragma mark - UIBarItem
-
-@implementation UIBarItem (AutoTrack)
+#pragma mark - UITabBarItem
+@implementation UITabBarItem (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
     BOOL isAutoTrackEnabled = [[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled];
@@ -293,18 +292,6 @@
 - (UIViewController *)sensorsdata_viewController {
     return nil;
 }
-
-@end
-
-@implementation UIBarButtonItem (AutoTrack)
-
-- (NSString *)sensorsdata_elementType {
-    return @"UIBarButtonItem";
-}
-
-@end
-
-@implementation UITabBarItem (AutoTrack)
 
 @end
 
