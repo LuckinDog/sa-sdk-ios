@@ -1454,11 +1454,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([self isAutoTrackEnabled] && propertieDict) {
         if ([event isEqualToString:SA_EVENT_NAME_APP_CLICK]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
-                lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME]];
+                lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
             }
         } else if ([event isEqualToString:SA_EVENT_NAME_APP_VIEW_SCREEN]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen] == NO) {
-                lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME]];
+                lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
             }
         }
     }
