@@ -1727,7 +1727,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     NSNumber *eventBegin = @([[self class] getSystemUpTime]);
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : [NSNumber numberWithLong:0], @"timeUnit" : [NSNumber numberWithInt:timeUnit],@"isPause":@(NO)};
+        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : @(0.0), @"timeUnit" : [NSNumber numberWithInt:timeUnit],@"isPause":@(NO)};
     });
 }
 
@@ -2998,7 +2998,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     // 遍历 trackTimer ,修改 eventBegin 为当前 currentSystemUpTime
     dispatch_async(self.serialQueue, ^{
-        
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
@@ -3088,16 +3087,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 }
             }
             eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
-            if (eventTimer) {
-                NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
+            if (eventTimer && ![eventTimer[@"isPause"] boolValue]) {
+                UInt64 eventBegin = [[eventTimer valueForKey:@"eventBegin"] longValue];
                 NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
-                long eventDuration;
+                SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
+                float eventDuration = [self eventTimerDurationWithEventStart:eventBegin timeUnit:timeUnit];
                 if (eventAccumulatedDuration) {
-                    eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
-                } else {
-                    eventDuration = [currentSystemUpTime longValue] - [eventBegin longValue];
+                    eventDuration += [eventAccumulatedDuration floatValue];
                 }
-                [eventTimer setObject:[NSNumber numberWithLong:eventDuration] forKey:@"eventAccumulatedDuration"];
+                [eventTimer setObject:@(eventDuration) forKey:@"eventAccumulatedDuration"];
                 [eventTimer setObject:currentSystemUpTime forKey:@"eventBegin"];
                 self.trackTimer[key] = eventTimer;
             }
