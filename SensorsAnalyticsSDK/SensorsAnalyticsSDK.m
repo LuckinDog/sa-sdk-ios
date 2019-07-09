@@ -1518,7 +1518,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
 
                 if (eventAccumulatedDuration) {
-                    eventDuration += eventAccumulatedDuration.longValue;
+                    eventDuration += eventAccumulatedDuration.floatValue;
                 }
 
                 p[@"event_duration"] = @([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]);
@@ -1763,7 +1763,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             eventTimer[@"eventBegin"] = @(eventBegin);
             eventTimer[@"isPause"] = @(isPause);
             if (eventDuration > 0) {
-                eventTimer[@"eventAccumulatedDuration"] = @([NSString stringWithFormat:@"%.3f", eventDuration].floatValue);
+                eventTimer[@"eventAccumulatedDuration"] = @([eventTimer[@"eventAccumulatedDuration"] floatValue] + eventDuration);
             }
 
             self.trackTimer[event] = [eventTimer copy];
