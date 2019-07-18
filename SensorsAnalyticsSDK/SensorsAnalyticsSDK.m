@@ -422,7 +422,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([self isViewControllerIgnored:controller]) {
         return NO;
     }
-    // 对于 UITabBar 的点击事件，不使用页面浏览的忽略事件
+    // UITabBarController 默认包含在黑名单，单独判断，防止 UITabBar 点击事件被忽略
     if (type == SensorsAnalyticsEventTypeAppClick && [controller isKindOfClass:[UITabBarController class]]) {
         return YES;
     }
