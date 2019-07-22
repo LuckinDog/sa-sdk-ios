@@ -1656,14 +1656,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if ([SALogger isLoggerEnabled]) {
-            @try {
-                NSString *logString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:eventDic options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                SALog(@"\n【track event】:\n%@", logString);
-            } @catch (NSException *exception) {
-                SAError(@"%@: %@", self, exception);
-            }
-        }
+        SALog(@"\n【track event】:\n%@", eventDic);
 
         [self enqueueWithType:type andEvent:eventDic];
 
