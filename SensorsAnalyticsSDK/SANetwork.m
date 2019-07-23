@@ -184,7 +184,12 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 - (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, id> *)params {
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
-    urlComponents.query = [SANetwork urlQueryStringWithParams:params];
+    NSString *queryString = [SANetwork urlQueryStringWithParams:params];
+    if (urlComponents.query.length) {
+        urlComponents.query = [NSString stringWithFormat:@"%@&%@", urlComponents.query, queryString];
+    } else {
+        urlComponents.query = queryString;
+    }
     return urlComponents.URL;
 }
 
