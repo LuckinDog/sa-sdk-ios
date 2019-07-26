@@ -1108,7 +1108,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
-    if (!self.network.serverURL) {
+    if (![self.network isValidServerURL]) {
         return;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
@@ -2571,7 +2571,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_block_t mainThreadBlock = ^(){
         BOOL verify = enableVerify;
         @try {
-            if (!self.network.serverURL) {
+            if (![self.network isValidServerURL]) {
                 verify = NO;
             }
             NSString *oldAgent = nil;
