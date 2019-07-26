@@ -241,7 +241,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 - (BOOL)flushEvents:(NSArray<NSString *> *)events {
-    if (!self.serverURL) {
+    if (![self isValidServerURL]) {
         SAError(@"serverURL error，Please check the serverURL");
         return NO;
     }
@@ -298,7 +298,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 - (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
-    if (!self.serverURL) {
+    if (![self isValidServerURL]) {
         SAError(@"serverURL error，Please check the serverURL");
         return nil;
     }
@@ -318,7 +318,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 - (NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
-    if (!self.serverURL) {
+    if (![self isValidServerURL]) {
         SAError(@"serverURL error，Please check the serverURL");
         return nil;
     }
@@ -416,13 +416,17 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 - (BOOL)isSameProjectWithURLString:(NSString *)URLString {
-    if (!self.serverURL || URLString.length == 0) {
+    if (![self isValidServerURL] || URLString.length == 0) {
         return NO;
     }
     BOOL isEqualHost = [self.host isEqualToString:[SANetwork hostWithURLString:URLString]];
     NSString *project = [SANetwork queryItemsWithURLString:URLString][@"project"] ?: @"default";
     BOOL isEqualProject = [self.project isEqualToString:project];
     return isEqualHost && isEqualProject;
+}
+
+- (BOOL)isValidServerURL {
+    return _serverURL.absoluteString.length > 0;
 }
 
 @end
