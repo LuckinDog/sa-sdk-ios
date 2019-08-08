@@ -32,7 +32,7 @@
 #import <UIKit/UIDevice.h>
 #import <UIKit/UIScreen.h>
 
-#import "JSONUtil.h"
+#import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
@@ -840,7 +840,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     @try {
         SADebug(@"showUpWebView");
-        JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
+        SAJSONUtil *_jsonUtil = [[SAJSONUtil alloc] init];
         NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         if (bridgeCallbackInfo) {

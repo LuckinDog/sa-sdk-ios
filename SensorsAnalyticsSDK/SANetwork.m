@@ -29,7 +29,7 @@
 #import "NSString+HashCode.h"
 #import "SAGzipUtility.h"
 #import "SALogger.h"
-#import "JSONUtil.h"
+#import "SAJSONUtil.h"
 
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
@@ -199,7 +199,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     [request setHTTPMethod:@"POST"];
     
     NSDictionary *callData = @{@"distinct_id": distinctId};
-    JSONUtil *jsonUtil = [[JSONUtil alloc] init];
+    SAJSONUtil *jsonUtil = [[SAJSONUtil alloc] init];
     NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
