@@ -262,15 +262,18 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSString *messageDesc = nil;
         if (statusCode >= 200 && statusCode < 300) {
             messageDesc = @"\n【valid message】\n";
-            flushSuccess = YES;
         } else {
             messageDesc = @"\n【invalid message】\n";
             if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
                 [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
-                flushSuccess = YES;
             }
         }
+        // 1、开启 debug 模式，都删除；
+        // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
+        BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
+        flushSuccess = self.debugMode != SensorsAnalyticsDebugOff || successCode;
+
         SAError(@"==========================================================================");
         @try {
             NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
