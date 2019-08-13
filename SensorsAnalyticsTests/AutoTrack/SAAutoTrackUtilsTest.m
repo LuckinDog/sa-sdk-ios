@@ -247,6 +247,33 @@
     XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
+- (void)testViewTypeIgnoredOfSubClass {
+    [[SensorsAnalyticsSDK sharedInstance] ignoreViewType:[UIControl class]];
+    BOOL buttonIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UIButton class]];
+    XCTAssertTrue(buttonIgnored);
+
+    BOOL segmentedControlIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UISegmentedControl class]];
+    XCTAssertTrue(segmentedControlIgnored);
+}
+
+- (void)testViewTypeIgnoredOfCurrentClass {
+    [[SensorsAnalyticsSDK sharedInstance] ignoreViewType:[UIControl class]];
+    BOOL controlIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UIControl class]];
+    XCTAssertTrue(controlIgnored);
+}
+
+- (void)testViewTypeIgnoredOfSuperClass {
+    [[SensorsAnalyticsSDK sharedInstance] ignoreViewType:[UIControl class]];
+    BOOL viewIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UIView class]];
+    XCTAssertFalse(viewIgnored);
+}
+
+- (void)testViewTypeIgnoredOfOtherClass {
+    [[SensorsAnalyticsSDK sharedInstance] ignoreViewType:[UIControl class]];
+    BOOL itemIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UIBarButtonItem class]];
+    XCTAssertFalse(itemIgnored);
+}
+
 - (void)testPerformanceExample {
     [self measureBlock:^{
         [SAAutoTrackUtils propertiesWithAutoTrackObject:self.viewController.firstButton viewController:self.viewController];
