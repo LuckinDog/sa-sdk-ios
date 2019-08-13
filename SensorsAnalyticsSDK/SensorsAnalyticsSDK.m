@@ -1072,7 +1072,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isViewTypeIgnored:(Class)aClass {
-    return [_ignoredViewTypeList containsObject:aClass];
+    for (Class obj in _ignoredViewTypeList) {
+        if ([aClass isSubclassOfClass:obj]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
