@@ -63,7 +63,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
-
+#import "SAWeakPropertyContainer.h"
 
 #define VERSION @"1.11.11-pre"
 
@@ -93,6 +93,7 @@ static dispatch_once_t sdkInitializeOnceToken;
 @end
 
 @implementation UIView (SensorsAnalytics)
+
 - (UIViewController *)sensorsAnalyticsViewController {
     return self.sensorsdata_viewController;
 }
@@ -134,11 +135,13 @@ static dispatch_once_t sdkInitializeOnceToken;
 }
 
 - (id<SAUIViewAutoTrackDelegate>)sensorsAnalyticsDelegate {
-    return objc_getAssociatedObject(self, @"sensorsAnalyticsDelegate");
+    SAWeakPropertyContainer *container = objc_getAssociatedObject(self, @"sensorsAnalyticsDelegate");
+    return container.weakProperty;
 }
 
 - (void)setSensorsAnalyticsDelegate:(id<SAUIViewAutoTrackDelegate>)sensorsAnalyticsDelegate {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", sensorsAnalyticsDelegate, OBJC_ASSOCIATION_ASSIGN);
+    SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:sensorsAnalyticsDelegate];
+    objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", container, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 @end
 
