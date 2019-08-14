@@ -247,6 +247,14 @@
     XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
+- (void)testCategoryDelegateProperty {
+    UIView *view = [[UIView alloc]init];
+    NSObject *delegate = [[NSObject alloc]init];
+    view.sensorsAnalyticsDelegate = (NSObject<SAUIViewAutoTrackDelegate>*) delegate;
+    delegate = nil;
+    XCTAssertNil(view.sensorsAnalyticsDelegate);
+}
+
 - (void)testViewTypeIgnoredOfSubClass {
     [[SensorsAnalyticsSDK sharedInstance] ignoreViewType:[UIControl class]];
     BOOL buttonIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UIButton class]];
