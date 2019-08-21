@@ -229,12 +229,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @synthesize remoteConfig = _remoteConfig;
 
 #pragma mark - Initialization
-+ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
     });
-    return sharedInstance;
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
@@ -2534,24 +2533,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return network;
 }
 
-- (UInt64)flushInterval {
-    @synchronized(self) {
-        return self.configOptions.flushInterval;
-    }
-}
-
-- (void)setFlushInterval:(UInt64)interval {
-    @synchronized(self) {
-        if (interval < 5 * 1000) {
-            interval = 5 * 1000;
-        }
-        self.configOptions.flushInterval = (NSInteger)interval;
-    }
-    [self flush];
-    [self stopFlushTimer];
-    [self startFlushTimer];
-}
-
 - (void)startFlushTimer {
     if (self.remoteConfig.disableSDK || (self.timer && [self.timer isValid])) {
         return;
@@ -2577,20 +2558,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         self.timer = nil;
     });
-}
-
-- (UInt64)flushBulkSize {
-    @synchronized(self) {
-        return self.configOptions.flushBulkSize;
-    }
-}
-
-- (void)setFlushBulkSize:(UInt64)bulkSize {
-    @synchronized(self) {
-        //加上最小值保护，50
-        NSInteger newBulkSize = (NSInteger)bulkSize;
-        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
-    }
 }
 
 - (NSString *)getLastScreenUrl {
@@ -3556,6 +3523,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - Deprecated
 @implementation SensorsAnalyticsSDK (Deprecated)
 
++ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
+    [self startWithConfigOptions:configOptions];
+    return sharedInstance;
+}
+
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
@@ -3583,6 +3555,38 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                             andDebugMode:SensorsAnalyticsDebugOff];
     });
     return sharedInstance;
+}
+
+- (UInt64)flushInterval {
+    @synchronized(self) {
+        return self.configOptions.flushInterval;
+    }
+}
+
+- (void)setFlushInterval:(UInt64)interval {
+    @synchronized(self) {
+        if (interval < 5 * 1000) {
+            interval = 5 * 1000;
+        }
+        self.configOptions.flushInterval = (NSInteger)interval;
+    }
+    [self flush];
+    [self stopFlushTimer];
+    [self startFlushTimer];
+}
+
+- (UInt64)flushBulkSize {
+    @synchronized(self) {
+        return self.configOptions.flushBulkSize;
+    }
+}
+
+- (void)setFlushBulkSize:(UInt64)bulkSize {
+    @synchronized(self) {
+        //加上最小值保护，50
+        NSInteger newBulkSize = (NSInteger)bulkSize;
+        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
+    }
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
