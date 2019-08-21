@@ -3137,19 +3137,27 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] set:profileDict];
 }
 
-- (void)profilePushKey:(NSString *)pushKey pushId:(NSString *)pushId {
-    if ([pushKey isKindOfClass:NSString.class] && pushKey.length && [pushId isKindOfClass:NSString.class] && pushId.length) {
-        NSString * distinctId = self.distinctId;
-        NSString * keyOfPushId = [NSString stringWithFormat:@"sa_%@_%@", distinctId, pushKey];
+- (void)profilePushKey:(NSString *)pushTypeKey pushId:(NSString *)pushId {
+    if ([pushTypeKey isKindOfClass:NSString.class] && pushTypeKey.length && [pushId isKindOfClass:NSString.class] && pushId.length) {
+        NSString * keyOfPushId = [NSString stringWithFormat:@"sa_%@", pushTypeKey];
         NSString * valueOfPushId = [NSUserDefaults.standardUserDefaults valueForKey:keyOfPushId];
-        NSString * newValueOfPushId = [NSString stringWithFormat:@"%@_%@", distinctId, pushId];
+        NSString * newValueOfPushId = [NSString stringWithFormat:@"%@_%@", self.distinctId, pushId];
         if (![valueOfPushId isEqualToString:newValueOfPushId]) {
-            [self set:@{pushKey:pushId}];
+            [self set:@{pushTypeKey:pushId}];
             [NSUserDefaults.standardUserDefaults setValue:newValueOfPushId forKey:keyOfPushId];
         }
     }
 }
 
+- (void)profileUnsetPushKey:(NSString *)pushTypeKey {
+    NSAssert(([pushTypeKey isKindOfClass:[NSString class]] && pushTypeKey.length), @"pushTypeKey should be a non-empty string object!!!❌❌❌");
+    NSString *localKey = [NSString stringWithFormat:@"sa_%@", pushTypeKey];
+    NSString *localValue = [NSUserDefaults.standardUserDefaults valueForKey:localKey];
+    if ([localValue hasPrefix:self.distinctId]) {
+        [self unset:pushTypeKey];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:localKey];
+    }
+}
 
 - (void)setOnce:(NSDictionary *)profileDict {
     [[self people] setOnce:profileDict];
