@@ -831,10 +831,21 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 设置用户的 pushId 比如 @{@"jgId":pushId}，并触发 profileSet 设置对应的用户属性。
  * 当 disctinct_id 或者 pushId 没有发生改变的时,不会触发 profileSet。
- * @param pushKey  pushId 的 key
+ * @param pushTypeKey  pushId 的 key
  * @param pushId  pushId 的值
  */
-- (void)profilePushKey:(NSString *)pushKey pushId:(NSString *)pushId;
+- (void)profilePushKey:(NSString *)pushTypeKey pushId:(NSString *)pushId;
+
+/**
+ * @abstract
+ * 删除用户设置的 pushId
+ *
+ * *@discussion
+ * 删除用户设置的 pushId 比如 @{@"jgId":pushId}，并触发 profileUnset 删除对应的用户属性。
+ * 当 disctinct_id 未找到本地缓存记录时, 不会触发 profileUnset。
+ * @param pushTypeKey  pushId 的 key
+ */
+- (void)profileUnsetPushKey:(NSString *)pushTypeKey;
 
 /**
  * @abstract
