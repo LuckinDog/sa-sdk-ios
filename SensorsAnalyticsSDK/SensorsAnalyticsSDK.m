@@ -756,8 +756,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
             NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-            NSInteger customTimeInt = [propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] integerValue];
-            
+            NSNumber *timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
                 [eventDict setValue:project forKey:SA_EVENT_PROJECT];
@@ -766,11 +766,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
-            if (customTimeInt > 0) { //包含 $time
+            if (timeNumber) { //包含 $time
+                NSInteger customTimeInt = [timeNumber integerValue];
                 if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
                     timeStamp = @(customTimeInt);
                 } else {
-                    SALog(@"H5 $time error %ld，Please check the value", customTimeInt);
+                    SAError(@"H5 $time error '%@'，Please check the value", timeNumber);
                 }
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
@@ -1558,13 +1559,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     project = (NSString *)obj;
                 } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN]) {
                     token = (NSString *)obj;
-                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] && [obj isKindOfClass:NSDate.class]) {
-                    NSDate *customTime = (NSDate *)obj;
-                    NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-                    if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                        timeStamp = @(customTimeInt);
+                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
+                    if ([obj isKindOfClass:NSDate.class]) {
+                        NSDate *customTime = (NSDate *)obj;
+                        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+                        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                            timeStamp = @(customTimeInt);
+                        } else {
+                            SAError(@"$time error %ld，Please check the value", customTimeInt);
+                        }
                     } else {
-                        SALog(@"$time error %ld，Please check the value", customTimeInt);
+                        SAError(@"$time '%@' invalid，Please check the value", obj);
                     }
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
