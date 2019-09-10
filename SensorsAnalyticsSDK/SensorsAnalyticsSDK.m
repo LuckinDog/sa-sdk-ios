@@ -1158,7 +1158,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)deleteAll {
-    [self.messageQueue deleteAll];
+    // 新增线程保护
+    dispatch_async(self.serialQueue, ^{
+        [self.messageQueue deleteAll];
+    });
 }
 
 #pragma mark - HandleURL
