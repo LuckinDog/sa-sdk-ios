@@ -176,6 +176,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 //用户设置的不被AutoTrack的Controllers
 @property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
+@property (nonatomic, weak) UIViewController *previousTrackViewController;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *heatMapViewControllers;
 @property (nonatomic, strong) NSMutableSet<NSString *> *visualizedAutoTrackViewControllers;
@@ -1953,7 +1954,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)ignoreAutoTrackViewControllers:(NSArray *)controllers {
+- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
     if (controllers == nil || controllers.count == 0) {
         return;
     }
