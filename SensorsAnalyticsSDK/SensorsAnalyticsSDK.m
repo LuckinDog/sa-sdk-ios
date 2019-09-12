@@ -183,6 +183,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
+@property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
+
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 @property(nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
@@ -311,7 +313,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _heatMapViewControllers = [[NSMutableSet alloc] init];
             _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
-            
+            _trackChannelEventNames = [[NSMutableSet alloc] init];
+
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
             
@@ -1708,6 +1711,36 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeCode];
 }
 
+- (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
+
+    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
+    // ua
+    NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+    if (userAgent.length == 0) {
+        userAgent = self.class.getUserAgent;
+        [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+    }
+    // idfa
+    NSString *idfa = [self getIDFA];
+    if (idfa) {
+        [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    } else {
+        [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    }
+    
+    if ([self.trackChannelEventNames containsObject:event]) {
+        [properties setValue:@(NO) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
+    } else {
+        [properties setValue:@(YES) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
+        [self.trackChannelEventNames addObject:event];
+        dispatch_async(self.serialQueue, ^{
+            [self archiveTrackChannelEventNames];
+        });
+    }
+
+    [self track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeCode];
+}
+
 - (void)track:(NSString *)event withTrackType:(SensorsAnalyticsTrackType)trackType {
     [self track:event withProperties:nil withTrackType:trackType];
 }
@@ -1897,12 +1930,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
         }
 
-        NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_INSTALL_USER_AGENT];
+        NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
         if (userAgent ==nil || userAgent.length == 0) {
             userAgent = self.class.getUserAgent;
         }
         if (userAgent) {
-            [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_INSTALL_USER_AGENT];
+            [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
         }
 
         if (propertyDict != nil) {
@@ -2354,10 +2387,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Local caches
 
 - (void)unarchive {
-        [self unarchiveAnonymousId];
-        [self unarchiveLoginId];
-        [self unarchiveSuperProperties];
-        [self unarchiveFirstDay];
+    [self unarchiveAnonymousId];
+    [self unarchiveLoginId];
+    [self unarchiveSuperProperties];
+    [self unarchiveFirstDay];
+    [self unarchiveTrackChannelEvents];
 }
 
 - (id)unarchiveFromFile:(NSString *)filePath {
@@ -2421,6 +2455,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (void)unarchiveTrackChannelEvents {
+    NSString *filePath = [self filePathForData:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    NSArray *trackChannelEvents = (NSArray *)[self unarchiveFromFile:filePath];
+    [self.trackChannelEventNames addObjectsFromArray:trackChannelEvents];
+}
+
 - (void)archiveAnonymousId {
     NSString *filePath = [self filePathForData:SA_EVENT_DISTINCT_ID];
     /* 为filePath文件设置保护等级 */
@@ -2478,6 +2518,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ unable to archive super properties", self);
     }
     SADebug(@"%@ archive super properties data", self);
+}
+
+- (void)archiveTrackChannelEventNames {
+    NSString *filePath = [self filePathForData:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    /* 为filePath文件设置保护等级 */
+    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
+                                                           forKey:NSFileProtectionKey];
+    [[NSFileManager defaultManager] setAttributes:protection
+                                     ofItemAtPath:filePath
+                                            error:nil];
+    if (![NSKeyedArchiver archiveRootObject:[self.trackChannelEventNames copy] toFile:filePath]) {
+        SAError(@"%@ unable to archive trackChannelEventNames", self);
+    }
+    SADebug(@"%@ archive trackChannelEventNames", self);
 }
 
 #pragma mark - Network control
