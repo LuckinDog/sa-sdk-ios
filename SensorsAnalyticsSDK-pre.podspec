@@ -23,12 +23,6 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_LOG=1'}
   end
 
-  # 自动采集 $referrer
-  s.subspec 'AUTOTRACT_APPVIEWSCREEN_URL' do |f|
-    f.dependency 'SensorsAnalyticsSDK-pre/core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL=1'}
-  end
-
   # 禁用 GPS 定位采集，相关代码不参与编译
   s.subspec 'DISABLE_TRACK_GPS' do |f|
     f.dependency 'SensorsAnalyticsSDK-pre/core'

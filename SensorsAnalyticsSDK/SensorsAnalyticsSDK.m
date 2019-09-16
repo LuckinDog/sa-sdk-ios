@@ -2727,29 +2727,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [properties addEntriesFromDictionary:_lastScreenTrackProperties];
     }
 
-#ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
-    NSString *screenName = NSStringFromClass(controller.class);
-    [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_URL];
-    @synchronized(_referrerScreenUrl) {
-        if (_referrerScreenUrl) {
-            [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
-        }
-        _referrerScreenUrl = screenName;
-    }
-#endif
-
-    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
-        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
-        NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
-        
-        [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
-
-        @synchronized(_referrerScreenUrl) {
-            if (_referrerScreenUrl) {
-                [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
+    void(^setScreenUrl)(NSString *, NSMutableDictionary **) = ^(NSString *screenUrl, NSMutableDictionary **propertyDic){
+        screenUrl = screenUrl ?: NSStringFromClass(controller.class);
+        [*propertyDic setValue:screenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
+        @synchronized (self->_referrerScreenUrl) {
+            if (self->_referrerScreenUrl) {
+                [*propertyDic setValue:self->_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
             }
-            _referrerScreenUrl = currentScreenUrl;
+            self->_referrerScreenUrl = screenUrl;
         }
+    };
+    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)]) {
+        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
+        SEL originalSel = NSSelectorFromString(@"getScreenUrl");
+        NSString *currentScreenUrl;
+        if ([controller respondsToSelector:@selector(customViewScreenURL)]) {
+            currentScreenUrl = [screenAutoTrackerController customViewScreenURL];
+        } else if ([controller respondsToSelector:originalSel]) { //兼容之前版本协议方法名称
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            currentScreenUrl = [screenAutoTrackerController performSelector:originalSel];
+#pragma clang diagnostic pop
+        }
+        currentScreenUrl = [currentScreenUrl isKindOfClass:[NSString class]] ? currentScreenUrl : nil;
+        setScreenUrl(currentScreenUrl, &properties);
+    } else {
+        NSString *screenName = NSStringFromClass(controller.class);
+        setScreenUrl(screenName, &properties);
     }
     [properties addEntriesFromDictionary:properties_];
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
