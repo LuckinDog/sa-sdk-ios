@@ -1711,6 +1711,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeCode];
 }
 
+- (void)trackChannelEvent:(NSString *)event {
+    [self trackChannelEvent:event properties:nil];
+}
+
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
 
     NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];

@@ -509,6 +509,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)track:(NSString *)event;
 
 /**
+ 调用 track 接口并附加渠道信息
+
+ @param event event 的名称
+ */
+- (void)trackChannelEvent:(NSString *)event;
+
+/**
 调用 track 接口并附加渠道信息
 
  @param event event 的名称
