@@ -512,7 +512,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSString *logMessage = nil;
         logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
                       self, self.configOptions.serverURL, [self debugModeToString:_debugMode]];
-        SALog(@"%@", logMessage);
+        //SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
+        //为了解决不能打印的问题，此处直接使用实例方法。其他地方不推荐使用此方法
+        [[SALogger sharedInstance] log:YES message:logMessage level:1 file:__FILE__ function:__PRETTY_FUNCTION__ line:__LINE__];
         
         //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
@@ -1105,12 +1107,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     _showDebugAlertView = show;
 }
 
-- (void)flushByType:(NSString *)type flushSize:(int)flushSize {
+- (BOOL)flushByType:(NSString *)type flushSize:(int)flushSize {
     // 1、获取前 n 条数据
     NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
     if (recordArray == nil) {
         SAError(@"Failed to get records from SQLite.");
-        return;
+        return NO;
     }
 
     NSInteger recordCount = recordArray.count;
@@ -1120,15 +1122,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     // 2、上传获取到的记录。如果数据上传完成，结束递归
     if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
-        return;
+        return NO;
     }
     // 3、删除已上传的记录。删除失败，结束递归
     if (![self.messageQueue removeFirstRecords:recordCount withType:@"POST"]) {
         SAError(@"Failed to remove records from SQLite.");
-        return;
+        return NO;
     }
     // 4、继续上传剩余数据
     [self flushByType:type flushSize:flushSize];
+    return YES;
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
@@ -1140,16 +1143,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
         return;
     }
-    
-    [self flushByType:@"Post" flushSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
+
+    BOOL uploadedEvents = [self flushByType:@"Post" flushSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
 
     if (vacuumAfterFlushing) {
         if (![self.messageQueue vacuum]) {
             SAError(@"failed to VACUUM SQLite.");
         }
     }
-
-    SADebug(@"events flushed.");
+    if (uploadedEvents) {
+        SADebug(@"events flushed.");
+    }
 }
 
 - (void)flush {
