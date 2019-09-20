@@ -434,13 +434,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)loadWKWebViewUserAgent:(void (^)(NSString *))completion {
-
     if (self.userAgent) {
-        completion(self.userAgent);
-    } else {
+        return completion(self.userAgent);
+    }
+
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        __weak typeof(self) weakSelf = self;
-        dispatch_block_t wkWebViewBlock = ^{
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.wkWebView) {
+            return dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                while (self.wkWebView) { }
+                completion(self.userAgent);
+            });
+        } else {
             self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
             [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError * _Nullable error) {
                 NSString *userAgent = response;
@@ -453,13 +459,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
                 weakSelf.wkWebView = nil;
             }];
-        };
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-            wkWebViewBlock();
-        });
+        }
+    });
 #endif
-    }
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
