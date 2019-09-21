@@ -22,7 +22,7 @@
 #endif
 
 #import <Availability.h>
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0 && SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0 && (defined SENSORS_ANALYTICS_DISABLE_UIWEBVIEW)
 #error disable UIWebView and use WKWebView, minimum deployment target is 8.0
 #endif
 
@@ -915,8 +915,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSMutableDictionary *paramsDic = [[SANetwork queryItemsWithURLString:urlstr] mutableCopy];
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        NSString *clssString = NSStringFromClass([webView class]);
-        NSAssert(![clssString isEqualToString:@"UIWebView"], @"当前集成方式已禁用 UIWebView！❌");
+        NSAssert(![webView isKindOfClass:NSClassFromString(@"UIWebView")], @"当前集成方式已禁用 UIWebView！❌");
 #else
 
         if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
