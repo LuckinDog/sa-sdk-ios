@@ -88,12 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SAScreenAutoTracker <SAAutoTracker>
 
 @required
-/**
- * 协议方法在 1.11.12 版本修改为 customViewScreenURL
- * 请替换原方法 getScreenUrl 为当前方法
- * @return 自定义页面名称
- */
-@property (readonly, nonatomic, copy) NSString *customViewScreenURL;
+- (NSString *)getScreenUrl;
 
 @end
 

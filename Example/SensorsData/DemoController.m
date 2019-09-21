@@ -38,7 +38,7 @@
     return @{@"shuxing" : @"Gaga"};
 }
 
-- (NSString *)customViewScreenURL {
+- (NSString *)getScreenUrl {
     return @"WoShiYiGeURL";
 }
 
