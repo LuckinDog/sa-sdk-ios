@@ -128,7 +128,7 @@ Pod::Spec.new do |s|
 
   # 禁用 UIWebView
   s.subspec 'DISABLE_UIWEBVIEW' do |f|
-    # 需要使用 WKWebView，支持最低版本为 iOS8
+    # 需要使用 WKWebView，支持最低版本为 iOS 8
     f.platform = :ios, "8.0"
     f.dependency 'SensorsAnalyticsSDK/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
