@@ -2231,10 +2231,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSDictionary *)collectAutomaticProperties {
-    NSMutableDictionary *p = [NSMutableDictionary dictionary];
-    UIDevice *device = [UIDevice currentDevice];
-    _deviceModel = [self deviceModel];
-    _osVersion = [device systemVersion];
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+
     CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = nil;
 
@@ -2292,19 +2290,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         if (carrierName != nil) {
-            [p setValue:carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
+            [properties setValue:carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
         }
     }
 
     // Use setValue semantics to avoid adding keys where value can be nil.
-    [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+    [properties setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
 
 #if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-    [p setValue:[[self class] getUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
+    [properties setValue:[[self class] getUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
 #endif
-    
-     struct CGSize size = [UIScreen mainScreen].bounds.size;
-    [p addEntriesFromDictionary:@{
+
+    UIDevice *device = [UIDevice currentDevice];
+    _deviceModel = [self deviceModel];
+    _osVersion = [device systemVersion];
+    struct CGSize size = [UIScreen mainScreen].bounds.size;
+    [properties addEntriesFromDictionary:@{
                                   SA_EVENT_COMMON_PROPERTY_LIB: @"iOS",
                                   SA_EVENT_COMMON_PROPERTY_LIB_VERSION: [self libVersion],
                                   SA_EVENT_COMMON_PROPERTY_MANUFACTURER: @"Apple",
@@ -2314,7 +2315,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                   SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT: @((NSInteger)size.height),
                                   SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH: @((NSInteger)size.width),
                                       }];
-    return [p copy];
+    return [properties copy];
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
