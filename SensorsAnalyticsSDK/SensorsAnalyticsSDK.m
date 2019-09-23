@@ -2235,21 +2235,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     UIDevice *device = [UIDevice currentDevice];
     _deviceModel = [self deviceModel];
     _osVersion = [device systemVersion];
-    struct CGSize size = [UIScreen mainScreen].bounds.size;
     CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = nil;
-    
+
 #ifdef __IPHONE_12_0
     if (@available(iOS 12.1, *)) {
         carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
     }
 #endif
-    if(!carrier) {
+    if (!carrier) {
         carrier = telephonyInfo.subscriberCellularProvider;
     }
-
-    // Use setValue semantics to avoid adding keys where value can be nil.
-    [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
     if (carrier != nil) {
         NSString *networkCode = [carrier mobileNetworkCode];
         NSString *countryCode = [carrier mobileCountryCode];
@@ -2280,7 +2276,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     carrierName= @"中国铁通";
                 }
             }
-        } else { //国外运营商解析
+        } else if (countryCode && networkCode) { //国外运营商解析
             //加载当前 bundle
             NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
             //文件路径
@@ -2297,16 +2293,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         if (carrierName != nil) {
             [p setValue:carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-        } else {
-            if (carrier.carrierName) {
-                [p setValue:carrier.carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-            }
         }
     }
-    
+
+    // Use setValue semantics to avoid adding keys where value can be nil.
+    [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+
 #if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
     [p setValue:[[self class] getUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
 #endif
+    
+     struct CGSize size = [UIScreen mainScreen].bounds.size;
     [p addEntriesFromDictionary:@{
                                   SA_EVENT_COMMON_PROPERTY_LIB: @"iOS",
                                   SA_EVENT_COMMON_PROPERTY_LIB_VERSION: [self libVersion],
