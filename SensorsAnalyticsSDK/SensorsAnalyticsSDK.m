@@ -2789,7 +2789,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!controller) {
         return;
     }
-    
+
     if ([self isBlackListContainsViewController:controller]) {
         return;
     }
@@ -2805,29 +2805,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [properties addEntriesFromDictionary:_lastScreenTrackProperties];
     }
 
-#ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
-    NSString *screenName = NSStringFromClass(controller.class);
-    [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_URL];
+    NSString *currentScreenUrl;
+    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
+        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
+        currentScreenUrl = [screenAutoTrackerController getScreenUrl];
+    }
+    currentScreenUrl = currentScreenUrl ?: NSStringFromClass(controller.class);
+    currentScreenUrl = [currentScreenUrl isKindOfClass:NSString.class] ? currentScreenUrl : NSStringFromClass(controller.class);
+    [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
     @synchronized(_referrerScreenUrl) {
         if (_referrerScreenUrl) {
             [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
         }
-        _referrerScreenUrl = screenName;
-    }
-#endif
-
-    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
-        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
-        NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
-        
-        [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
-
-        @synchronized(_referrerScreenUrl) {
-            if (_referrerScreenUrl) {
-                [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
-            }
-            _referrerScreenUrl = currentScreenUrl;
-        }
+        _referrerScreenUrl = currentScreenUrl;
     }
     [properties addEntriesFromDictionary:properties_];
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
