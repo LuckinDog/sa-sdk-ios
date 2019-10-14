@@ -443,7 +443,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
-            return dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.loadWKWebViewUserAgent.waitQueue"];
+            dispatch_queue_t waitQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            return dispatch_async(waitQueue, ^{
                 while (self.wkWebView) { }
                 completion(self.userAgent);
             });
