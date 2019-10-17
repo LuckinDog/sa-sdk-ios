@@ -2810,7 +2810,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
         currentScreenUrl = [screenAutoTrackerController getScreenUrl];
     }
-    currentScreenUrl = currentScreenUrl ?: NSStringFromClass(controller.class);
     currentScreenUrl = [currentScreenUrl isKindOfClass:NSString.class] ? currentScreenUrl : NSStringFromClass(controller.class);
     [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
     @synchronized(_referrerScreenUrl) {
