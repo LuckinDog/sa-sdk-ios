@@ -95,7 +95,6 @@ static const int32_t UncaughtExceptionMaximum = 10;
         struct sigaction prev_action;
         int err = sigaction(signals[i], &action, &prev_action);
         if (err == 0) {
-#warning memcpy 高危漏洞 -> strlcpy
             char *address_action = (char *)&prev_action;
             char *address_signal = (char *)(_prev_signal_handlers + signals[i]);
             strlcpy(address_signal, address_action, sizeof(prev_action));
