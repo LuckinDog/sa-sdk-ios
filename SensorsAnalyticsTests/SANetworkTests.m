@@ -22,6 +22,7 @@
 #import "SASecurityPolicy.h"
 #import "SANetwork.h"
 #import "SANetwork+URLUtils.h"
+#import "NSString+HashCode.h"
 
 @interface SANetworkTests : XCTestCase
 @property (nonatomic, strong) NSURL *url;
@@ -260,6 +261,19 @@
     }];
 }
 
+- (void)testSensorsdataHashCode {
+    NSString *text1 = @"1234rfsdvzfxbgtry6htge";
+    NSString *text2 = @"dawefrr45tredfsghbdf";
+
+    int code1= [text1 sensorsdata_hashCode];
+    int code2= [text1 sensorsdata_hashCode];
+    int code3= [text2 sensorsdata_hashCode];
+
+    BOOL equele1 = code1 == code2;
+    BOOL different = code1!= code3;
+
+    XCTAssertTrue(equele1 && different);
+}
 - (void)testPerformanceExample {
     // This is an example of a performance test case.
     [self measureBlock:^{
