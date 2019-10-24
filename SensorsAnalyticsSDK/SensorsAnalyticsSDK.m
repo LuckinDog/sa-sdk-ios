@@ -1798,7 +1798,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     NSNumber *eventBegin = @([[self class] getSystemUpTime]);
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : @(0.0), @"timeUnit" : [NSNumber numberWithInt:timeUnit],@"isPause":@(NO)};
+        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : @(0.0), @"timeUnit" : @(timeUnit),@"isPause":@(NO)};
     });
 }
 
