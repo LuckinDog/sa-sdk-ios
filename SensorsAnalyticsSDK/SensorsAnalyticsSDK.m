@@ -2238,7 +2238,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef __IPHONE_12_0
     if (@available(iOS 12.1, *)) {
-        carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
+        // 排序
+        NSArray *carrierKeysArray = [telephonyInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
+        carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
+        if (!carrier.mobileNetworkCode) {
+            carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
+        }
     }
 #endif
     if (!carrier) {
