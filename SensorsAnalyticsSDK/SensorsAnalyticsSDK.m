@@ -1056,6 +1056,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackAppCrash {
+    _configOptions.enableTrackAppCrash = YES;
     // Install uncaught exception handlers first
     [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
