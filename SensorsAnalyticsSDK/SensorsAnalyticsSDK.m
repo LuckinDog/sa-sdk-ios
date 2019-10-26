@@ -208,6 +208,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
+@property(nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
 #endif
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
@@ -441,14 +442,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
     __weak typeof(self) weakSelf = self;
+
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
-            return dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-                while (self.wkWebView) { }
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.loadWKWebViewUserAgent.waitQueue"];
+            dispatch_queue_t waitQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_async(waitQueue, ^{
+                dispatch_semaphore_wait(self.loadUASemaphore, DISPATCH_TIME_FOREVER);
                 completion(self.userAgent);
             });
+
         } else {
             self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
+            self.loadUASemaphore = dispatch_semaphore_create(0);
             [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError * _Nullable error) {
                 NSString *userAgent = response;
                 if (error || !userAgent) {
@@ -459,6 +465,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     completion(userAgent);
                 }
                 weakSelf.wkWebView = nil;
+                dispatch_semaphore_signal(weakSelf.loadUASemaphore);
             }];
         }
     });
