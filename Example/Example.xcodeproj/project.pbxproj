@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D1FDAEC2366FEB700A8E7CD /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C23A228418000004061D /* MainInterface.storyboard */; };
+		4D1FDAF02366FEEF00A8E7CD /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 4D1FDAEE2366FEEF00A8E7CD /* index.html */; };
+		4D1FDAF12366FEEF00A8E7CD /* sensorsdata.full.js in Resources */ = {isa = PBXBuildFile; fileRef = 4D1FDAEF2366FEEF00A8E7CD /* sensorsdata.full.js */; };
 		4DCD115922927F6E0091D129 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; };
 		4DCD115A22927F6E0091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4DCD115B22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
@@ -31,7 +34,6 @@
 		CB30C21A228414940004061D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1CE228414420004061D /* ViewController.swift */; };
 		CB30C2222284165A0004061D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2212284165A0004061D /* WebKit.framework */; };
 		CB30C2332284173B0004061D /* SensorsDataExtention.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CB30C2282284173B0004061D /* SensorsDataExtention.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		CB30C241228418000004061D /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C239228418000004061D /* MainInterface.storyboard */; };
 		CB30C242228418000004061D /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C23B228418000004061D /* ShareViewController.m */; };
 		CB30C246228421C60004061D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1E3228414420004061D /* Main.storyboard */; };
 		CB30C247228421C60004061D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1E1228414420004061D /* LaunchScreen.xib */; };
@@ -104,6 +106,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4D1FDAEE2366FEEF00A8E7CD /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		4D1FDAEF2366FEEF00A8E7CD /* sensorsdata.full.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = sensorsdata.full.js; sourceTree = "<group>"; };
 		CB30C15C228413B20004061D /* SensorsData.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsData.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C18C2284140E0004061D /* SensorsDataSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsDataSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C1CE228414420004061D /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -142,7 +146,7 @@
 		CB30C2212284165A0004061D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		CB30C223228416640004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-hhqmjeoyzfdasagvypdnnkywlofx/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
 		CB30C2282284173B0004061D /* SensorsDataExtention.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SensorsDataExtention.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		CB30C23A228418000004061D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = MainInterface.storyboard; sourceTree = "<group>"; };
+		CB30C23A228418000004061D /* MainInterface.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainInterface.storyboard; sourceTree = "<group>"; };
 		CB30C23B228418000004061D /* ShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
 		CB30C23C228418000004061D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB30C23D228418000004061D /* ShareViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
@@ -216,6 +220,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4D1FDAED2366FEEF00A8E7CD /* wkwebview */ = {
+			isa = PBXGroup;
+			children = (
+				4D1FDAEE2366FEEF00A8E7CD /* index.html */,
+				4D1FDAEF2366FEEF00A8E7CD /* sensorsdata.full.js */,
+			);
+			path = wkwebview;
+			sourceTree = "<group>";
+		};
 		CB30C0AF2284115D0004061D = {
 			isa = PBXGroup;
 			children = (
@@ -280,6 +293,7 @@
 		CB30C21B2284150E0004061D /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				4D1FDAED2366FEEF00A8E7CD /* wkwebview */,
 				CB30C1EC228414420004061D /* Images.xcassets */,
 				CB30C1E1228414420004061D /* LaunchScreen.xib */,
 				CB30C1ED228414420004061D /* SensorsData.entitlements */,
@@ -328,7 +342,7 @@
 				CB30C240228418000004061D /* SensorsDataExtention.entitlements */,
 				CB30C23D228418000004061D /* ShareViewController.h */,
 				CB30C23B228418000004061D /* ShareViewController.m */,
-				CB30C239228418000004061D /* MainInterface.storyboard */,
+				CB30C23A228418000004061D /* MainInterface.storyboard */,
 				CB30C23C228418000004061D /* Info.plist */,
 			);
 			path = SensorsDataExtention;
@@ -430,7 +444,6 @@
 			knownRegions = (
 				en,
 				Base,
-				global,
 			);
 			mainGroup = CB30C0AF2284115D0004061D;
 			productRefGroup = CB30C0B92284115D0004061D /* Products */;
@@ -449,11 +462,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D1FDAF02366FEEF00A8E7CD /* index.html in Resources */,
 				CB30C246228421C60004061D /* Main.storyboard in Resources */,
 				CB30C247228421C60004061D /* LaunchScreen.xib in Resources */,
 				CB30C211228414420004061D /* Images.xcassets in Resources */,
 				CB30C213228414420004061D /* ic_test.png in Resources */,
 				CB30C210228414420004061D /* JSCallOC.html in Resources */,
+				4D1FDAF12366FEEF00A8E7CD /* sensorsdata.full.js in Resources */,
 				CB30C206228414420004061D /* test2.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -471,7 +486,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB30C241228418000004061D /* MainInterface.storyboard in Resources */,
+				4D1FDAEC2366FEB700A8E7CD /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -553,14 +568,6 @@
 				CB30C1E4228414420004061D /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		CB30C239228418000004061D /* MainInterface.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				CB30C23A228418000004061D /* Base */,
-			);
-			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

@@ -22,6 +22,7 @@
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 #import <WebKit/WebKit.h>
 
+
 @interface JSCallOCViewController2 ()<WKNavigationDelegate, WKUIDelegate>
 @property WKWebView *webView;
 @end
@@ -32,9 +33,12 @@
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
     self.title = @"WKWebView";
 
-    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
+    [[SensorsAnalyticsSDK sharedInstance] addScriptMessageHandlerWithWebView:self.webView];
 
+     NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"index.html"];
+     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
+
+    
     [_webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     _webView.UIDelegate = self;
     _webView.navigationDelegate = self;
@@ -47,7 +51,6 @@
 //    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
 
     [self.webView loadRequest:request];
-
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler {

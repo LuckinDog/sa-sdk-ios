@@ -72,6 +72,8 @@
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
+#import "SAJSBridge.h"
+
 
 #define VERSION @"1.11.14-pre"
 
@@ -2711,6 +2713,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     };
     sensorsdata_dispatch_main_safe_sync(mainThreadBlock);
+}
+
+- (void)disableVerifyWKWebViewProject {
+
+}
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
+    [self addScriptMessageHandlerWithWebView:webView enableVerify:YES];
+}
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView enableVerify:(BOOL)enableVerify {
+    NSAssert([webView isKindOfClass:WKWebView.class], @"此注入方案只支持 WKWebView！❌");
+
+    [webView.configuration.userContentController addScriptMessageHandler:[[SAJSBridge alloc] init] name:@"sensorsdataNativeTracker"];
+
+    NSMutableString *javaScriptSource = [NSMutableString string];
+    [javaScriptSource appendFormat:@"window.sensorsdata_app_project = '%@';", self.network.project];
+    [javaScriptSource appendFormat:@"window.sensorsdata_app_host = '%@'", self.network.host];
+
+    if (enableVerify) {
+        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:javaScriptSource injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];// forMainFrameOnly:NO(全局窗口)，yes（只限主窗口）
+        [webView.configuration.userContentController addUserScript:userScript];
+    }
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {

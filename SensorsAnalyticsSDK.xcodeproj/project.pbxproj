@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4D017F4822E7108000492D75 /* SADataEncryptBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D017F4622E7108000492D75 /* SADataEncryptBuilder.h */; };
 		4D017F4922E7108000492D75 /* SADataEncryptBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D017F4722E7108000492D75 /* SADataEncryptBuilder.m */; };
+		4D1FDAF42366FF7A00A8E7CD /* SAJSBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D1FDAF22366FF7A00A8E7CD /* SAJSBridge.h */; };
+		4D1FDAF52366FF7A00A8E7CD /* SAJSBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D1FDAF32366FF7A00A8E7CD /* SAJSBridge.m */; };
 		4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188E22978F5B00F6B218 /* ElementViewController.m */; };
 		4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */; };
 		656D61F022EC453100E0DA06 /* SAEncryptUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 656D61EE22EC453100E0DA06 /* SAEncryptUtils.m */; };
@@ -146,6 +148,8 @@
 /* Begin PBXFileReference section */
 		4D017F4622E7108000492D75 /* SADataEncryptBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADataEncryptBuilder.h; sourceTree = "<group>"; };
 		4D017F4722E7108000492D75 /* SADataEncryptBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADataEncryptBuilder.m; sourceTree = "<group>"; };
+		4D1FDAF22366FF7A00A8E7CD /* SAJSBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAJSBridge.h; sourceTree = "<group>"; };
+		4D1FDAF32366FF7A00A8E7CD /* SAJSBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAJSBridge.m; sourceTree = "<group>"; };
 		4D6A188E22978F5B00F6B218 /* ElementViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElementViewController.m; sourceTree = "<group>"; };
 		4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtilsTest.m; sourceTree = "<group>"; };
 		4D6A189022978F5B00F6B218 /* ElementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElementViewController.h; sourceTree = "<group>"; };
@@ -374,6 +378,8 @@
 				CB30BFD522840EBF0004061D /* NSString+HashCode.m */,
 				CB30BFE122840EBF0004061D /* SAAbstractDesignerMessage.h */,
 				CB30C01922840EBF0004061D /* SAAbstractDesignerMessage.m */,
+				4D1FDAF22366FF7A00A8E7CD /* SAJSBridge.h */,
+				4D1FDAF32366FF7A00A8E7CD /* SAJSBridge.m */,
 				CB30C03022840EBF0004061D /* SAAlertController.h */,
 				CB30BFF022840EBF0004061D /* SAAlertController.m */,
 				CB30C02122840EBF0004061D /* SAAppExtensionDataManager.h */,
@@ -551,6 +557,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D1FDAF42366FF7A00A8E7CD /* SAJSBridge.h in Headers */,
 				656D61F122EC453100E0DA06 /* SAEncryptUtils.h in Headers */,
 				CB30C06E22840EC00004061D /* SensorsAnalyticsSDK.h in Headers */,
 				CB30C05922840EC00004061D /* SAConfigOptions.h in Headers */,
@@ -765,6 +772,7 @@
 				CB30C09522840EC00004061D /* SAAbstractHeatMapMessage.m in Sources */,
 				CB30C07922840EC00004061D /* SALocationManager.m in Sources */,
 				CB30C09B22840EC00004061D /* SAObjectSerializerConfig.m in Sources */,
+				4D1FDAF52366FF7A00A8E7CD /* SAJSBridge.m in Sources */,
 				CB30C07122840EC00004061D /* SAObjectIdentityProvider.m in Sources */,
 				CB30C08922840EC00004061D /* SAObjectSerializerContext.m in Sources */,
 				CB30C07E22840EC00004061D /* NSObject+SensorsAnalyticsDelegate.m in Sources */,

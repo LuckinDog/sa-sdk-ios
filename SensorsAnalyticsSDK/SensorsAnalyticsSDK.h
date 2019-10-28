@@ -20,6 +20,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
+#import <WebKit/WebKit.h>
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
@@ -583,6 +584,20 @@ NS_ASSUME_NONNULL_BEGIN
  
  */
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
+
+/// 禁用 SDK 的 project 和 host 校验
+- (void)disableVerifyWKWebViewProject;
+
+/// 向 webview 做打通注入
+/// @param webView 需要注入的 wkwebView，SDK 默认校验 project 和 host
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
+
+
+/// 向 webview 做打通注入
+/// @param webView 需要注入的 wkwebView
+/// @param enableVerify 数据打通的时候是否通过 ServerUrl 校验，如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView enableVerify:(BOOL)enableVerify ;
+
 
 - (SensorsAnalyticsDebugMode)debugMode;
 
