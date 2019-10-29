@@ -212,6 +212,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) WKWebView *wkWebView;
 @property(nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
 #endif
+/// project 和 host SDK 校验
+@property (nonatomic, assign, readwrite) BOOL enableVerifyWKWebViewProject;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
@@ -304,6 +306,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
             _flushBeforeEnterBackground = YES;
+            _enableVerifyWKWebViewProject = YES;
             
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -727,15 +730,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             NSData *jsonData = [eventInfo dataUsingEncoding:NSUTF8StringEncoding];
-            NSError *err;
+            NSError *error;
             NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                              options:NSJSONReadingMutableContainers
-                                                                               error:&err];
-            if(err) {
-                return;
-            }
-
-            if (!eventDict) {
+                                                                               error:&error];
+            if(error || !eventDict) {
                 return;
             }
 
@@ -2716,7 +2715,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)disableVerifyWKWebViewProject {
-
+    self.enableVerifyWKWebViewProject = NO;
 }
 
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
@@ -2733,7 +2732,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [javaScriptSource appendFormat:@"window.sensorsdata_app_host = '%@'", self.network.host];
 
     if (enableVerify) {
-        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:javaScriptSource injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];// forMainFrameOnly:NO(全局窗口)，yes（只限主窗口）
+        // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
+        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:javaScriptSource injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
         [webView.configuration.userContentController addUserScript:userScript];
     }
 }

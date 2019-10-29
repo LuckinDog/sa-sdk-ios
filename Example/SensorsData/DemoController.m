@@ -86,6 +86,9 @@
     
 }
 
+- (void) testCleanKeychain{
+    [[SensorsAnalyticsSDK sharedInstance] clearKeychainData];
+}
 - (NSDictionary *)sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath {
     return @{@"sensorsDelegatePath":[NSString stringWithFormat:@"tableView:%ld-%ld",(long)indexPath.section,(long)indexPath.row]};
 }
@@ -143,6 +146,10 @@
         case 9l:
             NSLog(@"进入全埋点测试页面");
             [self testCodeless];
+            break;
+        case 14l:
+            NSLog(@"测试清除 Keychain");
+            [self testCleanKeychain];
             break;
         default:
             break;

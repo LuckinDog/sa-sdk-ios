@@ -2191,7 +2191,7 @@ sd.setPreConfig = function(sa){
 
 sd.setInitVar= function(){
   sd._t = sd._t || 1 * new Date();
-  sd.lib_version = '1.14.13-wkviewview-test';
+  sd.lib_version = '1.14.13';
   sd.is_first_visitor = false;
   // 标准广告系列来源
   sd.source_channel_standard = 'utm_source utm_medium utm_campaign utm_content utm_term';
@@ -3242,7 +3242,7 @@ sendState.getSendCall = function(data, config, callback) {
             step: '4.3',
             output:'all'
           });
-          window.webkit.messageHandlers.sensorsdataNativeTracker.postMessage(JSON.stringify(originData));
+          window.webkit.messageHandlers.sensorsdataNativeTracker.postMessage(JSON.stringify(_.extend({server_url:sd.para.server_url}, originData)));
         } else {
           sd.debug.apph5({
             data: originData,
@@ -3258,7 +3258,7 @@ sendState.getSendCall = function(data, config, callback) {
           step: '4.1',
           output:'all'
         });
-        window.webkit.messageHandlers.sensorsdataNativeTracker.postMessage(JSON.stringify(originData));
+        window.webkit.messageHandlers.sensorsdataNativeTracker.postMessage(JSON.stringify(_.extend({server_url:sd.para.server_url}, originData)));
       }
     } else if((typeof SensorsData_APP_JS_Bridge === 'object') && (SensorsData_APP_JS_Bridge.sensorsdata_verify || SensorsData_APP_JS_Bridge.sensorsdata_track)){
       // 如果有新版方式，优先用新版

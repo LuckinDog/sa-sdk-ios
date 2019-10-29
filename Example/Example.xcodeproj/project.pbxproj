@@ -10,6 +10,7 @@
 		4D1FDAEC2366FEB700A8E7CD /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C23A228418000004061D /* MainInterface.storyboard */; };
 		4D1FDAF02366FEEF00A8E7CD /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 4D1FDAEE2366FEEF00A8E7CD /* index.html */; };
 		4D1FDAF12366FEEF00A8E7CD /* sensorsdata.full.js in Resources */ = {isa = PBXBuildFile; fileRef = 4D1FDAEF2366FEEF00A8E7CD /* sensorsdata.full.js */; };
+		4D40ED1C23680E8F008741A6 /* JSCallWKWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D40ED1B23680E8F008741A6 /* JSCallWKWebViewController.m */; };
 		4DCD115922927F6E0091D129 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; };
 		4DCD115A22927F6E0091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4DCD115B22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
@@ -108,6 +109,8 @@
 /* Begin PBXFileReference section */
 		4D1FDAEE2366FEEF00A8E7CD /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		4D1FDAEF2366FEEF00A8E7CD /* sensorsdata.full.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = sensorsdata.full.js; sourceTree = "<group>"; };
+		4D40ED1A23680E8F008741A6 /* JSCallWKWebViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSCallWKWebViewController.h; sourceTree = "<group>"; };
+		4D40ED1B23680E8F008741A6 /* JSCallWKWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JSCallWKWebViewController.m; sourceTree = "<group>"; };
 		CB30C15C228413B20004061D /* SensorsData.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsData.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C18C2284140E0004061D /* SensorsDataSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsDataSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C1CE228414420004061D /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -276,6 +279,8 @@
 				CB30C1EA228414420004061D /* JSCallOCViewController.m */,
 				CB30C1E7228414420004061D /* JSCallOCViewController2.h */,
 				CB30C1D9228414420004061D /* JSCallOCViewController2.m */,
+				4D40ED1A23680E8F008741A6 /* JSCallWKWebViewController.h */,
+				4D40ED1B23680E8F008741A6 /* JSCallWKWebViewController.m */,
 				CB30C1DA228414420004061D /* AutoTrackViewController.h */,
 				CB30C1E6228414420004061D /* AutoTrackViewController.m */,
 				CB30C1F0228414420004061D /* TestCollectionViewController.h */,
@@ -504,6 +509,7 @@
 				CB30C209228414420004061D /* DemoController.m in Sources */,
 				CB30C20C228414420004061D /* TestTableViewController.m in Sources */,
 				CB30C207228414420004061D /* TestCollectionViewController.m in Sources */,
+				4D40ED1C23680E8F008741A6 /* JSCallWKWebViewController.m in Sources */,
 				CB30C20F228414420004061D /* JSCallOCViewController.m in Sources */,
 				CB30C212228414420004061D /* AppDelegate.m in Sources */,
 				CB30C204228414420004061D /* TestViewController.m in Sources */,

@@ -23,6 +23,8 @@
 #endif
 
 #import "SAJSBridge.h"
+#import "SALogger.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 @implementation SAJSBridge
 
@@ -30,18 +32,12 @@
 -(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.name isEqualToString:@"sensorsdataNativeTracker"]) {
 
-        NSData *jsonData = [message.body dataUsingEncoding:NSUTF8StringEncoding];
-        NSError *error;
-        NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
-
-        if (error || ![messageDic isKindOfClass:NSDictionary.class]) {
-            // 解析失败，日志提示
+        if (![message.body isKindOfClass:NSString.class]) {
+            SAError(@"Failed to analysis message frome JS SDK, jsonString: %@",message.body);
             return;
         }
-
-        // json 解析获取 JS SDK 发送的数据，iOS SDK 做打通处理
-        NSLog(@"打通的测试数据 --- %@",message.body);
-
+        SensorsAnalyticsSDK *sharedInstanceSDK = [SensorsAnalyticsSDK sharedInstance];
+        [sharedInstanceSDK trackFromH5WithEvent:message.body enableVerify:sharedInstanceSDK.enableVerifyWKWebViewProject];
     }
 }
 
