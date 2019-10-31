@@ -147,7 +147,7 @@
             NSLog(@"进入全埋点测试页面");
             [self testCodeless];
             break;
-        case 14l:
+        case 13l:
             NSLog(@"测试清除 Keychain");
             [self testCleanKeychain];
             break;
