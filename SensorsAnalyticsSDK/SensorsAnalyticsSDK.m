@@ -21,11 +21,12 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import <Availability.h>
+
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0 && (defined SENSORS_ANALYTICS_DISABLE_UIWEBVIEW)
 #error disable UIWebView and use WKWebView, minimum deployment target is 8.0
 #endif
 
+#import <Availability.h>
 #import <objc/runtime.h>
 #include <sys/sysctl.h>
 #include <stdlib.h>
@@ -54,11 +55,7 @@
 #import "SAAutoTrackUtils.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-     #import "SAKeyChainItemWrapper.h"
-#endif
-
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-#import <WebKit/WebKit.h>
+    #import "SAKeyChainItemWrapper.h"
 #endif
 
 #import "SASDKRemoteConfig.h"
@@ -3572,6 +3569,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - JSCall
 @implementation SensorsAnalyticsSDK (JSCall)
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0
+
 #pragma mark WKWebView 打通
 - (void)disableVerifyWKWebViewProject {
     self.enableVerifyWKWebViewProject = NO;
@@ -3600,6 +3599,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
+#endif
 @end
 
 

@@ -18,8 +18,10 @@
 // limitations under the License.
 //
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0
 
 #import <Foundation/Foundation.h>
+
 #import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -29,3 +31,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

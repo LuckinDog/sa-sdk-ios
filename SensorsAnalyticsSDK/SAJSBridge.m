@@ -22,6 +22,8 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0
+
 #import "SAJSBridge.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK+Private.h"
@@ -42,3 +44,5 @@
 }
 
 @end
+
+#endif
