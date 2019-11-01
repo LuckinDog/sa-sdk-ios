@@ -32,6 +32,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "UIViewController+AutoTrack.h"
 
 static void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, id indexPath) {
     SEL selector = NSSelectorFromString(@"sa_tableView:didSelectRowAtIndexPath:");
@@ -43,6 +44,10 @@ static void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, 
         return;
     }
     [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackDelegate:tableView didSelectedAtIndexPath:indexPath]];
+    UIViewController *caller = [SAAutoTrackUtils findSuperViewControllerByView:tableView];
+    if (caller) {
+        [properties addEntriesFromDictionary:[caller sensorsdata_screenInfo]];
+    }
    [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
@@ -55,6 +60,10 @@ static void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id coll
         return;
     }
     [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackDelegate:collectionView didSelectedAtIndexPath:indexPath]];
+    UIViewController *caller = [SAAutoTrackUtils findSuperViewControllerByView:collectionView];
+    if (caller) {
+        [properties addEntriesFromDictionary:[caller sensorsdata_screenInfo]];
+    }
     [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 

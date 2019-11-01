@@ -58,6 +58,17 @@
     return [SAAutoTrackUtils itemPathForResponder:self];
 }
 
+- (NSDictionary *)sensorsdata_screenInfo {
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    if ([self conformsToProtocol:@protocol(SAAutoTracker)] && [self respondsToSelector:@selector(getTrackProperties)]) {
+        UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)self;
+        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
+        properties[SA_EVENT_PROPERTY_SCREEN_NAME] = trackProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+        properties[SA_EVENT_PROPERTY_TITLE] = trackProperties[SA_EVENT_PROPERTY_TITLE];
+    }
+    return properties;
+}
+
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
 
@@ -94,7 +105,7 @@
                 }
                 NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:tableView didSelectedAtIndexPath:indexPath];
                 [properties addEntriesFromDictionary:dic];
-
+                [properties addEntriesFromDictionary:[self sensorsdata_screenInfo]];
                 [instance track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };
             if ([self respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
@@ -111,6 +122,7 @@
                 }
                 NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:collectionView didSelectedAtIndexPath:indexPath];
                 [properties addEntriesFromDictionary:dic];
+                [properties addEntriesFromDictionary:[self sensorsdata_screenInfo]];
 
                 [instance track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };

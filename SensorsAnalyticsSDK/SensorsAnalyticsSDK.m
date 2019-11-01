@@ -2728,6 +2728,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:p];
         [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackObject:view isCodeTrack:YES]];
+        UIViewController *caller = [SAAutoTrackUtils findSuperViewControllerByView:view];
+        if (caller) {
+            [properties addEntriesFromDictionary:[caller sensorsdata_screenInfo]];
+        }
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
