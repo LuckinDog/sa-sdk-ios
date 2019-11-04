@@ -160,28 +160,26 @@ static void SAHandleException(NSException *exception) {
     // Archive the values for each SensorsAnalytics instance
     @try {
         for (SensorsAnalyticsSDK *instance in self.sensorsAnalyticsSDKInstances) {
-            if (instance.configOptions.enableTrackAppCrash) {
-                NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+            NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+            @try {
                 if ([exception callStackSymbols]) {
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
                     long slide_address = [SensorsAnalyticsExceptionHandler sa_computeImageSlide];
                     [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address, [exception callStackSymbols]] forKey:@"app_crashed_reason"];
-
+                    
 #else
                     [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [exception callStackSymbols]] forKey:@"app_crashed_reason"];
-
+                    
 #endif
                 } else {
                     [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], [NSThread callStackSymbols]] forKey:@"app_crashed_reason"];
                 }
-                [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+            } @catch(NSException *exception) {
+                SAError(@"%@ error: %@", self, exception);
             }
+            [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                sensorsdata_dispatch_main_safe_sync(^{
-                    if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
-                        [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
-                    }
-                });
+                [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
 
             // 阻塞当前线程，完成 serialQueue 中数据相关的任务
