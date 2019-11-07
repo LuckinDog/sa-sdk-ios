@@ -20,7 +20,6 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
 
-    [super viewDidLoad];
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
     self.title = @"WKWebView";
 
@@ -31,8 +30,8 @@
 
     //网址
     NSString *httpStr = @"http://192.168.50.112/wkwebview/index.html";
-    NSURL *httpUrl=[NSURL URLWithString:httpStr];
-    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
+    NSURL *httpUrl = [NSURL URLWithString:httpStr];
+    NSURLRequest *request = [NSURLRequest requestWithURL:httpUrl];
 
     [self.webView loadRequest:request];
 

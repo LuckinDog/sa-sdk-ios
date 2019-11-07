@@ -193,7 +193,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-@property(nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
+@property (nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -207,7 +207,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
-@property(nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
+@property (nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
 #endif
 /// project 和 host SDK 校验
 @property (nonatomic, assign, readwrite) BOOL enableVerifyWKWebViewProject;
@@ -303,7 +303,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
             _flushBeforeEnterBackground = YES;
-            _enableVerifyWKWebViewProject = YES;
             
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -3572,8 +3571,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0
 
 #pragma mark WKWebView 打通
-- (void)disableVerifyWKWebViewProject {
-    self.enableVerifyWKWebViewProject = NO;
+- (void)enableVerifyWKWebViewProject {
+    self.enableVerifyWKWebViewProject = YES;
 }
 
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {

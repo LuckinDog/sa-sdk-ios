@@ -31,18 +31,16 @@
 @implementation SAJSBridge
 
 //wkwebview 打通
--(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.name isEqualToString:@"sensorsdataNativeTracker"]) {
-
         if (![message.body isKindOfClass:NSString.class]) {
-            SAError(@"Failed to analysis message frome JS SDK, jsonString: %@",message.body);
+            SAError(@"Failed to analysis message frome JS SDK, jsonString: %@", message.body);
             return;
         }
         SensorsAnalyticsSDK *sharedInstanceSDK = [SensorsAnalyticsSDK sharedInstance];
         [sharedInstanceSDK trackFromH5WithEvent:message.body enableVerify:sharedInstanceSDK.enableVerifyWKWebViewProject];
     }
 }
-
 @end
 
 #endif
