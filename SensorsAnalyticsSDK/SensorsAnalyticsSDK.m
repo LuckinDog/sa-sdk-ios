@@ -210,7 +210,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
-@property(nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
+@property(nonatomic, strong) dispatch_group_t loadUAGroup;
 #endif
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
@@ -450,15 +450,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (self.wkWebView) {
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.loadWKWebViewUserAgent.waitQueue"];
             dispatch_queue_t waitQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-            dispatch_async(waitQueue, ^{
-                dispatch_semaphore_wait(self.loadUASemaphore, DISPATCH_TIME_FOREVER);
+
+            dispatch_group_notify(self.loadUAGroup, waitQueue, ^{
                 completion(self.userAgent);
             });
-
         } else {
             self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
-            self.loadUASemaphore = dispatch_semaphore_create(0);
-            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+            self.loadUAGroup = dispatch_group_create();
+            dispatch_group_enter(self.loadUAGroup);
+
+            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
                 NSString *userAgent = response;
                 if (error || !userAgent) {
                     SAError(@"WKWebView evaluateJavaScript load UA error:%@", error);
@@ -468,7 +469,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     completion(userAgent);
                 }
                 weakSelf.wkWebView = nil;
-                dispatch_semaphore_signal(weakSelf.loadUASemaphore);
+                dispatch_group_leave(self.loadUAGroup);
             }];
         }
     });
