@@ -251,6 +251,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
+    NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
     if (sharedInstance.remoteConfig.disableSDK) {
         return nil;
     }
