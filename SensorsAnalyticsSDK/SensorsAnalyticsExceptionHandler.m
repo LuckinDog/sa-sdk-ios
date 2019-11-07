@@ -161,25 +161,23 @@ static void SAHandleException(NSException *exception) {
     @try {
         for (SensorsAnalyticsSDK *instance in self.sensorsAnalyticsSDKInstances) {
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-            @try {
-                if ([exception callStackSymbols]) {
+            if ([exception callStackSymbols]) {
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
-                    long slide_address = [SensorsAnalyticsExceptionHandler sa_computeImageSlide];
-                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address, [exception callStackSymbols]] forKey:@"app_crashed_reason"];
-                    
+                long slide_address = [SensorsAnalyticsExceptionHandler sa_computeImageSlide];
+                [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address, [exception callStackSymbols]] forKey:@"app_crashed_reason"];
 #else
-                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [exception callStackSymbols]] forKey:@"app_crashed_reason"];
-                    
+                [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [exception callStackSymbols]] forKey:@"app_crashed_reason"];
 #endif
-                } else {
-                    [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], [NSThread callStackSymbols]] forKey:@"app_crashed_reason"];
-                }
-            } @catch(NSException *exception) {
-                SAError(@"%@ error: %@", self, exception);
+            } else {
+                [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], [NSThread callStackSymbols]] forKey:@"app_crashed_reason"];
             }
             [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
+                sensorsdata_dispatch_main_safe_sync(^{
+                    if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
+                        [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
+                    }
+                });
             }
 
             // 阻塞当前线程，完成 serialQueue 中数据相关的任务
