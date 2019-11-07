@@ -445,7 +445,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
     __weak typeof(self) weakSelf = self;
-git
+
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.loadWKWebViewUserAgent.waitQueue"];
