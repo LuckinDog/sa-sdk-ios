@@ -210,7 +210,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
 #endif
 /// project 和 host SDK 校验
-@property (nonatomic, assign, readwrite) BOOL enableVerifyWKWebViewProject;
+@property (nonatomic, assign, readwrite) BOOL enableVerifyWKWebViewServerURL;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
@@ -3572,7 +3572,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 #pragma mark WKWebView 打通
 - (void)enableVerifyWKWebViewProject {
-    self.enableVerifyWKWebViewProject = YES;
+    self.enableVerifyWKWebViewServerURL = YES;
 }
 
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {

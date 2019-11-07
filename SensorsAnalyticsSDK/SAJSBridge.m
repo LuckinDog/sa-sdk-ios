@@ -38,7 +38,7 @@
             return;
         }
         SensorsAnalyticsSDK *sharedInstanceSDK = [SensorsAnalyticsSDK sharedInstance];
-        [sharedInstanceSDK trackFromH5WithEvent:message.body enableVerify:sharedInstanceSDK.enableVerifyWKWebViewProject];
+        [sharedInstanceSDK trackFromH5WithEvent:message.body enableVerify:sharedInstanceSDK.enableVerifyWKWebViewServerURL];
     }
 }
 @end
