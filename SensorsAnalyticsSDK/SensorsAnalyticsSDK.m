@@ -21,6 +21,10 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#import <Availability.h>
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0 && (defined SENSORS_ANALYTICS_DISABLE_UIWEBVIEW)
+#error disable UIWebView and use WKWebView, minimum deployment target is 8.0
+#endif
 
 #import <objc/runtime.h>
 #include <sys/sysctl.h>
@@ -53,6 +57,10 @@
      #import "SAKeyChainItemWrapper.h"
 #endif
 
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+#import <WebKit/WebKit.h>
+#endif
+
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
@@ -65,7 +73,7 @@
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
 
-#define VERSION @"1.11.12-pre"
+#define VERSION @"1.11.14-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -182,6 +190,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableSet<NSString *> *visualizedAutoTrackViewControllers;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
+@property (nonatomic, copy) NSString *userAgent;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
@@ -199,6 +208,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SAGPSLocationConfig *locationConfig;
 #endif
 
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+@property (nonatomic, strong) WKWebView *wkWebView;
+@property(nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
+#endif
+
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
 
@@ -208,6 +222,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 ///是否为被动启动
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
+
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -226,7 +241,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SensorsAnalyticsNetworkType _networkTypePolicy;
     NSString *_deviceModel;
     NSString *_osVersion;
-    NSString *_userAgent;
 }
 
 @synthesize remoteConfig = _remoteConfig;
@@ -406,23 +420,59 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return distinctId;
 }
 
-+ (NSString *)getUserAgent {
-    //在此之前调用过 addWebViewUserAgentSensorsDataFlag ，可以直接从 _userAgent 获取 ua
-    __block  NSString *currentUA = self.sharedInstance->_userAgent;
-    if (currentUA  == nil)  {
-        if ([NSThread isMainThread]) {
-            UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-            currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-            self.sharedInstance->_userAgent = currentUA;
-        } else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-                currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-                self.sharedInstance->_userAgent = currentUA;
-            });
-        }
+- (NSString *)loadUserAgent {
+    //在此之前调用过 addWebViewUserAgentSensorsDataFlag ，可以直接从 userAgent 获取 ua
+    __block NSString *currentUA = self.userAgent;
+    if (currentUA.length > 0) {
+        return currentUA;
     }
+#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+    dispatch_block_t webViewBlock = ^{
+        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        self.userAgent = currentUA;
+    };
+
+    sensorsdata_dispatch_main_safe_sync(webViewBlock);
+#endif
     return currentUA;
+}
+
+- (void)loadWKWebViewUserAgent:(void (^)(NSString *))completion {
+    if (self.userAgent) {
+        return completion(self.userAgent);
+    }
+
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+    __weak typeof(self) weakSelf = self;
+git
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.wkWebView) {
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.loadWKWebViewUserAgent.waitQueue"];
+            dispatch_queue_t waitQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_async(waitQueue, ^{
+                dispatch_semaphore_wait(self.loadUASemaphore, DISPATCH_TIME_FOREVER);
+                completion(self.userAgent);
+            });
+
+        } else {
+            self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
+            self.loadUASemaphore = dispatch_semaphore_create(0);
+            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+                NSString *userAgent = response;
+                if (error || !userAgent) {
+                    SAError(@"WKWebView evaluateJavaScript load UA error:%@", error);
+                    completion(nil);
+                } else {
+                    weakSelf.userAgent = userAgent;
+                    completion(userAgent);
+                }
+                weakSelf.wkWebView = nil;
+                dispatch_semaphore_signal(weakSelf.loadUASemaphore);
+            }];
+        }
+    });
+#endif
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
@@ -515,7 +565,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSString *logMessage = nil;
         logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
                       self, self.configOptions.serverURL, [self debugModeToString:_debugMode]];
-        SALog(@"%@", logMessage);
+        //SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
+        //为了解决不能打印的问题，此处直接使用实例方法。其他地方不推荐使用此方法
+        [[SALogger sharedInstance] log:YES message:logMessage level:1 file:__FILE__ function:__PRETTY_FUNCTION__ line:__LINE__];
         
         //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
@@ -872,7 +924,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
          //解析参数
         NSMutableDictionary *paramsDic = [[SANetwork queryItemsWithURLString:urlstr] mutableCopy];
-        
+
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+        NSAssert(![webView isKindOfClass:NSClassFromString(@"UIWebView")], @"当前集成方式已禁用 UIWebView！❌");
+#else
+
         if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
             SADebug(@"showUpWebView: UIWebView");
             if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
@@ -886,7 +942,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                 }
             }
-        } else if(wkWebViewClass && [webView isKindOfClass:wkWebViewClass]) {//WKWebView
+        } else
+#endif
+        if (wkWebViewClass && [webView isKindOfClass:wkWebViewClass]) {//WKWebView
             SADebug(@"showUpWebView: WKWebView");
             if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
                 typedef void(^Myblock)(id, NSError *);
@@ -1001,6 +1059,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackAppCrash {
+    _configOptions.enableTrackAppCrash = YES;
     // Install uncaught exception handlers first
     [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
@@ -1108,12 +1167,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     _showDebugAlertView = show;
 }
 
-- (void)flushByType:(NSString *)type flushSize:(int)flushSize {
+- (BOOL)flushByType:(NSString *)type flushSize:(int)flushSize {
     // 1、获取前 n 条数据
     NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
     if (recordArray == nil) {
         SAError(@"Failed to get records from SQLite.");
-        return;
+        return NO;
     }
 
     NSInteger recordCount = recordArray.count;
@@ -1123,15 +1182,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     // 2、上传获取到的记录。如果数据上传完成，结束递归
     if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
-        return;
+        return NO;
     }
     // 3、删除已上传的记录。删除失败，结束递归
     if (![self.messageQueue removeFirstRecords:recordCount withType:@"POST"]) {
         SAError(@"Failed to remove records from SQLite.");
-        return;
+        return NO;
     }
     // 4、继续上传剩余数据
     [self flushByType:type flushSize:flushSize];
+    return YES;
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
@@ -1143,16 +1203,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
         return;
     }
-    
-    [self flushByType:@"Post" flushSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
+
+    BOOL uploadedEvents = [self flushByType:@"Post" flushSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
 
     if (vacuumAfterFlushing) {
         if (![self.messageQueue vacuum]) {
             SAError(@"failed to VACUUM SQLite.");
         }
     }
-
-    SADebug(@"events flushed.");
+    if (uploadedEvents) {
+        SADebug(@"events flushed.");
+    }
 }
 
 - (void)flush {
@@ -1162,7 +1223,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)deleteAll {
-    [self.messageQueue deleteAll];
+    // 新增线程保护
+    dispatch_async(self.serialQueue, ^{
+        [self.messageQueue deleteAll];
+    });
 }
 
 #pragma mark - HandleURL
@@ -1716,33 +1780,48 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
-
-    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
+    __block NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // ua
-    NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-    if (userAgent.length == 0) {
-        userAgent = self.class.getUserAgent;
-        [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-    }
-    // idfa
-    NSString *idfa = [self getIDFA];
-    if (idfa) {
-        [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    } else {
-        [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    }
-    
-    if ([self.trackChannelEventNames containsObject:event]) {
-        [properties setValue:@(NO) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
-    } else {
-        [properties setValue:@(YES) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
-        [self.trackChannelEventNames addObject:event];
-        dispatch_async(self.serialQueue, ^{
-            [self archiveTrackChannelEventNames];
-        });
-    }
+    __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
 
-    [self track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeCode];
+    dispatch_block_t trackChannelEventBlock = ^{
+        // idfa
+        NSString *idfa = [self getIDFA];
+        if (idfa) {
+            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
+        } else {
+            [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
+        }
+
+        if ([self.trackChannelEventNames containsObject:event]) {
+            [properties setValue:@(NO) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
+        } else {
+            [properties setValue:@(YES) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
+            [self.trackChannelEventNames addObject:event];
+            dispatch_async(self.serialQueue, ^{
+                [self archiveTrackChannelEventNames];
+            });
+        }
+
+        [self track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeCode];
+    };
+
+    if (userAgent.length == 0) {
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+        //禁用 UIWebView
+        [self loadWKWebViewUserAgent:^(NSString *localUserAgent) {
+            userAgent = localUserAgent;
+            [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+            trackChannelEventBlock();
+        }];
+#else
+        userAgent = [self loadUserAgent];
+        [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+        trackChannelEventBlock();
+#endif
+    } else {
+        trackChannelEventBlock();
+    }
 }
 
 - (void)track:(NSString *)event withTrackType:(SensorsAnalyticsTrackType)trackType {
@@ -1786,7 +1865,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     NSNumber *eventBegin = @([[self class] getSystemUpTime]);
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : @(0.0), @"timeUnit" : [NSNumber numberWithInt:timeUnit],@"isPause":@(NO)};
+        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : @(0.0), @"timeUnit" : @(timeUnit),@"isPause":@(NO)};
     });
 }
 
@@ -1890,29 +1969,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    BOOL hasTrackInstallation = NO;
-    NSString *userDefaultsKey = nil;
-    userDefaultsKey = disableCallback?SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK:SA_HAS_TRACK_INSTALLATION;
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
-    hasTrackInstallation = disableCallback?[SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback]:[SAKeyChainItemWrapper hasTrackInstallation];
+    NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
+    BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
     if (hasTrackInstallation) {
         return;
     }
-#endif
-#endif
 
-    
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
-        hasTrackInstallation = NO;
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    } else {
-        hasTrackInstallation = YES;
-    }
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
 #ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
+    hasTrackInstallation = disableCallback ? [SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback] : [SAKeyChainItemWrapper hasTrackInstallation];
+    if (hasTrackInstallation) {
+        return;
+    }
     if (disableCallback) {
         [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
     } else {
@@ -1920,7 +1991,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 #endif
 #endif
+
     if (!hasTrackInstallation) {
+
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         NSString *idfa = [self getIDFA];
@@ -1934,27 +2007,41 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
         }
 
-        NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-        if (userAgent ==nil || userAgent.length == 0) {
-            userAgent = self.class.getUserAgent;
+        __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+        dispatch_block_t trackInstallationBlock = ^{
+            if (userAgent) {
+                [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+            }
+
+            if (propertyDict != nil) {
+                [properties addEntriesFromDictionary:propertyDict];
+            }
+
+            // 先发送 track
+            [self track:event withProperties:properties withType:@"track"];
+
+            // 再发送 profile_set_once
+            NSMutableDictionary *profileProperties = [properties mutableCopy];
+            [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
+            [self track:nil withProperties:profileProperties withType:SA_PROFILE_SET_ONCE];
+
+            [self flush];
+        };
+
+        if (userAgent.length == 0) {
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+            //禁用 UIWebView
+            [self loadWKWebViewUserAgent:^(NSString *localUserAgent) {
+                userAgent = localUserAgent;
+                trackInstallationBlock();
+            }];
+#else
+            userAgent = [self loadUserAgent];
+            trackInstallationBlock();
+#endif
+        } else {
+            trackInstallationBlock();
         }
-        if (userAgent) {
-            [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-        }
-
-        if (propertyDict != nil) {
-            [properties addEntriesFromDictionary:propertyDict];
-        }
-
-        // 先发送 track
-        [self track:event withProperties:properties withType:@"track"];
-
-        // 再发送 profile_set_once
-        NSMutableDictionary *profileProperties = [properties mutableCopy];
-        [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-        [self track:nil withProperties:profileProperties withType:SA_PROFILE_SET_ONCE];
-
-        [self flush];
     }
 }
 
@@ -2204,25 +2291,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSDictionary *)collectAutomaticProperties {
-    NSMutableDictionary *p = [NSMutableDictionary dictionary];
-    UIDevice *device = [UIDevice currentDevice];
-    _deviceModel = [self deviceModel];
-    _osVersion = [device systemVersion];
-    struct CGSize size = [UIScreen mainScreen].bounds.size;
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+
     CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = nil;
-    
+
 #ifdef __IPHONE_12_0
     if (@available(iOS 12.1, *)) {
-        carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
+        // 排序
+        NSArray *carrierKeysArray = [telephonyInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
+        carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
+        if (!carrier.mobileNetworkCode) {
+            carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
+        }
     }
 #endif
-    if(!carrier) {
+    if (!carrier) {
         carrier = telephonyInfo.subscriberCellularProvider;
     }
-
-    // Use setValue semantics to avoid adding keys where value can be nil.
-    [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
     if (carrier != nil) {
         NSString *networkCode = [carrier mobileNetworkCode];
         NSString *countryCode = [carrier mobileCountryCode];
@@ -2253,7 +2339,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     carrierName= @"中国铁通";
                 }
             }
-        } else { //国外运营商解析
+        } else if (countryCode && networkCode) { //国外运营商解析
             //加载当前 bundle
             NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
             //文件路径
@@ -2269,18 +2355,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         if (carrierName != nil) {
-            [p setValue:carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-        } else {
-            if (carrier.carrierName) {
-                [p setValue:carrier.carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-            }
+            [properties setValue:carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
         }
     }
-    
+
+    // Use setValue semantics to avoid adding keys where value can be nil.
+    [properties setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+
 #if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-    [p setValue:[[self class] getUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
+    [properties setValue:[[self class] getUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
 #endif
-    [p addEntriesFromDictionary:@{
+
+    UIDevice *device = [UIDevice currentDevice];
+    _deviceModel = [self deviceModel];
+    _osVersion = [device systemVersion];
+    struct CGSize size = [UIScreen mainScreen].bounds.size;
+    [properties addEntriesFromDictionary:@{
                                   SA_EVENT_COMMON_PROPERTY_LIB: @"iOS",
                                   SA_EVENT_COMMON_PROPERTY_LIB_VERSION: [self libVersion],
                                   SA_EVENT_COMMON_PROPERTY_MANUFACTURER: @"Apple",
@@ -2290,7 +2380,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                   SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT: @((NSInteger)size.height),
                                   SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH: @((NSInteger)size.width),
                                       }];
-    return [p copy];
+    return [properties copy];
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
@@ -2649,32 +2739,46 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent{
-    
+
+    void (^changeUserAgent)(BOOL verify, NSString *oldUserAgent) = ^void (BOOL verify, NSString *oldUserAgent) {
+        NSString *newAgent = oldUserAgent;
+        if ([oldUserAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
+            if (verify) {
+                newAgent = [oldUserAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ", self.network.host, self.network.project]];
+            } else {
+                newAgent = [oldUserAgent stringByAppendingString:@" /sa-sdk-ios"];
+            }
+        }
+        //使 newAgent 生效，并设置 userAgent
+        NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
+        [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
+        self.userAgent = newAgent;
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    };
+
     dispatch_block_t mainThreadBlock = ^(){
         BOOL verify = enableVerify;
         @try {
             if (![self.network isValidServerURL]) {
                 verify = NO;
             }
-            NSString *oldAgent = nil;
-            if (userAgent && userAgent.length) {
-                oldAgent = userAgent;
+            NSString *oldAgent = userAgent.length > 0 ? userAgent : self.userAgent;
+
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+            //禁用 UIWebView
+            if (oldAgent) {
+                 changeUserAgent(verify, oldAgent);
             } else {
-                oldAgent = self.class.getUserAgent;
+                [self loadWKWebViewUserAgent:^(NSString *userAgent) {
+                    changeUserAgent(verify, userAgent);
+                }];
             }
-            NSString *newAgent = oldAgent;
-            if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
-                if (verify) {
-                    newAgent = [oldAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ", self.network.host, self.network.project]];
-                } else {
-                    newAgent = [oldAgent stringByAppendingString:@" /sa-sdk-ios"];
-                }
+#else
+            if (!oldAgent) {
+                oldAgent = [self loadUserAgent];
             }
-            //使 newAgent 生效，并设置 _userAgent
-            NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
-            [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-            self->_userAgent = newAgent;
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            changeUserAgent(verify, oldAgent);
+#endif
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
@@ -2769,7 +2873,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!controller) {
         return;
     }
-    
+
     if ([self isBlackListContainsViewController:controller]) {
         return;
     }
@@ -2785,29 +2889,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [properties addEntriesFromDictionary:_lastScreenTrackProperties];
     }
 
-#ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
-    NSString *screenName = NSStringFromClass(controller.class);
-    [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_URL];
+    NSString *currentScreenUrl;
+    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
+        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
+        currentScreenUrl = [screenAutoTrackerController getScreenUrl];
+    }
+    currentScreenUrl = [currentScreenUrl isKindOfClass:NSString.class] ? currentScreenUrl : NSStringFromClass(controller.class);
+    [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
     @synchronized(_referrerScreenUrl) {
         if (_referrerScreenUrl) {
             [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
         }
-        _referrerScreenUrl = screenName;
-    }
-#endif
-
-    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
-        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
-        NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
-        
-        [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
-
-        @synchronized(_referrerScreenUrl) {
-            if (_referrerScreenUrl) {
-                [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
-            }
-            _referrerScreenUrl = currentScreenUrl;
-        }
+        _referrerScreenUrl = currentScreenUrl;
     }
     [properties addEntriesFromDictionary:properties_];
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];

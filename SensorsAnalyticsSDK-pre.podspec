@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK-pre"
-  s.version      = "1.11.12-pre"
+  s.version      = "1.11.14-pre"
   s.summary      = "The official iOS SDK Pre of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -21,12 +21,6 @@ Pod::Spec.new do |s|
   s.subspec 'LOG' do |f|
     f.dependency 'SensorsAnalyticsSDK-pre/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_LOG=1'}
-  end
-
-  # 自动采集 $referrer
-  s.subspec 'AUTOTRACT_APPVIEWSCREEN_URL' do |f|
-    f.dependency 'SensorsAnalyticsSDK-pre/core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL=1'}
   end
 
   # 禁用 GPS 定位采集，相关代码不参与编译
@@ -130,6 +124,14 @@ Pod::Spec.new do |s|
   s.subspec 'ENABLE_ENCRYPTION' do |f|
     f.dependency 'SensorsAnalyticsSDK-pre/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_ENCRYPTION=1'}
+  end
+
+  # 禁用 UIWebView
+  s.subspec 'DISABLE_UIWEBVIEW' do |f|
+    # 需要使用 WKWebView，支持最低版本为 iOS 8
+    f.platform = :ios, "8.0"
+    f.dependency 'SensorsAnalyticsSDK-pre/core'
+    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
   end
 
 end
