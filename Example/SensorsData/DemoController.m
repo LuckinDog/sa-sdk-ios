@@ -86,7 +86,7 @@
     
 }
 
-- (void) testCleanKeychain{
+- (void)testCleanKeychain {
     [[SensorsAnalyticsSDK sharedInstance] clearKeychainData];
 }
 - (NSDictionary *)sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath {

@@ -11,7 +11,7 @@
 #import <WebKit/WebKit.h>
 
 @interface JSCallWKWebViewController ()
-@property(nonatomic,strong) WKWebView *webView;
+@property (nonatomic, strong) WKWebView *webView;
 @end
 
 @implementation JSCallWKWebViewController
