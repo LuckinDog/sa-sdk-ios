@@ -3586,12 +3586,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 
     [webView.configuration.userContentController addScriptMessageHandler:[[SAJSBridge alloc] init] name:@"sensorsdataNativeTracker"];
-
-    NSMutableString *javaScriptSource = [NSMutableString string];
-    [javaScriptSource appendFormat:@"window.sensorsdata_app_project = '%@';", self.network.project];
-    [javaScriptSource appendFormat:@"window.sensorsdata_app_host = '%@'", self.network.host];
-
+    
     if (enableVerify) {
+        NSMutableString *javaScriptSource = [NSMutableString string];
+        [javaScriptSource appendFormat:@"window.sensorsdata_app_project = '%@';", self.network.project];
+        [javaScriptSource appendFormat:@"window.sensorsdata_app_host = '%@'", self.network.host];
+
         // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
         WKUserScript *userScript = [[WKUserScript alloc] initWithSource:javaScriptSource injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
         [webView.configuration.userContentController addUserScript:userScript];
