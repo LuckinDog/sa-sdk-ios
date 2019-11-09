@@ -1783,7 +1783,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
     __block NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // ua
-    __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+    NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
 
     dispatch_block_t trackChannelEventBlock = ^{
         // idfa
@@ -1811,13 +1811,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
         //禁用 UIWebView
         [self loadWKWebViewUserAgent:^(NSString *localUserAgent) {
-            userAgent = localUserAgent;
-            [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+            [properties setValue:localUserAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
             trackChannelEventBlock();
         }];
 #else
-        userAgent = [self loadUserAgent];
-        [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+        [properties setValue:[self loadUserAgent] forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
         trackChannelEventBlock();
 #endif
     } else {
