@@ -64,7 +64,7 @@
         _actions = [NSMutableArray arrayWithCapacity:4];
         
         if (NSClassFromString(@"UIAlertController")) {
-            UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            UIWindow *alertWindow = [self getAlertWindow];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
             alertWindow.rootViewController = self;
             alertWindow.hidden = NO;
@@ -206,6 +206,28 @@
     }];
     UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:self.alertTitle delegate:self cancelButtonTitle:cancelButtonTitle destructiveButtonTitle:destructiveButtonTitle otherButtonTitles:otherButtonTitle1, otherButtonTitle2, otherButtonTitle3, otherButtonTitle4, nil];
     [sheet showInView:self.alertWindow];
+}
+
+- (UIWindow *)getAlertWindow {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *scene = [self windowScene];
+        if (scene) {
+            return [[UIWindow alloc] initWithWindowScene:scene];
+        }
+    }
+    return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+}
+
+- (nullable UIWindowScene *)windowScene  API_AVAILABLE(ios(13.0)) {
+    __block UIWindowScene *windowScene = nil;
+    [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[UIWindowScene class]]) {
+            windowScene = (UIWindowScene *)obj;
+            NSLog(@"Test");
+            *stop = YES;
+        }
+    }];
+    return windowScene;
 }
 
 #pragma mark - UIAlertViewDelegate
