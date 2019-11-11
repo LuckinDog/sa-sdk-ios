@@ -106,12 +106,6 @@
         return;
     }
 
-    if ([object isKindOfClass:[UIResponder class]]) {
-        UIViewController *caller = [SAAutoTrackUtils findNextViewControllerByResponder:(UIResponder *)object];
-        if (caller) {
-            [properties addEntriesFromDictionary:[caller sensorsdata_screenInfo]];
-        }
-    }
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||

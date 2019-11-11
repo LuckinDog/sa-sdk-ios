@@ -32,7 +32,6 @@
 #import "SAConstants+Private.h"
 #import <objc/runtime.h>
 #import "SAConstants.h"
-#import "UIViewController+AutoTrack.h"
 
 @implementation UIGestureRecognizer (AutoTrack)
 
@@ -50,13 +49,8 @@
         if (!isTrackClass || isIgnored) {
             return;
         }
-
-        NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:view] mutableCopy];
+        NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view];
         if (properties) {
-            UIViewController *caller = [SAAutoTrackUtils findSuperViewControllerByView:view];
-            if (caller) {
-                [properties addEntriesFromDictionary:[caller sensorsdata_screenInfo]];
-            }
             [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     } @catch (NSException *exception) {

@@ -24,6 +24,5 @@
 @interface UIViewController (AutoTrack) <SAAutoTrackViewControllerProperty, SAAutoTrackViewPathProperty>
 
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated;
-- (NSDictionary *)sensorsdata_screenInfo;
 
 @end
