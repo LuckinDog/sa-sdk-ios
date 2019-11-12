@@ -117,9 +117,6 @@
 
 + (NSDictionary *)screenInfoWithController:(UIViewController *)controller {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    if (!controller) {
-        return properties;
-    }
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
         NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
