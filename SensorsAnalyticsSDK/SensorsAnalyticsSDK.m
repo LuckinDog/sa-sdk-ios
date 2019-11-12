@@ -737,6 +737,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (enableVerify) {
                 NSString *serverUrl = [eventDict valueForKey:@"server_url"];
                 if (![self.network isSameProjectWithURLString:serverUrl]) {
+                    SAError(@"Server_url verified faild, Web event lost! Web server_url = '%@'",serverUrl);
                     return;
                 }
             }
