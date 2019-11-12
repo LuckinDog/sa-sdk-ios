@@ -360,7 +360,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self startAppEndTimer];
             [self setUpListeners];
             
-            if (_configOptions.enableTrackAppCrash || (_configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppEnd)) {
+            if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
@@ -1065,10 +1065,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.configOptions.autoTrackEventType = eventType;
         
         [self _enableAutoTrack];
-
-        if (self.configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
-            [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
-        }
     }
 }
 
