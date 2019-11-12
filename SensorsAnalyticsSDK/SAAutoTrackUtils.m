@@ -70,7 +70,7 @@
 + (UIViewController *)currentViewController {
     __block UIViewController *currentViewController = nil;
     void (^ block)(void) = ^{
-        UIViewController *rootViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
+        UIViewController *rootViewController = UIApplication.sharedApplication.keyWindow.rootViewController;
         currentViewController = [SAAutoTrackUtils findCurrentViewControllerFromRootViewController:rootViewController isRoot:YES];
     };
 
