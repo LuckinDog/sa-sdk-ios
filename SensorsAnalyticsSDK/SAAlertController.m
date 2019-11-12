@@ -223,7 +223,6 @@
     [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if ([obj isKindOfClass:[UIWindowScene class]]) {
             windowScene = (UIWindowScene *)obj;
-            NSLog(@"Test");
             *stop = YES;
         }
     }];
