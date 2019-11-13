@@ -21,8 +21,6 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#define SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-
 #import <Availability.h>
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0 && (defined SENSORS_ANALYTICS_DISABLE_UIWEBVIEW)
 #error disable UIWebView and use WKWebView, minimum deployment target is 8.0
@@ -431,7 +429,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
             dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-                NSLog(@"%@", self.userAgent);
                 completion(self.userAgent);
             });
         } else {
