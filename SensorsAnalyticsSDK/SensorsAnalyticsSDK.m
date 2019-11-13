@@ -21,6 +21,8 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#define SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+
 #import <Availability.h>
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0 && (defined SENSORS_ANALYTICS_DISABLE_UIWEBVIEW)
 #error disable UIWebView and use WKWebView, minimum deployment target is 8.0
@@ -420,38 +422,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return distinctId;
 }
 
-- (NSString *)loadUserAgent {
-    //在此之前调用过 addWebViewUserAgentSensorsDataFlag ，可以直接从 userAgent 获取 ua
-    __block NSString *currentUA = self.userAgent;
-    if (currentUA.length > 0) {
-        return currentUA;
-    }
-#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    dispatch_block_t webViewBlock = ^{
-        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        self.userAgent = currentUA;
-    };
-
-    sensorsdata_dispatch_main_safe_sync(webViewBlock);
-#endif
-    return currentUA;
-}
-
-- (void)loadWKWebViewUserAgent:(void (^)(NSString *))completion {
+- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
     if (self.userAgent) {
         return completion(self.userAgent);
     }
-
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
     __weak typeof(self) weakSelf = self;
-
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
-            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.loadWKWebViewUserAgent.waitQueue"];
-            dispatch_queue_t waitQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-
-            dispatch_group_notify(self.loadUAGroup, waitQueue, ^{
+            dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                NSLog(@"%@", self.userAgent);
                 completion(self.userAgent);
             });
         } else {
@@ -460,18 +440,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dispatch_group_enter(self.loadUAGroup);
 
             [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
-                NSString *userAgent = response;
-                if (error || !userAgent) {
+                if (error || !response) {
                     SAError(@"WKWebView evaluateJavaScript load UA error:%@", error);
                     completion(nil);
                 } else {
-                    weakSelf.userAgent = userAgent;
-                    completion(userAgent);
+                    weakSelf.userAgent = response;
+                    completion(weakSelf.userAgent);
                 }
                 weakSelf.wkWebView = nil;
-                dispatch_group_leave(self.loadUAGroup);
+                dispatch_group_leave(weakSelf.loadUAGroup);
             }];
         }
+    });
+#else
+    sensorsdata_dispatch_main_safe_sync(^{
+        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        completion(self.userAgent);
     });
 #endif
 }
@@ -1808,16 +1793,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
 
     if (userAgent.length == 0) {
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        //禁用 UIWebView
-        [self loadWKWebViewUserAgent:^(NSString *localUserAgent) {
-            [properties setValue:localUserAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+        [self loadUserAgentWithCompletion:^(NSString *ua) {
+            [properties setValue:ua forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
             trackChannelEventBlock();
         }];
-#else
-        [properties setValue:[self loadUserAgent] forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-        trackChannelEventBlock();
-#endif
     } else {
         trackChannelEventBlock();
     }
@@ -2028,16 +2007,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         };
 
         if (userAgent.length == 0) {
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-            //禁用 UIWebView
-            [self loadWKWebViewUserAgent:^(NSString *localUserAgent) {
-                userAgent = localUserAgent;
+            [self loadUserAgentWithCompletion:^(NSString *ua) {
+                userAgent = ua;
                 trackInstallationBlock();
             }];
-#else
-            userAgent = [self loadUserAgent];
-            trackInstallationBlock();
-#endif
         } else {
             trackInstallationBlock();
         }
@@ -2762,22 +2735,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 verify = NO;
             }
             NSString *oldAgent = userAgent.length > 0 ? userAgent : self.userAgent;
-
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-            //禁用 UIWebView
             if (oldAgent) {
-                 changeUserAgent(verify, oldAgent);
+                changeUserAgent(verify, oldAgent);
             } else {
-                [self loadWKWebViewUserAgent:^(NSString *userAgent) {
-                    changeUserAgent(verify, userAgent);
+                [self loadUserAgentWithCompletion:^(NSString *ua) {
+                    changeUserAgent(verify, ua);
                 }];
             }
-#else
-            if (!oldAgent) {
-                oldAgent = [self loadUserAgent];
-            }
-            changeUserAgent(verify, oldAgent);
-#endif
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
