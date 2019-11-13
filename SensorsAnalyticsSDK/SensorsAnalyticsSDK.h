@@ -20,6 +20,11 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0
+    #import <WebKit/WebKit.h>
+#endif
+
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
@@ -997,6 +1002,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark - JSCall
+@interface SensorsAnalyticsSDK (JSCall)
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0
+
+#pragma mark WKWebView 打通
+
+/// 开启 SDK 的 project 和 host 校验
+- (void)enableVerifyWKWebViewProject;
+
+/// 向 webview 做打通注入
+/// @param webView 需要注入的 wkwebView，SDK 默认校验 project 和 host
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
+
+/// 向 webview 做打通注入
+/// @param webView 需要注入的 wkwebView
+/// @param enableVerify 数据打通的时候是否通过 ServerUrl 校验，如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView enableVerify:(BOOL)enableVerify;
+
+#endif
+@end
 /**
  * @class
  * SensorsAnalyticsPeople 类
