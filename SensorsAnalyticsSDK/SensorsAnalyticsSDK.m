@@ -21,11 +21,12 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import <Availability.h>
+
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0 && (defined SENSORS_ANALYTICS_DISABLE_UIWEBVIEW)
 #error disable UIWebView and use WKWebView, minimum deployment target is 8.0
 #endif
 
+#import <Availability.h>
 #import <objc/runtime.h>
 #include <sys/sysctl.h>
 #include <stdlib.h>
@@ -54,11 +55,7 @@
 #import "SAAutoTrackUtils.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-     #import "SAKeyChainItemWrapper.h"
-#endif
-
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-#import <WebKit/WebKit.h>
+    #import "SAKeyChainItemWrapper.h"
 #endif
 
 #import "SASDKRemoteConfig.h"
@@ -72,6 +69,8 @@
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
+#import "SAJSBridge.h"
+
 
 #define VERSION @"1.11.14-pre"
 
@@ -196,7 +195,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-@property(nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
+@property (nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -210,8 +209,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
+<<<<<<< HEAD
 @property(nonatomic, strong) dispatch_group_t loadUAGroup;
+=======
+@property (nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
+>>>>>>> f78bef6b231e501fe92686885df651436e25853e
 #endif
+/// project 和 host SDK 校验
+@property (nonatomic, assign, readwrite) BOOL enableVerifyWKWebViewServerURL;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
@@ -254,6 +259,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
+    NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
     if (sharedInstance.remoteConfig.disableSDK) {
         return nil;
     }
@@ -364,7 +370,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self startAppEndTimer];
             [self setUpListeners];
             
-            if (_configOptions.enableTrackAppCrash || (_configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppEnd)) {
+            if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
@@ -711,21 +717,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             NSData *jsonData = [eventInfo dataUsingEncoding:NSUTF8StringEncoding];
-            NSError *err;
+            NSError *error;
             NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                              options:NSJSONReadingMutableContainers
-                                                                               error:&err];
-            if(err) {
-                return;
-            }
-
-            if (!eventDict) {
+                                                                               error:&error];
+            if(error || !eventDict) {
                 return;
             }
 
             if (enableVerify) {
                 NSString *serverUrl = [eventDict valueForKey:@"server_url"];
                 if (![self.network isSameProjectWithURLString:serverUrl]) {
+                    SAError(@"Server_url verified faild, Web event lost! Web server_url = '%@'",serverUrl);
                     return;
                 }
             }
@@ -1052,10 +1055,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.configOptions.autoTrackEventType = eventType;
         
         [self _enableAutoTrack];
-
-        if (self.configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
-            [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
-        }
     }
 }
 
@@ -3588,6 +3587,44 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 @end
+
+
+#pragma mark - JSCall
+@implementation SensorsAnalyticsSDK (JSCall)
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0
+
+#pragma mark WKWebView 打通
+- (void)enableVerifyWKWebViewProject {
+    self.enableVerifyWKWebViewServerURL = YES;
+}
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
+    [self addScriptMessageHandlerWithWebView:webView enableVerify:YES];
+}
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView enableVerify:(BOOL)enableVerify {
+    NSAssert([webView isKindOfClass:WKWebView.class], @"此注入方案只支持 WKWebView！❌");
+    if (!webView) {
+        return;
+    }
+
+    [webView.configuration.userContentController addScriptMessageHandler:[[SAJSBridge alloc] init] name:@"sensorsdataNativeTracker"];
+    
+    if (enableVerify) {
+        NSMutableString *javaScriptSource = [NSMutableString string];
+        [javaScriptSource appendFormat:@"window.sensorsdata_app_project = '%@';", self.network.project];
+        [javaScriptSource appendFormat:@"window.sensorsdata_app_host = '%@'", self.network.host];
+
+        // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
+        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:javaScriptSource injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+        [webView.configuration.userContentController addUserScript:userScript];
+    }
+}
+
+#endif
+@end
+
 
 #pragma mark - People analytics
 

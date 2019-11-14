@@ -22,6 +22,7 @@
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 #import <WebKit/WebKit.h>
 
+
 @interface JSCallOCViewController2 ()<WKNavigationDelegate, WKUIDelegate>
 @property WKWebView *webView;
 @end
@@ -47,7 +48,7 @@
 //    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
 
     [self.webView loadRequest:request];
-
+    
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler {

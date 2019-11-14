@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4D017F4822E7108000492D75 /* SADataEncryptBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D017F4622E7108000492D75 /* SADataEncryptBuilder.h */; };
 		4D017F4922E7108000492D75 /* SADataEncryptBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D017F4722E7108000492D75 /* SADataEncryptBuilder.m */; };
+		4D1FDAF42366FF7A00A8E7CD /* SAJSBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D1FDAF22366FF7A00A8E7CD /* SAJSBridge.h */; };
+		4D1FDAF52366FF7A00A8E7CD /* SAJSBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D1FDAF32366FF7A00A8E7CD /* SAJSBridge.m */; };
 		4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188E22978F5B00F6B218 /* ElementViewController.m */; };
 		4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */; };
 		656D61F022EC453100E0DA06 /* SAEncryptUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 656D61EE22EC453100E0DA06 /* SAEncryptUtils.m */; };
@@ -146,6 +148,8 @@
 /* Begin PBXFileReference section */
 		4D017F4622E7108000492D75 /* SADataEncryptBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADataEncryptBuilder.h; sourceTree = "<group>"; };
 		4D017F4722E7108000492D75 /* SADataEncryptBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADataEncryptBuilder.m; sourceTree = "<group>"; };
+		4D1FDAF22366FF7A00A8E7CD /* SAJSBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAJSBridge.h; sourceTree = "<group>"; };
+		4D1FDAF32366FF7A00A8E7CD /* SAJSBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAJSBridge.m; sourceTree = "<group>"; };
 		4D6A188E22978F5B00F6B218 /* ElementViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElementViewController.m; sourceTree = "<group>"; };
 		4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtilsTest.m; sourceTree = "<group>"; };
 		4D6A189022978F5B00F6B218 /* ElementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElementViewController.h; sourceTree = "<group>"; };
@@ -245,10 +249,8 @@
 		CB30C03B22840EBF0004061D /* SAVisualizedAutoTrackConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedAutoTrackConnection.h; sourceTree = "<group>"; };
 		CB30C03D22840EBF0004061D /* SALogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogger.h; sourceTree = "<group>"; };
 		CB30C03E22840EBF0004061D /* SAValueTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAValueTransformers.h; sourceTree = "<group>"; };
-		CB30C283228423D70004061D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB30C30F22843D3A0004061D /* SensorsAnalyticsExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsExtension.h; sourceTree = "<group>"; };
-		CB30C31222843D3A0004061D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB30C32322843E380004061D /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAAppExtensionDataManager.m; path = SensorsAnalyticsSDK/SAAppExtensionDataManager.m; sourceTree = SOURCE_ROOT; };
 		CB30C32422843E380004061D /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAAppExtensionDataManager.h; path = SensorsAnalyticsSDK/SAAppExtensionDataManager.h; sourceTree = SOURCE_ROOT; };
 		CB30C32722843E730004061D /* SAApplicationStateSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAApplicationStateSerializer.h; sourceTree = "<group>"; };
@@ -374,6 +376,8 @@
 				CB30BFD522840EBF0004061D /* NSString+HashCode.m */,
 				CB30BFE122840EBF0004061D /* SAAbstractDesignerMessage.h */,
 				CB30C01922840EBF0004061D /* SAAbstractDesignerMessage.m */,
+				4D1FDAF22366FF7A00A8E7CD /* SAJSBridge.h */,
+				4D1FDAF32366FF7A00A8E7CD /* SAJSBridge.m */,
 				CB30C03022840EBF0004061D /* SAAlertController.h */,
 				CB30BFF022840EBF0004061D /* SAAlertController.m */,
 				CB30C02122840EBF0004061D /* SAAppExtensionDataManager.h */,
@@ -472,7 +476,6 @@
 		CB30C0AB22840F1B0004061D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				CB30C283228423D70004061D /* Info.plist */,
 				CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */,
 			);
 			name = Resources;
@@ -499,7 +502,6 @@
 				CB30C32422843E380004061D /* SAAppExtensionDataManager.h */,
 				CB30C32322843E380004061D /* SAAppExtensionDataManager.m */,
 				CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */,
-				CB30C31222843D3A0004061D /* Info.plist */,
 			);
 			path = SensorsAnalyticsExtension;
 			sourceTree = "<group>";
@@ -551,6 +553,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D1FDAF42366FF7A00A8E7CD /* SAJSBridge.h in Headers */,
 				656D61F122EC453100E0DA06 /* SAEncryptUtils.h in Headers */,
 				CB30C06E22840EC00004061D /* SensorsAnalyticsSDK.h in Headers */,
 				CB30C05922840EC00004061D /* SAConfigOptions.h in Headers */,
@@ -765,6 +768,7 @@
 				CB30C09522840EC00004061D /* SAAbstractHeatMapMessage.m in Sources */,
 				CB30C07922840EC00004061D /* SALocationManager.m in Sources */,
 				CB30C09B22840EC00004061D /* SAObjectSerializerConfig.m in Sources */,
+				4D1FDAF52366FF7A00A8E7CD /* SAJSBridge.m in Sources */,
 				CB30C07122840EC00004061D /* SAObjectIdentityProvider.m in Sources */,
 				CB30C08922840EC00004061D /* SAObjectSerializerContext.m in Sources */,
 				CB30C07E22840EC00004061D /* NSObject+SensorsAnalyticsDelegate.m in Sources */,
@@ -968,7 +972,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				INFOPLIST_FILE = "$(SRCROOT)/SensorsAnalyticsSDK/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SupportingFiles/SensorsAnalyticsSDK-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -994,7 +998,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "$(SRCROOT)/SensorsAnalyticsSDK/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SupportingFiles/SensorsAnalyticsSDK-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1022,7 +1026,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				HEADER_SEARCH_PATHS = "";
-				INFOPLIST_FILE = "$(SRCROOT)/SensorsAnalyticsExtension/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SupportingFiles/SensorsAnalyticsExtension-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1051,7 +1055,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				HEADER_SEARCH_PATHS = "";
-				INFOPLIST_FILE = "$(SRCROOT)/SensorsAnalyticsExtension/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SupportingFiles/SensorsAnalyticsExtension-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
