@@ -209,11 +209,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
-<<<<<<< HEAD
-@property(nonatomic, strong) dispatch_group_t loadUAGroup;
-=======
-@property (nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
->>>>>>> f78bef6b231e501fe92686885df651436e25853e
+@property (nonatomic, strong) dispatch_group_t loadUAGroup;
 #endif
 /// project 和 host SDK 校验
 @property (nonatomic, assign, readwrite) BOOL enableVerifyWKWebViewServerURL;
