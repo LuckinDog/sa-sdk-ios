@@ -34,6 +34,7 @@
 		CB30C21A228414940004061D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1CE228414420004061D /* ViewController.swift */; };
 		CB30C2222284165A0004061D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2212284165A0004061D /* WebKit.framework */; };
 		CB30C2332284173B0004061D /* SensorsDataExtention.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CB30C2282284173B0004061D /* SensorsDataExtention.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CB30C241228418000004061D /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C239228418000004061D /* MainInterface.storyboard */; };
 		CB30C242228418000004061D /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C23B228418000004061D /* ShareViewController.m */; };
 		CB30C246228421C60004061D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1E3228414420004061D /* Main.storyboard */; };
 		CB30C247228421C60004061D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1E1228414420004061D /* LaunchScreen.xib */; };
@@ -147,7 +148,7 @@
 		CB30C2212284165A0004061D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		CB30C223228416640004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-hhqmjeoyzfdasagvypdnnkywlofx/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
 		CB30C2282284173B0004061D /* SensorsDataExtention.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SensorsDataExtention.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		CB30C23A228418000004061D /* MainInterface.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainInterface.storyboard; sourceTree = "<group>"; };
+		CB30C23A228418000004061D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = MainInterface.storyboard; sourceTree = "<group>"; };
 		CB30C23B228418000004061D /* ShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
 		CB30C23C228418000004061D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB30C23D228418000004061D /* ShareViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
@@ -269,8 +270,6 @@
 				CB30C1EA228414420004061D /* JSCallOCViewController.m */,
 				CB30C1E7228414420004061D /* JSCallOCViewController2.h */,
 				CB30C1D9228414420004061D /* JSCallOCViewController2.m */,
-				4D40ED1A23680E8F008741A6 /* JSCallWKWebViewController.h */,
-				4D40ED1B23680E8F008741A6 /* JSCallWKWebViewController.m */,
 				CB30C1DA228414420004061D /* AutoTrackViewController.h */,
 				CB30C1E6228414420004061D /* AutoTrackViewController.m */,
 				CB30C1F0228414420004061D /* TestCollectionViewController.h */,
@@ -337,7 +336,7 @@
 				CB30C240228418000004061D /* SensorsDataExtention.entitlements */,
 				CB30C23D228418000004061D /* ShareViewController.h */,
 				CB30C23B228418000004061D /* ShareViewController.m */,
-				CB30C23A228418000004061D /* MainInterface.storyboard */,
+				CB30C239228418000004061D /* MainInterface.storyboard */,
 				CB30C23C228418000004061D /* Info.plist */,
 			);
 			path = SensorsDataExtention;
@@ -439,6 +438,7 @@
 			knownRegions = (
 				en,
 				Base,
+				global,
 			);
 			mainGroup = CB30C0AF2284115D0004061D;
 			productRefGroup = CB30C0B92284115D0004061D /* Products */;
@@ -479,7 +479,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D1FDAEC2366FEB700A8E7CD /* MainInterface.storyboard in Resources */,
+				CB30C241228418000004061D /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,7 +497,6 @@
 				CB30C209228414420004061D /* DemoController.m in Sources */,
 				CB30C20C228414420004061D /* TestTableViewController.m in Sources */,
 				CB30C207228414420004061D /* TestCollectionViewController.m in Sources */,
-				4D40ED1C23680E8F008741A6 /* JSCallWKWebViewController.m in Sources */,
 				CB30C20F228414420004061D /* JSCallOCViewController.m in Sources */,
 				CB30C212228414420004061D /* AppDelegate.m in Sources */,
 				CB30C204228414420004061D /* TestViewController.m in Sources */,
@@ -562,6 +561,14 @@
 				CB30C1E4228414420004061D /* Base */,
 			);
 			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		CB30C239228418000004061D /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CB30C23A228418000004061D /* Base */,
+			);
+			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

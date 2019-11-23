@@ -86,8 +86,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 
 @property (nonatomic, weak) UIViewController *previousTrackViewController;
 
-///  校验 SDK 的 project 和 host
-@property (nonatomic, assign, readonly) BOOL enableVerifyWKWebViewServerURL;
 @end
 
 
