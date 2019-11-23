@@ -43,7 +43,7 @@
     [self.view addSubview:_webView];
 
     //网址
-//    NSString *httpStr=@"https://www.sensorsdata.cn/test/in.html";
+//    NSString *httpStr = @"https://www.sensorsdata.cn/test/in.html";
 //    NSURL *httpUrl=[NSURL URLWithString:httpStr];
 //    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
 
