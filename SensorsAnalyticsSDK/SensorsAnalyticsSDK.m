@@ -191,8 +191,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 @property (nonatomic, copy) NSString *userAgent;
 
-@property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
-
 @property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 @property (nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
@@ -209,7 +207,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
-@property (nonatomic, strong) dispatch_group_t loadUAGroup;
+@property (nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
 #endif
 /// project 和 host SDK 校验
 @property (nonatomic, assign, readwrite) BOOL enableVerifyWKWebViewServerURL;
@@ -329,8 +327,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _heatMapViewControllers = [[NSMutableSet alloc] init];
             _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
-            _trackChannelEventNames = [[NSMutableSet alloc] init];
-
+            
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
             
@@ -422,40 +419,57 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return distinctId;
 }
 
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
+- (NSString *)loadUserAgent {
+    //在此之前调用过 addWebViewUserAgentSensorsDataFlag ，可以直接从 userAgent 获取 ua
+    __block NSString *currentUA = self.userAgent;
+    if (currentUA.length > 0) {
+        return currentUA;
+    }
+#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+    dispatch_block_t webViewBlock = ^{
+        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        self.userAgent = currentUA;
+    };
+
+    sensorsdata_dispatch_main_safe_sync(webViewBlock);
+#endif
+    return currentUA;
+}
+
+- (void)loadWKWebViewUserAgent:(void (^)(NSString *))completion {
     if (self.userAgent) {
         return completion(self.userAgent);
     }
+
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
     __weak typeof(self) weakSelf = self;
+
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
-            dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.loadWKWebViewUserAgent.waitQueue"];
+            dispatch_queue_t waitQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_async(waitQueue, ^{
+                dispatch_semaphore_wait(self.loadUASemaphore, DISPATCH_TIME_FOREVER);
                 completion(self.userAgent);
             });
+
         } else {
             self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
-            self.loadUAGroup = dispatch_group_create();
-            dispatch_group_enter(self.loadUAGroup);
-
-            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
-                if (error || !response) {
+            self.loadUASemaphore = dispatch_semaphore_create(0);
+            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+                NSString *userAgent = response;
+                if (error || !userAgent) {
                     SAError(@"WKWebView evaluateJavaScript load UA error:%@", error);
                     completion(nil);
                 } else {
-                    weakSelf.userAgent = response;
-                    completion(weakSelf.userAgent);
+                    weakSelf.userAgent = userAgent;
+                    completion(userAgent);
                 }
                 weakSelf.wkWebView = nil;
-                dispatch_group_leave(weakSelf.loadUAGroup);
+                dispatch_semaphore_signal(weakSelf.loadUASemaphore);
             }];
         }
-    });
-#else
-    sensorsdata_dispatch_main_safe_sync(^{
-        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        completion(self.userAgent);
     });
 #endif
 }
@@ -1753,47 +1767,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeCode];
 }
 
-- (void)trackChannelEvent:(NSString *)event {
-    [self trackChannelEvent:event properties:nil];
-}
-
-- (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
-    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
-    // ua
-    NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-
-    dispatch_block_t trackChannelEventBlock = ^{
-        // idfa
-        NSString *idfa = [self getIDFA];
-        if (idfa) {
-            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
-        } else {
-            [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
-        }
-
-        if ([self.trackChannelEventNames containsObject:event]) {
-            [properties setValue:@(NO) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
-        } else {
-            [properties setValue:@(YES) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
-            [self.trackChannelEventNames addObject:event];
-            dispatch_async(self.serialQueue, ^{
-                [self archiveTrackChannelEventNames];
-            });
-        }
-
-        [self track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeCode];
-    };
-
-    if (userAgent.length == 0) {
-        [self loadUserAgentWithCompletion:^(NSString *ua) {
-            [properties setValue:ua forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-            trackChannelEventBlock();
-        }];
-    } else {
-        trackChannelEventBlock();
-    }
-}
-
 - (void)track:(NSString *)event withTrackType:(SensorsAnalyticsTrackType)trackType {
     [self track:event withProperties:nil withTrackType:trackType];
 }
@@ -1977,10 +1950,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
         }
 
-        __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+        __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_INSTALL_USER_AGENT];
         dispatch_block_t trackInstallationBlock = ^{
             if (userAgent) {
-                [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+                [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_INSTALL_USER_AGENT];
             }
 
             if (propertyDict != nil) {
@@ -1999,10 +1972,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         };
 
         if (userAgent.length == 0) {
-            [self loadUserAgentWithCompletion:^(NSString *ua) {
-                userAgent = ua;
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+            //禁用 UIWebView
+            [self loadWKWebViewUserAgent:^(NSString *localUserAgent) {
+                userAgent = localUserAgent;
                 trackInstallationBlock();
             }];
+#else
+            userAgent = [self loadUserAgent];
+            trackInstallationBlock();
+#endif
         } else {
             trackInstallationBlock();
         }
@@ -2445,11 +2424,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Local caches
 
 - (void)unarchive {
-    [self unarchiveAnonymousId];
-    [self unarchiveLoginId];
-    [self unarchiveSuperProperties];
-    [self unarchiveFirstDay];
-    [self unarchiveTrackChannelEvents];
+        [self unarchiveAnonymousId];
+        [self unarchiveLoginId];
+        [self unarchiveSuperProperties];
+        [self unarchiveFirstDay];
 }
 
 - (id)unarchiveFromFile:(NSString *)filePath {
@@ -2513,12 +2491,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)unarchiveTrackChannelEvents {
-    NSString *filePath = [self filePathForData:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    NSArray *trackChannelEvents = (NSArray *)[self unarchiveFromFile:filePath];
-    [self.trackChannelEventNames addObjectsFromArray:trackChannelEvents];
-}
-
 - (void)archiveAnonymousId {
     NSString *filePath = [self filePathForData:SA_EVENT_DISTINCT_ID];
     /* 为filePath文件设置保护等级 */
@@ -2576,20 +2548,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ unable to archive super properties", self);
     }
     SADebug(@"%@ archive super properties data", self);
-}
-
-- (void)archiveTrackChannelEventNames {
-    NSString *filePath = [self filePathForData:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
-                                                           forKey:NSFileProtectionKey];
-    [[NSFileManager defaultManager] setAttributes:protection
-                                     ofItemAtPath:filePath
-                                            error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[self.trackChannelEventNames copy] toFile:filePath]) {
-        SAError(@"%@ unable to archive trackChannelEventNames", self);
-    }
-    SADebug(@"%@ archive trackChannelEventNames", self);
 }
 
 #pragma mark - Network control
@@ -2727,13 +2685,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 verify = NO;
             }
             NSString *oldAgent = userAgent.length > 0 ? userAgent : self.userAgent;
+
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+            //禁用 UIWebView
             if (oldAgent) {
-                changeUserAgent(verify, oldAgent);
+                 changeUserAgent(verify, oldAgent);
             } else {
-                [self loadUserAgentWithCompletion:^(NSString *ua) {
-                    changeUserAgent(verify, ua);
+                [self loadWKWebViewUserAgent:^(NSString *userAgent) {
+                    changeUserAgent(verify, userAgent);
                 }];
             }
+#else
+            if (!oldAgent) {
+                oldAgent = [self loadUserAgent];
+            }
+            changeUserAgent(verify, oldAgent);
+#endif
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
