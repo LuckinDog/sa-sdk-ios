@@ -1532,6 +1532,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [libProperties setValue:lib_detail forKey:SA_EVENT_COMMON_PROPERTY_LIB_DETAIL];
     }
     __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
         //获取用户自定义的动态公共属性
         if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
@@ -1579,7 +1580,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 float eventDuration = 0;
                 if (!isPause) {
-                    eventDuration = [self eventTimerDurationWithEventStart:eventBegin.longValue timeUnit:timeUnit];
+                    eventDuration = [self eventTimerDurationWithCurrentTime:currentSystemUpTime eventStart:eventBegin.longValue timeUnit:timeUnit];
                 }
 
                 if (eventAccumulatedDuration) {
@@ -1852,6 +1853,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
+    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *eventTimer = [self.trackTimer[event] mutableCopy];
         BOOL isPause = [eventTimer[@"isPause"] boolValue];
@@ -1861,7 +1863,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
 
             isPause = YES;
-            float eventDuration = [self eventTimerDurationWithEventStart:eventBegin timeUnit:timeUnit];
+            float eventDuration = [self eventTimerDurationWithCurrentTime:currentSystemUpTime eventStart:eventBegin timeUnit:timeUnit];
 
             eventTimer[@"eventBegin"] = @(eventBegin);
             eventTimer[@"isPause"] = @(isPause);
@@ -1884,14 +1886,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
+    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *eventTimer = [self.trackTimer[event] mutableCopy];
         BOOL isPause = [eventTimer[@"isPause"] boolValue];
 
         if (eventTimer && isPause) {
-            UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
             isPause = NO;
-
             eventTimer[@"eventBegin"] = @(currentSystemUpTime);
             eventTimer[@"isPause"] = @(isPause);
 
@@ -1901,12 +1902,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 //计算事件时长
-- (float)eventTimerDurationWithEventStart:(UInt64)startTime timeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
+- (float)eventTimerDurationWithCurrentTime:(UInt64)currentSystemUpTime eventStart:(UInt64)startTime timeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     if (startTime <= 0) {
         return 0;
     }
-    
-    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+
     float eventDuration = currentSystemUpTime - startTime;
     
     if (eventDuration > 0 && eventDuration < 24 * 60 * 60 * 1000) {
@@ -3117,8 +3117,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     
     // 遍历 trackTimer ,修改 eventBegin 为当前 currentSystemUpTime
+    NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
     dispatch_async(self.serialQueue, ^{
-        NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
@@ -3195,8 +3195,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
+    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSArray *keys = [self.trackTimer allKeys];
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
@@ -3211,12 +3211,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 UInt64 eventBegin = [[eventTimer valueForKey:@"eventBegin"] longValue];
                 NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
                 SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
-                float eventDuration = [self eventTimerDurationWithEventStart:eventBegin timeUnit:timeUnit];
+                float eventDuration = [self eventTimerDurationWithCurrentTime:currentSystemUpTime eventStart:eventBegin timeUnit:timeUnit];
                 if (eventAccumulatedDuration) {
                     eventDuration += [eventAccumulatedDuration floatValue];
                 }
                 [eventTimer setObject:@(eventDuration) forKey:@"eventAccumulatedDuration"];
-                [eventTimer setObject:currentSystemUpTime forKey:@"eventBegin"];
+                [eventTimer setObject:@(currentSystemUpTime) forKey:@"eventBegin"];
                 self.trackTimer[key] = eventTimer;
             }
         }
