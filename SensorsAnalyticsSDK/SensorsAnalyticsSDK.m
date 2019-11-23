@@ -73,7 +73,7 @@
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
 
-#define VERSION @"1.11.14-pre"
+#define VERSION @"1.11.15-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
