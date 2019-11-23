@@ -7,12 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4D017F4822E7108000492D75 /* SADataEncryptBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D017F4622E7108000492D75 /* SADataEncryptBuilder.h */; };
-		4D017F4922E7108000492D75 /* SADataEncryptBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D017F4722E7108000492D75 /* SADataEncryptBuilder.m */; };
 		4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188E22978F5B00F6B218 /* ElementViewController.m */; };
 		4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */; };
-		656D61F022EC453100E0DA06 /* SAEncryptUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 656D61EE22EC453100E0DA06 /* SAEncryptUtils.m */; };
-		656D61F122EC453100E0DA06 /* SAEncryptUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 656D61EF22EC453100E0DA06 /* SAEncryptUtils.h */; };
 		CB30C03F22840EC00004061D /* SATypeDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD222840EBF0004061D /* SATypeDescription.m */; };
 		CB30C04022840EC00004061D /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD322840EBF0004061D /* SASecurityPolicy.m */; };
 		CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD522840EBF0004061D /* NSString+HashCode.m */; };
@@ -144,14 +140,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4D017F4622E7108000492D75 /* SADataEncryptBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADataEncryptBuilder.h; sourceTree = "<group>"; };
-		4D017F4722E7108000492D75 /* SADataEncryptBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADataEncryptBuilder.m; sourceTree = "<group>"; };
 		4D6A188E22978F5B00F6B218 /* ElementViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElementViewController.m; sourceTree = "<group>"; };
 		4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtilsTest.m; sourceTree = "<group>"; };
 		4D6A189022978F5B00F6B218 /* ElementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElementViewController.h; sourceTree = "<group>"; };
 		4D8CE4C622E872B400829B29 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		656D61EE22EC453100E0DA06 /* SAEncryptUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAEncryptUtils.m; sourceTree = "<group>"; };
-		656D61EF22EC453100E0DA06 /* SAEncryptUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAEncryptUtils.h; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30BFD222840EBF0004061D /* SATypeDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATypeDescription.m; sourceTree = "<group>"; };
 		CB30BFD322840EBF0004061D /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
@@ -301,17 +293,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4D017F3F22E70A7D00492D75 /* Encrypt */ = {
-			isa = PBXGroup;
-			children = (
-				656D61EF22EC453100E0DA06 /* SAEncryptUtils.h */,
-				656D61EE22EC453100E0DA06 /* SAEncryptUtils.m */,
-				4D017F4622E7108000492D75 /* SADataEncryptBuilder.h */,
-				4D017F4722E7108000492D75 /* SADataEncryptBuilder.m */,
-			);
-			name = Encrypt;
-			sourceTree = "<group>";
-		};
 		4D6A188D22978F5B00F6B218 /* AutoTrack */ = {
 			isa = PBXGroup;
 			children = (
@@ -359,7 +340,6 @@
 				CB30C03422840EBF0004061D /* VisualizedAutoTrack */,
 				CB6EBB7622857B4E003CFBA8 /* AutoTrack */,
 				CB30C0AE228410620004061D /* Network */,
-				4D017F3F22E70A7D00492D75 /* Encrypt */,
 				CB30C00F22840EBF0004061D /* SAJSONUtil.h */,
 				CB30BFEA22840EBF0004061D /* SAJSONUtil.m */,
 				CB30C03122840EBF0004061D /* MessageQueueBySqlite.h */,
@@ -547,7 +527,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				656D61F122EC453100E0DA06 /* SAEncryptUtils.h in Headers */,
 				CB30C06E22840EC00004061D /* SensorsAnalyticsSDK.h in Headers */,
 				CB30C05922840EC00004061D /* SAConfigOptions.h in Headers */,
 				CB30C07822840EC00004061D /* SASecurityPolicy.h in Headers */,
@@ -598,7 +577,6 @@
 				CB30C0A922840EC00004061D /* SAValueTransformers.h in Headers */,
 				CB30C04322840EC00004061D /* UIView+SAHelpers.h in Headers */,
 				CB30C05522840EC00004061D /* NSObject+SensorsAnalyticsDelegate.h in Headers */,
-				4D017F4822E7108000492D75 /* SADataEncryptBuilder.h in Headers */,
 				CB30C09122840EC00004061D /* SAAbstractHeatMapMessage.h in Headers */,
 				CB30C09C22840EC00004061D /* SAAlertController.h in Headers */,
 				CB30C04E22840EC00004061D /* SAAbstractDesignerMessage.h in Headers */,
@@ -794,11 +772,9 @@
 				CB30C0A022840EC00004061D /* SAVisualizedAutoTrackSnapshotMessage.m in Sources */,
 				CB30C07422840EC00004061D /* UIView+SAHelpers.m in Sources */,
 				CB30C06422840EC00004061D /* SAAppExtensionDataManager.m in Sources */,
-				4D017F4922E7108000492D75 /* SADataEncryptBuilder.m in Sources */,
 				CB30C06722840EC00004061D /* SAEnumDescription.m in Sources */,
 				CB6EBB9E22857BC0003CFBA8 /* UIApplication+AutoTrack.m in Sources */,
 				CB30C05D22840EC00004061D /* SAAlertController.m in Sources */,
-				656D61F022EC453100E0DA06 /* SAEncryptUtils.m in Sources */,
 				CB30C06C22840EC00004061D /* MessageQueueBySqlite.m in Sources */,
 				CB30C04F22840EC00004061D /* SAObjectSelector.m in Sources */,
 			);
