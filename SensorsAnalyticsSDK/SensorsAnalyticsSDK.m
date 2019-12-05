@@ -2843,9 +2843,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-        _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
-        [properties addEntriesFromDictionary:_lastScreenTrackProperties];
+        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
+        [properties addEntriesFromDictionary:trackProperties];
     }
+    _lastScreenTrackProperties = [properties copy];
 
     NSString *currentScreenUrl;
     if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
