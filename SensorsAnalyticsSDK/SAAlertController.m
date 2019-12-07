@@ -64,7 +64,7 @@
         _actions = [NSMutableArray arrayWithCapacity:4];
         
         if (NSClassFromString(@"UIAlertController")) {
-            UIWindow *alertWindow = [self getAlertWindow];
+            UIWindow *alertWindow = [self currentAlertWindow];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
             alertWindow.rootViewController = self;
             alertWindow.hidden = NO;
@@ -208,7 +208,7 @@
     [sheet showInView:self.alertWindow];
 }
 
-- (UIWindow *)getAlertWindow {
+- (UIWindow *)currentAlertWindow {
     if (@available(iOS 13.0, *)) {
         UIWindowScene *scene = [self windowScene];
         if (scene) {
