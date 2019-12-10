@@ -22,6 +22,10 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#ifndef __IPHONE_13_0
+#define __IPHONE_13_0 130000
+#endif
+
 #import "SAAlertController.h"
 
 #pragma mark - SAAlertAction
@@ -209,24 +213,21 @@
 }
 
 - (UIWindow *)currentAlertWindow {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_13_0
     if (@available(iOS 13.0, *)) {
-        UIWindowScene *scene = [self windowScene];
+        __block UIWindowScene *scene = nil;
+        [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj isKindOfClass:[UIWindowScene class]]) {
+                scene = (UIWindowScene *)obj;
+                *stop = YES;
+            }
+        }];
         if (scene) {
             return [[UIWindow alloc] initWithWindowScene:scene];
         }
     }
+#endif
     return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-}
-
-- (nullable UIWindowScene *)windowScene  API_AVAILABLE(ios(13.0)) {
-    __block UIWindowScene *windowScene = nil;
-    [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([obj isKindOfClass:[UIWindowScene class]]) {
-            windowScene = (UIWindowScene *)obj;
-            *stop = YES;
-        }
-    }];
-    return windowScene;
 }
 
 #pragma mark - UIAlertViewDelegate
