@@ -283,9 +283,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
             
             dispatch_block_t mainThreadBlock = ^(){
-                UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
                 //判断被动启动
-                if (applicationState == UIApplicationStateBackground) {
+                if (UIApplication.sharedApplication.backgroundTimeRemaining != UIApplicationBackgroundFetchIntervalNever) {
                     self->_launchedPassively = YES;
                 }
             };
@@ -3071,8 +3070,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SADebug(@"%@ application will enter foreground", self);
     
-    _appRelaunched = YES;
-    self.launchedPassively = NO;
+    if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
+        _appRelaunched = YES;
+        self.launchedPassively = NO;
+    }
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
