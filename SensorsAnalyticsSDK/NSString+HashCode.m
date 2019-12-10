@@ -34,7 +34,8 @@
         char *unicode = (char *)[s cStringUsingEncoding:NSUnicodeStringEncoding];
         int charactorUnicode = 0;
 
-        size_t length = strnlen(unicode, __LONG_MAX__);
+        // UTF-8 单个字符最大长度 4 个字节
+        size_t length = strnlen(unicode, 4);
         for (int n = 0; n < length; n ++) {
             charactorUnicode += (int)((unicode[n] & 0xff) << (n * sizeof(char) * 8));
         }
