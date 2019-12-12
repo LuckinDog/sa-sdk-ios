@@ -472,7 +472,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
-    static NSSet *blacklistedClasses = nil;
+    static NSSet *publicClasses = nil;
+    static NSSet *privateClasses = nil;
     static dispatch_once_t onceToken;
 
     dispatch_once(&onceToken, ^{
@@ -481,18 +482,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
         @try {
-            NSArray *blacklistedViewControllerClassNames = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
-            blacklistedClasses = [NSSet setWithArray:blacklistedViewControllerClassNames];
+            NSDictionary *ignoredClasses = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
+            publicClasses = [NSSet setWithArray:ignoredClasses[@"public"]];
+            privateClasses = [NSSet setWithArray:ignoredClasses[@"private"]];
         } @catch(NSException *exception) {  // json加载和解析可能失败
             SAError(@"%@ error: %@", self, exception);
         }
     });
 
     __block BOOL isContains = NO;
-    [blacklistedClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
-        NSString *blackClassName = (NSString *)obj;
-        Class blackClass = NSClassFromString(blackClassName);
-        if (blackClass && [viewController isKindOfClass:blackClass]) {
+    
+    //check public ignored classes contains viewController or not
+    [publicClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
+        NSString *ignoreClass = (NSString *)obj;
+        if ([viewController isKindOfClass:NSClassFromString(ignoreClass)]) {
+            isContains = YES;
+            *stop = YES;
+        }
+    }];
+    
+    if (isContains) {
+        return isContains;
+    }
+    
+    //check private ignored classes contains viewController or not
+    [privateClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
+        NSString *ignoreClass = (NSString *)obj;
+        if ([ignoreClass isEqualToString:NSStringFromClass([viewController class])]) {
             isContains = YES;
             *stop = YES;
         }
