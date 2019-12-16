@@ -489,31 +489,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SAError(@"%@ error: %@", self, exception);
         }
     });
-
-    __block BOOL isContains = NO;
     
     //check public ignored classes contains viewController or not
-    [publicClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
-        NSString *ignoreClass = (NSString *)obj;
+    for (NSString *ignoreClass in publicClasses) {
         if ([viewController isKindOfClass:NSClassFromString(ignoreClass)]) {
-            isContains = YES;
-            *stop = YES;
+            return YES;
         }
-    }];
-    
-    if (isContains) {
-        return isContains;
     }
     
     //check private ignored classes contains viewController or not
-    [privateClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
-        NSString *ignoreClass = (NSString *)obj;
+    for (NSString *ignoreClass in privateClasses) {
         if ([ignoreClass isEqualToString:NSStringFromClass([viewController class])]) {
-            isContains = YES;
-            *stop = YES;
+            return YES;
         }
-    }];
-    return isContains;
+    }
+    //neither public nor private ignore classes, then return NO
+    return NO;
 }
 
 - (NSDictionary *)getPresetProperties {

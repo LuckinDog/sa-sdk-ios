@@ -14,7 +14,6 @@
     ],
     "private": [
         "SFBrowserRemoteViewController",
-        "UIAlertController",
         "UIInputWindowController",
         "UIKeyboardCandidateGridCollectionViewController",
         "UICompatibilityInputViewController",
