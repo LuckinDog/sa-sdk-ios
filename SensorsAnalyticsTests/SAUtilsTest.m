@@ -65,6 +65,12 @@
     int code8= [chTest6 sensorsdata_hashCode];
     BOOL equele3 = code7 == code8;
     XCTAssertTrue(equele3);
+
+    NSString *chTest7 = @"🔥sd🙂哈哈😆👌@#🐶";
+    int code9= [chTest7 sensorsdata_hashCode];
+    int code10= [chTest7 sensorsdata_hashCode];
+    BOOL equele4 = code9 == code10;
+    XCTAssertTrue(equele4);
 }
 
 - (void)testStrnlenFunction {
