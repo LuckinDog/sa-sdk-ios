@@ -10,6 +10,7 @@
         "UIImagePickerController",
         "UIDocumentMenuViewController",
         "UIActivityViewController",
+        "SLComposeViewController",
         "UISplitViewController"
     ],
     "private": [
@@ -53,7 +54,6 @@
         "DDParsecNoDataViewController",
         "CAMPreviewViewController",
         "DDParsecCollectionViewController",
-        "SLComposeViewController",
         "DDParsecRemoteCollectionViewController",
         "AVFullScreenPlaybackControlsViewController",
         "PLPhotoTileViewController",
