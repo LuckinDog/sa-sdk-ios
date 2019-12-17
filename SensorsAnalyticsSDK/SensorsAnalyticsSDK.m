@@ -340,7 +340,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
             
-            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^device_id$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
             
             NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick)|(SignUp))|(^AppCrashed)$";
@@ -1387,7 +1387,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 #pragma mark - track event
 
-- (BOOL) isValidName : (NSString *) name {
+- (BOOL)isValidName:(NSString *)name {
     @try {
         if (_deviceModel == nil) {
             _deviceModel = [self deviceModel];
