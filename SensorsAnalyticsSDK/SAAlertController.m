@@ -22,10 +22,6 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#ifndef __IPHONE_13_0
-#define __IPHONE_13_0 130000
-#endif
-
 #import "SAAlertController.h"
 
 #pragma mark - SAAlertAction
@@ -213,7 +209,7 @@
 }
 
 - (UIWindow *)currentAlertWindow {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_13_0
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
     if (@available(iOS 13.0, *)) {
         __block UIWindowScene *scene = nil;
         [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
