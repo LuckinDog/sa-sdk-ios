@@ -50,6 +50,9 @@
     id coercedObj = [self JSONSerializableObjectForObject:obj];
     NSError *error = nil;
     NSData *data = nil;
+    if (![NSJSONSerialization isValidJSONObject:coercedObj]) {
+        return data;
+    }
     @try {
         data = [NSJSONSerialization dataWithJSONObject:coercedObj options:0 error:&error];
     }
