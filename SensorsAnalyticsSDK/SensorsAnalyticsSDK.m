@@ -2827,7 +2827,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackViewScreen:controller properties:nil];
 }
 
-- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties_ {
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties {
     if (!controller) {
         return;
     }
@@ -2836,17 +2836,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
+    
+    if (properties) {
+        [eventProperties addEntriesFromDictionary:properties];
+    }
 
-    NSDictionary *dic = [SAAutoTrackUtils propertiesWithViewController:controller];
-    [properties addEntriesFromDictionary:dic];
+    NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:controller];
+    [eventProperties addEntriesFromDictionary:autoTrackProperties];
 
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
         NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
-        [properties addEntriesFromDictionary:trackProperties];
+        [eventProperties addEntriesFromDictionary:trackProperties];
     }
-    _lastScreenTrackProperties = [properties copy];
+    _lastScreenTrackProperties = [eventProperties copy];
 
     NSString *currentScreenUrl;
     if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
@@ -2854,15 +2858,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         currentScreenUrl = [screenAutoTrackerController getScreenUrl];
     }
     currentScreenUrl = [currentScreenUrl isKindOfClass:NSString.class] ? currentScreenUrl : NSStringFromClass(controller.class);
-    [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
+    [eventProperties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
     @synchronized(_referrerScreenUrl) {
         if (_referrerScreenUrl) {
-            [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
+            [eventProperties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
         }
         _referrerScreenUrl = currentScreenUrl;
     }
-    [properties addEntriesFromDictionary:properties_];
-    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+    
+    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
