@@ -1061,9 +1061,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackAppStart {
-    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
-        return;
-    }
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
@@ -1071,6 +1068,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
+    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
+        return;
+    }
+
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
