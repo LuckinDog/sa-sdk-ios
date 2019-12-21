@@ -225,7 +225,7 @@ static NSString* sa_encryptHelper(id input) {
 @implementation UITableViewCell (SAHelpers)
 - (NSString *)sa_indexPath {
     UITableView *tableView = (UITableView *)[self superview];
-    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]) {
+    if ([NSStringFromClass([tableView class]) isEqualToString:@"UITableViewWrapperView"]) {
         tableView = (UITableView *)[tableView superview];
     }
     if ([tableView isKindOfClass:UITableView.class]) {
@@ -258,7 +258,7 @@ static NSString* sa_encryptHelper(id input) {
 @implementation UITableViewHeaderFooterView (SAHelpers)
 - (NSString *)sa_section {
     UITableView *tableView = (UITableView *)[self superview];
-    if([tableView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")]) {
+    if ([NSStringFromClass([tableView class]) isEqualToString:@"UITableViewWrapperView"]) {
         tableView = (UITableView *)[tableView superview];
     }
     if ([tableView isKindOfClass:UITableView.class]) {
