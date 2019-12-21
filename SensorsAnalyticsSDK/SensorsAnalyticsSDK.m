@@ -472,7 +472,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
-    static NSSet *blacklistedClasses = nil;
+    static NSSet *publicClasses = nil;
+    static NSSet *privateClasses = nil;
     static dispatch_once_t onceToken;
 
     dispatch_once(&onceToken, ^{
@@ -481,23 +482,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
         @try {
-            NSArray *blacklistedViewControllerClassNames = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
-            blacklistedClasses = [NSSet setWithArray:blacklistedViewControllerClassNames];
+            NSDictionary *ignoredClasses = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
+            publicClasses = [NSSet setWithArray:ignoredClasses[@"public"]];
+            privateClasses = [NSSet setWithArray:ignoredClasses[@"private"]];
         } @catch(NSException *exception) {  // json加载和解析可能失败
             SAError(@"%@ error: %@", self, exception);
         }
     });
-
-    __block BOOL isContains = NO;
-    [blacklistedClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
-        NSString *blackClassName = (NSString *)obj;
-        Class blackClass = NSClassFromString(blackClassName);
-        if (blackClass && [viewController isKindOfClass:blackClass]) {
-            isContains = YES;
-            *stop = YES;
+    
+    //check public ignored classes contains viewController or not
+    for (NSString *ignoreClass in publicClasses) {
+        if ([viewController isKindOfClass:NSClassFromString(ignoreClass)]) {
+            return YES;
         }
-    }];
-    return isContains;
+    }
+    
+    //check private ignored classes contains viewController or not
+    for (NSString *ignoreClass in privateClasses) {
+        if ([ignoreClass isEqualToString:NSStringFromClass([viewController class])]) {
+            return YES;
+        }
+    }
+    //neither public nor private ignore classes, then return NO
+    return NO;
 }
 
 - (NSDictionary *)getPresetProperties {
