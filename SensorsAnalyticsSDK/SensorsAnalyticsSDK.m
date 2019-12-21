@@ -365,6 +365,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self startAppEndTimer];
             [self setUpListeners];
             
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self autoTrackAppStart];
+            });
+
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
@@ -1057,6 +1061,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackAppStart {
+    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
+        return;
+    }
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
@@ -1064,11 +1071,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-
-    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
-        return;
-    }
-
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
@@ -2770,12 +2772,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setUpListeners {
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    
-    [notificationCenter addObserver:self
-                           selector:@selector(applicationDidFinishLaunching:)
-                               name:UIApplicationDidFinishLaunchingNotification
-                             object:nil];
-    
+
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
                                name:UIApplicationWillEnterForegroundNotification
@@ -3057,14 +3054,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
-    }
-}
-
-- (void)applicationDidFinishLaunching:(NSNotification *)notification {
-    SADebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
-    if (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
-        //全埋点
-        [self autoTrackAppStart];
     }
 }
 
