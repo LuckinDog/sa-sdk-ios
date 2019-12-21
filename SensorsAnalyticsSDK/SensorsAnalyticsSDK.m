@@ -2837,10 +2837,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
-    
-    if (properties) {
-        [eventProperties addEntriesFromDictionary:properties];
-    }
 
     NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:controller];
     [eventProperties addEntriesFromDictionary:autoTrackProperties];
@@ -2864,6 +2860,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventProperties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
         }
         _referrerScreenUrl = currentScreenUrl;
+    }
+    
+    if (properties) {
+        [eventProperties addEntriesFromDictionary:properties];
+        NSMutableDictionary *tempProperties = [NSMutableDictionary dictionaryWithDictionary: _lastScreenTrackProperties];
+        [tempProperties addEntriesFromDictionary:properties];
+        _lastScreenTrackProperties = [tempProperties copy];
     }
     
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
