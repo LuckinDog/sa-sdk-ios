@@ -2834,7 +2834,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackViewScreen:controller properties:nil];
 }
 
-- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties_ {
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties {
     if (!controller) {
         return;
     }
@@ -2843,16 +2843,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
 
-    NSDictionary *dic = [SAAutoTrackUtils propertiesWithViewController:controller];
-    [properties addEntriesFromDictionary:dic];
+    NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:controller];
+    [eventProperties addEntriesFromDictionary:autoTrackProperties];
 
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-        _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
-        [properties addEntriesFromDictionary:_lastScreenTrackProperties];
+        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
+        [eventProperties addEntriesFromDictionary:trackProperties];
     }
+    _lastScreenTrackProperties = [eventProperties copy];
 
     NSString *currentScreenUrl;
     if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
@@ -2860,15 +2861,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         currentScreenUrl = [screenAutoTrackerController getScreenUrl];
     }
     currentScreenUrl = [currentScreenUrl isKindOfClass:NSString.class] ? currentScreenUrl : NSStringFromClass(controller.class);
-    [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
+    [eventProperties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
     @synchronized(_referrerScreenUrl) {
         if (_referrerScreenUrl) {
-            [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
+            [eventProperties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
         }
         _referrerScreenUrl = currentScreenUrl;
     }
-    [properties addEntriesFromDictionary:properties_];
-    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+    
+    if (properties) {
+        [eventProperties addEntriesFromDictionary:properties];
+        NSMutableDictionary *tempProperties = [NSMutableDictionary dictionaryWithDictionary: _lastScreenTrackProperties];
+        [tempProperties addEntriesFromDictionary:properties];
+        _lastScreenTrackProperties = [tempProperties copy];
+    }
+    
+    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
