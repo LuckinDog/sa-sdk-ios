@@ -26,16 +26,19 @@
 #import "SAJSONUtil.h"
 #import "SALogger.h"
 
-@implementation SAJSONUtil {
-    NSDateFormatter *_dateFormatter;
-}
+@implementation SAJSONUtil
 
-- (instancetype)init {
-    self = [super init];
-    _dateFormatter = [[NSDateFormatter alloc] init];
-    [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
-    [_dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
-    return self;
++ (NSDateFormatter *)dateFormatter:(BOOL)isDayFormatter {
+    static NSDateFormatter *dateFormatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+    });
+    if (dateFormatter) {
+        [dateFormatter setDateFormat:isDayFormatter ? @"yyyy-MM-dd" : @"yyyy-MM-dd HH:mm:ss.SSS"];
+    }
+    return dateFormatter;
 }
 
 /**
@@ -124,7 +127,8 @@
     }
     // some common cases
     if ([newObj isKindOfClass:[NSDate class]]) {
-        return [_dateFormatter stringFromDate:newObj];
+        NSDateFormatter *dateFormatter = [SAJSONUtil dateFormatter:NO];
+        return [dateFormatter stringFromDate:newObj];
     }
     // default to sending the object's description
     NSString *s = [newObj description];
