@@ -73,7 +73,7 @@ static void *SAAllocBufferForObjCType(const char *objCType)
 - (void)sa_setArgument:(id)argumentValue atIndex:(NSUInteger)index
 {
     const char *argumentType = [self.methodSignature getArgumentTypeAtIndex:index];
-    if ([argumentValue isKindOfClass:[NSNumber class]] && strnlen(argumentType, [self.methodSignature frameLength]) == 1) {
+    if ([argumentValue isKindOfClass:[NSNumber class]] && strnlen(argumentType, 8) == 1) {
         // Deal with NSNumber instances (converting to primitive numbers)
         NSNumber *numberArgument = argumentValue;
 
@@ -153,7 +153,7 @@ static void *SAAllocBufferForObjCType(const char *objCType)
 
     [self getReturnValue:buffer];
 
-    if (strnlen(objCType, [methodSignature frameLength]) == 1) {
+    if (strnlen(objCType, 8) == 1) {
         switch (objCType[0])
         {
             case _C_CHR:      returnValue = @(*((char *)buffer));                   break;
