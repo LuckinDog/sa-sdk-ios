@@ -122,8 +122,7 @@
     NSMutableArray *classHierarchy = [[NSMutableArray alloc] init];
 
     Class aClass = [object class];
-    while (aClass)
-    {
+    while (aClass) {
         [classHierarchy addObject:NSStringFromClass(aClass)];
         aClass = [aClass superclass];
     }
@@ -175,8 +174,7 @@
         const void *objectBaseAddress = (__bridge const void *)object;
         const void *ivarAddress = (((const uint8_t *)objectBaseAddress) + ivarOffset);
 
-        switch (objCType[0])
-        {
+        switch (objCType[0]) {
             case _C_ID:       return object_getIvar(object, ivar);
             case _C_CHR:      return @(*((char *)ivarAddress));
             case _C_UCHR:     return @(*((unsigned char *)ivarAddress));
@@ -222,18 +220,14 @@
 
 - (id)propertyValue:(id)propertyValue
 propertyDescription:(SAPropertyDescription *)propertyDescription
-            context:(SAObjectSerializerContext *)context {
+context : (SAObjectSerializerContext *)context {
     if (propertyValue != nil) {
         if ([context isVisitedObject:propertyValue]) {
             return [_objectIdentityProvider identifierForObject:propertyValue];
-        }
-        else if ([self isNestedObjectType:propertyDescription.type])
-        {
+        } else if ([self isNestedObjectType:propertyDescription.type]) {
             [context enqueueUnvisitedObject:propertyValue];
             return [_objectIdentityProvider identifierForObject:propertyValue];
-        }
-        else if ([propertyValue isKindOfClass:[NSArray class]] || [propertyValue isKindOfClass:[NSSet class]])
-        {
+        } else if ([propertyValue isKindOfClass:[NSArray class]] || [propertyValue isKindOfClass:[NSSet class]]) {
             NSMutableArray *arrayOfIdentifiers = [[NSMutableArray alloc] init];
             for (id value in propertyValue) {
                 if ([context isVisitedObject:value] == NO) {
@@ -337,7 +331,6 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
             }
         }
     }
-    
 
     return @{@"values": values};
 }
