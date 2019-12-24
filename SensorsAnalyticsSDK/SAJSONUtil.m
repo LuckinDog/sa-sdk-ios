@@ -115,7 +115,7 @@
     }
     // some common cases
     if ([newObj isKindOfClass:[NSDate class]]) {
-        NSDateFormatter *dateFormatter = [SADateFormatter dateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
+        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
         return [dateFormatter stringFromDate:newObj];
     }
     // default to sending the object's description

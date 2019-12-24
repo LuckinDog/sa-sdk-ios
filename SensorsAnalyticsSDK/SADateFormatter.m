@@ -26,7 +26,7 @@
 
 @implementation SADateFormatter
 
-+ (NSDateFormatter *)dateFormat:(NSString *)format {
++ (NSDateFormatter *)dateFormatterFromString:(NSString *)string {
     static NSDateFormatter *dateFormatter;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -34,7 +34,7 @@
         [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
     });
     if (dateFormatter) {
-        [dateFormatter setDateFormat:format];
+        [dateFormatter setDateFormat:string];
     }
     return dateFormatter;
 }

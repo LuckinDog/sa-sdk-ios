@@ -32,11 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 *  @abstract
 *  获取 NSDateFormatter 单例对象
 *
-*  @param format 日期格式
+*  @param string 日期格式
 *
 *  @return 返回 NSDateFormatter 单例对象
 */
-+ (NSDateFormatter *)dateFormat:(NSString *)format;
++ (NSDateFormatter *)dateFormatterFromString:(NSString *)string;
 
 @end
 

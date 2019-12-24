@@ -351,7 +351,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self unarchive];
             
             if (self.firstDay == nil) {
-                NSDateFormatter *dateFormatter = [SADateFormatter dateFormat:@"yyyy-MM-dd"];
+                NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
                 self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
                 [self archiveFirstDay];
             }
@@ -666,7 +666,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isFirstDay {
-    NSDateFormatter *dateFormatter = [SADateFormatter dateFormat:@"yyyy-MM-dd"];
+    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
     NSString *current = [dateFormatter stringFromDate:[NSDate date]];
 
     return [[self firstDay] isEqualToString:current];
@@ -1618,7 +1618,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
                         // 序列化所有 NSDate 类型
-                        NSDateFormatter *dateFormatter = [SADateFormatter dateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
+                        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
                         NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
                         [p setObject:dateStr forKey:key];
                     } else {
