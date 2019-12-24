@@ -220,7 +220,7 @@
 
 - (id)propertyValue:(id)propertyValue
 propertyDescription:(SAPropertyDescription *)propertyDescription
-context : (SAObjectSerializerContext *)context {
+context: (SAObjectSerializerContext *)context {
     if (propertyValue != nil) {
         if ([context isVisitedObject:propertyValue]) {
             return [_objectIdentityProvider identifierForObject:propertyValue];
