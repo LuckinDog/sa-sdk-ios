@@ -23,16 +23,6 @@
 @interface SAJSONUtil : NSObject
 
 /**
-*  @abstract
-*  获取 NSDateFormatter 单例对象
-*
-*  @param isDayFormatter 是否为天数格式化
-*
-*  @return 返回 NSDateFormatter 单例对象
-*/
-+ (NSDateFormatter *)dateFormatter:(BOOL)isDayFormatter;
-
-/**
  *  @abstract
  *  把一个Object转成Json字符串
  *

@@ -25,21 +25,9 @@
 
 #import "SAJSONUtil.h"
 #import "SALogger.h"
+#import "SADateFormatter.h"
 
 @implementation SAJSONUtil
-
-+ (NSDateFormatter *)dateFormatter:(BOOL)isDayFormatter {
-    static NSDateFormatter *dateFormatter;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
-    });
-    if (dateFormatter) {
-        [dateFormatter setDateFormat:isDayFormatter ? @"yyyy-MM-dd" : @"yyyy-MM-dd HH:mm:ss.SSS"];
-    }
-    return dateFormatter;
-}
 
 /**
  *  @abstract
@@ -127,7 +115,7 @@
     }
     // some common cases
     if ([newObj isKindOfClass:[NSDate class]]) {
-        NSDateFormatter *dateFormatter = [SAJSONUtil dateFormatter:NO];
+        NSDateFormatter *dateFormatter = [SADateFormatter dateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
         return [dateFormatter stringFromDate:newObj];
     }
     // default to sending the object's description
