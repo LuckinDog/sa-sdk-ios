@@ -1434,47 +1434,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return [e copy];
     }
     NSMutableDictionary *event = [e mutableCopy];
-    
-    NSDictionary<NSString *, id> *originProperties = event[@"properties"];
-    // can only modify "$device_id"
-    NSArray *modifyKeys = @[SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
-    NSArray *returnKeys = @[SA_EVENT_PROPERTY_ELEMENT_ID,
-                            SA_EVENT_PROPERTY_SCREEN_NAME,
-                            SA_EVENT_PROPERTY_TITLE,
-                            SA_EVENT_PROPERTY_ELEMENT_POSITION,
-                            SA_EVENT_PROPERTY_ELEMENT_CONTENT,
-                            SA_EVENT_PROPERTY_ELEMENT_TYPE];
-    BOOL(^canModifyPropertyKeys)(NSString *key) = ^BOOL(NSString *key) {
-        return (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]);
-    };
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    // 添加可修改的事件属性
-    [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (canModifyPropertyKeys(key) || [returnKeys containsObject:key]) {
-            properties[key] = obj;
-        }
-    }];
-    BOOL isIncluded = self.trackEventCallback(event[@"event"], properties);
+    NSMutableDictionary<NSString *, id> *originProperties = event[@"properties"];
+    BOOL isIncluded = self.trackEventCallback(event[@"event"], originProperties);
     if (!isIncluded) {
         SALog(@"\n【track event】: %@ can not enter database.", event[@"event"]);
         return nil;
     }
     // 校验 properties
-    if (![self assertPropertyTypes:&properties withEventType:type]) {
+    if (![self assertPropertyTypes:&originProperties withEventType:type]) {
         SAError(@"%@ failed to track event.", self);
         return nil;
     }
-    // assert 可能修改 properties 的类型
-    properties = [properties mutableCopy];
-    // 添加不可修改的事件属性，得到修改之后的所有属性
-    [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (!canModifyPropertyKeys(key)) {
-            properties[key] = obj;
-        }
-    }];
-    // 对 properties 重新赋值
-    event[@"properties"] = properties;
-
     return event;
 }
 
