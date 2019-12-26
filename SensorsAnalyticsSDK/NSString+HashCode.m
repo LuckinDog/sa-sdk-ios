@@ -33,7 +33,8 @@
         NSString *s = [self substringWithRange:NSMakeRange(i, 1)];
         char *unicode = (char *)[s cStringUsingEncoding:NSUnicodeStringEncoding];
         int charactorUnicode = 0;
-        size_t length = strlen(unicode);
+
+        size_t length = strnlen(unicode, 4);
         for (int n = 0; n < length; n ++) {
             charactorUnicode += (int)((unicode[n] & 0xff) << (n * sizeof(char) * 8));
         }
