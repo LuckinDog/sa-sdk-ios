@@ -72,6 +72,7 @@
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
+#import "SADateFormatter.h"
 
 #define VERSION @"1.11.15"
 
@@ -226,7 +227,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @implementation SensorsAnalyticsSDK {
     SensorsAnalyticsDebugMode _debugMode;
-    NSDateFormatter *_dateFormatter;
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
     BOOL _shouldHeatMap;
@@ -329,9 +329,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
             _trackChannelEventNames = [[NSMutableSet alloc] init];
 
-            _dateFormatter = [[NSDateFormatter alloc] init];
-            [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
-            
              _trackTimer = [NSMutableDictionary dictionary];
             
             _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
@@ -353,8 +350,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self unarchive];
             
             if (self.firstDay == nil) {
-                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+                NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
                 self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
                 [self archiveFirstDay];
             }
@@ -676,8 +672,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isFirstDay {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
     NSString *current = [dateFormatter stringFromDate:[NSDate date]];
 
     return [[self firstDay] isEqualToString:current];
@@ -1593,7 +1588,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
                         // 序列化所有 NSDate 类型
-                        NSString *dateStr = [self->_dateFormatter stringFromDate:(NSDate *)obj];
+                        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+                        NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
                         [p setObject:dateStr forKey:key];
                     } else {
                         [p setObject:obj forKey:key];

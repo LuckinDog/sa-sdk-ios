@@ -125,6 +125,8 @@
 		CB6EBBA522857BC0003CFBA8 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */; };
 		CBE4DF03228AA1CB00DDE07D /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */; };
 		CBE4DF04228AA1CB00DDE07D /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */; };
+		FC9AEE0623B0D67700B9990F /* SADateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = FC9AEE0423B0D67700B9990F /* SADateFormatter.h */; };
+		FC9AEE0723B0D67700B9990F /* SADateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = FC9AEE0523B0D67700B9990F /* SADateFormatter.m */; };
 		FCBAF2A022FBCA3700D7CA38 /* SAWeakPropertyContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */; };
 		FCBAF2A122FBCA3700D7CA38 /* SAWeakPropertyContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = FCBAF29F22FBCA3700D7CA38 /* SAWeakPropertyContainer.m */; };
 /* End PBXBuildFile section */
@@ -263,6 +265,8 @@
 		CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
 		CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AutoTrack.h"; sourceTree = "<group>"; };
 		CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AutoTrack.m"; sourceTree = "<group>"; };
+		FC9AEE0423B0D67700B9990F /* SADateFormatter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADateFormatter.h; sourceTree = "<group>"; };
+		FC9AEE0523B0D67700B9990F /* SADateFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADateFormatter.m; sourceTree = "<group>"; };
 		FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAWeakPropertyContainer.h; sourceTree = "<group>"; };
 		FCBAF29F22FBCA3700D7CA38 /* SAWeakPropertyContainer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAWeakPropertyContainer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -415,6 +419,8 @@
 				CB30C00722840EBF0004061D /* UIView+SAHelpers.m */,
 				FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */,
 				FCBAF29F22FBCA3700D7CA38 /* SAWeakPropertyContainer.m */,
+				FC9AEE0423B0D67700B9990F /* SADateFormatter.h */,
+				FC9AEE0523B0D67700B9990F /* SADateFormatter.m */,
 			);
 			path = SensorsAnalyticsSDK;
 			sourceTree = "<group>";
@@ -551,6 +557,7 @@
 				CB30C05C22840EC00004061D /* SALocationManager.h in Headers */,
 				CB30C06D22840EC00004061D /* SANetwork.h in Headers */,
 				CB30C32922843E740004061D /* SAApplicationStateSerializer.h in Headers */,
+				FC9AEE0623B0D67700B9990F /* SADateFormatter.h in Headers */,
 				CB30C08D22840EC00004061D /* SASwizzler.h in Headers */,
 				CBE4DF03228AA1CB00DDE07D /* UIViewController+AutoTrack.h in Headers */,
 				CB30C07022840EC00004061D /* SADesignerMessage.h in Headers */,
@@ -772,6 +779,7 @@
 				CB30C0A022840EC00004061D /* SAVisualizedAutoTrackSnapshotMessage.m in Sources */,
 				CB30C07422840EC00004061D /* UIView+SAHelpers.m in Sources */,
 				CB30C06422840EC00004061D /* SAAppExtensionDataManager.m in Sources */,
+				FC9AEE0723B0D67700B9990F /* SADateFormatter.m in Sources */,
 				CB30C06722840EC00004061D /* SAEnumDescription.m in Sources */,
 				CB6EBB9E22857BC0003CFBA8 /* UIApplication+AutoTrack.m in Sources */,
 				CB30C05D22840EC00004061D /* SAAlertController.m in Sources */,
