@@ -32,11 +32,4 @@
  */
 - (NSData *)JSONSerializeObject:(id)obj;
 
-/**
- *  初始化
- *
- *  @return 初始化后的对象
- */
-- (instancetype)init;
-
 @end

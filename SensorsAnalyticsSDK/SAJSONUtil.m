@@ -25,18 +25,9 @@
 
 #import "SAJSONUtil.h"
 #import "SALogger.h"
+#import "SADateFormatter.h"
 
-@implementation SAJSONUtil {
-    NSDateFormatter *_dateFormatter;
-}
-
-- (instancetype)init {
-    self = [super init];
-    _dateFormatter = [[NSDateFormatter alloc] init];
-    [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
-    [_dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
-    return self;
-}
+@implementation SAJSONUtil
 
 /**
  *  @abstract
@@ -124,7 +115,8 @@
     }
     // some common cases
     if ([newObj isKindOfClass:[NSDate class]]) {
-        return [_dateFormatter stringFromDate:newObj];
+        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+        return [dateFormatter stringFromDate:newObj];
     }
     // default to sending the object's description
     NSString *s = [newObj description];
