@@ -74,7 +74,7 @@
 #import "SAWeakPropertyContainer.h"
 #import "SADateFormatter.h"
 
-#define VERSION @"1.11.15-pre"
+#define VERSION @"1.11.16-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
