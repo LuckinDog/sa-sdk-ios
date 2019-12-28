@@ -42,7 +42,7 @@ iOS 8.0 及以上，Xcode 9.0 及以上。
 
 ## 讨论
 
-可以扫码加入神策官方 SDK QQ 讨论群：<br><br>
+可以扫码加入神策开源 SDK QQ 讨论群，群号：785122381<br><br>
 ![ QQ 讨论群](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/qrCode.jpeg)
 
 ## 新书推荐
