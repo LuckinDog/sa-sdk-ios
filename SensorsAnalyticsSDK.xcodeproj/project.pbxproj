@@ -669,9 +669,10 @@
 		CB30BD4B22840CA40004061D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				CLASSPREFIX = SA;
 				LastSwiftUpdateCheck = 1020;
 				LastUpgradeCheck = 1020;
-				ORGANIZATIONNAME = SensorsData;
+				ORGANIZATIONNAME = "Sensors Data Co., Ltd";
 				TargetAttributes = {
 					CB30BD5322840CA40004061D = {
 						CreatedOnToolsVersion = 10.2.1;
