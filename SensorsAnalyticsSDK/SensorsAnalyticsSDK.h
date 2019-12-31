@@ -386,7 +386,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param event 事件名称
  */
-- (void)trackTimerStart:(NSString *)event;
+- (NSString *)trackTimerStart:(NSString *)event;
 
 /**
  结束事件计时
