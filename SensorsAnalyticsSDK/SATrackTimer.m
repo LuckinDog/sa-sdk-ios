@@ -52,7 +52,7 @@ static NSString *const eventIdSuffix = @"_SATimer";
 }
 
 #pragma mark - public methods
-- (NSString *)generateEventIdByEventName:(NSString *)eventName {
+- (nonnull NSString *)generateEventIdByEventName:(NSString *)eventName {
     NSString *eventId = eventName;
     if (eventId == nil || eventId.length == 0) {
         return eventId;
@@ -93,7 +93,7 @@ static NSString *const eventIdSuffix = @"_SATimer";
     [self handleEventResume:eventId mapping:self.eventNames currentSystemUpTime:currentSysUpTime];
 }
 
-- (NSString *)eventNameFromEventId:(NSString *)eventId {
+- (nonnull NSString *)eventNameFromEventId:(NSString *)eventId {
     if (![eventId hasSuffix:eventIdSuffix]) {
         return eventId;
     }
@@ -102,7 +102,7 @@ static NSString *const eventIdSuffix = @"_SATimer";
     return eventName;
 }
 
-- (NSNumber *)eventDurationFromEventId:(NSString *)eventId currentSysUpTime:(UInt64)currentSysUpTime {
+- (nullable NSNumber *)eventDurationFromEventId:(NSString *)eventId currentSysUpTime:(UInt64)currentSysUpTime {
     //为了保证获取事件时长的准确性，计算时长时需要从外部传入当前系统开机时间
     //事件计时 eventIds 表优先级更高，在 eventIds 表中查询不到时再查询 eventNames 表
     NSNumber *duration = [self handleEventDuration:eventId mapping:self.eventIds currentSystemUpTime:currentSysUpTime];
