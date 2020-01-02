@@ -61,7 +61,7 @@ static NSString *const eventIdSuffix = @"_SATimer";
         //生成计时事件的 eventId，结构为 {eventName}_{uuid}_SATimer
         //uuid 字符串中 ‘-’ 是不合法字符，替换为 ‘_’
         NSString *uuid = [NSUUID.UUID.UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
-        eventId = [NSString stringWithFormat:@"%@_%@_%@", eventName, uuid, eventIdSuffix];
+        eventId = [NSString stringWithFormat:@"%@_%@%@", eventName, uuid, eventIdSuffix];
     }
     return eventId;
 }
