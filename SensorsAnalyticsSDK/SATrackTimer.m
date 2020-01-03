@@ -34,7 +34,7 @@
 
 @implementation SATrackTimer
 
-static NSString *const eventIdSuffix = @"_SATimer";
+static NSString *const kEventIdSuffix = @"_SATimer";
 
 #pragma mark - properties lazy load
 - (NSMutableDictionary *)eventNames {
