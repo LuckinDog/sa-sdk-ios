@@ -52,7 +52,7 @@ static NSString *const eventIdSuffix = @"_SATimer";
 }
 
 #pragma mark - public methods
-- (nonnull NSString *)generateEventIdByEventName:(NSString *)eventName {
+- (NSString *)generateEventIdByEventName:(NSString *)eventName {
     NSString *eventId = eventName;
     if (eventId == nil || eventId.length == 0) {
         return eventId;
@@ -93,7 +93,7 @@ static NSString *const eventIdSuffix = @"_SATimer";
     [self handleEventResume:eventId mapping:self.eventNames currentSystemUpTime:currentSysUpTime];
 }
 
-- (nonnull NSString *)eventNameFromEventId:(NSString *)eventId {
+- (NSString *)eventNameFromEventId:(NSString *)eventId {
     if (![eventId hasSuffix:eventIdSuffix]) {
         return eventId;
     }
@@ -123,10 +123,18 @@ static NSString *const eventIdSuffix = @"_SATimer";
 - (void)resumeAllEventTimers:(UInt64)currentSysUpTime {
     // 遍历 trackTimer ,修改 eventBegin 为当前 currentSystemUpTime
     for (NSString *key in self.eventIds.allKeys) {
-        [self handleEventResume:key mapping:self.eventIds currentSystemUpTime:currentSysUpTime];
+        NSMutableDictionary *eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.eventIds[key]];
+        if (eventTimer) {
+            [eventTimer setValue:@(currentSysUpTime) forKey:@"eventBegin"];
+            self.eventIds[key] = eventTimer;
+        }
     }
     for (NSString *key in self.eventNames.allKeys) {
-        [self handleEventResume:key mapping:self.eventNames currentSystemUpTime:currentSysUpTime];
+        NSMutableDictionary *eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.eventNames[key]];
+        if (eventTimer) {
+            [eventTimer setValue:@(currentSysUpTime) forKey:@"eventBegin"];
+            self.eventNames[key] = eventTimer;
+        }
     }
 }
 
@@ -205,7 +213,19 @@ static NSString *const eventIdSuffix = @"_SATimer";
                 continue;
             }
         }
-        [self handleEventPause:key mapping:mapping currentSystemUpTime:currentSystemUpTime];
+        NSMutableDictionary *eventTimer = [[NSMutableDictionary alloc] initWithDictionary:mapping[key]];
+        if (eventTimer && ![eventTimer[@"isPause"] boolValue]) {
+            UInt64 eventBegin = [[eventTimer valueForKey:@"eventBegin"] longValue];
+            NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
+            SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
+            float eventDuration = [self eventTimerDurationWithCurrentTime:currentSystemUpTime eventStart:eventBegin timeUnit:timeUnit];
+            if (eventAccumulatedDuration) {
+                eventDuration += [eventAccumulatedDuration floatValue];
+            }
+            [eventTimer setObject:@(eventDuration) forKey:@"eventAccumulatedDuration"];
+            [eventTimer setObject:@(currentSystemUpTime) forKey:@"eventBegin"];
+            mapping[key] = eventTimer;
+        }
     }
 }
 

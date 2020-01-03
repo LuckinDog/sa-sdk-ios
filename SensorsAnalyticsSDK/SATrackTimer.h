@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param eventName 开始计时的事件名
  @return 计时事件的 eventId
 */
-- (nonnull NSString *)generateEventIdByEventName:(NSString *)eventName;
+- (NSString *)generateEventIdByEventName:(NSString *)eventName;
 
 #pragma mark - track timer for event
 /**
@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param eventId trackTimerStart: 返回的 ID 或事件名
  @return 计时事件的原始事件名
 */
-- (nonnull NSString *)eventNameFromEventId:(NSString *)eventId;
+- (NSString *)eventNameFromEventId:(NSString *)eventId;
 
 #pragma mark - operation all timing events
 /**
