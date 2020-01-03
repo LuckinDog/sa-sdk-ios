@@ -1840,7 +1840,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)clearTrackTimer {
     dispatch_async(self.serialQueue, ^{
-        [_trackTimer clearAllEventTimers];
+        [self.trackTimer clearAllEventTimers];
     });
 }
 
