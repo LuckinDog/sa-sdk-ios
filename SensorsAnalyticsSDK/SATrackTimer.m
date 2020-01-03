@@ -139,8 +139,8 @@ static NSString *const eventIdSuffix = @"_SATimer";
 }
 
 - (void)clearAllEventTimers {
-    self.eventNames = [NSMutableDictionary dictionary];
-    self.eventIds = [NSMutableDictionary dictionary];
+    [self.eventNames removeAllObjects];
+    [self.eventIds removeAllObjects];
 }
 
 #pragma mark - private methods
