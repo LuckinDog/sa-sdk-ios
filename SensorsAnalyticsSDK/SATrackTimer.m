@@ -121,7 +121,9 @@ static NSString *const eventIdSuffix = @"_SATimer";
 }
 
 - (void)resumeAllEventTimers:(UInt64)currentSysUpTime {
+    //当前逻辑只会在 App 进入到前台时调用
     // 遍历 trackTimer ,修改 eventBegin 为当前 currentSystemUpTime
+    //此处逻辑和恢复单个事件计时不同，恢复所有事件时不更改 isPause 状态，只修改事件开始时间 eventBegin
     for (NSString *key in self.eventIds.allKeys) {
         NSMutableDictionary *eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.eventIds[key]];
         if (eventTimer) {
@@ -213,6 +215,8 @@ static NSString *const eventIdSuffix = @"_SATimer";
                 continue;
             }
         }
+        //当前逻辑只会在 App 进入到后台时调用
+        //此处逻辑和暂停单个事件计时不同，暂停所有事件时不更改 isPause 状态，只累加已累计时长
         NSMutableDictionary *eventTimer = [[NSMutableDictionary alloc] initWithDictionary:mapping[key]];
         if (eventTimer && ![eventTimer[@"isPause"] boolValue]) {
             UInt64 eventBegin = [[eventTimer valueForKey:@"eventBegin"] longValue];
