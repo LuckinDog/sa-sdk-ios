@@ -387,7 +387,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param event 事件名称
  @return 返回计时事件的 eventId，用于交叉计时场景。普通计时可忽略
  */
-- (NSString *)trackTimerStart:(NSString *)event;
+- (nullable NSString *)trackTimerStart:(NSString *)event;
 
 /**
  结束事件计时

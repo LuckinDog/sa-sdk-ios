@@ -358,6 +358,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             self.automaticProperties = [self collectAutomaticProperties];
 
+            [self startAppEndTimer];
             [self setUpListeners];
             
             if (_configOptions.enableTrackAppCrash) {
@@ -1078,6 +1079,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+- (void)startAppEndTimer {
+    if ([self isLaunchedPassively]) {
+        return;
+    }
+
+    // 启动 AppEnd 事件计时器
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [self trackTimerStart:SA_EVENT_NAME_APP_END];
+    });
+}
+
 - (BOOL)isAutoTrackEnabled {
     if (sharedInstance.remoteConfig.disableSDK) {
         return NO;
@@ -1785,7 +1798,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return NO;
 }
 
-- (NSString *)trackTimerStart:(NSString *)event {
+- (nullable NSString *)trackTimerStart:(NSString *)event {
     if (![self checkEventName:event]) {
         return nil;
     }
@@ -1826,7 +1839,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)clearTrackTimer {
-    [_trackTimer clearAllEventTimers];
+    dispatch_async(self.serialQueue, ^{
+        [_trackTimer clearAllEventTimers];
+    });
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
