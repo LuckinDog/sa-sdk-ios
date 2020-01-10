@@ -1,5 +1,5 @@
 //
-//  SANetwork+URLUtils.m
+//  NSURL+URLUtils.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 张敏超 on 2019/4/18.
@@ -22,9 +22,9 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SANetwork+URLUtils.h"
+#import "NSURL+URLUtils.h"
 
-@implementation SANetwork (URLUtils)
+@implementation NSURL (URLUtils)
 
 + (NSString *)hostWithURL:(NSURL *)url {
     if (!url) {
