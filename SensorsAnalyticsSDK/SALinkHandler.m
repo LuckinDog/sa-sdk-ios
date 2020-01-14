@@ -149,15 +149,21 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
     //解析客户预留渠道信息字段
     NSMutableDictionary *custom = [NSMutableDictionary dictionary];
+    BOOL saveUtm = NO;
     for (NSString *key in dictionary) {
+        // URL 解析出来的 value 一定是 NSString 类型
+        NSString *value = dictionary[key];
         if ([self.presetUtms containsObject:key]) {
-            NSString *utmKey = [NSString stringWithFormat:@"$%@",key];
-            [utms setValue:dictionary[key] forKey:utmKey];
-            NSString *latestKey = [NSString stringWithFormat:@"$latest_%@",key];
-            [latest setValue:dictionary[key] forKey:latestKey];
+            saveUtm = YES;
+            if (![value isEqualToString:@""]) {
+                NSString *utmKey = [NSString stringWithFormat:@"$%@",key];
+                [utms setValue:value forKey:utmKey];
+                NSString *latestKey = [NSString stringWithFormat:@"$latest_%@",key];
+                [latest setValue:value forKey:latestKey];
+            }
         }
-        if ([self.customSourceChanels containsObject:key]) {
-            [custom setValue:dictionary[key] forKey:key];
+        if ([self.customSourceChanels containsObject:key] && ![value isEqualToString:@""]) {
+            [custom setValue:value forKey:key];
         }
     }
     // utms 和 custom utms 字段会在添加到第一个 $AppViewScreen 事件后清空
@@ -167,7 +173,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
     // latest utms 字段在 App 销毁前一直保存在内存中
     // 只有当解析的 latest utms 字段存在至少一个时，才覆盖当前内存及本地的 latest utms 内容
-    if (latest.allKeys.count > 0) {
+    if (saveUtm) {
         _latestUtms = latest;
         [self updateLocalLatestUtms];
     }
