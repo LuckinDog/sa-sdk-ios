@@ -48,6 +48,15 @@ NS_ASSUME_NONNULL_BEGIN
 */
 + (nullable id)unarchiveWithFileName:(nonnull NSString *)fileName;
 
+/**
+ @abstract
+ 获取文件路径
+
+ @param fileName 文件名
+ @return 文件全路径
+*/
++ (NSString *)filePath:(NSString *)fileName;
+
 @end
 
 NS_ASSUME_NONNULL_END

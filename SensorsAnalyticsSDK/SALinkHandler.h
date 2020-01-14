@@ -23,16 +23,20 @@
 #endif
 
 #import <Foundation/Foundation.h>
+#import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SALinkHandler : NSObject
 
-/// DeepLink 中解析出来的参数是否需要保存到本地
-@property (nonatomic, assign) BOOL enableSaveUtm;
+/**
+@abstract
+ 根据 ConfigOptions 初始化 Handler
 
-/// 客户自定义的需要解析的来源渠道信息属性列表
-@property (nonatomic, strong) NSArray *customSourceChanels;
+ @param configOptions SDK 初始化的 configOptions
+ @return Handler 对象
+*/
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions;
 
 /**
 @abstract
@@ -50,14 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
  @param url 被解析的 URL 对象
 */
 - (void)handleDeepLink:(NSURL *)url;
-
-/**
- @abstract
- 解析冷启动时 launchOptions 中的来源渠道信息
-
- @param launchOptions 冷启动时的 launchOptions
- */
-- (void)handleLaunchOptions:(NSDictionary *)launchOptions;
 
 /**
  @abstract

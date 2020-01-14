@@ -337,13 +337,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
              _trackTimer = [NSMutableDictionary dictionary];
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
-            _linkHandler = [[SALinkHandler alloc] init];
-            _linkHandler.enableSaveUtm = configOptions.enableSaveUtm;
-            _linkHandler.customSourceChanels = configOptions.sourceChannels;
-            // 解析 launchOptions 中 deeplink 相关信息
-            [_linkHandler handleLaunchOptions:configOptions.launchOptions];
+            _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
 
-            _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
+            _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
             if (self.messageQueue == nil) {
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
@@ -834,6 +830,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             //JS SDK Data add _hybrid_h5 flag
             [eventDict setValue:@(YES) forKey:SA_EVENT_HYBRID_H5];
 
+            // 添加 DeepLink 来源渠道参数。优先级最高，覆盖 H5 传过来的同名字段
+            [eventDict addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+
             NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
             if (!enqueueEvent) {
                 return;
@@ -1003,7 +1002,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)login:(NSString *)loginId {
-    [self login:loginId withProperties:[_linkHandler latestUtmProperties]];
+    [self login:loginId withProperties:nil];
 }
 
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
@@ -1022,7 +1021,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self archiveLoginId];
             if (![loginId isEqualToString:self.anonymousId]) {
                 self.originalId = self.anonymousId;
-                [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:properties withType:@"track_signup"];
+                NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
+                // 添加来源渠道信息
+                [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+                [eventProperties addEntriesFromDictionary:properties];
+                [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
             }
         }
     });
@@ -1432,14 +1435,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@: %@", self, exception);
         return NO;
     }
-}
-
-- (NSString *)filePathForData:(NSString *)data {
-    NSString *filename = [NSString stringWithFormat:@"sensorsanalytics-%@.plist", data];
-    NSString *filepath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
-            stringByAppendingPathComponent:filename];
-    SADebug(@"filepath for %@ is %@", data, filepath);
-    return filepath;
 }
 
 - (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
@@ -1980,15 +1975,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
             }
 
-            if (propertyDict != nil) {
-                [properties addEntriesFromDictionary:propertyDict];
-            }
+            // 添加 deepLink 来源渠道信息
+            NSMutableDictionary *eventProperties = [properties mutableCopy];
+            [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+            [eventProperties addEntriesFromDictionary:propertyDict];
 
             // 先发送 track
-            [self track:event withProperties:properties withType:@"track"];
+            [self track:event withProperties:eventProperties withType:@"track"];
 
             // 再发送 profile_set_once
             NSMutableDictionary *profileProperties = [properties mutableCopy];
+            [profileProperties addEntriesFromDictionary:propertyDict];
             [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
             [self track:nil withProperties:profileProperties withType:SA_PROFILE_SET_ONCE];
 
