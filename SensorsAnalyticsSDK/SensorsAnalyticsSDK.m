@@ -2739,7 +2739,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    [self trackViewScreen:controller];
+
+    // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
+    // 只需要处理全埋点的页面浏览事件
+    [self trackViewScreen:controller properties:[_linkHandler utmProperties:YES]];
 }
 
 - (void)trackViewScreen:(UIViewController *)controller {
@@ -2780,9 +2783,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         _referrerScreenUrl = currentScreenUrl;
     }
-
-    //App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
-    [eventProperties addEntriesFromDictionary:[_linkHandler utmProperties:YES]];
 
     if (properties) {
         [eventProperties addEntriesFromDictionary:properties];

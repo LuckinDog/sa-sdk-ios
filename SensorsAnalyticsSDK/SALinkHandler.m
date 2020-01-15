@@ -54,15 +54,13 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 }
 
 - (void)initProperties {
+    // 设置需要解析的预置属性名
+    _presetUtms = [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
+
+    // 当不需要本地存储时，直接返回空字典
     if (!_configOptions.enableSaveUtm) {
-        // 当不需要本地存储时，直接返回空字典
         _latestUtms = @{};
     }
-
-    // 设置需要解析的预置属性名
-    NSArray *array = @[@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term"];
-    _presetUtms = [NSSet setWithArray:array];
-
     [self updateLocalLatestUtms];
     [self handleLaunchOptions:_configOptions.launchOptions];
 }
@@ -122,28 +120,30 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
 // 解析冷启动来源渠道信息
 - (void)handleLaunchOptions:(NSDictionary *)launchOptions {
+    NSURL *url;
     if ([launchOptions.allKeys containsObject:UIApplicationLaunchOptionsURLKey]) {
         //通过 SchemeLink 唤起 App
-        [self handleDeepLink:launchOptions[UIApplicationLaunchOptionsURLKey]];
+        url = launchOptions[UIApplicationLaunchOptionsURLKey];
     }
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
     else if (@available(iOS 8.0, *)) {
         NSDictionary *userActivityDictionary = launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
-        if ([userActivityDictionary[UIApplicationLaunchOptionsUserActivityTypeKey] isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+        NSString *type = userActivityDictionary[UIApplicationLaunchOptionsUserActivityTypeKey];
+        if ([type isEqualToString:NSUserActivityTypeBrowsingWeb]) {
             //通过 UniversalLink 唤起 App
             //TODO: 是否有对应常量
             NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
-
-            [self handleDeepLink:userActivity.webpageURL];
+            url = userActivity.webpageURL;
         }
     }
 #endif
-}
-
-- (void)handleDeepLink:(NSURL *)url {
     if (![self canHandleURL:url]) {
         return;
     }
+    [self handleDeepLink:url];
+}
+
+- (void)handleDeepLink:(NSURL *)url {
     NSDictionary *queryItems = [NSURL queryItemsWithURL:url];
     [self parseUtmsWithDictionary:queryItems];
 }
@@ -153,39 +153,34 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     NSMutableDictionary *utm = [NSMutableDictionary dictionary];
     NSMutableDictionary *latest = [NSMutableDictionary dictionary];
     __block BOOL saveUtm = NO;
-    for (NSString *name in self.presetUtms) {
-        [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL * _Nonnull stop) {
-            if ([key isEqualToString:name]) {
-                saveUtm = YES;
-                if (![value isEqualToString:@""]) {
-                    NSString *utmKey = [NSString stringWithFormat:@"$%@",key];
-                    [utm setValue:value forKey:utmKey];
-                    NSString *latestKey = [NSString stringWithFormat:@"$latest_%@",key];
-                    [latest setValue:value forKey:latestKey];
-                }
+    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL * _Nonnull stop) {
+        if ([_presetUtms containsObject:key]) {
+            saveUtm = YES;
+            if (value.length > 0) {
+                NSString *utmKey = [NSString stringWithFormat:@"$%@",key];
+                [utm setValue:value forKey:utmKey];
+                NSString *latestKey = [NSString stringWithFormat:@"$latest_%@",key];
+                [latest setValue:value forKey:latestKey];
             }
-        }];
-    }
+        }
+    }];
 
-    for (NSString *name in _configOptions.sourceChannels) {
-        [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL * _Nonnull stop) {
-            if ([key isEqualToString:name]) {
-                saveUtm = YES;
-                if (![value isEqualToString:@""]) {
-                    NSString *utmKey = [NSString stringWithFormat:@"%@",key];
-                    [utm setValue:value forKey:utmKey];
-                    NSString *latestKey = [NSString stringWithFormat:@"$latest_%@",key];
-                    [latest setValue:value forKey:latestKey];
-                }
+    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL * _Nonnull stop) {
+        if ([_configOptions.sourceChannels containsObject:key]) {
+            saveUtm = YES;
+            if (value.length > 0) {
+                NSString *utmKey = [NSString stringWithFormat:@"%@",key];
+                [utm setValue:value forKey:utmKey];
+                NSString *latestKey = [NSString stringWithFormat:@"$latest_%@",key];
+                [latest setValue:value forKey:latestKey];
             }
-        }];
-    }
+        }
+    }];
 
-    // utm 字段会在添加到第一个 $AppViewScreen 事件后清空
     _utms = utm;
 
     // latest utms 字段在 App 销毁前一直保存在内存中
-    // 只有当解析的 latest utms 属性存在至少一个时，才覆盖当前内存及本地的 latest utms 内容
+    // 只要解析的 latest utms 属性存在时，就覆盖当前内存及本地的 latest utms 内容
     if (saveUtm) {
         _latestUtms = latest;
         [self updateLocalLatestUtms];
