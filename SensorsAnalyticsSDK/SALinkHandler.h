@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param reset 是否重置本次解析出来的来源渠道信息
  @return utms & custom utms 属性
  */
-- (nullable NSDictionary *)utmProperties:(BOOL)reset;
+- (NSDictionary *)utmProperties:(BOOL)reset;
 
 @end
 

@@ -31,7 +31,7 @@
 @interface SALinkHandler ()
 
 /// 包含 SDK 预置属性和用户自定义属性
-@property (nonatomic, strong) NSDictionary *utms;
+@property (nonatomic, strong) NSMutableDictionary *utms;
 @property (nonatomic, strong) NSDictionary *latestUtms;
 /// 预置属性列表
 @property (nonatomic, strong) NSSet *presetUtms;
@@ -56,47 +56,37 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 - (void)initProperties {
     // 设置需要解析的预置属性名
     _presetUtms = [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
+    _utms = [NSMutableDictionary dictionary];
 
-    // 当不需要本地存储时，直接返回空字典
-    if (!_configOptions.enableSaveUtm) {
-        _latestUtms = @{};
+    if (_configOptions.enableSaveUtm) {
+        _latestUtms = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
+    } else {
+        [SAFileStore archiveWithFileName:kLocalUtmsFileName value:@{}];
     }
-    [self updateLocalLatestUtms];
     [self handleLaunchOptions:_configOptions.launchOptions];
 }
 
 #pragma mark - utm properties
 - (nullable NSDictionary *)latestUtmProperties {
-    // 冷启动时触发，从本地文件读取数据
-    if (_latestUtms == nil) {
-        _latestUtms = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
-    }
-    // 热启动时直接读取内存中 latest utms 数据
     return _latestUtms;
 }
 
-- (nullable NSDictionary *)utmProperties:(BOOL)reset {
+- (NSDictionary *)utmProperties:(BOOL)reset {
     // 在 App 启动后触发第一个页面浏览时重置 utms
-    // 如果 $AppViewScreen 比 $AppStart 先触发可能会造成 AppStart 缺少 utms 参数
-    if (_utms.count == 0) {
-        return nil;
-    }
-    NSDictionary *properties = [_utms copy];
+    NSDictionary *properties = [NSDictionary dictionaryWithDictionary:_utms];
     if (reset) {
-        _utms = nil;
+        [_utms removeAllObjects];
     }
     return properties;
 }
 
 #pragma mark - save latest utms in local file
 - (void)updateLocalLatestUtms {
-    // 当 utm 需要存入本地且当前没有获取到 latestUtms 时，不更新本地数据。
-    // 触发场景为 “冷启动"，只有冷启动时 latest utms 会为 nil
-    if (_configOptions.enableSaveUtm && _latestUtms == nil) {
+    if (!_configOptions.enableSaveUtm) {
         return;
     }
-    NSDictionary *value = _configOptions.enableSaveUtm ? _latestUtms : @{};
-    [SAFileStore archiveWithFileName:kLocalUtmsFileName value:(value ?: @{})];
+    NSDictionary *value = _latestUtms ?: [NSDictionary dictionary];
+    [SAFileStore archiveWithFileName:kLocalUtmsFileName value:value];
 }
 
 #pragma mark - parse utms
@@ -106,12 +96,12 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     }
     NSDictionary *queryItems = [NSURL queryItemsWithURL:url];
     for (NSString *key in _presetUtms) {
-        if ([queryItems.allKeys containsObject:key]) {
+        if (queryItems[key] != nil) {
             return YES;
         }
     }
     for (NSString *key in _configOptions.sourceChannels) {
-        if ([queryItems.allKeys containsObject:key]) {
+        if (queryItems[key] != nil) {
             return YES;
         }
     }
@@ -150,38 +140,31 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
 - (void)parseUtmsWithDictionary:(NSDictionary *)dictionary {
     //解析渠道信息字段
-    NSMutableDictionary *utm = [NSMutableDictionary dictionary];
-    NSMutableDictionary *latest = [NSMutableDictionary dictionary];
-    __block BOOL saveUtm = NO;
-    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL * _Nonnull stop) {
-        if ([_presetUtms containsObject:key]) {
-            saveUtm = YES;
-            if (value.length > 0) {
-                NSString *utmKey = [NSString stringWithFormat:@"$%@",key];
-                [utm setValue:value forKey:utmKey];
-                NSString *latestKey = [NSString stringWithFormat:@"$latest_%@",key];
-                [latest setValue:value forKey:latestKey];
-            }
-        }
-    }];
+    [_utms removeAllObjects];
+    __block NSMutableDictionary *latest;
 
-    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL * _Nonnull stop) {
-        if ([_configOptions.sourceChannels containsObject:key]) {
-            saveUtm = YES;
-            if (value.length > 0) {
-                NSString *utmKey = [NSString stringWithFormat:@"%@",key];
-                [utm setValue:value forKey:utmKey];
-                NSString *latestKey = [NSString stringWithFormat:@"$latest_%@",key];
-                [latest setValue:value forKey:latestKey];
-            }
+    void(^handleMatch)(NSString *, NSString *) = ^(NSString *name, NSString *utmPrefix) {
+        NSString *value = dictionary[name];
+        if (value.length > 0) {
+            NSString *utmKey = [NSString stringWithFormat:@"%@%@",utmPrefix , name];
+            self.utms[utmKey] = value;
+            NSString *latestKey = [NSString stringWithFormat:@"$latest_%@", name];
+            latest = latest ?: [NSMutableDictionary dictionary];
+            latest[latestKey] = value;
         }
-    }];
+    };
 
-    _utms = utm;
+    for (NSString *name in _presetUtms) {
+        handleMatch(name, @"$");
+    }
+
+    for (NSString *name in _configOptions.sourceChannels) {
+        handleMatch(name, @"");
+    }
 
     // latest utms 字段在 App 销毁前一直保存在内存中
     // 只要解析的 latest utms 属性存在时，就覆盖当前内存及本地的 latest utms 内容
-    if (saveUtm) {
+    if (latest != nil) {
         _latestUtms = latest;
         [self updateLocalLatestUtms];
     }

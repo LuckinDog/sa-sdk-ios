@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return 存储结果
 */
-+ (BOOL)archiveWithFileName:(nonnull NSString *)fileName value:(nonnull id)value;
++ (BOOL)archiveWithFileName:(NSString *)fileName value:(id)value;
 
 /**
  @abstract
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param fileName 本地存储文件名
  @return 本地存储文件内容
 */
-+ (nullable id)unarchiveWithFileName:(nonnull NSString *)fileName;
++ (nullable id)unarchiveWithFileName:(NSString *)fileName;
 
 /**
  @abstract
