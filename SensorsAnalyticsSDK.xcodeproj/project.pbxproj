@@ -134,6 +134,7 @@
 		FC1AFF0223C32AB000F1B9E4 /* SALinkHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = FC1AFF0023C32AB000F1B9E4 /* SALinkHandler.m */; };
 		FC1AFF0523C3400E00F1B9E4 /* SAFileStore.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1AFF0323C3400E00F1B9E4 /* SAFileStore.h */; };
 		FC1AFF0623C3400E00F1B9E4 /* SAFileStore.m in Sources */ = {isa = PBXBuildFile; fileRef = FC1AFF0423C3400E00F1B9E4 /* SAFileStore.m */; };
+		FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */; };
 		FC9AEE0623B0D67700B9990F /* SADateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = FC9AEE0423B0D67700B9990F /* SADateFormatter.h */; };
 		FC9AEE0723B0D67700B9990F /* SADateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = FC9AEE0523B0D67700B9990F /* SADateFormatter.m */; };
 		FCBAF2A022FBCA3700D7CA38 /* SAWeakPropertyContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */; };
@@ -283,6 +284,7 @@
 		FC1AFF0023C32AB000F1B9E4 /* SALinkHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandler.m; sourceTree = "<group>"; };
 		FC1AFF0323C3400E00F1B9E4 /* SAFileStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAFileStore.h; sourceTree = "<group>"; };
 		FC1AFF0423C3400E00F1B9E4 /* SAFileStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAFileStore.m; sourceTree = "<group>"; };
+		FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandlerTests.m; sourceTree = "<group>"; };
 		FC9AEE0423B0D67700B9990F /* SADateFormatter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADateFormatter.h; sourceTree = "<group>"; };
 		FC9AEE0523B0D67700B9990F /* SADateFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADateFormatter.m; sourceTree = "<group>"; };
 		FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAWeakPropertyContainer.h; sourceTree = "<group>"; };
@@ -525,6 +527,7 @@
 				4D6A188D22978F5B00F6B218 /* AutoTrack */,
 				CB6EBAEE22855222003CFBA8 /* Resources */,
 				CB6EBAF222855222003CFBA8 /* SANetworkTests.m */,
+				FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */,
 				CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */,
 				4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */,
 				CB6EBAE7228551EC003CFBA8 /* Info.plist */,
@@ -857,6 +860,7 @@
 				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
 				4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */,
 				CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */,
+				FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */,
 				4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

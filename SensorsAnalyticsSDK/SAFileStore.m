@@ -40,7 +40,7 @@
     [[NSFileManager defaultManager] setAttributes:protection
                                      ofItemAtPath:filePath
                                             error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[value copy] toFile:filePath]) {
+    if (![NSKeyedArchiver archiveRootObject:value toFile:filePath]) {
         SAError(@"%@ unable to archive %@", self, fileName);
         return NO;
     }

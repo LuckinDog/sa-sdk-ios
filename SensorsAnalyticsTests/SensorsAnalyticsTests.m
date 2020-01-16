@@ -39,7 +39,7 @@
     self.sensorsAnalytics = [SensorsAnalyticsSDK sharedInstance];
     if (!self.sensorsAnalytics) {
         SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
-        [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
+        [SensorsAnalyticsSDK startWithConfigOptions:options];
         self.sensorsAnalytics = [SensorsAnalyticsSDK sharedInstance];
     }
 }
@@ -64,7 +64,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
         // 捕获 NSInternalInconsistencyException 异常，是由 NSAssert 抛出的异常
-        XCTAssertThrowsSpecificNamed([SensorsAnalyticsSDK sharedInstanceWithConfig:options], NSException, NSInternalInconsistencyException, @"");
+        XCTAssertThrowsSpecificNamed([SensorsAnalyticsSDK startWithConfigOptions:options], NSException, NSInternalInconsistencyException, @"");
 
         [expectation fulfill];
     });

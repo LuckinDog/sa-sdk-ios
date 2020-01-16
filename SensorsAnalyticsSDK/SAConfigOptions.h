@@ -113,7 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL enableSaveUtm;
 
 /// DeepLink 中用户自定义来源渠道属性 key 值，可传多个。
-@property (nonatomic, copy) NSArray *sourceChannels;
+@property (nonatomic, copy) NSArray<NSString *> *sourceChannels;
 
 @end
 
