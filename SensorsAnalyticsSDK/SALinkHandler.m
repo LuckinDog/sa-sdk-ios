@@ -48,22 +48,18 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     self = [super init];
     if (self) {
         self.configOptions = configOptions;
-        [self initProperties];
+        // 设置需要解析的预置属性名
+        _presetUtms = [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
+        _utms = [NSMutableDictionary dictionary];
+
+        if (_configOptions.enableSaveUtm) {
+            _latestUtms = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
+        } else {
+            [SAFileStore archiveWithFileName:kLocalUtmsFileName value:@{}];
+        }
+        [self handleLaunchOptions:_configOptions.launchOptions];
     }
     return self;
-}
-
-- (void)initProperties {
-    // 设置需要解析的预置属性名
-    _presetUtms = [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
-    _utms = [NSMutableDictionary dictionary];
-
-    if (_configOptions.enableSaveUtm) {
-        _latestUtms = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
-    } else {
-        [SAFileStore archiveWithFileName:kLocalUtmsFileName value:@{}];
-    }
-    [self handleLaunchOptions:_configOptions.launchOptions];
 }
 
 #pragma mark - utm properties
@@ -96,12 +92,12 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     }
     NSDictionary *queryItems = [NSURL queryItemsWithURL:url];
     for (NSString *key in _presetUtms) {
-        if (queryItems[key] != nil) {
+        if (!queryItems[key]) {
             return YES;
         }
     }
     for (NSString *key in _configOptions.sourceChannels) {
-        if (queryItems[key] != nil) {
+        if (!queryItems[key]) {
             return YES;
         }
     }
@@ -145,11 +141,13 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
     void(^handleMatch)(NSString *, NSString *) = ^(NSString *name, NSString *utmPrefix) {
         NSString *value = dictionary[name];
+        if (!value) {
+            latest = latest ?: [NSMutableDictionary dictionary];
+        }
         if (value.length > 0) {
             NSString *utmKey = [NSString stringWithFormat:@"%@%@",utmPrefix , name];
             self.utms[utmKey] = value;
             NSString *latestKey = [NSString stringWithFormat:@"$latest_%@", name];
-            latest = latest ?: [NSMutableDictionary dictionary];
             latest[latestKey] = value;
         }
     };
@@ -164,7 +162,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
     // latest utms 字段在 App 销毁前一直保存在内存中
     // 只要解析的 latest utms 属性存在时，就覆盖当前内存及本地的 latest utms 内容
-    if (latest != nil) {
+    if (!latest) {
         _latestUtms = latest;
         [self updateLocalLatestUtms];
     }
