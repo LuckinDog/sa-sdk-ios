@@ -797,6 +797,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                 }
                 [propertiesDict removeObjectForKey:@"_nocache"];
+
+                // 添加 DeepLink 来源渠道参数。优先级最高，覆盖 H5 传过来的同名字段
+                [propertiesDict addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
             }
 
             [eventDict removeObjectForKey:@"_nocache"];
@@ -829,9 +832,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             //JS SDK Data add _hybrid_h5 flag
             [eventDict setValue:@(YES) forKey:SA_EVENT_HYBRID_H5];
-
-            // 添加 DeepLink 来源渠道参数。优先级最高，覆盖 H5 传过来的同名字段
-            [eventDict addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
 
             NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
             if (!enqueueEvent) {
