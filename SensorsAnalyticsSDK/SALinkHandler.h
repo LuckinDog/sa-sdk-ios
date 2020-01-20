@@ -67,10 +67,16 @@ NS_ASSUME_NONNULL_BEGIN
  @abstract
  当前 DeepLink 启动时的来源渠道信息
 
- @param reset 是否重置本次解析出来的来源渠道信息
- @return utms & custom utms 属性
+ @return utms  属性
  */
-- (NSDictionary *)utmProperties:(BOOL)reset;
+- (NSDictionary *)utmProperties;
+
+/**
+@abstract
+清除本次 DeepLink 解析到的 utm 消息
+
+*/
+- (void)clearUtmProperties;
 
 @end
 

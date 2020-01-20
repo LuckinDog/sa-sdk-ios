@@ -1092,7 +1092,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(self->_appRelaunched);
         properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
         //添加 deeplink 相关渠道信息，可能不存在
-        [properties addEntriesFromDictionary:[_linkHandler utmProperties:NO]];
+        [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
 
         [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     });
@@ -2742,7 +2742,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
     // 只需要处理全埋点的页面浏览事件
-    [self trackViewScreen:controller properties:[_linkHandler utmProperties:YES]];
+    NSDictionary *properties = [_linkHandler utmProperties];
+    [_linkHandler clearUtmProperties];
+    [self trackViewScreen:controller properties:properties];
 }
 
 - (void)trackViewScreen:(UIViewController *)controller {
@@ -3076,7 +3078,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             NSMutableDictionary *properties = [NSMutableDictionary dictionary];
             properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(_appRelaunched);
             properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
-            [properties addEntriesFromDictionary:[_linkHandler utmProperties:NO]];
+            [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
 
             [self track:SA_EVENT_NAME_APP_START withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
@@ -3103,6 +3105,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
+
+    // 清除本次启动解析的来源渠道信息
+    [_linkHandler clearUtmProperties];
+
     _applicationWillResignActive = NO;
     
     [self stopFlushTimer];

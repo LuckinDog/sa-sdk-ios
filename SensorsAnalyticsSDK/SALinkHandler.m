@@ -64,16 +64,15 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
 #pragma mark - utm properties
 - (nullable NSDictionary *)latestUtmProperties {
-    return _latestUtms;
+    return [_latestUtms copy];
 }
 
-- (NSDictionary *)utmProperties:(BOOL)reset {
-    // 在 App 启动后触发第一个页面浏览时重置 utms
-    NSDictionary *properties = [NSDictionary dictionaryWithDictionary:_utms];
-    if (reset) {
-        [_utms removeAllObjects];
-    }
-    return properties;
+- (NSDictionary *)utmProperties {
+    return [_utms copy];
+}
+
+- (void)clearUtmProperties {
+    [_utms removeAllObjects];
 }
 
 #pragma mark - save latest utms in local file

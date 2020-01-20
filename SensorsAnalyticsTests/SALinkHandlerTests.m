@@ -65,7 +65,8 @@
 
 - (void)testLaunchOptions {
     NSDictionary *latest = [_linkHandler latestUtmProperties];
-    NSDictionary *utm = [_linkHandler utmProperties:YES];
+    NSDictionary *utm = [_linkHandler utmProperties];
+    [_linkHandler clearUtmProperties];
 
     XCTAssertTrue(latest.count == 7);
     XCTAssertTrue([latest[@"$latest_utm_content"] isEqualToString:@"1"]);
@@ -85,7 +86,7 @@
     XCTAssertTrue([utm[@"channel"] isEqualToString:@"1"]);
     XCTAssertTrue([utm[@"source"] isEqualToString:@"1"]);
 
-    NSDictionary *utmAfterReset = [_linkHandler utmProperties:NO];
+    NSDictionary *utmAfterReset = [_linkHandler utmProperties];
     XCTAssertTrue(utmAfterReset.count == 0);
 }
 
@@ -95,7 +96,8 @@
 
     [_linkHandler handleDeepLink:url];
     NSDictionary *latest = [_linkHandler latestUtmProperties];
-    NSDictionary *utm = [_linkHandler utmProperties:YES];
+    NSDictionary *utm = [_linkHandler utmProperties];
+    [_linkHandler clearUtmProperties];
 
     XCTAssertTrue(latest.count == 3);
     XCTAssertTrue([latest[@"$latest_utm_content"] isEqualToString:@"2"]);
@@ -107,7 +109,7 @@
     XCTAssertTrue([utm[@"$utm_campaign"] isEqualToString:@"2"]);
     XCTAssertTrue([utm[@"channel"] isEqualToString:@"2"]);
 
-    NSDictionary *utmAfterReset = [_linkHandler utmProperties:NO];
+    NSDictionary *utmAfterReset = [_linkHandler utmProperties];
     XCTAssertTrue(utmAfterReset.count == 0);
 }
 
@@ -117,7 +119,8 @@
 
     [_linkHandler handleDeepLink:url];
     NSDictionary *latest = [_linkHandler latestUtmProperties];
-    NSDictionary *utm = [_linkHandler utmProperties:YES];
+    NSDictionary *utm = [_linkHandler utmProperties];
+    [_linkHandler clearUtmProperties];
 
     XCTAssertTrue(latest.count == 1);
     XCTAssertTrue([latest[@"$latest_utm_campaign"] isEqualToString:@"3"]);
@@ -132,7 +135,8 @@
 
     [_linkHandler handleDeepLink:url];
     NSDictionary *latest = [_linkHandler latestUtmProperties];
-    NSDictionary *utm = [_linkHandler utmProperties:YES];
+    NSDictionary *utm = [_linkHandler utmProperties];
+    [_linkHandler clearUtmProperties];
 
     XCTAssertTrue(latest.count == 0);
     XCTAssertTrue(utm.count == 0);
@@ -144,7 +148,8 @@
 
     [_linkHandler handleDeepLink:url];
     NSDictionary *latest = [_linkHandler latestUtmProperties];
-    NSDictionary *utm = [_linkHandler utmProperties:YES];
+    NSDictionary *utm = [_linkHandler utmProperties];
+    [_linkHandler clearUtmProperties];
 
     XCTAssertTrue(latest.count == 7);
     XCTAssertTrue([latest[@"$latest_utm_content"] isEqualToString:@"1"]);
