@@ -35,7 +35,10 @@
 @property (nonatomic, strong) NSDictionary *latestUtms;
 /// 预置属性列表
 @property (nonatomic, strong) NSSet *presetUtms;
+/// 过滤后的用户自定义属性
+@property (nonatomic, strong) NSSet *sourceChannels;
 
+/// SDK初始化时的 ConfigOptions
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
@@ -52,14 +55,46 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
         _presetUtms = [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
         _utms = [NSMutableDictionary dictionary];
 
-        if (_configOptions.enableSaveUtm) {
-            _latestUtms = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
-        } else {
-            [SAFileStore archiveWithFileName:kLocalUtmsFileName value:@{}];
-        }
+        [self handleSourceChannnels];
+        [self loadLocalInfo];
         [self handleLaunchOptions:_configOptions.launchOptions];
     }
     return self;
+}
+
+- (void)handleSourceChannnels {
+    //这里可以考虑和 SDK 中检查属性名方法合并
+    NSSet *reservedPropertyName = [NSSet setWithObjects:@"distinct_id", @"original_id", @"time", @"event", @"properties", @"id", @"first_id", @"second_id", @"users", @"events", @"device_id", @"user_id", @"date", @"datetime", nil];
+    NSMutableSet *set = [[NSMutableSet alloc] init];
+    // 将用户自定义属性中与 SDK 保留字段相同的字段过滤掉
+    for (NSString *name in _configOptions.sourceChannels) {
+        if (![reservedPropertyName containsObject:name]) {
+            [set addObject:name];
+        }
+    }
+    _sourceChannels = set;
+}
+
+- (void)loadLocalInfo {
+    if (_configOptions.enableSaveUtm) {
+        NSDictionary *local = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
+        if (local) {
+            NSMutableSet *set = [[NSMutableSet alloc] init];
+            [set unionSet:_presetUtms];
+            [set unionSet:_sourceChannels];
+            NSMutableDictionary *latest = [NSMutableDictionary dictionary];
+            // 过滤掉不包含在 sourceChannels 中的本地数据字段，升级版本更改了 sourceChannels 会触发
+            for (NSString *name in set) {
+                NSString *newName = [NSString stringWithFormat:@"$latest_%@", name];
+                if (local[newName]) {
+                    latest[newName] = local[newName];
+                }
+            }
+            _latestUtms = latest;
+        }
+    } else {
+        [SAFileStore archiveWithFileName:kLocalUtmsFileName value:@{}];
+    }
 }
 
 #pragma mark - utm properties
@@ -95,7 +130,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
             return YES;
         }
     }
-    for (NSString *key in _configOptions.sourceChannels) {
+    for (NSString *key in _sourceChannels) {
         if (queryItems[key]) {
             return YES;
         }
@@ -155,7 +190,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
         handleMatch(name, @"$");
     }
 
-    for (NSString *name in _configOptions.sourceChannels) {
+    for (NSString *name in _sourceChannels) {
         handleMatch(name, @"");
     }
 
