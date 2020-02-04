@@ -70,6 +70,8 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     for (NSString *name in _configOptions.sourceChannels) {
         if (![reservedPropertyName containsObject:name]) {
             [set addObject:name];
+        } else {
+            SAError(@"deeplink source channel property [%@] is valid!!!", name);
         }
     }
     _sourceChannels = set;
@@ -79,13 +81,16 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     if (_configOptions.enableSaveUtm) {
         NSDictionary *local = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
         if (local) {
-            NSMutableSet *set = [[NSMutableSet alloc] init];
-            [set unionSet:_presetUtms];
-            [set unionSet:_sourceChannels];
             NSMutableDictionary *latest = [NSMutableDictionary dictionary];
-            // 过滤掉不包含在 sourceChannels 中的本地数据字段，升级版本更改了 sourceChannels 会触发
-            for (NSString *name in set) {
+            for (NSString *name in _presetUtms) {
                 NSString *newName = [NSString stringWithFormat:@"$latest_%@", name];
+                if (local[newName]) {
+                    latest[newName] = local[newName];
+                }
+            }
+            // 升级版本时 sourceChannels 可能会发生变化，过滤掉本次 sourceChannels 中已不包含的字段
+            for (NSString *name in _sourceChannels) {
+                NSString *newName = [NSString stringWithFormat:@"_latest_%@", name];
                 if (local[newName]) {
                     latest[newName] = local[newName];
                 }
@@ -168,30 +173,34 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     [self parseUtmsWithDictionary:queryItems];
 }
 
+//解析渠道信息字段
 - (void)parseUtmsWithDictionary:(NSDictionary *)dictionary {
-    //解析渠道信息字段
     [_utms removeAllObjects];
-    __block NSMutableDictionary *latest;
 
-    void(^handleMatch)(NSString *, NSString *) = ^(NSString *name, NSString *utmPrefix) {
+    NSMutableDictionary *latest;
+    for (NSString *name in _presetUtms) {
         NSString *value = dictionary[name];
         if (value) {
             latest = latest ?: [NSMutableDictionary dictionary];
         }
         if (value.length > 0) {
-            NSString *utmKey = [NSString stringWithFormat:@"%@%@",utmPrefix , name];
-            self.utms[utmKey] = value;
+            NSString *utmKey = [NSString stringWithFormat:@"$%@", name];
+            _utms[utmKey] = value;
             NSString *latestKey = [NSString stringWithFormat:@"$latest_%@", name];
             latest[latestKey] = value;
         }
-    };
-
-    for (NSString *name in _presetUtms) {
-        handleMatch(name, @"$");
     }
 
     for (NSString *name in _sourceChannels) {
-        handleMatch(name, @"");
+        NSString *value = dictionary[name];
+        if (value) {
+            latest = latest ?: [NSMutableDictionary dictionary];
+        }
+        if (value.length > 0) {
+            _utms[name] = value;
+            NSString *latestKey = [NSString stringWithFormat:@"_latest_%@", name];
+            latest[latestKey] = value;
+        }
     }
 
     // latest utms 字段在 App 销毁前一直保存在内存中

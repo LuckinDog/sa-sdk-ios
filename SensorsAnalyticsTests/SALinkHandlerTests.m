@@ -72,8 +72,8 @@
     XCTAssertTrue([latest[@"$latest_utm_medium"] isEqualToString:@"1"]);
     XCTAssertTrue([latest[@"$latest_utm_source"] isEqualToString:@"1"]);
     XCTAssertTrue([latest[@"$latest_utm_term"] isEqualToString:@"1"]);
-    XCTAssertTrue([latest[@"$latest_channel"] isEqualToString:@"1"]);
-    XCTAssertTrue([latest[@"$latest_source"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"_latest_channel"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"_latest_source"] isEqualToString:@"1"]);
 
     NSDictionary *utm = [_linkHandler utmProperties];
     XCTAssertTrue(utm.count == 7);
@@ -101,7 +101,7 @@
     XCTAssertTrue(latest.count == 3);
     XCTAssertTrue([latest[@"$latest_utm_content"] isEqualToString:@"2"]);
     XCTAssertTrue([latest[@"$latest_utm_campaign"] isEqualToString:@"2"]);
-    XCTAssertTrue([latest[@"$latest_channel"] isEqualToString:@"2"]);
+    XCTAssertTrue([latest[@"_latest_channel"] isEqualToString:@"2"]);
 
     NSDictionary *utm = [_linkHandler utmProperties];
     XCTAssertTrue(utm.count == 3);
@@ -149,8 +149,8 @@
     XCTAssertTrue([latest[@"$latest_utm_medium"] isEqualToString:@"1"]);
     XCTAssertTrue([latest[@"$latest_utm_source"] isEqualToString:@"1"]);
     XCTAssertTrue([latest[@"$latest_utm_term"] isEqualToString:@"1"]);
-    XCTAssertTrue([latest[@"$latest_channel"] isEqualToString:@"1"]);
-    XCTAssertTrue([latest[@"$latest_source"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"_latest_channel"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"_latest_source"] isEqualToString:@"1"]);
 
     NSDictionary *utm = [_linkHandler utmProperties];
     XCTAssertTrue(utm.count == 0);
@@ -170,8 +170,29 @@
     XCTAssertTrue([latest[@"$latest_utm_medium"] isEqualToString:@"1"]);
     XCTAssertTrue([latest[@"$latest_utm_source"] isEqualToString:@"1"]);
     XCTAssertTrue([latest[@"$latest_utm_term"] isEqualToString:@"1"]);
-    XCTAssertTrue([latest[@"$latest_source"] isEqualToString:@"1"]);
-    XCTAssertTrue([latest[@"$latest_channel"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"_latest_source"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"_latest_channel"] isEqualToString:@"1"]);
+
+    NSDictionary *utm = [_linkHandler utmProperties];
+    XCTAssertTrue(utm.count == 0);
+}
+
+- (void)testVersionUpdate {
+    // 重新初始化 handler 模拟自然启动
+    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
+    options.enableSaveUtm = YES;
+    //升级版本修改 sourceChannels 后，会过滤本地获取到的自定义属性
+    options.sourceChannels = @[@"version", @"channel"];
+    _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
+
+    NSDictionary *latest = [_linkHandler latestUtmProperties];
+    XCTAssertTrue(latest.count == 6);
+    XCTAssertTrue([latest[@"$latest_utm_content"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"$latest_utm_campaign"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"$latest_utm_medium"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"$latest_utm_source"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"$latest_utm_term"] isEqualToString:@"1"]);
+    XCTAssertTrue([latest[@"_latest_channel"] isEqualToString:@"1"]);
 
     NSDictionary *utm = [_linkHandler utmProperties];
     XCTAssertTrue(utm.count == 0);
