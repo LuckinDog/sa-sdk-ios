@@ -32,11 +32,11 @@
 
 /// 包含 SDK 预置属性和用户自定义属性
 @property (nonatomic, strong) NSMutableDictionary *utms;
-@property (nonatomic, strong) NSDictionary *latestUtms;
+@property (nonatomic, copy) NSDictionary *latestUtms;
 /// 预置属性列表
-@property (nonatomic, strong) NSSet *presetUtms;
+@property (nonatomic, copy) NSSet *presetUtms;
 /// 过滤后的用户自定义属性
-@property (nonatomic, strong) NSSet *sourceChannels;
+@property (nonatomic, copy) NSSet *sourceChannels;
 
 /// SDK初始化时的 ConfigOptions
 @property (nonatomic, strong) SAConfigOptions *configOptions;
@@ -50,7 +50,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 - (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions {
     self = [super init];
     if (self) {
-        self.configOptions = configOptions;
+        _configOptions = configOptions;
         // 设置需要解析的预置属性名
         _presetUtms = [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
         _utms = [NSMutableDictionary dictionary];
@@ -175,13 +175,14 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
 //解析渠道信息字段
 - (void)parseUtmsWithDictionary:(NSDictionary *)dictionary {
-    [_utms removeAllObjects];
+    [self clearUtmProperties];
 
-    NSMutableDictionary *latest;
+    NSMutableDictionary *latest = [NSMutableDictionary dictionary];
+    BOOL coverLastInfo = NO;
     for (NSString *name in _presetUtms) {
         NSString *value = dictionary[name];
         if (value) {
-            latest = latest ?: [NSMutableDictionary dictionary];
+            coverLastInfo = YES;
         }
         if (value.length > 0) {
             NSString *utmKey = [NSString stringWithFormat:@"$%@", name];
@@ -194,7 +195,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     for (NSString *name in _sourceChannels) {
         NSString *value = dictionary[name];
         if (value) {
-            latest = latest ?: [NSMutableDictionary dictionary];
+            coverLastInfo = YES;
         }
         if (value.length > 0) {
             _utms[name] = value;
@@ -204,8 +205,8 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     }
 
     // latest utms 字段在 App 销毁前一直保存在内存中
-    // 只要解析的 latest utms 属性存在时，就覆盖当前内存及本地的 latest utms 内容
-    if (latest) {
+    // 当解析的 latest utms 属性存在时（不论内容是否为空），就覆盖当前内存及本地的 latest utms 内容
+    if (coverLastInfo) {
         _latestUtms = latest;
         [self updateLocalLatestUtms];
     }
