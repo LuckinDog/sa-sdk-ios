@@ -1524,14 +1524,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //去重
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
-        NSMutableDictionary *p = [NSMutableDictionary dictionary];
+        // originalProperties 为未处理前的原始属性
+        NSMutableDictionary *originalProperties = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
-            [p addEntriesFromDictionary:self->_automaticProperties];
-            [p addEntriesFromDictionary:self->_superProperties];
-            [p addEntriesFromDictionary:dynamicSuperPropertiesDict];
+            [originalProperties addEntriesFromDictionary:self->_automaticProperties];
+            [originalProperties addEntriesFromDictionary:self->_superProperties];
+            [originalProperties addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
             //update lib $app_version from super properties
             id app_version = [self->_superProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
@@ -1541,11 +1541,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             // 每次 track 时手机网络状态
             NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-            [p setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
+            [originalProperties setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
             if ([networkType isEqualToString:@"WIFI"]) {
-                [p setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
+                [originalProperties setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
             } else {
-                [p setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
+                [originalProperties setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
             }
 
             NSDictionary *eventTimer = self.trackTimer[event];
@@ -1565,41 +1565,47 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     eventDuration += eventAccumulatedDuration.floatValue;
                 }
 
-                p[@"event_duration"] = @([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]);
+                originalProperties[@"event_duration"] = @([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]);
             }
         }
+        
+        if ([propertieDict isKindOfClass:[NSDictionary class]]) {
+            [originalProperties addEntriesFromDictionary:propertieDict];
+        }
 
+        // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time，p 为修改后的属性
+        NSMutableDictionary *p = [NSMutableDictionary dictionary];
+        NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSString *project = nil;
         NSString *token = nil;
-        if (propertieDict) {
-            NSArray *keys = propertieDict.allKeys;
-            for (id key in keys) {
-                NSObject *obj = propertieDict[key];
-                if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT]) {
-                    project = (NSString *)obj;
-                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN]) {
-                    token = (NSString *)obj;
-                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
-                    if ([obj isKindOfClass:NSDate.class]) {
-                        NSDate *customTime = (NSDate *)obj;
-                        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-                        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                            timeStamp = @(customTimeInt);
-                        } else {
-                            SAError(@"$time error %ld，Please check the value", customTimeInt);
-                        }
+        
+        NSArray *keys = originalProperties.allKeys;
+        for (id key in keys) {
+            NSObject *obj = originalProperties[key];
+            if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT]) {
+                project = (NSString *)obj;
+            } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN]) {
+                token = (NSString *)obj;
+            } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
+                if ([obj isKindOfClass:NSDate.class]) {
+                    NSDate *customTime = (NSDate *)obj;
+                    NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+                    if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                        timeStamp = @(customTimeInt);
                     } else {
-                        SAError(@"$time '%@' invalid，Please check the value", obj);
+                        SAError(@"$time error %ld，Please check the value", customTimeInt);
                     }
                 } else {
-                    if ([obj isKindOfClass:[NSDate class]]) {
-                        // 序列化所有 NSDate 类型
-                        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
-                        NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-                        [p setObject:dateStr forKey:key];
-                    } else {
-                        [p setObject:obj forKey:key];
-                    }
+                    SAError(@"$time '%@' invalid，Please check the value", obj);
+                }
+            } else {
+                if ([obj isKindOfClass:[NSDate class]]) {
+                    // 序列化所有 NSDate 类型
+                    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+                    NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
+                    [p setObject:dateStr forKey:key];
+                } else {
+                    [p setObject:obj forKey:key];
                 }
             }
         }
