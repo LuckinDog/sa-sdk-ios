@@ -1976,6 +1976,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             // 添加 deepLink 来源渠道信息
+            // 来源渠道消息只需要添加到 event 事件中，这里使用一个新的字典来添加 latest_utms 参数
             NSMutableDictionary *eventProperties = [properties mutableCopy];
             [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
             [eventProperties addEntriesFromDictionary:propertyDict];
@@ -1984,6 +1985,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self track:event withProperties:eventProperties withType:@"track"];
 
             // 再发送 profile_set_once
+            // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
             NSMutableDictionary *profileProperties = [properties mutableCopy];
             [profileProperties addEntriesFromDictionary:propertyDict];
             [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
