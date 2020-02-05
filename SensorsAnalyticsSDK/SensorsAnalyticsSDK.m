@@ -2741,12 +2741,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-
-    // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
-    // 只需要处理全埋点的页面浏览事件
-    NSDictionary *properties = [_linkHandler utmProperties];
-    [_linkHandler clearUtmProperties];
-    [self trackViewScreen:controller properties:properties];
+    [self trackViewScreen:controller properties:nil autoTrack:YES];
 }
 
 - (void)trackViewScreen:(UIViewController *)controller {
@@ -2754,6 +2749,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties {
+    [self trackViewScreen:controller properties:properties autoTrack:NO];
+}
+
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties autoTrack:(BOOL)autoTrack {
     if (!controller) {
         return;
     }
@@ -2766,6 +2765,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:controller];
     [eventProperties addEntriesFromDictionary:autoTrackProperties];
+
+    if (autoTrack) {
+        // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
+        // 只需要处理全埋点的页面浏览事件
+        [eventProperties addEntriesFromDictionary:[_linkHandler utmProperties]];
+        [_linkHandler clearUtmProperties];
+    }
 
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
