@@ -49,7 +49,7 @@
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SANetwork.h"
-#import "NSURL+URLUtils.h"
+#import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAAutoTrackUtils.h"
 
@@ -919,7 +919,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
          //解析参数
-        NSMutableDictionary *paramsDic = [[NSURL queryItemsWithURLString:urlstr] mutableCopy];
+        NSMutableDictionary *paramsDic = [[SAURLUtils queryItemsWithURLString:urlstr] mutableCopy];
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
         NSAssert(![webView isKindOfClass:NSClassFromString(@"UIWebView")], @"当前集成方式已禁用 UIWebView！❌");
@@ -1259,7 +1259,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return [self handleAutoTrackURL:url];
         } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
             // url query 解析
-            NSMutableDictionary *paramDic = [[NSURL queryItemsWithURL:url] mutableCopy];
+            NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
 
             //如果没传 info_id，视为伪造二维码，不做处理
             if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {

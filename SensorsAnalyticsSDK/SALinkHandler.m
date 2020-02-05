@@ -24,7 +24,7 @@
 
 #import "SALinkHandler.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "NSURL+URLUtils.h"
+#import "SAURLUtils.h"
 #import "SAFileStore.h"
 #import "SALogger.h"
 
@@ -71,6 +71,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
         if (![reservedPropertyName containsObject:name]) {
             [set addObject:name];
         } else {
+            // 这里只做 LOG 提醒
             SAError(@"deeplink source channel property [%@] is valid!!!", name);
         }
     }
@@ -78,28 +79,31 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 }
 
 - (void)loadLocalInfo {
-    if (_configOptions.enableSaveDeepLinkInfo) {
-        NSDictionary *local = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
-        if (local) {
-            NSMutableDictionary *latest = [NSMutableDictionary dictionary];
-            for (NSString *name in _presetUtms) {
-                NSString *newName = [NSString stringWithFormat:@"$latest_%@", name];
-                if (local[newName]) {
-                    latest[newName] = local[newName];
-                }
-            }
-            // 升级版本时 sourceChannels 可能会发生变化，过滤掉本次 sourceChannels 中已不包含的字段
-            for (NSString *name in _sourceChannels) {
-                NSString *newName = [NSString stringWithFormat:@"_latest_%@", name];
-                if (local[newName]) {
-                    latest[newName] = local[newName];
-                }
-            }
-            _latestUtms = latest;
-        }
-    } else {
+    if (!_configOptions.enableSaveDeepLinkInfo) {
         [SAFileStore archiveWithFileName:kLocalUtmsFileName value:@{}];
+        return;
     }
+
+    NSDictionary *local = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
+    if (!local) {
+        return;
+    }
+
+    NSMutableDictionary *latest = [NSMutableDictionary dictionary];
+    for (NSString *name in _presetUtms) {
+        NSString *newName = [NSString stringWithFormat:@"$latest_%@", name];
+        if (local[newName]) {
+            latest[newName] = local[newName];
+        }
+    }
+    // 升级版本时 sourceChannels 可能会发生变化，过滤掉本次 sourceChannels 中已不包含的字段
+    for (NSString *name in _sourceChannels) {
+        NSString *newName = [NSString stringWithFormat:@"_latest_%@", name];
+        if (local[newName]) {
+            latest[newName] = local[newName];
+        }
+    }
+    _latestUtms = latest;
 }
 
 #pragma mark - utm properties
@@ -129,7 +133,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     if (!url) {
         return NO;
     }
-    NSDictionary *queryItems = [NSURL queryItemsWithURL:url];
+    NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
     for (NSString *key in _presetUtms) {
         if (queryItems[key]) {
             return YES;
@@ -156,7 +160,6 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
         NSString *type = userActivityDictionary[UIApplicationLaunchOptionsUserActivityTypeKey];
         if ([type isEqualToString:NSUserActivityTypeBrowsingWeb]) {
             //通过 UniversalLink 唤起 App
-            //TODO: 是否有对应常量
             NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
             url = userActivity.webpageURL;
         }
@@ -169,7 +172,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 }
 
 - (void)handleDeepLink:(NSURL *)url {
-    NSDictionary *queryItems = [NSURL queryItemsWithURL:url];
+    NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
     [self parseUtmsWithDictionary:queryItems];
 }
 
@@ -181,9 +184,13 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     BOOL coverLastInfo = NO;
     for (NSString *name in _presetUtms) {
         NSString *value = dictionary[name];
+        // 字典中只要当前 name 的值存在（不论值是否为空字符串），就需要将上次的 latest utms 覆盖
         if (value) {
             coverLastInfo = YES;
         }
+
+        // 只有字典中 name 对应的值不为空字符串时才需要添加到 latest utms 中
+        // 即只有对应渠道消息有内容时才需要加到埋点数据中
         if (value.length > 0) {
             NSString *utmKey = [NSString stringWithFormat:@"$%@", name];
             _utms[utmKey] = value;
@@ -194,9 +201,12 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
     for (NSString *name in _sourceChannels) {
         NSString *value = dictionary[name];
+        // 字典中只要当前 name 的值存在（不论值是否为空字符串），就需要将上次的 latest utms 覆盖
         if (value) {
             coverLastInfo = YES;
         }
+        // 只有字典中 name 对应的值不为空字符串时才需要添加到 latest utms 中
+        // 即只有对应渠道消息有内容时才需要加到埋点数据中
         if (value.length > 0) {
             _utms[name] = value;
             NSString *latestKey = [NSString stringWithFormat:@"_latest_%@", name];
@@ -205,7 +215,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     }
 
     // latest utms 字段在 App 销毁前一直保存在内存中
-    // 当解析的 latest utms 属性存在时（不论内容是否为空），就覆盖当前内存及本地的 latest utms 内容
+    // 当 coverLastInfo 为 YES 时，表示本次渠道信息解析中有相关渠道参数字段（不论参数内容是否为空）
     if (coverLastInfo) {
         _latestUtms = latest;
         [self updateLocalLatestUtms];

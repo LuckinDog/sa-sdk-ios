@@ -1,5 +1,5 @@
 //
-//  NSURL+URLUtils.h
+//  SAURLUtils.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 张敏超 on 2019/4/18.
@@ -18,9 +18,9 @@
 //  limitations under the License.
 //
 
-#import "SANetwork.h"
+#import <Foundation/Foundation.h>
 
-@interface NSURL (URLUtils)
+@interface SAURLUtils : NSObject
 
 + (NSString *)hostWithURL:(NSURL *)url;
 + (NSString *)hostWithURLString:(NSString *)URLString;
