@@ -40,7 +40,7 @@
     NSURL *url = [NSURL URLWithString:urlString];
     NSDictionary *launchOptions = @{UIApplicationLaunchOptionsURLKey: url};
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:launchOptions];
-    options.enableSaveUtm = YES;
+    options.enableSaveDeepLinkInfo = YES;
     options.sourceChannels = @[@"source", @"channel", @"device_id"];
     _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
 }
@@ -159,7 +159,7 @@
 - (void)testNormalAppStart {
     // 重新初始化 handler 模拟自然启动
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
-    options.enableSaveUtm = YES;
+    options.enableSaveDeepLinkInfo = YES;
     options.sourceChannels = @[@"source", @"channel"];
     _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
 
@@ -180,7 +180,7 @@
 - (void)testVersionUpdate {
     // 重新初始化 handler 模拟自然启动
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
-    options.enableSaveUtm = YES;
+    options.enableSaveDeepLinkInfo = YES;
     //升级版本修改 sourceChannels 后，会过滤本地获取到的自定义属性
     options.sourceChannels = @[@"version", @"channel"];
     _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
@@ -217,7 +217,7 @@
     // 重新初始化 handler 模拟自然启动
     // 重新赋值 sourceChannels。当本地保存的自定义数据不在新的 sourceChannels 列表中时直接过滤掉
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
-    options.enableSaveUtm = YES;
+    options.enableSaveDeepLinkInfo = YES;
     options.sourceChannels = @[@"sourceChannel"];
     _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
 

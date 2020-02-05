@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger maxRequestHourInterval;
 
 /// DeepLink 中解析出来的参数是否需要保存到本地
-@property (nonatomic, assign) BOOL enableSaveUtm;
+@property (nonatomic, assign) BOOL enableSaveDeepLinkInfo;
 
 /// DeepLink 中用户自定义来源渠道属性 key 值，可传多个。
 @property (nonatomic, copy) NSArray<NSString *> *sourceChannels;

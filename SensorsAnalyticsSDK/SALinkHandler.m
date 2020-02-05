@@ -78,7 +78,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 }
 
 - (void)loadLocalInfo {
-    if (_configOptions.enableSaveUtm) {
+    if (_configOptions.enableSaveDeepLinkInfo) {
         NSDictionary *local = [SAFileStore unarchiveWithFileName:kLocalUtmsFileName];
         if (local) {
             NSMutableDictionary *latest = [NSMutableDictionary dictionary];
@@ -117,7 +117,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
 #pragma mark - save latest utms in local file
 - (void)updateLocalLatestUtms {
-    if (!_configOptions.enableSaveUtm) {
+    if (!_configOptions.enableSaveDeepLinkInfo) {
         return;
     }
     NSDictionary *value = _latestUtms ?: [NSDictionary dictionary];

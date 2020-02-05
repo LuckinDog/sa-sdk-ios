@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
 @abstract
-清除本次 DeepLink 解析到的 utm 消息
+清除本次 DeepLink 解析到的 utm 信息
 
 */
 - (void)clearUtmProperties;
