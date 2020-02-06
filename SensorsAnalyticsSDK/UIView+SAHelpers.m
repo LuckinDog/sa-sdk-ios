@@ -106,8 +106,9 @@
     }
     NSString *result = nil;
     UIResponder *responder = [self nextResponder];
-    while (responder && ![responder isKindOfClass:[UIViewController class]])
+    while (responder && ![responder isKindOfClass:[UIViewController class]]) {
         responder = [responder nextResponder];
+    }
     if (responder) {
         uint count;
         Ivar *ivars = class_copyIvarList([responder class], &count);
