@@ -521,11 +521,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [properties setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
         [properties setObject:@([networkType isEqualToString:@"WIFI"]) forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
         [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_CARRIER] forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-        if ([self isFirstDay]) {
-            [properties setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-        } else {
-            [properties setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-        }
+        [properties setObject:@([self isFirstDay]) forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
         [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
     } @catch(NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
@@ -774,11 +770,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 //  是否首日访问
                 if([type isEqualToString:@"track"]) {
-                    if ([self isFirstDay]) {
-                        [propertiesDict setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-                    } else {
-                        [propertiesDict setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-                    }
+                    [propertiesDict setObject:@([self isFirstDay]) forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
                 }
                 [propertiesDict removeObjectForKey:@"_nocache"];
             }
@@ -1614,11 +1606,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                  nil];
         } else if([type isEqualToString:@"track"]) {
             //  是否首日访问
-            if ([self isFirstDay]) {
-                [p setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-            } else {
-                [p setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-            }
+            [p setObject:@([self isFirstDay]) forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
 
             @try {
                 if ([self isLaunchedPassively]) {
