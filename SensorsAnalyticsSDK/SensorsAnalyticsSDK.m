@@ -519,11 +519,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH] forKey:SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH];
         NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
         [properties setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
-        if ([networkType isEqualToString:@"WIFI"]) {
-            [properties setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-        } else {
-            [properties setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-        }
+        [properties setObject:@([networkType isEqualToString:@"WIFI"]) forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
         [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_CARRIER] forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
         if ([self isFirstDay]) {
             [properties setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
@@ -774,11 +770,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // 每次 track 时手机网络状态
                 NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
                 [propertiesDict setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
-                if ([networkType isEqualToString:@"WIFI"]) {
-                    [propertiesDict setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-                } else {
-                    [propertiesDict setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-                }
+                [propertiesDict setObject:@([networkType isEqualToString:@"WIFI"]) forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
 
                 //  是否首日访问
                 if([type isEqualToString:@"track"]) {
@@ -1542,11 +1534,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 每次 track 时手机网络状态
             NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
             [originalProperties setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
-            if ([networkType isEqualToString:@"WIFI"]) {
-                [originalProperties setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-            } else {
-                [originalProperties setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-            }
+            [originalProperties setObject:@([networkType isEqualToString:@"WIFI"]) forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
 
             NSDictionary *eventTimer = self.trackTimer[event];
             if (eventTimer) {
