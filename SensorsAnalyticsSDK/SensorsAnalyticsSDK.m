@@ -1391,7 +1391,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isValidName:(NSString *)name {
     @try {
-        NSArray *reservedProperties = @[@"date", @"datetime", @"distinct_id", @"event", @"events", @"first_id", @"id", @"original_id", @"device_id", @"properties", @"second_id", @"time", @"user_id", @"users"];
+        NSSet *reservedProperties = sensorsdata_reserved_properties();
         for (NSString *reservedProperty in reservedProperties) {
             if ([reservedProperty caseInsensitiveCompare:name] == NSOrderedSame) {
                 return NO;
@@ -1794,7 +1794,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
     if (trackType == SensorsAnalyticsTrackTypeCode) {
         //事件校验，预置事件提醒
-        NSArray *presetEventName = @[@"$AppEnd", @"$AppStart", @"$AppViewScreen", @"$AppClick", @"$SignUp", @"$AppCrashed"];
+        NSSet *presetEventName = [NSSet setWithObjects:
+                                  SA_EVENT_NAME_APP_START,
+                                  SA_EVENT_NAME_APP_START_PASSIVELY ,
+                                  SA_EVENT_NAME_APP_END,
+                                  SA_EVENT_NAME_APP_VIEW_SCREEN,
+                                  SA_EVENT_NAME_APP_CLICK,
+                                  SA_EVENT_NAME_APP_SIGN_UP,
+                                  SA_EVENT_NAME_APP_CRASHED, nil];
         if ([presetEventName containsObject:event]) {
             SAError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
