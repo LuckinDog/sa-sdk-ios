@@ -1497,6 +1497,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+    __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
     dispatch_async(self.serialQueue, ^{
         //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
         NSString *eventName = [self.trackTimer eventNameFromEventId:event];
@@ -1545,40 +1546,43 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [originalProperties addEntriesFromDictionary:propertieDict];
         }
 
-        // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time，p 为修改后的属性
-        NSMutableDictionary *p = [NSMutableDictionary dictionary];
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
-        NSString *project = nil;
-        NSString *token = nil;
-        
-        NSArray *keys = originalProperties.allKeys;
-        for (id key in keys) {
-            NSObject *obj = originalProperties[key];
-            if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT]) {
-                project = (NSString *)obj;
-            } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN]) {
-                token = (NSString *)obj;
-            } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
-                if ([obj isKindOfClass:NSDate.class]) {
-                    NSDate *customTime = (NSDate *)obj;
-                    NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-                    if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                        timeStamp = @(customTimeInt);
-                    } else {
-                        SAError(@"$time error %ld，Please check the value", customTimeInt);
-                    }
+        // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
+        NSString *project = (NSString *)originalProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+        NSString *token = (NSString *)originalProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+        id originalTime = originalProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+        if (originalTime) {
+            if ([originalTime isKindOfClass:NSDate.class]) {
+                NSDate *customTime = (NSDate *)originalTime;
+                NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+                if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                    timeStamp = @(customTimeInt);
                 } else {
-                    SAError(@"$time '%@' invalid，Please check the value", obj);
+                    SAError(@"$time error %ld，Please check the value", customTimeInt);
                 }
             } else {
-                if ([obj isKindOfClass:[NSDate class]]) {
-                    // 序列化所有 NSDate 类型
-                    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
-                    NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-                    [p setObject:dateStr forKey:key];
-                } else {
-                    [p setObject:obj forKey:key];
-                }
+                SAError(@"$time '%@' invalid，Please check the value", originalTime);
+            }
+        }
+        
+        // p 为修改后的属性
+        NSMutableDictionary *p = [NSMutableDictionary dictionary];
+        NSArray *keys = originalProperties.allKeys;
+        for (id key in keys) {
+            // $project, $token, $time 已经提前处理
+            if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT] ||
+                [key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN] ||
+                [key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
+                continue;
+            }
+            
+            id obj = originalProperties[key];
+            if ([obj isKindOfClass:[NSDate class]]) {
+                // 序列化所有 NSDate 类型
+                NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+                NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
+                [p setObject:dateStr forKey:key];
+            } else {
+                [p setObject:obj forKey:key];
             }
         }
 
