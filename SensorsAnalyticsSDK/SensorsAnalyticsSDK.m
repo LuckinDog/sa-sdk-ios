@@ -1409,7 +1409,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         // 属性名通过正则表达式匹配，比使用谓词效率更高
         NSRange range = NSMakeRange(0, name.length);
-        return [self.propertiesRegex numberOfMatchesInString:name options:0 range:range];
+        return ([self.propertiesRegex numberOfMatchesInString:name options:0 range:range] > 0);
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
         return NO;
