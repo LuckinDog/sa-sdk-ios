@@ -115,22 +115,18 @@
 #pragma mark -
 @implementation SAAutoTrackUtils (Property)
 
-+ (NSDictionary *)screenInfoWithController:(UIViewController *)controller {
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
-        UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
-        properties[SA_EVENT_PROPERTY_SCREEN_NAME] = trackProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
-        properties[SA_EVENT_PROPERTY_TITLE] = trackProperties[SA_EVENT_PROPERTY_TITLE];
-    }
-    return properties;
-}
-
 + (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
     properties[SA_EVENT_PROPERTY_TITLE] = viewController.sensorsdata_title;
-    [properties addEntriesFromDictionary:[self screenInfoWithController:viewController]];
+    
+    if ([viewController conformsToProtocol:@protocol(SAAutoTracker)] &&
+        [viewController respondsToSelector:@selector(getTrackProperties)]) {
+        UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)viewController;
+        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
+        [properties addEntriesFromDictionary:trackProperties];
+    }
+
     return [properties copy];
 }
 
