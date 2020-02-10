@@ -114,8 +114,9 @@
         Ivar *ivars = class_copyIvarList([responder class], &count);
         for (uint i = 0; i < count; i++) {
             Ivar ivar = ivars[i];
-            if (ivar_getTypeEncoding(ivar)) {
-                if (ivar_getTypeEncoding(ivar)[0] == '@' && object_getIvar(responder, ivar) == self) {
+            const char *objCType = ivar_getTypeEncoding(ivar);
+            if (objCType) {
+                if (objCType[0] == '@' && object_getIvar(responder, ivar) == self) {
                     result = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
                     break;
                 }
