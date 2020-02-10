@@ -2775,6 +2775,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
     [notificationCenter addObserver:self
+                           selector:@selector(applicationDidFinishLaunching:)
+                               name:UIApplicationDidFinishLaunchingNotification
+                             object:nil];
+
+    [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
                                name:UIApplicationWillEnterForegroundNotification
                              object:nil];
@@ -3055,6 +3060,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
+    }
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    SADebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
+    if (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
+        //全埋点
+        [self autoTrackAppStart];
     }
 }
 
