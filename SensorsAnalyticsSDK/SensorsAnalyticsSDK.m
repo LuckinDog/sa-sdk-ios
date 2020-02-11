@@ -1568,17 +1568,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [p removeObjectsForKeys:needRemoveKeys];
         
         // 序列化所有 NSDate 类型
-        NSMutableDictionary *dateFormatterMDic = [NSMutableDictionary dictionary];
         [p enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             if ([obj isKindOfClass:[NSDate class]]) {
                 NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
                 NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-                if (dateStr) {
-                    [dateFormatterMDic setObject:dateStr forKey:key];
-                }
+                p[key] = dateStr;
             }
         }];
-        [p addEntriesFromDictionary:dateFormatterMDic];
 
         NSMutableDictionary *e;
         NSString *bestId = self.distinctId;
