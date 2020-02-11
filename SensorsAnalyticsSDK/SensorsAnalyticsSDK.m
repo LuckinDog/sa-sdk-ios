@@ -1514,14 +1514,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //去重
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
-        // originalProperties 为未处理前的原始属性
-        NSMutableDictionary *originalProperties = [NSMutableDictionary dictionary];
+        NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
-            [originalProperties addEntriesFromDictionary:self->_automaticProperties];
-            [originalProperties addEntriesFromDictionary:self->_superProperties];
-            [originalProperties addEntriesFromDictionary:dynamicSuperPropertiesDict];
+            [p addEntriesFromDictionary:self->_automaticProperties];
+            [p addEntriesFromDictionary:self->_superProperties];
+            [p addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
             //update lib $app_version from super properties
             id app_version = [self->_superProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
@@ -1531,60 +1530,55 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             // 每次 track 时手机网络状态
             NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-            [originalProperties setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
-            [originalProperties setObject:@([networkType isEqualToString:@"WIFI"]) forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
+            [p setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
+            [p setObject:@([networkType isEqualToString:@"WIFI"]) forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
 
             //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
             //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
             NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:event currentSysUpTime:currentSystemUpTime];
             if (eventDuration) {
-                originalProperties[@"event_duration"] = eventDuration;
+                p[@"event_duration"] = eventDuration;
             }
         }
         
         if ([propertieDict isKindOfClass:[NSDictionary class]]) {
-            [originalProperties addEntriesFromDictionary:propertieDict];
+            [p addEntriesFromDictionary:propertieDict];
         }
 
         // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
-        NSString *project = (NSString *)originalProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
-        NSString *token = (NSString *)originalProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-        id originalTime = originalProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
-        if (originalTime) {
-            if ([originalTime isKindOfClass:NSDate.class]) {
-                NSDate *customTime = (NSDate *)originalTime;
-                NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-                if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                    timeStamp = @(customTimeInt);
-                } else {
-                    SAError(@"$time error %ld，Please check the value", customTimeInt);
-                }
+        NSString *project = (NSString *)p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+        NSString *token = (NSString *)p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+        id originalTime = p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+        if ([originalTime isKindOfClass:NSDate.class]) {
+            NSDate *customTime = (NSDate *)originalTime;
+            NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+            if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                timeStamp = @(customTimeInt);
             } else {
-                SAError(@"$time '%@' invalid，Please check the value", originalTime);
+                SAError(@"$time error %ld，Please check the value", customTimeInt);
             }
+        } else if (originalTime) {
+            SAError(@"$time '%@' invalid，Please check the value", originalTime);
         }
         
-        // p 为修改后的属性
-        NSMutableDictionary *p = [NSMutableDictionary dictionary];
-        NSArray *keys = originalProperties.allKeys;
-        for (id key in keys) {
-            // $project, $token, $time 已经提前处理
-            if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT] ||
-                [key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN] ||
-                [key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
-                continue;
-            }
-            
-            id obj = originalProperties[key];
+        // $project, $token, $time 处理完毕后需要移除
+        NSArray<NSString *> *needRemoveKeys = @[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT,
+                                                SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN,
+                                                SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+        [p removeObjectsForKeys:needRemoveKeys];
+        
+        // 序列化所有 NSDate 类型
+        NSMutableDictionary *dateFormatterMDic = [NSMutableDictionary dictionary];
+        [p enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             if ([obj isKindOfClass:[NSDate class]]) {
-                // 序列化所有 NSDate 类型
                 NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
                 NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-                [p setObject:dateStr forKey:key];
-            } else {
-                [p setObject:obj forKey:key];
+                if (dateStr) {
+                    [dateFormatterMDic setObject:dateStr forKey:key];
+                }
             }
-        }
+        }];
+        [p addEntriesFromDictionary:dateFormatterMDic];
 
         NSMutableDictionary *e;
         NSString *bestId = self.distinctId;
