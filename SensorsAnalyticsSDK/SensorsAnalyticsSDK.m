@@ -361,6 +361,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self startAppEndTimer];
             [self setUpListeners];
             
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self autoTrackAppStart];
+            });
+
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
@@ -1066,7 +1070,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -2674,12 +2677,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setUpListeners {
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    
+
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidFinishLaunching:)
                                name:UIApplicationDidFinishLaunchingNotification
                              object:nil];
-    
+
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
                                name:UIApplicationWillEnterForegroundNotification
