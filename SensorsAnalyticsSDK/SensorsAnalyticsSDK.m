@@ -825,7 +825,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 } else if ([customTime compare:@(SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT)] == NSOrderedAscending) {
                     SAError(@"H5 $time error %@，Please check the value", customTime);
                 } else {
-                    timeStamp = customTime;
+                    timeStamp = @([customTime unsignedLongLongValue]);
                 }
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
