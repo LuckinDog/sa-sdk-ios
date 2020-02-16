@@ -805,7 +805,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
             NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-            NSNumber *timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+            id timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
 
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
@@ -816,11 +816,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
             if (timeNumber) { //包含 $time
-                NSInteger customTimeInt = [timeNumber integerValue];
-                if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                    timeStamp = @(customTimeInt);
+                NSNumber *customTime = nil;
+                if ([timeNumber isKindOfClass:[NSDate class]]) {
+                    customTime = @([(NSDate *)timeNumber timeIntervalSince1970] * 1000);
+                } else if ([timeNumber isKindOfClass:[NSNumber class]]) {
+                    customTime = timeNumber;
+                }
+                
+                if (!customTime) {
+                    SAError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
+                } else if ([customTime compare:@(SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT)] == NSOrderedAscending) {
+                    SAError(@"H5 $time error %@，Please check the value", timeNumber);
                 } else {
-                    SAError(@"H5 $time error '%@'，Please check the value", timeNumber);
+                    timeStamp = @([customTime unsignedLongLongValue]);
                 }
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
