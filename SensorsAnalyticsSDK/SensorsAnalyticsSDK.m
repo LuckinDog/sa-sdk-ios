@@ -2097,7 +2097,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         } else if ([propertyValue isKindOfClass:[NSArray class]]) {
             NSMutableArray *newArray = nil;
-            for (NSInteger index = 0; index < [propertyValue count]; index++) {
+            for (NSInteger index = 0; index < [(NSArray *)propertyValue count]; index++) {
                 id object = [propertyValue objectAtIndex:index];
                 NSString *string = verifyString(object, &newProperties, &newArray);
                 if (string == nil) {

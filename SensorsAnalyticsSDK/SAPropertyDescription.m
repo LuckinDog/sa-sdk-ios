@@ -52,7 +52,7 @@
     self = [super init];
     if (self) {
         _selectorName = [dictionary[@"selector"] copy];
-        NSMutableArray *parameters = [[NSMutableArray alloc] initWithCapacity:[dictionary[@"parameters"] count]];
+        NSMutableArray *parameters = [[NSMutableArray alloc] initWithCapacity:[(NSArray *)(dictionary[@"parameters"]) count]];
         for (NSDictionary *parameter in dictionary[@"parameters"]) {
             [parameters addObject:[[SAPropertySelectorParameterDescription alloc] initWithDictionary:parameter]];
         }
