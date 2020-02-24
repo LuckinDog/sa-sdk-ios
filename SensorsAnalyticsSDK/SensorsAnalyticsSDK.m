@@ -75,7 +75,7 @@
 #import "SADateFormatter.h"
 #import "SATrackTimer.h"
 
-#define VERSION @"1.11.16-pre"
+#define VERSION @"1.11.17-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -176,9 +176,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, strong) NSDictionary *superProperties;
 @property (nonatomic, strong) SATrackTimer *trackTimer;
 
-@property (nonatomic, strong) NSPredicate *regexTestName;
-
-@property (nonatomic, strong) NSPredicate *regexEventName;
+@property (nonatomic, strong) NSRegularExpression *propertiesRegex;
+@property (nonatomic, copy) NSSet *presetEventNames;
 
 @property (atomic, strong) MessageQueueBySqlite *messageQueue;
 
@@ -337,12 +336,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
             
-            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^device_id$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
-            _regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
-            
-            NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick)|(SignUp))|(^AppCrashed)$";
-            _regexEventName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", eventPattern];
-            
+            NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+            _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
+            _presetEventNames = [NSSet setWithObjects:
+                                      SA_EVENT_NAME_APP_START,
+                                      SA_EVENT_NAME_APP_START_PASSIVELY ,
+                                      SA_EVENT_NAME_APP_END,
+                                      SA_EVENT_NAME_APP_VIEW_SCREEN,
+                                      SA_EVENT_NAME_APP_CLICK,
+                                      SA_EVENT_NAME_APP_SIGN_UP,
+                                      SA_EVENT_NAME_APP_CRASHED, nil];
+
             if (!_launchedPassively) {
                 [self startFlushTimer];
             }
@@ -361,6 +365,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self startAppEndTimer];
             [self setUpListeners];
             
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self autoTrackAppStart];
+            });
+
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
@@ -782,7 +790,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
             NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-            NSNumber *timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+            id timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
 
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
@@ -793,11 +801,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
             if (timeNumber) { //包含 $time
-                NSInteger customTimeInt = [timeNumber integerValue];
-                if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                    timeStamp = @(customTimeInt);
+                NSNumber *customTime = nil;
+                if ([timeNumber isKindOfClass:[NSDate class]]) {
+                    customTime = @([(NSDate *)timeNumber timeIntervalSince1970] * 1000);
+                } else if ([timeNumber isKindOfClass:[NSNumber class]]) {
+                    customTime = timeNumber;
+                }
+                
+                if (!customTime) {
+                    SAError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
+                } else if ([customTime compare:@(SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT)] == NSOrderedAscending) {
+                    SAError(@"H5 $time error %@，Please check the value", timeNumber);
                 } else {
-                    SAError(@"H5 $time error '%@'，Please check the value", timeNumber);
+                    timeStamp = @([customTime unsignedLongLongValue]);
                 }
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
@@ -1050,7 +1066,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -1375,25 +1390,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isValidName:(NSString *)name {
     @try {
-        if (_deviceModel == nil) {
-            _deviceModel = [self deviceModel];
-        }
-
-        if (_osVersion == nil) {
-            UIDevice *device = [UIDevice currentDevice];
-            _osVersion = [device systemVersion];
-        }
-
-        //据反馈，该函数在 iPhone 8、iPhone 8 Plus，并且系统版本号为 11.0 上可能会 crash，具体原因暂未查明
-        if ([_osVersion isEqualToString:@"11.0"]) {
-            if ([_deviceModel isEqualToString:@"iPhone10,1"] ||
-                [_deviceModel isEqualToString:@"iPhone10,4"] ||
-                [_deviceModel isEqualToString:@"iPhone10,2"] ||
-                [_deviceModel isEqualToString:@"iPhone10,5"]) {
-                    return YES;
+        // 保留字段通过字符串直接比较，效率更高
+        NSSet *reservedProperties = sensorsdata_reserved_properties();
+        for (NSString *reservedProperty in reservedProperties) {
+            if ([reservedProperty caseInsensitiveCompare:name] == NSOrderedSame) {
+                return NO;
             }
         }
-        return [self.regexTestName evaluateWithObject:name];
+        // 属性名通过正则表达式匹配，比使用谓词效率更高
+        NSRange range = NSMakeRange(0, name.length);
+        return ([self.propertiesRegex numberOfMatchesInString:name options:0 range:range] > 0);
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
         return NO;
@@ -1744,7 +1750,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
     if (trackType == SensorsAnalyticsTrackTypeCode) {
         //事件校验，预置事件提醒
-        if ([self.regexEventName evaluateWithObject:event]) {
+        if ([_presetEventNames containsObject:event]) {
             SAError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
         
@@ -2650,12 +2656,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setUpListeners {
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    
+
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidFinishLaunching:)
                                name:UIApplicationDidFinishLaunchingNotification
                              object:nil];
-    
+
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
                                name:UIApplicationWillEnterForegroundNotification
