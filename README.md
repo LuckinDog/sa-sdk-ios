@@ -56,7 +56,7 @@ iOS 8.0 及以上，Xcode 9.0 及以上。
 
 | 《数据驱动：从方法到实践》 | 《Android 全埋点解决方案》 |
 | ------ | ------ |
-| [![《数据驱动：从方法到实践》](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/data_driven_book.jpg)](https://u.jd.com/dWkE2x) | [![《Android 全埋点解决方案》](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/android_autotrack_book.jpg)](https://u.jd.com/2JFaeG) |
+| [![《数据驱动：从方法到实践》](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/data_driven_book.jpg)](https://union-click.jd.com/jdc?e=&p=AyIGZRprFQEQBFYZWBYyVlgNRQQlW1dCFFlQCxxKQgFHREkdSVJKSQVJHFRXFk9FUlpGQUpLCVBaTFhbXQtWVmpSWRtYFwERBVYYa2FKZx0XchgUYnYEA0wjXgtAREt6JFMOHjdUK1sUAxIDUBxdHQQiN1Uca0NsEgZUGloUBxICVitaJQIWDlYcWBUGFQNVH1slBRIOZUcFSVx8QR5QayUyETdlK1slASJFO0lbRwtCAVEYDhUBEQIGGl0cVUYDVEwMFQYaAVFIC0dRIgVUGl8c) | [![《Android 全埋点解决方案》](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/android_autotrack_book.jpg)](https://u.jd.com/2JFaeG) |
 
 
 ## 感谢
