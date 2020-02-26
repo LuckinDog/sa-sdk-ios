@@ -1353,19 +1353,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
         return;
     }
-
+    
+    NSDictionary *propertyDictCopy = [propertyDict copy];
     // 校验 properties
     NSString *type = itemDict[SA_EVENT_TYPE];
-    if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
+    if (![self assertPropertyTypes:&propertyDictCopy withEventType:type]) {
         SAError(@"%@ failed to item properties", self);
         return;
     }
 
     NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
-    if (propertyDict.count > 0) {
-        itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
+    // 处理 $project
+    id project = propertyDictCopy[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+    if (project) {
+        itemProperties[SA_EVENT_PROJECT] = project;
+        
+        NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDictCopy];
+        [propertyMDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+        propertyDictCopy = [NSDictionary dictionaryWithDictionary:propertyMDict];
     }
-
+    
+    if (propertyDictCopy.count > 0) {
+        itemProperties[SA_EVENT_PROPERTIES] = propertyDictCopy;
+    }
+    
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     [libProperties setValue:@"code" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
     [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB] forKey:SA_EVENT_COMMON_PROPERTY_LIB];
