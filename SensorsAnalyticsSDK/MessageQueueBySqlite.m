@@ -299,13 +299,13 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         }
         rc = sqlite3_step(insertStatement);
         if (rc != SQLITE_DONE) {
-            SAError(@"insert into dataCache fail, rc is %d", rc);
+            SAError(@"insert into dataCache table of sqlite fail, rc is %d", rc);
         } else {
             _dbMessageCount++;
-            SADebug(@"insert into dataCache success, current count is %lu", _dbMessageCount);
+            SADebug(@"insert into dataCache table of sqlite success, current count is %lu", _dbMessageCount);
         }
     } else {
-        SAError(@"insert into dataCache error");
+        SAError(@"insert into dataCache table of sqlite error");
     }
 }
 
