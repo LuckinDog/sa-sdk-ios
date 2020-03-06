@@ -132,7 +132,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
     
     if ([self databaseCheck]) {
-        [self addObejctToDatabase:obj withType:type];
+        [self addObejctToDatabase:obj withType:type isFromCache:NO];
     } else {
         [self addObejctToCache:obj];
     }
@@ -238,8 +238,8 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         [self removeFirstRecordsFromCache:kRemoveFirstRecordsDefaultCount];
     }
     
-    id newObj = [self shouldEncryptionJSONObject:obj];
-         
+    id newObj = [self shouldEncryptJSONObject:obj];
+    
     @try {
         NSData *jsonData = [_jsonUtil JSONSerializeObject:newObj];
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -257,7 +257,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
 }
 
-- (void)addObejctToDatabase:(id)obj withType:(NSString *)type {
+- (void)addObejctToDatabase:(id)obj withType:(NSString *)type isFromCache:(BOOL)isFromCache {
     if (!obj || ![type isKindOfClass:[NSString class]]) {
         SAError(@"%@ input parameter is invalid for addObejctToDatabase", self);
         return;
@@ -276,12 +276,12 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
     
     NSString *jsonString = nil;
-    if ([obj isKindOfClass:[NSString class]]) {
+    if (isFromCache) {
         // 数据从缓存中来，已经是处理成 NSString 的结果，不需要再次进行处理
         jsonString = obj;
     } else {
-        // 数据从外部进来，是 NSDictionary 类型，需要进行处理
-        id newObj = [self shouldEncryptionJSONObject:obj];
+        // 数据从外部进来，需要进行处理
+        id newObj = [self shouldEncryptJSONObject:obj];
         NSData *jsonData = [_jsonUtil JSONSerializeObject:newObj];
         jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
@@ -477,7 +477,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         for (id obj in self.messageCaches) {
             
             // 目前 add object 的 type 都是 Post
-            [self addObejctToDatabase:obj withType:@"Post"];
+            [self addObejctToDatabase:obj withType:@"Post" isFromCache:YES];
         }
         
         [self.messageCaches removeAllObjects];
@@ -515,7 +515,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     return stmt;
 }
 
-- (id)shouldEncryptionJSONObject:(id)obj {
+- (id)shouldEncryptJSONObject:(id)obj {
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
     //支持加密
     return [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:obj] ?: obj;
