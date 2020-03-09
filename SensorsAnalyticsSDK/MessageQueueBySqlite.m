@@ -125,16 +125,16 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 
 #pragma mark - Public Methods
 
-- (void)addObejct:(id)obj withType:(NSString *)type {
+- (void)addObject:(id)obj withType:(NSString *)type {
     if (!obj || ![type isKindOfClass:[NSString class]]) {
         SAError(@"%@ input parameter is invalid for addObject", self);
         return;
     }
     
     if ([self databaseCheck]) {
-        [self addObejctToDatabase:obj withType:type isFromCache:NO];
+        [self addObjectToDatabase:obj withType:type isFromCache:NO];
     } else {
-        [self addObejctToCache:obj];
+        [self addObjectToCache:obj];
     }
 }
 
@@ -226,15 +226,15 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
 }
 
-- (void)addObejctToCache:(id)obj {
+- (void)addObjectToCache:(id)obj {
     if (!obj) {
-        SAError(@"%@ input parameter is invalid for addObejctToCache", self);
+        SAError(@"%@ input parameter is invalid for addObjectToCache", self);
         return;
     }
     
     // 数据缓存到内存中，如果最大缓存条数大于 10000，可能导致内存占用过大
     if (self.messageCaches.count >= kMessageCachesMaxSize) {
-        SAError(@"AddObejctToCache touch MAX_MESSAGE_SIZE:10000, try to delete some old events");
+        SAError(@"AddObjectToCache touch MAX_MESSAGE_SIZE:10000, try to delete some old events");
         [self removeFirstRecordsFromCache:kRemoveFirstRecordsDefaultCount];
     }
     
@@ -257,20 +257,20 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
 }
 
-- (void)addObejctToDatabase:(id)obj withType:(NSString *)type isFromCache:(BOOL)isFromCache {
+- (void)addObjectToDatabase:(id)obj withType:(NSString *)type isFromCache:(BOOL)isFromCache {
     if (!obj || ![type isKindOfClass:[NSString class]]) {
-        SAError(@"%@ input parameter is invalid for addObejctToDatabase", self);
+        SAError(@"%@ input parameter is invalid for addObjectToDatabase", self);
         return;
     }
     
     UInt64 maxCacheSize = [SensorsAnalyticsSDK sharedInstance].configOptions.maxCacheSize;
     if (_dbMessageCount >= maxCacheSize) {
-        SAError(@"AddObejctToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events", maxCacheSize);
+        SAError(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events", maxCacheSize);
         BOOL ret = [self removeFirstRecordsFromDatabase:kRemoveFirstRecordsDefaultCount];
         if (ret) {
             _dbMessageCount = [self sqliteCount];
         } else {
-            SAError(@"AddObejctToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events FAILED", maxCacheSize);
+            SAError(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events FAILED", maxCacheSize);
             return;
         }
     }
@@ -477,7 +477,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         for (id obj in self.messageCaches) {
             
             // 目前 add object 的 type 都是 Post
-            [self addObejctToDatabase:obj withType:@"Post" isFromCache:YES];
+            [self addObjectToDatabase:obj withType:@"Post" isFromCache:YES];
         }
         
         [self.messageCaches removeAllObjects];
