@@ -309,6 +309,15 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
 }
 
+- (id)shouldEncryptJSONObject:(id)obj {
+#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
+    //支持加密
+    return [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:obj] ?: obj;
+#else
+    return obj;
+#endif
+}
+
 - (NSArray *)fetchFirstRecordsFromCache:(NSUInteger)recordSize {
     if ((self.messageCaches.count == 0) || (recordSize == 0)) {
         return @[];
@@ -320,6 +329,68 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     NSMutableArray *contentArray = [[NSMutableArray alloc] init];
     
     for (NSString *record in firstRecords) {
+        __weak typeof(self) weakSelf = self;
+        NSString *handledRecord = [self handleRecordEncryption:record withDeleteBlock:^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            
+            [strongSelf.messageCaches removeObject:record];
+        }];
+        
+        if (handledRecord.length > 0) {
+            [contentArray addObject:handledRecord];
+        }
+    }
+    
+    return [NSArray arrayWithArray:contentArray];
+}
+
+- (NSArray *)fetchFirstRecordsFromDatabase:(NSUInteger)recordSize {
+    if ((_dbMessageCount == 0) || (recordSize == 0)) {
+        return @[];
+    }
+    NSMutableArray *contentArray = [[NSMutableArray alloc] init];
+    NSString *query = [NSString stringWithFormat:@"SELECT id,content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
+    
+    sqlite3_stmt *stmt = [self dbCacheStmt:query];
+    if (stmt) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            @try {
+                char *jsonChar = (char *)sqlite3_column_text(stmt, 1);
+                if (!jsonChar) {
+                    SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
+                    return nil;
+                }
+                
+                __weak typeof(self) weakSelf = self;
+                NSString *handledRecord = [self handleRecordEncryption:[NSString stringWithUTF8String:jsonChar] withDeleteBlock:^{
+                    __strong typeof(weakSelf) strongSelf = weakSelf;
+                    
+                    char *idChar = (char *)sqlite3_column_text(stmt, 0);
+                    NSInteger idIndex = [[NSString stringWithUTF8String:idChar] integerValue];
+                    [strongSelf deleteDatabaseRecordWithId:idIndex];
+                }];
+                
+                if (handledRecord.length > 0) {
+                    [contentArray addObject:handledRecord];
+                }
+            } @catch (NSException *exception) {
+                SAError(@"Found NON UTF8 String, ignore");
+            }
+        }
+    } else {
+        SAError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
+        return nil;
+    }
+    
+    return [NSArray arrayWithArray:contentArray];
+}
+
+- (NSString *)handleRecordEncryption:(NSString *)record withDeleteBlock:(void (^)(void))deleteBlock {
+    if (![record isKindOfClass:[NSString class]]) {
+        return nil;
+    }
+    
+    @try {
         NSData *jsonData = [record dataUsingEncoding:NSUTF8StringEncoding];
         NSError *err;
         NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
@@ -339,86 +410,28 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 #else
             
             if ([eventDict.allKeys containsObject:@"ekey"]) { //非加密模式，缓存数据已加密，丢弃
-                [self.messageCaches removeObject:record];
-                continue;
+                if (deleteBlock) {
+                    deleteBlock();
+                }
+                return nil;
             }
             
             //非加密
             UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
             [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
 #endif
-            
-            [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
         } else { //删除内容为空的数据
-            [self.messageCaches removeObject:record];
-        }
-    }
-    
-    return [NSArray arrayWithArray:contentArray];
-}
-
-- (NSArray *)fetchFirstRecordsFromDatabase:(NSUInteger)recordSize {
-    if ((_dbMessageCount == 0) || (recordSize == 0)) {
-        return @[];
-    }
-    NSMutableArray *contentArray = [[NSMutableArray alloc] init];
-    NSString *query = [NSString stringWithFormat:@"SELECT id,content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
-
-    sqlite3_stmt *stmt = [self dbCacheStmt:query];
-    if (stmt) {
-        while (sqlite3_step(stmt) == SQLITE_ROW) {
-            @try {
-                char *jsonChar = (char *)sqlite3_column_text(stmt, 1);
-                if (!jsonChar) {
-                    SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
-                    return nil;
-                }
-                NSData *jsonData = [[NSString stringWithUTF8String:jsonChar] dataUsingEncoding:NSUTF8StringEncoding];
-                NSError *err;
-                NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                                                 options:NSJSONReadingMutableContainers
-                                                                                   error:&err];
-                if (!err && eventDict) {
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-                    if (![eventDict.allKeys containsObject:@"ekey"]) { //缓存数据未加密，再加密
-                        NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
-                        if (encryptDic) {
-                            eventDict = [encryptDic mutableCopy];
-                        }
-                    }
-                    //加密数据上传时间 flush_time
-                    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-                    [eventDict setValue:@(time) forKey:@"flush_time"];
-#else
-
-                    if ([eventDict.allKeys containsObject:@"ekey"]) { //非加密模式，缓存数据已加密，丢弃
-                        char* idChar = (char*)sqlite3_column_text(stmt, 0);
-                        NSInteger idIndex = [[NSString stringWithUTF8String:idChar] integerValue];
-                        [self deleteDatabaseRecordWithId:idIndex];
-                        continue;
-                    }
-
-                    //非加密
-                    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-                    [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
-#endif
-
-                    [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
-                } else { //删除内容为空的数据
-                    char *idChar = (char *)sqlite3_column_text(stmt, 0);
-                    NSInteger index = [[NSString stringWithUTF8String:idChar] integerValue];
-                    [self deleteDatabaseRecordWithId:index];
-                }
-            } @catch (NSException *exception) {
-                SAError(@"Found NON UTF8 String, ignore");
+            if (deleteBlock) {
+                deleteBlock();
             }
+            return nil;
         }
-    } else {
-        SAError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
+        
+        return [[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding];
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
         return nil;
     }
-    
-    return [NSArray arrayWithArray:contentArray];
 }
 
 /// 从数据库中删除某条数据
@@ -513,15 +526,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         sqlite3_reset(stmt);
     }
     return stmt;
-}
-
-- (id)shouldEncryptJSONObject:(id)obj {
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    //支持加密
-    return [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:obj] ?: obj;
-#else
-    return obj;
-#endif
 }
 
 #pragma mark - Getters and Setters
