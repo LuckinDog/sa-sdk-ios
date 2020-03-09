@@ -329,15 +329,19 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     NSMutableArray *contentArray = [[NSMutableArray alloc] init];
     
     for (NSString *record in firstRecords) {
-        __weak typeof(self) weakSelf = self;
-        NSString *handledRecord = [self handleRecordEncryption:record withDeleteBlock:^{
-            __strong typeof(weakSelf) strongSelf = weakSelf;
+        @try {
+            __weak typeof(self) weakSelf = self;
+            NSString *handledRecord = [self handleRecordEncryption:record withDeleteBlock:^{
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                
+                [strongSelf.messageCaches removeObject:record];
+            }];
             
-            [strongSelf.messageCaches removeObject:record];
-        }];
-        
-        if (handledRecord.length > 0) {
-            [contentArray addObject:handledRecord];
+            if (handledRecord.length > 0) {
+                [contentArray addObject:handledRecord];
+            }
+        } @catch (NSException *exception) {
+            SAError(@"%@ error: %@", self, exception);
         }
     }
     
@@ -390,48 +394,43 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         return nil;
     }
     
-    @try {
-        NSData *jsonData = [record dataUsingEncoding:NSUTF8StringEncoding];
-        NSError *err;
-        NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                                         options:NSJSONReadingMutableContainers
-                                                                           error:&err];
-        if (!err && eventDict) {
+    NSData *jsonData = [record dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *err;
+    NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                     options:NSJSONReadingMutableContainers
+                                                                       error:&err];
+    if (!err && eventDict) {
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-            if (![eventDict.allKeys containsObject:@"ekey"]) { //缓存数据未加密，再加密
-                NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
-                if (encryptDic) {
-                    eventDict = [encryptDic mutableCopy];
-                }
+        if (![eventDict.allKeys containsObject:@"ekey"]) { //缓存数据未加密，再加密
+            NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
+            if (encryptDic) {
+                eventDict = [encryptDic mutableCopy];
             }
-            //加密数据上传时间 flush_time
-            UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-            [eventDict setValue:@(time) forKey:@"flush_time"];
+        }
+        //加密数据上传时间 flush_time
+        UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
+        [eventDict setValue:@(time) forKey:@"flush_time"];
 #else
-            
-            if ([eventDict.allKeys containsObject:@"ekey"]) { //非加密模式，缓存数据已加密，丢弃
-                if (deleteBlock) {
-                    deleteBlock();
-                }
-                return nil;
-            }
-            
-            //非加密
-            UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-            [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
-#endif
-        } else { //删除内容为空的数据
+        
+        if ([eventDict.allKeys containsObject:@"ekey"]) { //非加密模式，缓存数据已加密，丢弃
             if (deleteBlock) {
                 deleteBlock();
             }
             return nil;
         }
         
-        return [[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding];
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
+        //非加密
+        UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
+        [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
+#endif
+    } else { //删除内容为空的数据
+        if (deleteBlock) {
+            deleteBlock();
+        }
         return nil;
     }
+    
+    return [[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding];
 }
 
 /// 从数据库中删除某条数据
