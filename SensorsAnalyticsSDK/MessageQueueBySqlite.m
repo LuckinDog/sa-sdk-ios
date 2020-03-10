@@ -238,12 +238,8 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         [self removeFirstRecordsFromCache:kRemoveFirstRecordsDefaultCount];
     }
     
-    id newObj = [self shouldEncryptJSONObject:obj];
-    
     @try {
-        NSData *jsonData = [_jsonUtil JSONSerializeObject:newObj];
-        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        
+        NSString *jsonString = [self buildJSONStringWithObject:obj];
         if (jsonString.length > 0) {
             // 能够转成 json 字符串
             [self.messageCaches addObject:jsonString];
@@ -281,9 +277,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         jsonString = obj;
     } else {
         // 数据从外部进来，需要进行处理
-        id newObj = [self shouldEncryptJSONObject:obj];
-        NSData *jsonData = [_jsonUtil JSONSerializeObject:newObj];
-        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        jsonString = [self buildJSONStringWithObject:obj];
     }
     
     NSString *query = @"INSERT INTO dataCache(type, content) values(?, ?)";
@@ -309,13 +303,12 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
 }
 
-- (id)shouldEncryptJSONObject:(id)obj {
+- (NSString *)buildJSONStringWithObject:(id)obj {
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    //支持加密
-    return [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:obj] ?: obj;
-#else
-    return obj;
+    obj = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:obj] ?: obj;
 #endif
+    NSData *jsonData = [_jsonUtil JSONSerializeObject:obj];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
 - (NSArray *)fetchFirstRecordsFromCache:(NSUInteger)recordSize {
@@ -331,7 +324,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     for (NSString *record in firstRecords) {
         @try {
             __weak typeof(self) weakSelf = self;
-            NSString *handledRecord = [self handleRecordEncryption:record withDeleteBlock:^{
+            NSString *handledRecord = [self addFlushTimeToRecord:record withDeleteBlock:^{
                 __strong typeof(weakSelf) strongSelf = weakSelf;
                 
                 [strongSelf.messageCaches removeObject:record];
@@ -352,45 +345,52 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if ((_dbMessageCount == 0) || (recordSize == 0)) {
         return @[];
     }
-    NSMutableArray *contentArray = [[NSMutableArray alloc] init];
-    NSString *query = [NSString stringWithFormat:@"SELECT id,content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
     
+    NSString *query = [NSString stringWithFormat:@"SELECT id,content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
     sqlite3_stmt *stmt = [self dbCacheStmt:query];
-    if (stmt) {
-        while (sqlite3_step(stmt) == SQLITE_ROW) {
-            @try {
-                char *jsonChar = (char *)sqlite3_column_text(stmt, 1);
-                if (!jsonChar) {
-                    SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
-                    return nil;
-                }
-                
-                __weak typeof(self) weakSelf = self;
-                NSString *handledRecord = [self handleRecordEncryption:[NSString stringWithUTF8String:jsonChar] withDeleteBlock:^{
-                    __strong typeof(weakSelf) strongSelf = weakSelf;
-                    
-                    char *idChar = (char *)sqlite3_column_text(stmt, 0);
-                    NSInteger idIndex = [[NSString stringWithUTF8String:idChar] integerValue];
-                    [strongSelf deleteDatabaseRecordWithId:idIndex];
-                }];
-                
-                if (handledRecord.length > 0) {
-                    [contentArray addObject:handledRecord];
-                }
-            } @catch (NSException *exception) {
-                SAError(@"Found NON UTF8 String, ignore");
-            }
-        }
-    } else {
+    if (!stmt) {
         SAError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
         return nil;
+    }
+    
+    NSMutableArray *contentArray = [[NSMutableArray alloc] init];
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        @try {
+            char *jsonChar = (char *)sqlite3_column_text(stmt, 1);
+            if (!jsonChar) {
+                SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
+                return nil;
+            }
+            
+            __weak typeof(self) weakSelf = self;
+            NSString *handledRecord = [self addFlushTimeToRecord:[NSString stringWithUTF8String:jsonChar] withDeleteBlock:^{
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                
+                char *idChar = (char *)sqlite3_column_text(stmt, 0);
+                NSInteger idIndex = [[NSString stringWithUTF8String:idChar] integerValue];
+                [strongSelf deleteDatabaseRecordWithId:idIndex];
+            }];
+            
+            if (handledRecord.length > 0) {
+                [contentArray addObject:handledRecord];
+            }
+        } @catch (NSException *exception) {
+            SAError(@"Found NON UTF8 String, ignore");
+        }
     }
     
     return [NSArray arrayWithArray:contentArray];
 }
 
-- (NSString *)handleRecordEncryption:(NSString *)record withDeleteBlock:(void (^)(void))deleteBlock {
+- (NSString *)addFlushTimeToRecord:(NSString *)record withDeleteBlock:(void (^)(void))deleteBlock {
     NSData *jsonData = [record dataUsingEncoding:NSUTF8StringEncoding];
+    if (!jsonData) {
+        if (deleteBlock) {
+            deleteBlock();
+        }
+        return nil;
+    }
+    
     NSError *err;
     NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                      options:NSJSONReadingMutableContainers
