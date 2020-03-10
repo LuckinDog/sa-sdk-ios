@@ -390,10 +390,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 }
 
 - (NSString *)handleRecordEncryption:(NSString *)record withDeleteBlock:(void (^)(void))deleteBlock {
-    if (![record isKindOfClass:[NSString class]]) {
-        return nil;
-    }
-    
     NSData *jsonData = [record dataUsingEncoding:NSUTF8StringEncoding];
     NSError *err;
     NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
