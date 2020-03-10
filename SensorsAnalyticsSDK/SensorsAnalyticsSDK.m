@@ -1443,7 +1443,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    [self.messageQueue addObejct:e withType:@"Post"];
+    [self.messageQueue addObject:e withType:@"Post"];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
