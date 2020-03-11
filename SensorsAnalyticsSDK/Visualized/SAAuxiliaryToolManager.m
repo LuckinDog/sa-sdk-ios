@@ -19,10 +19,6 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAVisualizedUtils.h"
 
-// 支持新版可视化全埋点的 SA 版本
-NSString * const SASupportVisualizedAutoTrackVersion = @"1.17.2394";
-
-NSString * const SASupportVisualizedAutoTrackVersionKey = @"SASupportVisualizedAutoTrackVersionKey";
 
 @interface SAAuxiliaryToolManager()
 @property (nonatomic, strong) SAVisualizedConnection *visualizedConnection;
@@ -70,34 +66,7 @@ NSString * const SASupportVisualizedAutoTrackVersionKey = @"SASupportVisualizedA
         [self showAlterViewWithTitle:@"提示" message:@"SDK 没有被正确集成，请联系贵方技术人员开启可视化全埋点"];
         return YES;
     } else if (featureCode && postURLStr) {
-        if ([self isVisualizedAutoTrackURL:URL]) {
-            // 先判断本地保存版本
-            NSString *saLocalVersion = [[NSUserDefaults standardUserDefaults] objectForKey:SASupportVisualizedAutoTrackVersionKey];
-            if (saLocalVersion) {
-                NSComparisonResult comparisonResult = [SAVisualizedUtils compareBuildVersion:saLocalVersion toVersion:SASupportVisualizedAutoTrackVersion];
-                if (comparisonResult != NSOrderedAscending) {
-                    [self showOpenDialogWithURL:URL featureCode:featureCode postURL:postURLStr isWifi:isWifi];
-                    return YES;
-                }
-            }
-
-            [[SensorsAnalyticsSDK sharedInstance].network queryManagermentVersionWithCompletion:^(BOOL success, NSString *_Nonnull version) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (success && version) {
-                        // 比较版本号
-                        NSComparisonResult comparisonResult = [SAVisualizedUtils compareBuildVersion:version toVersion:SASupportVisualizedAutoTrackVersion];
-                        if (comparisonResult == NSOrderedAscending) {                                                                                                                // 当前版本较小，不支持可视化全埋点
-                            [self showAlterViewWithTitle:@"提示" message:@"神策分析版本过低，升级后方可正常使用"];
-                        } else {
-                            [[NSUserDefaults standardUserDefaults] setObject:version forKey:SASupportVisualizedAutoTrackVersionKey];
-                            [self showOpenDialogWithURL:URL featureCode:featureCode postURL:postURLStr isWifi:isWifi];
-                        }
-                    }
-                });
-            }];
-        } else {
-            [self showOpenDialogWithURL:URL featureCode:featureCode postURL:postURLStr isWifi:isWifi];
-        }
+        [self showOpenDialogWithURL:URL featureCode:featureCode postURL:postURLStr isWifi:isWifi];
         return YES;
     } else { //feature_code  url 参数错误
         [self showParameterError:@"ERROR" message:@"参数错误"];

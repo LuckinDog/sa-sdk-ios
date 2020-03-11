@@ -92,10 +92,6 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
  */
 - (nullable NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
 
-
-/// 查询 SA 版本号
-/// @param completion 结束的回调
-- (NSURLSessionTask *)queryManagermentVersionWithCompletion:(void(^)(BOOL success, NSString *version))completion;
 @end
 
 @interface SANetwork (ServerURL)
