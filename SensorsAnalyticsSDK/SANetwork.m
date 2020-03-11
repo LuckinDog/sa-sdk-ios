@@ -237,6 +237,20 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
 }
 
+- (NSURLRequest *)buildQueryManagermentVersionrequest {
+    
+    NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
+    NSURLComponents *urlComponets  = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+    if (urlComponets == nil) {
+        SALog(@"URLString is malformed, nil is returned.");
+        return nil;
+    }
+    urlComponets.query = nil;
+    urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/api/v2/sa/version_info"];
+    
+    return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
+}
+
 #pragma mark - request
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(SAURLSessionTaskCompletionHandler)completionHandler {
     return [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -349,6 +363,35 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
             success = NO;
         }
         completion(success, config);
+    }];
+    [task resume];
+    return task;
+}
+
+
+- (NSURLSessionTask *)queryManagermentVersionWithCompletion:(void(^)(BOOL success, NSString *version))completion {
+    if (![self isValidServerURL]) {
+        SAError(@"serverURL error，Please check the serverURL");
+        return nil;
+    }
+    NSURLRequest *request = [self buildQueryManagermentVersionrequest];
+    NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (!completion) {
+            return ;
+        }
+        NSInteger statusCode = response.statusCode;
+        BOOL success = statusCode == 200 || statusCode == 304;
+        NSString *version = nil;
+        @try{
+            if (statusCode == 200 && data.length) {
+                NSDictionary *versionDic = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+                version = versionDic[@"version"];
+            }
+        } @catch (NSException *e) {
+            SAError(@"%@ error: %@", self, e);
+            success = NO;
+        }
+        completion(success, version);
     }];
     [task resume];
     return task;
