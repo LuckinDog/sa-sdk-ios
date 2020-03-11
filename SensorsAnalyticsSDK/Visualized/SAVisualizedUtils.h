@@ -30,9 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 判断一个 view 是否被覆盖
 + (BOOL) isCoveredForView:(UIView *)view;
 
-
-/// 比较版本号
-+ (NSComparisonResult)compareBuildVersion:(NSString *)version1 toVersion:(NSString *)version2;
 @end
 
 NS_ASSUME_NONNULL_END
