@@ -79,26 +79,4 @@
     return otherViews;
 }
 
-+ (NSComparisonResult)compareBuildVersion:(NSString *)version1 toVersion:(NSString *)version2 {
-    // 获取版本号字段
-    NSArray *v1Array = [version1 componentsSeparatedByString:@"."];
-    NSArray *v2Array = [version2 componentsSeparatedByString:@"."];
-    // 取值更大最大长度进行循环比较
-    NSInteger bigCount = (v1Array.count > v2Array.count) ? v1Array.count : v2Array.count;
-    
-    for (int i = 0; i < bigCount; i++) {
-        // 版本号取值
-        NSInteger value1 = (v1Array.count > i) ? [[v1Array objectAtIndex:i] integerValue] : 0;
-        NSInteger value2 = (v2Array.count > i) ? [[v2Array objectAtIndex:i] integerValue] : 0;
-        if (value1 > value2) {
-            // 降序
-            return NSOrderedDescending;
-        } else if (value1 < value2) {
-            // 升序
-            return NSOrderedAscending;
-        }
-    }
-    return NSOrderedSame;
-}
-
 @end
