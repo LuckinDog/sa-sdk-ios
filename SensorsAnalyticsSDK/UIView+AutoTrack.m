@@ -45,8 +45,8 @@
 
     // 采集弹框类型（UIAlertController、UIActionSheet、UIAlertView）
     if ([SAAutoTrackUtils isAlterForResponder:self]) {
-        UIWindow *window = self.window;
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        UIWindow *window = self.window;
         if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
             CGFloat actionHeight = self.bounds.size.height;
             if (actionHeight > 50) {
