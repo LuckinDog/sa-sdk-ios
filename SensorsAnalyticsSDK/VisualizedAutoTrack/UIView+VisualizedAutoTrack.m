@@ -26,6 +26,7 @@
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAVisualizedUtils.h"
+#import "SAAutoTrackUtils.h"
 
 @implementation UIView (VisualizedAutoTrack)
 
@@ -62,11 +63,9 @@
         return NO;
     }
 
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    if ([NSStringFromClass(self.class) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] || [NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) { // 标记弹框
+    if ([SAAutoTrackUtils isAlertClickForView:self]) { // 标记弹框
         return YES;
     }
-#endif
 
     if ([self isKindOfClass:UIControl.class]) {
         // UISegmentedControl 高亮渲染内部嵌套的 UISegment
@@ -304,11 +303,10 @@
 @implementation UICollectionViewCell (VisualizedAutoTrack)
 
 - (NSString *)sensorsdata_elementPosition {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) {
+    if ([SAAutoTrackUtils isAlertClickForView:self]) {
         return nil;
     }
-#endif
+
     if (self.sensorsdata_IndexPath) {
         return [[NSString alloc] initWithFormat:@"%ld:%ld", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.item];
     }
