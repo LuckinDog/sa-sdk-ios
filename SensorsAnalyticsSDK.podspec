@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.11.17"
+  s.version      = "2.0.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -130,7 +130,7 @@ Pod::Spec.new do |s|
 
   # 禁用私有 API，可视化全埋点模块存在私有类名字符串判断
   s.subspec 'DISABLE_PRIVATE_APIS' do |f|
-    f.dependency 'SensorsAnalyticsSDK-pre/core'
+    f.dependency 'SensorsAnalyticsSDK/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS=1'}
   end 
 
