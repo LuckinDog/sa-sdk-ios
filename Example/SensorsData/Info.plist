@@ -42,10 +42,14 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
+<<<<<<< HEAD
 			<string>cctest</string>
+=======
+			<string>bj</string>
+>>>>>>> 99b0d42... Merge branch 'cqs_fix_VisualizedAutoTrack' into 'pre'
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>sae7a8c585</string>
+				<string>sf20191010nb</string>
 			</array>
 		</dict>
 	</array>

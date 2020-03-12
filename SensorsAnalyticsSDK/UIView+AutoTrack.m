@@ -44,7 +44,7 @@
 - (NSString *)sensorsdata_elementType {
 
     // 采集弹框类型（UIAlertController、UIActionSheet、UIAlertView）
-    if ([SAAutoTrackUtils isAlterForResponder:self]) {
+    if ([SAAutoTrackUtils isAlertForResponder:self]) {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         UIWindow *window = self.window;
         if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
@@ -443,11 +443,9 @@
 }
 
 - (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) {
+    if ([SAAutoTrackUtils isAlertClickForView:self]) {
         return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
-#endif
     return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];
 }
 

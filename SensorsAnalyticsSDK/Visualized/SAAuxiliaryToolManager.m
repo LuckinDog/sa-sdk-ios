@@ -56,7 +56,9 @@
     NSString *postURLStr = queryItems[@"url"];
 
     // project 和 host 不同
-    if (![[SensorsAnalyticsSDK sharedInstance].network isSameProjectWithURLString:postURLStr]) {     // 未开启可视化全埋点或点击图
+    NSString *project = [SANetwork queryItemsWithURLString:postURLStr][@"project"] ?: @"default";
+    BOOL isEqualProject = [[SensorsAnalyticsSDK sharedInstance].network.project isEqualToString:project];
+    if (!isEqualProject) {     // 未开启可视化全埋点或点击图
         [self showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点"];
         return YES;
     } else if ([self isHeatMapURL:URL] && ![[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled]) {

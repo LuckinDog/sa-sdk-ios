@@ -50,7 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (UIViewController *)findSuperViewControllerByView:(UIView *)view;
 
 /// 是否为弹框
-+ (BOOL)isAlterForResponder:(UIResponder *)responder;
++ (BOOL)isAlertForResponder:(UIResponder *)responder;
+
+/// 是否为弹框点击
++ (BOOL)isAlertClickForView:(UIView *)view;
 @end
 
 #pragma mark -

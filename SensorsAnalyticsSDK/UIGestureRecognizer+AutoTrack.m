@@ -45,14 +45,15 @@
         UIView *view = gesture.view;
         // iOS10 及以上 _UIAlertControllerInterfaceActionGroupView
         // iOS 9 及以下 _UIAlertControllerView
-        BOOL isAlterType = [SAAutoTrackUtils isAlterForResponder:view];
-        if (isAlterType) {
+        if ([SAAutoTrackUtils isAlertForResponder:view]) {
             UIView *touchView = [self searchGestureTouchView:gesture];
             if (touchView) {
                 view = touchView;
             }
         }
 
+        // 是否点击弹框选项
+        BOOL isAlterType = [SAAutoTrackUtils isAlertClickForView:view];
         // 暂定只采集 UILabel 和 UIImageView
         BOOL isTrackClass = [view isKindOfClass:UILabel.class] || [view isKindOfClass:UIImageView.class] || isAlterType;
         BOOL isIgnored = ![view conformsToProtocol:@protocol(SAAutoTrackViewProperty)] || view.sensorsdata_isIgnored;
