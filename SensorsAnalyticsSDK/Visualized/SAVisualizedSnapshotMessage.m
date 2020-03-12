@@ -39,10 +39,6 @@ NSString * const SAVisualizedSnapshotRequestMessageType = @"snapshot_request";
 
 static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descriptions";
 
-@interface SAVisualizedSnapshotRequestMessage ()
-@property (nonatomic, copy) NSString *lastImageHash;
-@end
-
 @implementation SAVisualizedSnapshotRequestMessage
 
 + (instancetype)message {
@@ -76,12 +72,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
             
             [serializer screenshotImageForAllWindowWithCompletionHandler:^(UIImage *image) {
                 snapshotMessage.screenshot = image;
-                if (self.lastImageHash && [self.lastImageHash isEqualToString:snapshotMessage.imageHash]) {
-                    [conn sendMessage:[SAVisualizedSnapshotResponseMessage message]];
-                } else {
-                    self.lastImageHash = snapshotMessage.imageHash;
-                    [conn sendMessage:snapshotMessage];
-                }
+                [conn sendMessage:snapshotMessage];
             }];
         });
     }];

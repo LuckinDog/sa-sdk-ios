@@ -133,7 +133,7 @@
     return currentViewController;
 }
 
-+ (BOOL)isAlterForResponder:(UIResponder *)responder {
++ (BOOL)isAlertForResponder:(UIResponder *)responder {
     do {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -149,6 +149,17 @@
     } while ((responder = [responder nextResponder]));
     return NO;
 }
+
+/// 是否为弹框点击
++ (BOOL)isAlertClickForView:(UIView *)view {
+ #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        if ([NSStringFromClass(view.class) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] || [NSStringFromClass(view.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) { // 标记弹框
+            return YES;
+        }
+#endif
+     return NO;
+}
+
 @end
 
 #pragma mark -
