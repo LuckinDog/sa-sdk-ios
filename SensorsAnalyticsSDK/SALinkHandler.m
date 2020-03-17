@@ -183,7 +183,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     NSMutableDictionary *latest = [NSMutableDictionary dictionary];
     BOOL coverLastInfo = NO;
     for (NSString *name in _presetUtms) {
-        NSString *value = dictionary[name];
+        NSString *value = [dictionary[name] stringByRemovingPercentEncoding];
         // 字典中只要当前 name 的值存在（不论值是否为空字符串），就需要将上次的 latest utms 覆盖
         if (value) {
             coverLastInfo = YES;
@@ -200,7 +200,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
     }
 
     for (NSString *name in _sourceChannels) {
-        NSString *value = dictionary[name];
+        NSString *value = [dictionary[name] stringByRemovingPercentEncoding];
         // 字典中只要当前 name 的值存在（不论值是否为空字符串），就需要将上次的 latest utms 覆盖
         if (value) {
             coverLastInfo = YES;
