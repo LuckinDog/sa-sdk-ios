@@ -76,7 +76,7 @@
 #import "SALinkHandler.h"
 #import "SAFileStore.h"
 
-#define VERSION @"1.11.16-pre"
+#define VERSION @"1.11.16-pre-test"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
