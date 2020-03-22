@@ -2767,6 +2767,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
+    if (!_applicationWillResignActive) {
+        return;
+    }
     _applicationWillResignActive = NO;
     
     [self stopFlushTimer];
