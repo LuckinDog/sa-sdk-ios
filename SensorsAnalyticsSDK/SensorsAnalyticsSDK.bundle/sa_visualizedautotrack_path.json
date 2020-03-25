@@ -257,6 +257,22 @@
           ]
         },
         {
+          "name": "SAJSTouchEventView",
+          "superclass": "UIView",
+          "properties": [
+              {
+                "name": "url",
+                "type": "NSString"
+              },
+              {
+                  "name": "sensorsdata_elementPath",
+                  "key": "element_selector",
+                  "type": "NSString",
+                  "use_kvc": false
+              }
+          ]
+        },
+        {
           "name": "UIControlTargetAction",
           "superclass": "NSObject",
           "properties": [

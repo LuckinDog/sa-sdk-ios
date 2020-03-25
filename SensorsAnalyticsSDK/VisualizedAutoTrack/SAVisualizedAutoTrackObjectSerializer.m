@@ -36,6 +36,8 @@
 #import "SAPropertyDescription.h"
 #import "UIView+VisualizedAutoTrack.h"
 #import "SAAutoTrackUtils.h"
+#import "SAJSTouchEventView.h"
+
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
 @end
@@ -111,10 +113,18 @@
             isContainWebView = YES;
         }
 
-    propertyValues[@"isFromH5"] = @(NO);
+    NSArray *classNames = [self classHierarchyArrayForObject:object];
+    if ([object isKindOfClass:SAJSTouchEventView.class]) {
+        SAJSTouchEventView *touchView = (SAJSTouchEventView *)object;
+        propertyValues[@"isFromH5"] = @(YES);
+        classNames = @[touchView.name];
+    } else {
+         propertyValues[@"isFromH5"] = @(NO);
+    }
+
     propertyValues[@"element_level"] = @([context currentLevelIndex]);
     NSDictionary *serializedObject = @{@"id": [_objectIdentityProvider identifierForObject:object],
-                                       @"class": [self classHierarchyArrayForObject:object],  // 遍历获取父类名称
+                                       @"class": classNames,  // 遍历获取父类名称
                                        @"properties": propertyValues};
 
     [context addSerializedObject:serializedObject];

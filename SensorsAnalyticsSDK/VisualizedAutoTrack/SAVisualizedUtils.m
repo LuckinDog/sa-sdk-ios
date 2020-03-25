@@ -23,6 +23,9 @@
 #endif
 
 #import "SAVisualizedUtils.h"
+#import "SAJSTouchEventView.h"
+#import "SALogger.h"
+
 
 @implementation SAVisualizedUtils
 
@@ -77,6 +80,55 @@
         }];
     }
     return otherViews;
+}
+
++ (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView {
+    NSArray *webPageDatas = nil;
+    @try {
+        webPageDatas = [webView valueForKey:@"sensorsdata_extensionArray"];
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+    if (webPageDatas.count == 0) {
+        return nil;
+    }
+    UIScrollView *scrollView = webView.scrollView;
+    //                    位置偏移量
+    CGPoint contentOffset = scrollView.contentOffset;
+    NSMutableArray *touchViewArray = [NSMutableArray array];
+    for (NSDictionary *pageData in webPageDatas) {
+        //                        NSInteger scale = [pageData[@"scale"] integerValue];
+        CGFloat left = [pageData[@"left"] floatValue];
+
+        CGFloat top = [pageData[@"top"] floatValue];
+        CGFloat width = [pageData[@"width"] floatValue];
+        CGFloat height = [pageData[@"height"] floatValue];
+        CGFloat scrollX = [pageData[@"scrollX"] floatValue];
+        CGFloat scrollY = [pageData[@"scrollY"] floatValue];
+        BOOL visibility = [pageData[@"visibility"] boolValue];
+
+        if (height > 0 && visibility) {
+            UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+            CGPoint subviwePoint = [keyWindow convertPoint:CGPointMake(0, 0) toView:webView];
+            CGFloat realX = left + subviwePoint.x - contentOffset.x + scrollX;
+            CGFloat realY = top + subviwePoint.y - contentOffset.y + scrollY;
+
+//            CGFloat realX = left + subviwePoint.x - contentOffset.x;
+//            CGFloat realY = top + subviwePoint.y - contentOffset.y;
+
+            SAJSTouchEventView *touchView = [[SAJSTouchEventView alloc] initWithFrame:CGRectMake(realX, realY, width, height)];
+            touchView.userInteractionEnabled = YES;
+            touchView.elementContent = pageData[@"$element_content"];
+            touchView.elementSelector = pageData[@"$element_selector"];
+            touchView.visibility = visibility;
+            touchView.url = pageData[@"$url"];
+            touchView.name = pageData[@"tagName"];
+            touchView.title = pageData[@"$title"];
+            touchView.isFromH5 = YES;
+            [touchViewArray addObject:touchView];
+        }
+    }
+    return [touchViewArray copy];
 }
 
 @end

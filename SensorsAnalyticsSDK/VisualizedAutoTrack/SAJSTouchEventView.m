@@ -1,9 +1,9 @@
 //
-// SAVisualizedUtils.h
+// SAJSTouchEventView.m
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/3/3.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 储强盛 on 2020/2/20.
+// Copyright © 2020 SensorsData. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,18 +18,12 @@
 // limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "SAJSTouchEventView.h"
 
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface SAVisualizedUtils : NSObject
-
-/// 判断一个 view 是否被覆盖
-+ (BOOL) isCoveredForView:(UIView *)view;
+@implementation SAJSTouchEventView
 
 @end
-
-NS_ASSUME_NONNULL_END

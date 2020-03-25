@@ -194,6 +194,15 @@
 
 @end
 
+@implementation WKWebView (VisualizedAutoTrack)
+
+- (NSArray *)sensorsdata_subElements {
+    NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
+    return subElements;
+}
+
+@end
+
 
 @implementation UIWindow (VisualizedAutoTrack)
 
@@ -314,6 +323,26 @@
 }
 
 @end
+
+@implementation SAJSTouchEventView (VisualizedAutoTrack)
+
+- (NSString *)sensorsdata_elementPath {
+    return self.elementSelector;
+}
+
+- (NSString *)sensorsdata_elementValidContent {
+    return self.elementContent;
+}
+
+- (CGRect)sensorsdata_frame {
+    return self.frame;
+}
+
+- (BOOL)sensorsdata_enableAppClick {
+    return YES;
+}
+@end
+
 
 @implementation UIViewController (VisualizedAutoTrack)
 - (NSArray *)sensorsdata_subElements {

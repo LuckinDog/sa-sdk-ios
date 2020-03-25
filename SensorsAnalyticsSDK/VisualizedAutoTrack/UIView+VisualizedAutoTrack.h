@@ -20,7 +20,10 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 #import "SAAutoTrackProperty.h"
+#import "SAJSTouchEventView.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,6 +48,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readonly) CGRect sensorsdata_frame;
 @end
 
+/// 可视化全埋点相关扩展属性
+@protocol SAVisualizedExtensionProperty <NSObject>
+
+@optional
+@property (nonatomic, copy) NSArray *sensorsdata_extensionArray;
+
+@end
+
 
 @interface UIView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 
@@ -60,6 +71,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UIPageControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
+@end
+
+@interface WKWebView (VisualizedAutoTrack)<SAVisualizedViewPathProperty,SAVisualizedExtensionProperty>
 @end
 
 @interface UIWindow (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
@@ -87,6 +101,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UITableViewHeaderFooterView (VisualizedAutoTrack)
+@end
+
+@interface SAJSTouchEventView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
 @interface UIViewController (VisualizedAutoTrack)<SAVisualizedViewPathProperty>

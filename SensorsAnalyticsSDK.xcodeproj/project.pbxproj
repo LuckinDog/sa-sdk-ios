@@ -13,6 +13,8 @@
 		4D5A01FC2411ECB2007E651A /* UIView+HeatMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5A01FA2411ECB2007E651A /* UIView+HeatMap.m */; };
 		4D5A02032411EDFA007E651A /* UIView+VisualizedAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D5A02012411EDFA007E651A /* UIView+VisualizedAutoTrack.h */; };
 		4D5A02042411EDFA007E651A /* UIView+VisualizedAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5A02022411EDFA007E651A /* UIView+VisualizedAutoTrack.m */; };
+		4D650D82242B46CB006B01BF /* SAJSTouchEventView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D650D80242B46CB006B01BF /* SAJSTouchEventView.h */; };
+		4D650D83242B46CB006B01BF /* SAJSTouchEventView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D650D81242B46CB006B01BF /* SAJSTouchEventView.m */; };
 		4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188E22978F5B00F6B218 /* ElementViewController.m */; };
 		4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */; };
 		4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */; };
@@ -150,6 +152,8 @@
 		4D5A01FA2411ECB2007E651A /* UIView+HeatMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+HeatMap.m"; sourceTree = "<group>"; };
 		4D5A02012411EDFA007E651A /* UIView+VisualizedAutoTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+VisualizedAutoTrack.h"; sourceTree = "<group>"; };
 		4D5A02022411EDFA007E651A /* UIView+VisualizedAutoTrack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+VisualizedAutoTrack.m"; sourceTree = "<group>"; };
+		4D650D80242B46CB006B01BF /* SAJSTouchEventView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAJSTouchEventView.h; sourceTree = "<group>"; };
+		4D650D81242B46CB006B01BF /* SAJSTouchEventView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAJSTouchEventView.m; sourceTree = "<group>"; };
 		4D6A188E22978F5B00F6B218 /* ElementViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElementViewController.m; sourceTree = "<group>"; };
 		4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtilsTest.m; sourceTree = "<group>"; };
 		4D6A189022978F5B00F6B218 /* ElementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElementViewController.h; sourceTree = "<group>"; };
@@ -362,8 +366,6 @@
 				CB30BFFB22840EBF0004061D /* SAValueTransformers.m */,
 				CB30BFD822840EBF0004061D /* NSInvocation+SAHelpers.h */,
 				CB30C00522840EBF0004061D /* NSInvocation+SAHelpers.m */,
-				4D9D5E2F240E4ADE00E6A9A5 /* SAVisualizedUtils.h */,
-				4D9D5E30240E4ADE00E6A9A5 /* SAVisualizedUtils.m */,
 			);
 			path = Visualized;
 			sourceTree = "<group>";
@@ -386,6 +388,10 @@
 				CB30C01F22840EBF0004061D /* SAVisualizedAutoTrackObjectSerializer.m */,
 				4D5A02012411EDFA007E651A /* UIView+VisualizedAutoTrack.h */,
 				4D5A02022411EDFA007E651A /* UIView+VisualizedAutoTrack.m */,
+				4D9D5E2F240E4ADE00E6A9A5 /* SAVisualizedUtils.h */,
+				4D9D5E30240E4ADE00E6A9A5 /* SAVisualizedUtils.m */,
+				4D650D80242B46CB006B01BF /* SAJSTouchEventView.h */,
+				4D650D81242B46CB006B01BF /* SAJSTouchEventView.m */,
 			);
 			path = VisualizedAutoTrack;
 			sourceTree = "<group>";
@@ -586,6 +592,7 @@
 				FC9AEE0623B0D67700B9990F /* SADateFormatter.h in Headers */,
 				CB30C08D22840EC00004061D /* SASwizzler.h in Headers */,
 				CBE4DF03228AA1CB00DDE07D /* UIViewController+AutoTrack.h in Headers */,
+				4D650D82242B46CB006B01BF /* SAJSTouchEventView.h in Headers */,
 				CB30C07722840EC00004061D /* SATypeDescription.h in Headers */,
 				CB30C09622840EC00004061D /* SAPropertyDescription.h in Headers */,
 				CB6EBBA222857BC0003CFBA8 /* SAAutoTrackProperty.h in Headers */,
@@ -788,6 +795,7 @@
 				CB30C06922840EC00004061D /* SALogger.m in Sources */,
 				CB6EBBA422857BC0003CFBA8 /* SAAutoTrackUtils.m in Sources */,
 				CB30C08722840EC00004061D /* SAClassDescription.m in Sources */,
+				4D650D83242B46CB006B01BF /* SAJSTouchEventView.m in Sources */,
 				CB30C06222840EC00004061D /* SAPropertyDescription.m in Sources */,
 				CB30C05622840EC00004061D /* SACommonUtility.m in Sources */,
 				CB6EBB9C22857BC0003CFBA8 /* UIGestureRecognizer+AutoTrack.m in Sources */,
