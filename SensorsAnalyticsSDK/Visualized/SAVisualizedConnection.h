@@ -1,9 +1,9 @@
 //
-//  SAURLUtils.h
+//  SAVisualizedAutoTrackConnection.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 张敏超 on 2019/4/18.
-///  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Created by 向作为 on 2018/9/4.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,17 +20,19 @@
 
 #import <Foundation/Foundation.h>
 
-@interface SAURLUtils : NSObject
+@protocol SAVisualizedMessage;
 
-+ (NSString *)hostWithURL:(NSURL *)url;
-+ (NSString *)hostWithURLString:(NSString *)URLString;
+@interface SAVisualizedConnection : NSObject
 
-+ (NSDictionary<NSString *, NSString *> *)queryItemsWithURL:(NSURL *)url;
-+ (NSDictionary<NSString *, NSString *> *)queryItemsWithURLString:(NSString *)URLString;
+@property (nonatomic, readonly) BOOL connected;
+@property (nonatomic, assign) BOOL useGzip;
 
-+ (NSString *)urlQueryStringWithParams:(NSDictionary <NSString *, NSString *> *)params;
+- (instancetype)initWithURL:(NSURL *)url;
 
-/// 解码并解析 URL 参数
-/// @param url url 对象
-+ (NSDictionary<NSString *, NSString *> *)decodeRueryItemsWithURL:(NSURL *)url;
+- (void)sendMessage:(id<SAVisualizedMessage>)message;
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr type:(NSString *)type;
+- (void)close;
+
+// 是否正在进行可视化全埋点上传页面信息
+- (BOOL)isVisualizedConnecting;
 @end

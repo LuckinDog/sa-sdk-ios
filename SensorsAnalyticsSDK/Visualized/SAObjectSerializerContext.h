@@ -1,9 +1,9 @@
 //
-//  SAURLUtils.h
+//  SAObjectSerializerContext.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 张敏超 on 2019/4/18.
-///  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Created by 雨晗 on 1/18/16.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,17 +20,22 @@
 
 #import <Foundation/Foundation.h>
 
-@interface SAURLUtils : NSObject
+@interface SAObjectSerializerContext : NSObject
 
-+ (NSString *)hostWithURL:(NSURL *)url;
-+ (NSString *)hostWithURLString:(NSString *)URLString;
+- (instancetype)initWithRootObject:(id)object;
 
-+ (NSDictionary<NSString *, NSString *> *)queryItemsWithURL:(NSURL *)url;
-+ (NSDictionary<NSString *, NSString *> *)queryItemsWithURLString:(NSString *)URLString;
+- (BOOL)hasUnvisitedObjects;
 
-+ (NSString *)urlQueryStringWithParams:(NSDictionary <NSString *, NSString *> *)params;
+- (void)enqueueUnvisitedObject:(NSObject *)object;
+- (void)enqueueUnvisitedObjects:(NSArray *)objects;
 
-/// 解码并解析 URL 参数
-/// @param url url 对象
-+ (NSDictionary<NSString *, NSString *> *)decodeRueryItemsWithURL:(NSURL *)url;
+- (NSObject *)dequeueUnvisitedObject;
+
+- (void)addVisitedObject:(NSObject *)object;
+- (BOOL)isVisitedObject:(NSObject *)object;
+
+- (void)addSerializedObject:(NSDictionary *)serializedObject;
+- (NSArray *)allSerializedObjects;
+
+- (NSInteger)currentLevelIndex;
 @end

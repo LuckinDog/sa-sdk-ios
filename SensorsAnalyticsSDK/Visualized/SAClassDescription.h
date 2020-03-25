@@ -1,9 +1,9 @@
 //
-//  SAURLUtils.h
+//  SAClassDescription.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 张敏超 on 2019/4/18.
-///  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Created by 雨晗 on 1/18/16.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -19,18 +19,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SATypeDescription.h"
 
-@interface SAURLUtils : NSObject
+@interface SAClassDescription : SATypeDescription
 
-+ (NSString *)hostWithURL:(NSURL *)url;
-+ (NSString *)hostWithURLString:(NSString *)URLString;
+@property (nonatomic, readonly) SAClassDescription *superclassDescription;
+@property (nonatomic, readonly) NSArray *propertyDescriptions;
+@property (nonatomic, readonly) NSArray *delegateInfos;
 
-+ (NSDictionary<NSString *, NSString *> *)queryItemsWithURL:(NSURL *)url;
-+ (NSDictionary<NSString *, NSString *> *)queryItemsWithURLString:(NSString *)URLString;
+- (instancetype)initWithSuperclassDescription:(SAClassDescription *)superclassDescription dictionary:(NSDictionary *)dictionary;
 
-+ (NSString *)urlQueryStringWithParams:(NSDictionary <NSString *, NSString *> *)params;
+- (BOOL)isDescriptionForKindOfClass:(Class)class;
 
-/// 解码并解析 URL 参数
-/// @param url url 对象
-+ (NSDictionary<NSString *, NSString *> *)decodeRueryItemsWithURL:(NSURL *)url;
 @end
