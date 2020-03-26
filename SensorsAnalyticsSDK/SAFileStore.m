@@ -29,8 +29,8 @@
 
 #pragma mark - archive file
 + (BOOL)archiveWithFileName:(NSString *)fileName value:(id)value {
-    if (!fileName || !value) {
-        SAError(@"key or value should not be nil for file store");
+    if (!fileName) {
+        SAError(@"key should not be nil for file store");
         return NO;
     }
     NSString *filePath = [SAFileStore filePath:fileName];
