@@ -23,38 +23,11 @@
 #import <WebKit/WebKit.h>
 #import "SAAutoTrackProperty.h"
 #import "SAJSTouchEventView.h"
-
+#import "SAVisualizedViewPathProperty.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 
-// 可视化全埋点上传页面信息相关协议
-@protocol SAVisualizedViewPathProperty <NSObject>
-
-@optional
-/// 当前元素，前端是否渲染成可交互
-@property (nonatomic, assign, readonly) BOOL sensorsdata_enableAppClick;
-
-/// 当前元素的有效内容
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementValidContent;
-
-/// 元素子视图
-@property (nonatomic, copy, readonly) NSArray *sensorsdata_subElements;
-
-/// 当前元素的相对路径
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementPath;
-
-/// 相对 keywindow 的坐标
-@property (nonatomic, assign, readonly) CGRect sensorsdata_frame;
-@end
-
-/// 可视化全埋点相关扩展属性
-@protocol SAVisualizedExtensionProperty <NSObject>
-
-@optional
-@property (nonatomic, copy) NSArray *sensorsdata_extensionArray;
-
-@end
 
 
 @interface UIView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
@@ -74,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface WKWebView (VisualizedAutoTrack)<SAVisualizedViewPathProperty,SAVisualizedExtensionProperty>
+
 @end
 
 @interface UIWindow (VisualizedAutoTrack)<SAVisualizedViewPathProperty>

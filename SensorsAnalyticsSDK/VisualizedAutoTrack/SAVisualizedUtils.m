@@ -25,6 +25,7 @@
 #import "SAVisualizedUtils.h"
 #import "SAJSTouchEventView.h"
 #import "SALogger.h"
+#import "SAVisualizedViewPathProperty.h"
 
 
 @implementation SAVisualizedUtils
@@ -82,13 +83,8 @@
     return otherViews;
 }
 
-+ (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView {
-    NSArray *webPageDatas = nil;
-    @try {
-        webPageDatas = [webView valueForKey:@"sensorsdata_extensionArray"];
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
-    }
++ (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty>*)webView {
+    NSArray *webPageDatas = webView.sensorsdata_extensionProperties;
     if (webPageDatas.count == 0) {
         return nil;
     }

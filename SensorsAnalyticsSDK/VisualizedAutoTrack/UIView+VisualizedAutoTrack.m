@@ -22,6 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#import <objc/runtime.h>
 #import "UIView+VisualizedAutoTrack.h"
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
@@ -199,6 +200,14 @@
 - (NSArray *)sensorsdata_subElements {
     NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
     return subElements;
+}
+
+- (NSArray *)sensorsdata_extensionProperties {
+    return objc_getAssociatedObject(self, @"sensorsAnalyticsExtensionProperties");
+}
+
+- (void)setSensorsdata_extensionProperties:(NSArray *)sensorsdata_extensionProperties {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsExtensionProperties", sensorsdata_extensionProperties, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 @end
