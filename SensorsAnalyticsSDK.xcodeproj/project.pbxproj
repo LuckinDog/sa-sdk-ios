@@ -130,8 +130,11 @@
 		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
 		FC61B14D23B4BAD6006B4096 /* SATrackTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */; };
 		FC61B14E23B4BAD6006B4096 /* SATrackTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */; };
+		FC80AB7C242CB17A006D1D25 /* SAIdentifierManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierManagerTests.m */; };
 		FC9AEE0623B0D67700B9990F /* SADateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = FC9AEE0423B0D67700B9990F /* SADateFormatter.h */; };
 		FC9AEE0723B0D67700B9990F /* SADateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = FC9AEE0523B0D67700B9990F /* SADateFormatter.m */; };
+		FCB6024E242B4773003CFA47 /* SAIdentifierManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FCB6024C242B4773003CFA47 /* SAIdentifierManager.h */; };
+		FCB6024F242B4773003CFA47 /* SAIdentifierManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB6024D242B4773003CFA47 /* SAIdentifierManager.m */; };
 		FCB60252242B59B6003CFA47 /* SAURLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = FCB60250242B59B6003CFA47 /* SAURLUtils.h */; };
 		FCB60253242B59B6003CFA47 /* SAURLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB60251242B59B6003CFA47 /* SAURLUtils.m */; };
 		FCBAF2A022FBCA3700D7CA38 /* SAWeakPropertyContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */; };
@@ -277,8 +280,11 @@
 		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
 		FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SATrackTimer.h; sourceTree = "<group>"; };
 		FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimer.m; sourceTree = "<group>"; };
+		FC80AB7B242CB17A006D1D25 /* SAIdentifierManagerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierManagerTests.m; sourceTree = "<group>"; };
 		FC9AEE0423B0D67700B9990F /* SADateFormatter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADateFormatter.h; sourceTree = "<group>"; };
 		FC9AEE0523B0D67700B9990F /* SADateFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADateFormatter.m; sourceTree = "<group>"; };
+		FCB6024C242B4773003CFA47 /* SAIdentifierManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAIdentifierManager.h; sourceTree = "<group>"; };
+		FCB6024D242B4773003CFA47 /* SAIdentifierManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierManager.m; sourceTree = "<group>"; };
 		FCB60250242B59B6003CFA47 /* SAURLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAURLUtils.h; sourceTree = "<group>"; };
 		FCB60251242B59B6003CFA47 /* SAURLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAURLUtils.m; sourceTree = "<group>"; };
 		FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAWeakPropertyContainer.h; sourceTree = "<group>"; };
@@ -425,6 +431,7 @@
 			isa = PBXGroup;
 			children = (
 				FC1AFF0723C45CA800F1B9E4 /* Utils */,
+				FCB60249242B46FC003CFA47 /* Builder */,
 				CB30C0AB22840F1B0004061D /* Resources */,
 				4DA4CB71237935CF006892D6 /* Visualized */,
 				6523731823EBC0B600A786A2 /* HeatMap */,
@@ -527,6 +534,7 @@
 				CB6EBAF222855222003CFBA8 /* SANetworkTests.m */,
 				FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */,
 				FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */,
+				FC80AB7B242CB17A006D1D25 /* SAIdentifierManagerTests.m */,
 				CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */,
 				4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */,
 				CB6EBAE7228551EC003CFBA8 /* Info.plist */,
@@ -571,6 +579,15 @@
 			name = Utils;
 			sourceTree = "<group>";
 		};
+		FCB60249242B46FC003CFA47 /* Builder */ = {
+			isa = PBXGroup;
+			children = (
+				FCB6024C242B4773003CFA47 /* SAIdentifierManager.h */,
+				FCB6024D242B4773003CFA47 /* SAIdentifierManager.m */,
+			);
+			path = Builder;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -596,6 +613,7 @@
 				CB30C05122840EC00004061D /* SASwizzle.h in Headers */,
 				CB30C05A22840EC00004061D /* SAConstants+Private.h in Headers */,
 				CB30C07622840EC00004061D /* NSString+HashCode.h in Headers */,
+				FCB6024E242B4773003CFA47 /* SAIdentifierManager.h in Headers */,
 				CB30C06622840EC00004061D /* SAVisualizedAutoTrackObjectSerializer.h in Headers */,
 				FC1AFF0523C3400E00F1B9E4 /* SAFileStore.h in Headers */,
 				CB30C06622840EC00004061D /* SAVisualizedAutoTrackObjectSerializer.h in Headers */,
@@ -720,6 +738,7 @@
 				TargetAttributes = {
 					CB30BD5322840CA40004061D = {
 						CreatedOnToolsVersion = 10.2.1;
+						LastSwiftMigration = 1130;
 					};
 					CB30C30E22843D3A0004061D = {
 						CreatedOnToolsVersion = 10.2.1;
@@ -784,6 +803,7 @@
 			files = (
 				FC1AFF0623C3400E00F1B9E4 /* SAFileStore.m in Sources */,
 				CB30C09922840EC00004061D /* SAGzipUtility.m in Sources */,
+				FCB6024F242B4773003CFA47 /* SAIdentifierManager.m in Sources */,
 				CB30C06822840EC00004061D /* SAValueTransformers.m in Sources */,
 				FCB60253242B59B6003CFA47 /* SAURLUtils.m in Sources */,
 				4DA4CB88237936BC006892D6 /* SAVisualizedConnection.m in Sources */,
@@ -854,6 +874,7 @@
 			files = (
 				4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */,
 				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
+				FC80AB7C242CB17A006D1D25 /* SAIdentifierManagerTests.m in Sources */,
 				4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */,
 				CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */,
 				FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */,
@@ -994,6 +1015,7 @@
 		CB30BD5D22840CA40004061D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
@@ -1017,6 +1039,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1024,6 +1048,7 @@
 		CB30BD5E22840CA40004061D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
@@ -1046,6 +1071,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

@@ -72,6 +72,7 @@
 #import "SALinkHandler.h"
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
+#import "SAIdentifierManager.h"
 
 #define VERSION @"2.0.1-pre"
 
@@ -163,9 +164,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SANetwork *network;
 
-@property (atomic, copy) NSString *originalId;
-@property (nonatomic, copy) NSString *anonymousId;
-@property (atomic, copy) NSString *loginId;
 @property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
@@ -224,6 +222,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 /// DeepLink handler
 @property (nonatomic, strong) SALinkHandler *linkHandler;
+
+@property (nonatomic, strong) SAIdentifierManager *identifierManager;
 
 @end
 
@@ -352,7 +352,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (!_launchedPassively) {
                 [self startFlushTimer];
             }
-            
+
+            _identifierManager = [[SAIdentifierManager alloc] init];
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
             
@@ -395,39 +396,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 + (UInt64)getSystemUpTime {
     return NSProcessInfo.processInfo.systemUptime * 1000;
-}
-
-+ (NSString *)getUniqueHardwareId {
-    NSString *distinctId = NULL;
-
-    // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFA
-//#if defined(SENSORS_ANALYTICS_IDFA)
-    Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
-    if (ASIdentifierManagerClass) {
-        SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
-        id sharedManager = ((id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);
-        SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
-        NSUUID *uuid = ((NSUUID * (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
-        distinctId = [uuid UUIDString];
-        // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
-        // 00000000-0000-0000-0000-000000000000
-        if (!distinctId || [distinctId hasPrefix:@"00000000"]) {
-            distinctId = NULL;
-        }
-    }
-//#endif
-    
-    // 没有IDFA，则使用IDFV
-    if (!distinctId && NSClassFromString(@"UIDevice")) {
-        distinctId = [[UIDevice currentDevice].identifierForVendor UUIDString];
-    }
-    
-    // 没有IDFV，则使用UUID
-    if (!distinctId) {
-        SADebug(@"%@ error getting device identifier: falling back to uuid", self);
-        distinctId = [[NSUUID UUID] UUIDString];
-    }
-    return distinctId;
 }
 
 - (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
@@ -762,10 +730,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     dispatch_async(self.serialQueue, ^{
         if (![loginId isEqualToString:self.loginId]) {
-            self.loginId = loginId;
-            [self archiveLoginId];
+            [self.identifierManager archiveLoginId:loginId];
             if (![loginId isEqualToString:self.anonymousId]) {
-                self.originalId = self.anonymousId;
+                [self.identifierManager resetOriginalId];
                 NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
                 // 添加来源渠道信息
                 [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
@@ -778,29 +745,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)logout {
     dispatch_async(self.serialQueue, ^{
-        self.loginId = nil;
-        [self archiveLoginId];
+        [self.identifierManager archiveLoginId:nil];
     });
 }
 
-- (NSString *)anonymousId {
-    if (!_anonymousId) {
-        [self resetAnonymousId];
-    }
-    return _anonymousId;
+- (NSString *)loginId {
+    return self.identifierManager.loginId;
 }
 
--(NSString *)distinctId {
-    NSString *distinctId = self.loginId;
-    if (distinctId.length == 0) {
-        distinctId = self.anonymousId;
-    }
-    return distinctId;
+- (NSString *)anonymousId {
+    return self.identifierManager.anonymousId;
+}
+
+- (NSString *)distinctId {
+    return self.identifierManager.distinctId;
+}
+
+- (NSString *)originalId {
+    return self.identifierManager.originalId;
 }
 
 - (void)resetAnonymousId {
-    _anonymousId = [self.class getUniqueHardwareId];
-    [self archiveAnonymousId];
+    [self.identifierManager resetAnonymousId];
 }
 
 - (void)trackAppCrash {
@@ -1421,6 +1387,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [e setObject:token forKey:SA_EVENT_TOKEN];
         }
 
+        if (self.loginId) {
+            e[SA_EVENT_LOGIN_ID] = self.loginId;
+        }
+
+        if (self.anonymousId) {
+            e[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
+        }
+
         //修正 $device_id，防止用户修改
         NSDictionary *infoProperties = [e objectForKey:SA_EVENT_PROPERTIES];
         if (infoProperties && [infoProperties.allKeys containsObject:SA_EVENT_COMMON_PROPERTY_DEVICE_ID]) {
@@ -1725,10 +1699,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     dispatch_async(self.serialQueue, ^{
         // 先把之前的anonymousId设为originalId
-        self.originalId = self.anonymousId;
+        [self.identifierManager resetOriginalId];
         // 更新anonymousId
-        self.anonymousId = anonymousId;
-        [self archiveAnonymousId];
+        [self.identifierManager archiveAnonymousId:anonymousId];
     });
 }
 
@@ -1982,7 +1955,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [properties setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
 
 #if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-    [properties setValue:[[self class] getUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
+    [properties setValue:[self.identifierManager uniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
 #endif
 
     UIDevice *device = [UIDevice currentDevice];
@@ -2100,41 +2073,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Local caches
 
 - (void)unarchive {
-    [self unarchiveAnonymousId];
-    [self unarchiveLoginId];
     [self unarchiveSuperProperties];
     [self unarchiveFirstDay];
     [self unarchiveTrackChannelEvents];
-}
-
-- (void)unarchiveAnonymousId {
-    NSString *archivedAnonymousId = (NSString *)[SAFileStore unarchiveWithFileName:SA_EVENT_DISTINCT_ID];
-
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-    NSString *anonymousIdInKeychain = [SAKeyChainItemWrapper saUdid];
-    if (anonymousIdInKeychain.length > 0) {
-        self.anonymousId = anonymousIdInKeychain;
-        if (![archivedAnonymousId isEqualToString:anonymousIdInKeychain]) {
-            //保存 Archiver
-            [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:self.anonymousId];
-        }
-    } else {
-#endif
-        if (archivedAnonymousId.length == 0) {
-            self.anonymousId = [[self class] getUniqueHardwareId];
-            [self archiveAnonymousId];
-        } else {
-            self.anonymousId = archivedAnonymousId;
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-            //保存 KeyChain
-            [SAKeyChainItemWrapper saveUdid:self.anonymousId];
-        }
-#endif
-    }
-}
-
-- (void)unarchiveLoginId {
-    self.loginId = (NSString *)[SAFileStore unarchiveWithFileName:@"login_id"];
 }
 
 - (void)unarchiveFirstDay {
@@ -2149,17 +2090,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)unarchiveTrackChannelEvents {
     NSArray *trackChannelEvents = (NSArray *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
     [self.trackChannelEventNames addObjectsFromArray:trackChannelEvents];
-}
-
-- (void)archiveAnonymousId {
-    [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:self.anonymousId];
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-    [SAKeyChainItemWrapper saveUdid:self.anonymousId];
-#endif
-}
-
-- (void)archiveLoginId {
-    [SAFileStore archiveWithFileName:@"login_id" value:self.loginId];
 }
 
 - (void)archiveFirstDay {
@@ -3412,7 +3342,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             //JS SDK Data add _hybrid_h5 flag
             [eventDict setValue:@(YES) forKey:SA_EVENT_HYBRID_H5];
 
-            NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
+            NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
             if (!enqueueEvent) {
                 return;
             }
@@ -3423,14 +3353,25 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 NSString *newLoginId = [eventDict objectForKey:SA_EVENT_DISTINCT_ID];
 
                 if (![newLoginId isEqualToString:self.loginId]) {
-                    self.loginId = newLoginId;
-                    [self archiveLoginId];
+                    [self.identifierManager archiveLoginId:newLoginId];
                     if (![newLoginId isEqualToString:self.anonymousId]) {
-                        self.originalId = self.anonymousId;
+                        [self.identifierManager resetOriginalId];
+                        if (self.loginId) {
+                            enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
+                        }
+                        if (self.anonymousId) {
+                            enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
+                        }
                         [self enqueueWithType:type andEvent:[enqueueEvent copy]];
                     }
                 }
             } else {
+                if (self.loginId) {
+                    enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
+                }
+                if (self.anonymousId) {
+                    enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
+                }
                 [self enqueueWithType:type andEvent:[enqueueEvent copy]];
             }
         } @catch (NSException *exception) {
