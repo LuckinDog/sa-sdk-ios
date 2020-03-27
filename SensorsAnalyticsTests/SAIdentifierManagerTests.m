@@ -36,6 +36,7 @@
 - (void)setUp {
 
     _manager = [[SAIdentifierManager alloc] init];
+    [_manager archiveLoginId:@"newId"];
 }
 
 - (void)testGetDistinctId {
@@ -46,7 +47,7 @@
 
 - (void)testGetLoginId {
     NSString *loginId = _manager.loginId;
-    XCTAssertNil(loginId);
+    XCTAssertTrue([loginId isEqualToString:@"newId"]);
 
     [_manager archiveLoginId:@"pyy_test_login_id"];
     NSString *newLoginId = _manager.loginId;

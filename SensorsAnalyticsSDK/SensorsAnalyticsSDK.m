@@ -72,7 +72,7 @@
 #import "SALinkHandler.h"
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
-#import "SAIdentifierManager.h"
+#import "SAIdentifier.h"
 
 #define VERSION @"2.0.1-pre"
 
@@ -223,7 +223,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 /// DeepLink handler
 @property (nonatomic, strong) SALinkHandler *linkHandler;
 
-@property (nonatomic, strong) SAIdentifierManager *identifierManager;
+@property (nonatomic, strong) SAIdentifier *identifier;
 
 @end
 
@@ -353,7 +353,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self startFlushTimer];
             }
 
-            _identifierManager = [[SAIdentifierManager alloc] init];
+            _identifier = [[SAIdentifier alloc] init];
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
             
@@ -719,54 +719,37 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
-    if (loginId == nil || loginId.length == 0) {
-        SAError(@"%@ cannot login blank login_id: %@", self, loginId);
-        return;
-    }
-    if (loginId.length > 255) {
-        SAError(@"%@ max length of login_id is 255, login_id: %@", self, loginId);
-        return;
-    }
-    
-    dispatch_async(self.serialQueue, ^{
-        if (![loginId isEqualToString:self.loginId]) {
-            [self.identifierManager archiveLoginId:loginId];
-            if (![loginId isEqualToString:self.anonymousId]) {
-                [self.identifierManager resetOriginalId];
-                NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
-                // 添加来源渠道信息
-                [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-                [eventProperties addEntriesFromDictionary:properties];
-                [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
-            }
-        }
-    });
+    [self.identifier login:loginId completion:^{
+        NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
+        // 添加来源渠道信息
+        [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+        [eventProperties addEntriesFromDictionary:properties];
+        [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
+    }];
 }
 
 - (void)logout {
-    dispatch_async(self.serialQueue, ^{
-        [self.identifierManager archiveLoginId:nil];
-    });
+    [self logout];
 }
 
 - (NSString *)loginId {
-    return self.identifierManager.loginId;
+    return self.identifier.loginId;
 }
 
 - (NSString *)anonymousId {
-    return self.identifierManager.anonymousId;
+    return self.identifier.anonymousId;
 }
 
 - (NSString *)distinctId {
-    return self.identifierManager.distinctId;
+    return self.identifier.distinctId;
 }
 
 - (NSString *)originalId {
-    return self.identifierManager.originalId;
+    return self.identifier.originalId;
 }
 
 - (void)resetAnonymousId {
-    [self.identifierManager resetAnonymousId];
+    [self.identifier resetAnonymousId];
 }
 
 - (void)trackAppCrash {
@@ -1687,21 +1670,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)identify:(NSString *)anonymousId {
-    if (anonymousId.length == 0) {
-        SAError(@"%@ cannot identify blank distinct id: %@", self, anonymousId);
-//        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
-        return;
-    }
-    if (anonymousId.length > 255) {
-        SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, anonymousId);
-//        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
-    }
-    
     dispatch_async(self.serialQueue, ^{
-        // 先把之前的anonymousId设为originalId
-        [self.identifierManager resetOriginalId];
-        // 更新anonymousId
-        [self.identifierManager archiveAnonymousId:anonymousId];
+        [self.identifier identify:anonymousId];
     });
 }
 
@@ -1955,7 +1925,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [properties setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
 
 #if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-    [properties setValue:[self.identifierManager uniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
+    [properties setValue:[SAIdentifier generateUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
 #endif
 
     UIDevice *device = [UIDevice currentDevice];
@@ -3348,24 +3318,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
             SALog(@"\n【track event from H5】:\n%@", enqueueEvent);
 
-            if([type isEqualToString:@"track_signup"]) {
-
-                NSString *newLoginId = [eventDict objectForKey:SA_EVENT_DISTINCT_ID];
-
-                if (![newLoginId isEqualToString:self.loginId]) {
-                    [self.identifierManager archiveLoginId:newLoginId];
-                    if (![newLoginId isEqualToString:self.anonymousId]) {
-                        [self.identifierManager resetOriginalId];
-                        if (self.loginId) {
-                            enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
-                        }
-                        if (self.anonymousId) {
-                            enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
-                        }
-                        [self enqueueWithType:type andEvent:[enqueueEvent copy]];
-                    }
-                }
-            } else {
+            dispatch_block_t completion = ^{
                 if (self.loginId) {
                     enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
                 }
@@ -3373,6 +3326,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
                 }
                 [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+            };
+
+            if([type isEqualToString:@"track_signup"]) {
+                NSString *newLoginId = [eventDict objectForKey:SA_EVENT_DISTINCT_ID];
+                [self.identifier login:newLoginId completion:completion];
+            } else {
+                completion();
             }
         } @catch (NSException *exception) {
             SAError(@"%@: %@", self, exception);
