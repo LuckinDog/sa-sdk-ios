@@ -45,10 +45,10 @@
      // 忽略部分 view
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     // _UIAlertControllerTextFieldViewCollectionCell UIAlertController 中输入框，忽略采集
-    //    UITransitionView 为 UITabBarController 和 UIWindow 下的view 容器
+    //    UITransitionView 为 UITabBarController 的view 容器
     //    UINavigationTransitionView 为 UINavigationController 下的 view 容器，
     //    对应 controller.view 子控件包含了，都忽略，避免重复
-    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"] || [NSStringFromClass(self.class) isEqualToString:@"UINavigationTransitionView"] || [NSStringFromClass(self.class) isEqualToString:@"UITransitionView"]) {
+    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
         return NO;
     }
 #endif
@@ -167,15 +167,28 @@
 
 - (NSString *)sensorsdata_elementPath {
     UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    if (self.superview == keyWindow) { // 兼容 keyWindow 上控件的路径拼接
+    if (self.superview == keyWindow && self != keyWindow.rootViewController.view) { // 兼容 keyWindow 上控件的路径拼接
         return [NSString stringWithFormat:@"%@/%@",keyWindow.sensorsdata_elementPath,self.sensorsdata_similarPath];
     }
+
+         // 忽略 viewPath 路径
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"]) {
+        return nil;
+    }
+
+#endif
     return self.sensorsdata_similarPath;
 }
 
 - (CGRect)sensorsdata_frame {
-    CGRect rect = [self convertRect:self.bounds toView:nil];
-    return rect;
+    CGRect showRect = [self convertRect:self.bounds toView:nil];
+    if (self.superview && self.sensorsdata_enableAppClick) {
+        CGRect superviewRect = [self.superview sensorsdata_frame];
+        showRect = CGRectIntersection(showRect, superviewRect);
+    }
+    return showRect;
+
 }
 
 @end
@@ -212,6 +225,13 @@
 
 @end
 
+@implementation UISegmentedControl (VisualizedAutoTrack)
+
+- (NSString *)sensorsdata_elementPath {
+    return super.sensorsdata_itemPath;
+}
+
+@end
 
 @implementation UIWindow (VisualizedAutoTrack)
 
@@ -242,18 +262,12 @@
 
 @end
 
-@implementation UISegmentedControl (VisualizedAutoTrack)
-
-- (NSString *)sensorsdata_elementPath {
-    return super.sensorsdata_itemPath;
-}
-
-@end
-
 @implementation UITabBar (VisualizedAutoTrack)
+
 - (NSString *)sensorsdata_elementPath {
     return [NSString stringWithFormat:@"UILayoutContainerView/%@",super.sensorsdata_elementPath];
 }
+
 @end
 
 
@@ -262,7 +276,6 @@
     return [NSString stringWithFormat:@"UILayoutContainerView/%@",super.sensorsdata_elementPath];
 }
 @end
-
 
 @implementation UITableView (VisualizedAutoTrack)
 
@@ -304,8 +317,6 @@
 
 @end
 
-
-
 @implementation UITableViewCell (VisualizedAutoTrack)
 
 - (NSString *)sensorsdata_elementPosition {
@@ -334,6 +345,7 @@
 @end
 
 @implementation UIViewController (VisualizedAutoTrack)
+
 - (NSArray *)sensorsdata_subElements {
     __block NSMutableArray *subElements = [NSMutableArray array];
     NSArray <UIViewController *> *childViewControllers = self.childViewControllers;
@@ -418,4 +430,5 @@
     // 前端 viewPath 拼接，屏蔽页面信息
     return nil;
 }
+
 @end

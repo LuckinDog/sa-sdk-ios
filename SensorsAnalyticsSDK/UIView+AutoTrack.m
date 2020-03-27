@@ -132,7 +132,7 @@
 
 - (NSString *)sensorsdata_itemPath {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"]) {
+    if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"] || [NSStringFromClass(self.class) isEqualToString:@"UINavigationTransitionView"] || [NSStringFromClass(self.class) isEqualToString:@"UITransitionView"] || [NSStringFromClass(self.class) isEqualToString:@"UIViewControllerWrapperView"]) {
         return nil;
     }
 #endif

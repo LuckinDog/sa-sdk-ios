@@ -62,6 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIPageControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
+@interface UISegmentedControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
+@end
+
 @interface UIWindow (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
@@ -81,9 +84,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UICollectionViewCell (VisualizedAutoTrack)<SAAutoTrackViewProperty>
-@end
-
-@interface UISegmentedControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
 @interface UITableViewHeaderFooterView (VisualizedAutoTrack)
