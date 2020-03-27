@@ -68,36 +68,36 @@
     }
 
     if ([self isKindOfClass:UIControl.class]) {
-            // UISegmentedControl 高亮渲染内部嵌套的 UISegment
-            if ([self isKindOfClass:UISegmentedControl.class]) {
-                return NO;
-            }
+        // UISegmentedControl 高亮渲染内部嵌套的 UISegment
+        if ([self isKindOfClass:UISegmentedControl.class]) {
+            return NO;
+        }
 
     #warning TODO:
-    /*
-            1、对于 button 之类的基本类型，可以不用查找子视图；
-            2、判断一个 control 是否可响应事件，待优化：
-                allTargets 可能为空：[button addTarget:nil action:@selector(nextPage) forControlEvents:UIControlEventTouchUpInside],会沿着响应链查找
-                根据 allControlEvents 类型判断是否可以触发 $AppClick 全埋点
-     */
+        /*
+                1、对于 button 之类的基本类型，可以不用查找子视图；
+                2、判断一个 control 是否可响应事件，待优化：
+                    allTargets 可能为空：[button addTarget:nil action:@selector(nextPage) forControlEvents:UIControlEventTouchUpInside],会沿着响应链查找
+                    根据 allControlEvents 类型判断是否可以触发 $AppClick 全埋点
+         */
 
-            // 部分控件，响应链中不采集 $AppClick 事件
-            if ([self isKindOfClass:UITextField.class]) {
-                return NO;
-            }
+        // 部分控件，响应链中不采集 $AppClick 事件
+        if ([self isKindOfClass:UITextField.class]) {
+            return NO;
+        }
 
-            UIControl *control = (UIControl *)self;
-            BOOL userInteractionEnabled = control.userInteractionEnabled;
-            BOOL enabled = control.enabled;
-            UIControlEvents appClickEvents = UIControlEventTouchUpInside | UIControlEventValueChanged;
-            if (@available(iOS 9.0, *)) {
-                appClickEvents = appClickEvents | UIControlEventPrimaryActionTriggered;
-            }
-            BOOL containEvents = appClickEvents & control.allControlEvents;
-            if (containEvents && userInteractionEnabled && enabled) { // 可点击
-                return YES;
-            }
-        } else if ([self isKindOfClass:UIImageView.class] || [self isKindOfClass:UILabel.class]) { // 可能添加手势
+        UIControl *control = (UIControl *)self;
+        BOOL userInteractionEnabled = control.userInteractionEnabled;
+        BOOL enabled = control.enabled;
+        UIControlEvents appClickEvents = UIControlEventTouchUpInside | UIControlEventValueChanged;
+        if (@available(iOS 9.0, *)) {
+            appClickEvents = appClickEvents | UIControlEventPrimaryActionTriggered;
+        }
+        BOOL containEvents = appClickEvents & control.allControlEvents;
+        if (containEvents && userInteractionEnabled && enabled) {     // 可点击
+            return YES;
+        }
+    } else if ([self isKindOfClass:UIImageView.class] || [self isKindOfClass:UILabel.class]) {     // 可能添加手势
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
         if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
@@ -176,7 +176,6 @@
     if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"]) {
         return nil;
     }
-
 #endif
     return self.sensorsdata_similarPath;
 }
