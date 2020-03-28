@@ -23,11 +23,14 @@
 #endif
 
 #import "SAIdentifier.h"
-#import "SAKeyChainItemWrapper.h"
 #import "SAConstants+Private.h"
 #import "SAFileStore.h"
 #import "SALogger.h"
 #import "SAValidator.h"
+
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
+    #import "SAKeyChainItemWrapper.h"
+#endif
 
 @interface SAIdentifier ()
 
@@ -71,7 +74,14 @@
         self.originalId = originalId;
         self.anonymousId = anonymousId;
     });
+    [self archiveAnonymousId:anonymousId];
+}
+
+- (void)archiveAnonymousId:(NSString *)anonymousId {
     [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:anonymousId];
+#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
+        [SAKeyChainItemWrapper saveUdid:anonymousId];
+#endif
 }
 
 - (void)resetAnonymousId {
@@ -79,7 +89,7 @@
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         self.anonymousId = anonymousId;
     });
-    [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:anonymousId];
+    [self archiveAnonymousId:anonymousId];
 }
 
 - (BOOL)login:(NSString *)loginId completion:(nullable dispatch_block_t)completion {
@@ -162,22 +172,31 @@
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
-            [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:anonymousId];
+            [self archiveAnonymousId:distinctIdInKeychain];
         }
         anonymousId = distinctIdInKeychain;
-    } else
+    } else {
 #endif
         if (anonymousId.length == 0) {
             anonymousId = [SAIdentifier generateUniqueHardwareId];
-            [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:anonymousId];
-        }
+            [self archiveAnonymousId:anonymousId];
+        } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-    [SAKeyChainItemWrapper saveUdid:anonymousId];
+            //保存 KeyChain
+            [SAKeyChainItemWrapper saveUdid:anonymousId];
+        }
 #endif
+    }
     return anonymousId;
 }
 
 #pragma mark – Getters and Setters
+- (NSString *)anonymousId {
+    if (!_anonymousId) {
+        [self resetAnonymousId];
+    }
+    return _anonymousId;
+}
 
 - (NSString *)distinctId {
     __block NSString *distinctId = nil;
