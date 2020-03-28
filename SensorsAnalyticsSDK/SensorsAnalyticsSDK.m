@@ -71,6 +71,8 @@
 #import "SAWeakPropertyContainer.h"
 #import "SADateFormatter.h"
 #import "SATrackTimer.h"
+#import "SAScriptMessageHandler.h"
+#import "WKWebView+SABridge.h"
 
 #define VERSION @"2.0.1-pre"
 
@@ -1027,6 +1029,73 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *screenName = NSStringFromClass([viewController class]);
     return [_visualizedAutoTrackViewControllers containsObject:screenName];
+}
+
+#pragma mark - WKWebView 打通
+
+- (void)swizzleWebViewMethod {
+    if (!self.configOptions.enableJavaScriptBridge) {
+        return;
+    }
+    
+    static dispatch_once_t onceTokenWebView;
+    dispatch_once(&onceTokenWebView, ^{
+        NSError *error = NULL;
+        
+        [WKWebView sa_swizzleMethod:@selector(loadRequest:)
+                         withMethod:@selector(sensorsdata_loadRequest:)
+                              error:&error];
+        
+        [WKWebView sa_swizzleMethod:@selector(loadHTMLString:baseURL:)
+                         withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
+                              error:&error];
+        
+        if (@available(iOS 9.0, *)) {
+            [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
+                             withMethod:@selector(sensorsdata_loadFileURL:allowingReadAccessToURL:)
+                                  error:&error];
+            
+            [WKWebView sa_swizzleMethod:@selector(loadData:MIMEType:characterEncodingName:baseURL:)
+                             withMethod:@selector(sensorsdata_loadData:MIMEType:characterEncodingName:baseURL:)
+                                  error:&error];
+        }
+        
+        if (error) {
+            SAError(@"Failed to swizzle on WKWebView. Details: %@", error);
+            error = NULL;
+        }
+    });
+}
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
+    if (!self.configOptions.enableJavaScriptBridge) {
+        return;
+    }
+    
+    NSAssert([webView isKindOfClass:[WKWebView class]], @"此注入方案只支持 WKWebView！❌");
+    if (![webView isKindOfClass:[WKWebView class]]) {
+        return;
+    }
+    
+    @try {
+        WKUserContentController *contentController = webView.configuration.userContentController;
+        [contentController removeScriptMessageHandlerForName:SAScriptMessageHandlerMessageName];
+        [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SAScriptMessageHandlerMessageName];
+        
+        NSMutableString *javaScriptSource = [NSMutableString stringWithString:@"window.SensorsData_iOS_JS_Bridge = {};"];
+        if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+            [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+        } else {
+            SAError(@"%@ get network serverURL is failed!", self);
+        }
+        
+        // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
+        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:javaScriptSource injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+        [contentController addUserScript:userScript];
+        
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
 }
 
 #pragma mark - Heat Map
@@ -2643,6 +2712,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
     }
 #endif
+    
+    // WKWebView
+    [self swizzleWebViewMethod];
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
