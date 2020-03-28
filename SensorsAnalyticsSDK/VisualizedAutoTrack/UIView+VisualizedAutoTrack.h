@@ -21,33 +21,15 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "SAAutoTrackProperty.h"
+#import "SAVisualizedViewPathProperty.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface UIView (VisualizedAutoTrack)<SAVisualizedViewPathProperty, SAVisualizedViewExtendProperty>
 
-// 可视化全埋点上传页面信息相关协议
-@protocol SAVisualizedViewPathProperty <NSObject>
-
-@optional
-/// 当前元素，前端是否渲染成可交互
-@property (nonatomic, assign, readonly) BOOL sensorsdata_enableAppClick;
-
-/// 当前元素的有效内容
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementValidContent;
-
-/// 元素子视图
-@property (nonatomic, copy, readonly) NSArray *sensorsdata_subElements;
-
-/// 当前元素的相对路径
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementPath;
-
-/// 相对 keywindow 的坐标
-@property (nonatomic, assign, readonly) CGRect sensorsdata_frame;
 @end
 
-
-@interface UIView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-
+@interface UIScrollView (VisualizedAutoTrack)<SAVisualizedViewExtendProperty>
 @end
 
 @interface UISwitch (VisualizedAutoTrack)<SAVisualizedViewPathProperty>

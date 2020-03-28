@@ -46,7 +46,7 @@
      // 忽略部分 view
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     // _UIAlertControllerTextFieldViewCollectionCell UIAlertController 中输入框，忽略采集
-    //    UITransitionView 为 UITabBarController 的view 容器
+    //    UITransitionView 为 UITabBarController 的 view 容器
     //    UINavigationTransitionView 为 UINavigationController 下的 view 容器，
     //    对应 controller.view 子控件包含了，都忽略，避免重复
     if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
@@ -73,14 +73,6 @@
         if ([self isKindOfClass:UISegmentedControl.class]) {
             return NO;
         }
-
-    #warning TODO:
-        /*
-                1、对于 button 之类的基本类型，可以不用查找子视图；
-                2、判断一个 control 是否可响应事件，待优化：
-                    allTargets 可能为空：[button addTarget:nil action:@selector(nextPage) forControlEvents:UIControlEventTouchUpInside],会沿着响应链查找
-                    根据 allControlEvents 类型判断是否可以触发 $AppClick 全埋点
-         */
 
         // 部分控件，响应链中不采集 $AppClick 事件
         if ([self isKindOfClass:UITextField.class]) {
@@ -140,6 +132,7 @@
     }
     return NO;
 }
+
 #pragma mark SAVisualizedViewPathProperty
 // 当前元素，前端是否渲染成可交互
 - (BOOL)sensorsdata_enableAppClick {
@@ -169,10 +162,9 @@
 - (NSString *)sensorsdata_elementPath {
     UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
     if (self.superview == keyWindow && self != keyWindow.rootViewController.view) { // 兼容 keyWindow 上控件的路径拼接
-        return [NSString stringWithFormat:@"%@/%@",keyWindow.sensorsdata_elementPath,self.sensorsdata_similarPath];
+        return [NSString stringWithFormat:@"%@/%@", keyWindow.sensorsdata_elementPath, self.sensorsdata_similarPath];
     }
-
-         // 忽略 viewPath 路径
+    // 忽略 viewPath 路径
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"]) {
         return nil;
@@ -184,11 +176,33 @@
 - (CGRect)sensorsdata_frame {
     CGRect showRect = [self convertRect:self.bounds toView:nil];
     if (self.superview && self.sensorsdata_enableAppClick) {
-        CGRect superviewRect = [self.superview sensorsdata_frame];
-        showRect = CGRectIntersection(showRect, superviewRect);
+        CGRect validFrame = self.superview.sensorsdata_validFrame;
+        showRect = CGRectIntersection(showRect, validFrame);
     }
     return showRect;
+}
 
+- (CGRect)sensorsdata_validFrame {
+    CGRect validFrame = [UIApplication sharedApplication].keyWindow.frame;
+    if (self.superview) {
+        CGRect superViewValidFrame = [self.superview sensorsdata_validFrame];
+        validFrame = CGRectIntersection(validFrame, superViewValidFrame);
+    }
+ return validFrame;
+}
+
+@end
+
+
+@implementation UIScrollView (VisualizedAutoTrack)
+
+- (CGRect)sensorsdata_validFrame {
+    CGRect showRect = [self convertRect:self.bounds toView:nil];
+    if (self.superview) {
+        CGRect superViewValidFrame = [self.superview sensorsdata_validFrame];
+        showRect = CGRectIntersection(showRect, superViewValidFrame);
+    }
+    return showRect;
 }
 
 @end

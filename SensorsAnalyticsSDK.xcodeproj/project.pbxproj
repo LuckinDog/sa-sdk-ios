@@ -13,6 +13,7 @@
 		4D5A01FC2411ECB2007E651A /* UIView+HeatMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5A01FA2411ECB2007E651A /* UIView+HeatMap.m */; };
 		4D5A02032411EDFA007E651A /* UIView+VisualizedAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D5A02012411EDFA007E651A /* UIView+VisualizedAutoTrack.h */; };
 		4D5A02042411EDFA007E651A /* UIView+VisualizedAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5A02022411EDFA007E651A /* UIView+VisualizedAutoTrack.m */; };
+		4D6118D9242F052100FB02E0 /* SAVisualizedViewPathProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D6118D8242F052100FB02E0 /* SAVisualizedViewPathProperty.h */; };
 		4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188E22978F5B00F6B218 /* ElementViewController.m */; };
 		4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */; };
 		4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */; };
@@ -150,6 +151,7 @@
 		4D5A01FA2411ECB2007E651A /* UIView+HeatMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+HeatMap.m"; sourceTree = "<group>"; };
 		4D5A02012411EDFA007E651A /* UIView+VisualizedAutoTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+VisualizedAutoTrack.h"; sourceTree = "<group>"; };
 		4D5A02022411EDFA007E651A /* UIView+VisualizedAutoTrack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+VisualizedAutoTrack.m"; sourceTree = "<group>"; };
+		4D6118D8242F052100FB02E0 /* SAVisualizedViewPathProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAVisualizedViewPathProperty.h; sourceTree = "<group>"; };
 		4D6A188E22978F5B00F6B218 /* ElementViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElementViewController.m; sourceTree = "<group>"; };
 		4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtilsTest.m; sourceTree = "<group>"; };
 		4D6A189022978F5B00F6B218 /* ElementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElementViewController.h; sourceTree = "<group>"; };
@@ -384,6 +386,7 @@
 			children = (
 				CB30BFF922840EBF0004061D /* SAVisualizedAutoTrackObjectSerializer.h */,
 				CB30C01F22840EBF0004061D /* SAVisualizedAutoTrackObjectSerializer.m */,
+				4D6118D8242F052100FB02E0 /* SAVisualizedViewPathProperty.h */,
 				4D5A02012411EDFA007E651A /* UIView+VisualizedAutoTrack.h */,
 				4D5A02022411EDFA007E651A /* UIView+VisualizedAutoTrack.m */,
 			);
@@ -569,6 +572,7 @@
 				CB30C08E22840EC00004061D /* SAAppExtensionDataManager.h in Headers */,
 				4DA4CB8D237936BC006892D6 /* SAVisualizedAbstractMessage.h in Headers */,
 				CB30C04622840EC00004061D /* SAObjectIdentityProvider.h in Headers */,
+				4D6118D9242F052100FB02E0 /* SAVisualizedViewPathProperty.h in Headers */,
 				CB30C05122840EC00004061D /* SASwizzle.h in Headers */,
 				CB30C05A22840EC00004061D /* SAConstants+Private.h in Headers */,
 				CB30C07622840EC00004061D /* NSString+HashCode.h in Headers */,
