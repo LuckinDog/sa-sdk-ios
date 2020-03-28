@@ -73,6 +73,7 @@
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
 #import "SAIdentifier.h"
+#import "SAValidator.h"
 
 #define VERSION @"2.0.1-pre"
 
@@ -84,6 +85,13 @@ static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://tr
 static NSString* const CARRIER_CHINA_MCC = @"460";
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
+void sensorsdata_dispatch_serial_async(dispatch_queue_t queue, DISPATCH_NOESCAPE dispatch_block_t block) {
+    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
+        block();
+    } else {
+        dispatch_async(queue, block);
+    }
+}
 
 static dispatch_once_t sdkInitializeOnceToken;
 
@@ -353,7 +361,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self startFlushTimer];
             }
 
-            _identifier = [[SAIdentifier alloc] init];
+            _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_serialQueue];
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
             
@@ -719,17 +727,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
-    [self.identifier login:loginId completion:^{
+    dispatch_block_t completion = ^ {
         NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
         // 添加来源渠道信息
         [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-        [eventProperties addEntriesFromDictionary:properties];
+        if ([SAValidator isValidDictionary:properties]) {
+            [eventProperties addEntriesFromDictionary:properties];
+        }
         [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
-    }];
+    };
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+        [self.identifier login:loginId completion:completion];
+    });
 }
 
 - (void)logout {
-    [self logout];
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+        [self.identifier logout];
+    });
 }
 
 - (NSString *)loginId {
@@ -749,7 +764,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)resetAnonymousId {
-    [self.identifier resetAnonymousId];
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+        [self.identifier resetAnonymousId];
+    });
 }
 
 - (void)trackAppCrash {
@@ -912,14 +929,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)flush {
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self _flush:NO];
     });
 }
 
 - (void)deleteAll {
     // 新增线程保护
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.messageQueue deleteAll];
     });
 }
@@ -1028,7 +1045,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
 
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self trackItems:itemDict properties:propertyDict];
     });
 }
@@ -1039,7 +1056,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
     
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self trackItems:itemDict properties:nil];
     });
 }
@@ -1203,7 +1220,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
         NSString *eventName = [self.trackTimer eventNameFromEventId:event];
 
@@ -1429,7 +1446,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     dispatch_block_t trackChannelEventBlock = ^{
         // idfa
-        NSString *idfa = [self getIDFA];
+        NSString *idfa = [SAIdentifier idfa];
         if (idfa) {
             [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
         } else {
@@ -1441,7 +1458,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             [properties setValue:@(YES) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
             [self.trackChannelEventNames addObject:event];
-            dispatch_async(self.serialQueue, ^{
+            sensorsdata_dispatch_serial_async(self.serialQueue, ^{
                 [self archiveTrackChannelEventNames];
             });
         }
@@ -1467,7 +1484,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
     // 添加 latest utms 属性，用户传入的属性优先级更高，最后添加到字典中
     [eventProperties addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
-    [eventProperties addEntriesFromDictionary:propertieDict];
+    if ([SAValidator isValidDictionary:propertieDict]) {
+        [eventProperties addEntriesFromDictionary:propertieDict];
+    }
     if (trackType == SensorsAnalyticsTrackTypeCode) {
         //事件校验，预置事件提醒
         if ([_presetEventNames containsObject:event]) {
@@ -1506,7 +1525,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     NSString *eventId = [_trackTimer generateEventIdByEventName:event];
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.trackTimer trackTimerStart:eventId currentSysUpTime:currentSysUpTime];
     });
     return eventId;
@@ -1525,7 +1544,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.trackTimer trackTimerPause:event currentSysUpTime:currentSysUpTime];
     });
 }
@@ -1535,13 +1554,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.trackTimer trackTimerResume:event currentSysUpTime:currentSysUpTime];
     });
 }
 
 - (void)clearTrackTimer {
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.trackTimer clearAllEventTimers];
     });
 }
@@ -1574,7 +1593,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        NSString *idfa = [self getIDFA];
+        NSString *idfa = [SAIdentifier idfa];
         if (idfa != nil) {
             [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
         } else {
@@ -1595,15 +1614,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 来源渠道消息只需要添加到 event 事件中，这里使用一个新的字典来添加 latest_utms 参数
             NSMutableDictionary *eventProperties = [properties mutableCopy];
             [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-            [eventProperties addEntriesFromDictionary:propertyDict];
-
+            if ([SAValidator isValidDictionary:propertyDict]) {
+                [eventProperties addEntriesFromDictionary:propertyDict];
+            }
             // 先发送 track
             [self track:event withProperties:eventProperties withType:@"track"];
 
             // 再发送 profile_set_once
             // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
             NSMutableDictionary *profileProperties = [properties mutableCopy];
-            [profileProperties addEntriesFromDictionary:propertyDict];
+            if ([SAValidator isValidDictionary:propertyDict]) {
+                [profileProperties addEntriesFromDictionary:propertyDict];
+            }
             [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
             [self track:nil withProperties:profileProperties withType:SA_PROFILE_SET_ONCE];
 
@@ -1629,31 +1651,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackInstallation:event withProperties:nil disableCallback:NO];
 }
 
-- (NSString  *)getIDFA {
-    NSString *idfa = nil;
-    @try {
-//#if defined(SENSORS_ANALYTICS_IDFA)
-        Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
-        if (ASIdentifierManagerClass) {
-            SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
-            id sharedManager = ((id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);
-            SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
-            NSUUID *uuid = ((NSUUID * (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
-            NSString *temp = [uuid UUIDString];
-            // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
-            // 00000000-0000-0000-0000-000000000000
-            if (temp && ![temp hasPrefix:@"00000000"]) {
-                idfa = temp;
-            }
-        }
-//#endif
-        return idfa;
-    } @catch (NSException *exception) {
-        SADebug(@"%@: %@", self, exception);
-        return idfa;
-    }
-}
-
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
     if (controllers == nil || controllers.count == 0) {
         return;
@@ -1670,7 +1667,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)identify:(NSString *)anonymousId {
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.identifier identify:anonymousId];
     });
 }
@@ -1951,7 +1948,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ failed to register super properties.", self);
         return;
     }
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self unregisterSameLetterSuperProperties:propertyDict];
         // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
@@ -1962,7 +1959,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         self.dynamicSuperProperties = dynamicSuperProperties;
     });
 }
@@ -1972,7 +1969,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     SALog(@"SDK have set trackEvent callBack");
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         self.trackEventCallback = callback;
     });
 }
@@ -1997,15 +1994,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     };
 
-    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
-        block();
-    } else {
-        dispatch_async(self.serialQueue, block);
-    }
+    sensorsdata_dispatch_serial_async(self.serialQueue, block);
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
         if (tmp[property] != nil) {
             [tmp removeObjectForKey:property];
@@ -2022,15 +2015,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
         [self archiveSuperProperties];
     };
-    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
-        block();
-    } else {
-        dispatch_async(self.serialQueue, block);
-    }
+
+    sensorsdata_dispatch_serial_async(self.serialQueue, block);
 }
 
 - (void)clearSuperProperties {
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         self->_superProperties = @{};
         [self archiveSuperProperties];
     });
@@ -2191,7 +2181,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         NSMutableDictionary *properties = [[NSMutableDictionary alloc]init];
         [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackObject:view isCodeTrack:YES]];
-        [properties addEntriesFromDictionary:p];
+        if ([SAValidator isValidDictionary:p]) {
+            [properties addEntriesFromDictionary:p];
+        }
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
@@ -2292,7 +2284,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
         NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
-        [eventProperties addEntriesFromDictionary:trackProperties];
+        if ([SAValidator isValidDictionary:trackProperties]) {
+            [eventProperties addEntriesFromDictionary:trackProperties];
+        }
     }
     _lastScreenTrackProperties = [eventProperties copy];
 
@@ -2311,9 +2305,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     if (properties) {
-        [eventProperties addEntriesFromDictionary:properties];
         NSMutableDictionary *tempProperties = [NSMutableDictionary dictionaryWithDictionary: _lastScreenTrackProperties];
-        [tempProperties addEntriesFromDictionary:properties];
+        if ([SAValidator isValidDictionary:properties]) {
+            [eventProperties addEntriesFromDictionary:properties];
+            [tempProperties addEntriesFromDictionary:properties];
+        }
         _lastScreenTrackProperties = [tempProperties copy];
     }
 
@@ -2588,7 +2584,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.trackTimer resumeAllEventTimers:currentSysUpTime];
     });
 
@@ -2662,7 +2658,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.trackTimer pauseAllEventTimers:currentSysUpTime];
     });
 
@@ -2677,12 +2673,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 
     if (self.flushBeforeEnterBackground) {
-        dispatch_async(self.serialQueue, ^{
+        sensorsdata_dispatch_serial_async(self.serialQueue, ^{
             [self _flush:YES];
             endBackgroundTask();
         });
     } else {
-        dispatch_async(self.serialQueue, ^{
+        sensorsdata_dispatch_serial_async(self.serialQueue, ^{
             endBackgroundTask();
         });
     }
@@ -3011,7 +3007,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - SecretKey
 - (void)loadSecretKey:(SASecretKey *)secretKey {
     if (secretKey.key.length > 0) {
-        dispatch_async(self.serialQueue, ^{
+        sensorsdata_dispatch_serial_async(self.serialQueue, ^{
             if (self.encryptBuilder) {
                 [self.encryptBuilder updateRSAPublicSecretKey:secretKey];
             } else {
@@ -3195,7 +3191,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         @try {
             if (eventInfo == nil) {
                 return;
@@ -3500,7 +3496,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
     });
 }
@@ -3511,7 +3507,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
+    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
         [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
     });
 }

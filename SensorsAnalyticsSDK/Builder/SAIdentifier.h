@@ -34,11 +34,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 匿名 Id（设备 Id）：IDFA -> IDFV -> UUID
 @property (nonatomic, copy, readonly) NSString *anonymousId;
 
-/// 唯一用户标识：设备 Id -> loginId
+/// 唯一用户标识：loginId -> 设备 Id
 @property (nonatomic, copy, readonly) NSString *distinctId;
 
-/// Login 之前的 anonymousId
-// TODO:wq 这是 id 作用是？
+/// Login 或 identify 操作前的 anonymousId
 @property (nonatomic, copy, readonly) NSString *originalId;
 
 /**

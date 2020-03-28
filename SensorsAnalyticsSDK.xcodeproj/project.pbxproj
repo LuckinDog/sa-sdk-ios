@@ -130,7 +130,7 @@
 		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
 		FC61B14D23B4BAD6006B4096 /* SATrackTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */; };
 		FC61B14E23B4BAD6006B4096 /* SATrackTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */; };
-		FC80AB7C242CB17A006D1D25 /* SAIdentifierManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierManagerTests.m */; };
+		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
 		FC906D0E242DEBD900C6686D /* SAValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = FC906D0A242DEBD800C6686D /* SAValidator.m */; };
 		FC906D0F242DEBD900C6686D /* SAValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = FC906D0B242DEBD800C6686D /* SAValidator.h */; };
 		FC906D10242DEBD900C6686D /* SAIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = FC906D0C242DEBD800C6686D /* SAIdentifier.m */; };
@@ -284,7 +284,7 @@
 		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
 		FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SATrackTimer.h; sourceTree = "<group>"; };
 		FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimer.m; sourceTree = "<group>"; };
-		FC80AB7B242CB17A006D1D25 /* SAIdentifierManagerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierManagerTests.m; sourceTree = "<group>"; };
+		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
 		FC906D0A242DEBD800C6686D /* SAValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValidator.m; sourceTree = "<group>"; };
 		FC906D0B242DEBD800C6686D /* SAValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAValidator.h; sourceTree = "<group>"; };
 		FC906D0C242DEBD800C6686D /* SAIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAIdentifier.m; sourceTree = "<group>"; };
@@ -542,7 +542,7 @@
 				CB6EBAF222855222003CFBA8 /* SANetworkTests.m */,
 				FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */,
 				FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */,
-				FC80AB7B242CB17A006D1D25 /* SAIdentifierManagerTests.m */,
+				FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */,
 				CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */,
 				4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */,
 				CB6EBAE7228551EC003CFBA8 /* Info.plist */,
@@ -890,7 +890,7 @@
 			files = (
 				4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */,
 				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
-				FC80AB7C242CB17A006D1D25 /* SAIdentifierManagerTests.m in Sources */,
+				FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */,
 				4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */,
 				CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */,
 				FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */,

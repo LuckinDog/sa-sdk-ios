@@ -48,7 +48,7 @@
     if (self) {
         self.queue = queue;
         self.anonymousId = [self unarchiveAnonymousId];
-        self.loginId = [SAFileStore unarchiveWithFileName:@"login_id"];
+        self.loginId = [SAFileStore unarchiveWithFileName:SA_EVENT_LOGIN_ID];
     }
     return self;
 }
@@ -102,6 +102,9 @@
         self.loginId = loginId;
         if (![loginId isEqualToString:originalId]) {
             self.originalId = originalId;
+            if (completion) {
+                completion();
+            }
         }
     });
     [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
