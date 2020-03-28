@@ -43,6 +43,10 @@
 
     BOOL ret = YES;
     BOOL sensorsAnalyticsAutoTrackAfterSendAction = NO;
+    //针对 tab 切换，采集切换后的页面信息，先执行系统 sendAction 完成页面切换
+    if ([to isKindOfClass:UITabBar.class]) {
+        sensorsAnalyticsAutoTrackAfterSendAction = YES;
+    }
 
     @try {
         if ([from isKindOfClass:[UIView class]] && [(UIView *)from sensorsAnalyticsAutoTrackAfterSendAction]) {
