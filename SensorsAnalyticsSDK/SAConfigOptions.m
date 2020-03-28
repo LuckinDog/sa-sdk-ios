@@ -81,7 +81,7 @@
     _flushBulkSize = flushBulkSize >= 50 ? flushBulkSize : 50;
 }
 
-- (void)setMaxCacheSize:(NSInteger)maxCacheSize {
+- (void)setMaxCacheSize:(UInt64)maxCacheSize {
     //防止设置的值太小导致事件丢失
     _maxCacheSize = maxCacheSize >= 10000 ? maxCacheSize : 10000;
 }

@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSInteger flushBulkSize;
 
 /// 设置本地缓存最多事件条数，默认为 10000 条事件
-@property (nonatomic) NSInteger maxCacheSize;
+@property (nonatomic) UInt64 maxCacheSize;
 
 /// 开启 log 打印
 @property (nonatomic, assign) BOOL enableLog;

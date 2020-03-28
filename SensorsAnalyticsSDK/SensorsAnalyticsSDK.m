@@ -716,7 +716,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @synchronized(self) {
         //防止设置的值太小导致事件丢失
         UInt64 temMaxCacheSize = maxCacheSize > 10000 ? maxCacheSize : 10000;
-        self.configOptions.maxCacheSize = (NSInteger)temMaxCacheSize;
+        self.configOptions.maxCacheSize = temMaxCacheSize;
     };
 }
 
