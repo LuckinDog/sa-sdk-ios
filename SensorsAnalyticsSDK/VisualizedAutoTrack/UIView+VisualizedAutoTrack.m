@@ -38,7 +38,8 @@
     // 计算 view 在 keyWindow 上的坐标
     CGRect rect = [self convertRect:self.frame toView:nil];
     // 若 size 为 CGrectZero
-    if (CGRectIsEmpty(rect) || CGRectIsNull(rect) || CGSizeEqualToSize(rect.size, CGSizeZero)) {
+    // 部分 view 设置宽高为 0，但是子视图可见，取消 CGRectIsEmpty(rect) 判断
+    if (CGRectIsNull(rect) || CGSizeEqualToSize(rect.size, CGSizeZero)) {
         return NO;
     }
 
