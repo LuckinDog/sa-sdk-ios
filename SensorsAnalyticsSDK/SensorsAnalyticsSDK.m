@@ -1034,10 +1034,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - WKWebView 打通
 
 - (void)swizzleWebViewMethod {
-    if (!self.configOptions.enableJavaScriptBridge) {
-        return;
-    }
-    
     static dispatch_once_t onceTokenWebView;
     dispatch_once(&onceTokenWebView, ^{
         NSError *error = NULL;
@@ -2714,7 +2710,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
     
     // WKWebView
-    [self swizzleWebViewMethod];
+    if (self.configOptions.enableJavaScriptBridge) {
+        [self swizzleWebViewMethod];
+    }
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
