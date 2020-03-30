@@ -146,6 +146,6 @@ BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);
 
 #pragma mark - SF related
-extern NSString *const SF_TRACK_EVENT_NOTIFICATION;
-extern NSString *const SF_TRACK_LOGIN_NOTIFICATION;
-extern NSString *const SF_TRACK_LOGOUT_NOTIFICATION;
+extern NSString *const SA_TRACK_EVENT_NOTIFICATION;
+extern NSString *const SA_TRACK_LOGIN_NOTIFICATION;
+extern NSString *const SA_TRACK_LOGOUT_NOTIFICATION;
