@@ -74,13 +74,12 @@ NSString * const SAScriptMessageHandlerMessageName = @"sensorsdataNativeTracker"
             return;
         }
         
-        id messageObj = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
-        if (![messageObj isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
+        if (![messageDic isKindOfClass:[NSDictionary class]]) {
             SAError(@"Message body is formatted failure from JS SDK");
             return;
         }
         
-        NSDictionary *messageDic = messageObj;
         NSString *callType = messageDic[@"callType"];
         if ([callType isEqualToString:@"app_h5_track"]) {
             // H5 发送事件
