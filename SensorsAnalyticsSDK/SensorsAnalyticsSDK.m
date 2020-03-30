@@ -375,6 +375,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_configOptions.enableLog) {
                 [SALogger enableLog:YES];
             }
+            
+            // WKWebView 打通
+            if (_configOptions.enableJavaScriptBridge) {
+                [self swizzleWebViewMethod];
+            }
         }
         
     } @catch(NSException *exception) {
@@ -1064,10 +1069,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
-    if (!self.configOptions.enableJavaScriptBridge) {
-        return;
-    }
-    
     NSAssert([webView isKindOfClass:[WKWebView class]], @"此注入方案只支持 WKWebView！❌");
     if (![webView isKindOfClass:[WKWebView class]]) {
         return;
@@ -1075,14 +1076,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     @try {
         WKUserContentController *contentController = webView.configuration.userContentController;
-        [contentController removeScriptMessageHandlerForName:SAScriptMessageHandlerMessageName];
-        [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SAScriptMessageHandlerMessageName];
+        [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
+        [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
         
         NSMutableString *javaScriptSource = [NSMutableString stringWithString:@"window.SensorsData_iOS_JS_Bridge = {};"];
-        if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
-            [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
-        } else {
-            SAError(@"%@ get network serverURL is failed!", self);
+        
+        if (self.configOptions.enableJavaScriptBridge) {
+            if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+            } else {
+                SAError(@"%@ get network serverURL is failed!", self);
+            }
         }
         
         // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
@@ -2708,11 +2712,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
     }
 #endif
-    
-    // WKWebView
-    if (self.configOptions.enableJavaScriptBridge) {
-        [self swizzleWebViewMethod];
-    }
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {

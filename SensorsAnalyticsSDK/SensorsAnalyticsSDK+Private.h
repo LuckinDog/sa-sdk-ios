@@ -79,7 +79,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type;
 
 /**
-向 WKWebView 做打通注入
+向 WKWebView 注入 Message Handler
 
 @param webView 需要注入的 wkwebView
 */

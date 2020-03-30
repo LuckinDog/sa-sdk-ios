@@ -18,17 +18,11 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import <Foundation/Foundation.h>
 
 #import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-extern NSString * const SAScriptMessageHandlerMessageName;
 
 @interface SAScriptMessageHandler : NSObject <WKScriptMessageHandler>
 

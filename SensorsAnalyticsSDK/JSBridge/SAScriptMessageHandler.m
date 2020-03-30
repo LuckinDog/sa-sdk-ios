@@ -25,8 +25,7 @@
 #import "SAScriptMessageHandler.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK+Private.h"
-
-NSString * const SAScriptMessageHandlerMessageName = @"sensorsdataNativeTracker";
+#import "SAConstants+Private.h"
 
 @interface SAScriptMessageHandler ()
 
@@ -45,19 +44,11 @@ NSString * const SAScriptMessageHandlerMessageName = @"sensorsdataNativeTracker"
     return sharedInstance;
 }
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        
-    }
-    return self;
-}
-
 #pragma mark - Delegate
 
 // Invoked when a script message is received from a webpage
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-    if (![message.name isEqualToString:SAScriptMessageHandlerMessageName]) {
+    if (![message.name isEqualToString:SA_SCRIPT_MESSAGE_HANDLER_NAME]) {
         return;
     }
     
