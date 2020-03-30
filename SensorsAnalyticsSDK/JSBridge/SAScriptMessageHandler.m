@@ -58,12 +58,11 @@ NSString * const SAScriptMessageHandlerMessageName = @"sensorsdataNativeTracker"
 // Invoked when a script message is received from a webpage
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     if (![message.name isEqualToString:SAScriptMessageHandlerMessageName]) {
-        SAError(@"Message name is %@, not equal 'sensorsdataNativeTracker' from JS SDK", message.name);
         return;
     }
     
     if (![message.body isKindOfClass:[NSString class]]) {
-        SAError(@"Message body is %@, not kind of 'NSString' from JS SDK", message.body);
+        SAError(@"Message body is not kind of 'NSString' from JS SDK");
         return;
     }
     
@@ -71,17 +70,26 @@ NSString * const SAScriptMessageHandlerMessageName = @"sensorsdataNativeTracker"
         NSString *body = message.body;
         NSData *messageData = [body dataUsingEncoding:NSUTF8StringEncoding];
         if (!messageData) {
+            SAError(@"Message body is invalid from JS SDK");
             return;
         }
-        NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:messageData options:NSJSONReadingMutableContainers error:nil];
         
+        id messageObj = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
+        if (![messageObj isKindOfClass:[NSDictionary class]]) {
+            SAError(@"Message body is formatted failure from JS SDK");
+            return;
+        }
+        
+        NSDictionary *messageDic = messageObj;
         NSString *callType = messageDic[@"callType"];
         if ([callType isEqualToString:@"app_h5_track"]) {
             // H5 发送事件
             NSDictionary *trackMessageDic = messageDic[@"data"];
-            if (!trackMessageDic) {
+            if (![trackMessageDic isKindOfClass:[NSDictionary class]]) {
+                SAError(@"Data of message body is not kind of 'NSDictionary' from JS SDK");
                 return;
             }
+            
             NSData *trackMessageData = [NSJSONSerialization dataWithJSONObject:trackMessageDic options:0 error:nil];
             NSString *trackMessageString = [[NSString alloc] initWithData:trackMessageData encoding:NSUTF8StringEncoding];
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
