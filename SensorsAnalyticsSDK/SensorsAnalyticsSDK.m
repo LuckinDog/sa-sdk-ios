@@ -759,6 +759,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (![loginId isEqualToString:self.anonymousId]) {
                 self.originalId = self.anonymousId;
                 [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:properties withType:@"track_signup"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
             }
         }
     });
@@ -768,6 +769,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         self.loginId = nil;
         [self archiveLoginId];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGOUT_NOTIFICATION object:nil];
     });
 }
 
@@ -1421,7 +1423,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         SALog(@"\n【track event】:\n%@", eventDic);
-
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:eventDic];
         [self enqueueWithType:type andEvent:eventDic];
 
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
