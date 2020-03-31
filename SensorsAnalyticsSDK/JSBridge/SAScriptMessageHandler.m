@@ -23,7 +23,7 @@
 #endif
 
 #import "SAScriptMessageHandler.h"
-#import "SALogger.h"
+#import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 
@@ -53,7 +53,7 @@
     }
     
     if (![message.body isKindOfClass:[NSString class]]) {
-        SAError(@"Message body is not kind of 'NSString' from JS SDK");
+        SALogError(@"Message body is not kind of 'NSString' from JS SDK");
         return;
     }
     
@@ -61,13 +61,13 @@
         NSString *body = message.body;
         NSData *messageData = [body dataUsingEncoding:NSUTF8StringEncoding];
         if (!messageData) {
-            SAError(@"Message body is invalid from JS SDK");
+            SALogError(@"Message body is invalid from JS SDK");
             return;
         }
         
         NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
         if (![messageDic isKindOfClass:[NSDictionary class]]) {
-            SAError(@"Message body is formatted failure from JS SDK");
+            SALogError(@"Message body is formatted failure from JS SDK");
             return;
         }
         
@@ -76,7 +76,7 @@
             // H5 发送事件
             NSDictionary *trackMessageDic = messageDic[@"data"];
             if (![trackMessageDic isKindOfClass:[NSDictionary class]]) {
-                SAError(@"Data of message body is not kind of 'NSDictionary' from JS SDK");
+                SALogError(@"Data of message body is not kind of 'NSDictionary' from JS SDK");
                 return;
             }
             
@@ -85,7 +85,7 @@
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
         }
     } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
+        SALogError(@"%@ error: %@", self, exception);
     }
 }
 
