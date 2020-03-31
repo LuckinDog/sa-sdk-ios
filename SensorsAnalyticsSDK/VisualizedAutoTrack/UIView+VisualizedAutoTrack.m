@@ -160,16 +160,20 @@
 }
 
 - (NSString *)sensorsdata_elementPath {
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    if (self.superview == keyWindow && self != keyWindow.rootViewController.view) { // 兼容 keyWindow 上控件的路径拼接
-        return [NSString stringWithFormat:@"%@/%@", keyWindow.sensorsdata_elementPath, self.sensorsdata_similarPath];
-    }
     // 忽略 viewPath 路径
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"]) {
+    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"] || [NSStringFromClass(self.class) isEqualToString:@"UITransitionView"]) {
         return nil;
     }
 #endif
+
+    // keyWindow 上添加元素路径拼接
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    if (self.superview == keyWindow && self != keyWindow.rootViewController.view) { // 兼容 keyWindow 上控件的路径拼接
+        if (self.sensorsdata_similarPath) {
+            return [NSString stringWithFormat:@"%@/%@", keyWindow.sensorsdata_elementPath, self.sensorsdata_similarPath];
+        }
+    }
     return self.sensorsdata_similarPath;
 }
 
