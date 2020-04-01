@@ -379,6 +379,10 @@
             index = count - 1;
         }
     }
+// UIViewController 拼接路径，不需要序号
+//    if ([responder isKindOfClass:UIViewController.class] && ![responder isKindOfClass:UIAlertController.class] && count == 1) {
+//        index = -1;
+//    }
     return index;
 }
 
