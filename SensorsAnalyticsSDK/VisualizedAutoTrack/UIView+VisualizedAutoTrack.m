@@ -23,6 +23,7 @@
 #endif
 
 #import "UIView+VisualizedAutoTrack.h"
+#import <objc/runtime.h>
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAVisualizedUtils.h"
@@ -46,10 +47,12 @@
      // 忽略部分 view
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     // _UIAlertControllerTextFieldViewCollectionCell UIAlertController 中输入框，忽略采集
-    //    UITransitionView 为 UITabBarController 的 view 容器
-    //    UINavigationTransitionView 为 UINavigationController 下的 view 容器，
     //    对应 controller.view 子控件包含了，都忽略，避免重复
     if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
+        return NO;
+    }
+
+    if ([NSStringFromClass(self.class) isEqualToString:@"UITransitionView"] && self.superview == [UIApplication sharedApplication].keyWindow) {
         return NO;
     }
 #endif
@@ -150,6 +153,15 @@
 
 /// 元素子视图
 - (NSArray *)sensorsdata_subElements {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    // controller1.vew 上直接添加 controller2.view, 在 controller2 添加 UITabBarController.view 或 UINavigationController.view  场景兼容
+    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"]) {
+        if ([[self nextResponder] isKindOfClass:UIViewController.class]) {
+            UIViewController *controller = (UIViewController *)[self nextResponder];
+            return controller.sensorsdata_subElements;
+        }
+    }
+#endif
     NSMutableArray *newSubViews = [NSMutableArray array];
     for (UIView *view in self.subviews) {
         if (view.sensorsdata_isDisplayedInScreen) {
@@ -159,10 +171,36 @@
     return newSubViews;
 }
 
+- (void)setSensorsdata_elementPath:(NSString *)sensorsdata_elementPath {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsElementPath", sensorsdata_elementPath, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
 - (NSString *)sensorsdata_elementPath {
+    NSString *elementPath = objc_getAssociatedObject(self, @"sensorsAnalyticsElementPath");
+    if (elementPath) {
+        return elementPath;
+    }
+
     // 忽略 viewPath 路径
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"] || [NSStringFromClass(self.class) isEqualToString:@"UITransitionView"]) {
+        return nil;
+    }
+
+    // 如果 UITabBarController.view 和 UINavigationController.view 添加到了 controller.vew，则忽略当前 view 的路径
+    BOOL isContainContainerView = NO;
+    for (UIView *view in self.subviews) {
+        if ([NSStringFromClass(view.class) isEqualToString:@"UILayoutContainerView"]) {
+            isContainContainerView = YES;
+        }
+    }
+
+    if (isContainContainerView) {
+        for (UIView *view in self.subviews) {
+            if (![NSStringFromClass(view.class) isEqualToString:@"UILayoutContainerView"]) {
+                [view setSensorsdata_elementPath:[NSString stringWithFormat:@"%@/%@", self.sensorsdata_itemPath, view.sensorsdata_itemPath]];
+            }
+        }
         return nil;
     }
 #endif
