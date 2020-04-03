@@ -32,8 +32,8 @@
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
     self.title = @"WKWebView";
 
-    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
+//    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
+//    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
 
     [_webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     _webView.UIDelegate = self;
@@ -42,9 +42,9 @@
     [self.view addSubview:_webView];
 
     //网址
-//    NSString *httpStr=@"https://www.sensorsdata.cn/test/in.html";
-//    NSURL *httpUrl=[NSURL URLWithString:httpStr];
-//    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
+    NSString *httpStr = @"https://869359954.github.io/sadefine/definedemo.html";
+    NSURL *httpUrl=[NSURL URLWithString:httpStr];
+    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
 
     [self.webView loadRequest:request];
 
@@ -58,14 +58,14 @@
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:navigationAction.request]) {
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-
-    decisionHandler(WKNavigationActionPolicyAllow);
-}
+//- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+//    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:navigationAction.request]) {
+//        decisionHandler(WKNavigationActionPolicyCancel);
+//        return;
+//    }
+//
+//    decisionHandler(WKNavigationActionPolicyAllow);
+//}
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
     if (!_webView.loading) {

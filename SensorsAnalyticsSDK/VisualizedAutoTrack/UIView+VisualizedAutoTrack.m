@@ -199,7 +199,10 @@
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
-    return subElements;
+    if (subElements.count > 0) {
+        return subElements;
+    }
+    return [super sensorsdata_subElements];
 }
 
 - (NSArray *)sensorsdata_extensionProperties {

@@ -24,7 +24,6 @@
 
 #import "SAVisualizedUtils.h"
 #import "SAJSTouchEventView.h"
-#import "SALogger.h"
 #import "SAVisualizedViewPathProperty.h"
 
 

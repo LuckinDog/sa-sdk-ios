@@ -135,6 +135,9 @@ extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
 
+#pragma mark - bridge name
+extern NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME;
+
 #pragma mark - reserved property list
 NSSet* sensorsdata_reserved_properties(void);
 
@@ -144,3 +147,8 @@ void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t bloc
 BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);
+
+#pragma mark - SF related
+extern NSString *const SA_TRACK_EVENT_NOTIFICATION;
+extern NSString *const SA_TRACK_LOGIN_NOTIFICATION;
+extern NSString *const SA_TRACK_LOGOUT_NOTIFICATION;
