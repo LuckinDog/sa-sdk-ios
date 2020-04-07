@@ -23,7 +23,7 @@
 
 
 #import "zlib.h"
-#import "SALog.h"
+#import "SALogger.h"
 #import "SAGzipUtility.h"
 
 @implementation SAGzipUtility
@@ -42,7 +42,7 @@
      */
     
     if (!pUncompressedData || [pUncompressedData length] == 0) {
-        SALogError(@" Error: Can't compress an empty or null NSData object.");
+        SALog(@" Error: Can't compress an empty or null NSData object.");
         return nil;
     }
     
@@ -110,7 +110,7 @@
                     errorMsg = @"Unknown error code.";
                     break;
             }
-            SALogError(@"deflateInit2() Error: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
+            SALog(@"deflateInit2() Error: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
             return nil;
         }
     
@@ -169,7 +169,7 @@
                     errorMsg = @"Unknown error code.";
                     break;
             }
-            SALogError(@"zlib error while attempting compression: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
+            SALog(@"zlib error while attempting compression: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
             
             // Free data structures that were dynamically created for the stream.
             deflateEnd(&zlibStreamStruct);

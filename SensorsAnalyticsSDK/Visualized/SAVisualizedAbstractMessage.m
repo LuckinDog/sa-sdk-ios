@@ -26,7 +26,7 @@
 #import "SAGzipUtility.h"
 #import "SAVisualizedAbstractMessage.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SALog.h"
+#import "SALogger.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
 
@@ -88,7 +88,7 @@
             jsonObject[@"title"] = viewController.sensorsdata_title;
         }
     } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SAError(@"%@ error: %@", self, exception);
     }
 
     jsonObject[@"app_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
@@ -126,7 +126,7 @@
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
     if (!jsonData && error) {
-        SALogError(@"Failed to serialize test designer message: %@", error);
+        SAError(@"Failed to serialize test designer message: %@", error);
     }
 
     return jsonData;
