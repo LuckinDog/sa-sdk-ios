@@ -45,6 +45,6 @@ extern NSString *const SAVisualizedSnapshotRequestMessageType;
 
 @property (nonatomic, strong) UIImage *screenshot;
 @property (nonatomic, copy) NSDictionary *serializedObjects;
-@property (nonatomic, strong) NSString *imageHash;
+//@property (nonatomic, strong) NSString *imageHash;
 
 @end

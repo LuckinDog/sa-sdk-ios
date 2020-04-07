@@ -88,7 +88,7 @@
         return nil;
     }
     UIScrollView *scrollView = webView.scrollView;
-    //                    位置偏移量
+    // 位置偏移量
     CGPoint contentOffset = scrollView.contentOffset;
     NSMutableArray *touchViewArray = [NSMutableArray array];
     for (NSDictionary *pageData in webPageDatas) {

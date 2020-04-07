@@ -19,6 +19,8 @@
 		4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188E22978F5B00F6B218 /* ElementViewController.m */; };
 		4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */; };
 		4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */; };
+		4D95F1CD243C632E00329633 /* SAVisualizedObjectSerializerManger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D95F1CB243C632E00329633 /* SAVisualizedObjectSerializerManger.h */; };
+		4D95F1CE243C632E00329633 /* SAVisualizedObjectSerializerManger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D95F1CC243C632E00329633 /* SAVisualizedObjectSerializerManger.m */; };
 		4D9D5E31240E4ADE00E6A9A5 /* SAVisualizedUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D9D5E2F240E4ADE00E6A9A5 /* SAVisualizedUtils.h */; };
 		4D9D5E32240E4ADE00E6A9A5 /* SAVisualizedUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9D5E30240E4ADE00E6A9A5 /* SAVisualizedUtils.m */; };
 		4DA4CB87237936BC006892D6 /* SAVisualizedAbstractMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DA4CB80237936BB006892D6 /* SAVisualizedAbstractMessage.m */; };
@@ -191,6 +193,8 @@
 		4D6A189022978F5B00F6B218 /* ElementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElementViewController.h; sourceTree = "<group>"; };
 		4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAUtilsTest.m; sourceTree = "<group>"; };
 		4D8CE4C622E872B400829B29 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		4D95F1CB243C632E00329633 /* SAVisualizedObjectSerializerManger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAVisualizedObjectSerializerManger.h; sourceTree = "<group>"; };
+		4D95F1CC243C632E00329633 /* SAVisualizedObjectSerializerManger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedObjectSerializerManger.m; sourceTree = "<group>"; };
 		4D9D5E2F240E4ADE00E6A9A5 /* SAVisualizedUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAVisualizedUtils.h; sourceTree = "<group>"; };
 		4D9D5E30240E4ADE00E6A9A5 /* SAVisualizedUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedUtils.m; sourceTree = "<group>"; };
 		4DA4CB80237936BB006892D6 /* SAVisualizedAbstractMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedAbstractMessage.m; sourceTree = "<group>"; };
@@ -455,6 +459,8 @@
 				4D9D5E30240E4ADE00E6A9A5 /* SAVisualizedUtils.m */,
 				4D650D80242B46CB006B01BF /* SAJSTouchEventView.h */,
 				4D650D81242B46CB006B01BF /* SAJSTouchEventView.m */,
+				4D95F1CB243C632E00329633 /* SAVisualizedObjectSerializerManger.h */,
+				4D95F1CC243C632E00329633 /* SAVisualizedObjectSerializerManger.m */,
 			);
 			path = VisualizedAutoTrack;
 			sourceTree = "<group>";
@@ -708,6 +714,7 @@
 				4D5A01FB2411ECB2007E651A /* UIView+HeatMap.h in Headers */,
 				CB30C05F22840EC00004061D /* SAGzipUtility.h in Headers */,
 				CB30C04522840EC00004061D /* NSInvocation+SAHelpers.h in Headers */,
+				4D95F1CD243C632E00329633 /* SAVisualizedObjectSerializerManger.h in Headers */,
 				CB30C09E22840EC00004061D /* SAKeyChainItemWrapper.h in Headers */,
 				CB6EBB9F22857BC0003CFBA8 /* UIApplication+AutoTrack.h in Headers */,
 				CB30C05C22840EC00004061D /* SALocationManager.h in Headers */,
@@ -918,6 +925,7 @@
 				CB30C07E22840EC00004061D /* NSObject+SensorsAnalyticsDelegate.m in Sources */,
 				F2F1F59C2428B3CE003B0A71 /* SAConsoleLogger.m in Sources */,
 				CB30C08522840EC00004061D /* SAConstants.m in Sources */,
+				4D95F1CE243C632E00329633 /* SAVisualizedObjectSerializerManger.m in Sources */,
 				CB30C06522840EC00004061D /* SASwizzler.m in Sources */,
 				CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */,
 				6523731E23EBC44000A786A2 /* SAHeatMapObjectSerializer.m in Sources */,
