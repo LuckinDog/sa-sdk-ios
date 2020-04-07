@@ -263,12 +263,6 @@
               {
                 "name": "url",
                 "type": "NSString"
-              },
-              {
-                  "name": "sensorsdata_elementPath",
-                  "key": "element_path",
-                  "type": "NSString",
-                  "use_kvc": false
               }
           ]
         },

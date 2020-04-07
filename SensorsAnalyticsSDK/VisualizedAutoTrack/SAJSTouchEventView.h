@@ -25,7 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAJSTouchEventView : UIView
 
-@property (nonatomic, copy) NSString *name;
+// html 标签名称
+@property (nonatomic, copy) NSString *tagName;
 /// 是否为 H5 元素
 @property (nonatomic, assign) BOOL isFromH5;
 
@@ -43,6 +44,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// html 页面标题
 @property (nonatomic, copy) NSString *title;
+
+// js 生成的 html 元素 id
+@property (nonatomic, copy) NSString *jsElementId;
+
+//js 解析的 html 子元素 id
+@property (nonatomic, copy) NSArray<NSString *> *jsSubElementIds;
+
+//js 解析的 html 子元素
+@property (nonatomic, copy) NSArray<SAJSTouchEventView *> *jsSubviews;
 @end
 
 NS_ASSUME_NONNULL_END

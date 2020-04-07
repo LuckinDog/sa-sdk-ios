@@ -117,7 +117,7 @@
     if ([object isKindOfClass:SAJSTouchEventView.class]) {
         SAJSTouchEventView *touchView = (SAJSTouchEventView *)object;
         propertyValues[@"isFromH5"] = @(YES);
-        classNames = @[touchView.name];
+        classNames = @[touchView.tagName];
     } else {
          propertyValues[@"isFromH5"] = @(NO);
     }

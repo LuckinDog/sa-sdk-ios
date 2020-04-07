@@ -100,7 +100,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
             imageHash = [self imageHashWithData:jpegSnapshotImageData];
         }
     }
-    
+
     _imageHash = imageHash;
     [self setPayloadObject:(payloadObject ?: [NSNull null]) forKey:@"screenshot"];
     [self setPayloadObject:(imageHash ?: [NSNull null]) forKey:@"image_hash"];

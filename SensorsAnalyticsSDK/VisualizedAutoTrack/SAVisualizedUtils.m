@@ -82,7 +82,7 @@
     return otherViews;
 }
 
-+ (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty>*)webView {
++ (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
     NSArray *webPageDatas = webView.sensorsdata_extensionProperties;
     if (webPageDatas.count == 0) {
         return nil;
@@ -101,6 +101,8 @@
         CGFloat scrollX = [pageData[@"scrollX"] floatValue];
         CGFloat scrollY = [pageData[@"scrollY"] floatValue];
         BOOL visibility = [pageData[@"visibility"] boolValue];
+        NSString *elementId = pageData[@"id"];
+        NSArray <NSString *> *subelements = pageData[@"subelements"];
 
         if (height > 0 && visibility) {
             UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
@@ -117,10 +119,30 @@
             touchView.elementSelector = pageData[@"$element_selector"];
             touchView.visibility = visibility;
             touchView.url = pageData[@"$url"];
-            touchView.name = pageData[@"tagName"];
+            touchView.tagName = pageData[@"tagName"];
             touchView.title = pageData[@"$title"];
             touchView.isFromH5 = YES;
+            touchView.jsElementId = elementId;
+            touchView.jsSubElementIds = subelements;
             [touchViewArray addObject:touchView];
+        }
+    }
+
+    // 构建子元素数组
+    for (SAJSTouchEventView *touchView1 in [touchViewArray copy]) {
+        //当前元素嵌套子元素
+        if (touchView1.jsSubElementIds.count > 0) {
+            NSMutableArray *jsSubElement = [NSMutableArray arrayWithCapacity:touchView1.jsSubElementIds.count];
+            // 根据子元素 id 查找对应子元素
+            for (NSString *elementId in touchView1.jsSubElementIds) {
+                for (SAJSTouchEventView *touchView2 in [touchViewArray copy]) {
+                    if ([elementId isEqualToString:touchView2.jsElementId]) {
+                        [jsSubElement addObject:touchView2];
+                        [touchViewArray removeObject:touchView2];
+                    }
+                }
+            }
+            touchView1.jsSubviews = [jsSubElement copy];
         }
     }
     return [touchViewArray copy];

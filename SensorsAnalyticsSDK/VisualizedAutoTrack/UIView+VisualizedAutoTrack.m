@@ -353,6 +353,13 @@
 - (BOOL)sensorsdata_enableAppClick {
     return YES;
 }
+
+- (NSArray *)sensorsdata_subElements {
+    if (self.jsSubviews.count > 0) {
+        return self.jsSubviews;
+    }
+return [super sensorsdata_subElements];
+}
 @end
 
 
