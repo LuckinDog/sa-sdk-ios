@@ -26,7 +26,7 @@
 #import "UIViewController+AutoTrack.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAConstants+Private.h"
-#import "SALog.h"
+#import "SALogger.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIView+AutoTrack.h"
@@ -131,7 +131,7 @@
         }
 #endif
     } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SAError(@"%@ error: %@", self, exception);
     }
     [self sa_autotrack_viewDidAppear:animated];
 }

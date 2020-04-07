@@ -23,7 +23,7 @@
 #endif
 
 
-#import "SALog.h"
+#import "SALogger.h"
 #import "SAPropertyDescription.h"
 
 @implementation SAPropertySelectorParameterDescription
