@@ -73,7 +73,7 @@
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
 
-#define VERSION @"2.0.1"
+#define VERSION @"2.0.2"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
