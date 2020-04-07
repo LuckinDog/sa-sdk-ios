@@ -28,7 +28,7 @@
 #import "NSInvocation+SAHelpers.h"
 #import "SAClassDescription.h"
 #import "SAEnumDescription.h"
-#import "SALog.h"
+#import "SALogger.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAHeatMapObjectSerializer.h"
 #import "SAObjectSerializerConfig.h"
@@ -66,7 +66,7 @@
             [self visitObject:[context dequeueUnvisitedObject] withContext:context];
         }
     } @catch (NSException *e) {
-        SALogError(@"Failed to serialize objects: %@", e);
+        SAError(@"Failed to serialize objects: %@", e);
     }
     
     return @{

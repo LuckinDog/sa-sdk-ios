@@ -26,7 +26,7 @@
 #import "SAVisualizedConnection.h"
 #import "SAVisualizedMessage.h"
 #import "SAVisualizedSnapshotMessage.h"
-#import "SALog.h"
+#import "SALogger.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
 @interface SAVisualizedConnection ()
@@ -107,13 +107,13 @@
 
         [task resume];
     } else {
-        SALogDebug(@"Not sending message as we are not connected: %@", [message debugDescription]);
+        SADebug(@"Not sending message as we are not connected: %@", [message debugDescription]);
     }
 }
 
 - (id <SAVisualizedMessage>)designerMessageForMessage:(id)message {
     if (![message isKindOfClass:[NSString class]] && ![message isKindOfClass:[NSData class]]) {
-        SALogError(@"message type error:%@",message);
+        SAError(@"message type error:%@",message);
         return nil;
     }
 
@@ -132,7 +132,7 @@
 
         designerMessage = [_typeToMessageClassMap[type] messageWithType:type payload:payload];
     } else {
-        SALogError(@"Badly formed socket message expected JSON dictionary: %@", error);
+        SAError(@"Badly formed socket message expected JSON dictionary: %@", error);
     }
 
     return designerMessage;

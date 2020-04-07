@@ -26,7 +26,7 @@
 
 #import "SAJSONUtil.h"
 #import "MessageQueueBySqlite.h"
-#import "SALog.h"
+#import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
@@ -74,9 +74,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     self.isDatabaseInitialized = (sqlite3_initialize() == SQLITE_OK);
     
     if (self.isDatabaseInitialized) {
-        SALogDebug(@"Success to initialize SQLite.");
+        SADebug(@"Success to initialize SQLite.");
     } else {
-        SALogError(@"Failed to initialize SQLite.");
+        SAError(@"Failed to initialize SQLite.");
     }
 }
 
@@ -98,12 +98,12 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     
     int result = sqlite3_open_v2([self.filePath UTF8String], &_database, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
     if ((result == SQLITE_OK) && [self createTable]) {
-        SALogDebug(@"Success to open SQLite db.");
+        SADebug(@"Success to open SQLite db.");
         
         return YES;
     } else {
         _database = NULL;
-        SALogError(@"Failed to open SQLite db.");
+        SAError(@"Failed to open SQLite db.");
         
         return NO;
     }
@@ -113,11 +113,11 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     NSString *sql = @"create table if not exists dataCache (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, content TEXT)";
     if ([self databaseExecute:sql]) {
         _dbMessageCount = [self sqliteCount];
-        SALogDebug(@"Create dataCache table success, current count is %lu", _dbMessageCount);
+        SADebug(@"Create dataCache table success, current count is %lu", _dbMessageCount);
         
         return YES;
     } else {
-        SALogError(@"Create dataCache table fail.");
+        SAError(@"Create dataCache table fail.");
         
         return NO;
     }
@@ -127,7 +127,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 
 - (void)addObject:(id)obj withType:(NSString *)type {
     if (!obj || ![type isKindOfClass:[NSString class]]) {
-        SALogError(@"%@ input parameter is invalid for addObject", self);
+        SAError(@"%@ input parameter is invalid for addObject", self);
         return;
     }
     
@@ -156,12 +156,12 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if ([self databaseCheck]) {
         NSString *sql = @"DELETE FROM dataCache";
         if (![self databaseExecute:sql]) {
-            SALogError(@"Failed to delete record");
+            SAError(@"Failed to delete record");
         }
         
         _dbMessageCount = [self sqliteCount];
     } else {
-        SALogError(@"Failed to delete record because the database failed to open");
+        SAError(@"Failed to delete record because the database failed to open");
     }
 }
 
@@ -215,26 +215,26 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         char *error = NULL;
         int result = sqlite3_exec(_database, sql.UTF8String, NULL, NULL, &error);
         if (error) {
-            SALogError(@"%@ database execute sql:%@ error (%d): %s", self, sql, result, error);
+            SAError(@"%@ database execute sql:%@ error (%d): %s", self, sql, result, error);
             sqlite3_free(error);
         }
         
         return result == SQLITE_OK;
     } @catch (NSException *exception) {
-        SALogError(@"%@ database execute sql:%@ exception: %@", self, sql, exception);
+        SAError(@"%@ database execute sql:%@ exception: %@", self, sql, exception);
         return NO;
     }
 }
 
 - (void)addObjectToCache:(id)obj {
     if (!obj) {
-        SALogError(@"%@ input parameter is invalid for addObjectToCache", self);
+        SAError(@"%@ input parameter is invalid for addObjectToCache", self);
         return;
     }
     
     // 数据缓存到内存中，如果最大缓存条数大于 10000，可能导致内存占用过大
     if (self.messageCaches.count >= kMessageCachesMaxSize) {
-        SALogError(@"AddObjectToCache touch MAX_MESSAGE_SIZE:10000, try to delete some old events");
+        SAError(@"AddObjectToCache touch MAX_MESSAGE_SIZE:10000, try to delete some old events");
         [self removeFirstRecordsFromCache:kRemoveFirstRecordsDefaultCount];
     }
     
@@ -243,30 +243,30 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         if (jsonString.length > 0) {
             // 能够转成 json 字符串
             [self.messageCaches addObject:jsonString];
-            SALogDebug(@"insert dataCache into memory success, current count is %lu", self.messageCaches.count);
+            SADebug(@"insert dataCache into memory success, current count is %lu", self.messageCaches.count);
         } else {
             // 不能转成 json 字符串
-            SALogError(@"insert dataCache into memory error");
+            SAError(@"insert dataCache into memory error");
         }
     } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SAError(@"%@ error: %@", self, exception);
     }
 }
 
 - (void)addObjectToDatabase:(id)obj withType:(NSString *)type isFromCache:(BOOL)isFromCache {
     if (!obj || ![type isKindOfClass:[NSString class]]) {
-        SALogError(@"%@ input parameter is invalid for addObjectToDatabase", self);
+        SAError(@"%@ input parameter is invalid for addObjectToDatabase", self);
         return;
     }
     
     UInt64 maxCacheSize = [SensorsAnalyticsSDK sharedInstance].configOptions.maxCacheSize;
     if (_dbMessageCount >= maxCacheSize) {
-        SALogError(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events", maxCacheSize);
+        SAError(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events", maxCacheSize);
         BOOL ret = [self removeFirstRecordsFromDatabase:kRemoveFirstRecordsDefaultCount];
         if (ret) {
             _dbMessageCount = [self sqliteCount];
         } else {
-            SALogError(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events FAILED", maxCacheSize);
+            SAError(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events FAILED", maxCacheSize);
             return;
         }
     }
@@ -288,18 +288,18 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         @try {
             sqlite3_bind_text(insertStatement, 2, [jsonString UTF8String], -1, SQLITE_TRANSIENT);
         } @catch (NSException *exception) {
-            SALogError(@"Found NON UTF8 String, ignore");
+            SAError(@"Found NON UTF8 String, ignore");
             return;
         }
         rc = sqlite3_step(insertStatement);
         if (rc != SQLITE_DONE) {
-            SALogError(@"insert into dataCache table of sqlite fail, rc is %d", rc);
+            SAError(@"insert into dataCache table of sqlite fail, rc is %d", rc);
         } else {
             _dbMessageCount++;
-            SALogDebug(@"insert into dataCache table of sqlite success, current count is %lu", _dbMessageCount);
+            SADebug(@"insert into dataCache table of sqlite success, current count is %lu", _dbMessageCount);
         }
     } else {
-        SALogError(@"insert into dataCache table of sqlite error");
+        SAError(@"insert into dataCache table of sqlite error");
     }
 }
 
@@ -331,7 +331,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
                 [contentArray addObject:handledRecord];
             }
         } @catch (NSException *exception) {
-            SALogError(@"%@ error: %@", self, exception);
+            SAError(@"%@ error: %@", self, exception);
         }
     }
     
@@ -346,7 +346,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     NSString *query = [NSString stringWithFormat:@"SELECT id,content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
     sqlite3_stmt *stmt = [self dbCacheStmt:query];
     if (!stmt) {
-        SALogError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
+        SAError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
         return nil;
     }
     
@@ -355,7 +355,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         @try {
             char *jsonChar = (char *)sqlite3_column_text(stmt, 1);
             if (!jsonChar) {
-                SALogError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
+                SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
                 return nil;
             }
             
@@ -372,7 +372,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
                 [contentArray addObject:handledRecord];
             }
         } @catch (NSException *exception) {
-            SALogError(@"Found NON UTF8 String, ignore");
+            SAError(@"Found NON UTF8 String, ignore");
         }
     }
     
@@ -411,7 +411,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         _dbMessageCount--;
         return YES;
     } else {
-        SALogError(@"Failed to delete record");
+        SAError(@"Failed to delete record");
         return NO;
     }
 }
@@ -433,7 +433,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     NSUInteger removeSize = MIN(recordSize, _dbMessageCount);
     NSString *sql = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache ORDER BY id ASC LIMIT %lu);", (unsigned long)removeSize];
     if (![self databaseExecute:sql]) {
-        SALogError(@"Failed to delete record from database");
+        SAError(@"Failed to delete record from database");
         return NO;
     }
     
@@ -447,7 +447,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 
     sqlite3_close(_database);
     sqlite3_shutdown();
-    SALogDebug(@"%@ close database", self);
+    SADebug(@"%@ close database", self);
 }
 
 - (BOOL)databaseCheck {
@@ -477,7 +477,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         while (sqlite3_step(statement) == SQLITE_ROW)
             count = sqlite3_column_int(statement, 0);
     } else {
-        SALogError(@"Failed to prepare statement");
+        SAError(@"Failed to prepare statement");
     }
     return count;
 }
@@ -488,7 +488,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (!stmt) {
         int result = sqlite3_prepare_v2(_database, sql.UTF8String, -1, &stmt, NULL);
         if (result != SQLITE_OK) {
-            SALogError(@"%s line:%d sqlite stmt prepare error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_database));
+            SAError(@"%s line:%d sqlite stmt prepare error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_database));
             return NULL;
         }
         CFDictionarySetValue(_dbStmtCache, (__bridge const void *)(sql), stmt);

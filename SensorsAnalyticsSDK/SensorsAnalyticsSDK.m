@@ -36,8 +36,7 @@
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
-#import "SALog+Private.h"
-#import "SAConsoleLogger.h"
+#import "SALogger.h"
 #import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
@@ -221,8 +220,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 
-@property (nonatomic, strong) SAConsoleLogger *consoleLogger;
-
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -266,7 +263,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAConfigOptions * options = [[SAConfigOptions alloc]initWithServerURL:serverURL launchOptions:launchOptions];
         self = [self initWithConfigOptions:options debugMode:debugMode];
     } @catch(NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SAError(@"%@ error: %@", self, exception);
     }
     return self;
 }
@@ -330,7 +327,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
             if (self.messageQueue == nil) {
-                SALogDebug(@"SqliteException: init Message Queue in Sqlite fail");
+                SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
@@ -373,24 +370,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self configServerURLWithDebugMode:_debugMode showDebugModeWarning:YES];
             
             if (_configOptions.enableLog) {
-                [self enableLog:YES];
+                [SALogger enableLog:YES];
             }
         }
         
     } @catch(NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SAError(@"%@ error: %@", self, exception);
     }
     
     return self;
-}
-
-- (void)enableLoggers:(BOOL)enableLog {
-    if (!self.consoleLogger) {
-        SAConsoleLogger *consoleLogger = [[SAConsoleLogger alloc] init];
-        [SALog addLogger:consoleLogger];
-        self.consoleLogger = consoleLogger;
-    }
-    self.consoleLogger.enableLog = enableLog;
 }
 
 + (UInt64)getCurrentTime {
@@ -428,7 +416,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     // 没有IDFV，则使用UUID
     if (!distinctId) {
-        SALogDebug(@"%@ error getting device identifier: falling back to uuid", self);
+        SADebug(@"%@ error getting device identifier: falling back to uuid", self);
         distinctId = [[NSUUID UUID] UUIDString];
     }
     return distinctId;
@@ -499,7 +487,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             publicClasses = [NSSet setWithArray:ignoredClasses[@"public"]];
             privateClasses = [NSSet setWithArray:ignoredClasses[@"private"]];
         } @catch(NSException *exception) {  // json加载和解析可能失败
-            SALogError(@"%@ error: %@", self, exception);
+            SAError(@"%@ error: %@", self, exception);
         }
     });
     
@@ -550,7 +538,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
     } @catch(NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SAError(@"%@ error: %@", self, exception);
     }
     return [properties copy];
 }
@@ -571,7 +559,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                       self, self.configOptions.serverURL, [self debugModeToString:_debugMode]];
         //SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
         //为了解决不能打印的问题，此处直接使用实例方法。其他地方不推荐使用此方法
-        NSLog(@"%@", logMessage);
+        [[SALogger sharedInstance] log:YES message:logMessage level:1 file:__FILE__ function:__PRETTY_FUNCTION__ line:__LINE__];
         
         //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
@@ -756,11 +744,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
     if (loginId == nil || loginId.length == 0) {
-        SALogError(@"%@ cannot login blank login_id: %@", self, loginId);
+        SAError(@"%@ cannot login blank login_id: %@", self, loginId);
         return;
     }
     if (loginId.length > 255) {
-        SALogError(@"%@ max length of login_id is 255, login_id: %@", self, loginId);
+        SAError(@"%@ max length of login_id is 255, login_id: %@", self, loginId);
         return;
     }
     
@@ -914,7 +902,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 1、获取前 n 条数据
     NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
     if (recordArray == nil) {
-        SALogError(@"Failed to get records from SQLite.");
+        SAError(@"Failed to get records from SQLite.");
         return NO;
     }
     // 2、上传获取到的记录。如果数据上传完成，结束递归
@@ -923,7 +911,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     // 3、删除已上传的记录。删除失败，结束递归
     if (![self.messageQueue removeFirstRecords:recordArray.count withType:@"POST"]) {
-        SALogError(@"Failed to remove records from SQLite.");
+        SAError(@"Failed to remove records from SQLite.");
         return NO;
     }
     // 4、继续上传剩余数据
@@ -945,11 +933,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if (vacuumAfterFlushing) {
         if (![self.messageQueue vacuum]) {
-            SALogError(@"failed to VACUUM SQLite.");
+            SAError(@"failed to VACUUM SQLite.");
         }
     }
     if (uploadedEvents) {
-        SALogDebug(@"events flushed.");
+        SADebug(@"events flushed.");
     }
 }
 
@@ -1006,7 +994,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
+        SAError(@"%@: %@", self, exception);
     }
     return NO;
 }
@@ -1089,7 +1077,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *itemType = itemDict[SA_EVENT_ITEM_TYPE];
     if (itemType.length == 0 || ![self isValidName:itemType]) {
         NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
-        SALogError(@"%@", errMsg);
+        SAError(@"%@", errMsg);
         if (_debugMode != SensorsAnalyticsDebugOff) {
             [self showDebugModeWarning:errMsg withNoMoreButton:YES];
         }
@@ -1098,14 +1086,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *itemId = itemDict[SA_EVENT_ITEM_ID];
     if (itemId.length == 0 || itemId.length > 255) {
-        SALogError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
+        SAError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
         return;
     }
 
     // 校验 properties
     NSString *type = itemDict[SA_EVENT_TYPE];
     if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
-        SALogError(@"%@ failed to item properties", self);
+        SAError(@"%@ failed to item properties", self);
         return;
     }
 
@@ -1130,7 +1118,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     itemProperties[SA_EVENT_TIME] = timeStamp;
 
-    SALogDebug(@"\n【track event】:\n%@", itemProperties);
+    SALog(@"\n【track event】:\n%@", itemProperties);
 
     [self enqueueWithType:@"Post" andEvent:itemProperties];
 }
@@ -1149,7 +1137,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSRange range = NSMakeRange(0, name.length);
         return ([self.propertiesRegex numberOfMatchesInString:name options:0 range:range] > 0);
     } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
+        SAError(@"%@: %@", self, exception);
         return NO;
     }
 }
@@ -1158,7 +1146,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *filename = [NSString stringWithFormat:@"sensorsanalytics-%@.plist", data];
     NSString *filepath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
             stringByAppendingPathComponent:filename];
-    SALogDebug(@"filepath for %@ is %@", data, filepath);
+    SADebug(@"filepath for %@ is %@", data, filepath);
     return filepath;
 }
 
@@ -1170,12 +1158,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSMutableDictionary<NSString *, id> *originProperties = event[@"properties"];
     BOOL isIncluded = self.trackEventCallback(event[@"event"], originProperties);
     if (!isIncluded) {
-        SALogError(@"\n【track event】: %@ can not enter database.", event[@"event"]);
+        SALog(@"\n【track event】: %@ can not enter database.", event[@"event"]);
         return nil;
     }
     // 校验 properties
     if (![self assertPropertyTypes:&originProperties withEventType:type]) {
-        SALogError(@"%@ failed to track event.", self);
+        SAError(@"%@ failed to track event.", self);
         return nil;
     }
     return event;
@@ -1198,7 +1186,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([type isEqualToString:@"track"] || [type isEqualToString:@"codeTrack"]) {
         if (event == nil || [event length] == 0) {
             NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
-            SALogError(@"%@", errMsg);
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
@@ -1206,7 +1194,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         if (![self isValidName:event]) {
             NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
-            SALogError(@"%@", errMsg);
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
@@ -1221,7 +1209,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if (propertieDict) {
         if (![self assertPropertyTypes:&propertieDict withEventType:type]) {
-            SALogError(@"%@ failed to track event.", self);
+            SAError(@"%@ failed to track event.", self);
             return;
         }
     }
@@ -1257,7 +1245,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         //获取用户自定义的动态公共属性
         if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
-            SALogError(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
+            SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
             dynamicSuperPropertiesDict = nil;
         } else {
             if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
@@ -1316,10 +1304,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
                             timeStamp = @(customTimeInt);
                         } else {
-                            SALogError(@"$time error %ld，Please check the value", customTimeInt);
+                            SAError(@"$time error %ld，Please check the value", customTimeInt);
                         }
                     } else {
-                        SALogError(@"$time '%@' invalid，Please check the value", obj);
+                        SAError(@"$time '%@' invalid，Please check the value", obj);
                     }
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
@@ -1361,7 +1349,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [p setObject:@"background" forKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE];
                 }
             } @catch (NSException *e) {
-                SALogError(@"%@: %@", self, e);
+                SAError(@"%@: %@", self, e);
             }
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
@@ -1371,7 +1359,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [p setObject:self.deviceOrientationConfig.deviceOrientation forKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION];
                 }
             } @catch (NSException *e) {
-                SALogError(@"%@: %@", self, e);
+                SAError(@"%@: %@", self, e);
             }
 #endif
 
@@ -1387,7 +1375,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                 }
             } @catch (NSException *e) {
-                SALogError(@"%@: %@", self, e);
+                SAError(@"%@: %@", self, e);
             }
 #endif
             e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -1434,8 +1422,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
+        SALog(@"\n【track event】:\n%@", eventDic);
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:eventDic];
-        SALogDebug(@"\n【track event】:\n%@", eventDic);
         [self enqueueWithType:type andEvent:eventDic];
 
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
@@ -1507,7 +1495,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (trackType == SensorsAnalyticsTrackTypeCode) {
         //事件校验，预置事件提醒
         if ([_presetEventNames containsObject:event]) {
-            SALogError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
+            SAError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
         
         [self track:event withProperties:propertieDict withType:@"codeTrack"];
@@ -1529,7 +1517,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return YES;
     }
     NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
-    SALogError(@"%@", errMsg);
+    SAError(@"%@", errMsg);
     if (_debugMode != SensorsAnalyticsDebugOff) {
         [self showDebugModeWarning:errMsg withNoMoreButton:YES];
     }
@@ -1681,7 +1669,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //#endif
         return idfa;
     } @catch (NSException *exception) {
-        SALogDebug(@"%@: %@", self, exception);
+        SADebug(@"%@: %@", self, exception);
         return idfa;
     }
 }
@@ -1703,12 +1691,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)identify:(NSString *)anonymousId {
     if (anonymousId.length == 0) {
-        SALogError(@"%@ cannot identify blank distinct id: %@", self, anonymousId);
+        SAError(@"%@ cannot identify blank distinct id: %@", self, anonymousId);
 //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
         return;
     }
     if (anonymousId.length > 255) {
-        SALogError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, anonymousId);
+        SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, anonymousId);
 //        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
     }
     
@@ -1742,7 +1730,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // key 必须是NSString
         if (![k isKindOfClass: [NSString class]]) {
             NSString *errMsg = @"Property Key should by NSString";
-            SALogError(@"%@", errMsg);
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
@@ -1752,7 +1740,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // key的名称必须符合要求
         if (![self isValidName: k]) {
             NSString *errMsg = [NSString stringWithFormat:@"property name[%@] is not valid", k];
-            SALogError(@"%@", errMsg);
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
@@ -1767,7 +1755,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
            ![propertyValue isKindOfClass:[NSArray class]] &&
            ![propertyValue isKindOfClass:[NSDate class]]) {
             NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [propertyValue class], propertyValue];
-            SALogError(@"%@", errMsg);
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
@@ -1789,7 +1777,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
             if (![string isKindOfClass:[NSString class]]) {
                 NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [string class], string];
-                SALogError(@"%@", errMsg);
+                SAError(@"%@", errMsg);
                 if (isDebugMode) {
                     [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
@@ -1865,7 +1853,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([eventType isEqualToString:SA_PROFILE_INCREMENT]) {
             if (![propertyValue isKindOfClass:[NSNumber class]]) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [properties[k] class], propertyValue];
-                SALogError(@"%@", errMsg);
+                SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
@@ -1877,7 +1865,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([eventType isEqualToString:SA_PROFILE_APPEND]) {
             if (![propertyValue isKindOfClass:[NSSet class]] && ![propertyValue isKindOfClass:[NSArray class]]) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [propertyValue  class], propertyValue];
-                SALogError(@"%@", errMsg);
+                SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
@@ -1994,7 +1982,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
     propertyDict = [propertyDict copy];
     if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
-        SALogError(@"%@ failed to register super properties.", self);
+        SAError(@"%@ failed to register super properties.", self);
         return;
     }
     dispatch_async(self.serialQueue, ^{
@@ -2017,7 +2005,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!callback) {
         return;
     }
-    SALogDebug(@"SDK have set trackEvent callBack");
+    SALog(@"SDK have set trackEvent callBack");
     dispatch_async(self.serialQueue, ^{
         self.trackEventCallback = callback;
     });
@@ -2101,7 +2089,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @try {
         unarchivedData = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
     } @catch (NSException *exception) {
-        SALogError(@"%@ unable to unarchive data in %@, starting fresh", self, filePath);
+        SAError(@"%@ unable to unarchive data in %@, starting fresh", self, filePath);
         unarchivedData = nil;
     }
     return unarchivedData;
@@ -2120,7 +2108,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete forKey:NSFileProtectionKey];
             [[NSFileManager defaultManager] setAttributes:protection ofItemAtPath:filePath error:nil];
             if (![NSKeyedArchiver archiveRootObject:[self.anonymousId copy] toFile:filePath]) {
-                SALogError(@"%@ unable to archive distinctId", self);
+                SAError(@"%@ unable to archive distinctId", self);
             }
         }
     } else {
@@ -2172,12 +2160,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                      ofItemAtPath:filePath
                                             error:nil];
     if (![NSKeyedArchiver archiveRootObject:[self.anonymousId copy] toFile:filePath]) {
-        SALogError(@"%@ unable to archive distinctId", self);
+        SAError(@"%@ unable to archive distinctId", self);
     }
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper saveUdid:self.anonymousId];
 #endif
-    SALogDebug(@"%@ archived distinctId", self);
+    SADebug(@"%@ archived distinctId", self);
 }
 
 - (void)archiveLoginId {
@@ -2189,9 +2177,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                      ofItemAtPath:filePath
                                             error:nil];
     if (![NSKeyedArchiver archiveRootObject:[self.loginId copy] toFile:filePath]) {
-        SALogError(@"%@ unable to archive loginId", self);
+        SAError(@"%@ unable to archive loginId", self);
     }
-    SALogDebug(@"%@ archived loginId", self);
+    SADebug(@"%@ archived loginId", self);
 }
 
 - (void)archiveFirstDay {
@@ -2203,9 +2191,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                      ofItemAtPath:filePath
                                             error:nil];
     if (![NSKeyedArchiver archiveRootObject:[[self firstDay] copy] toFile:filePath]) {
-        SALogError(@"%@ unable to archive firstDay", self);
+        SAError(@"%@ unable to archive firstDay", self);
     }
-    SALogDebug(@"%@ archived firstDay", self);
+    SADebug(@"%@ archived firstDay", self);
 }
 
 - (void)archiveSuperProperties {
@@ -2217,9 +2205,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                      ofItemAtPath:filePath
                                             error:nil];
     if (![NSKeyedArchiver archiveRootObject:[self.superProperties copy] toFile:filePath]) {
-        SALogError(@"%@ unable to archive super properties", self);
+        SAError(@"%@ unable to archive super properties", self);
     }
-    SALogDebug(@"%@ archive super properties data", self);
+    SADebug(@"%@ archive super properties data", self);
 }
 
 - (void)archiveTrackChannelEventNames {
@@ -2231,9 +2219,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                      ofItemAtPath:filePath
                                             error:nil];
     if (![NSKeyedArchiver archiveRootObject:[self.trackChannelEventNames copy] toFile:filePath]) {
-        SALogError(@"%@ unable to archive trackChannelEventNames", self);
+        SAError(@"%@ unable to archive trackChannelEventNames", self);
     }
-    SALogDebug(@"%@ archive trackChannelEventNames", self);
+    SADebug(@"%@ archive trackChannelEventNames", self);
 }
 
 #pragma mark - Network control
@@ -2294,7 +2282,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     } @catch (NSException *exception) {
-        SALogDebug(@"%@: %@", self, exception);
+        SADebug(@"%@: %@", self, exception);
     }
     return network;
 }
@@ -2303,7 +2291,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (self.remoteConfig.disableSDK || (self.timer && [self.timer isValid])) {
         return;
     }
-    SALogDebug(@"starting flush timer.");
+    SADebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.configOptions.flushInterval > 0) {
             double interval = self.configOptions.flushInterval > 100 ? (double)self.configOptions.flushInterval / 1000.0 : 0.1f;
@@ -2356,7 +2344,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [properties addEntriesFromDictionary:p];
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
+        SAError(@"%@: %@", self, exception);
     }
 }
 
@@ -2600,7 +2588,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                              withMethod:@selector(sa_sendAction:to:from:forEvent:)
                                   error:&error];
         if (error) {
-            SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
+            SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
             error = NULL;
         }
     });
@@ -2637,7 +2625,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                       withMethod:@selector(sa_initWithTarget:action:)
                                            error:&error];
         if (error) {
-            SALogError(@"Failed to swizzle Target on UITapGestureRecognizer. Details: %@", error);
+            SAError(@"Failed to swizzle Target on UITapGestureRecognizer. Details: %@", error);
             error = NULL;
         }
     });
@@ -2668,12 +2656,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
         }
     } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SAError(@"%@ error: %@", self, exception);
     }
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
-    SALogDebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
+    SADebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
     if (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
         //全埋点
         [self autoTrackAppStart];
@@ -2681,7 +2669,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
-    SALogDebug(@"%@ application will enter foreground", self);
+    SADebug(@"%@ application will enter foreground", self);
     
     if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
         _appRelaunched = YES;
@@ -2690,7 +2678,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
-    SALogDebug(@"%@ application did become active", self);
+    SADebug(@"%@ application did become active", self);
     if (_appRelaunched) {
         //下次启动 App 的时候重新初始化
         NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
@@ -2768,12 +2756,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)applicationWillResignActive:(NSNotification *)notification {
-    SALogDebug(@"%@ application will resign active", self);
+    SADebug(@"%@ application will resign active", self);
     _applicationWillResignActive = YES;
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
-    SALogDebug(@"%@ application did enter background", self);
+    SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
     
     [self stopFlushTimer];
@@ -2833,7 +2821,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 - (void)applicationWillTerminateNotification:(NSNotification *)notification {
-    SALogDebug(@"applicationWillTerminateNotification");
+    SALog(@"applicationWillTerminateNotification");
     dispatch_sync(self.serialQueue, ^{
     });
 }
@@ -2900,8 +2888,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] deleteUser];
 }
 
-- (void)enableLog:(BOOL)enabelLog {
-    [self enableLoggers:enabelLog];
+- (void)enableLog:(BOOL)enabelLog{
+    [SALogger enableLog:enabelLog];
 }
 
 - (void)enableLog {
@@ -2913,7 +2901,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if ( [self debugMode] != SensorsAnalyticsDebugOff) {
         printLog = YES;
     }
-    [self enableLog:printLog];
+    [SALogger enableLog:printLog];
 }
 
 - (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
@@ -2923,7 +2911,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self configServerURLWithDebugMode:SensorsAnalyticsDebugOff  showDebugModeWarning:NO];
         }
     } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+        SAError(@"%@ error: %@", self, e);
     }
 }
 
@@ -2946,7 +2934,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     //判断是否符合分散 remoteconfig 请求条件
     if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval < self.configOptions.minRequestHourInterval) {
         [self requestFunctionalManagermentConfig];
-        SALogError(@"disableRandomTimeRequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
+        SALog(@"disableRandomTimeRequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
         return;
     }
 
@@ -2977,7 +2965,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     @try {
         [self requestFunctionalManagermentConfigDelay:0 index:0];
     } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+        SAError(@"%@ error: %@", self, e);
     }
 }
 
@@ -3024,14 +3012,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 }
             }
         } @catch (NSException *e) {
-            SALogError(@"%@ error: %@", self, e);
+            SAError(@"%@ error: %@", self, e);
         }
     };
     @try {
         self.reqConfigBlock = block;
         [self performSelector:@selector(requestFunctionalManagermentConfigWithCompletion:) withObject:self.reqConfigBlock afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
     } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+        SAError(@"%@ error: %@", self, e);
     }
 }
 
@@ -3046,7 +3034,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
         [self.network functionalManagermentConfigWithRemoteConfigURL:url version:self.remoteConfig.v completion:completion];
     } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+        SAError(@"%@ error: %@", self, e);
     }
 }
 
@@ -3073,7 +3061,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
         }
     } @catch (NSException * e) {
-        SALogError(@"%@ error: %@", self, e);
+        SAError(@"%@ error: %@", self, e);
     }
 #endif
 }
@@ -3092,7 +3080,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                         strongSelf.locationConfig.coordinate = location.coordinate;
                     }
                     if (error) {
-                        SALogError(@"enableTrackGPSLocation error：%@", error);
+                        SALog(@"enableTrackGPSLocation error：%@", error);
                     }
                 };
             }
@@ -3178,7 +3166,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 }];
             }
         } @catch (NSException *exception) {
-            SALogDebug(@"%@: %@", self, exception);
+            SADebug(@"%@: %@", self, exception);
         }
     };
     sensorsdata_dispatch_main_safe_sync(mainThreadBlock);
@@ -3202,7 +3190,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         return NO;
     }
     @try {
-        SALogDebug(@"showUpWebView");
+        SADebug(@"showUpWebView");
         SAJSONUtil *_jsonUtil = [[SAJSONUtil alloc] init];
         NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -3233,7 +3221,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #else
 
         if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
-            SALogDebug(@"showUpWebView: UIWebView");
+            SADebug(@"showUpWebView: UIWebView");
             if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
                 [webView stringByEvaluatingJavaScriptFromString:js];
             } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
@@ -3248,11 +3236,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         } else
 #endif
         if (wkWebViewClass && [webView isKindOfClass:wkWebViewClass]) {//WKWebView
-            SALogDebug(@"showUpWebView: WKWebView");
+            SADebug(@"showUpWebView: WKWebView");
             if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
                 typedef void(^Myblock)(id, NSError *);
                 Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error) {
-                    SALogError(@"response: %@ error: %@", response, error);
+                    SALog(@"response: %@ error: %@", response, error);
                 };
                 SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
                 if (sharedManagerSelector) {
@@ -3268,10 +3256,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 }
             }
         } else {
-            SALogDebug(@"showUpWebView: not UIWebView or WKWebView");
+            SADebug(@"showUpWebView: not UIWebView or WKWebView");
         }
     } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
+        SAError(@"%@: %@", self, exception);
     } @finally {
         return YES;
     }
@@ -3280,12 +3268,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (BOOL)shouldHandleWebView:(id)webView request:(NSURLRequest *)request {
     if (webView == nil) {
-        SALogDebug(@"showUpWebView == nil");
+        SADebug(@"showUpWebView == nil");
         return NO;
     }
 
     if (request == nil || ![request isKindOfClass:NSURLRequest.class]) {
-        SALogDebug(@"request == nil or not NSURLRequest class");
+        SADebug(@"request == nil or not NSURLRequest class");
         return NO;
     }
 
@@ -3320,7 +3308,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (enableVerify) {
                 NSString *serverUrl = [eventDict valueForKey:@"server_url"];
                 if (![self.network isSameProjectWithURLString:serverUrl]) {
-                    SALogError(@"Server_url verified faild, Web event lost! Web server_url = '%@'",serverUrl);
+                    SAError(@"Server_url verified faild, Web event lost! Web server_url = '%@'",serverUrl);
                     return;
                 }
             }
@@ -3405,7 +3393,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
                     timeStamp = @(customTimeInt);
                 } else {
-                    SALogError(@"H5 $time error '%@'，Please check the value", timeNumber);
+                    SAError(@"H5 $time error '%@'，Please check the value", timeNumber);
                 }
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
@@ -3419,7 +3407,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (!enqueueEvent) {
                 return;
             }
-            SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
+            SALog(@"\n【track event from H5】:\n%@", enqueueEvent);
 
             if([type isEqualToString:@"track_signup"]) {
 
@@ -3437,7 +3425,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [self enqueueWithType:type andEvent:[enqueueEvent copy]];
             }
         } @catch (NSException *exception) {
-            SALogError(@"%@: %@", self, exception);
+            SAError(@"%@: %@", self, exception);
         }
     });
 }
