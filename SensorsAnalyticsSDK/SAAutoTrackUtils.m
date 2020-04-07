@@ -27,7 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+HeatMap.h"
 #import "UIView+AutoTrack.h"
-#import "SALog.h"
+#import "SALogger.h"
 
 @implementation SAAutoTrackUtils
 
@@ -484,7 +484,7 @@
             }
         }
     } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SAError(@"%@ error: %@", self, exception);
     }
     NSAssert(!properties || [properties isKindOfClass:[NSDictionary class]], @"You must return a dictionary object ❌");
     return properties;
