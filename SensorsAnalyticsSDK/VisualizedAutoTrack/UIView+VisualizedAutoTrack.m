@@ -28,7 +28,6 @@
 #import "UIViewController+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
-#import "SAVisualizedObjectSerializerManger.h"
 
 @implementation UIView (VisualizedAutoTrack)
 
@@ -201,15 +200,6 @@
 - (NSArray *)sensorsdata_subElements {
     NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
     if (subElements.count > 0) {
-        /*
-        App 内嵌 H5 的可视化全埋点，可能页面加载完成，但是未及时接收到 Html 页面信息。
-        等接收到 JS SDK 发送的页面信息，由于页面截图不变，前端页面未重新加载解析 viewTree 信息，导致无法圈选。
-        所以，接收到 JS 的页面信息，在原有 imageHash 基础上拼接 uuid，使得前端重新加载页面信息
-        */
-        if (![SAVisualizedObjectSerializerManger sharedInstance].imageHashUpdateMessage) {
-            [SAVisualizedObjectSerializerManger sharedInstance].imageHashUpdateMessage = [NSUUID UUID].UUIDString;
-        }
-        
         return subElements;
     }
     return [super sensorsdata_subElements];
