@@ -1252,9 +1252,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (lib_detail) {
         [libProperties setValue:lib_detail forKey:SA_EVENT_COMMON_PROPERTY_LIB_DETAIL];
     }
-    __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+    
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
+        NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+        
         //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
         NSString *eventName = [self.trackTimer eventNameFromEventId:event];
 
