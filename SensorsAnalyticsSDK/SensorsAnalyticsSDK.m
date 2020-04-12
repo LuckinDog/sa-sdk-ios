@@ -460,7 +460,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
                 if (error || !response) {
-                    SAError(@"WKWebView evaluateJavaScript load UA error:%@", error);
+                    SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
                     completion(nil);
                 } else {
                     weakSelf.userAgent = response;
@@ -2456,7 +2456,7 @@ static inline void sa_methodExchange(const char *className, const char *original
             }
         }
     } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
+        SALogError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
     }
 }
 
@@ -2521,7 +2521,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
         } @catch (NSException *exception) {
-            SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
+            SALogError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
         }
     });
 }
