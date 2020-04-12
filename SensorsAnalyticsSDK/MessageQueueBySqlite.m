@@ -187,13 +187,13 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 #ifdef SENSORS_ANALYTICS_ENABLE_VACUUM
     @try {
         if (![self databaseCheck]) {
-            SAError(@"Failed to VACUUM record because the database failed to open");
+            SALogError(@"Failed to VACUUM record because the database failed to open");
             return NO;
         }
         
         NSString *sql = @"VACUUM";
         if (![self databaseExecute:sql]) {
-            SAError(@"Failed to VACUUM record");
+            SALogError(@"Failed to VACUUM record");
             return NO;
         }
         return YES;
