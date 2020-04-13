@@ -573,16 +573,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     self.network.debugMode = debugMode;
     [self enableLog:debugMode != SensorsAnalyticsDebugOff];
     
-    if (isShow) {
-        NSString *logMessage = nil;
-        logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
-                      self, self.configOptions.serverURL, [self debugModeToString:_debugMode]];
-        //SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
-        //为了解决不能打印的问题，此处直接使用实例方法。其他地方不推荐使用此方法
-        NSLog(@"%@", logMessage);
-        
-        //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
+    if (isShow) {
+        //打开debug模式，弹出提示
         if (_debugMode != SensorsAnalyticsDebugOff) {
             NSString *alertMessage = nil;
             if (_debugMode == SensorsAnalyticsDebugOnly) {
@@ -592,9 +585,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
         }
-#endif
-        
     }
+#endif
 }
 
 - (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
