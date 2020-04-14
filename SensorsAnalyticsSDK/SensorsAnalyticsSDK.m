@@ -356,7 +356,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self startFlushTimer];
             }
 
-            _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_serialQueue];
+            _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_readWriteQueue];
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
             
@@ -731,7 +731,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
-    dispatch_block_t completion = ^ {
+    if ([self.identifier login:loginId]) {
         NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
         // 添加来源渠道信息
         [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
@@ -739,16 +739,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventProperties addEntriesFromDictionary:properties];
         }
         [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
-    };
-    dispatch_async(self.serialQueue, ^{
-        [self.identifier login:loginId completion:completion];
-    });
+    }
 }
 
 - (void)logout {
-    dispatch_async(self.serialQueue, ^{
-        [self.identifier logout];
-    });
+    [self.identifier logout];
 }
 
 - (NSString *)loginId {
@@ -3315,22 +3310,23 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [eventDict setValue:@(YES) forKey:SA_EVENT_HYBRID_H5];
 
             __block NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
+
             if (!enqueueEvent) {
                 return;
             }
-
-            dispatch_block_t completion = ^{
-                enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
-                enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
-                [self enqueueWithType:type andEvent:[enqueueEvent copy]];
-                SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
-            };
+            enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
+            enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
             if([type isEqualToString:@"track_signup"]) {
                 NSString *newLoginId = [eventDict objectForKey:SA_EVENT_DISTINCT_ID];
-                [self.identifier login:newLoginId completion:completion];
+                if ([self.identifier login:newLoginId]) {
+                    enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
+                    [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                    SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
+                }
             } else {
-                completion();
+                [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
             }
         } @catch (NSException *exception) {
             SALogError(@"%@: %@", self, exception);

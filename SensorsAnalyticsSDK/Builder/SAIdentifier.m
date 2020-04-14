@@ -50,9 +50,11 @@
 - (instancetype)initWithGlobalQueue:(dispatch_queue_t)queue {
     self = [super init];
     if (self) {
-        self.queue = queue;
-        self.anonymousId = [self unarchiveAnonymousId];
-        self.loginId = [SAFileStore unarchiveWithFileName:SA_EVENT_LOGIN_ID];
+        _queue = queue;
+        dispatch_async(_queue, ^{
+            self.anonymousId = [self unarchiveAnonymousId];
+            self.loginId = [SAFileStore unarchiveWithFileName:SA_EVENT_LOGIN_ID];
+        });
     }
     return self;
 }
@@ -67,11 +69,10 @@
 
     if ([anonymousId length] > 255) {
         SALogError(@"%@ anonymopausId:%@ is beyond the maximum length 255", self, anonymousId);
-        return;
     }
 
     NSString *originalId = self.anonymousId;
-    sensorsdata_dispatch_safe_sync(self.queue, ^{
+    dispatch_async(self.queue, ^{
         self.originalId = originalId;
         self.anonymousId = anonymousId;
         [self archiveAnonymousId:anonymousId];
@@ -81,19 +82,19 @@
 - (void)archiveAnonymousId:(NSString *)anonymousId {
     [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:anonymousId];
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-        [SAKeyChainItemWrapper saveUdid:anonymousId];
+    [SAKeyChainItemWrapper saveUdid:anonymousId];
 #endif
 }
 
 - (void)resetAnonymousId {
-    NSString *anonymousId = [SAIdentifier generateUniqueHardwareId];
-    sensorsdata_dispatch_safe_sync(self.queue, ^{
+    dispatch_async(self.queue, ^{
+        NSString *anonymousId = [SAIdentifier generateUniqueHardwareId];
         self.anonymousId = anonymousId;
         [self archiveAnonymousId:anonymousId];
     });
 }
 
-- (BOOL)login:(NSString *)loginId completion:(nullable dispatch_block_t)completion {
+- (BOOL)login:(NSString *)loginId {
     if (![SAValidator isValidString:loginId]) {
         SALogError(@"%@ loginId:%@ is invalid parameter for login", self, loginId);
         return NO;
@@ -109,21 +110,21 @@
     }
 
     NSString *originalId = self.anonymousId;
-    sensorsdata_dispatch_safe_sync(self.queue, ^{
+    dispatch_async(self.queue, ^{
         self.loginId = loginId;
-        if (![loginId isEqualToString:originalId]) {
-            self.originalId = originalId;
-            if (completion) {
-                completion();
-            }
-        }
-        [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
     });
+
+    if (![loginId isEqualToString:originalId]) {
+        dispatch_async(self.queue, ^{
+            self.originalId = originalId;
+            [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
+        });
+    }
     return YES;
 }
 
 - (void)logout {
-    sensorsdata_dispatch_safe_sync(self.queue, ^{
+    dispatch_async(self.queue, ^{
         self.loginId = nil;
         [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:nil];
     });
@@ -192,11 +193,31 @@
 }
 
 #pragma mark – Getters and Setters
+- (NSString *)loginId {
+    __block NSString *loginId;
+    sensorsdata_dispatch_safe_sync(self.queue, ^{
+        loginId = _loginId;
+    });
+    return loginId;
+}
+
+- (NSString *)originalId {
+    __block NSString *originalId;
+    sensorsdata_dispatch_safe_sync(self.queue, ^{
+        originalId = _originalId;
+    });
+    return originalId;
+}
+
 - (NSString *)anonymousId {
-    if (!_anonymousId) {
-        [self resetAnonymousId];
-    }
-    return _anonymousId;
+    __block NSString *originalId;
+    sensorsdata_dispatch_safe_sync(self.queue, ^{
+        if (!_anonymousId) {
+            [self resetAnonymousId];
+        }
+        originalId = _anonymousId;
+    });
+    return originalId;
 }
 
 - (NSString *)distinctId {

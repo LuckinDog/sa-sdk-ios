@@ -107,7 +107,7 @@ void serial_async(dispatch_queue_t queue, DISPATCH_NOESCAPE dispatch_block_t blo
 
     // 模拟调用 login 方法后触发 track_signup 事件
     serial_async(self.serialQueue, ^{
-        [_identifier login:@"new_login_id" completion:completion];
+        [_identifier login:@"new_login_id"];
     });
 
     // 事件在 track_signup 事件后触发，count 从 2 开始累加
@@ -137,7 +137,7 @@ void serial_async(dispatch_queue_t queue, DISPATCH_NOESCAPE dispatch_block_t blo
 
     // 模拟调用 login 方法后触发 track_signup 事件
     serial_async(self.serialQueue, ^{
-        [_identifier login:@"" completion:nil];
+        [_identifier login:@""];
     });
 
     serial_async(self.serialQueue, ^{
@@ -173,7 +173,7 @@ void serial_async(dispatch_queue_t queue, DISPATCH_NOESCAPE dispatch_block_t blo
     };
 
     serial_async(self.serialQueue, ^{
-        [_identifier login:@"new_login_id" completion:completion];
+        [_identifier login:@"new_login_id"];
     });
 
     serial_async(self.serialQueue, ^{

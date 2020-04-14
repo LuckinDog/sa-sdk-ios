@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param loginId 新的 loginId
  */
-- (BOOL)login:(NSString *)loginId completion:(nullable dispatch_block_t)completion;
+- (BOOL)login:(NSString *)loginId;
 
 /**
  通过退出登录接口删除本地的 loginId
