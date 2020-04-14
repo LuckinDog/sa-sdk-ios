@@ -156,7 +156,10 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
     }
 }
 
+
 #pragma mark - SF related
 NSString *const SA_TRACK_EVENT_NOTIFICATION = @"SensorsAnalyticsTrackEventNotification";
 NSString *const SA_TRACK_LOGIN_NOTIFICATION = @"SensorsAnalyticsTrackLoginNotification";
 NSString *const SA_TRACK_LOGOUT_NOTIFICATION = @"SensorsAnalyticsTrackLogoutNotification";
+NSString *const SA_TRACK_IDENTIFY_NOTIFICATION = @"SensorsAnalyticsTrackIdentifyNotification";
+NSString *const SA_TRACK_RESETANONYMOUSID_NOTIFICATION = @"SensorsAnalyticsTrackResetAnonymousIdNotification";

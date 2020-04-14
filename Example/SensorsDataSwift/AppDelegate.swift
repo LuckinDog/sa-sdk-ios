@@ -43,7 +43,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let dict: Dictionary = ["key": "value", "key1": "value1"]
         SensorsAnalyticsSDK.sharedInstance()?.track("testEvent", withProperties: dict)
         SensorsAnalyticsSDK.sharedInstance()?.enableTrackScreenOrientation(true)
-        SensorsAnalyticsSDK.sharedInstance()?.enableLog(true)
 
         window = UIWindow()
         let rootVC: UIViewController = ViewController()

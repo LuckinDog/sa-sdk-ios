@@ -23,7 +23,7 @@
 #endif
 
 #import "SANetwork.h"
-#import "SANetwork+URLUtils.h"
+#import "SAURLUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "NSString+HashCode.h"
@@ -87,7 +87,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSURL *url = [serverURL URLByAppendingPathComponent:@"debug"];
         if ([url.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
             NSString * referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
-            SALogError(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
+            SALogDebug(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
         }
         _serverURL = url;
     }
@@ -191,7 +191,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 - (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, id> *)params {
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
-    NSString *queryString = [SANetwork urlQueryStringWithParams:params];
+    NSString *queryString = [SAURLUtils urlQueryStringWithParams:params];
     if (urlComponents.query.length) {
         urlComponents.query = [NSString stringWithFormat:@"%@&%@", urlComponents.query, queryString];
     } else {
@@ -224,7 +224,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
         urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         if (urlComponets == nil) {
-            SALogError(@"URLString is malformed, nil is returned.");
+            SALogDebug(@"URLString is malformed, nil is returned.");
             return nil;
         }
         urlComponets.query = nil;
@@ -285,7 +285,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         @try {
             NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
             NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-            SALogDebug(@"%@ %@: %@", self, messageDesc, dict);
+            SALogError(@"%@ %@: %@", self, messageDesc, dict);
         } @catch (NSException *exception) {
             SALogError(@"%@: %@", self, exception);
         }
@@ -320,7 +320,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         if (statusCode == 200) {
             SALogDebug(@"config debugMode CallBack success");
         } else {
-            SALogError(@"config debugMode CallBack Faild statusCode：%ld，url：%@", statusCode, url);
+            SALogError(@"config debugMode CallBack Faild statusCode：%d，url：%@", statusCode, url);
         }
     }];
     [task resume];
@@ -414,23 +414,23 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 @implementation SANetwork (ServerURL)
 
 - (NSString *)host {
-    return [SANetwork hostWithURL:self.serverURL] ?: @"";
+    return [SAURLUtils hostWithURL:self.serverURL] ?: @"";
 }
 
 - (NSString *)project {
-    return [SANetwork queryItemsWithURL:self.serverURL][@"project"] ?: @"default";
+    return [SAURLUtils queryItemsWithURL:self.serverURL][@"project"] ?: @"default";
 }
 
 - (NSString *)token {
-    return [SANetwork queryItemsWithURL:self.serverURL][@"token"] ?: @"";
+    return [SAURLUtils queryItemsWithURL:self.serverURL][@"token"] ?: @"";
 }
 
 - (BOOL)isSameProjectWithURLString:(NSString *)URLString {
     if (![self isValidServerURL] || URLString.length == 0) {
         return NO;
     }
-    BOOL isEqualHost = [self.host isEqualToString:[SANetwork hostWithURLString:URLString]];
-    NSString *project = [SANetwork queryItemsWithURLString:URLString][@"project"] ?: @"default";
+    BOOL isEqualHost = [self.host isEqualToString:[SAURLUtils hostWithURLString:URLString]];
+    NSString *project = [SAURLUtils queryItemsWithURLString:URLString][@"project"] ?: @"default";
     BOOL isEqualProject = [self.project isEqualToString:project];
     return isEqualHost && isEqualProject;
 }
