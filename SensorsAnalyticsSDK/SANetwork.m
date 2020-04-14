@@ -285,7 +285,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         @try {
             NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
             NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-            SALogError(@"%@ %@: %@", self, messageDesc, dict);
+            SALogDebug(@"%@ %@: %@", self, messageDesc, dict);
         } @catch (NSException *exception) {
             SALogError(@"%@: %@", self, exception);
         }
