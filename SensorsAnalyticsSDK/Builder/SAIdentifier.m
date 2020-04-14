@@ -25,8 +25,9 @@
 #import "SAIdentifier.h"
 #import "SAConstants+Private.h"
 #import "SAFileStore.h"
-#import "SALogger.h"
 #import "SAValidator.h"
+#import "SALog.h"
+#import <UIKit/UIKit.h>
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     #import "SAKeyChainItemWrapper.h"
@@ -60,12 +61,12 @@
 
 - (void)identify:(NSString *)anonymousId {
     if (![SAValidator isValidString:anonymousId]) {
-        SAError(@"%@ anonymopausId:%@ is invalid parameter for identify", self, anonymousId);
+        SALogError(@"%@ anonymopausId:%@ is invalid parameter for identify", self, anonymousId);
         return;
     }
 
     if ([anonymousId length] > 255) {
-        SAError(@"%@ anonymopausId:%@ is beyond the maximum length 255", self, anonymousId);
+        SALogError(@"%@ anonymopausId:%@ is beyond the maximum length 255", self, anonymousId);
         return;
     }
 
@@ -94,12 +95,12 @@
 
 - (BOOL)login:(NSString *)loginId completion:(nullable dispatch_block_t)completion {
     if (![SAValidator isValidString:loginId]) {
-        SAError(@"%@ loginId:%@ is invalid parameter for login", self, loginId);
+        SALogError(@"%@ loginId:%@ is invalid parameter for login", self, loginId);
         return NO;
     }
 
     if ([loginId length] > 255) {
-        SAError(@"%@ loginId:%@ is beyond the maximum length 255", self, loginId);
+        SALogError(@"%@ loginId:%@ is beyond the maximum length 255", self, loginId);
         return NO;
     }
 
@@ -157,7 +158,7 @@
 
     // 没有IDFV，则使用UUID
     if (!distinctId) {
-        SADebug(@"%@ error getting device identifier: falling back to uuid", self);
+        SALogDebug(@"%@ error getting device identifier: falling back to uuid", self);
         distinctId = [NSUUID UUID].UUIDString;
     }
     return distinctId;

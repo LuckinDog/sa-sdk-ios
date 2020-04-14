@@ -118,6 +118,8 @@
 		CB6EBBA522857BC0003CFBA8 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */; };
 		CBE4DF03228AA1CB00DDE07D /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */; };
 		CBE4DF04228AA1CB00DDE07D /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */; };
+<<<<<<< HEAD
+=======
 		F2402D75244175FC00F7B06D /* SALogMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = F2402D66244175FC00F7B06D /* SALogMessage.h */; };
 		F2402D76244175FC00F7B06D /* SAAbstractLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = F2402D67244175FC00F7B06D /* SAAbstractLogger.h */; };
 		F2402D77244175FC00F7B06D /* SALoggerPrePostFixFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = F2402D68244175FC00F7B06D /* SALoggerPrePostFixFormatter.m */; };
@@ -148,6 +150,7 @@
 		F2402DA0244176B000F7B06D /* SAConsoleLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = F2402D91244176B000F7B06D /* SAConsoleLogger.m */; };
 		F2402DA1244176B000F7B06D /* SALog+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = F2402D92244176B000F7B06D /* SALog+Private.h */; };
 		F2402DA2244176B000F7B06D /* SALoggerConsoleFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = F2402D93244176B000F7B06D /* SALoggerConsoleFormatter.h */; };
+>>>>>>> pre
 		FC1AFF0123C32AB000F1B9E4 /* SALinkHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1AFEFF23C32AB000F1B9E4 /* SALinkHandler.h */; };
 		FC1AFF0223C32AB000F1B9E4 /* SALinkHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = FC1AFF0023C32AB000F1B9E4 /* SALinkHandler.m */; };
 		FC1AFF0523C3400E00F1B9E4 /* SAFileStore.h in Headers */ = {isa = PBXBuildFile; fileRef = FC1AFF0323C3400E00F1B9E4 /* SAFileStore.h */; };
@@ -163,8 +166,11 @@
 		FC906D11242DEBD900C6686D /* SAIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = FC906D0D242DEBD900C6686D /* SAIdentifier.h */; };
 		FC9AEE0623B0D67700B9990F /* SADateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = FC9AEE0423B0D67700B9990F /* SADateFormatter.h */; };
 		FC9AEE0723B0D67700B9990F /* SADateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = FC9AEE0523B0D67700B9990F /* SADateFormatter.m */; };
+<<<<<<< HEAD
 		FCB6024E242B4773003CFA47 /* SAIdentifierManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FCB6024C242B4773003CFA47 /* SAIdentifierManager.h */; };
 		FCB6024F242B4773003CFA47 /* SAIdentifierManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB6024D242B4773003CFA47 /* SAIdentifierManager.m */; };
+=======
+>>>>>>> pre
 		FCB60252242B59B6003CFA47 /* SAURLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = FCB60250242B59B6003CFA47 /* SAURLUtils.h */; };
 		FCB60253242B59B6003CFA47 /* SAURLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB60251242B59B6003CFA47 /* SAURLUtils.m */; };
 		FCBAF2A022FBCA3700D7CA38 /* SAWeakPropertyContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */; };
@@ -298,6 +304,8 @@
 		CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
 		CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AutoTrack.h"; sourceTree = "<group>"; };
 		CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AutoTrack.m"; sourceTree = "<group>"; };
+<<<<<<< HEAD
+=======
 		F2402D66244175FC00F7B06D /* SALogMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogMessage.h; sourceTree = "<group>"; };
 		F2402D67244175FC00F7B06D /* SAAbstractLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAbstractLogger.h; sourceTree = "<group>"; };
 		F2402D68244175FC00F7B06D /* SALoggerPrePostFixFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALoggerPrePostFixFormatter.m; sourceTree = "<group>"; };
@@ -328,6 +336,7 @@
 		F2402D91244176B000F7B06D /* SAConsoleLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConsoleLogger.m; sourceTree = "<group>"; };
 		F2402D92244176B000F7B06D /* SALog+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SALog+Private.h"; sourceTree = "<group>"; };
 		F2402D93244176B000F7B06D /* SALoggerConsoleFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALoggerConsoleFormatter.h; sourceTree = "<group>"; };
+>>>>>>> pre
 		FC1AFEFF23C32AB000F1B9E4 /* SALinkHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SALinkHandler.h; sourceTree = "<group>"; };
 		FC1AFF0023C32AB000F1B9E4 /* SALinkHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandler.m; sourceTree = "<group>"; };
 		FC1AFF0323C3400E00F1B9E4 /* SAFileStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAFileStore.h; sourceTree = "<group>"; };
@@ -343,8 +352,11 @@
 		FC906D0D242DEBD900C6686D /* SAIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAIdentifier.h; sourceTree = "<group>"; };
 		FC9AEE0423B0D67700B9990F /* SADateFormatter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADateFormatter.h; sourceTree = "<group>"; };
 		FC9AEE0523B0D67700B9990F /* SADateFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADateFormatter.m; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		FCB6024C242B4773003CFA47 /* SAIdentifierManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAIdentifierManager.h; sourceTree = "<group>"; };
 		FCB6024D242B4773003CFA47 /* SAIdentifierManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierManager.m; sourceTree = "<group>"; };
+=======
+>>>>>>> pre
 		FCB60250242B59B6003CFA47 /* SAURLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAURLUtils.h; sourceTree = "<group>"; };
 		FCB60251242B59B6003CFA47 /* SAURLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAURLUtils.m; sourceTree = "<group>"; };
 		FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAWeakPropertyContainer.h; sourceTree = "<group>"; };
@@ -491,7 +503,10 @@
 			isa = PBXGroup;
 			children = (
 				FC1AFF0723C45CA800F1B9E4 /* Utils */,
+<<<<<<< HEAD
 				FCB60249242B46FC003CFA47 /* Builder */,
+=======
+>>>>>>> pre
 				CB30C0AB22840F1B0004061D /* Resources */,
 				4DA4CB71237935CF006892D6 /* Visualized */,
 				6523731823EBC0B600A786A2 /* HeatMap */,
@@ -628,6 +643,16 @@
 			name = AutoTrack;
 			sourceTree = "<group>";
 		};
+<<<<<<< HEAD
+		FC1AFF0723C45CA800F1B9E4 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				FCB60250242B59B6003CFA47 /* SAURLUtils.h */,
+				FCB60251242B59B6003CFA47 /* SAURLUtils.m */,
+			);
+			name = Utils;
+			sourceTree = "<group>";
+		};
 		FCB60249242B46FC003CFA47 /* Builder */ = {
 			isa = PBXGroup;
 			children = (
@@ -639,9 +664,7 @@
 				FCB6024D242B4773003CFA47 /* SAIdentifierManager.m */,
 			);
 			path = Builder;
-			sourceTree = "<group>";
-		};
-
+=======
 		F2402D65244175FC00F7B06D /* SALogger */ = {
 			isa = PBXGroup;
 			children = (
@@ -694,6 +717,7 @@
 				FCB60251242B59B6003CFA47 /* SAURLUtils.m */,
 			);
 			name = Utils;
+>>>>>>> pre
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -723,8 +747,11 @@
 				CB30C05122840EC00004061D /* SASwizzle.h in Headers */,
 				CB30C05A22840EC00004061D /* SAConstants+Private.h in Headers */,
 				CB30C07622840EC00004061D /* NSString+HashCode.h in Headers */,
+<<<<<<< HEAD
 				FCB6024E242B4773003CFA47 /* SAIdentifierManager.h in Headers */,
+=======
 				F2402D78244175FC00F7B06D /* SAConsoleLogger.h in Headers */,
+>>>>>>> pre
 				CB30C06622840EC00004061D /* SAVisualizedAutoTrackObjectSerializer.h in Headers */,
 				FC1AFF0523C3400E00F1B9E4 /* SAFileStore.h in Headers */,
 				CB30C06622840EC00004061D /* SAVisualizedAutoTrackObjectSerializer.h in Headers */,
@@ -931,8 +958,11 @@
 				CB30C06822840EC00004061D /* SAValueTransformers.m in Sources */,
 				FCB60253242B59B6003CFA47 /* SAURLUtils.m in Sources */,
 				4DA4CB88237936BC006892D6 /* SAVisualizedConnection.m in Sources */,
+<<<<<<< HEAD
 				FC906D10242DEBD900C6686D /* SAIdentifier.m in Sources */,
+=======
 				F2402D7A244175FC00F7B06D /* SAFileLogger.m in Sources */,
+>>>>>>> pre
 				CB30C32A22843E740004061D /* SAApplicationStateSerializer.m in Sources */,
 				CB6EBBA322857BC0003CFBA8 /* UIView+AutoTrack.m in Sources */,
 				FC1AFF0223C32AB000F1B9E4 /* SALinkHandler.m in Sources */,

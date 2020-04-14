@@ -27,7 +27,7 @@
 #import "SAConstants+Private.h"
 #import "SAKeyChainItemWrapper.h"
 #import <UIKit/UIKit.h>
-#import "SALogger.h"
+#import "SALog.h"
 
 @interface SAIdentifierManager ()
 
@@ -151,7 +151,7 @@
 
     // 没有IDFV，则使用UUID
     if (!hardwareId) {
-        SADebug(@"%@ error getting device identifier: falling back to uuid", self);
+        SALogDebug(@"%@ error getting device identifier: falling back to uuid", self);
         hardwareId = [[NSUUID UUID] UUIDString];
     }
     return hardwareId;
