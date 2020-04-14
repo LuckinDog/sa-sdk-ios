@@ -22,12 +22,12 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#import <UIKit/UIKit.h>
 #import "SAIdentifier.h"
 #import "SAConstants+Private.h"
 #import "SAFileStore.h"
 #import "SAValidator.h"
 #import "SALog.h"
-#import <UIKit/UIKit.h>
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     #import "SAKeyChainItemWrapper.h"
@@ -74,8 +74,8 @@
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         self.originalId = originalId;
         self.anonymousId = anonymousId;
+        [self archiveAnonymousId:anonymousId];
     });
-    [self archiveAnonymousId:anonymousId];
 }
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
@@ -89,8 +89,8 @@
     NSString *anonymousId = [SAIdentifier generateUniqueHardwareId];
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         self.anonymousId = anonymousId;
+        [self archiveAnonymousId:anonymousId];
     });
-    [self archiveAnonymousId:anonymousId];
 }
 
 - (BOOL)login:(NSString *)loginId completion:(nullable dispatch_block_t)completion {
@@ -117,16 +117,16 @@
                 completion();
             }
         }
+        [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
     });
-    [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
     return YES;
 }
 
 - (void)logout {
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         self.loginId = nil;
+        [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:nil];
     });
-    [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:nil];
 }
 
 + (NSString *)idfa {

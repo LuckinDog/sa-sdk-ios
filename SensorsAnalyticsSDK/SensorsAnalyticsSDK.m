@@ -86,13 +86,6 @@ static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://tr
 static NSString* const CARRIER_CHINA_MCC = @"460";
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
-void sensorsdata_dispatch_serial_async(dispatch_queue_t queue, DISPATCH_NOESCAPE dispatch_block_t block) {
-    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
-        block();
-    } else {
-        dispatch_async(queue, block);
-    }
-}
 
 static dispatch_once_t sdkInitializeOnceToken;
 
@@ -747,13 +740,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
     };
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.identifier login:loginId completion:completion];
     });
 }
 
 - (void)logout {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.identifier logout];
     });
 }
@@ -775,7 +768,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)resetAnonymousId {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.identifier resetAnonymousId];
     });
 }
@@ -940,14 +933,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)flush {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self _flush:NO];
     });
 }
 
 - (void)deleteAll {
     // 新增线程保护
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.messageQueue deleteAll];
     });
 }
@@ -1056,7 +1049,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
 
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self trackItems:itemDict properties:propertyDict];
     });
 }
@@ -1067,7 +1060,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
     
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self trackItems:itemDict properties:nil];
     });
 }
@@ -1231,7 +1224,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
         NSString *eventName = [self.trackTimer eventNameFromEventId:event];
 
@@ -1398,13 +1391,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [e setObject:token forKey:SA_EVENT_TOKEN];
         }
 
-        if (self.loginId) {
-            e[SA_EVENT_LOGIN_ID] = self.loginId;
-        }
-
-        if (self.anonymousId) {
-            e[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
-        }
+        e[SA_EVENT_LOGIN_ID] = self.loginId;
+        e[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
         //修正 $device_id，防止用户修改
         NSDictionary *infoProperties = [e objectForKey:SA_EVENT_PROPERTIES];
@@ -1470,7 +1458,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             [properties setValue:@(YES) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
             [self.trackChannelEventNames addObject:event];
-            sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+            dispatch_sync(self.serialQueue, ^{
                 [self archiveTrackChannelEventNames];
             });
         }
@@ -1537,7 +1525,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     NSString *eventId = [_trackTimer generateEventIdByEventName:event];
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.trackTimer trackTimerStart:eventId currentSysUpTime:currentSysUpTime];
     });
     return eventId;
@@ -1556,7 +1544,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.trackTimer trackTimerPause:event currentSysUpTime:currentSysUpTime];
     });
 }
@@ -1566,13 +1554,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.trackTimer trackTimerResume:event currentSysUpTime:currentSysUpTime];
     });
 }
 
 - (void)clearTrackTimer {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.trackTimer clearAllEventTimers];
     });
 }
@@ -1679,7 +1667,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)identify:(NSString *)anonymousId {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.identifier identify:anonymousId];
     });
 }
@@ -1960,7 +1948,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SALogError(@"%@ failed to register super properties.", self);
         return;
     }
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self unregisterSameLetterSuperProperties:propertyDict];
         // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
@@ -1971,7 +1959,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         self.dynamicSuperProperties = dynamicSuperProperties;
     });
 }
@@ -1981,7 +1969,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     SALogDebug(@"SDK have set trackEvent callBack");
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         self.trackEventCallback = callback;
     });
 }
@@ -2005,12 +1993,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self unregisterSuperPropertys:unregisterPropertyKeys];
         }
     };
-
-    sensorsdata_dispatch_serial_async(self.serialQueue, block);
+    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
+        block();
+    } else {
+        dispatch_async(self.serialQueue, block);
+    }
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
         if (tmp[property] != nil) {
             [tmp removeObjectForKey:property];
@@ -2027,12 +2018,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
         [self archiveSuperProperties];
     };
-
-    sensorsdata_dispatch_serial_async(self.serialQueue, block);
+    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
+        block();
+    } else {
+        dispatch_async(self.serialQueue, block);
+    }
 }
 
 - (void)clearSuperProperties {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         self->_superProperties = @{};
         [self archiveSuperProperties];
     });
@@ -2596,7 +2590,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.trackTimer resumeAllEventTimers:currentSysUpTime];
     });
 
@@ -2670,7 +2664,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.trackTimer pauseAllEventTimers:currentSysUpTime];
     });
 
@@ -2685,12 +2679,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 
     if (self.flushBeforeEnterBackground) {
-        sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+        dispatch_sync(self.serialQueue, ^{
             [self _flush:YES];
             endBackgroundTask();
         });
     } else {
-        sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+        dispatch_sync(self.serialQueue, ^{
             endBackgroundTask();
         });
     }
@@ -3019,7 +3013,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - SecretKey
 - (void)loadSecretKey:(SASecretKey *)secretKey {
     if (secretKey.key.length > 0) {
-        sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+        dispatch_sync(self.serialQueue, ^{
             if (self.encryptBuilder) {
                 [self.encryptBuilder updateRSAPublicSecretKey:secretKey];
             } else {
@@ -3203,7 +3197,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         @try {
             if (eventInfo == nil) {
                 return;
@@ -3320,20 +3314,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             //JS SDK Data add _hybrid_h5 flag
             [eventDict setValue:@(YES) forKey:SA_EVENT_HYBRID_H5];
 
-            NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
+            __block NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
             if (!enqueueEvent) {
                 return;
             }
-            SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
 
             dispatch_block_t completion = ^{
-                if (self.loginId) {
-                    enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
-                }
-                if (self.anonymousId) {
-                    enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
-                }
+                enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
+                enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
                 [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
             };
 
             if([type isEqualToString:@"track_signup"]) {
@@ -3508,7 +3498,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
     });
 }
@@ -3519,7 +3509,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    sensorsdata_dispatch_serial_async(self.serialQueue, ^{
+    dispatch_sync(self.serialQueue, ^{
         [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
     });
 }
