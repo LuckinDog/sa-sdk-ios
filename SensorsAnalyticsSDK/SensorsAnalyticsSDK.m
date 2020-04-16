@@ -731,19 +731,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
-    if ([self.identifier login:loginId]) {
-        NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
-        // 添加来源渠道信息
-        [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-        if ([SAValidator isValidDictionary:properties]) {
-            [eventProperties addEntriesFromDictionary:properties];
-        }
-        [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
+    if (![self.identifier login:loginId]) {
+        return;
     }
+    NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
+    // 添加来源渠道信息
+    [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+    if ([SAValidator isValidDictionary:properties]) {
+        [eventProperties addEntriesFromDictionary:properties];
+    }
+    [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
 }
 
 - (void)logout {
     [self.identifier logout];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGOUT_NOTIFICATION object:nil];
 }
 
 - (NSString *)loginId {
@@ -763,9 +766,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)resetAnonymousId {
-    dispatch_async(self.serialQueue, ^{
-        [self.identifier resetAnonymousId];
-    });
+    [self.identifier resetAnonymousId];
+    if (!self.loginId) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
+    }
 }
 
 - (void)trackAppCrash {
@@ -1662,9 +1666,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)identify:(NSString *)anonymousId {
-    dispatch_async(self.serialQueue, ^{
-        [self.identifier identify:anonymousId];
-    });
+    if (![self.identifier identify:anonymousId]) {
+        return;
+    }
+    // SensorsFocus SDK 接收匿名 ID 修改通知
+    if (!self.loginId) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_IDENTIFY_NOTIFICATION object:nil];
+    }
 }
 
 - (NSString *)deviceModel {
@@ -3309,12 +3317,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             //JS SDK Data add _hybrid_h5 flag
             [eventDict setValue:@(YES) forKey:SA_EVENT_HYBRID_H5];
 
-            __block NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
+            NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
 
             if (!enqueueEvent) {
                 return;
             }
-            enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
+            // 只有当本地 loginId 不为空时才覆盖 H5 数据
+            if (self.loginId) {
+                enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
+            }
             enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
             if([type isEqualToString:@"track_signup"]) {

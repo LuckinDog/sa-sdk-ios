@@ -61,22 +61,26 @@
 
 #pragma mark - Public Methods
 
-- (void)identify:(NSString *)anonymousId {
+- (BOOL)identify:(NSString *)anonymousId {
     if (![SAValidator isValidString:anonymousId]) {
-        SALogError(@"%@ anonymopausId:%@ is invalid parameter for identify", self, anonymousId);
-        return;
+        SALogError(@"%@ anonymousId:%@ is invalid parameter for identify", self, anonymousId);
+        return NO;
     }
 
     if ([anonymousId length] > 255) {
-        SALogError(@"%@ anonymopausId:%@ is beyond the maximum length 255", self, anonymousId);
+        SALogError(@"%@ anonymousId:%@ is beyond the maximum length 255", self, anonymousId);
     }
 
+    // 同步任务获取匿名 ID
     NSString *originalId = self.anonymousId;
+
+    // 异步任务设置匿名 ID
     dispatch_async(self.queue, ^{
         self.originalId = originalId;
         self.anonymousId = anonymousId;
         [self archiveAnonymousId:anonymousId];
     });
+    return YES;
 }
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
@@ -109,17 +113,19 @@
         return NO;
     }
 
-    NSString *originalId = self.anonymousId;
     dispatch_async(self.queue, ^{
         self.loginId = loginId;
+        [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
     });
 
-    if (![loginId isEqualToString:originalId]) {
-        dispatch_async(self.queue, ^{
-            self.originalId = originalId;
-            [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
-        });
+    // 为了避免将匿名 ID 作为 LoginID 传入
+    if ([loginId isEqualToString:self.anonymousId]) {
+        return NO;
     }
+
+    dispatch_async(self.queue, ^{
+        self.originalId = self.anonymousId;
+    });
     return YES;
 }
 
@@ -174,7 +180,8 @@
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
-            [self archiveAnonymousId:distinctIdInKeychain];
+            // 保存 Archiver
+            [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:distinctIdInKeychain];
         }
         anonymousId = distinctIdInKeychain;
     } else {

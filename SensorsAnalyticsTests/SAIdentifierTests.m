@@ -91,6 +91,15 @@
     XCTAssertFalse([_identifier login:str]);
 }
 
+- (void)testLoginWithLoginId {
+    [_identifier login:@"new_login_id"];
+    XCTAssertFalse([_identifier login:_identifier.loginId]);
+}
+
+- (void)testLoginWithAnonymousId {
+    XCTAssertFalse([_identifier login:_identifier.anonymousId]);
+}
+
 - (void)testLoginIdAfterLogin {
     [_identifier login:@"new_login_id"];
     XCTAssertTrue([_identifier.loginId isEqualToString:@"new_login_id"]);

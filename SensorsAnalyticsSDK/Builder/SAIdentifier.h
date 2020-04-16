@@ -52,8 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
  自定义匿名 Id（设备 Id）
 
  @param anonymousId 匿名 Id（设备 Id）
+ @return 自定义匿名 ID 结果
+
  */
-- (void)identify:(NSString *)anonymousId;
+- (BOOL)identify:(NSString *)anonymousId;
 
 /**
  重置匿名 Id
@@ -64,6 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  通过登录接口设置 loginId
 
  @param loginId 新的 loginId
+ @return 登录结果
  */
 - (BOOL)login:(NSString *)loginId;
 
