@@ -34,7 +34,6 @@
 @implementation UIApplication (AutoTrack)
 
 - (BOOL)sa_sendAction:(SEL)action to:(id)to from:(id)from forEvent:(UIEvent *)event {
-
     /*
      默认先执行 AutoTrack
      如果先执行原点击处理逻辑，可能已经发生页面 push 或者 pop，导致获取当前 ViewController 不正确
@@ -44,6 +43,10 @@
     BOOL ret = YES;
     BOOL sensorsAnalyticsAutoTrackAfterSendAction = NO;
 
+    // 针对 tab 切换，采集切换后的页面信息，先执行系统 sendAction 完成页面切换
+    if ([to isKindOfClass:UITabBar.class] || [to isKindOfClass:UITabBarController.class]) {
+        sensorsAnalyticsAutoTrackAfterSendAction = YES;
+    }
     @try {
         if ([from isKindOfClass:[UIView class]] && [(UIView *)from sensorsAnalyticsAutoTrackAfterSendAction]) {
             sensorsAnalyticsAutoTrackAfterSendAction = YES;
@@ -58,16 +61,7 @@
     }
 
     @try {
-        /*
-//         caojiangPreVerify:forEvent: & caojiangEventAction:forEvent: 是我们可视化埋点中的点击事件
-//         这个地方如果不过滤掉，会导致 swizzle 多次，从而会触发多次 $AppClick 事件
-//         caojiang 是我们 CTO 名字，我们相信这个前缀应该是唯一的
-//         如果这个前缀还会重复，请您告诉我，我把我们架构师的名字也加上
-//         */
-//        if (![@"caojiangPreVerify:forEvent:" isEqualToString:NSStringFromSelector(action)] &&
-//            ![@"caojiangEventAction:forEvent:" isEqualToString:NSStringFromSelector(action)]) {
-            [self sa_track:action to:to from:from forEvent:event];
-//        }
+        [self sa_track:action to:to from:from forEvent:event];
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
