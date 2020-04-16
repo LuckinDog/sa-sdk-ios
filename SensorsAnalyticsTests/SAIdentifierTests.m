@@ -25,169 +25,111 @@
 #import <XCTest/XCTest.h>
 #import "SAIdentifier.h"
 
-void *QueueTag = &QueueTag;
-void serial_async(dispatch_queue_t queue, DISPATCH_NOESCAPE dispatch_block_t block) {
-    if (dispatch_get_specific(QueueTag)) {
-        block();
-    } else {
-        dispatch_async(queue, block);
-    }
-}
-
 @interface SAIdentifierTests : XCTestCase
 
 @property (nonatomic, strong) SAIdentifier *identifier;
-@property (nonatomic, strong) dispatch_queue_t serialQueue;
+@property (nonatomic, strong) dispatch_queue_t readWriteQueue;
+@property (nonatomic, copy) NSString *deviceId;
 @end
 
 @implementation SAIdentifierTests
 
 - (void)setUp {
 
-    NSString *label = [NSString stringWithFormat:@"sensorsdata.serialQueue.%p", self];
-    _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-    dispatch_queue_set_specific(_serialQueue, QueueTag, &QueueTag, NULL);
-
-    _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_serialQueue];
-    [_identifier identify:@"0000-0000-0000-000000000"];
+    NSString *label = [NSString stringWithFormat:@"sensorsdata.readWriteQueue.%p", self];
+    _readWriteQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+    _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_readWriteQueue];
     [_identifier logout];
+    _deviceId = _identifier.anonymousId;
 }
 
-- (void)testIdentifyFront {
-    // 重置 identifier 模拟初始化 SDK
-    _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_serialQueue];
-
-    serial_async(self.serialQueue, ^{
-        [_identifier identify:@"new_identify"];
-    });
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.anonymousId isEqualToString:@"new_identify"]);
-    });
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.distinctId isEqualToString:@"new_identify"]);
-    });
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.originalId isEqualToString:@"0000-0000-0000-000000000"]);
-    });
+- (void)testAnonymousIdAfterIdentify {
+    [_identifier identify:@"new_identifier"];
+    XCTAssertTrue([_identifier.anonymousId isEqualToString:@"new_identifier"]);
 }
 
-- (void)testIdentifyBack {
-    // 重置 identifier 模拟初始化 SDK
-    _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_serialQueue];
-
-    // 测试设置内容为空 case
-    serial_async(self.serialQueue, ^{
-        [_identifier identify:@""];
-    });
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.anonymousId isEqualToString:@"0000-0000-0000-000000000"]);
-    });
+- (void)testDistinctIdAfterIdentify {
+    [_identifier identify:@"new_identifier"];
+    XCTAssertTrue([_identifier.distinctId isEqualToString:@"new_identifier"]);
 }
 
-- (void)testLoginFront {
-    // 重置 identifier 模拟初始化 SDK
-    _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_serialQueue];
+- (void)testOriginalIdAfterIdentify {
+    [_identifier identify:@"new_identifier"];
+    XCTAssertTrue([_identifier.originalId isEqualToString:_deviceId]);
+}
 
-    NSString *loginId = _identifier.loginId;
-    XCTAssertNil(loginId);
+- (void)testAnonymousIdAfterIdentifyEmtpyString {
+    [_identifier identify:@""];
+    XCTAssertTrue([_identifier.anonymousId isEqualToString:_deviceId]);
+}
 
-    __block NSInteger count = 0;
+- (void)testDistinctIdAfterIdentifyEmtpyString {
+    [_identifier identify:@""];
+    XCTAssertTrue([_identifier.distinctId isEqualToString:_deviceId]);
+}
 
-    // 模拟 track_signup 事件
-    dispatch_block_t completion = ^{
-        serial_async(self.serialQueue, ^{
-            count++;
-            XCTAssertTrue(count == 1);
-        });
-    };
+- (void)testOriginalIdAfterIdentifyEmtpyString {
+    [_identifier identify:@""];
+    XCTAssertNil(_identifier.originalId);
+}
 
-    // 模拟调用 login 方法后触发 track_signup 事件
-    serial_async(self.serialQueue, ^{
-        [_identifier login:@"new_login_id"];
-    });
-
-    // 事件在 track_signup 事件后触发，count 从 2 开始累加
-    for (int i = 0; i < 10; i++) {
-        serial_async(self.serialQueue, ^{
-            count++;
-            XCTAssertTrue(count == i + 2);
-        });
+- (void)testAnonymousIdMaxLength {
+    // 长度超过 255 会有报错信息，但是可以设置成功
+    NSMutableString *str = [[NSMutableString alloc] initWithString:@""];
+    for (int i = 0; i < 300; i++) {
+        [str appendString:@"a"];
     }
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.loginId isEqualToString:@"new_login_id"]);
-    });
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.distinctId isEqualToString:@"new_login_id"]);
-    });
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.originalId isEqualToString:@"0000-0000-0000-000000000"]);
-    });
+    [_identifier identify:str];
+    XCTAssertTrue(_identifier.anonymousId.length == 300);
 }
 
-- (void)testLoginBack {
-    // 重置 identifier 模拟初始化 SDK
-    _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_serialQueue];
+- (void)testLoginIdMaxLength {
+    NSMutableString *str = [[NSMutableString alloc] initWithString:@""];
+    for (int i = 0; i < 300; i++) {
+        [str appendString:@"a"];
+    }
+    XCTAssertFalse([_identifier login:str]);
+}
 
-    // 模拟调用 login 方法后触发 track_signup 事件
-    serial_async(self.serialQueue, ^{
-        [_identifier login:@""];
-    });
+- (void)testLoginIdAfterLogin {
+    [_identifier login:@"new_login_id"];
+    XCTAssertTrue([_identifier.loginId isEqualToString:@"new_login_id"]);
+}
 
-    serial_async(self.serialQueue, ^{
-        XCTAssertNil(_identifier.loginId);
-    });
+- (void)testDistinctIdAfterLogin {
+    [_identifier login:@"new_login_id"];
+    XCTAssertTrue([_identifier.distinctId isEqualToString:@"new_login_id"]);
+}
 
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.distinctId isEqualToString:@"0000-0000-0000-000000000"]);
-    });
+- (void)testOriginalIdAfterLogin {
+    [_identifier login:@"new_login_id"];
+    XCTAssertTrue([_identifier.originalId isEqualToString:_identifier.anonymousId]);
+}
 
-    serial_async(self.serialQueue, ^{
-        XCTAssertNil(_identifier.originalId);
-    });
+- (void)testLoginIdAfterLoginEmptyString {
+    [_identifier login:@""];
+    XCTAssertNil(_identifier.loginId);
+}
+
+- (void)testDistinctIdAfterLoginEmptyString {
+    [_identifier login:@""];
+    XCTAssertTrue([_identifier.distinctId isEqualToString:_identifier.anonymousId]);
+}
+
+- (void)testOriginalIdAfterLoginEmptyString {
+    [_identifier login:@""];
+    XCTAssertNil(_identifier.originalId);
 }
 
 - (void)testResetAnonymousId {
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.anonymousId isEqualToString:@"0000-0000-0000-000000000"]);
-    });
-
-    serial_async(self.serialQueue, ^{
-        [_identifier resetAnonymousId];
-        XCTAssertTrue([_identifier.anonymousId isEqualToString:[SAIdentifier generateUniqueHardwareId]]);
-    });
+    [_identifier resetAnonymousId];
+    XCTAssertTrue([_identifier.anonymousId isEqualToString:[SAIdentifier generateUniqueHardwareId]]);
 }
 
 - (void)testLogout {
-    // 模拟 track_signup 事件
-    dispatch_block_t completion = ^{
-        serial_async(self.serialQueue, ^{
-            XCTAssertTrue([self->_identifier.loginId isEqualToString:@"new_login_id"]);
-        });
-    };
-
-    serial_async(self.serialQueue, ^{
-        [_identifier login:@"new_login_id"];
-    });
-
-    serial_async(self.serialQueue, ^{
-        [_identifier logout];
-        XCTAssertNil(_identifier.loginId);
-    });
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.distinctId isEqualToString:@"0000-0000-0000-000000000"]);
-    });
-
-    serial_async(self.serialQueue, ^{
-        XCTAssertTrue([_identifier.originalId isEqualToString:@"0000-0000-0000-000000000"]);
-    });
+    [_identifier login:@"new_login_id"];
+    [_identifier logout];
+    XCTAssertNil(_identifier.loginId);
 }
 
 @end
