@@ -2654,10 +2654,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SALogDebug(@"%@ application will enter foreground", self);
     
-    if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
-        _appRelaunched = YES;
-        self.launchedPassively = NO;
-    }
+    _appRelaunched = YES;
+    self.launchedPassively = NO;
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
