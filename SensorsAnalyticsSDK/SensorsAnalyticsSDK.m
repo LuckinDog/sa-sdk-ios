@@ -286,8 +286,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             dispatch_block_t mainThreadBlock = ^(){
                 //判断被动启动
-                UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
-                if (applicationState == UIApplicationStateBackground) {
+                if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
                     self->_launchedPassively = YES;
                 }
             };
