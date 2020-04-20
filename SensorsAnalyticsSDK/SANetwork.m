@@ -87,7 +87,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSURL *url = [serverURL URLByAppendingPathComponent:@"debug"];
         if ([url.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
             NSString * referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
-            SALogDebug(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
+            SALogWarn(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
         }
         _serverURL = url;
     }
@@ -224,7 +224,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
         urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         if (urlComponets == nil) {
-            SALogDebug(@"URLString is malformed, nil is returned.");
+            SALogWarn(@"URLString is malformed, nil is returned.");
             return nil;
         }
         urlComponets.query = nil;
@@ -320,7 +320,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         if (statusCode == 200) {
             SALogDebug(@"config debugMode CallBack success");
         } else {
-            SALogError(@"config debugMode CallBack Faild statusCode：%d，url：%@", statusCode, url);
+            SALogError(@"config debugMode CallBack Faild statusCode：%ld，url：%@", statusCode, url);
         }
     }];
     [task resume];
