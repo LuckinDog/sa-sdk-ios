@@ -55,7 +55,6 @@
 		CB6EBB2622855F0C003CFBA8 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
 		CB6EBB4E22857075003CFBA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D2228414420004061D /* Main.storyboard */; };
 		CB6EBB4F2285707D003CFBA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D0228414420004061D /* LaunchScreen.storyboard */; };
-		FCEC254724485B500079A65D /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = FCEC254624485B500079A65D /* index.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -171,7 +170,6 @@
 		CB6EBB5622857145003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-fmwsimfdiqmlilcpdnjdwbygrppo/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
 		CB6EBB5722857145003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-fmwsimfdiqmlilcpdnjdwbygrppo/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
 		CB6EBB5822857161003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FCEC254624485B500079A65D /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../../../../../Desktop/index.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -288,7 +286,6 @@
 				CB30C1EC228414420004061D /* Images.xcassets */,
 				CB30C1E1228414420004061D /* LaunchScreen.xib */,
 				CB30C1ED228414420004061D /* SensorsData.entitlements */,
-				FCEC254624485B500079A65D /* index.html */,
 				CB30C1DC228414420004061D /* test2.html */,
 				CB30C1EF228414420004061D /* ic_test.png */,
 				CB30C1EB228414420004061D /* JSCallOC.html */,
@@ -456,7 +453,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FCEC254724485B500079A65D /* index.html in Resources */,
 				CB30C246228421C60004061D /* Main.storyboard in Resources */,
 				CB30C247228421C60004061D /* LaunchScreen.xib in Resources */,
 				CB30C211228414420004061D /* Images.xcassets in Resources */,
