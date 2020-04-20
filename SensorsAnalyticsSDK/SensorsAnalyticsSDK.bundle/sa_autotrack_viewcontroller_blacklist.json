@@ -1,7 +1,6 @@
 {
     "public": [
         "UINavigationController",
-        "UITabBarController",
         "SAAlertController",
         "SFSafariViewController",
         "AVPlayerViewController",
@@ -66,5 +65,14 @@
         "SFPasswordRemoteViewController",
         "UIWebRotatingAlertController",
         "UIEditUserWordController"
-    ]
+    ],
+    "viewScreen": {
+        "public": ["UIAlertController",
+            "UITabBarController"
+        ],
+        "private": [
+            "UIApplicationRotationFollowingController"
+        ]
+    }
+
 }

@@ -484,17 +484,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([self isViewControllerIgnored:controller]) {
         return NO;
     }
-    // UITabBarController 默认包含在黑名单，单独判断，防止 UITabBar 点击事件被忽略
-    if (type == SensorsAnalyticsEventTypeAppClick && [controller isKindOfClass:[UITabBarController class]]) {
-        return YES;
-    }
 
-    return ![self isBlackListContainsViewController:controller];
+    return ![self isBlackListContainsViewController:controller ofType:type];
 }
 
-- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
+- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController ofType:(SensorsAnalyticsAutoTrackEventType)type {
     static NSSet *publicClasses = nil;
     static NSSet *privateClasses = nil;
+    static NSSet *viewScreenPublicClasses = nil;
+    static NSSet *viewScreenPrivateClasses = nil;
+
     static dispatch_once_t onceToken;
 
     dispatch_once(&onceToken, ^{
@@ -506,20 +505,32 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSDictionary *ignoredClasses = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
             publicClasses = [NSSet setWithArray:ignoredClasses[@"public"]];
             privateClasses = [NSSet setWithArray:ignoredClasses[@"private"]];
+
+            viewScreenPublicClasses = [NSSet setWithArray:ignoredClasses[@"viewScreen"][@"public"]];
+            viewScreenPrivateClasses = [NSSet setWithArray:ignoredClasses[@"viewScreen"][@"private"]];
         } @catch(NSException *exception) {  // json加载和解析可能失败
             SALogError(@"%@ error: %@", self, exception);
         }
     });
+
+    NSMutableSet *newPrivateClasses = [privateClasses mutableCopy];
+    NSMutableSet *newPublicClasses = [publicClasses mutableCopy];
+    // some viewController class, only ignored AppViewScreen and track AppViewClick
+    if (type == SensorsAnalyticsEventTypeAppViewScreen) {
+        [newPrivateClasses addObjectsFromArray:viewScreenPrivateClasses.allObjects];
+        [newPublicClasses addObjectsFromArray:viewScreenPublicClasses.allObjects];
+    }
+
     
     //check public ignored classes contains viewController or not
-    for (NSString *ignoreClass in publicClasses) {
+    for (NSString *ignoreClass in newPublicClasses) {
         if ([viewController isKindOfClass:NSClassFromString(ignoreClass)]) {
             return YES;
         }
     }
     
     //check private ignored classes contains viewController or not
-    for (NSString *ignoreClass in privateClasses) {
+    for (NSString *ignoreClass in newPrivateClasses) {
         if ([ignoreClass isEqualToString:NSStringFromClass([viewController class])]) {
             return YES;
         }
@@ -2364,10 +2375,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    // 针对页面浏览，单独忽略：弹框
-    if ([controller isKindOfClass:UIAlertController.class]) {
-        return;
-    }
     if (self.launchedPassively) {
         if (controller) {
             if (!self.launchedPassivelyControllers) {
@@ -2394,7 +2401,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    if ([self isBlackListContainsViewController:controller]) {
+    if ([self isBlackListContainsViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
 

@@ -476,8 +476,8 @@
 		CB30BFD122840EBF0004061D /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
-				FC1AFF0723C45CA800F1B9E4 /* Utils */,
 				CB30C0AB22840F1B0004061D /* Resources */,
+				FC1AFF0723C45CA800F1B9E4 /* Utils */,
 				4DA4CB71237935CF006892D6 /* Visualized */,
 				6523731823EBC0B600A786A2 /* HeatMap */,
 				6523731B23EBC0DC00A786A2 /* VisualizedAutoTrack */,
