@@ -27,7 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+HeatMap.h"
 #import "UIView+AutoTrack.h"
-#import "SALogger.h"
+#import "SALog.h"
 
 @implementation SAAutoTrackUtils
 
@@ -193,9 +193,10 @@
 }
 
 + (NSMutableDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(id<SAAutoTrackViewProperty>)object viewController:(nullable UIViewController<SAAutoTrackViewControllerProperty> *)viewController isCodeTrack:(BOOL)isCodeTrack {
-    if (!isCodeTrack && object.sensorsdata_isIgnored) {
+    if (![object respondsToSelector:@selector(sensorsdata_isIgnored)] || (!isCodeTrack && object.sensorsdata_isIgnored)) {
         return nil;
     }
+
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     // ViewID
     properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
@@ -409,7 +410,7 @@
 @implementation SAAutoTrackUtils (IndexPath)
 
 + (NSMutableDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath {
-    if (![object respondsToSelector:@selector(sensorsdata_isIgnored)] || ([object respondsToSelector:@selector(sensorsdata_isIgnored)] && object.sensorsdata_isIgnored)) {
+    if (![object respondsToSelector:@selector(sensorsdata_isIgnored)] || object.sensorsdata_isIgnored) {
         return nil;
     }
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -479,7 +480,7 @@
             }
         }
     } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
+        SALogError(@"%@ error: %@", self, exception);
     }
     NSAssert(!properties || [properties isKindOfClass:[NSDictionary class]], @"You must return a dictionary object ❌");
     return properties;
