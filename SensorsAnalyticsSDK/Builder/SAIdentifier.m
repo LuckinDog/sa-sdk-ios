@@ -47,7 +47,7 @@
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithGlobalQueue:(dispatch_queue_t)queue {
+- (instancetype)initWithQueue:(dispatch_queue_t)queue {
     self = [super init];
     if (self) {
         _queue = queue;
@@ -92,7 +92,7 @@
 
 - (void)resetAnonymousId {
     dispatch_async(self.queue, ^{
-        NSString *anonymousId = [SAIdentifier generateUniqueHardwareId];
+        NSString *anonymousId = [SAIdentifier uniqueHardwareId];
         self.anonymousId = anonymousId;
         [self archiveAnonymousId:anonymousId];
     });
@@ -155,11 +155,11 @@
     return idfa;
 }
 
-+ (NSString *)generateUniqueHardwareId {
++ (NSString *)uniqueHardwareId {
     NSString *distinctId = [self idfa];
 
     // 没有IDFA，则使用IDFV
-    if (!distinctId && NSClassFromString(@"UIDevice")) {
+    if (!distinctId) {
         distinctId = [UIDevice currentDevice].identifierForVendor.UUIDString;
     }
 
@@ -187,7 +187,7 @@
     } else {
 #endif
         if (anonymousId.length == 0) {
-            anonymousId = [SAIdentifier generateUniqueHardwareId];
+            anonymousId = [SAIdentifier uniqueHardwareId];
             [self archiveAnonymousId:anonymousId];
         } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN

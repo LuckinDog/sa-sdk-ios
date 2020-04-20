@@ -38,7 +38,7 @@
 
     NSString *label = [NSString stringWithFormat:@"sensorsdata.readWriteQueue.%p", self];
     _readWriteQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-    _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_readWriteQueue];
+    _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
     [_identifier logout];
     _deviceId = _identifier.anonymousId;
 }
@@ -132,7 +132,7 @@
 
 - (void)testResetAnonymousId {
     [_identifier resetAnonymousId];
-    XCTAssertTrue([_identifier.anonymousId isEqualToString:[SAIdentifier generateUniqueHardwareId]]);
+    XCTAssertTrue([_identifier.anonymousId isEqualToString:[SAIdentifier uniqueHardwareId]]);
 }
 
 - (void)testLogout {

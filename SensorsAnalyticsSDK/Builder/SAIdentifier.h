@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param queue 一个全局队列
  @return 初始化对象
  */
-- (instancetype)initWithGlobalQueue:(dispatch_queue_t)queue;
+- (instancetype)initWithQueue:(dispatch_queue_t)queue;
 
 /**
  自定义匿名 Id（设备 Id）
@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return 匿名 Id（设备 Id）
  */
-+ (NSString *)generateUniqueHardwareId;
++ (NSString *)uniqueHardwareId;
 
 @end
 

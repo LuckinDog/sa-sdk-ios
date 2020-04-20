@@ -356,7 +356,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self startFlushTimer];
             }
 
-            _identifier = [[SAIdentifier alloc] initWithGlobalQueue:_readWriteQueue];
+            _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
             
@@ -1925,7 +1925,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [properties setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
 
 #if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-    [properties setValue:[SAIdentifier generateUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
+    [properties setValue:[SAIdentifier uniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
 #endif
 
     UIDevice *device = [UIDevice currentDevice];
