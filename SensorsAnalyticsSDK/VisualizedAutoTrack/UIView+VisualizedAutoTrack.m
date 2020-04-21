@@ -172,6 +172,17 @@
 }
 
 - (NSString *)sensorsdata_elementPath {
+    // 处理特殊控件
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
+    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
+        UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
+        if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
+            return [SAAutoTrackUtils viewSimilarPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController shouldSimilarPath:YES];
+        }
+    }
+#endif
+
     if (self.sensorsdata_enableAppClick) {
         return [SAAutoTrackUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController shouldSimilarPath:YES];
     } else {
@@ -323,7 +334,6 @@
     }
     return nil;
 }
-
 
 @end
 
