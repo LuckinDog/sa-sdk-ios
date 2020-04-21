@@ -68,7 +68,7 @@
     }
 
     if ([anonymousId length] > 255) {
-        SALogError(@"%@ anonymousId:%@ is beyond the maximum length 255", self, anonymousId);
+        SALogWarn(@"%@ anonymousId:%@ is beyond the maximum length 255", self, anonymousId);
     }
 
     // 同步任务获取匿名 ID
@@ -217,14 +217,14 @@
 }
 
 - (NSString *)anonymousId {
-    __block NSString *originalId;
+    __block NSString *anonymousId;
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         if (!_anonymousId) {
             [self resetAnonymousId];
         }
-        originalId = _anonymousId;
+        anonymousId = _anonymousId;
     });
-    return originalId;
+    return anonymousId;
 }
 
 - (NSString *)distinctId {
