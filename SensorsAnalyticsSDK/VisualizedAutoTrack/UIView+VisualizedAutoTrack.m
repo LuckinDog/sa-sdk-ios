@@ -23,7 +23,6 @@
 #endif
 
 #import "UIView+VisualizedAutoTrack.h"
-#import <objc/runtime.h>
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "UIGestureRecognizer+AutoTrack.h"
@@ -172,52 +171,12 @@
     return newSubViews;
 }
 
-- (void)setSensorsdata_elementPath:(NSString *)sensorsdata_elementPath {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsElementPath", sensorsdata_elementPath, OBJC_ASSOCIATION_COPY_NONATOMIC);
-}
-
 - (NSString *)sensorsdata_elementPath {
-    NSString *elementPath = objc_getAssociatedObject(self, @"sensorsAnalyticsElementPath");
-    if (elementPath) {
-        return elementPath;
-    }
-
-    // 忽略 viewPath 路径
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"] || [NSStringFromClass(self.class) isEqualToString:@"UITransitionView"]) {
+    if (self.sensorsdata_enableAppClick) {
+        return [SAAutoTrackUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController shouldSimilarPath:YES];
+    } else {
         return nil;
     }
-
-    /*
-     如果 UITabBarController.view 或 UINavigationController.view 添加到了 controller.vew 上，并且未执行 addChildViewController
-        1. 忽略当前 controller.vew 的相对路径；
-        2. controller.vew 的其他子视图相对路径，再拼接当前元素路径
-     */
-    BOOL isContainContainerView = NO;
-    for (UIView *view in self.subviews) {
-        if ([NSStringFromClass(view.class) isEqualToString:@"UILayoutContainerView"]) {
-            isContainContainerView = YES;
-        }
-    }
-
-    if (isContainContainerView) {
-        for (UIView *view in self.subviews) {
-            if (![NSStringFromClass(view.class) isEqualToString:@"UILayoutContainerView"]) {
-                [view setSensorsdata_elementPath:[NSString stringWithFormat:@"%@/%@", self.sensorsdata_itemPath, view.sensorsdata_itemPath]];
-            }
-        }
-        return nil;
-    }
-#endif
-
-    // keyWindow 上添加元素路径拼接
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    if (self.superview == keyWindow && self != keyWindow.rootViewController.view) { // 兼容 keyWindow 上控件的路径拼接
-        if (self.sensorsdata_similarPath) {
-            return [NSString stringWithFormat:@"%@/%@", keyWindow.sensorsdata_elementPath, self.sensorsdata_similarPath];
-        }
-    }
-    return self.sensorsdata_similarPath;
 }
 
 - (CGRect)sensorsdata_frame {
@@ -286,13 +245,6 @@
 
 @end
 
-@implementation UISegmentedControl (VisualizedAutoTrack)
-
-- (NSString *)sensorsdata_elementPath {
-    return super.sensorsdata_itemPath;
-}
-
-@end
 
 @implementation UIWindow (VisualizedAutoTrack)
 
@@ -321,21 +273,6 @@
     return subElements;
 }
 
-@end
-
-@implementation UITabBar (VisualizedAutoTrack)
-
-- (NSString *)sensorsdata_elementPath {
-    return [NSString stringWithFormat:@"UILayoutContainerView/%@",super.sensorsdata_elementPath];
-}
-
-@end
-
-
-@implementation UINavigationBar (VisualizedAutoTrack)
-- (NSString *)sensorsdata_elementPath {
-    return [NSString stringWithFormat:@"UILayoutContainerView/%@",super.sensorsdata_elementPath];
-}
 @end
 
 @implementation UITableView (VisualizedAutoTrack)
@@ -386,6 +323,7 @@
     }
     return nil;
 }
+
 
 @end
 
@@ -480,16 +418,6 @@
         [subElements addObject:currentView];
     }
     return subElements;
-}
-
-- (NSString *)sensorsdata_elementPath {
-    
-    if ([self isKindOfClass:UIAlertController.class]) {
-        return self.sensorsdata_itemPath;
-    }
-
-    // 前端 viewPath 拼接，屏蔽页面信息
-    return nil;
 }
 
 @end

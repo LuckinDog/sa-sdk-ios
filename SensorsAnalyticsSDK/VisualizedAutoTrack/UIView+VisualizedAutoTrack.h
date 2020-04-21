@@ -44,16 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIPageControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
-@interface UISegmentedControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-@end
-
 @interface UIWindow (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-@end
-
-@interface UITabBar (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-@end
-
-@interface UINavigationBar (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
 @interface UITableView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>

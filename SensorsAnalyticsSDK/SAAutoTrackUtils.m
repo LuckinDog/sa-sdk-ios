@@ -379,10 +379,10 @@
             index = count - 1;
         }
     }
-// UIViewController 拼接路径，不需要序号
-//    if ([responder isKindOfClass:UIViewController.class] && ![responder isKindOfClass:UIAlertController.class] && count == 1) {
-//        index = -1;
-//    }
+    // 单个 UIViewController 拼接路径，不需要序号
+    if ([responder isKindOfClass:UIViewController.class] && ![responder isKindOfClass:UIAlertController.class] && count == 1) {
+        index = -1;
+    }
     return index;
 }
 
@@ -466,8 +466,8 @@
     NSString *viewPath = [self viewPathForView:((UIView *)cell).superview atViewController:viewController];
     properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@", viewPath, [cell sensorsdata_itemPathWithIndexPath:indexPath]];
     
-    NSString *viewSimilarPath = [self viewSimilarPathForView:((UIView *)cell).superview atViewController:viewController shouldSimilarPath:NO];
-    properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = [NSString stringWithFormat:@"%@/%@", viewSimilarPath, [cell sensorsdata_similarPathWithIndexPath:indexPath]];
+    NSString *viewSimilarPath = [self viewSimilarPathForView:(UIView *)cell atViewController:viewController shouldSimilarPath:YES];
+    properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewSimilarPath;
     
     return properties;
 }
