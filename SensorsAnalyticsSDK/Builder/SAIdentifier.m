@@ -98,7 +98,7 @@
     });
 }
 
-- (BOOL)login:(NSString *)loginId {
+- (BOOL)isValidLoginId:(NSString *)loginId {
     if (![SAValidator isValidString:loginId]) {
         SALogError(@"%@ loginId:%@ is invalid parameter for login", self, loginId);
         return NO;
@@ -113,6 +113,10 @@
         return NO;
     }
 
+    return YES;
+}
+
+- (void)login:(NSString *)loginId {
     dispatch_async(self.queue, ^{
         self.loginId = loginId;
         [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
@@ -120,13 +124,12 @@
 
     // 为了避免将匿名 ID 作为 LoginID 传入
     if ([loginId isEqualToString:self.anonymousId]) {
-        return NO;
+        return;
     }
 
     dispatch_async(self.queue, ^{
         self.originalId = self.anonymousId;
     });
-    return YES;
 }
 
 - (void)logout {
