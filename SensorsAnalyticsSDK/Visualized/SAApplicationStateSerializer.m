@@ -57,27 +57,6 @@
     return self;
 }
 
-
-- (UIImage *)screenshotImageForKeyWindow {
-    UIImage *image = nil;
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    UIWindow *mainWindow = [self uiMainWindow:keyWindow];
-    if (mainWindow && !CGRectEqualToRect(mainWindow.frame, CGRectZero)) {
-        UIGraphicsBeginImageContextWithOptions(mainWindow.bounds.size, YES, mainWindow.screen.scale);
-        if ([mainWindow respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
-            if (![mainWindow drawViewHierarchyInRect:mainWindow.bounds afterScreenUpdates:NO]) {
-                SALogError(@"Unable to get complete screenshot for window at index: %d.", (int)index);
-            }
-        } else {
-            [mainWindow.layer renderInContext:UIGraphicsGetCurrentContext()];
-        }
-        image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-    }
-
-    return image;
-}
-
 // 所有 window 截图合成
 - (void)screenshotImageForAllWindowWithCompletionHandler:(void (^)(UIImage *))completionHandler {
     CGFloat scale = [UIScreen mainScreen].scale;

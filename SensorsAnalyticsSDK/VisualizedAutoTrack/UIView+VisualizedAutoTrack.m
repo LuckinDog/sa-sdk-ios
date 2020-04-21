@@ -153,7 +153,10 @@
 /// 元素子视图
 - (NSArray *)sensorsdata_subElements {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    // controller1.vew 上直接添加 controller2.view, 在 controller2 添加 UITabBarController.view 或 UINavigationController.view  场景兼容
+    /* 特殊场景兼容
+     controller1.vew 上直接添加 controller2.view，
+     在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController 场景兼容
+     */
     if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"]) {
         if ([[self nextResponder] isKindOfClass:UIViewController.class]) {
             UIViewController *controller = (UIViewController *)[self nextResponder];
