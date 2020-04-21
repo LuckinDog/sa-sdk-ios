@@ -25,7 +25,6 @@
 #import "UIView+VisualizedAutoTrack.h"
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
-#import "UIGestureRecognizer+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 
@@ -67,20 +66,9 @@
         return NO;
     }
 
-    if ([SAAutoTrackUtils isAlertForResponder:self]) { // 位于弹框
-        if ([SAAutoTrackUtils isAlertClickForView:self]) { // 弹框选项
-            return YES;
-        }
-        return NO;
-    }
-
-    // 处理特殊控件
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
-    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
+    if ([SAAutoTrackUtils isAlertClickForView:self]) { // 标记弹框
         return YES;
     }
-#endif
 
     if ([self isKindOfClass:UIControl.class]) {
         // UISegmentedControl 高亮渲染内部嵌套的 UISegment
@@ -104,6 +92,26 @@
         if (containEvents && userInteractionEnabled && enabled) {     // 可点击
             return YES;
         }
+    } else if ([self isKindOfClass:UIImageView.class] || [self isKindOfClass:UILabel.class]) {     // 可能添加手势
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
+        if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
+            return YES;
+        }
+#endif
+        if (self.userInteractionEnabled && self.gestureRecognizers.count > 0) {
+            __block BOOL enableGestureClick = NO;
+            [self.gestureRecognizers enumerateObjectsUsingBlock:^(__kindof UIGestureRecognizer *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+                // 目前 $AppClick 只采集 UITapGestureRecognizer 和 UILongPressGestureRecognizer
+                if ([obj isKindOfClass:UITapGestureRecognizer.class] || [obj isKindOfClass:UILongPressGestureRecognizer.class]) {
+                    *stop = YES;
+                    enableGestureClick = YES;
+                }
+            }];
+            return enableGestureClick;
+        } else {
+            return NO;
+        }
     } else if ([self isKindOfClass:UITableViewCell.class]) {
         UITableView *tableView = (UITableView *)[self superview];
         do {
@@ -123,19 +131,10 @@
             }
         }
         return NO;
-    } else if (self.userInteractionEnabled && self.gestureRecognizers.count > 0) {// UIView 可能添加手势
-        __block BOOL enableGestureClick = NO;
-        [self.gestureRecognizers enumerateObjectsUsingBlock:^(__kindof UIGestureRecognizer *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            // 目前 $AppClick 只采集 UITapGestureRecognizer 和 UILongPressGestureRecognizer
-            if (([obj isKindOfClass:UITapGestureRecognizer.class] || [obj isKindOfClass:UILongPressGestureRecognizer.class]) && !obj.sensorsdata_isPrivateAction) {
-                *stop = YES;
-                enableGestureClick = YES;
-            }
-        }];
-        return enableGestureClick;
     }
     return NO;
 }
+
 #pragma mark SAVisualizedViewPathProperty
 // 当前元素，前端是否渲染成可交互
 - (BOOL)sensorsdata_enableAppClick {
@@ -182,7 +181,6 @@
         }
     }
 #endif
-
     if (self.sensorsdata_enableAppClick) {
         return [SAAutoTrackUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController shouldSimilarPath:YES];
     } else {

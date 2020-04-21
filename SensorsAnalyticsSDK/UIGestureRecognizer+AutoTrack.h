@@ -25,9 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIGestureRecognizer (AutoTrack)
 
-/// 是否为系统添加的私有手势动作
-@property (nonatomic, assign) BOOL sensorsdata_isPrivateAction;
-
 @end
 
 
