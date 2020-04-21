@@ -338,7 +338,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
             if (self.messageQueue == nil) {
-                SALogDebug(@"SqliteException: init Message Queue in Sqlite fail");
+                SALogError(@"SqliteException: init Message Queue in Sqlite fail");
             }
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";

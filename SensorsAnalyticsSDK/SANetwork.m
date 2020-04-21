@@ -224,7 +224,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
         urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         if (urlComponets == nil) {
-            SALogWarn(@"URLString is malformed, nil is returned.");
+            SALogError(@"URLString is malformed, nil is returned.");
             return nil;
         }
         urlComponets.query = nil;
@@ -291,8 +291,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         }
         
         if (statusCode != 200) {
-            SALogError(@"%@ ret_code: %ld", self, statusCode);
-            SALogError(@"%@ ret_content: %@", self, urlResponseContent);
+            SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);
         }
         
         dispatch_semaphore_signal(flushSemaphore);

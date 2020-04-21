@@ -513,7 +513,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (!stmt) {
         int result = sqlite3_prepare_v2(_database, sql.UTF8String, -1, &stmt, NULL);
         if (result != SQLITE_OK) {
-            SALogError(@"%s line:%d sqlite stmt prepare error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_database));
+            SALogError(@"sqlite stmt prepare error (%d): %s", result, sqlite3_errmsg(_database));
             return NULL;
         }
         CFDictionarySetValue(_dbStmtCache, (__bridge const void *)(sql), stmt);
