@@ -754,8 +754,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)logout {
-    [self.identifier logout];
-    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGOUT_NOTIFICATION object:nil];
+    dispatch_async(self.serialQueue, ^{
+        [self.identifier logout];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGOUT_NOTIFICATION object:nil];
+    });
 }
 
 - (NSString *)loginId {
@@ -775,10 +777,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)resetAnonymousId {
-    [self.identifier resetAnonymousId];
-    if (!self.loginId) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
-    }
+    dispatch_async(self.serialQueue, ^{
+        [self.identifier resetAnonymousId];
+        if (!self.loginId) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
+        }
+    });
 }
 
 - (void)trackAppCrash {
@@ -1675,13 +1679,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)identify:(NSString *)anonymousId {
-    if (![self.identifier identify:anonymousId]) {
-        return;
-    }
-    // SensorsFocus SDK 接收匿名 ID 修改通知
-    if (!self.loginId) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_IDENTIFY_NOTIFICATION object:nil];
-    }
+    dispatch_async(self.serialQueue, ^{
+        if (![self.identifier identify:anonymousId]) {
+            return;
+        }
+        // SensorsFocus SDK 接收匿名 ID 修改通知
+        if (!self.loginId) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_IDENTIFY_NOTIFICATION object:nil];
+        }
+    });
 }
 
 - (NSString *)deviceModel {

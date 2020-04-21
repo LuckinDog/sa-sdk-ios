@@ -43,6 +43,11 @@
     _deviceId = _identifier.anonymousId;
 }
 
+- (void)tearDown {
+    _identifier = nil;
+    _deviceId = nil;
+}
+
 - (void)testAnonymousIdAfterIdentify {
     [_identifier identify:@"new_identifier"];
     XCTAssertTrue([_identifier.anonymousId isEqualToString:@"new_identifier"]);

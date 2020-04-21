@@ -27,27 +27,15 @@
 @implementation SAValidator
 
 + (BOOL)isValidString:(NSString *)string {
-    if ([string isKindOfClass:[NSString class]] && ([string length] > 0)) {
-        return YES;
-    }
-    
-    return NO;
+    return ([string isKindOfClass:[NSString class]] && ([string length] > 0));
 }
 
 + (BOOL)isValidArray:(NSArray *)array {
-    if ([array isKindOfClass:[NSArray class]] && ([array count] > 0)) {
-        return YES;
-    }
-    
-    return NO;
+    return ([array isKindOfClass:[NSArray class]] && ([array count] > 0));
 }
 
 + (BOOL)isValidDictionary:(NSDictionary *)dictionary {
-    if ([dictionary isKindOfClass:[NSDictionary class]] && ([dictionary count] > 0)) {
-        return YES;
-    }
-    
-    return NO;
+    return ([dictionary isKindOfClass:[NSDictionary class]] && ([dictionary count] > 0));
 }
 
 @end
