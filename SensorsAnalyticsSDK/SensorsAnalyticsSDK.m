@@ -338,7 +338,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
             if (self.messageQueue == nil) {
-                SALogDebug(@"SqliteException: init Message Queue in Sqlite fail");
+                SALogError(@"SqliteException: init Message Queue in Sqlite fail");
             }
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
@@ -1497,7 +1497,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (trackType == SensorsAnalyticsTrackTypeCode) {
         //事件校验，预置事件提醒
         if ([_presetEventNames containsObject:event]) {
-            SALogError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
+            SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
         
         [self track:event withProperties:eventProperties withType:@"codeTrack"];
