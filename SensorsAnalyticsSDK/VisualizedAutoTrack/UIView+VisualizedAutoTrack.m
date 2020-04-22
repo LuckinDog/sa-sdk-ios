@@ -50,10 +50,6 @@
     if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
         return NO;
     }
-
-    if ([NSStringFromClass(self.class) isEqualToString:@"UITransitionView"] && self.superview == [UIApplication sharedApplication].keyWindow) {
-        return NO;
-    }
 #endif
 
     return YES;
@@ -272,7 +268,16 @@
     NSArray <UIView *> *subviews = self.subviews;
     for (UIView *view in subviews) {
         if (view != self.rootViewController.view && view.sensorsdata_isDisplayedInScreen) {
+            /*
+             keyWindow 设置 rootViewController 后，视图层级为 UIWindow -> UITransitionView -> UIDropShadowView -> rootViewController.view
+             */
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+            if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
+                continue;
+            }
+#endif
             [subElements addObject:view];
+
             CGRect rect = [view convertRect:view.bounds toView:nil];
             // 是否全屏
             BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, self.bounds.size);

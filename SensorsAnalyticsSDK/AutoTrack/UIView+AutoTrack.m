@@ -137,6 +137,7 @@
      UINavigationTransitionView 为 UINavigationController 下的 view 容器，
      UITransitionView 为 UITabBarController 或 keyWindow 的 view 容器
      UIDropShadowView 为 keyWindow 下 UITransitionView 的子视图
+     keyWindow 设置 rootViewController 后，视图层级为 UIWindow -> UITransitionView -> UIDropShadowView -> rootViewController.view
      */
     if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"] || [NSStringFromClass(self.class) isEqualToString:@"UINavigationTransitionView"] || [NSStringFromClass(self.class) isEqualToString:@"UITransitionView"] || [NSStringFromClass(self.class) isEqualToString:@"UIViewControllerWrapperView"] || [NSStringFromClass(self.class) isEqualToString:@"UIDropShadowView"]) {
         return nil;
