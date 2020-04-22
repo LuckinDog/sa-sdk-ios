@@ -158,10 +158,6 @@
 		FC5A4BDF244E980700063624 /* UIView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = FC5A4BD4244E980700063624 /* UIView+AutoTrack.m */; };
 		FC5A4BE0244E980700063624 /* SAAutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = FC5A4BD5244E980700063624 /* SAAutoTrackUtils.m */; };
 		FC5A4BE1244E980700063624 /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = FC5A4BD6244E980700063624 /* UIApplication+AutoTrack.h */; };
-		FC5A4BE7244E98DC00063624 /* SAEncryptUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = FC5A4BE3244E98DC00063624 /* SAEncryptUtils.m */; };
-		FC5A4BE8244E98DC00063624 /* SADataEncryptBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = FC5A4BE4244E98DC00063624 /* SADataEncryptBuilder.h */; };
-		FC5A4BE9244E98DC00063624 /* SAEncryptUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = FC5A4BE5244E98DC00063624 /* SAEncryptUtils.h */; };
-		FC5A4BEA244E98DC00063624 /* SADataEncryptBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = FC5A4BE6244E98DC00063624 /* SADataEncryptBuilder.m */; };
 		FC61B14D23B4BAD6006B4096 /* SATrackTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */; };
 		FC61B14E23B4BAD6006B4096 /* SATrackTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */; };
 		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
@@ -336,10 +332,6 @@
 		FC5A4BD4244E980700063624 /* UIView+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+AutoTrack.m"; sourceTree = "<group>"; };
 		FC5A4BD5244E980700063624 /* SAAutoTrackUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtils.m; sourceTree = "<group>"; };
 		FC5A4BD6244E980700063624 /* UIApplication+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+AutoTrack.h"; sourceTree = "<group>"; };
-		FC5A4BE3244E98DC00063624 /* SAEncryptUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAEncryptUtils.m; sourceTree = "<group>"; };
-		FC5A4BE4244E98DC00063624 /* SADataEncryptBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADataEncryptBuilder.h; sourceTree = "<group>"; };
-		FC5A4BE5244E98DC00063624 /* SAEncryptUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAEncryptUtils.h; sourceTree = "<group>"; };
-		FC5A4BE6244E98DC00063624 /* SADataEncryptBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADataEncryptBuilder.m; sourceTree = "<group>"; };
 		FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SATrackTimer.h; sourceTree = "<group>"; };
 		FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimer.m; sourceTree = "<group>"; };
 		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
@@ -481,8 +473,8 @@
 				4DA4CB71237935CF006892D6 /* Visualized */,
 				6523731823EBC0B600A786A2 /* HeatMap */,
 				6523731B23EBC0DC00A786A2 /* VisualizedAutoTrack */,
-				CB6EBB7622857B4E003CFBA8 /* AutoTrack */,
-				CB30C0AE228410620004061D /* Network */,
+				FC5A4BA2244E974900063624 /* Network */,
+				FC5A4BCB244E980700063624 /* AutoTrack */,
 				F2402D65244175FC00F7B06D /* SALogger */,
 				CB30C03122840EBF0004061D /* MessageQueueBySqlite.h */,
 				CB30BFFF22840EBF0004061D /* MessageQueueBySqlite.m */,
@@ -668,17 +660,6 @@
 			path = AutoTrack;
 			sourceTree = "<group>";
 		};
-		FC5A4BE2244E98DC00063624 /* Encrypt */ = {
-			isa = PBXGroup;
-			children = (
-				FC5A4BE3244E98DC00063624 /* SAEncryptUtils.m */,
-				FC5A4BE4244E98DC00063624 /* SADataEncryptBuilder.h */,
-				FC5A4BE5244E98DC00063624 /* SAEncryptUtils.h */,
-				FC5A4BE6244E98DC00063624 /* SADataEncryptBuilder.m */,
-			);
-			path = Encrypt;
-			sourceTree = "<group>";
-		};
 		FCB60249242B46FC003CFA47 /* Builder */ = {
 			isa = PBXGroup;
 			children = (
@@ -728,7 +709,6 @@
 				CB30C04522840EC00004061D /* NSInvocation+SAHelpers.h in Headers */,
 				CB30C09E22840EC00004061D /* SAKeyChainItemWrapper.h in Headers */,
 				CB30C05C22840EC00004061D /* SALocationManager.h in Headers */,
-				FC5A4BE8244E98DC00063624 /* SADataEncryptBuilder.h in Headers */,
 				FC5A4BBB244E976F00063624 /* SAURLUtils.h in Headers */,
 				FC5A4BDB244E980700063624 /* SAAutoTrackProperty.h in Headers */,
 				CB30C32922843E740004061D /* SAApplicationStateSerializer.h in Headers */,
@@ -944,7 +924,6 @@
 				CB30C06522840EC00004061D /* SASwizzler.m in Sources */,
 				CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */,
 				FC5A4BDF244E980700063624 /* UIView+AutoTrack.m in Sources */,
-				FC5A4BEA244E98DC00063624 /* SADataEncryptBuilder.m in Sources */,
 				6523731E23EBC44000A786A2 /* SAHeatMapObjectSerializer.m in Sources */,
 				4D5A01FC2411ECB2007E651A /* UIView+HeatMap.m in Sources */,
 				CB30C06B22840EC00004061D /* SAKeyChainItemWrapper.m in Sources */,
@@ -957,7 +936,6 @@
 				F2402D80244175FC00F7B06D /* SALog.m in Sources */,
 				F2402D7D244175FC00F7B06D /* SAAbstractLogger.m in Sources */,
 				FC5A4BDC244E980700063624 /* UIApplication+AutoTrack.m in Sources */,
-				FC5A4BE7244E98DC00063624 /* SAEncryptUtils.m in Sources */,
 				CB30C08722840EC00004061D /* SAClassDescription.m in Sources */,
 				CB30C06222840EC00004061D /* SAPropertyDescription.m in Sources */,
 				FC5A4BC3244E976F00063624 /* SAWeakPropertyContainer.m in Sources */,
@@ -969,7 +947,6 @@
 				CB30C05422840EC00004061D /* SensorsAnalyticsExceptionHandler.m in Sources */,
 				CB30C09722840EC00004061D /* SAAuxiliaryToolManager.m in Sources */,
 				CB30C06422840EC00004061D /* SAAppExtensionDataManager.m in Sources */,
-				FC9AEE0723B0D67700B9990F /* SADateFormatter.m in Sources */,
 				FC5A4BE0244E980700063624 /* SAAutoTrackUtils.m in Sources */,
 				CB30C06722840EC00004061D /* SAEnumDescription.m in Sources */,
 				FC5A4BBD244E976F00063624 /* SAJSONUtil.m in Sources */,
