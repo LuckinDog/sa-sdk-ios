@@ -29,6 +29,7 @@
 #import "SALog.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
+#import "SAVisualizedObjectSerializerManger.h"
 
 @interface SAVisualizedAbstractMessage ()
 
@@ -82,7 +83,12 @@
     jsonObject[@"lib"] = @"iOS"; // SDK 类型
 
     @try {
-        UIViewController<SAAutoTrackViewControllerProperty> *viewController = (UIViewController<SAAutoTrackViewControllerProperty> *)[SAAutoTrackUtils currentViewController];
+        UIViewController<SAAutoTrackViewControllerProperty> *viewController = nil;
+        if ([SAVisualizedObjectSerializerManger sharedInstance].currentViewController) {
+            viewController = [SAVisualizedObjectSerializerManger sharedInstance].currentViewController;
+        } else {
+            viewController = (UIViewController<SAAutoTrackViewControllerProperty> *)[SAAutoTrackUtils currentViewController];
+        }
         if (viewController) {
             jsonObject[@"screen_name"] = viewController.sensorsdata_screenName;
             jsonObject[@"title"] = viewController.sensorsdata_title;
@@ -93,13 +99,7 @@
 
     jsonObject[@"app_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
     jsonObject[@"feature_code"] = featureCode;
-
-    if (_payload[@"serialized_objects"] && [_payload[@"serialized_objects"] isKindOfClass:NSDictionary.class]) {
-        NSMutableDictionary *serializedBbjects = [NSMutableDictionary dictionaryWithDictionary:_payload[@"serialized_objects"]];
-        NSNumber *isContainWebview = serializedBbjects[@"is_webview"];
-        [serializedBbjects removeObjectForKey:@"is_webview"];
-        jsonObject[@"is_webview"] = isContainWebview;
-    }
+    jsonObject[@"is_webview"] = @([SAVisualizedObjectSerializerManger sharedInstance].isContainWebView);
 
     // SDK 版本号
     jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;

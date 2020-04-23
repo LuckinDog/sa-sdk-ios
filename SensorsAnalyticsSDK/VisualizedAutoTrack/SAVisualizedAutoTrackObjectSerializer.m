@@ -35,7 +35,9 @@
 #import "SAObjectSerializerContext.h"
 #import "SAPropertyDescription.h"
 #import "UIView+VisualizedAutoTrack.h"
+#import "SAAutoTrackProperty.h"
 #import "SAAutoTrackUtils.h"
+#import "SAVisualizedObjectSerializerManger.h"
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
 @end
@@ -43,7 +45,6 @@
 @implementation SAVisualizedAutoTrackObjectSerializer {
     SAObjectSerializerConfig *_configuration;
     SAObjectIdentityProvider *_objectIdentityProvider;
-    BOOL isContainWebView;
 }
 
 - (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
@@ -52,7 +53,6 @@
     if (self) {
         _configuration = configuration;
         _objectIdentityProvider = objectIdentityProvider;
-        isContainWebView = NO;
     }
     
     return self;
@@ -75,7 +75,6 @@
         @"objects" : [context allSerializedObjects],
         @"rootObject": [_objectIdentityProvider identifierForObject:rootObject]
     }];
-    serializedObjects[@"is_webview"] = @(isContainWebView);
     return [serializedObjects copy];
 }
 
@@ -108,8 +107,16 @@
         [object isKindOfClass:UIWebView.class] ||
 #endif
         [object isKindOfClass:WKWebView.class]) {
-            isContainWebView = YES;
+           [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPage];
         }
+
+    if ([object isKindOfClass:UIView.class] && [object respondsToSelector:@selector(sensorsdata_enableAppClick)] && [object respondsToSelector:@selector(sensorsdata_viewController)]) {
+        UIView <SAAutoTrackViewProperty> *view = (UIView <SAAutoTrackViewProperty> *)object;
+        UIViewController *viewController = [view sensorsdata_viewController];
+        if (viewController && view.sensorsdata_enableAppClick) {
+            [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:viewController];
+        }
+    }
 
     propertyValues[@"isFromH5"] = @(NO);
     propertyValues[@"element_level"] = @([context currentLevelIndex]);

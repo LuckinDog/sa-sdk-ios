@@ -32,6 +32,8 @@
 #import "SAVisualizedConnection.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAConstants+Private.h"
+#import "SAVisualizedObjectSerializerManger.h"
+
 
 #pragma mark -- Snapshot Request
 
@@ -58,7 +60,10 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
     __weak SAVisualizedConnection *weak_connection = connection;
     NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
         __strong SAVisualizedConnection *conn = weak_connection;
-        
+
+        // 重置页面配置信息
+        [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
+
         // Get the object identity provider from the connection's session store or create one if there is none already.
         SAObjectIdentityProvider *objectIdentityProvider = [[SAObjectIdentityProvider alloc] init];
         

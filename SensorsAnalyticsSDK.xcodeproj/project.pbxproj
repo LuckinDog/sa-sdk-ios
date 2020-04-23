@@ -24,6 +24,8 @@
 		4DA4CB8B237936BC006892D6 /* SAVisualizedSnapshotMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DA4CB84237936BB006892D6 /* SAVisualizedSnapshotMessage.m */; };
 		4DA4CB8C237936BC006892D6 /* SAVisualizedSnapshotMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DA4CB85237936BC006892D6 /* SAVisualizedSnapshotMessage.h */; };
 		4DA4CB8D237936BC006892D6 /* SAVisualizedAbstractMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DA4CB86237936BC006892D6 /* SAVisualizedAbstractMessage.h */; };
+		4DBE3C1D24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DBE3C1B24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.h */; };
+		4DBE3C1E24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBE3C1C24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m */; };
 		6523731E23EBC44000A786A2 /* SAHeatMapObjectSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6523731C23EBC44000A786A2 /* SAHeatMapObjectSerializer.m */; };
 		6523731F23EBC44000A786A2 /* SAHeatMapObjectSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6523731D23EBC44000A786A2 /* SAHeatMapObjectSerializer.h */; };
 		CB30C03F22840EC00004061D /* SATypeDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD222840EBF0004061D /* SATypeDescription.m */; };
@@ -200,6 +202,8 @@
 		4DA4CB84237936BB006892D6 /* SAVisualizedSnapshotMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedSnapshotMessage.m; sourceTree = "<group>"; };
 		4DA4CB85237936BC006892D6 /* SAVisualizedSnapshotMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedSnapshotMessage.h; sourceTree = "<group>"; };
 		4DA4CB86237936BC006892D6 /* SAVisualizedAbstractMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedAbstractMessage.h; sourceTree = "<group>"; };
+		4DBE3C1B24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAVisualizedObjectSerializerManger.h; sourceTree = "<group>"; };
+		4DBE3C1C24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedObjectSerializerManger.m; sourceTree = "<group>"; };
 		6523731C23EBC44000A786A2 /* SAHeatMapObjectSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHeatMapObjectSerializer.m; sourceTree = "<group>"; };
 		6523731D23EBC44000A786A2 /* SAHeatMapObjectSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAHeatMapObjectSerializer.h; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -425,8 +429,6 @@
 				CB30BFFB22840EBF0004061D /* SAValueTransformers.m */,
 				CB30BFD822840EBF0004061D /* NSInvocation+SAHelpers.h */,
 				CB30C00522840EBF0004061D /* NSInvocation+SAHelpers.m */,
-				4D9D5E2F240E4ADE00E6A9A5 /* SAVisualizedUtils.h */,
-				4D9D5E30240E4ADE00E6A9A5 /* SAVisualizedUtils.m */,
 			);
 			path = Visualized;
 			sourceTree = "<group>";
@@ -450,6 +452,10 @@
 				4D6118D8242F052100FB02E0 /* SAVisualizedViewPathProperty.h */,
 				4D5A02012411EDFA007E651A /* UIView+VisualizedAutoTrack.h */,
 				4D5A02022411EDFA007E651A /* UIView+VisualizedAutoTrack.m */,
+				4D9D5E2F240E4ADE00E6A9A5 /* SAVisualizedUtils.h */,
+				4D9D5E30240E4ADE00E6A9A5 /* SAVisualizedUtils.m */,
+				4DBE3C1B24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.h */,
+				4DBE3C1C24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m */,
 			);
 			path = VisualizedAutoTrack;
 			sourceTree = "<group>";
@@ -478,7 +484,7 @@
 		CB30BFD122840EBF0004061D /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
-                CB30C0AB22840F1B0004061D /* Resources */,
+				CB30C0AB22840F1B0004061D /* Resources */,
 				FC1AFF0723C45CA800F1B9E4 /* Utils */,
 				FCB60249242B46FC003CFA47 /* Builder */,
 				4DA4CB71237935CF006892D6 /* Visualized */,
@@ -768,6 +774,7 @@
 				CB30C06022840EC00004061D /* SAAuxiliaryToolManager.h in Headers */,
 				FC5A4BC1244E976F00063624 /* SAWeakPropertyContainer.h in Headers */,
 				F2402D75244175FC00F7B06D /* SALogMessage.h in Headers */,
+				4DBE3C1D24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -970,6 +977,7 @@
 				CB30C08C22840EC00004061D /* SAVisualizedAutoTrackObjectSerializer.m in Sources */,
 				FC5A4BBF244E976F00063624 /* SACommonUtility.m in Sources */,
 				4D5A02042411EDFA007E651A /* UIView+VisualizedAutoTrack.m in Sources */,
+				4DBE3C1E24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m in Sources */,
 				FC5A4BCA244E97A600063624 /* SAValidator.m in Sources */,
 				CB30C04D22840EC00004061D /* SASDKRemoteConfig.m in Sources */,
 				CB30C05422840EC00004061D /* SensorsAnalyticsExceptionHandler.m in Sources */,
