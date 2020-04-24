@@ -2631,11 +2631,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SALogDebug(@"%@ application did enter background", self);
+    
+    if (!_applicationWillResignActive) {
+        return;
+    }
+    _applicationWillResignActive = NO;
 
     // 清除本次启动解析的来源渠道信息
     [_linkHandler clearUtmProperties];
-
-    _applicationWillResignActive = NO;
     
     [self stopFlushTimer];
     
