@@ -32,6 +32,26 @@
 
 // 判断一个 view 是否显示
 - (BOOL)sensorsdata_isDisplayedInScreen {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    /* 忽略部分 view
+     _UIAlertControllerTextFieldViewCollectionCell，包含 UIAlertController 中输入框，忽略采集
+     */
+    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
+        return NO;
+    }
+
+    /* 特殊场景兼容
+     controller1.vew 上直接添加 controller2.view，在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController；
+     此时如果 UITabBarController 或 UINavigationController 使用 presentViewController 弹出页面，则 UITabBarController.view (即为 UILayoutContainerView) 可能未 hidden，为了可以通过 UILayoutContainerView 找到 UITabBarController 的子元素，则这里特殊处理。
+       */
+    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"] && [self.nextResponder isKindOfClass:UIViewController.class]) {
+        UIViewController *controller = (UIViewController *)[self nextResponder];
+        if (controller.presentedViewController) {
+            return YES;
+        }
+    }
+#endif
+
     if (!(self.window && self.superview && self.alpha > 0) || self.hidden) {
         return NO;
     }
@@ -42,15 +62,6 @@
     if (CGRectIsNull(rect) || CGSizeEqualToSize(rect.size, CGSizeZero)) {
         return NO;
     }
-
-     // 忽略部分 view
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    // _UIAlertControllerTextFieldViewCollectionCell UIAlertController 中输入框，忽略采集
-    //    对应 controller.view 子控件包含了，都忽略，避免重复
-    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
-        return NO;
-    }
-#endif
 
     return YES;
 }
