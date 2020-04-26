@@ -30,9 +30,8 @@
 /// 是否包含 webview
 @property (nonatomic, assign, readwrite) BOOL isContainWebView;
 
-/// 当前页面
-@property (nonatomic, strong, readwrite) UIViewController *currentViewController;
-
+/// 保存不同 controller 元素个数
+@property (nonatomic, copy) NSMapTable <UIViewController *, NSNumber *> *viewControllerFindCountData;
 @end
 
 @implementation SAVisualizedObjectSerializerManger
@@ -55,13 +54,14 @@
 }
 
 - (void)initializeObjectSerializer {
+    _viewControllerFindCountData = [NSMapTable weakToStrongObjectsMapTable];
     [self resetObjectSerializer];
 }
 
 /// 重置解析配置
 - (void)resetObjectSerializer {
-    _currentViewController = nil;
     _isContainWebView = NO;
+    [_viewControllerFindCountData removeAllObjects];
 }
 
 - (void)enterWebViewPage {
@@ -70,6 +70,26 @@
 
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController {
-    self.currentViewController = viewController;
+    NSNumber *countNumber = [self.viewControllerFindCountData objectForKey:viewController];
+    if (countNumber) {
+        NSInteger countValue = [countNumber integerValue];
+        [self.viewControllerFindCountData setObject:@(countValue + 1) forKey:viewController];
+    } else {
+        [self.viewControllerFindCountData setObject:@(1) forKey:viewController];
+    }
+}
+
+- (UIViewController *)currentViewController {
+    NSArray <UIViewController *>*allViewControllers = NSAllMapTableKeys(self.viewControllerFindCountData);
+    UIViewController *mostShowViewController = nil;
+    NSInteger mostShowCount = 1;
+    for (UIViewController *controller in allViewControllers) {
+        NSNumber *countNumber = [self.viewControllerFindCountData objectForKey:controller];
+        if (countNumber.integerValue >= mostShowCount) {
+            mostShowCount = countNumber.integerValue;
+            mostShowViewController = controller;
+        }
+    }
+    return mostShowViewController;
 }
 @end
