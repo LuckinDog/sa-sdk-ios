@@ -58,13 +58,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)resetAnonymousId;
 
+/**
+检查传入的 loginId 合法性
+
+ @param loginId 设置的 loginId
+ @return 合法性结果
+*/
 - (BOOL)isValidLoginId:(NSString *)loginId;
 
 /**
  通过登录接口设置 loginId
 
  @param loginId 新的 loginId
- @return 登录结果
  */
 - (void)login:(NSString *)loginId;
 
