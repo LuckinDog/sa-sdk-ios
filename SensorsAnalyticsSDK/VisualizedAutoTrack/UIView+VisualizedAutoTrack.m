@@ -96,10 +96,10 @@
             appClickEvents = appClickEvents | UIControlEventPrimaryActionTriggered;
         }
         BOOL containEvents = appClickEvents & control.allControlEvents;
-        if (containEvents && userInteractionEnabled && enabled) {     // 可点击
+        if (containEvents && userInteractionEnabled && enabled) { // 可点击
             return YES;
         }
-    } else if ([self isKindOfClass:UIImageView.class] || [self isKindOfClass:UILabel.class]) {     // 可能添加手势
+    } else if ([self isKindOfClass:UIImageView.class] || [self isKindOfClass:UILabel.class]) { // 可能添加手势
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
         if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {

@@ -56,7 +56,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
 // 构建页面信息，包括截图和元素数据
 - (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {
     SAObjectSerializerConfig *serializerConfig = self.configuration;
-    
+
     __weak SAVisualizedConnection *weak_connection = connection;
     NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
         __strong SAVisualizedConnection *conn = weak_connection;
@@ -66,11 +66,11 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
 
         // Get the object identity provider from the connection's session store or create one if there is none already.
         SAObjectIdentityProvider *objectIdentityProvider = [[SAObjectIdentityProvider alloc] init];
-        
+
         SAApplicationStateSerializer *serializer = [[SAApplicationStateSerializer alloc] initWithApplication:[UIApplication sharedApplication] configuration:serializerConfig objectIdentityProvider:objectIdentityProvider];
-        
+
         SAVisualizedSnapshotResponseMessage *snapshotMessage = [SAVisualizedSnapshotResponseMessage message];
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             NSDictionary *serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
              snapshotMessage.serializedObjects = serializedObjects;
@@ -81,7 +81,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
             }];
         });
     }];
-    
+
     return operation;
 }
 
