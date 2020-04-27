@@ -27,11 +27,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface UIView (VisualizedAutoTrack)<SAVisualizedViewPathProperty, SAVisualizedExtensionProperty>
 
+@end
 
-
-@interface UIView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-
+@interface UIScrollView (VisualizedAutoTrack)<SAVisualizedExtensionProperty>
 @end
 
 @interface UISwitch (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
@@ -53,12 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIWindow (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
-@interface UITabBar (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-@end
-
-@interface UINavigationBar (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-@end
-
 @interface UITableView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
@@ -69,9 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UICollectionViewCell (VisualizedAutoTrack)<SAAutoTrackViewProperty>
-@end
-
-@interface UISegmentedControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
 @interface UITableViewHeaderFooterView (VisualizedAutoTrack)

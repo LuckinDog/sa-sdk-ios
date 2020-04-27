@@ -35,9 +35,10 @@
 #import "SAObjectSerializerContext.h"
 #import "SAPropertyDescription.h"
 #import "UIView+VisualizedAutoTrack.h"
+#import "SAAutoTrackProperty.h"
 #import "SAAutoTrackUtils.h"
 #import "SAJSTouchEventView.h"
-
+#import "SAVisualizedObjectSerializerManger.h"
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
 @end
@@ -45,7 +46,6 @@
 @implementation SAVisualizedAutoTrackObjectSerializer {
     SAObjectSerializerConfig *_configuration;
     SAObjectIdentityProvider *_objectIdentityProvider;
-    BOOL isContainWebView;
 }
 
 - (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
@@ -54,7 +54,6 @@
     if (self) {
         _configuration = configuration;
         _objectIdentityProvider = objectIdentityProvider;
-        isContainWebView = NO;
     }
     
     return self;
@@ -77,7 +76,6 @@
         @"objects" : [context allSerializedObjects],
         @"rootObject": [_objectIdentityProvider identifierForObject:rootObject]
     }];
-    serializedObjects[@"is_webview"] = @(isContainWebView);
     return [serializedObjects copy];
 }
 
@@ -103,6 +101,9 @@
         }
     }
 
+
+#warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示还是啥？
+
     if (
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
         [NSStringFromClass(object.class) isEqualToString:@"UIWebView"] ||
@@ -110,16 +111,27 @@
         [object isKindOfClass:UIWebView.class] ||
 #endif
         [object isKindOfClass:WKWebView.class]) {
-            isContainWebView = YES;
+           [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPage];
         }
+
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
     if ([object isKindOfClass:SAJSTouchEventView.class]) {
         SAJSTouchEventView *touchView = (SAJSTouchEventView *)object;
-        propertyValues[@"isFromH5"] = @(YES);
+        propertyValues[@"is_h5"] = @(YES);
         classNames = @[touchView.tagName];
     } else {
-         propertyValues[@"isFromH5"] = @(NO);
+         propertyValues[@"is_h5"] = @(NO);
+    }
+
+
+    // 记录当前可点击元素所在的 viewController
+    if ([object isKindOfClass:UIView.class] && [object respondsToSelector:@selector(sensorsdata_enableAppClick)] && [object respondsToSelector:@selector(sensorsdata_viewController)]) {
+        UIView <SAAutoTrackViewProperty> *view = (UIView <SAAutoTrackViewProperty> *)object;
+        UIViewController *viewController = [view sensorsdata_viewController];
+        if (viewController && view.sensorsdata_enableAppClick) {
+            [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:viewController];
+        }
     }
 
     propertyValues[@"element_level"] = @([context currentLevelIndex]);

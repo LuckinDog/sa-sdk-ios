@@ -25,9 +25,8 @@
 #import "SAVisualizedUtils.h"
 #import "SAJSTouchEventView.h"
 #import "SAVisualizedViewPathProperty.h"
-#import "SAVisualizedObjectSerializerManger.h"
 #import "SAJSONUtil.h"
-#import "NSString+HashCode.h"
+#import "SAVisualizedObjectSerializerManger.h"
 
 
 @implementation SAVisualizedUtils
