@@ -48,6 +48,12 @@
 
     [self.webView loadRequest:request];
 
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"刷新" style:UIBarButtonItemStyleDone target:self action:@selector(refreshAction)];
+    self.navigationItem.rightBarButtonItem = rightItem;
+}
+
+- (void)refreshAction {
+    [self.webView reload];
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler {

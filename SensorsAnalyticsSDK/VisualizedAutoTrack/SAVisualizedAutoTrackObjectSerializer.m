@@ -96,11 +96,10 @@
             if ([propertyDescription shouldReadPropertyValueForObject:object]) {
                 //  根据是否符号要求（是否显示等）构建属性，通过 KVC 和 NSInvocation 动态调用获取描述信息
                 id propertyValue = [self propertyValueForObject:object withPropertyDescription:propertyDescription context:context]; // $递增作为元素 id
-                propertyValues[propertyDescription.key] = propertyValue ?: [NSNull null];
+                propertyValues[propertyDescription.key] = propertyValue ? : [NSNull null];
             }
         }
     }
-
 
 #warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示还是啥？
 
@@ -111,9 +110,8 @@
         [object isKindOfClass:UIWebView.class] ||
 #endif
         [object isKindOfClass:WKWebView.class]) {
-           [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPage];
-        }
-
+        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPage];
+    }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
     if ([object isKindOfClass:SAJSTouchEventView.class]) {
@@ -121,9 +119,8 @@
         propertyValues[@"is_h5"] = @(YES);
         classNames = @[touchView.tagName];
     } else {
-         propertyValues[@"is_h5"] = @(NO);
+        propertyValues[@"is_h5"] = @(NO);
     }
-
 
     // 记录当前可点击元素所在的 viewController
     if ([object isKindOfClass:UIView.class] && [object respondsToSelector:@selector(sensorsdata_enableAppClick)] && [object respondsToSelector:@selector(sensorsdata_viewController)]) {
@@ -135,13 +132,12 @@
     }
 
     propertyValues[@"element_level"] = @([context currentLevelIndex]);
-    NSDictionary *serializedObject = @{@"id": [_objectIdentityProvider identifierForObject:object],
-                                       @"class": classNames,  // 遍历获取父类名称
-                                       @"properties": propertyValues};
+    NSDictionary *serializedObject = @{ @"id": [_objectIdentityProvider identifierForObject:object],
+                                        @"class": classNames, // 遍历获取父类名称
+                                        @"properties": propertyValues };
 
     [context addSerializedObject:serializedObject];
 }
-
 - (NSArray *)classHierarchyArrayForObject:(NSObject *)object {
     NSMutableArray *classHierarchy = [[NSMutableArray alloc] init];
     

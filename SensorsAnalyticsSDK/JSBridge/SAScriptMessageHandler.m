@@ -90,6 +90,19 @@
             if (webview && [webview respondsToSelector:setExtenPropertiesSelector]) {
                 ((void (*)(id, SEL, NSArray *))[webview methodForSelector:setExtenPropertiesSelector])(webview, setExtenPropertiesSelector, pageDatas);
             }
+        } else if ([callType isEqualToString:@"app_alert"]) {
+            /*
+             [{
+                "title": "弹框标题",
+                "message": "App SDK 与 Web SDK 没有进行打通，请联系贵方技术人员修正 Web SDK 的配置，详细信息请查看文档。",
+                "link_text": "配置文档"
+                "link_url": "https://manual.sensorsdata.cn/sa/latest/app-h5-1573913.html"
+             }]
+             */
+            NSArray *alertDatas = messageDic[@"data"];
+            if (alertDatas.count > 0) {
+                
+            }
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
