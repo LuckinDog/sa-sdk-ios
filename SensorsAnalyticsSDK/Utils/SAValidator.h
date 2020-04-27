@@ -1,8 +1,8 @@
 //
-// SAVisualizedObjectSerializerManger.h
+// SAValidator.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/4/7.
+// Created by wenquan on 2020/2/19.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,33 +18,18 @@
 // limitations under the License.
 //
 
-
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAVisualizedJSConfig : NSObject
+@interface SAValidator : NSObject
 
-@property (nonatomic, copy) NSString *url;
-@property (nonatomic, copy) NSString *title;
++ (BOOL)isValidString:(NSString *)string;
 
-@end
++ (BOOL)isValidDictionary:(NSDictionary *)dictionary;
 
-/// 可视化全埋点 viewTree 外层数据管理
-@interface SAVisualizedObjectSerializerManger : NSObject
++ (BOOL)isValidArray:(NSArray *)array;
 
-/// 是否包含 webview
-@property (nonatomic, assign) BOOL isContainWebView;
-
-/// 截图 hash 更新信息，如果存在，则添加到 image_hash 后缀
-@property (nonatomic, copy) NSString *imageHashUpdateMessage;
-
-@property (nonatomic, strong) SAVisualizedJSConfig *jsConfig;
-
-+ (instancetype)sharedInstance;
-
-/// 重置解析配置
-- (void)resetObjectSerializer;
 @end
 
 NS_ASSUME_NONNULL_END

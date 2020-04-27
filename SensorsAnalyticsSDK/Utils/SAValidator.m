@@ -1,8 +1,8 @@
 //
-// SAVisualizedObjectSerializerManger.m
+// SAValidator.m
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/4/7.
+// Created by wenquan on 2020/2/19.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,39 +22,20 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAVisualizedObjectSerializerManger.h"
+#import "SAValidator.h"
 
-@interface SAVisualizedObjectSerializerManger()
+@implementation SAValidator
 
-@end
-
-@implementation SAVisualizedObjectSerializerManger
-
-+ (instancetype)sharedInstance {
-    static SAVisualizedObjectSerializerManger *manager = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        manager = [[SAVisualizedObjectSerializerManger alloc] init];
-    });
-    return manager;
++ (BOOL)isValidString:(NSString *)string {
+    return ([string isKindOfClass:[NSString class]] && ([string length] > 0));
 }
 
-- (instancetype) init {
-    self = [super init];
-    if (self) {
-        [self initializeObjectSerializer];
-    }
-    return self;
++ (BOOL)isValidArray:(NSArray *)array {
+    return ([array isKindOfClass:[NSArray class]] && ([array count] > 0));
 }
 
-- (void)initializeObjectSerializer {
-    _imageHashUpdateMessage = nil;
-    _isContainWebView = NO;
-}
-
-/// 重置解析配置
-- (void)resetObjectSerializer {
-    [self initializeObjectSerializer];
++ (BOOL)isValidDictionary:(NSDictionary *)dictionary {
+    return ([dictionary isKindOfClass:[NSDictionary class]] && ([dictionary count] > 0));
 }
 
 @end
