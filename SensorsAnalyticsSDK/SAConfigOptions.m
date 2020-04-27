@@ -61,8 +61,10 @@
     options.flushInterval = self.flushInterval;
     options.flushBulkSize = self.flushBulkSize;
     options.maxCacheSize = self.maxCacheSize;
-
+    options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
+    options.sourceChannels = self.sourceChannels;
     options.remoteConfigURL = self.remoteConfigURL;
+
     options.disableRandomTimeRequestRemoteConfig = self.disableRandomTimeRequestRemoteConfig;
     
     options.minRequestHourInterval = self.minRequestHourInterval;

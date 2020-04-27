@@ -38,6 +38,8 @@ NSString * const SA_EVENT_LIB = @"lib";
 NSString * const SA_EVENT_PROJECT = @"project";
 NSString * const SA_EVENT_TOKEN = @"token";
 NSString * const SA_EVENT_HYBRID_H5 = @"_hybrid_h5";
+NSString * const SA_EVENT_LOGIN_ID = @"login_id";
+NSString * const SA_EVENT_ANONYMOUS_ID = @"anonymous_id";
 
 #pragma mark - Item
 NSString * const SA_EVENT_ITEM_TYPE = @"item_type";
@@ -159,7 +161,10 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
     }
 }
 
+
 #pragma mark - SF related
 NSString *const SA_TRACK_EVENT_NOTIFICATION = @"SensorsAnalyticsTrackEventNotification";
 NSString *const SA_TRACK_LOGIN_NOTIFICATION = @"SensorsAnalyticsTrackLoginNotification";
 NSString *const SA_TRACK_LOGOUT_NOTIFICATION = @"SensorsAnalyticsTrackLogoutNotification";
+NSString *const SA_TRACK_IDENTIFY_NOTIFICATION = @"SensorsAnalyticsTrackIdentifyNotification";
+NSString *const SA_TRACK_RESETANONYMOUSID_NOTIFICATION = @"SensorsAnalyticsTrackResetAnonymousIdNotification";
