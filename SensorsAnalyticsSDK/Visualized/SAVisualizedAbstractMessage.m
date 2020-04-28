@@ -101,6 +101,18 @@
     jsonObject[@"feature_code"] = featureCode;
     jsonObject[@"is_webview"] = @([SAVisualizedObjectSerializerManger sharedInstance].isContainWebView);
 
+    // 添加前端弹框信息
+    if ([SAVisualizedObjectSerializerManger sharedInstance].alertInfos.count > 0) {
+        jsonObject[@"app_alert_infos"] = [[SAVisualizedObjectSerializerManger sharedInstance].alertInfos copy];
+    }
+
+    // H5 页面信息
+    if ([SAVisualizedObjectSerializerManger sharedInstance].webPageInfo) {
+        SAVisualizedWebPageInfo *webPageInfo = [SAVisualizedObjectSerializerManger sharedInstance].webPageInfo;
+        jsonObject[@"h5_url"] = webPageInfo.url;
+        jsonObject[@"h5_title"] = webPageInfo.title;
+    }
+
     // SDK 版本号
     jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;
 

@@ -26,6 +26,8 @@
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
+#import "SAVisualizedObjectSerializerManger.h"
+
 
 @interface SAScriptMessageHandler ()
 
@@ -90,7 +92,7 @@
             if (webview && [webview respondsToSelector:setExtenPropertiesSelector]) {
                 ((void (*)(id, SEL, NSArray *))[webview methodForSelector:setExtenPropertiesSelector])(webview, setExtenPropertiesSelector, pageDatas);
             }
-        } else if ([callType isEqualToString:@"app_alert"]) {
+        } else if ([callType isEqualToString:@"app_alert"]) { // 弹框提示信息
             /*
              [{
                 "title": "弹框标题",
@@ -101,7 +103,15 @@
              */
             NSArray *alertDatas = messageDic[@"data"];
             if (alertDatas.count > 0) {
-                
+                [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:alertDatas];
+            }
+        } else if ([callType isEqualToString:@"page_info"]) { // h5 页面信息
+            NSDictionary *pageInfo = messageDic[@"data"];
+            if (pageInfo.count > 0) {
+                SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+                webPageInfo.url = pageInfo[@"$title"];
+                webPageInfo.title = pageInfo[@"$url"];
+                [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
             }
         }
     } @catch (NSException *exception) {

@@ -110,7 +110,7 @@
         [object isKindOfClass:UIWebView.class] ||
 #endif
         [object isKindOfClass:WKWebView.class]) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPage];
+        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:nil];
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];

@@ -45,13 +45,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// html 页面标题
 @property (nonatomic, copy) NSString *title;
 
-// js 生成的 html 元素 id
+/// js 生成的 html 元素 id
 @property (nonatomic, copy) NSString *jsElementId;
 
-//js 解析的 html 子元素 id
+/// js 解析的 html 子元素 id
 @property (nonatomic, copy) NSArray<NSString *> *jsSubElementIds;
 
-//js 解析的 html 子元素
+/// js 解析的 html 子元素
 @property (nonatomic, copy) NSArray<SAJSTouchEventView *> *jsSubviews;
 @end
 

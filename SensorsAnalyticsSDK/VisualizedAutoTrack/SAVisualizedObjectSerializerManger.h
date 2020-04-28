@@ -22,9 +22,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-NS_ASSUME_NONNULL_BEGIN
 
-@interface SAVisualizedJSConfig : NSObject
+@interface SAVisualizedWebPageInfo : NSObject
 
 @property (nonatomic, copy) NSString *url;
 @property (nonatomic, copy) NSString *title;
@@ -42,9 +41,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) UIViewController *currentViewController;
 
 /// 截图 hash 更新信息，如果存在，则添加到 image_hash 后缀
-@property (nonatomic, copy) NSString *imageHashUpdateMessage;
+@property (nonatomic, copy, readonly) NSString *imageHashUpdateMessage;
 
-@property (nonatomic, strong) SAVisualizedJSConfig *jsConfig;
+/// App 内嵌 H5 页面信息
+@property (nonatomic, strong, readonly) SAVisualizedWebPageInfo *webPageInfo;
+
+/// 弹框信息
+/* 数据结构
+ [{
+    "title": "弹框标题",
+    "message": "App SDK 与 Web SDK 没有进行打通，请联系贵方技术人员修正 Web SDK 的配置，详细信息请查看文档。",
+    "link_text": "配置文档"
+    "link_url": "https://manual.sensorsdata.cn/sa/latest/app-h5-1573913.html"
+ }]
+ */
+@property (nonatomic, strong, readonly) NSMutableArray *alertInfos;
 
 + (instancetype)sharedInstance;
 
@@ -52,10 +63,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)resetObjectSerializer;
 
 /// 进入 web 页面
-- (void)enterWebViewPage;
+- (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo;
 
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController;
-@end
 
-NS_ASSUME_NONNULL_END
+/// 强制刷新截图 hash 信息
+- (void)refreshImageHashMessage:(NSString *)imageHash;
+
+/// 添加弹框
+- (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos;
+
+
+
+@end

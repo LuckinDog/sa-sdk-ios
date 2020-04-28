@@ -89,12 +89,25 @@
     if (webPageDatas.count == 0) {
         return nil;
     }
+
+    // 元素去重，去除 id 相同的重复元素
+    NSMutableArray <NSString *> *allNoRepeatElementIds = [NSMutableArray array];
+
     UIScrollView *scrollView = webView.scrollView;
     // 位置偏移量
     CGPoint contentOffset = scrollView.contentOffset;
     NSMutableArray *touchViewArray = [NSMutableArray array];
     for (NSDictionary *pageData in webPageDatas) {
-        //                        NSInteger scale = [pageData[@"scale"] integerValue];
+
+        NSString *elementId = pageData[@"id"];
+        if (elementId) {
+            if ([allNoRepeatElementIds containsObject:elementId]) {
+                continue;
+            }
+            [allNoRepeatElementIds addObject:elementId];
+        }
+
+        // NSInteger scale = [pageData[@"scale"] integerValue];
         CGFloat left = [pageData[@"left"] floatValue];
 
         CGFloat top = [pageData[@"top"] floatValue];
@@ -103,7 +116,6 @@
         CGFloat scrollX = [pageData[@"scrollX"] floatValue];
         CGFloat scrollY = [pageData[@"scrollY"] floatValue];
         BOOL visibility = [pageData[@"visibility"] boolValue];
-        NSString *elementId = pageData[@"id"];
         NSArray <NSString *> *subelements = pageData[@"subelements"];
 
         if (height > 0 && visibility) {
@@ -158,10 +170,9 @@
     NSData *jsonData = [jsonUtil JSONSerializeObject:webPageDatas];
     if (jsonData) {
         NSUInteger hashCode = [jsonData hash];
-        [SAVisualizedObjectSerializerManger sharedInstance].imageHashUpdateMessage = [NSString stringWithFormat:@"%lu",(unsigned long)hashCode];
+        [[SAVisualizedObjectSerializerManger sharedInstance] refreshImageHashMessage:[NSString stringWithFormat:@"%lu", (unsigned long)hashCode]];
     }
 
     return [touchViewArray copy];
 }
-
 @end

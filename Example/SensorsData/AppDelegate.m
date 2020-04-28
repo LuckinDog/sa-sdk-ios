@@ -33,7 +33,7 @@ static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
- 
+
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:SA_DebugBox_ServerURL launchOptions:launchOptions];
     options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
     options.enableTrackAppCrash = YES;
@@ -42,9 +42,9 @@ static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=
     options.enableHeatMap = YES;
     options.enableVisualizedAutoTrack = YES;
     options.maxCacheSize = 20000;
-//    options.enableJavaScriptBridge = YES;
+    options.enableJavaScriptBridge = YES;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
-    
+
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;

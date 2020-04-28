@@ -25,13 +25,27 @@
 #import "SAVisualizedObjectSerializerManger.h"
 
 
+@implementation SAVisualizedWebPageInfo
+
+@end
+
+
 @interface SAVisualizedObjectSerializerManger()
 
 /// 是否包含 webview
 @property (nonatomic, assign, readwrite) BOOL isContainWebView;
 
-/// 保存不同 controller 元素个数
+/// App 内嵌 H5 页面信息
+@property (nonatomic, strong, readwrite) SAVisualizedWebPageInfo *webPageInfo;
+
+/// 截图 hash 更新信息，如果存在，则添加到 image_hash 后缀
+@property (nonatomic, copy, readwrite) NSString *imageHashUpdateMessage;
+
+/// 保存不同 controller 可点击元素个数
 @property (nonatomic, copy) NSMapTable <UIViewController *, NSNumber *> *viewControllerFindCountData;
+
+/// 弹框信息
+@property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
 @end
 
 @implementation SAVisualizedObjectSerializerManger
@@ -55,17 +69,24 @@
 
 - (void)initializeObjectSerializer {
     _viewControllerFindCountData = [NSMapTable weakToStrongObjectsMapTable];
+    _alertInfos = [NSMutableArray array];
     [self resetObjectSerializer];
 }
 
 /// 重置解析配置
 - (void)resetObjectSerializer {
-    _isContainWebView = NO;
-    [_viewControllerFindCountData removeAllObjects];
+    self.isContainWebView = NO;
+    [self.viewControllerFindCountData removeAllObjects];
+    self.imageHashUpdateMessage = nil;
+    self.webPageInfo = nil;
+    [self.alertInfos removeAllObjects];
 }
 
-- (void)enterWebViewPage {
+- (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo; {
     self.isContainWebView = YES;
+    if (webInfo) {
+        self.webPageInfo = webInfo;
+    }
 }
 
 /// 进入页面
@@ -77,6 +98,10 @@
     } else {
         [self.viewControllerFindCountData setObject:@(1) forKey:viewController];
     }
+}
+
+- (void)refreshImageHashMessage:(NSString *)imageHash {
+    self.imageHashUpdateMessage = imageHash;
 }
 
 - (UIViewController *)currentViewController {
@@ -92,4 +117,11 @@
     }
     return mostShowViewController;
 }
+
+- (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {
+    if (infos.count > 0) {
+        [self.alertInfos addObjectsFromArray:infos];
+    }
+}
+
 @end
