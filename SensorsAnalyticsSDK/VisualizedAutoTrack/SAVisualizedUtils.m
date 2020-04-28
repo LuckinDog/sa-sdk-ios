@@ -98,7 +98,6 @@
     CGPoint contentOffset = scrollView.contentOffset;
     NSMutableArray *touchViewArray = [NSMutableArray array];
     for (NSDictionary *pageData in webPageDatas) {
-
         NSString *elementId = pageData[@"id"];
         if (elementId) {
             if ([allNoRepeatElementIds containsObject:elementId]) {
@@ -165,7 +164,6 @@
       等接收到 JS SDK 发送的页面信息，由于页面截图不变，前端页面未重新加载解析 viewTree 信息，导致无法圈选。
       所以，接收到 JS 的页面信息，在原有 imageHash 基础上拼接 html 页面属于 hash 值，使得前端重新加载页面信息
       */
-
     SAJSONUtil *jsonUtil = [[SAJSONUtil alloc] init];
     NSData *jsonData = [jsonUtil JSONSerializeObject:webPageDatas];
     if (jsonData) {
@@ -175,4 +173,5 @@
 
     return [touchViewArray copy];
 }
+
 @end

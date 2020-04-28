@@ -41,6 +41,10 @@ NSString * const SAVisualizedSnapshotRequestMessageType = @"snapshot_request";
 
 static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descriptions";
 
+@interface SAVisualizedSnapshotRequestMessage()
+@property (nonatomic, copy) NSString *lastImageHash;
+@end
+
 @implementation SAVisualizedSnapshotRequestMessage
 
 + (instancetype)message {
@@ -73,7 +77,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
 
         dispatch_async(dispatch_get_main_queue(), ^{
             NSDictionary *serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
-             snapshotMessage.serializedObjects = serializedObjects;
+            snapshotMessage.serializedObjects = serializedObjects;
             
             [serializer screenshotImageForAllWindowWithCompletionHandler:^(UIImage *image) {
                 snapshotMessage.screenshot = image;
@@ -108,7 +112,9 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
 
     if ([SAVisualizedObjectSerializerManger sharedInstance].imageHashUpdateMessage) {
         imageHash = [imageHash stringByAppendingString:[SAVisualizedObjectSerializerManger sharedInstance].imageHashUpdateMessage];
+        [[SAVisualizedObjectSerializerManger sharedInstance] refreshImageHashMessage:nil];
     }
+
     [self setPayloadObject:(payloadObject ?: [NSNull null]) forKey:@"screenshot"];
     [self setPayloadObject:(imageHash ?: [NSNull null]) forKey:@"image_hash"];
 }

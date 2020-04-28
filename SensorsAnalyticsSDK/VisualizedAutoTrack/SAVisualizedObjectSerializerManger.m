@@ -77,7 +77,6 @@
 - (void)resetObjectSerializer {
     self.isContainWebView = NO;
     [self.viewControllerFindCountData removeAllObjects];
-    self.imageHashUpdateMessage = nil;
     self.webPageInfo = nil;
     [self.alertInfos removeAllObjects];
 }
