@@ -283,6 +283,14 @@
     objc_setAssociatedObject(self, @"sensorsAnalyticsExtensionProperties", sensorsdata_extensionProperties, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+- (NSDictionary *)sensorsdata_webPageInfo {
+    return objc_getAssociatedObject(self, @"sensorsAnalyticsWebPageInfo");
+}
+
+- (void)setSensorsdata_webPageInfo:(NSDictionary *)sensorsdata_webPageInfo {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsWebPageInfo", sensorsdata_webPageInfo, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
 @end
 
 

@@ -53,12 +53,12 @@
     if (![message.name isEqualToString:SA_SCRIPT_MESSAGE_HANDLER_NAME]) {
         return;
     }
-    
+
     if (![message.body isKindOfClass:[NSString class]]) {
         SALogError(@"Message body is not kind of 'NSString' from JS SDK");
         return;
     }
-    
+
     @try {
         NSString *body = message.body;
         NSData *messageData = [body dataUsingEncoding:NSUTF8StringEncoding];
@@ -66,13 +66,13 @@
             SALogError(@"Message body is invalid from JS SDK");
             return;
         }
-        
+
         NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
         if (![messageDic isKindOfClass:[NSDictionary class]]) {
             SALogError(@"Message body is formatted failure from JS SDK");
             return;
         }
-        
+
         NSString *callType = messageDic[@"callType"];
         if ([callType isEqualToString:@"app_h5_track"]) {
             // H5 发送事件
@@ -81,7 +81,7 @@
                 SALogError(@"Data of message body is not kind of 'NSDictionary' from JS SDK");
                 return;
             }
-            
+
             NSData *trackMessageData = [NSJSONSerialization dataWithJSONObject:trackMessageDic options:0 error:nil];
             NSString *trackMessageString = [[NSString alloc] initWithData:trackMessageData encoding:NSUTF8StringEncoding];
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
@@ -107,11 +107,15 @@
             }
         } else if ([callType isEqualToString:@"page_info"]) { // h5 页面信息
             NSDictionary *pageInfo = messageDic[@"data"];
-            if (pageInfo.count > 0) {
-                SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
-                webPageInfo.url = pageInfo[@"$title"];
-                webPageInfo.title = pageInfo[@"$url"];
-                [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
+            WKWebView *webview = message.webView;
+            SEL setWebPageInfoSelector = NSSelectorFromString(@"setSensorsdata_webPageInfo:");
+            if (pageInfo.count > 0 && webview && [webview respondsToSelector:setWebPageInfoSelector]) {
+                ((void (*)(id, SEL, NSDictionary *))[webview methodForSelector:setWebPageInfoSelector])(webview, setWebPageInfoSelector, pageInfo);
+
+//                SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+//                webPageInfo.title = pageInfo[@"$title"];
+//                webPageInfo.url = pageInfo[@"$url"];
+//                [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
             }
         }
     } @catch (NSException *exception) {

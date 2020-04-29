@@ -105,6 +105,11 @@
                 "type": "NSString"
               },
               {
+                "name": "title",
+                "key": "h5_title",
+                "type": "NSString"
+              },
+              {
                   "name": "sensorsdata_elementPath",
                   "key": "element_selector",
                   "type": "NSString",

@@ -50,4 +50,7 @@
 
 /// 扩展属性
 @property (nonatomic, copy) NSArray *sensorsdata_extensionProperties;
+
+/// web 页面信息
+@property (nonatomic, copy) NSDictionary *sensorsdata_webPageInfo;
 @end

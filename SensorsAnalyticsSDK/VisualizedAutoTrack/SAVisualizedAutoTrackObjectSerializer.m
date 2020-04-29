@@ -101,16 +101,30 @@
         }
     }
 
-#warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示还是啥？
+#warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示文案待确认？
 
     if (
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
         [NSStringFromClass(object.class) isEqualToString:@"UIWebView"] ||
 #else
-        [object isKindOfClass:UIWebView.class] ||
+        [object isKindOfClass:UIWebView.class]
 #endif
-        [object isKindOfClass:WKWebView.class]) {
+        ) { // 暂不支持 UIWebView
         [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:nil];
+
+        NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
+        alertInfo[@"title"] = @"温馨提示";
+        alertInfo[@"message"] = @"App 内嵌 H5 可视化全埋点，暂时只支持 WKWebView";
+        alertInfo[@"link_text"] = @"参照文档";
+        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/app-h5-1573913.html";
+        [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
+    } else if ([object isKindOfClass:WKWebView.class]) {
+        WKWebView *webview = (WKWebView *)object;
+        NSDictionary *pageInfo = webview.sensorsdata_webPageInfo;
+        SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+        webPageInfo.title = pageInfo[@"$title"];
+        webPageInfo.url = pageInfo[@"$url"];
+        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
@@ -138,6 +152,7 @@
 
     [context addSerializedObject:serializedObject];
 }
+
 - (NSArray *)classHierarchyArrayForObject:(NSObject *)object {
     NSMutableArray *classHierarchy = [[NSMutableArray alloc] init];
     

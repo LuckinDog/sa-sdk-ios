@@ -41,6 +41,9 @@
 /// 截图 hash 更新信息，如果存在，则添加到 image_hash 后缀
 @property (nonatomic, copy, readwrite) NSString *imageHashUpdateMessage;
 
+/// 上次截图 hash
+@property (nonatomic, copy, readwrite) NSString *lastImageHash;
+
 /// 保存不同 controller 可点击元素个数
 @property (nonatomic, copy) NSMapTable <UIViewController *, NSNumber *> *viewControllerFindCountData;
 
@@ -77,6 +80,10 @@
 - (void)resetObjectSerializer {
     self.isContainWebView = NO;
     [self.viewControllerFindCountData removeAllObjects];
+}
+
+/// 清除内嵌 H5 页面信息
+- (void)cleanWebPageInfo {
     self.webPageInfo = nil;
     [self.alertInfos removeAllObjects];
 }
@@ -103,6 +110,11 @@
     self.imageHashUpdateMessage = imageHash;
 }
 
+
+- (void)resetLastImageHash:(NSString *)imageHash {
+    self.lastImageHash = imageHash;
+    self.imageHashUpdateMessage = nil;
+}
 - (UIViewController *)currentViewController {
     NSArray <UIViewController *>*allViewControllers = NSAllMapTableKeys(self.viewControllerFindCountData);
     UIViewController *mostShowViewController = nil;
@@ -119,8 +131,22 @@
 
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {
     if (infos.count > 0) {
-        [self.alertInfos addObjectsFromArray:infos];
+        // 通过 Dictionary 构造所有不同 message 的弹框集合
+        NSMutableDictionary *alertMessageInfoDic = [NSMutableDictionary dictionary];
+        for (NSDictionary *alertInfo in self.alertInfos) {
+            NSString *message = alertInfo[@"message"];
+            if (message) {
+                alertMessageInfoDic[message] = alertInfo;
+            }
+        }
+
+        // 只添加 message 不重复的弹框信息
+        for (NSDictionary *alertInfo in infos) {
+            NSString *message = alertInfo[@"message"];
+            if (message && [alertMessageInfoDic.allKeys containsObject:message]) {
+                [self.alertInfos addObject:alertInfo];
+            }
+        }
     }
 }
-
 @end

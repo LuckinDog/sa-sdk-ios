@@ -43,6 +43,9 @@
 /// 截图 hash 更新信息，如果存在，则添加到 image_hash 后缀
 @property (nonatomic, copy, readonly) NSString *imageHashUpdateMessage;
 
+/// 上次截图 hash
+@property (nonatomic, copy, readonly) NSString *lastImageHash;
+
 /// App 内嵌 H5 页面信息
 @property (nonatomic, strong, readonly) SAVisualizedWebPageInfo *webPageInfo;
 
@@ -62,6 +65,9 @@
 /// 重置解析配置
 - (void)resetObjectSerializer;
 
+/// 清除内嵌 H5 页面信息
+- (void)cleanWebPageInfo;
+
 /// 进入 web 页面
 - (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo;
 
@@ -70,6 +76,9 @@
 
 /// 强制刷新截图 hash 信息
 - (void)refreshImageHashMessage:(NSString *)imageHash;
+
+/// 重置最后截图 hash
+- (void)resetLastImageHash:(NSString *)imageHash;
 
 /// 添加弹框
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos;
