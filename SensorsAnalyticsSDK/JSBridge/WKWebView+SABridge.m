@@ -24,6 +24,7 @@
 
 #import "WKWebView+SABridge.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAVisualizedObjectSerializerManger.h"
 
 @implementation WKWebView (SABridge)
 
@@ -51,4 +52,8 @@
     return [self sensorsdata_loadData:data MIMEType:MIMEType characterEncodingName:characterEncodingName baseURL:baseURL];
 }
 
+- (void)sensorsdata_removeFromSuperview {
+    [[SAVisualizedObjectSerializerManger sharedInstance] cleanWebPageInfo];
+    [self sensorsdata_removeFromSuperview];
+}
 @end

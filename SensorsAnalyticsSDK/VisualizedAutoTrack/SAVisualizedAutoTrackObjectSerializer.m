@@ -122,10 +122,13 @@
     } else if ([object isKindOfClass:WKWebView.class]) {
         WKWebView *webview = (WKWebView *)object;
         NSDictionary *pageInfo = webview.sensorsdata_webPageInfo;
-        SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
-        webPageInfo.title = pageInfo[@"$title"];
-        webPageInfo.url = pageInfo[@"$url"];
-        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
+        if (pageInfo) {
+            SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+            webPageInfo.title = pageInfo[@"$title"];
+            webPageInfo.url = pageInfo[@"$url"];
+            [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
+        }
+
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];

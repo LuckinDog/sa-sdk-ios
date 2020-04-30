@@ -23,6 +23,7 @@
 #endif
 
 #import "SAVisualizedObjectSerializerManger.h"
+#import "SAJSONUtil.h"
 
 
 @implementation SAVisualizedWebPageInfo
@@ -146,6 +147,14 @@
             if (message && ![alertMessageInfoDic.allKeys containsObject:message]) {
                 [self.alertInfos addObject:alertInfo];
             }
+        }
+
+        // 强制刷新数据
+        SAJSONUtil *jsonUtil = [[SAJSONUtil alloc] init];
+        NSData *jsonData = [jsonUtil JSONSerializeObject:infos];
+        if (jsonData) {
+            NSUInteger hashCode = [jsonData hash];
+            [self refreshImageHashMessage:[NSString stringWithFormat:@"%lu", (unsigned long)hashCode]];
         }
     }
 }

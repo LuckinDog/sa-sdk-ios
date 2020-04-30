@@ -100,9 +100,6 @@
     jsonObject[@"app_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
     jsonObject[@"feature_code"] = featureCode;
     jsonObject[@"is_webview"] = @([SAVisualizedObjectSerializerManger sharedInstance].isContainWebView);
-    if (![SAVisualizedObjectSerializerManger sharedInstance].isContainWebView) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] cleanWebPageInfo];
-    }
 
     // 添加前端弹框信息
     if ([SAVisualizedObjectSerializerManger sharedInstance].alertInfos.count > 0) {

@@ -1044,6 +1044,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [WKWebView sa_swizzleMethod:@selector(loadHTMLString:baseURL:)
                          withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
                               error:&error];
+
+        [WKWebView sa_swizzleMethod:@selector(removeFromSuperview) withMethod:@selector(sensorsdata_removeFromSuperview) error:&error];
         
         if (@available(iOS 9.0, *)) {
             [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
