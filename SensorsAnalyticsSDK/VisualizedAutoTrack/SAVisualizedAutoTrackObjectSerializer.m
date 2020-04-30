@@ -101,8 +101,6 @@
         }
     }
 
-#warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示文案待确认？
-
     if (
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
         [NSStringFromClass(object.class) isEqualToString:@"UIWebView"] ||
@@ -114,9 +112,12 @@
 
         NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
         alertInfo[@"title"] = @"温馨提示";
-        alertInfo[@"message"] = @"App 内嵌 H5 可视化全埋点，暂时只支持 WKWebView";
+        alertInfo[@"message"] = @"此页面包含 UIWebView，App 内嵌 H5 可视化全埋点，暂时只支持 WKWebView";
+
+#warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示文案待确认，链接后期需要换到正式的 App 内嵌 H5 可视化全埋点的文档说明
+
         alertInfo[@"link_text"] = @"参照文档";
-        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/app-h5-1573913.html";
+        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/visual_auto_track-7541326.html";
         [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
     } else if ([object isKindOfClass:WKWebView.class]) {
         WKWebView *webview = (WKWebView *)object;

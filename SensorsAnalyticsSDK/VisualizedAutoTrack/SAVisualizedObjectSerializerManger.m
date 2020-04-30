@@ -143,7 +143,7 @@
         // 只添加 message 不重复的弹框信息
         for (NSDictionary *alertInfo in infos) {
             NSString *message = alertInfo[@"message"];
-            if (message && [alertMessageInfoDic.allKeys containsObject:message]) {
+            if (message && ![alertMessageInfoDic.allKeys containsObject:message]) {
                 [self.alertInfos addObject:alertInfo];
             }
         }
