@@ -34,6 +34,8 @@ extern NSString * const SA_EVENT_LIB;
 extern NSString * const SA_EVENT_PROJECT;
 extern NSString * const SA_EVENT_TOKEN;
 extern NSString * const SA_EVENT_HYBRID_H5;
+extern NSString * const SA_EVENT_LOGIN_ID;
+extern NSString * const SA_EVENT_ANONYMOUS_ID;
 
 #pragma mark - Item
 extern NSString * const SA_EVENT_ITEM_TYPE;
@@ -144,3 +146,11 @@ void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t bloc
 BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);
+
+
+#pragma mark - SF related
+extern NSString *const SA_TRACK_EVENT_NOTIFICATION;
+extern NSString *const SA_TRACK_LOGIN_NOTIFICATION;
+extern NSString *const SA_TRACK_LOGOUT_NOTIFICATION;
+extern NSString *const SA_TRACK_IDENTIFY_NOTIFICATION;
+extern NSString *const SA_TRACK_RESETANONYMOUSID_NOTIFICATION;
