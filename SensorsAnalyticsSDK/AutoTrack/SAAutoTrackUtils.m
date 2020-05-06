@@ -28,6 +28,7 @@
 #import "UIView+HeatMap.h"
 #import "UIView+AutoTrack.h"
 #import "SALog.h"
+#import "SAValidator.h"
 
 @implementation SAAutoTrackUtils
 
@@ -174,7 +175,9 @@
         [viewController respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)viewController;
         NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
-        [properties addEntriesFromDictionary:trackProperties];
+        if ([SAValidator isValidDictionary:trackProperties]) {
+            [properties addEntriesFromDictionary:trackProperties];
+        }
     }
 
     return [properties copy];
