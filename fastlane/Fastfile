@@ -1,0 +1,92 @@
+# Customise this file, documentation can be found here:
+# https://github.com/fastlane/fastlane/tree/master/fastlane/docs
+# All available actions: https://docs.fastlane.tools/actions
+# can also be listed using the `fastlane actions` command
+
+# Change the syntax highlighting to Ruby
+# All lines starting with a # are ignored when running `fastlane`
+
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+fastlane_version "2.28.3"
+
+default_platform :ios
+
+platform :ios do
+
+  desc "Runs all the tests"
+  lane :test do
+    scan
+  end
+
+  desc "Commit new version"
+  lane :commit_version do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+
+    branch = options[:branch] ? options[:branch] : "master"
+
+    sh("chmod 777 ./modify_version.sh")
+    sh("./modify_version.sh #{options[:version]} #{branch}")
+
+    sh("chmod 777 ./replace_code.sh")
+    sh("./replace_code.sh #{ENV["SA_GITLAB_PATH"]} #{ENV["SA_GITHUB_PATH"]} #{options[:version]} #{branch}")
+    
+    sh("cd #{ENV["SA_GITHUB_PATH"]} && fastlane release version:#{options[:version]} branch:#{branch}")
+  end
+
+  lane :release do |options|
+    #Generate a Changelog
+    if options[:skip_changelog] != true
+      changelog = sa_generate_github_milestone_roadmap(
+        milestone: options[:version]
+      )
+      
+      UI.message("Generated Changelog: #{changelog[:title]} #{changelog[:header]} #{changelog[:changelog]}")
+      
+      changelog_path = options[:changelog_path] ? options[:changelog_path] : ENV["DEPLOY_CHANGELOG_PATH"]
+      changelog_insert_delimiter = options[:changelog_insert_delimiter] ? options[:changelog_insert_delimiter] : ENV["DEPLOY_CHANGELOG_DELIMITER"]
+      af_insert_text_into_file(
+        file_path: changelog_path,
+        text: changelog[:title] + changelog[:header] + changelog[:changelog],
+        insert_delimiter: changelog_insert_delimiter
+      )
+    end
+
+    remote = options[:remote] ? options[:remote] : (ENV["DEPLOY_REMOTE"] ? ENV["DEPLOY_REMOTE"] : "origin")
+    if prompt(text: "#{options[:version]} has been prepped for release. If you have any additional changes you would like to make to the README or CHANGELOG, please do those before continuing. Would you like to commit, tag, and push #{options[:version]} to #{remote}?".green, boolean: true,ci_input:"y")
+      # commit the branch
+      git_commit(
+        path: ".",
+        message: "Release #{options[:version]}"
+      )
+
+      #push the branch
+      push_to_git_remote(
+        remote: remote
+      )
+      
+      # tag the repo
+      add_git_tag(
+        tag: "v#{options[:version]}"
+      )
+
+      # push the tag
+      if options [:skip_push_tags] != true
+        sa_push_git_tags_to_remote(
+          remote: remote
+        )
+      end
+    else 
+      UI.error("When finished, commit your changes and create your tag.")
+    end
+
+  end
+
+end
+
+
