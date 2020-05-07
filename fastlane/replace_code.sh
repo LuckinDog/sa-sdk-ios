@@ -16,8 +16,4 @@ git checkout ${BRANCH}
 rm -rf ${GITHUB_PATH}/*
 cp -R ${GITLAB_PATH}/* .
 
-git add .
-git commit -m "Release ${VERSION}"
-git push -u origin ${BRANCH}
-
 exit 0

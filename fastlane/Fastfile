@@ -40,25 +40,12 @@ platform :ios do
   end
 
   lane :release do |options|
-    #Generate a Changelog
-    if options[:skip_changelog] != true
-      changelog = sa_generate_github_milestone_roadmap(
-        milestone: options[:version]
-      )
-      
-      UI.message("Generated Changelog: #{changelog[:title]} #{changelog[:header]} #{changelog[:changelog]}")
-      
-      changelog_path = options[:changelog_path] ? options[:changelog_path] : ENV["DEPLOY_CHANGELOG_PATH"]
-      changelog_insert_delimiter = options[:changelog_insert_delimiter] ? options[:changelog_insert_delimiter] : ENV["DEPLOY_CHANGELOG_DELIMITER"]
-      sa_insert_text_into_file(
-        file_path: changelog_path,
-        text: changelog[:title] + changelog[:header] + changelog[:changelog],
-        insert_delimiter: changelog_insert_delimiter
-      )
-    end
-
     remote = options[:remote] ? options[:remote] : (ENV["DEPLOY_REMOTE"] ? ENV["DEPLOY_REMOTE"] : "origin")
     if prompt(text: "#{options[:version]} has been prepped for release. If you have any additional changes you would like to make to the README or CHANGELOG, please do those before continuing. Would you like to commit, tag, and push #{options[:version]} to #{remote}?".green, boolean: true,ci_input:"y")
+      git_add(
+        path: "."
+      )
+      
       # commit the branch
       git_commit(
         path: ".",
@@ -85,6 +72,19 @@ platform :ios do
       UI.error("When finished, commit your changes and create your tag.")
     end
 
+    if options[:skip_github_release] != true      
+      body = sa_read_release_note(
+        file_path: "fastlane/RELEASENOTE.md"
+      )
+
+      github_release = set_github_release(
+        repository_name: "minchaozhang/sa-sdk-ios",
+        api_token: ENV["GITHUB_TOKEN"],
+        name: "Release #{options[:version]}",
+        tag_name: "v#{options[:version]}",
+        description: body
+      )
+    end
   end
 
 end
