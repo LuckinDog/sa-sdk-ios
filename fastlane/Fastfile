@@ -50,7 +50,7 @@ platform :ios do
       
       changelog_path = options[:changelog_path] ? options[:changelog_path] : ENV["DEPLOY_CHANGELOG_PATH"]
       changelog_insert_delimiter = options[:changelog_insert_delimiter] ? options[:changelog_insert_delimiter] : ENV["DEPLOY_CHANGELOG_DELIMITER"]
-      af_insert_text_into_file(
+      sa_insert_text_into_file(
         file_path: changelog_path,
         text: changelog[:title] + changelog[:header] + changelog[:changelog],
         insert_delimiter: changelog_insert_delimiter
