@@ -39,6 +39,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SAJSTouchEventView.h"
 #import "SAVisualizedObjectSerializerManger.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
 @end
@@ -120,8 +121,10 @@
         alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/visual_auto_track-7541326.html";
         [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
     } else if ([object isKindOfClass:WKWebView.class]) {
-        WKWebView *webview = (WKWebView *)object;
-        NSDictionary *pageInfo = webview.sensorsdata_webPageInfo;
+        WKWebView *webView = (WKWebView *)object;
+
+        // H5 页面信息
+        NSDictionary *pageInfo = webView.sensorsdata_webPageInfo;
         if (pageInfo) {
             SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
             webPageInfo.title = pageInfo[@"$title"];
@@ -129,6 +132,37 @@
             [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
         }
 
+        // 弹框信息
+        NSArray *alertInfos = webView.sensorsdata_webAlertInfos;
+        if (alertInfos.count > 0) {
+            [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:alertInfos];
+        }
+
+        NSArray *elementInfos = webView.sensorsdata_extensionProperties;
+        WKUserContentController *contentController = webView.configuration.userContentController;
+        NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+        if (!(elementInfos || alertInfos || pageInfo)) { // 可能延迟开启可视化全埋点，未成功开启通道，再次开启
+            // 注入 bridge
+//            [[SensorsAnalyticsSDK sharedInstance] addScriptMessageHandlerWithWebView:webView];
+
+            NSString *javaScriptMode = @"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;";
+//            [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+            [webView evaluateJavaScript:javaScriptMode completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+                          if (error) {
+                              SALogError(@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode error：%@",error);
+                          }
+                      }];
+
+            // 通知 js 发送页面数据
+            NSString *javaScriptCallJS = @"sensorsdata_app_call_js('visualized')";
+//            [javaScriptSource appendString:@"sensorsdata_app_call_js('viusalized')"];
+//            NSString *javaScript = @"sensorsdata_app_call_js('viusalized')";
+            [webView evaluateJavaScript:javaScriptCallJS completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+                if (error) {
+                    SALogError(@"window.sensorsdata_app_call_js error：%@",error);
+                }
+            }];
+        }
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];

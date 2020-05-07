@@ -65,9 +65,6 @@
 /// 重置解析配置
 - (void)resetObjectSerializer;
 
-/// 清除内嵌 H5 页面信息
-- (void)cleanWebPageInfo;
-
 /// 进入 web 页面
 - (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo;
 

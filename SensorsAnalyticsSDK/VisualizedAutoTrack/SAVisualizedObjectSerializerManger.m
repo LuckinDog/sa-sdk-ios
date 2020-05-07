@@ -81,10 +81,7 @@
 - (void)resetObjectSerializer {
     self.isContainWebView = NO;
     [self.viewControllerFindCountData removeAllObjects];
-}
 
-/// 清除内嵌 H5 页面信息
-- (void)cleanWebPageInfo {
     self.webPageInfo = nil;
     [self.alertInfos removeAllObjects];
 }

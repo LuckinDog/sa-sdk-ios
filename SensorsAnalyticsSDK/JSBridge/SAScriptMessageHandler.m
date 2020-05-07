@@ -102,12 +102,16 @@
              }]
              */
             NSArray *alertDatas = messageDic[@"data"];
-            if (alertDatas.count > 0) {
-                [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:alertDatas];
+            WKWebView *webview = message.webView;
+
+            SEL setWebAlertDatasSelector = NSSelectorFromString(@"setSensorsdata_webAlertInfos:");
+            if (alertDatas.count > 0 && webview && [webview respondsToSelector:setWebAlertDatasSelector]) {
+                ((void (*)(id, SEL, NSArray *))[webview methodForSelector:setWebAlertDatasSelector])(webview, setWebAlertDatasSelector, alertDatas);
             }
         } else if ([callType isEqualToString:@"page_info"]) { // h5 页面信息
             NSDictionary *pageInfo = messageDic[@"data"];
             WKWebView *webview = message.webView;
+
             SEL setWebPageInfoSelector = NSSelectorFromString(@"setSensorsdata_webPageInfo:");
             if (pageInfo.count > 0 && webview && [webview respondsToSelector:setWebPageInfoSelector]) {
                 ((void (*)(id, SEL, NSDictionary *))[webview methodForSelector:setWebPageInfoSelector])(webview, setWebPageInfoSelector, pageInfo);

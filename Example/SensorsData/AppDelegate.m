@@ -43,7 +43,7 @@ static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=
     options.enableHeatMap = YES;
     options.enableVisualizedAutoTrack = YES;
     options.maxCacheSize = 20000;
-//    options.enableJavaScriptBridge = YES;
+    options.enableJavaScriptBridge = YES;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
 
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
@@ -60,12 +60,12 @@ static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=
     }];
     
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
-    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag:NO];
+//    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag:NO];
     
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
 
-    [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeNONE];
+    [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
 

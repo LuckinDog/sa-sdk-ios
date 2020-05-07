@@ -1045,10 +1045,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                          withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
                               error:&error];
 
-        if (self.configOptions.enableVisualizedAutoTrack) {
-            [WKWebView sa_swizzleMethod:@selector(removeFromSuperview) withMethod:@selector(sensorsdata_removeFromSuperview) error:&error];
-        }
-
         if (@available(iOS 9.0, *)) {
             [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
                              withMethod:@selector(sensorsdata_loadFileURL:allowingReadAccessToURL:)
@@ -1089,8 +1085,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         // App 内嵌 H5 数据交互
         BOOL isVisualizedConnecting = [SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting && self.configOptions.enableVisualizedAutoTrack;
+         [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
         if (isVisualizedConnecting) {
-            [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
             [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
         }
 

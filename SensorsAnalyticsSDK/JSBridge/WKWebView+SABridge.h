@@ -32,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (WKNavigation *)sensorsdata_loadData:(NSData *)data MIMEType:(NSString *)MIMEType characterEncodingName:(NSString *)characterEncodingName baseURL:(NSURL *)baseURL;
 
-- (void)sensorsdata_removeFromSuperview;
 @end
 
 NS_ASSUME_NONNULL_END

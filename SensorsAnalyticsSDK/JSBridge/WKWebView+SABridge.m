@@ -52,8 +52,4 @@
     return [self sensorsdata_loadData:data MIMEType:MIMEType characterEncodingName:characterEncodingName baseURL:baseURL];
 }
 
-- (void)sensorsdata_removeFromSuperview {
-    [[SAVisualizedObjectSerializerManger sharedInstance] cleanWebPageInfo];
-    [self sensorsdata_removeFromSuperview];
-}
 @end

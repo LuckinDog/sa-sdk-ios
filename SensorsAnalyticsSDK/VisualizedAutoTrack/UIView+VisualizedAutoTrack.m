@@ -275,6 +275,8 @@
     return [super sensorsdata_subElements];
 }
 
+
+#pragma mark SAVisualizedExtensionProperty
 - (NSArray *)sensorsdata_extensionProperties {
     return objc_getAssociatedObject(self, @"sensorsAnalyticsExtensionProperties");
 }
@@ -289,6 +291,14 @@
 
 - (void)setSensorsdata_webPageInfo:(NSDictionary *)sensorsdata_webPageInfo {
     objc_setAssociatedObject(self, @"sensorsAnalyticsWebPageInfo", sensorsdata_webPageInfo, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (NSArray *)sensorsdata_webAlertInfos {
+    return objc_getAssociatedObject(self, @"sensorsAnalyticsExtensionWebAlertInfos");
+}
+
+- (void)setSensorsdata_webAlertInfos:(NSArray *)sensorsdata_webAlertInfos {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsExtensionWebAlertInfos", sensorsdata_webAlertInfos, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 @end

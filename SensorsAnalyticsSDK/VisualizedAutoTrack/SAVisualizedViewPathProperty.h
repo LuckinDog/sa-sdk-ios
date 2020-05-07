@@ -53,4 +53,7 @@
 
 /// web 页面信息
 @property (nonatomic, copy) NSDictionary *sensorsdata_webPageInfo;
+
+/// web 页面弹框信息
+@property (nonatomic, copy) NSArray *sensorsdata_webAlertInfos;
 @end
