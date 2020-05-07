@@ -141,25 +141,26 @@
         NSArray *elementInfos = webView.sensorsdata_extensionProperties;
         WKUserContentController *contentController = webView.configuration.userContentController;
         NSArray<WKUserScript *> *userScripts = contentController.userScripts;
-        if (!(elementInfos || alertInfos || pageInfo)) { // 可能延迟开启可视化全埋点，未成功开启通道，再次开启
-            // 注入 bridge
-//            [[SensorsAnalyticsSDK sharedInstance] addScriptMessageHandlerWithWebView:webView];
 
-            NSString *javaScriptMode = @"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;";
-//            [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
-            [webView evaluateJavaScript:javaScriptMode completionHandler:^(id _Nullable response, NSError * _Nullable error) {
-                          if (error) {
-                              SALogError(@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode error：%@",error);
-                          }
-                      }];
+        __block BOOL isContainVisualized = NO;
+        [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+            if ([obj.source containsString:@"sensorsdata_visualized_mode"]) {
+                isContainVisualized = YES;
+                *stop = YES;
+            }
+        }];
+
+        if (!isContainVisualized && !(elementInfos || alertInfos || pageInfo)) { // 可能延迟开启可视化全埋点，未成功开启通道，再次开启
+            // 注入 bridge 属性值，标记当前处于可视化全埋点调试
+            NSMutableString *javaScriptSource = [NSMutableString string];
+            [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
 
             // 通知 js 发送页面数据
-            NSString *javaScriptCallJS = @"sensorsdata_app_call_js('visualized')";
-//            [javaScriptSource appendString:@"sensorsdata_app_call_js('viusalized')"];
-//            NSString *javaScript = @"sensorsdata_app_call_js('viusalized')";
-            [webView evaluateJavaScript:javaScriptCallJS completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+            [javaScriptSource appendString:@"window.sensorsdata_app_call_js('visualized')"];
+
+            [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable response, NSError *_Nullable error) {
                 if (error) {
-                    SALogError(@"window.sensorsdata_app_call_js error：%@",error);
+                    SALogError(@"window.sensorsdata_app_call_js error：%@", error);
                 }
             }];
         }
