@@ -1082,27 +1082,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    NSDictionary *propertyDictCopy = [propertyDict copy];
+    NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // 校验 properties
     NSString *type = itemDict[SA_EVENT_TYPE];
-    if (![self assertPropertyTypes:&propertyDictCopy withEventType:type]) {
+    if (![self assertPropertyTypes:&propertyMDict withEventType:type]) {
         SALogError(@"%@ failed to item properties", self);
         return;
     }
 
     NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
     // 处理 $project
-    id project = propertyDictCopy[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+    id project = propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     if (project) {
         itemProperties[SA_EVENT_PROJECT] = project;
         
-        NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDictCopy];
         [propertyMDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
-        propertyDictCopy = [NSDictionary dictionaryWithDictionary:propertyMDict];
     }
     
-    if (propertyDictCopy.count > 0) {
-        itemProperties[SA_EVENT_PROPERTIES] = propertyDictCopy;
+    if (propertyMDict.count > 0) {
+        itemProperties[SA_EVENT_PROPERTIES] = [NSDictionary dictionaryWithDictionary:propertyMDict];
     }
     
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
@@ -3206,6 +3204,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
+    __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
+    
     dispatch_async(self.serialQueue, ^{
         @try {
             if (eventInfo == nil) {
@@ -3231,7 +3231,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
             NSString *type = [eventDict valueForKey:SA_EVENT_TYPE];
             NSString *bestId = self.distinctId;
-            NSNumber *timeStamp = @([[self class] getCurrentTime]);
 
             if([type isEqualToString:@"track_signup"]) {
                 NSString *realOriginalId = self.originalId ?: self.distinctId;
