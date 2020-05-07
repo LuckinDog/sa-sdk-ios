@@ -111,11 +111,6 @@
             SEL setWebPageInfoSelector = NSSelectorFromString(@"setSensorsdata_webPageInfo:");
             if (pageInfo.count > 0 && webview && [webview respondsToSelector:setWebPageInfoSelector]) {
                 ((void (*)(id, SEL, NSDictionary *))[webview methodForSelector:setWebPageInfoSelector])(webview, setWebPageInfoSelector, pageInfo);
-
-//                SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
-//                webPageInfo.title = pageInfo[@"$title"];
-//                webPageInfo.url = pageInfo[@"$url"];
-//                [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
             }
         }
     } @catch (NSException *exception) {

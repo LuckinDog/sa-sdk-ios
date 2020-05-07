@@ -1036,27 +1036,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     static dispatch_once_t onceTokenWebView;
     dispatch_once(&onceTokenWebView, ^{
         NSError *error = NULL;
-        
+
         [WKWebView sa_swizzleMethod:@selector(loadRequest:)
                          withMethod:@selector(sensorsdata_loadRequest:)
                               error:&error];
-        
+
         [WKWebView sa_swizzleMethod:@selector(loadHTMLString:baseURL:)
                          withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
                               error:&error];
 
-        [WKWebView sa_swizzleMethod:@selector(removeFromSuperview) withMethod:@selector(sensorsdata_removeFromSuperview) error:&error];
-        
+        if (self.configOptions.enableVisualizedAutoTrack) {
+            [WKWebView sa_swizzleMethod:@selector(removeFromSuperview) withMethod:@selector(sensorsdata_removeFromSuperview) error:&error];
+        }
+
         if (@available(iOS 9.0, *)) {
             [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
                              withMethod:@selector(sensorsdata_loadFileURL:allowingReadAccessToURL:)
                                   error:&error];
-            
+
             [WKWebView sa_swizzleMethod:@selector(loadData:MIMEType:characterEncodingName:baseURL:)
                              withMethod:@selector(sensorsdata_loadData:MIMEType:characterEncodingName:baseURL:)
                                   error:&error];
         }
-        
+
         if (error) {
             SALogError(@"Failed to swizzle on WKWebView. Details: %@", error);
             error = NULL;

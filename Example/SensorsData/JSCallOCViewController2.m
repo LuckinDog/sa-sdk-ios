@@ -43,6 +43,7 @@
 
     //网址
     NSString *httpStr = @"https://869359954.github.io/sadefine/definedemo.html";
+
     NSURL *httpUrl=[NSURL URLWithString:httpStr];
     NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
 
@@ -64,14 +65,14 @@
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
-//- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-//    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:navigationAction.request]) {
-//        decisionHandler(WKNavigationActionPolicyCancel);
-//        return;
-//    }
-//
-//    decisionHandler(WKNavigationActionPolicyAllow);
-//}
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:navigationAction.request enableVerify:NO]) {
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+
+    decisionHandler(WKNavigationActionPolicyAllow);
+}
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
     if (!_webView.loading) {
