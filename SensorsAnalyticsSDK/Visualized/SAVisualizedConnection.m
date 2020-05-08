@@ -28,6 +28,8 @@
 #import "SAVisualizedSnapshotMessage.h"
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAVisualizedObjectSerializerManger.h"
+
 
 @interface SAVisualizedConnection ()
 
@@ -72,6 +74,9 @@
         _commandQueue.suspended = YES;
         _commandQueue = nil;
     }
+
+    // 清空缓存的配置数据
+    [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
 }
 
 - (BOOL)isVisualizedConnecting {
