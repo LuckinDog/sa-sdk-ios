@@ -1230,7 +1230,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [libProperties setValue:lib_detail forKey:SA_EVENT_COMMON_PROPERTY_LIB_DETAIL];
     }
     
-    __block NSDictionary *dynamicSuperPropertiesDict = [self fetchDynamicSuperProperties];
+    __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
     
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     
@@ -1242,7 +1242,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
             SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
             dynamicSuperPropertiesDict = nil;
-        } else if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
+        } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
             dynamicSuperPropertiesDict = nil;
         }
         //去重
@@ -1978,7 +1978,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (NSDictionary *)fetchDynamicSuperProperties {
+- (NSDictionary *)acquireDynamicSuperProperties {
     // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
     __block NSDictionary *dynamicSuperPropertiesDict = nil;
     dispatch_sync(self.readWriteQueue, ^{
@@ -3223,7 +3223,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
-    __block NSDictionary *dynamicSuperPropertiesDict = [self fetchDynamicSuperProperties];
+    __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
     
     dispatch_async(self.serialQueue, ^{
         @try {
@@ -3286,7 +3286,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
                     SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
                     dynamicSuperPropertiesDict = nil;
-                } else if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
+                } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
                     dynamicSuperPropertiesDict = nil;
                 }
                 // 去重
