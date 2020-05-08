@@ -1084,10 +1084,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         // App 内嵌 H5 数据交互
-        BOOL isVisualizedConnecting = [SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting && self.configOptions.enableVisualizedAutoTrack;
-         [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
-        if (isVisualizedConnecting) {
-            [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+        if (self.configOptions.enableVisualizedAutoTrack) {
+            [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
+            if ([SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting) {
+                [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+            }
         }
 
         if (javaScriptSource.length > 0) {

@@ -140,9 +140,9 @@
 
         // H5 元素可点击元素信息
         NSArray *elementInfos = webView.sensorsdata_extensionProperties;
+
         WKUserContentController *contentController = webView.configuration.userContentController;
         NSArray<WKUserScript *> *userScripts = contentController.userScripts;
-
         __block BOOL isContainVisualized = NO;
         [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if ([obj.source containsString:@"sensorsdata_visualized_mode"]) {
