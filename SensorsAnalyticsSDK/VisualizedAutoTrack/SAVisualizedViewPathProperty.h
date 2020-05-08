@@ -49,7 +49,10 @@
 @property (nonatomic, assign, readonly) CGRect sensorsdata_validFrame;
 
 /// 扩展属性
-@property (nonatomic, copy) NSArray *sensorsdata_extensionProperties;
+/*webview 信息
+ {"url":"页面 url","data":[{},{}..页面元素信息]}
+ */
+@property (nonatomic, copy) NSDictionary *sensorsdata_extensionProperties;
 
 /// web 页面信息
 @property (nonatomic, copy) NSDictionary *sensorsdata_webPageInfo;

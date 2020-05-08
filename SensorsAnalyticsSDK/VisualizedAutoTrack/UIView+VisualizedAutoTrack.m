@@ -277,11 +277,11 @@
 
 
 #pragma mark SAVisualizedExtensionProperty
-- (NSArray *)sensorsdata_extensionProperties {
+- (NSDictionary *)sensorsdata_extensionProperties {
     return objc_getAssociatedObject(self, @"sensorsAnalyticsExtensionProperties");
 }
 
-- (void)setSensorsdata_extensionProperties:(NSArray *)sensorsdata_extensionProperties {
+- (void)setSensorsdata_extensionProperties:(NSDictionary *)sensorsdata_extensionProperties {
     objc_setAssociatedObject(self, @"sensorsAnalyticsExtensionProperties", sensorsdata_extensionProperties, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 

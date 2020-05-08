@@ -88,9 +88,12 @@
         } else if ([callType isEqualToString:@"visualized_track"]) { // 解析 js 页面结构数据
             NSArray *pageDatas = messageDic[@"data"];
             WKWebView *webview = message.webView;
+            NSMutableDictionary *webProperties = [NSMutableDictionary dictionary];
+            webProperties[@"data"] = pageDatas;
+            webProperties[@"url"] = webview.URL.absoluteString;
             SEL setExtenPropertiesSelector = NSSelectorFromString(@"setSensorsdata_extensionProperties:");
             if (webview && [webview respondsToSelector:setExtenPropertiesSelector]) {
-                ((void (*)(id, SEL, NSArray *))[webview methodForSelector:setExtenPropertiesSelector])(webview, setExtenPropertiesSelector, pageDatas);
+                ((void (*)(id, SEL, NSDictionary *))[webview methodForSelector:setExtenPropertiesSelector])(webview, setExtenPropertiesSelector, webProperties);
             }
         } else if ([callType isEqualToString:@"app_alert"]) { // 弹框提示信息
             /*

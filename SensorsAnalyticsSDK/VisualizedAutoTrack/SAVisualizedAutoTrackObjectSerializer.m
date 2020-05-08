@@ -139,7 +139,7 @@
         }
 
         // H5 元素可点击元素信息
-        NSArray *elementInfos = webView.sensorsdata_extensionProperties;
+        NSDictionary *webviewProperties = webView.sensorsdata_extensionProperties;
 
         WKUserContentController *contentController = webView.configuration.userContentController;
         NSArray<WKUserScript *> *userScripts = contentController.userScripts;
@@ -155,7 +155,7 @@
          isContainVisualized 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
          可能延迟开启可视化全埋点，未成功注入标记，手动通知 JS 发送数据
          */
-        if (!isContainVisualized && !(elementInfos || alertInfos || pageInfo)) {
+        if (!isContainVisualized && !(webviewProperties || alertInfos || pageInfo)) {
             // 注入 bridge 属性值，标记当前处于可视化全埋点调试
             NSMutableString *javaScriptSource = [NSMutableString string];
             [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
@@ -169,6 +169,9 @@
                 }
             }];
         }
+
+        // 检测是否集成 JS SDK
+
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
