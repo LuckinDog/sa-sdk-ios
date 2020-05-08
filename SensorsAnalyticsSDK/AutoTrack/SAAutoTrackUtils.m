@@ -173,8 +173,7 @@
     
     if ([viewController conformsToProtocol:@protocol(SAAutoTracker)] &&
         [viewController respondsToSelector:@selector(getTrackProperties)]) {
-        UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)viewController;
-        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
+        NSDictionary *trackProperties = [(UIViewController<SAAutoTracker> *)viewController getTrackProperties];
         if ([SAValidator isValidDictionary:trackProperties]) {
             [properties addEntriesFromDictionary:trackProperties];
         }
