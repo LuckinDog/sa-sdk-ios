@@ -170,8 +170,19 @@
             }];
         }
 
-        // 检测是否集成 JS SDK
+        // 延时检测是否集成 JS SDK
+        dispatch_queue_t jsCallQueue = dispatch_queue_create("sensorsData-JSCall", DISPATCH_QUEUE_SERIAL);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), jsCallQueue, ^{
+            if (isContainVisualized && !(webviewProperties || alertInfos || pageInfo)) {
+                NSString *javaScript = @"window.sensorsdata_app_call_js('test')";
 
+                [webView evaluateJavaScript:javaScript completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+                    if (error) {
+                        SALogError(@"window.sensorsdata_app_call_js error：%@", error);
+                    }
+                }];
+            }
+        });
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
@@ -199,7 +210,6 @@
 
     [context addSerializedObject:serializedObject];
 }
-
 - (NSArray *)classHierarchyArrayForObject:(NSObject *)object {
     NSMutableArray *classHierarchy = [[NSMutableArray alloc] init];
     
