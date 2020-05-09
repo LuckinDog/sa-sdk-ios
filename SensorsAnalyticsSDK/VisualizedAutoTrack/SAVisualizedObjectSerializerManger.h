@@ -20,14 +20,23 @@
 
 
 #import <Foundation/Foundation.h>
+#import <WebKit/WebKit.h>
 #import <UIKit/UIKit.h>
 
-
+/// App 内嵌 H5 可视化全埋点相关信息
 @interface SAVisualizedWebPageInfo : NSObject
 
+/// H5 url
 @property (nonatomic, copy) NSString *url;
+
+/// H5 标题
 @property (nonatomic, copy) NSString *title;
 
+/// 元素信息
+@property (nonatomic, copy) NSArray *elementSources;
+
+/// 弹框信息
+@property (nonatomic, copy) NSArray <NSDictionary *>* alertSources;
 @end
 
 
@@ -64,6 +73,15 @@
 
 /// 重置解析配置
 - (void)resetObjectSerializer;
+
+/// 缓存可视化全埋点相关 web 信息
+- (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSDictionary *)pageInfo;
+
+/// 读取当前 webView 页面信息
+- (SAVisualizedWebPageInfo *)readWebPageInfoWithWebView:(WKWebView *)webView;
+
+/// 清除 web 页面信息缓存
+- (void)cleanVisualizedWebPageInfoCache;
 
 /// 进入 web 页面
 - (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo;

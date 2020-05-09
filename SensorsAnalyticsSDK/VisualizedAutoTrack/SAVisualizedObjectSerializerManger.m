@@ -50,6 +50,14 @@
 
 /// 弹框信息
 @property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
+
+///  App 内嵌 H5 页面 缓存
+/*
+ key:H5 页面 url
+ value:SAVisualizedWebPageInfo 对象
+ */
+@property (nonatomic, strong) NSCache <NSString *,SAVisualizedWebPageInfo *>*webPageInfoCache;
+
 @end
 
 @implementation SAVisualizedObjectSerializerManger
@@ -74,6 +82,7 @@
 - (void)initializeObjectSerializer {
     _viewControllerFindCountData = [NSMapTable weakToStrongObjectsMapTable];
     _alertInfos = [NSMutableArray array];
+    _webPageInfoCache = [[NSCache alloc] init];
     [self resetObjectSerializer];
 }
 
@@ -84,6 +93,72 @@
 
     self.webPageInfo = nil;
     [self.alertInfos removeAllObjects];
+}
+
+/// 缓存可视化全埋点相关 web 信息
+- (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSDictionary *)pageInfo {
+    NSString *callType = pageInfo[@"callType"];
+    if (([callType isEqualToString:@"visualized_track"])) { // 解析 js 页面结构数据
+        // 页面结构数据
+        NSArray *pageDatas = pageInfo[@"data"];
+        NSDictionary *elementInfo = [pageDatas firstObject];
+        if (elementInfo) {
+            NSString *url = elementInfo[@"$url"];
+            if (url) {
+                SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+                // 是否包含当前 url 的页面信息
+                if ([self.webPageInfoCache objectForKey:url]) {
+                    webPageInfo = [self.webPageInfoCache objectForKey:url];
+                }
+                webPageInfo.elementSources = pageDatas;
+                [self.webPageInfoCache setObject:webPageInfo forKey:url];
+            }
+        }
+    } else if ([callType isEqualToString:@"app_alert"]) { // 弹框提示信息
+        /*
+         [{
+         "title": "弹框标题",
+         "message": "App SDK 与 Web SDK 没有进行打通，请联系贵方技术人员修正 Web SDK 的配置，详细信息请查看文档。",
+         "link_text": "配置文档"
+         "link_url": "https://manual.sensorsdata.cn/sa/latest/app-h5-1573913.html"
+         }]
+         */
+        NSArray <NSDictionary *> *alertDatas = pageInfo[@"data"];
+        NSString *url = webview.URL.absoluteString;
+        if (alertDatas && url) {
+            SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+            // 是否包含当前 url 的页面信息
+            if ([self.webPageInfoCache objectForKey:url]) {
+                webPageInfo = [self.webPageInfoCache objectForKey:url];
+            }
+            webPageInfo.alertSources = alertDatas;
+            [self.webPageInfoCache setObject:webPageInfo forKey:url];
+        }
+    } else if (([callType isEqualToString:@"page_info"])) { // h5 页面信息
+        NSDictionary *webInfo = pageInfo[@"data"];
+        NSString *url = webInfo[@"$url"];
+        if (url) {
+            SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+            // 是否包含当前 url 的页面信息
+            if ([self.webPageInfoCache objectForKey:url]) {
+                webPageInfo = [self.webPageInfoCache objectForKey:url];
+            }
+            webPageInfo.url = url;
+            webPageInfo.title = webInfo[@"$title"];
+            [self.webPageInfoCache setObject:webPageInfo forKey:url];
+        }
+    }
+}
+
+/// 读取当前 webView 页面信息
+- (SAVisualizedWebPageInfo *)readWebPageInfoWithWebView:(WKWebView *)webView {
+    NSString *url = webView.URL.absoluteString;
+    SAVisualizedWebPageInfo *webPageInfo = [self.webPageInfoCache objectForKey:url];
+    return webPageInfo;
+}
+
+- (void)cleanVisualizedWebPageInfoCache {
+    [self.webPageInfoCache removeAllObjects];
 }
 
 - (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo; {
@@ -155,4 +230,5 @@
         }
     }
 }
+
 @end

@@ -85,11 +85,9 @@
 }
 
 + (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
-    NSDictionary *webProperties = webView.sensorsdata_extensionProperties;
-    NSArray *webPageDatas = webProperties[@"data"];
-    NSString *urlString = webProperties[@"url"];
-    NSString *currentUrl = webView.URL.absoluteString;
-    if (webPageDatas.count == 0 || ![currentUrl isEqualToString:urlString]) {
+    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
+    NSArray *webPageDatas = webPageInfo.elementSources;
+    if (webPageDatas.count == 0) {
         return nil;
     }
 

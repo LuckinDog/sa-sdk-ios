@@ -85,40 +85,9 @@
             NSData *trackMessageData = [NSJSONSerialization dataWithJSONObject:trackMessageDic options:0 error:nil];
             NSString *trackMessageString = [[NSString alloc] initWithData:trackMessageData encoding:NSUTF8StringEncoding];
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
-        } else if ([callType isEqualToString:@"visualized_track"]) { // 解析 js 页面结构数据
-            NSArray *pageDatas = messageDic[@"data"];
-            WKWebView *webview = message.webView;
-            NSMutableDictionary *webProperties = [NSMutableDictionary dictionary];
-            webProperties[@"data"] = pageDatas;
-            webProperties[@"url"] = webview.URL.absoluteString;
-            SEL setExtenPropertiesSelector = NSSelectorFromString(@"setSensorsdata_extensionProperties:");
-            if (webview && [webview respondsToSelector:setExtenPropertiesSelector]) {
-                ((void (*)(id, SEL, NSDictionary *))[webview methodForSelector:setExtenPropertiesSelector])(webview, setExtenPropertiesSelector, webProperties);
-            }
-        } else if ([callType isEqualToString:@"app_alert"]) { // 弹框提示信息
-            /*
-             [{
-                "title": "弹框标题",
-                "message": "App SDK 与 Web SDK 没有进行打通，请联系贵方技术人员修正 Web SDK 的配置，详细信息请查看文档。",
-                "link_text": "配置文档"
-                "link_url": "https://manual.sensorsdata.cn/sa/latest/app-h5-1573913.html"
-             }]
-             */
-            NSArray *alertDatas = messageDic[@"data"];
-            WKWebView *webview = message.webView;
-
-            SEL setWebAlertDatasSelector = NSSelectorFromString(@"setSensorsdata_webAlertInfos:");
-            if (alertDatas.count > 0 && webview && [webview respondsToSelector:setWebAlertDatasSelector]) {
-                ((void (*)(id, SEL, NSArray *))[webview methodForSelector:setWebAlertDatasSelector])(webview, setWebAlertDatasSelector, alertDatas);
-            }
-        } else if ([callType isEqualToString:@"page_info"]) { // h5 页面信息
-            NSDictionary *pageInfo = messageDic[@"data"];
-            WKWebView *webview = message.webView;
-
-            SEL setWebPageInfoSelector = NSSelectorFromString(@"setSensorsdata_webPageInfo:");
-            if (pageInfo.count > 0 && webview && [webview respondsToSelector:setWebPageInfoSelector]) {
-                ((void (*)(id, SEL, NSDictionary *))[webview methodForSelector:setWebPageInfoSelector])(webview, setWebPageInfoSelector, pageInfo);
-            }
+        } else if ([callType isEqualToString:@"visualized_track"] || [callType isEqualToString:@"app_alert"] || [callType isEqualToString:@"page_info"]) { // 缓存 js 页面信息
+            WKWebView *webView = message.webView;
+            [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo: messageDic];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);

@@ -47,16 +47,4 @@
 @optional
 /// 一个 view 可交互的有效尺寸
 @property (nonatomic, assign, readonly) CGRect sensorsdata_validFrame;
-
-/// 扩展属性
-/*webview 信息
- {"url":"页面 url","data":[{},{}..页面元素信息]}
- */
-@property (nonatomic, copy) NSDictionary *sensorsdata_extensionProperties;
-
-/// web 页面信息
-@property (nonatomic, copy) NSDictionary *sensorsdata_webPageInfo;
-
-/// web 页面弹框信息
-@property (nonatomic, copy) NSArray *sensorsdata_webAlertInfos;
 @end

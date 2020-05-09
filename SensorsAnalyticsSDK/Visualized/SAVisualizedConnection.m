@@ -77,6 +77,7 @@
 
     // 清空缓存的配置数据
     [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
+    [[SAVisualizedObjectSerializerManger sharedInstance] cleanVisualizedWebPageInfoCache];
 }
 
 - (BOOL)isVisualizedConnecting {
