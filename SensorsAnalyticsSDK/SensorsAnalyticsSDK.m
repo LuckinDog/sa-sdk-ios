@@ -1222,8 +1222,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (lib_detail) {
         [libProperties setValue:lib_detail forKey:SA_EVENT_COMMON_PROPERTY_LIB_DETAIL];
     }
-    __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+    
+    __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
+    
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+    
     dispatch_async(self.serialQueue, ^{
         //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
         NSString *eventName = [self.trackTimer eventNameFromEventId:event];
@@ -1232,10 +1235,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
             SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
             dynamicSuperPropertiesDict = nil;
-        } else {
-            if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
-                dynamicSuperPropertiesDict = nil;
-            }
+        } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
+            dynamicSuperPropertiesDict = nil;
         }
         //去重
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
@@ -1965,9 +1966,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    dispatch_async(self.serialQueue, ^{
+    dispatch_async(self.readWriteQueue, ^{
         self.dynamicSuperProperties = dynamicSuperProperties;
     });
+}
+
+- (NSDictionary *)acquireDynamicSuperProperties {
+    // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
+    __block NSDictionary *dynamicSuperPropertiesDict = nil;
+    dispatch_sync(self.readWriteQueue, ^{
+        if (self.dynamicSuperProperties) {
+            dynamicSuperPropertiesDict = self.dynamicSuperProperties();
+        }
+    });
+    return dynamicSuperPropertiesDict;
 }
 
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
@@ -3166,6 +3178,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
+    __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
+    
     dispatch_async(self.serialQueue, ^{
         @try {
             if (eventInfo == nil) {
@@ -3222,9 +3236,17 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-                NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
-                //去重
+                
+                //获取用户自定义的动态公共属性
+                if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+                    SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
+                    dynamicSuperPropertiesDict = nil;
+                } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
+                    dynamicSuperPropertiesDict = nil;
+                }
+                // 去重
                 [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+                
                 [propertiesDict addEntriesFromDictionary:self->_superProperties];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
