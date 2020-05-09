@@ -1074,20 +1074,34 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
         [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
         
-        NSMutableString *javaScriptSource = [NSMutableString stringWithString:@"window.SensorsData_iOS_JS_Bridge = {};"];
+        NSMutableString *javaScriptSource = [NSMutableString string];
         
+        // 开启 WKWebView 的 H5 打通功能
         if (self.configOptions.enableJavaScriptBridge) {
             if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+                [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
                 [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
             } else {
                 SALogError(@"%@ get network serverURL is failed!", self);
             }
         }
         
-        // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
-        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:javaScriptSource injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
-        [contentController addUserScript:userScript];
-        
+        if (javaScriptSource.length > 0) {
+            NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+            __block BOOL isContainJavaScriptBridge = NO;
+            [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if ([obj.source containsString:@"sensorsdata_app_server_url"]) {
+                    isContainJavaScriptBridge = YES;
+                    *stop = YES;
+                }
+            }];
+            
+            if (!isContainJavaScriptBridge) {
+                // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
+                WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+                [contentController addUserScript:userScript];
+            }
+        }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
