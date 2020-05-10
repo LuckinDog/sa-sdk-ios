@@ -2305,13 +2305,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [_linkHandler clearUtmProperties];
     }
 
-    if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
-        UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
-        if ([SAValidator isValidDictionary:trackProperties]) {
-            [eventProperties addEntriesFromDictionary:trackProperties];
-        }
-    }
     _lastScreenTrackProperties = [eventProperties copy];
 
     NSString *currentScreenUrl;
