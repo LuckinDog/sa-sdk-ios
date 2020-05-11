@@ -30,6 +30,8 @@
 #import "UIViewController+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
 #import "SAVisualizedObjectSerializerManger.h"
+#import "SAConstants+Private.h"
+
 
 @interface SAVisualizedAbstractMessage ()
 
@@ -90,8 +92,9 @@
             viewController = (UIViewController<SAAutoTrackViewControllerProperty> *)[SAAutoTrackUtils currentViewController];
         }
         if (viewController) {
-            jsonObject[@"screen_name"] = viewController.sensorsdata_screenName;
-            jsonObject[@"title"] = viewController.sensorsdata_title;
+            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
+            jsonObject[@"screen_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+            jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);

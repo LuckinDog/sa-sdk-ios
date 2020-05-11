@@ -113,7 +113,7 @@
 
         NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
         alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
-        alertInfo[@"message"] = @"此页面包含 UIWebView，App 内嵌 H5 可视化全埋点，暂时只支持 WKWebView";
+        alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，暂时只支持 WKWebView";
 
 #warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示文案待确认，链接后期需要换到正式的 App 内嵌 H5 可视化全埋点的文档说明
 
