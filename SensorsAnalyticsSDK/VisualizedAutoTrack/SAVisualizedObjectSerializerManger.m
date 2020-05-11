@@ -98,11 +98,11 @@
 /// 缓存可视化全埋点相关 web 信息
 - (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSDictionary *)pageInfo {
     NSString *callType = pageInfo[@"callType"];
-    if (([callType isEqualToString:@"visualized_track"])) { // 解析 js 页面结构数据
+    if (([callType isEqualToString:@"visualized_track"])) { // 解析 js 页面可点击元素数据
         // 页面结构数据
         NSArray *pageDatas = pageInfo[@"data"];
-        NSDictionary *elementInfo = [pageDatas firstObject];
-        if (elementInfo) {
+        if ([pageDatas isKindOfClass:NSArray.class]) {
+            NSDictionary *elementInfo = [pageDatas firstObject];
             NSString *url = elementInfo[@"$url"];
             if (url) {
                 SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
@@ -125,7 +125,7 @@
          */
         NSArray <NSDictionary *> *alertDatas = pageInfo[@"data"];
         NSString *url = webview.URL.absoluteString;
-        if (alertDatas && url) {
+        if ([alertDatas isKindOfClass:NSArray.class] && url) {
             SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
             // 是否包含当前 url 的页面信息
             if ([self.webPageInfoCache objectForKey:url]) {
@@ -137,7 +137,7 @@
     } else if (([callType isEqualToString:@"page_info"])) { // h5 页面信息
         NSDictionary *webInfo = pageInfo[@"data"];
         NSString *url = webInfo[@"$url"];
-        if (url) {
+        if ([webInfo isKindOfClass:NSDictionary.class] && url) {
             SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
             // 是否包含当前 url 的页面信息
             if ([self.webPageInfoCache objectForKey:url]) {

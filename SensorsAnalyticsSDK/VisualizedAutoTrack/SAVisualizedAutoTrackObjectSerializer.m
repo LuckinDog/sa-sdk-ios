@@ -168,7 +168,7 @@
         }
 
         // 延时检测是否集成 JS SDK
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             // 注入了 bridge 但是未接收到数据
             if (isContainVisualized && !webPageInfo) {
                 NSString *javaScript = @"window.sensorsdata_app_call_js('sensorsdata-check-jssdk')";
@@ -184,7 +184,7 @@
                             alertInfo[@"message"] = @"此页面未集成 JS SDK 或者 JS SDK 版本过低，请集成最新版 JS SDK";
                             alertInfo[@"link_text"] = @"参照文档";
                             alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/visual_auto_track-7541326.html";
-                            NSDictionary *alertInfoMessage = @{@"callType":@"app_alert",@"data":@[alertI]};
+                            NSDictionary *alertInfoMessage = @{@"callType":@"app_alert",@"data":@[alertInfo]};
                             [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
                         }
                     }
