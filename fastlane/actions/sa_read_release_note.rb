@@ -14,7 +14,7 @@ module Fastlane
           UI.success("#{params[:file_path]} content: \n #{content} \n")
           return content.force_encoding('UTF-8')
         else
-          raise "No RELEASENOTE found in #{params[:file_path]}".red
+          raise "No ReleaseNote found in #{params[:file_path]}".red
         end
       end
 

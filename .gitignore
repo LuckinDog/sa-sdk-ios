@@ -49,11 +49,12 @@ Carthage/Build
 # For more information about the recommended setup visit:
 # https://docs.fastlane.tools/best-practices/source-control/#source-control
 
-fastlane/RELEASENOTE.md
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
+fastlane/ReleaseNote.md
+fastlane/README.md
 
 */.DS_Store
 .DS_Store

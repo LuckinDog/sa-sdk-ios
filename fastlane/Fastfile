@@ -30,7 +30,7 @@ platform :ios do
 
     if options[:skip_modify_version] != true
       sh("chmod 777 ./modify_version.sh")
-      sh("./modify_version.sh #{options[:version]} #{options[:branch]}")
+      sh("./modify_version.sh #{ENV["FRAMEWORK_NAME"]} #{options[:version]} #{options[:branch]}")
     end
 
     if options[:skip_replace_code] != true
@@ -86,7 +86,7 @@ platform :ios do
       raise "No version specified!".red
     end
 
-    file_path = options[:file_path] ? options[:file_path] : (ENV["GITHUB_RELEASE_NOTE"] ? ENV["GITHUB_RELEASE_NOTE"] : "fastlane/RELEASENOTE.md")
+    file_path = options[:file_path] ? options[:file_path] : (ENV["GITHUB_RELEASE_NOTE"] ? ENV["GITHUB_RELEASE_NOTE"] : "fastlane/ReleaseNote.md")
     body = sa_read_release_note(
       file_path: file_path
     )

@@ -1,19 +1,21 @@
 #!/bin/bash
 
-VERSION=$1
-BRANCH=$2
+FRAMEWORK_NAME=$1
+VERSION=$2
+BRANCH=$3
 
 SRCROOT_PATH=..
 
 cd $SRCROOT_PATH
 git checkout $BRANCH
+git pull
 
 ######################
 # Podspec version
 ######################
-POD_PAHT=${SRCROOT_PATH}/SensorsAnalytics.podspec
+POD_PAHT=${SRCROOT_PATH}/${FRAMEWORK_NAME}.podspec
 if [[ $BRANCH == 'pre' ]]; then
-    POD_PAHT=${SRCROOT_PATH}/SensorsAnalytics-pre.podspec
+    POD_PAHT=${SRCROOT_PATH}/${FRAMEWORK_NAME}-pre.podspec
 fi
 
 POD_VERSION_CODE="  s.version      = "
@@ -31,7 +33,7 @@ fi
 ######################
 # Lib version
 ######################
-LIB_VERSION_PATH=SensorsAnalyticsSDK/SensorsAnalyticsSDK.m
+LIB_VERSION_PATH=${FRAMEWORK_NAME}/${FRAMEWORK_NAME}.m
 LIB_VERSION_CODE="#define VERSION @"
 if [ `grep -c "${LIB_VERSION_CODE}\"${VERSION}\";" ${LIB_VERSION_PATH}` == '0' ]; then
     LINE=`grep -n "${LIB_VERSION_CODE}" ${LIB_VERSION_PATH} | head -1 | cut -d ":" -f 1`
