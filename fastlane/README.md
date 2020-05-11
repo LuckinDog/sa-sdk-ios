@@ -35,11 +35,36 @@ xcode-select --install
 fastlane ios test
 ```
 Runs all the tests
-### ios commit_version
+### ios prepare_release
 ```
-fastlane ios commit_version
+fastlane ios prepare_release
 ```
 Commit new version
+### ios github_commit
+```
+fastlane ios github_commit
+```
+
+### ios github_tag
+```
+fastlane ios github_tag
+```
+
+### ios github_release
+```
+fastlane ios github_release
+```
+
+### ios cocoapod_push
+```
+fastlane ios cocoapod_push
+```
+
+### ios github_push
+```
+fastlane ios github_push
+```
+
 ### ios release
 ```
 fastlane ios release

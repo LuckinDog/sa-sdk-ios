@@ -12,6 +12,7 @@ BRANCH=$4
 
 cd ${GITHUB_PATH}
 git checkout ${BRANCH}
+git pull
 
 rm -rf ${GITHUB_PATH}/*
 cp -R ${GITLAB_PATH}/* .

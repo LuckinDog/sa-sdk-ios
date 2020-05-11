@@ -23,70 +23,140 @@ platform :ios do
   end
 
   desc "Commit new version"
-  lane :commit_version do |options|
+  lane :prepare_release do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+
+    if options[:skip_modify_version] != true
+      sh("chmod 777 ./modify_version.sh")
+      sh("./modify_version.sh #{options[:version]} #{options[:branch]}")
+    end
+
+    if options[:skip_replace_code] != true
+      sh("chmod 777 ./replace_code.sh")
+      sh("./replace_code.sh #{ENV["SA_GITLAB_PATH"]} #{ENV["SA_GITHUB_PATH"]} #{options[:version]} #{options[:branch]}")
+    end    
+  end
+
+  lane :github_commit do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+
+    git_add(
+      path: "."
+    )
+    
+    # commit the branch
+    git_commit(
+      path: ".",
+      message: "Release #{options[:version]}"
+    )
+
+    #push the branch
+    push_to_git_remote(
+      remote: options[:remote]
+    )
+  end
+
+  lane :github_tag do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+
+    # tag the repo
+    add_git_tag(
+      tag: "v#{options[:version]}"
+    )
+
+    # push the tag
+    if options[:skip_push_tags] != true
+      sa_push_git_tags_to_remote(
+        remote: options[:remote]
+      )
+    end
+  end
+
+  lane :github_release do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+    if !options[:api_token]
+      raise "No version specified!".red
+    end
+
+    file_path = options[:file_path] ? options[:file_path] : (ENV["GITHUB_RELEASE_NOTE"] ? ENV["GITHUB_RELEASE_NOTE"] : "fastlane/RELEASENOTE.md")
+    body = sa_read_release_note(
+      file_path: file_path
+    )
+
+    owner=ENV["GITHUB_OWNER"]
+    repo=ENV["GITHUB_REPOSITORY"]
+    github_release = set_github_release(
+      repository_name: "#{owner}/#{repo}",
+      api_token: "#{options[:api_token]}",
+      name: "Release #{options[:version]}",
+      tag_name: "v#{options[:version]}",
+      description: body
+    )
+  end
+
+  lane :cocoapod_push do |options|
+    pod_push(
+      sources: ["https://github.com/CocoaPods/Specs"], 
+      allow_warnings: true
+    )
+  end
+
+  lane :github_push do |options|
+    remote = options[:remote] ? options[:remote] : (ENV["DEPLOY_REMOTE"] ? ENV["DEPLOY_REMOTE"] : "origin")
+    if options[:skip_github_commit] != true
+      github_commit(
+        version: options[:version], 
+        remote: remote
+      )
+    end
+
+    if options[:skip_github_tag] != true
+      github_tag(
+        version: options[:version], 
+        remote: remote,
+        skip_push_tags: options[:skip_push_tags]
+      )
+    end
+
+    if options[:skip_github_release] != true      
+      github_release(
+        version: options[:version], 
+        remote: remote,
+        api_token: options[:api_token],
+      )
+    end
+
+    if options[:skip_pod_push] != true
+      pod_push(
+        sources: ["https://github.com/CocoaPods/Specs"], 
+        allow_warnings: true
+      )
+    end
+  end
+
+  lane :release do |options|
     if !options[:version]
       raise "No version specified!".red
     end
 
     branch = options[:branch] ? options[:branch] : "master"
-
-    sh("chmod 777 ./modify_version.sh")
-    sh("./modify_version.sh #{options[:version]} #{branch}")
-
-    sh("chmod 777 ./replace_code.sh")
-    sh("./replace_code.sh #{ENV["SA_GITLAB_PATH"]} #{ENV["SA_GITHUB_PATH"]} #{options[:version]} #{branch}")
+    prepare_release(
+      version: options[:version],
+      branch: branch,
+      skip_modify_version: options[:skip_modify_version],
+      skip_replace_code: options[:skip_replace_code]
+    )
     
-    sh("cd #{ENV["SA_GITHUB_PATH"]} && fastlane release version:#{options[:version]} branch:#{branch}")
+    sh("cd #{ENV["SA_GITHUB_PATH"]} && fastlane github_push version:#{options[:version]} branch:#{branch} api_token:#{options[:api_token]}")
   end
-
-  lane :release do |options|
-    remote = options[:remote] ? options[:remote] : (ENV["DEPLOY_REMOTE"] ? ENV["DEPLOY_REMOTE"] : "origin")
-    if prompt(text: "#{options[:version]} has been prepped for release. If you have any additional changes you would like to make to the README or CHANGELOG, please do those before continuing. Would you like to commit, tag, and push #{options[:version]} to #{remote}?".green, boolean: true,ci_input:"y")
-      git_add(
-        path: "."
-      )
-      
-      # commit the branch
-      git_commit(
-        path: ".",
-        message: "Release #{options[:version]}"
-      )
-
-      #push the branch
-      push_to_git_remote(
-        remote: remote
-      )
-      
-      # tag the repo
-      add_git_tag(
-        tag: "v#{options[:version]}"
-      )
-
-      # push the tag
-      if options [:skip_push_tags] != true
-        sa_push_git_tags_to_remote(
-          remote: remote
-        )
-      end
-    else 
-      UI.error("When finished, commit your changes and create your tag.")
-    end
-
-    if options[:skip_github_release] != true      
-      body = sa_read_release_note(
-        file_path: "fastlane/RELEASENOTE.md"
-      )
-
-      github_release = set_github_release(
-        repository_name: "minchaozhang/sa-sdk-ios",
-        api_token: ENV["GITHUB_TOKEN"],
-        name: "Release #{options[:version]}",
-        tag_name: "v#{options[:version]}",
-        description: body
-      )
-    end
-  end
-
 end
 
 
