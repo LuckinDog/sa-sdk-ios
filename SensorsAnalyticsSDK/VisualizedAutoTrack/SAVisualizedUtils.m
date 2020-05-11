@@ -159,19 +159,6 @@
             touchView1.jsSubviews = [jsSubElement copy];
         }
     }
-
-    /*
-      App 内嵌 H5 的可视化全埋点，可能页面加载完成，但是未及时接收到 Html 页面信息。
-      等接收到 JS SDK 发送的页面信息，由于页面截图不变，前端页面未重新加载解析 viewTree 信息，导致无法圈选。
-      所以，接收到 JS 的页面信息，在原有 imageHash 基础上拼接 html 页面属于 hash 值，使得前端重新加载页面信息
-      */
-    SAJSONUtil *jsonUtil = [[SAJSONUtil alloc] init];
-    NSData *jsonData = [jsonUtil JSONSerializeObject:webPageDatas];
-    if (jsonData) {
-        NSUInteger hashCode = [jsonData hash];
-        [[SAVisualizedObjectSerializerManger sharedInstance] refreshImageHashMessage:[NSString stringWithFormat:@"%lu", (unsigned long)hashCode]];
-    }
-
     return [touchViewArray copy];
 }
 

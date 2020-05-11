@@ -89,9 +89,6 @@
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController;
 
-/// 强制刷新截图 hash 信息
-- (void)refreshImageHashMessage:(NSString *)imageHash;
-
 /// 重置最后截图 hash
 - (void)resetLastImageHash:(NSString *)imageHash;
 

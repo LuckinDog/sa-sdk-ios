@@ -33,6 +33,7 @@
 
 @interface SAVisualizedObjectSerializerManger()
 
+@property (nonatomic, strong) SAJSONUtil *jsonUtil;
 /// 是否包含 webview
 @property (nonatomic, assign, readwrite) BOOL isContainWebView;
 
@@ -83,6 +84,7 @@
     _viewControllerFindCountData = [NSMapTable weakToStrongObjectsMapTable];
     _alertInfos = [NSMutableArray array];
     _webPageInfoCache = [[NSCache alloc] init];
+    _jsonUtil = [[SAJSONUtil alloc] init];
     [self resetObjectSerializer];
 }
 
@@ -93,6 +95,20 @@
 
     self.webPageInfo = nil;
     [self.alertInfos removeAllObjects];
+}
+
+/// 刷新截图 imageHash 信息
+- (void)refreshImageHashWithData:(id)obj {
+    /*
+      App 内嵌 H5 的可视化全埋点，可能页面加载完成，但是未及时接收到 Html 页面信息。
+      等接收到 JS SDK 发送的页面信息，由于页面截图不变，前端页面未重新加载解析 viewTree 信息，导致无法圈选。
+      所以，接收到 JS 的页面信息，在原有 imageHash 基础上拼接 html 页面属于 hash 值，使得前端重新加载页面信息
+      */
+    NSData *jsonData = [self.jsonUtil JSONSerializeObject:obj];
+    if (jsonData) {
+        NSUInteger hashCode = [jsonData hash];
+        self.imageHashUpdateMessage = [NSString stringWithFormat:@"%lu", (unsigned long)hashCode];
+    }
 }
 
 /// 缓存可视化全埋点相关 web 信息
@@ -112,6 +128,9 @@
                 }
                 webPageInfo.elementSources = pageDatas;
                 [self.webPageInfoCache setObject:webPageInfo forKey:url];
+
+                // 刷新数据
+                [self refreshImageHashWithData:pageDatas];
             }
         }
     } else if ([callType isEqualToString:@"app_alert"]) { // 弹框提示信息
@@ -133,6 +152,9 @@
             }
             webPageInfo.alertSources = alertDatas;
             [self.webPageInfoCache setObject:webPageInfo forKey:url];
+
+            // 刷新数据
+            [self refreshImageHashWithData:alertDatas];
         }
     } else if (([callType isEqualToString:@"page_info"])) { // h5 页面信息
         NSDictionary *webInfo = pageInfo[@"data"];
@@ -146,6 +168,9 @@
             webPageInfo.url = url;
             webPageInfo.title = webInfo[@"$title"];
             [self.webPageInfoCache setObject:webPageInfo forKey:url];
+
+            // 刷新数据
+            [self refreshImageHashWithData:webInfo];
         }
     }
 }
@@ -178,11 +203,6 @@
         [self.viewControllerFindCountData setObject:@(1) forKey:viewController];
     }
 }
-
-- (void)refreshImageHashMessage:(NSString *)imageHash {
-    self.imageHashUpdateMessage = imageHash;
-}
-
 
 - (void)resetLastImageHash:(NSString *)imageHash {
     self.lastImageHash = imageHash;
@@ -222,13 +242,7 @@
         }
 
         // 强制刷新数据
-        SAJSONUtil *jsonUtil = [[SAJSONUtil alloc] init];
-        NSData *jsonData = [jsonUtil JSONSerializeObject:infos];
-        if (jsonData) {
-            NSUInteger hashCode = [jsonData hash];
-            [self refreshImageHashMessage:[NSString stringWithFormat:@"%lu", (unsigned long)hashCode]];
-        }
+        [self refreshImageHashWithData:infos];
     }
 }
-
 @end
