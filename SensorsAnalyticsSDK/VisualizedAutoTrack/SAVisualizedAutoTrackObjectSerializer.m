@@ -108,87 +108,12 @@
 #else
         [object isKindOfClass:UIWebView.class]
 #endif
-        ) { // 暂不支持 UIWebView
-        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:nil];
-
-        NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
-        alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
-        alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，暂时只支持 WKWebView";
-
-#warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示文案待确认，链接后期需要换到正式的 App 内嵌 H5 可视化全埋点的文档说明
-
-        alertInfo[@"link_text"] = @"配置文档";
-        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/visual_auto_track-7541326.html";
-        [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
-
+        ) { // 暂不支持 UIWebView，添加弹框
+        [self addUIWebViewAlertInfo];
     } else if ([object isKindOfClass:WKWebView.class]) {
+        // 针对 WKWebView 数据检查
         WKWebView *webView = (WKWebView *)object;
-
-        SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
-        // H5 页面元素信息
-        if (webPageInfo) {
-            [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
-        }
-
-        // H5 弹框信息
-        if (webPageInfo.alertSources) {
-            [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:webPageInfo.alertSources];
-        }
-
-        // H5 元素可点击元素信息
-        WKUserContentController *contentController = webView.configuration.userContentController;
-        NSArray<WKUserScript *> *userScripts = contentController.userScripts;
-        __block BOOL isContainVisualized = NO;
-        [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            if ([obj.source containsString:@"sensorsdata_visualized_mode"]) {
-                isContainVisualized = YES;
-                *stop = YES;
-            }
-        }];
-
-        /*
-         isContainVisualized 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
-         可能延迟开启可视化全埋点，未成功注入标记，手动通知 JS 发送数据
-         */
-        if (!isContainVisualized && !webPageInfo) {
-            // 注入 bridge 属性值，标记当前处于可视化全埋点调试
-            NSMutableString *javaScriptSource = [NSMutableString string];
-            [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
-
-            // 通知 js 发送页面数据
-            [javaScriptSource appendString:@"window.sensorsdata_app_call_js('visualized')"];
-
-            [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable response, NSError *_Nullable error) {
-                if (error) {
-                    SALogError(@"window.sensorsdata_app_call_js error：%@", error);
-                }
-            }];
-        }
-
-        // 延时检测是否集成 JS SDK
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            // 注入了 bridge 但是未接收到数据
-            if (isContainVisualized && !webPageInfo) {
-                NSString *javaScript = @"window.sensorsdata_app_call_js('sensorsdata-check-jssdk')";
-
-                [webView evaluateJavaScript:javaScript completionHandler:^(id _Nullable response, NSError *_Nullable error) {
-                    if (error) {
-                        NSDictionary *userInfo = error.userInfo;
-                        NSString *exceptionMessage = userInfo[@"WKJavaScriptExceptionMessage"];
-                        // js 环境未定义此方法，可能是未集成 JS SDK 或者 JS SDK 版本过低
-                        if (exceptionMessage && [exceptionMessage containsString:@"undefined is not a function"]) {
-                            NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
-                            alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
-                            alertInfo[@"message"] = @"此页面未集成 Web JS SDK 或者 Web JS SDK 版本过低，请集成最新版 Web JS SDK";
-                            alertInfo[@"link_text"] = @"配置文档";
-                            alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/tech_sdk_client_web_access-7545017.html";
-                            NSDictionary *alertInfoMessage = @{ @"callType": @"app_alert", @"data": @[alertInfo] };
-                            [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
-                        }
-                    }
-                }];
-            }
-        });
+        [self checkWKWebViewInfoWithWebView:webView];
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
@@ -304,24 +229,6 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
             
             id returnValue = [invocation sa_returnValue];
             
-            if ([object isKindOfClass:[UICollectionView class]]) {
-                NSString *name = propertyDescription.name;
-                if ([name isEqualToString:@"sensorsdata_subElements"]) {
-                    @try {
-                        NSArray *result = [returnValue sortedArrayUsingComparator:^NSComparisonResult (UIView *obj1, UIView *obj2) {
-
-                            if (obj2.frame.origin.y > obj1.frame.origin.y || obj2.frame.origin.x > obj1.frame.origin.x) {
-                                return NSOrderedDescending;
-                            }
-                            return NSOrderedAscending;
-                        }];
-                        returnValue = [result copy];
-                    } @catch (NSException *exception) {
-                        SALogError(@"Failed to sensorsdata_subElements for UICollectionView sorted: %@", exception);
-                    }
-                }
-            }
-            
             id value = [self propertyValue:returnValue
                        propertyDescription:propertyDescription
                                    context:context];
@@ -353,4 +260,88 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     return nil;
 }
 
+#pragma mark webview
+/// 添加 UIWebView 弹框信息
+- (void)addUIWebViewAlertInfo {
+    [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:nil];
+
+    NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
+    alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
+    alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，暂时只支持 WKWebView";
+
+    #warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示文案待确认，链接后期需要换到正式的 App 内嵌 H5 可视化全埋点的文档说明
+
+    alertInfo[@"link_text"] = @"配置文档";
+    alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/visual_auto_track-7541326.html";
+    [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
+}
+
+/// 检查 WKWebView 相关信息
+- (void)checkWKWebViewInfoWithWebView:(WKWebView *)webView {
+    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
+    // H5 页面元素信息
+    if (webPageInfo) {
+        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
+    }
+
+    // H5 弹框信息
+    if (webPageInfo.alertSources) {
+        [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:webPageInfo.alertSources];
+    }
+
+    // H5 元素可点击元素信息
+    WKUserContentController *contentController = webView.configuration.userContentController;
+    NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+    __block BOOL isContainVisualized = NO;
+    [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        if ([obj.source containsString:@"sensorsdata_visualized_mode"]) {
+            isContainVisualized = YES;
+            *stop = YES;
+        }
+    }];
+
+    /*
+     isContainVisualized 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
+     可能延迟开启可视化全埋点，未成功注入标记，手动通知 JS 发送数据
+     */
+    if (!isContainVisualized && !webPageInfo) {
+        // 注入 bridge 属性值，标记当前处于可视化全埋点调试
+        NSMutableString *javaScriptSource = [NSMutableString string];
+        [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+
+        // 通知 js 发送页面数据
+        [javaScriptSource appendString:@"window.sensorsdata_app_call_js('visualized')"];
+
+        [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+            if (error) {
+                SALogError(@"window.sensorsdata_app_call_js error：%@", error);
+            }
+        }];
+    }
+
+    // 延时检测是否集成 JS SDK
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // 注入了 bridge 但是未接收到数据
+        if (isContainVisualized && !webPageInfo) {
+            NSString *javaScript = @"window.sensorsdata_app_call_js('sensorsdata-check-jssdk')";
+
+            [webView evaluateJavaScript:javaScript completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+                if (error) {
+                    NSDictionary *userInfo = error.userInfo;
+                    NSString *exceptionMessage = userInfo[@"WKJavaScriptExceptionMessage"];
+                    // js 环境未定义此方法，可能是未集成 JS SDK 或者 JS SDK 版本过低
+                    if (exceptionMessage && [exceptionMessage containsString:@"undefined is not a function"]) {
+                        NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
+                        alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
+                        alertInfo[@"message"] = @"此页面未集成 Web JS SDK 或者 Web JS SDK 版本过低，请集成最新版 Web JS SDK";
+                        alertInfo[@"link_text"] = @"配置文档";
+                        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/tech_sdk_client_web_access-7545017.html";
+                        NSDictionary *alertInfoMessage = @{ @"callType": @"app_alert", @"data": @[alertInfo] };
+                        [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
+                    }
+                }
+            }];
+        }
+    });
+}
 @end

@@ -344,14 +344,23 @@
     NSArray *visibleCells = self.visibleCells;
     for (UIView *view in subviews) {
         if ([view isKindOfClass:UICollectionViewCell.class]) {
-            if ([visibleCells containsObject:view] && view.sensorsdata_isDisplayedInScreen ) {
+            if ([visibleCells containsObject:view] && view.sensorsdata_isDisplayedInScreen) {
                 [newSubviews addObject:view];
             }
         } else if (view.sensorsdata_isDisplayedInScreen) {
             [newSubviews addObject:view];
         }
     }
-    return newSubviews;
+
+    // 根据位置排序
+    NSArray *rankResult = [newSubviews sortedArrayUsingComparator:^NSComparisonResult (UIView *obj1, UIView *obj2) {
+        if (obj2.frame.origin.y > obj1.frame.origin.y || obj2.frame.origin.x > obj1.frame.origin.x) {
+            return NSOrderedDescending;
+        }
+        return NSOrderedAscending;
+    }];
+
+    return rankResult;
 }
 
 @end
