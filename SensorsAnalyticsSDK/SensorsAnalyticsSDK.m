@@ -1031,6 +1031,82 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [_visualizedAutoTrackViewControllers containsObject:screenName];
 }
 
+#pragma mark - WKWebView 打通
+
+- (void)swizzleWebViewMethod {
+    static dispatch_once_t onceTokenWebView;
+    dispatch_once(&onceTokenWebView, ^{
+        NSError *error = NULL;
+        
+        [WKWebView sa_swizzleMethod:@selector(loadRequest:)
+                         withMethod:@selector(sensorsdata_loadRequest:)
+                              error:&error];
+        
+        [WKWebView sa_swizzleMethod:@selector(loadHTMLString:baseURL:)
+                         withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
+                              error:&error];
+        
+        if (@available(iOS 9.0, *)) {
+            [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
+                             withMethod:@selector(sensorsdata_loadFileURL:allowingReadAccessToURL:)
+                                  error:&error];
+            
+            [WKWebView sa_swizzleMethod:@selector(loadData:MIMEType:characterEncodingName:baseURL:)
+                             withMethod:@selector(sensorsdata_loadData:MIMEType:characterEncodingName:baseURL:)
+                                  error:&error];
+        }
+        
+        if (error) {
+            SALogError(@"Failed to swizzle on WKWebView. Details: %@", error);
+            error = NULL;
+        }
+    });
+}
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
+    NSAssert([webView isKindOfClass:[WKWebView class]], @"此注入方案只支持 WKWebView！❌");
+    if (![webView isKindOfClass:[WKWebView class]]) {
+        return;
+    }
+    
+    @try {
+        WKUserContentController *contentController = webView.configuration.userContentController;
+        [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
+        [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
+        
+        NSMutableString *javaScriptSource = [NSMutableString string];
+        
+        // 开启 WKWebView 的 H5 打通功能
+        if (self.configOptions.enableJavaScriptBridge) {
+            if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+                [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
+                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+            } else {
+                SALogError(@"%@ get network serverURL is failed!", self);
+            }
+        }
+        
+        if (javaScriptSource.length > 0) {
+            NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+            __block BOOL isContainJavaScriptBridge = NO;
+            [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if ([obj.source containsString:@"sensorsdata_app_server_url"]) {
+                    isContainJavaScriptBridge = YES;
+                    *stop = YES;
+                }
+            }];
+            
+            if (!isContainJavaScriptBridge) {
+                // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
+                WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+                [contentController addUserScript:userScript];
+            }
+        }
+    } @catch (NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    }
+}
+
 #pragma mark - Heat Map
 - (BOOL)isHeatMapEnabled {
     return self.configOptions.enableHeatMap;
@@ -3056,7 +3132,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 @implementation SensorsAnalyticsSDK (JSCall)
 
-#pragma mark (UIWebView/WKWebView) & H5 old bridge plan
+#pragma mark about webView
 
 - (void)addWebViewUserAgentSensorsDataFlag {
     [self addWebViewUserAgentSensorsDataFlag:YES];
@@ -3215,82 +3291,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         return YES;
     }
     return NO;
-}
-
-#pragma mark WKWebView & H5 new bridge plan
-
-- (void)swizzleWebViewMethod {
-    static dispatch_once_t onceTokenWebView;
-    dispatch_once(&onceTokenWebView, ^{
-        NSError *error = NULL;
-        
-        [WKWebView sa_swizzleMethod:@selector(loadRequest:)
-                         withMethod:@selector(sensorsdata_loadRequest:)
-                              error:&error];
-        
-        [WKWebView sa_swizzleMethod:@selector(loadHTMLString:baseURL:)
-                         withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
-                              error:&error];
-        
-        if (@available(iOS 9.0, *)) {
-            [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
-                             withMethod:@selector(sensorsdata_loadFileURL:allowingReadAccessToURL:)
-                                  error:&error];
-            
-            [WKWebView sa_swizzleMethod:@selector(loadData:MIMEType:characterEncodingName:baseURL:)
-                             withMethod:@selector(sensorsdata_loadData:MIMEType:characterEncodingName:baseURL:)
-                                  error:&error];
-        }
-        
-        if (error) {
-            SALogError(@"Failed to swizzle on WKWebView. Details: %@", error);
-            error = NULL;
-        }
-    });
-}
-
-- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
-    NSAssert([webView isKindOfClass:[WKWebView class]], @"此注入方案只支持 WKWebView！❌");
-    if (![webView isKindOfClass:[WKWebView class]]) {
-        return;
-    }
-    
-    @try {
-        WKUserContentController *contentController = webView.configuration.userContentController;
-        [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
-        [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
-        
-        NSMutableString *javaScriptSource = [NSMutableString string];
-        
-        // 开启 WKWebView 的 H5 打通功能
-        if (self.configOptions.enableJavaScriptBridge) {
-            if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
-                [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
-                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
-            } else {
-                SALogError(@"%@ get network serverURL is failed!", self);
-            }
-        }
-        
-        if (javaScriptSource.length > 0) {
-            NSArray<WKUserScript *> *userScripts = contentController.userScripts;
-            __block BOOL isContainJavaScriptBridge = NO;
-            [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                if ([obj.source containsString:@"sensorsdata_app_server_url"]) {
-                    isContainJavaScriptBridge = YES;
-                    *stop = YES;
-                }
-            }];
-            
-            if (!isContainJavaScriptBridge) {
-                // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
-                WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
-                [contentController addUserScript:userScript];
-            }
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
-    }
 }
 
 #pragma mark trackFromH5
