@@ -44,6 +44,9 @@
     //网址
     NSString *httpStr = @"https://869359954.github.io/sadefine/definedemo.html";
 
+    // 单页面
+//    httpStr = @"https://869359954.github.io/sadefine/vue/index.html";
+
     NSURL *httpUrl=[NSURL URLWithString:httpStr];
     NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
 
