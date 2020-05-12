@@ -64,14 +64,6 @@
     NSParameterAssert(rootObject != nil);
     
     SAObjectSerializerContext *context = [[SAObjectSerializerContext alloc] initWithRootObject:rootObject];
-
-    // 遍历其他 window，兼容自定义 window 弹框等场景
-    NSArray *allValidWindows = [UIApplication sharedApplication].windows;
-    for (UIWindow *window in allValidWindows) {
-        if (window != rootObject && [window isMemberOfClass:UIWindow.class]) {
-            [context enqueueUnvisitedObject:window];
-        }
-    }
     
     @try {// 遍历 _unvisitedObjects 中所有元素，解析元素信息
         while ([context hasUnvisitedObjects]) {

@@ -174,7 +174,16 @@
             
             // 可视化全埋点
         } else if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeAutoTrack) {
-            return [_visualizedAutoTrackSerializer serializedObjectsWithRootObject:mainWindow];
+            // 遍历其他 window，兼容自定义 window 弹框等场景
+            __block UIWindow *validWindow = [UIApplication sharedApplication].keyWindow;
+            // 逆序遍历，获取最上层全屏 window
+            [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size)) {
+                    validWindow = obj;
+                    *stop = YES;
+                }
+            }];
+            return [_visualizedAutoTrackSerializer serializedObjectsWithRootObject:validWindow];
         }
     }
     
