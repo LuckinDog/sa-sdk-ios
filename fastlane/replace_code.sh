@@ -15,6 +15,6 @@ git checkout ${BRANCH}
 git pull
 
 rm -rf ${GITHUB_PATH}/*
-cp -R ${GITLAB_PATH}/* .
+cp -rf ${GITLAB_PATH}/* ${GITHUB_PATH}
 
 exit 0
