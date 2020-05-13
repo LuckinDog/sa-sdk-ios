@@ -474,8 +474,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             publicClasses = [NSSet setWithArray:ignoredClasses[@"public"]];
             privateClasses = [NSSet setWithArray:ignoredClasses[@"private"]];
 
-            viewScreenPublicClasses = [NSSet setWithArray:ignoredClasses[@"viewScreen"][@"public"]];
-            viewScreenPrivateClasses = [NSSet setWithArray:ignoredClasses[@"viewScreen"][@"private"]];
+            viewScreenPublicClasses = [NSSet setWithArray:ignoredClasses[SA_EVENT_NAME_APP_VIEW_SCREEN][@"public"]];
+            viewScreenPrivateClasses = [NSSet setWithArray:ignoredClasses[SA_EVENT_NAME_APP_VIEW_SCREEN][@"private"]];
         } @catch(NSException *exception) {  // json加载和解析可能失败
             SALogError(@"%@ error: %@", self, exception);
         }
@@ -488,7 +488,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [newPrivateClasses addObjectsFromArray:viewScreenPrivateClasses.allObjects];
         [newPublicClasses addObjectsFromArray:viewScreenPublicClasses.allObjects];
     }
-
     
     //check public ignored classes contains viewController or not
     for (NSString *ignoreClass in newPublicClasses) {
