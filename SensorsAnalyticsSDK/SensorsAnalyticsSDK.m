@@ -1086,22 +1086,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
         
-        if (javaScriptSource.length > 0) {
-            NSArray<WKUserScript *> *userScripts = contentController.userScripts;
-            __block BOOL isContainJavaScriptBridge = NO;
-            [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                if ([obj.source containsString:@"sensorsdata_app_server_url"]) {
-                    isContainJavaScriptBridge = YES;
-                    *stop = YES;
-                }
-            }];
-            
-            if (!isContainJavaScriptBridge) {
-                // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
-                WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
-                [contentController addUserScript:userScript];
-            }
+        if (javaScriptSource.length == 0) {
+            return;
         }
+        
+        NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+        __block BOOL isContainJavaScriptBridge = NO;
+        [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj.source containsString:@"sensorsdata_app_server_url"]) {
+                isContainJavaScriptBridge = YES;
+                *stop = YES;
+            }
+        }];
+        
+        if (!isContainJavaScriptBridge) {
+            // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
+            WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+            [contentController addUserScript:userScript];
+        }
+        
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
