@@ -314,6 +314,10 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 
         [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable response, NSError *_Nullable error) {
             if (error) {
+                /*
+                 如果 JS SDK 尚未加载完成，可能方法不存在；
+                 等到 JS SDK加载完成检测到 sensorsdata_visualized_mode 会尝试发送数据页面数据
+                 */
                 SALogError(@"window.sensorsdata_app_call_js error：%@", error);
             }
         }];

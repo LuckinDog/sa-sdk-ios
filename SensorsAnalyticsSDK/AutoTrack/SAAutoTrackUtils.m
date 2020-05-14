@@ -105,14 +105,17 @@
             // 是否包含 UINavigationController 或 UITabBarController 类全屏显示的 controller
             __block BOOL isContainController = NO;
             [viewController.childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-                CGPoint point = [keyWindow convertPoint:CGPointMake(0, 0) toView:obj.view];
-                // 正在全屏显示
-                if (!obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0))) {
-                    // 判断类型
-                    if ([obj isKindOfClass:UINavigationController.class] || [obj isKindOfClass:UITabBarController.class]) {
-                        currentViewController = [self findCurrentViewControllerFromRootViewController:obj isRoot:NO];
-                        *stop = YES;
-                        isContainController = YES;
+                // 判断 obj.view 是否加载，如果尚未加载，调用 obj.view 会触发 viewDidLoad，可能影响客户业务
+                if (obj.isViewLoaded) {
+                    CGPoint point = [keyWindow convertPoint:CGPointMake(0, 0) toView:obj.view];
+                   // 正在全屏显示
+                    if (!obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0))) {
+                   // 判断类型
+                        if ([obj isKindOfClass:UINavigationController.class] || [obj isKindOfClass:UITabBarController.class]) {
+                            currentViewController = [self findCurrentViewControllerFromRootViewController:obj isRoot:NO];
+                            *stop = YES;
+                            isContainController = YES;
+                        }
                     }
                 }
             }];

@@ -458,26 +458,28 @@
         __block BOOL isContainFullScreen = NO; // 是否包含全屏
         //逆序遍历
         [childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            UIView *objSuperview = obj.view;
-            do {
-                if ([subElements containsObject:objSuperview]) {
-                    NSInteger index = [subElements indexOfObject:objSuperview];
-                    if (objSuperview.sensorsdata_isDisplayedInScreen && !isContainFullScreen) {
-                        [subElements replaceObjectAtIndex:index withObject:obj];
-                    } else {
-                        [subElements removeObject:objSuperview];
+            if (obj.isViewLoaded) {
+                UIView *objSuperview = obj.view;
+                do {
+                    if ([subElements containsObject:objSuperview]) {
+                        NSInteger index = [subElements indexOfObject:objSuperview];
+                        if (objSuperview.sensorsdata_isDisplayedInScreen && !isContainFullScreen) {
+                            [subElements replaceObjectAtIndex:index withObject:obj];
+                        } else {
+                            [subElements removeObject:objSuperview];
+                        }
+                        break;
                     }
-                    break;
-                }
-                //childViewController.view 可能不直接添加在 self.view，而是在子视图
-            } while ((objSuperview = objSuperview.superview));
+               //childViewController.view 可能不直接添加在 self.view，而是在子视图
+                } while ((objSuperview = objSuperview.superview));
 
-            CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
-            // 是否全屏
-            BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
-            // 正在全屏显示
-            if (isFullScreenShow && obj.view.sensorsdata_isDisplayedInScreen) {
-                isContainFullScreen = YES;
+                CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
+               // 是否全屏
+                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
+               // 正在全屏显示
+                if (isFullScreenShow && obj.view.sensorsdata_isDisplayedInScreen) {
+                    isContainFullScreen = YES;
+                }
             }
         }];
         return subElements;
@@ -494,5 +496,4 @@
     }
     return subElements;
 }
-
 @end
