@@ -58,48 +58,6 @@
 }
 
 // 所有 window 截图合成
-//- (void)screenshotImageForAllWindowWithCompletionHandler:(void (^)(UIImage *))completionHandler {
-//    CGFloat scale = [UIScreen mainScreen].scale;
-//    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-//    UIWindow *firstWindow = [UIApplication sharedApplication].windows.firstObject;
-//
-//    NSMutableArray<UIImage *> *images = [NSMutableArray array];
-//    UIImage *image = [self screenshotWithView:keyWindow afterScreenUpdates:NO];
-//    if (image) {
-//        [images addObject:image];
-//    }
-//    // 如果 firstWindow 和 keyWindow 不同，则包含弹框或其他多 window，并设置为 keyWindow
-//    if (firstWindow != keyWindow) {
-//        UIImage *image = [self screenshotWithView:firstWindow afterScreenUpdates:NO];
-//        if (image) {
-//            [images insertObject:image atIndex:0];
-//        }
-//    }
-//
-//    if (images.count == 1) {
-//        // 单张图片
-//        completionHandler(images.firstObject);
-//    } else {
-//        // 子线程异步绘图合成
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//            // 将上面得到的多张图片合并绘制为一张图片，最终得到 screenshotImage
-//            UIImage *screenshotImage = nil;
-//            if (images.count > 0) {
-//                CGSize newSize = CGSizeMake(images.firstObject.size.width * scale, images.firstObject.size.height * scale);
-//                UIGraphicsBeginImageContext(newSize);
-//                for (UIImage *image in images) {
-//                    [image drawInRect:CGRectMake(0, 0, image.size.width * scale, image.size.height * scale)];
-//                }
-//                screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
-//                UIGraphicsEndImageContext();
-//            }
-//            // 绘制操作完成
-//            completionHandler(screenshotImage);
-//        });
-//    }
-//}
-
-// 所有 window 截图合成
 - (void)screenshotImageForAllWindowWithCompletionHandler:(void (^)(UIImage *))completionHandler {
     CGFloat scale = [UIScreen mainScreen].scale;
 
