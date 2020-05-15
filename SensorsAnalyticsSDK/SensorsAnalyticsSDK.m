@@ -27,8 +27,6 @@
 #include <sys/sysctl.h>
 #include <stdlib.h>
 
-#import <CoreTelephony/CTCarrier.h>
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <UIKit/UIApplication.h>
 #import <UIKit/UIDevice.h>
 #import <UIKit/UIScreen.h>
@@ -36,7 +34,6 @@
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
-#import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIApplication+AutoTrack.h"
@@ -72,18 +69,15 @@
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
 #import "SAIdentifier.h"
+#import "SAPresetProperty.h"
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
-
-#define VERSION @"2.0.7-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
 static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
 static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
-//中国运营商 mcc 标识
-static NSString* const CARRIER_CHINA_MCC = @"460";
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -166,11 +160,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SANetwork *network;
 
-@property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 
-@property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
 @property (nonatomic, strong) SATrackTimer *trackTimer;
 
@@ -226,6 +218,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SALinkHandler *linkHandler;
 
 @property (nonatomic, strong) SAIdentifier *identifier;
+
+@property (nonatomic, strong) SAPresetProperty *presetProperty;
+
 @property (nonatomic, strong) SAConsoleLogger *consoleLogger;
 
 @end
@@ -241,8 +236,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     BOOL _applicationWillResignActive;
     BOOL _clearReferrerWhenAppEnd;
     SensorsAnalyticsNetworkType _networkTypePolicy;
-    NSString *_deviceModel;
-    NSString *_osVersion;
 }
 
 @synthesize remoteConfig = _remoteConfig;
@@ -357,16 +350,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
+            
+            _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue];
+            
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
-            
-            if (self.firstDay == nil) {
-                NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
-                self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
-                [self archiveFirstDay];
-            }
-
-            self.automaticProperties = [self collectAutomaticProperties];
 
             [self startAppEndTimer];
             [self setUpListeners];
@@ -497,38 +485,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSDictionary *)getPresetProperties {
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    @try {
-        id app_version = [_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-        if (app_version) {
-            [properties setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-        }
-        [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB] forKey:SA_EVENT_COMMON_PROPERTY_LIB];
-        [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION] forKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION];
-        [properties setValue:@"Apple" forKey:SA_EVENT_COMMON_PROPERTY_MANUFACTURER];
-        [properties setValue:_deviceModel forKey:SA_EVENT_COMMON_PROPERTY_MODEL];
-        [properties setValue:@"iOS" forKey:SA_EVENT_COMMON_PROPERTY_OS];
-        [properties setValue:_osVersion forKey:SA_EVENT_COMMON_PROPERTY_OS_VERSION];
-        [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT] forKey:SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT];
-        [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH] forKey:SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH];
-        NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-        [properties setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
-        if ([networkType isEqualToString:@"WIFI"]) {
-            [properties setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-        } else {
-            [properties setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-        }
-        [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_CARRIER] forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-        if ([self isFirstDay]) {
-            [properties setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-        } else {
-            [properties setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-        }
-        [properties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
-    } @catch(NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
-    }
-    return [properties copy];
+    return [self.presetProperty currentPresetProperties];
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
@@ -658,13 +615,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @finally {
         }
     });
-}
-
-- (BOOL)isFirstDay {
-    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
-    NSString *current = [dateFormatter stringFromDate:[NSDate date]];
-
-    return [[self firstDay] isEqualToString:current];
 }
 
 - (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType {
@@ -922,7 +872,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
-    NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+    NSString *networkType = [SACommonUtility currentNetworkStatus];
     if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
         return;
     }
@@ -961,7 +911,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (URL == nil) {
         return NO;
     }
-    NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+    NSString *networkType = [SACommonUtility currentNetworkStatus];
     BOOL isWifi = NO;
     if ([networkType isEqualToString:@"WIFI"]) {
         isWifi = YES;
@@ -1103,16 +1053,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    [libProperties setValue:@"code" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
-    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB] forKey:SA_EVENT_COMMON_PROPERTY_LIB];
-    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION] forKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION];
-    NSString *app_version = [_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-    if (app_version) {
-        [libProperties setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-    }
+    libProperties[SA_EVENT_COMMON_PROPERTY_LIB_METHOD] = @"code";
+    libProperties[SA_EVENT_COMMON_PROPERTY_LIB] = self.presetProperty.lib;
+    libProperties[SA_EVENT_COMMON_PROPERTY_LIB_VERSION] = self.presetProperty.libVersion;
+    libProperties[SA_EVENT_COMMON_PROPERTY_APP_VERSION] = self.presetProperty.appVersion;
 
     if (libProperties.count > 0) {
-        itemProperties[SA_EVENT_LIB] = libProperties;
+        itemProperties[SA_EVENT_LIB] = [NSDictionary dictionaryWithDictionary:libProperties];
     }
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
@@ -1171,8 +1118,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     propertieDict = [propertieDict copy];
     
-    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    [libProperties setValue:@"autoTrack" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
+    NSMutableDictionary *libProperties = [NSMutableDictionary dictionary];
+    libProperties[SA_EVENT_COMMON_PROPERTY_LIB_METHOD] = @"autoTrack";
 
     // 对于type是track数据，它们的event名称是有意义的
     if ([type isEqualToString:@"track"] || [type isEqualToString:@"codeTrack"]) {
@@ -1194,7 +1141,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         if ([type isEqualToString:@"codeTrack"]) {
-            [libProperties setValue:@"code" forKey:SA_EVENT_COMMON_PROPERTY_LIB_METHOD];
+            libProperties[SA_EVENT_COMMON_PROPERTY_LIB_METHOD] = @"code";
             type = @"track";
         }
     }
@@ -1205,12 +1152,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
     }
-    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB] forKey:SA_EVENT_COMMON_PROPERTY_LIB];
-    [libProperties setValue:[_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION] forKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION];
-    id app_version = [_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-    if (app_version) {
-        [libProperties setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-    }
+    
+    libProperties[SA_EVENT_COMMON_PROPERTY_LIB] = self.presetProperty.lib;
+    libProperties[SA_EVENT_COMMON_PROPERTY_LIB_VERSION] = self.presetProperty.libVersion;
+    libProperties[SA_EVENT_COMMON_PROPERTY_APP_VERSION] = self.presetProperty.appVersion;
 
     NSString *lib_detail = nil;
     if ([self isAutoTrackEnabled] && propertieDict) {
@@ -1225,10 +1170,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     }
-
-    if (lib_detail) {
-        [libProperties setValue:lib_detail forKey:SA_EVENT_COMMON_PROPERTY_LIB_DETAIL];
-    }
+    libProperties[SA_EVENT_COMMON_PROPERTY_LIB_DETAIL] = lib_detail;
     
     __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
     
@@ -1253,24 +1195,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
-            [p addEntriesFromDictionary:self->_automaticProperties];
+            [p addEntriesFromDictionary:self.presetProperty.automaticProperties];
             [p addEntriesFromDictionary:self->_superProperties];
             [p addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
             //update lib $app_version from super properties
-            id app_version = [self->_superProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+            id app_version = self->_superProperties[SA_EVENT_COMMON_PROPERTY_APP_VERSION];
             if (app_version) {
-                [libProperties setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+                libProperties[SA_EVENT_COMMON_PROPERTY_APP_VERSION] = app_version;
             }
 
             // 每次 track 时手机网络状态
-            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-            [p setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
-            if ([networkType isEqualToString:@"WIFI"]) {
-                [p setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-            } else {
-                [p setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-            }
+            NSString *networkType = [SACommonUtility currentNetworkStatus];
+            p[SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE] = networkType;
+            p[SA_EVENT_COMMON_PROPERTY_WIFI] = @([networkType isEqualToString:@"WIFI"]);
 
             //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
             //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
@@ -1307,9 +1245,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         // 序列化所有 NSDate 类型
                         NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
                         NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-                        [p setObject:dateStr forKey:key];
+                        p[key] = dateStr;
                     } else {
-                        [p setObject:obj forKey:key];
+                        p[key] = obj;
                     }
                 }
             }
@@ -1331,15 +1269,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                  nil];
         } else if([type isEqualToString:@"track"]) {
             //  是否首日访问
-            if ([self isFirstDay]) {
-                [p setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-            } else {
-                [p setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-            }
+            p[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self.presetProperty isFirstDay]);
 
             @try {
                 if ([self isLaunchedPassively]) {
-                    [p setObject:@"background" forKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE];
+                    p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE] = @"background";
                 }
             } @catch (NSException *e) {
                 SALogError(@"%@: %@", self, e);
@@ -1349,7 +1283,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             @try {
                 //采集设备方向
                 if (self.deviceOrientationConfig.enableTrackScreenOrientation && self.deviceOrientationConfig.deviceOrientation.length) {
-                    [p setObject:self.deviceOrientationConfig.deviceOrientation forKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION];
+                    p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION] = self.deviceOrientationConfig.deviceOrientation;
                 }
             } @catch (NSException *e) {
                 SALogError(@"%@: %@", self, e);
@@ -1363,8 +1297,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     if (CLLocationCoordinate2DIsValid(self.locationConfig.coordinate)) {
                         NSInteger latitude = self.locationConfig.coordinate.latitude * pow(10, 6);
                         NSInteger longitude = self.locationConfig.coordinate.longitude * pow(10, 6);
-                        [p setObject:@(latitude) forKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE];
-                        [p setObject:@(longitude) forKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE];
+                        p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE] = @(latitude);
+                        p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE] = @(longitude);
                     }
                 }
             } @catch (NSException *e) {
@@ -1393,23 +1327,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         if (project) {
-            [e setObject:project forKey:SA_EVENT_PROJECT];
+            e[SA_EVENT_PROJECT] = project;
         }
         if (token) {
-            [e setObject:token forKey:SA_EVENT_TOKEN];
+            e[SA_EVENT_TOKEN] = token;
         }
 
         e[SA_EVENT_LOGIN_ID] = self.loginId;
         e[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
         //修正 $device_id，防止用户修改
-        NSDictionary *infoProperties = [e objectForKey:SA_EVENT_PROPERTIES];
+        NSDictionary *infoProperties = e[SA_EVENT_PROPERTIES];
         if (infoProperties && [infoProperties.allKeys containsObject:SA_EVENT_COMMON_PROPERTY_DEVICE_ID]) {
-            NSDictionary *autoProperties = self.automaticProperties;
+            NSDictionary *autoProperties = self.presetProperty.automaticProperties;
             if (autoProperties && [autoProperties.allKeys containsObject:SA_EVENT_COMMON_PROPERTY_DEVICE_ID]) {
                 NSMutableDictionary *correctInfoProperties = [NSMutableDictionary dictionaryWithDictionary:infoProperties];
                 correctInfoProperties[SA_EVENT_COMMON_PROPERTY_DEVICE_ID] = autoProperties[SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
-                [e setObject:correctInfoProperties forKey:SA_EVENT_PROPERTIES];
+                e[SA_EVENT_PROPERTIES] = correctInfoProperties;
             }
         }
 
@@ -1686,17 +1620,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (NSString *)deviceModel {
-    size_t size;
-    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-    char answer[size];
-    sysctlbyname("hw.machine", answer, &size, NULL, 0);
-    NSString *results = @(answer);
-    return results;
-}
-
 - (NSString *)libVersion {
-    return VERSION;
+    return self.presetProperty.libVersion;
 }
 
 - (BOOL)assertPropertyTypes:(NSDictionary **)propertiesAddress withEventType:(NSString *)eventType {
@@ -1863,99 +1788,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return YES;
 }
 
-- (NSDictionary *)collectAutomaticProperties {
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-
-    CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
-    CTCarrier *carrier = nil;
-
-#ifdef __IPHONE_12_0
-    if (@available(iOS 12.1, *)) {
-        // 排序
-        NSArray *carrierKeysArray = [telephonyInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
-        carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
-        if (!carrier.mobileNetworkCode) {
-            carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
-        }
-    }
-#endif
-    if (!carrier) {
-        carrier = telephonyInfo.subscriberCellularProvider;
-    }
-    if (carrier != nil) {
-        NSString *networkCode = [carrier mobileNetworkCode];
-        NSString *countryCode = [carrier mobileCountryCode];
-        
-        NSString *carrierName = nil;
-        //中国运营商
-        if (countryCode && [countryCode isEqualToString:CARRIER_CHINA_MCC]) {
-            if (networkCode) {
-                
-                //中国移动
-                if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
-                    carrierName= @"中国移动";
-                }
-                //中国联通
-                if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
-                    carrierName= @"中国联通";
-                }
-                //中国电信
-                if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
-                    carrierName= @"中国电信";
-                }
-                //中国卫通
-                if ([networkCode isEqualToString:@"04"]) {
-                    carrierName= @"中国卫通";
-                }
-                //中国铁通
-                if ([networkCode isEqualToString:@"20"]) {
-                    carrierName= @"中国铁通";
-                }
-            }
-        } else if (countryCode && networkCode) { //国外运营商解析
-            //加载当前 bundle
-            NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-            //文件路径
-            NSString *jsonPath = [sensorsBundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
-            NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-            if (jsonData) {
-                NSDictionary *dicAllMcc =  [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableLeaves error:nil];
-                if (dicAllMcc) {
-                    NSString *mccMncKey = [NSString stringWithFormat:@"%@%@", countryCode, networkCode];
-                    carrierName = dicAllMcc[mccMncKey];
-                }
-            }
-        }
-        
-        if (carrierName != nil) {
-            [properties setValue:carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-        }
-    }
-
-    // Use setValue semantics to avoid adding keys where value can be nil.
-    [properties setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-
-#if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-    [properties setValue:[SAIdentifier uniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
-#endif
-
-    UIDevice *device = [UIDevice currentDevice];
-    _deviceModel = [self deviceModel];
-    _osVersion = [device systemVersion];
-    struct CGSize size = [UIScreen mainScreen].bounds.size;
-    [properties addEntriesFromDictionary:@{
-                                  SA_EVENT_COMMON_PROPERTY_LIB: @"iOS",
-                                  SA_EVENT_COMMON_PROPERTY_LIB_VERSION: [self libVersion],
-                                  SA_EVENT_COMMON_PROPERTY_MANUFACTURER: @"Apple",
-                                  SA_EVENT_COMMON_PROPERTY_OS: @"iOS",
-                                  SA_EVENT_COMMON_PROPERTY_OS_VERSION: _osVersion,
-                                  SA_EVENT_COMMON_PROPERTY_MODEL: _deviceModel,
-                                  SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT: @((NSInteger)size.height),
-                                  SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH: @((NSInteger)size.width),
-                                      }];
-    return [properties copy];
-}
-
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
     propertyDict = [propertyDict copy];
     if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
@@ -2065,12 +1897,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)unarchive {
     [self unarchiveSuperProperties];
-    [self unarchiveFirstDay];
+    [self.presetProperty unarchiveFirstDay];
     [self unarchiveTrackChannelEvents];
-}
-
-- (void)unarchiveFirstDay {
-    self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
 }
 
 - (void)unarchiveSuperProperties {
@@ -2083,79 +1911,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self.trackChannelEventNames addObjectsFromArray:trackChannelEvents];
 }
 
-- (void)archiveFirstDay {
-    [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
-}
-
 - (void)archiveSuperProperties {
     [SAFileStore archiveWithFileName:@"super_properties" value:self.superProperties];
 }
 
 - (void)archiveTrackChannelEventNames {
     [SAFileStore archiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO value:self.trackChannelEventNames];
-}
-
-#pragma mark - Network control
-
-+ (NSString *)getNetWorkStates {
-#ifdef SA_UT
-    SADebug(@"In unit test, set NetWorkStates to wifi");
-    return @"WIFI";
-#endif
-    NSString *network = @"NULL";
-    @try {
-        SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
-        SANetworkStatus status = [reachability currentReachabilityStatus];
-        
-        if (status == SAReachableViaWiFi) {
-            network = @"WIFI";
-        } else if (status == SAReachableViaWWAN) {
-            static CTTelephonyNetworkInfo *netinfo = nil;
-            NSString *currentRadioAccessTechnology = nil;
-            
-            if (!netinfo) {
-                netinfo = [[CTTelephonyNetworkInfo alloc] init];
-            }
-#ifdef __IPHONE_12_0
-            if (@available(iOS 12.1, *)) {
-                currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
-            }
-#endif
-            //测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
-            if (!currentRadioAccessTechnology) {
-                currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
-            }
-            
-            if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
-                network = @"2G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge]) {
-                network = @"2G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyWCDMA]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSDPA]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSUPA]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyeHRPD]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
-                network = @"4G";
-            } else {
-                network = @"UNKNOWN";
-            }
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
-    return network;
 }
 
 - (void)startFlushTimer {
@@ -2936,7 +2697,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)requestFunctionalManagermentConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
     @try {
-        NSString *networkTypeString = [SensorsAnalyticsSDK getNetWorkStates];
+        NSString *networkTypeString = [SACommonUtility currentNetworkStatus];
         SensorsAnalyticsNetworkType networkType = [self toNetworkType:networkTypeString];
         if (networkType == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO, nil);
@@ -3220,7 +2981,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     dispatch_async(self.serialQueue, ^{
         @try {
-            if (eventInfo == nil) {
+            if (!eventInfo) {
                 return;
             }
 
@@ -3234,42 +2995,41 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
 
             if (enableVerify) {
-                NSString *serverUrl = [eventDict valueForKey:@"server_url"];
+                NSString *serverUrl = eventDict[@"server_url"];
                 if (![self.network isSameProjectWithURLString:serverUrl]) {
                     SALogError(@"Server_url verified faild, Web event lost! Web server_url = '%@'",serverUrl);
                     return;
                 }
             }
 
-            NSString *type = [eventDict valueForKey:SA_EVENT_TYPE];
+            NSString *type = eventDict[SA_EVENT_TYPE];
             NSString *bestId = self.distinctId;
             NSNumber *timeStamp = @([[self class] getCurrentTime]);
 
             if([type isEqualToString:@"track_signup"]) {
                 NSString *realOriginalId = self.originalId ?: self.distinctId;
-                [eventDict setValue:realOriginalId forKey:@"original_id"];
+                eventDict[@"original_id"] = realOriginalId;
             } else {
-                [eventDict setValue:bestId forKey:SA_EVENT_DISTINCT_ID];
+                eventDict[SA_EVENT_DISTINCT_ID] = bestId;
             }
-            [eventDict setValue:@(arc4random()) forKey:SA_EVENT_TRACK_ID];
+            eventDict[SA_EVENT_TRACK_ID] = @(arc4random());
 
-            NSDictionary *libDict = [eventDict objectForKey:SA_EVENT_LIB];
-            id app_version = [self->_automaticProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-            if (app_version) {
-                [libDict setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
-            }
-
+            NSMutableDictionary *libMDic = eventDict[SA_EVENT_LIB];
             //update lib $app_version from super properties
-            app_version = [self->_superProperties objectForKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+            id app_version = self->_superProperties[SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+            if (!app_version) {
+                app_version = self.presetProperty.appVersion;
+            }
+            
             if (app_version) {
-                [libDict setValue:app_version forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+                libMDic[SA_EVENT_COMMON_PROPERTY_APP_VERSION] = app_version;
             }
 
-            NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:self->_automaticProperties];
-            [automaticPropertiesCopy removeObjectForKey:SA_EVENT_COMMON_PROPERTY_LIB];
-            [automaticPropertiesCopy removeObjectForKey:SA_EVENT_COMMON_PROPERTY_LIB_VERSION];
+            NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:self.presetProperty.automaticProperties];
+            automaticPropertiesCopy[SA_EVENT_COMMON_PROPERTY_LIB] = nil;
+            automaticPropertiesCopy[SA_EVENT_COMMON_PROPERTY_LIB_VERSION] = nil;
 
-            NSMutableDictionary *propertiesDict = [eventDict objectForKey:SA_EVENT_PROPERTIES];
+            NSMutableDictionary *propertiesDict =  eventDict[SA_EVENT_PROPERTIES];
             if([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
@@ -3289,21 +3049,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
                 // 每次 track 时手机网络状态
-                NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-                [propertiesDict setObject:networkType forKey:SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE];
-                if ([networkType isEqualToString:@"WIFI"]) {
-                    [propertiesDict setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-                } else {
-                    [propertiesDict setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
-                }
+                NSString *networkType = [SACommonUtility currentNetworkStatus];
+                propertiesDict[SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE] = networkType;
+                propertiesDict[SA_EVENT_COMMON_PROPERTY_WIFI] = @([networkType isEqualToString:@"WIFI"]);
 
                 //  是否首日访问
                 if([type isEqualToString:@"track"]) {
-                    if ([self isFirstDay]) {
-                        [propertiesDict setObject:@YES forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-                    } else {
-                        [propertiesDict setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY];
-                    }
+                    propertiesDict[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self.presetProperty isFirstDay]);
                 }
                 [propertiesDict removeObjectForKey:@"_nocache"];
 
@@ -3313,20 +3065,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
             [eventDict removeObjectForKey:@"_nocache"];
             [eventDict removeObjectForKey:@"server_url"];
-            
 
             // $project & $token
-            NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
-            NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+            NSString *project = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+            NSString *token = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
             id timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
 
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
-                [eventDict setValue:project forKey:SA_EVENT_PROJECT];
+                eventDict[SA_EVENT_PROJECT] = project;
             }
             if (token) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-                [eventDict setValue:token forKey:SA_EVENT_TOKEN];
+                eventDict[SA_EVENT_TOKEN] = token;
             }
             if (timeNumber) { //包含 $time
                 NSNumber *customTime = nil;
@@ -3346,10 +3097,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
 
-            [eventDict setValue:timeStamp forKey:SA_EVENT_TIME];
+            eventDict[SA_EVENT_TIME] = timeStamp;
 
             //JS SDK Data add _hybrid_h5 flag
-            [eventDict setValue:@(YES) forKey:SA_EVENT_HYBRID_H5];
+            eventDict[SA_EVENT_HYBRID_H5] = @(YES);
 
             NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
 
@@ -3363,7 +3114,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
             if([type isEqualToString:@"track_signup"]) {
-                NSString *newLoginId = [eventDict objectForKey:SA_EVENT_DISTINCT_ID];
+                NSString *newLoginId = eventDict[SA_EVENT_DISTINCT_ID];
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
                     if (![newLoginId isEqualToString:self.anonymousId]) {

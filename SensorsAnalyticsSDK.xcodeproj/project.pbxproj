@@ -31,6 +31,11 @@
 		8888473724530F9100EBA7F6 /* SANetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888473124530F9100EBA7F6 /* SANetwork.h */; };
 		8888473824530F9100EBA7F6 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473224530F9100EBA7F6 /* SANetwork.m */; };
 		8888473924530F9100EBA7F6 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473324530F9100EBA7F6 /* SASecurityPolicy.m */; };
+		A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */; };
+		A8E962E3246A3D10006A337D /* SAProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E1246A3D10006A337D /* SAProperty.h */; };
+		A8E962E4246A3D10006A337D /* SAProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962E2246A3D10006A337D /* SAProperty.m */; };
+		A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E9246A4373006A337D /* SAPresetProperty.h */; };
+		A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		CB30C03F22840EC00004061D /* SATypeDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD222840EBF0004061D /* SATypeDescription.m */; };
 		CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD522840EBF0004061D /* NSString+HashCode.m */; };
 		CB30C04522840EC00004061D /* NSInvocation+SAHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30BFD822840EBF0004061D /* NSInvocation+SAHelpers.h */; };
@@ -206,6 +211,11 @@
 		8888473124530F9100EBA7F6 /* SANetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SANetwork.h; sourceTree = "<group>"; };
 		8888473224530F9100EBA7F6 /* SANetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		8888473324530F9100EBA7F6 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
+		A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTests.m; sourceTree = "<group>"; };
+		A8E962E1246A3D10006A337D /* SAProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAProperty.h; sourceTree = "<group>"; };
+		A8E962E2246A3D10006A337D /* SAProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAProperty.m; sourceTree = "<group>"; };
+		A8E962E9246A4373006A337D /* SAPresetProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPresetProperty.h; sourceTree = "<group>"; };
+		A8E962EA246A4373006A337D /* SAPresetProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetProperty.m; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30BFD222840EBF0004061D /* SATypeDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATypeDescription.m; sourceTree = "<group>"; };
 		CB30BFD522840EBF0004061D /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
@@ -569,6 +579,7 @@
 				FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */,
 				FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */,
 				CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */,
+				A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */,
 				4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */,
 				CB6EBAE7228551EC003CFBA8 /* Info.plist */,
 			);
@@ -685,6 +696,10 @@
 			children = (
 				FC906D0D242DEBD900C6686D /* SAIdentifier.h */,
 				FC906D0C242DEBD800C6686D /* SAIdentifier.m */,
+				A8E962E1246A3D10006A337D /* SAProperty.h */,
+				A8E962E2246A3D10006A337D /* SAProperty.m */,
+				A8E962E9246A4373006A337D /* SAPresetProperty.h */,
+				A8E962EA246A4373006A337D /* SAPresetProperty.m */,
 			);
 			path = Builder;
 			sourceTree = "<group>";
@@ -719,6 +734,7 @@
 				CB30C05122840EC00004061D /* SASwizzle.h in Headers */,
 				CB30C05A22840EC00004061D /* SAConstants+Private.h in Headers */,
 				CB30C07622840EC00004061D /* NSString+HashCode.h in Headers */,
+				A8E962E3246A3D10006A337D /* SAProperty.h in Headers */,
 				FC5A4BD7244E980700063624 /* UIGestureRecognizer+AutoTrack.h in Headers */,
 				F2402D78244175FC00F7B06D /* SAConsoleLogger.h in Headers */,
 				FC5A4BC5244E976F00063624 /* SADateFormatter.h in Headers */,
@@ -736,6 +752,7 @@
 				CB30C08D22840EC00004061D /* SASwizzler.h in Headers */,
 				CB30C07722840EC00004061D /* SATypeDescription.h in Headers */,
 				CB30C09622840EC00004061D /* SAPropertyDescription.h in Headers */,
+				A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */,
 				CB30C09D22840EC00004061D /* MessageQueueBySqlite.h in Headers */,
 				CB30C05E22840EC00004061D /* SAObjectSerializerConfig.h in Headers */,
 				8888473724530F9100EBA7F6 /* SANetwork.h in Headers */,
@@ -924,6 +941,7 @@
 				CB30C32A22843E740004061D /* SAApplicationStateSerializer.m in Sources */,
 				FC1AFF0223C32AB000F1B9E4 /* SALinkHandler.m in Sources */,
 				CB30C03F22840EC00004061D /* SATypeDescription.m in Sources */,
+				A8E962E4246A3D10006A337D /* SAProperty.m in Sources */,
 				CB30C04922840EC00004061D /* SensorsAnalyticsSDK.m in Sources */,
 				F2402D7E244175FC00F7B06D /* SALogMessage.m in Sources */,
 				4DA4CB8B237936BC006892D6 /* SAVisualizedSnapshotMessage.m in Sources */,
@@ -940,6 +958,7 @@
 				FC5A4BC2244E976F00063624 /* SADateFormatter.m in Sources */,
 				4D9D5E32240E4ADE00E6A9A5 /* SAVisualizedUtils.m in Sources */,
 				CB30C07E22840EC00004061D /* NSObject+SensorsAnalyticsDelegate.m in Sources */,
+				A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */,
 				CB30C08522840EC00004061D /* SAConstants.m in Sources */,
 				CB30C06522840EC00004061D /* SASwizzler.m in Sources */,
 				CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */,
@@ -1000,6 +1019,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */,
 				4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */,
 				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
 				FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */,

@@ -95,6 +95,7 @@ NSString * const SA_EVENT_COMMON_PROPERTY_LIB_VERSION = @"$lib_version";
 NSString * const SA_EVENT_COMMON_PROPERTY_LIB_DETAIL = @"$lib_detail";
 NSString * const SA_EVENT_COMMON_PROPERTY_LIB_METHOD = @"$lib_method";
 
+NSString * const SA_EVENT_COMMON_PROPERTY_APP_ID = @"$app_id";
 NSString * const SA_EVENT_COMMON_PROPERTY_APP_VERSION = @"$app_version";
 NSString * const SA_EVENT_COMMON_PROPERTY_MODEL =@"$model";
 NSString * const SA_EVENT_COMMON_PROPERTY_MANUFACTURER = @"$manufacturer";
@@ -107,7 +108,7 @@ NSString * const SA_EVENT_COMMON_PROPERTY_WIFI = @"$wifi";
 NSString * const SA_EVENT_COMMON_PROPERTY_CARRIER = @"$carrier";
 NSString * const SA_EVENT_COMMON_PROPERTY_DEVICE_ID = @"$device_id";
 NSString * const SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY = @"$is_first_day";
-
+NSString * const SA_EVENT_COMMON_PROPERTY_TIMEZONE_OFFSET = @"$timezone_offset";
 
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE = @"$latitude";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE = @"$longitude";
