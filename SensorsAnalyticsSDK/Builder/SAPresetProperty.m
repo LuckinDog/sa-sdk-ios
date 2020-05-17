@@ -42,7 +42,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 
 @interface SAPresetProperty ()
 
-@property (nonatomic, strong) NSDictionary *automaticProperties;
+@property (nonatomic, copy) NSDictionary *automaticProperties;
 @property (nonatomic, copy) NSString *firstDay;
 
 @end
@@ -189,7 +189,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
         if (!_automaticProperties) {
             NSMutableDictionary *automaticPropertiesMDic = [NSMutableDictionary dictionary];
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_CARRIER] = [SAPresetProperty carrierName];
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_APP_VERSION] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
+            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_APP_VERSION] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_DEVICE_ID] = [SAIdentifier uniqueHardwareId];
 #endif

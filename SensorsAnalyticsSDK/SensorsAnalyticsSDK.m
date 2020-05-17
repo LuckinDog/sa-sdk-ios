@@ -3029,7 +3029,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             automaticPropertiesCopy[SA_EVENT_COMMON_PROPERTY_LIB] = nil;
             automaticPropertiesCopy[SA_EVENT_COMMON_PROPERTY_LIB_VERSION] = nil;
 
-            NSMutableDictionary *propertiesDict =  eventDict[SA_EVENT_PROPERTIES];
+            NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
             if([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict

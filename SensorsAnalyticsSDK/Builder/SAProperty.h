@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAProperty : NSObject
 
-@property (nonatomic, strong) dispatch_queue_t queue;
+@property (nonatomic, strong, readonly) dispatch_queue_t queue;
 
 /**
  初始化方法

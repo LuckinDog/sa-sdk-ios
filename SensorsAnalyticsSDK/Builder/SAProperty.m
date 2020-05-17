@@ -26,6 +26,8 @@
 
 @interface SAProperty ()
 
+@property (nonatomic, strong) dispatch_queue_t queue;
+
 @end
 
 @implementation SAProperty
@@ -39,6 +41,5 @@
     }
     return self;
 }
-
 
 @end

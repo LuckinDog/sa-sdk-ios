@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAPresetProperty : SAProperty
 
-@property (nonatomic, strong, readonly) NSDictionary *automaticProperties;
+@property (nonatomic, copy, readonly) NSDictionary *automaticProperties;
 
 @property (nonatomic, copy, readonly) NSString *appVersion;
 @property (nonatomic, copy, readonly) NSString *lib;
