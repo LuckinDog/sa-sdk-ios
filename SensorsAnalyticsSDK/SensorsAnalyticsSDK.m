@@ -71,6 +71,8 @@
 #import "SALinkHandler.h"
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
+#import "SAScriptMessageHandler.h"
+#import "WKWebView+SABridge.h"
 #import "SAIdentifier.h"
 #import "SAValidator.h"
 #import "SALog+Private.h"
@@ -383,6 +385,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
+            }
+            
+            // WKWebView 打通
+            if (_configOptions.enableJavaScriptBridge) {
+                [self swizzleWebViewMethod];
             }
         }
         
@@ -1022,6 +1029,85 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *screenName = NSStringFromClass([viewController class]);
     return [_visualizedAutoTrackViewControllers containsObject:screenName];
+}
+
+#pragma mark - WKWebView 打通
+
+- (void)swizzleWebViewMethod {
+    static dispatch_once_t onceTokenWebView;
+    dispatch_once(&onceTokenWebView, ^{
+        NSError *error = NULL;
+        
+        [WKWebView sa_swizzleMethod:@selector(loadRequest:)
+                         withMethod:@selector(sensorsdata_loadRequest:)
+                              error:&error];
+        
+        [WKWebView sa_swizzleMethod:@selector(loadHTMLString:baseURL:)
+                         withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
+                              error:&error];
+        
+        if (@available(iOS 9.0, *)) {
+            [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
+                             withMethod:@selector(sensorsdata_loadFileURL:allowingReadAccessToURL:)
+                                  error:&error];
+            
+            [WKWebView sa_swizzleMethod:@selector(loadData:MIMEType:characterEncodingName:baseURL:)
+                             withMethod:@selector(sensorsdata_loadData:MIMEType:characterEncodingName:baseURL:)
+                                  error:&error];
+        }
+        
+        if (error) {
+            SALogError(@"Failed to swizzle on WKWebView. Details: %@", error);
+            error = NULL;
+        }
+    });
+}
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
+    NSAssert([webView isKindOfClass:[WKWebView class]], @"此注入方案只支持 WKWebView！❌");
+    if (![webView isKindOfClass:[WKWebView class]]) {
+        return;
+    }
+    
+    @try {
+        WKUserContentController *contentController = webView.configuration.userContentController;
+        [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
+        [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
+        
+        NSMutableString *javaScriptSource = [NSMutableString string];
+        
+        // 开启 WKWebView 的 H5 打通功能
+        if (self.configOptions.enableJavaScriptBridge) {
+            if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+                [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
+                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+            } else {
+                SALogError(@"%@ get network serverURL is failed!", self);
+            }
+        }
+        
+        if (javaScriptSource.length == 0) {
+            return;
+        }
+        
+        NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+        __block BOOL isContainJavaScriptBridge = NO;
+        [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj.source containsString:@"sensorsdata_app_server_url"]) {
+                isContainJavaScriptBridge = YES;
+                *stop = YES;
+            }
+        }];
+        
+        if (!isContainJavaScriptBridge) {
+            // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
+            WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+            [contentController addUserScript:userScript];
+        }
+        
+    } @catch (NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    }
 }
 
 #pragma mark - Heat Map
@@ -3211,6 +3297,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 #pragma mark trackFromH5
+
 - (void)trackFromH5WithEvent:(NSString *)eventInfo {
     [self trackFromH5WithEvent:eventInfo enableVerify:NO];
 }

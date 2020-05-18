@@ -25,6 +25,10 @@
 		4DA4CB8D237936BC006892D6 /* SAVisualizedAbstractMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DA4CB86237936BC006892D6 /* SAVisualizedAbstractMessage.h */; };
 		6523731E23EBC44000A786A2 /* SAHeatMapObjectSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6523731C23EBC44000A786A2 /* SAHeatMapObjectSerializer.m */; };
 		6523731F23EBC44000A786A2 /* SAHeatMapObjectSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6523731D23EBC44000A786A2 /* SAHeatMapObjectSerializer.h */; };
+		A869D69F242F57F600069B6E /* WKWebView+SABridge.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69B242F57F600069B6E /* WKWebView+SABridge.h */; };
+		A869D6A0242F57F600069B6E /* SAScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */; };
+		A869D6A1242F57F600069B6E /* WKWebView+SABridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69D242F57F600069B6E /* WKWebView+SABridge.m */; };
+		A869D6A2242F57F600069B6E /* SAScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */; };
 		8888473424530F9100EBA7F6 /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888472E24530F9100EBA7F6 /* SAReachability.m */; };
 		8888473524530F9100EBA7F6 /* SAReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888472F24530F9100EBA7F6 /* SAReachability.h */; };
 		8888473624530F9100EBA7F6 /* SASecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888473024530F9100EBA7F6 /* SASecurityPolicy.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -200,6 +204,10 @@
 		4DA4CB86237936BC006892D6 /* SAVisualizedAbstractMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedAbstractMessage.h; sourceTree = "<group>"; };
 		6523731C23EBC44000A786A2 /* SAHeatMapObjectSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHeatMapObjectSerializer.m; sourceTree = "<group>"; };
 		6523731D23EBC44000A786A2 /* SAHeatMapObjectSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAHeatMapObjectSerializer.h; sourceTree = "<group>"; };
+		A869D69B242F57F600069B6E /* WKWebView+SABridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+SABridge.h"; sourceTree = "<group>"; };
+		A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAScriptMessageHandler.m; sourceTree = "<group>"; };
+		A869D69D242F57F600069B6E /* WKWebView+SABridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+SABridge.m"; sourceTree = "<group>"; };
+		A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAScriptMessageHandler.h; sourceTree = "<group>"; };
 		8888472E24530F9100EBA7F6 /* SAReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAReachability.m; sourceTree = "<group>"; };
 		8888472F24530F9100EBA7F6 /* SAReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAReachability.h; sourceTree = "<group>"; };
 		8888473024530F9100EBA7F6 /* SASecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASecurityPolicy.h; sourceTree = "<group>"; };
@@ -451,6 +459,17 @@
 			path = VisualizedAutoTrack;
 			sourceTree = "<group>";
 		};
+		A869D69A242F57F600069B6E /* JSBridge */ = {
+			isa = PBXGroup;
+			children = (
+				A869D69B242F57F600069B6E /* WKWebView+SABridge.h */,
+				A869D69D242F57F600069B6E /* WKWebView+SABridge.m */,
+				A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */,
+				A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */,
+			);
+			path = JSBridge;
+            sourceTree = "<group>";
+        };
 		8888472D24530F8100EBA7F6 /* Network */ = {
 			isa = PBXGroup;
 			children = (
@@ -494,6 +513,7 @@
 				4DA4CB71237935CF006892D6 /* Visualized */,
 				6523731823EBC0B600A786A2 /* HeatMap */,
 				6523731B23EBC0DC00A786A2 /* VisualizedAutoTrack */,
+				A869D69A242F57F600069B6E /* JSBridge */,
 				FC5A4BE2244E98DC00063624 /* Encrypt */,
 				FC5A4BCB244E980700063624 /* AutoTrack */,
 				F2402D65244175FC00F7B06D /* SALogger */,
@@ -710,6 +730,7 @@
 				FC5A4BC0244E976F00063624 /* SAGzipUtility.h in Headers */,
 				4DA4CB8A237936BC006892D6 /* SAVisualizedMessage.h in Headers */,
 				4DA4CB89237936BC006892D6 /* SAVisualizedConnection.h in Headers */,
+				A869D6A2242F57F600069B6E /* SAScriptMessageHandler.h in Headers */,
 				CB30C05022840EC00004061D /* SAConstants.h in Headers */,
 				CB30C08E22840EC00004061D /* SAAppExtensionDataManager.h in Headers */,
 				4DA4CB8D237936BC006892D6 /* SAVisualizedAbstractMessage.h in Headers */,
@@ -719,6 +740,7 @@
 				CB30C05122840EC00004061D /* SASwizzle.h in Headers */,
 				CB30C05A22840EC00004061D /* SAConstants+Private.h in Headers */,
 				CB30C07622840EC00004061D /* NSString+HashCode.h in Headers */,
+				A869D69F242F57F600069B6E /* WKWebView+SABridge.h in Headers */,
 				FC5A4BD7244E980700063624 /* UIGestureRecognizer+AutoTrack.h in Headers */,
 				F2402D78244175FC00F7B06D /* SAConsoleLogger.h in Headers */,
 				FC5A4BC5244E976F00063624 /* SADateFormatter.h in Headers */,
@@ -916,6 +938,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A869D6A1242F57F600069B6E /* WKWebView+SABridge.m in Sources */,
 				FC1AFF0623C3400E00F1B9E4 /* SAFileStore.m in Sources */,
 				CB30C06822840EC00004061D /* SAValueTransformers.m in Sources */,
 				4DA4CB88237936BC006892D6 /* SAVisualizedConnection.m in Sources */,
@@ -960,6 +983,7 @@
 				FC5A4BE7244E98DC00063624 /* SAEncryptUtils.m in Sources */,
 				CB30C08722840EC00004061D /* SAClassDescription.m in Sources */,
 				CB30C06222840EC00004061D /* SAPropertyDescription.m in Sources */,
+				A869D6A0242F57F600069B6E /* SAScriptMessageHandler.m in Sources */,
 				FC5A4BC3244E976F00063624 /* SAWeakPropertyContainer.m in Sources */,
 				CB30C08C22840EC00004061D /* SAVisualizedAutoTrackObjectSerializer.m in Sources */,
 				FC5A4BBF244E976F00063624 /* SACommonUtility.m in Sources */,
