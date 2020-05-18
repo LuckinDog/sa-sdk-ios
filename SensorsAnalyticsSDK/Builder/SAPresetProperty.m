@@ -52,20 +52,18 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 #pragma mark – Public Methods
 
 - (void)unarchiveFirstDay {
-    sensorsdata_dispatch_safe_sync(self.queue, ^{
-        self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
-        if (self.firstDay == nil) {
-            NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
-            self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
-            [self archiveFirstDay];
-        }
-    });
-}
-
-- (void)archiveFirstDay {
-    dispatch_async(self.queue, ^{
-        [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
-    });
+    @try {
+        sensorsdata_dispatch_safe_sync(self.queue, ^{
+            self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
+            if (self.firstDay == nil) {
+                NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
+                self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
+                [self archiveFirstDay];
+            }
+        });
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
 }
 
 - (BOOL)isFirstDay {
@@ -80,16 +78,20 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 
 - (NSDictionary *)currentPresetProperties {
     __block NSDictionary *presetProperties = nil;
-    sensorsdata_dispatch_safe_sync(self.queue, ^{
-        NSString *networkType = [SACommonUtility currentNetworkStatus];
-        
-        NSMutableDictionary *automaticPropertiesMDic = [NSMutableDictionary dictionaryWithDictionary:self.automaticProperties];
-        automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE] = networkType;
-        automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_WIFI] = @([networkType isEqualToString:@"WIFI"]);
-        automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self isFirstDay]);
-        
-        presetProperties = [NSDictionary dictionaryWithDictionary:automaticPropertiesMDic];
-    });
+    @try {
+        sensorsdata_dispatch_safe_sync(self.queue, ^{
+            NSString *networkType = [SACommonUtility currentNetworkStatus];
+            
+            NSMutableDictionary *automaticPropertiesMDic = [NSMutableDictionary dictionaryWithDictionary:self.automaticProperties];
+            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE] = networkType;
+            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_WIFI] = @([networkType isEqualToString:@"WIFI"]);
+            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self isFirstDay]);
+            
+            presetProperties = [NSDictionary dictionaryWithDictionary:automaticPropertiesMDic];
+        });
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
     return presetProperties;
 }
 
@@ -107,77 +109,91 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 
 #pragma mark – Private Methods
 
+- (void)archiveFirstDay {
+    dispatch_async(self.queue, ^{
+        [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
+    });
+}
+
 + (NSString *)deviceModel {
-    size_t size;
-    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-    char answer[size];
-    sysctlbyname("hw.machine", answer, &size, NULL, 0);
-    NSString *results = @(answer);
+    NSString *results = nil;
+    @try {
+        size_t size;
+        sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+        char answer[size];
+        sysctlbyname("hw.machine", answer, &size, NULL, 0);
+        results = @(answer);
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
     return results;
 }
 
 + (NSString *)carrierName {
     NSString *carrierName = nil;
-    CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
-    CTCarrier *carrier = nil;
-    
-#ifdef __IPHONE_12_0
-    if (@available(iOS 12.1, *)) {
-        // 排序
-        NSArray *carrierKeysArray = [telephonyInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
-        carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
-        if (!carrier.mobileNetworkCode) {
-            carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
-        }
-    }
-#endif
-    if (!carrier) {
-        carrier = telephonyInfo.subscriberCellularProvider;
-    }
-    if (carrier != nil) {
-        NSString *networkCode = [carrier mobileNetworkCode];
-        NSString *countryCode = [carrier mobileCountryCode];
+    @try {
+        CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
+        CTCarrier *carrier = nil;
         
-        //中国运营商
-        if (countryCode && [countryCode isEqualToString:CARRIER_CHINA_MCC]) {
-            if (networkCode) {
-                //中国移动
-                if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
-                    carrierName= @"中国移动";
-                }
-                //中国联通
-                if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
-                    carrierName= @"中国联通";
-                }
-                //中国电信
-                if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
-                    carrierName= @"中国电信";
-                }
-                //中国卫通
-                if ([networkCode isEqualToString:@"04"]) {
-                    carrierName= @"中国卫通";
-                }
-                //中国铁通
-                if ([networkCode isEqualToString:@"20"]) {
-                    carrierName= @"中国铁通";
-                }
+#ifdef __IPHONE_12_0
+        if (@available(iOS 12.1, *)) {
+            // 排序
+            NSArray *carrierKeysArray = [telephonyInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
+            carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
+            if (!carrier.mobileNetworkCode) {
+                carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
             }
-        } else if (countryCode && networkCode) { //国外运营商解析
-            //加载当前 bundle
-            NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-            //文件路径
-            NSString *jsonPath = [sensorsBundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
-            NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-            if (jsonData) {
-                NSDictionary *dicAllMcc =  [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableLeaves error:nil];
-                if (dicAllMcc) {
-                    NSString *mccMncKey = [NSString stringWithFormat:@"%@%@", countryCode, networkCode];
-                    carrierName = dicAllMcc[mccMncKey];
+        }
+#endif
+        if (!carrier) {
+            carrier = telephonyInfo.subscriberCellularProvider;
+        }
+        if (carrier != nil) {
+            NSString *networkCode = [carrier mobileNetworkCode];
+            NSString *countryCode = [carrier mobileCountryCode];
+            
+            //中国运营商
+            if (countryCode && [countryCode isEqualToString:CARRIER_CHINA_MCC]) {
+                if (networkCode) {
+                    //中国移动
+                    if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
+                        carrierName= @"中国移动";
+                    }
+                    //中国联通
+                    if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
+                        carrierName= @"中国联通";
+                    }
+                    //中国电信
+                    if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
+                        carrierName= @"中国电信";
+                    }
+                    //中国卫通
+                    if ([networkCode isEqualToString:@"04"]) {
+                        carrierName= @"中国卫通";
+                    }
+                    //中国铁通
+                    if ([networkCode isEqualToString:@"20"]) {
+                        carrierName= @"中国铁通";
+                    }
+                }
+            } else if (countryCode && networkCode) { //国外运营商解析
+                //加载当前 bundle
+                NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+                //文件路径
+                NSString *jsonPath = [sensorsBundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
+                NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+                if (jsonData) {
+                    NSDictionary *dicAllMcc =  [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableLeaves error:nil];
+                    if (dicAllMcc) {
+                        NSString *mccMncKey = [NSString stringWithFormat:@"%@%@", countryCode, networkCode];
+                        carrierName = dicAllMcc[mccMncKey];
+                    }
                 }
             }
         }
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
     }
-    
     return carrierName;
 }
 

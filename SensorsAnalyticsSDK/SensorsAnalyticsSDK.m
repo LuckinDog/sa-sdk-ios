@@ -1268,10 +1268,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                  @(arc4random()), SA_EVENT_TRACK_ID,
                  nil];
         } else if([type isEqualToString:@"track"]) {
-            //  是否首日访问
-            p[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self.presetProperty isFirstDay]);
-
             @try {
+                //  是否首日访问
+                p[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self.presetProperty isFirstDay]);
+
                 if ([self isLaunchedPassively]) {
                     p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE] = @"background";
                 }
