@@ -272,22 +272,6 @@
     return viewPaths;
 }
 
-//+ (NSArray<NSString *> *)viewPathsForCurrentViewController:(UIViewController<SAAutoTrackViewPathProperty> *)viewController {
-//    NSMutableArray *viewPaths = [NSMutableArray array];
-//
-//    if ([viewController isKindOfClass:UINavigationController.class]) {
-//        UIViewController<SAAutoTrackViewPathProperty> *currentViewController = (UIViewController<SAAutoTrackViewPathProperty> *)[self currentViewController];
-//        [viewPaths addObject:currentViewController.sensorsdata_itemPath];
-//    } else if ([viewController isKindOfClass:UIAlertController.class]) {
-//        [viewPaths addObject:viewController.sensorsdata_itemPath];
-//        UIViewController<SAAutoTrackViewPathProperty> *currentViewController = (UIViewController<SAAutoTrackViewPathProperty> *)[self currentViewController];
-//        [viewPaths addObject:currentViewController.sensorsdata_itemPath];
-//    } else {
-//        [viewPaths addObject:viewController.sensorsdata_itemPath];
-//    }
-//    return viewPaths;
-//}
-
 + (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPathProperty> *)view {
     NSMutableArray *viewPathArray = [NSMutableArray array];
     do { // 遍历 view 层级 路径
