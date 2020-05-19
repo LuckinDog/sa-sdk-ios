@@ -101,13 +101,12 @@
             currentViewController = [self findCurrentViewControllerFromRootViewController:viewController.childViewControllers.firstObject isRoot:NO];
         } else {
             //从最上层遍历（逆序），查找正在显示的 UITabBarController 或 UINavigationController 类型的
-            UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
             // 是否包含 UINavigationController 或 UITabBarController 类全屏显示的 controller
             __block BOOL isContainController = NO;
             [viewController.childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
                 // 判断 obj.view 是否加载，如果尚未加载，调用 obj.view 会触发 viewDidLoad，可能影响客户业务
                 if (obj.isViewLoaded) {
-                    CGPoint point = [keyWindow convertPoint:CGPointMake(0, 0) toView:obj.view];
+                    CGPoint point = [obj.view convertPoint:CGPointMake(0, 0) toView:nil];
                    // 正在全屏显示
                     if (!obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0))) {
                    // 判断类型

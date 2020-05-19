@@ -119,13 +119,9 @@
         NSArray <NSString *> *subelements = pageData[@"subelements"];
 
         if (height > 0 && visibility) {
-            UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-            CGPoint subviwePoint = [keyWindow convertPoint:CGPointMake(0, 0) toView:webView];
+            CGPoint subviwePoint = [webView convertPoint:CGPointMake(0, 0) toView:nil];
             CGFloat realX = left + subviwePoint.x - contentOffset.x + scrollX;
             CGFloat realY = top + subviwePoint.y - contentOffset.y + scrollY;
-
-//            CGFloat realX = left + subviwePoint.x - contentOffset.x;
-//            CGFloat realY = top + subviwePoint.y - contentOffset.y;
 
             SAJSTouchEventView *touchView = [[SAJSTouchEventView alloc] initWithFrame:CGRectMake(realX, realY, width, height)];
             touchView.userInteractionEnabled = YES;
