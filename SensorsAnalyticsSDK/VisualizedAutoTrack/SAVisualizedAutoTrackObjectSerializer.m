@@ -267,10 +267,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 
     NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
     alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
-    alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，暂时只支持 WKWebView";
-
-    #warning App 内嵌 H5 只支持 WKWebView，针对 UIWebView，弹框提示文案待确认，链接后期需要换到正式的 App 内嵌 H5 可视化全埋点的文档说明
-
+    alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
     alertInfo[@"link_text"] = @"配置文档";
     alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/visual_auto_track-7541326.html";
     [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
@@ -279,17 +276,21 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 /// 检查 WKWebView 相关信息
 - (void)checkWKWebViewInfoWithWebView:(WKWebView *)webView {
     SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
-    // H5 页面元素信息
-    if (webPageInfo) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
-    }
 
     // H5 弹框信息
     if (webPageInfo.alertSources) {
         [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:webPageInfo.alertSources];
     }
 
-    // H5 元素可点击元素信息
+    // H5 页面元素信息
+    if (webPageInfo) {
+        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
+
+        // 如果包含 H5 页面信息，不需要动态通知和 JS SDK 检测
+        return;
+    }
+
+    // 当前 WKWebView 是否注入可视化全埋点 Bridge 标记
     WKUserContentController *contentController = webView.configuration.userContentController;
     NSArray<WKUserScript *> *userScripts = contentController.userScripts;
     __block BOOL isContainVisualized = NO;
@@ -302,9 +303,9 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 
     /*
      isContainVisualized 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
-     可能延迟开启可视化全埋点，未成功注入标记，手动通知 JS 发送数据
+     可能延迟开启可视化全埋点，未成功注入标记，通过调用 JS 方法，手动通知 JS SDK 发送数据
      */
-    if (!isContainVisualized && !webPageInfo) {
+    if (!isContainVisualized) {
         // 注入 bridge 属性值，标记当前处于可视化全埋点调试
         NSMutableString *javaScriptSource = [NSMutableString string];
         [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
@@ -321,14 +322,16 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
                 SALogError(@"window.sensorsdata_app_call_js error：%@", error);
             }
         }];
+        return;
     }
 
     // 延时检测是否集成 JS SDK
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // 延迟判断是否存在 js 发送数据
+        SAVisualizedWebPageInfo *currentWebPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
         // 注入了 bridge 但是未接收到数据
-        if (isContainVisualized && !webPageInfo) {
+        if (!currentWebPageInfo) {
             NSString *javaScript = @"window.sensorsdata_app_call_js('sensorsdata-check-jssdk')";
-
             [webView evaluateJavaScript:javaScript completionHandler:^(id _Nullable response, NSError *_Nullable error) {
                 if (error) {
                     NSDictionary *userInfo = error.userInfo;
@@ -348,4 +351,5 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
         }
     });
 }
+
 @end

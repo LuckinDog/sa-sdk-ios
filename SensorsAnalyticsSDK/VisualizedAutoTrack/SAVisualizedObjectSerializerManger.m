@@ -47,7 +47,7 @@
 @property (nonatomic, copy, readwrite) NSString *lastImageHash;
 
 /// 保存不同 controller 可点击元素个数
-@property (nonatomic, copy) NSMapTable <UIViewController *, NSNumber *> *viewControllerFindCountData;
+@property (nonatomic, copy) NSMapTable <UIViewController *, NSNumber *> *controllerCountMap;
 
 /// 弹框信息
 @property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
@@ -81,7 +81,7 @@
 }
 
 - (void)initializeObjectSerializer {
-    _viewControllerFindCountData = [NSMapTable weakToStrongObjectsMapTable];
+    _controllerCountMap = [NSMapTable weakToStrongObjectsMapTable];
     _alertInfos = [NSMutableArray array];
     _webPageInfoCache = [[NSCache alloc] init];
     _jsonUtil = [[SAJSONUtil alloc] init];
@@ -91,7 +91,7 @@
 /// 重置解析配置
 - (void)resetObjectSerializer {
     self.isContainWebView = NO;
-    [self.viewControllerFindCountData removeAllObjects];
+    [self.controllerCountMap removeAllObjects];
 
     self.webPageInfo = nil;
     [self.alertInfos removeAllObjects];
@@ -195,12 +195,12 @@
 
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController {
-    NSNumber *countNumber = [self.viewControllerFindCountData objectForKey:viewController];
+    NSNumber *countNumber = [self.controllerCountMap objectForKey:viewController];
     if (countNumber) {
         NSInteger countValue = [countNumber integerValue];
-        [self.viewControllerFindCountData setObject:@(countValue + 1) forKey:viewController];
+        [self.controllerCountMap setObject:@(countValue + 1) forKey:viewController];
     } else {
-        [self.viewControllerFindCountData setObject:@(1) forKey:viewController];
+        [self.controllerCountMap setObject:@(1) forKey:viewController];
     }
 }
 
@@ -209,11 +209,11 @@
     self.imageHashUpdateMessage = nil;
 }
 - (UIViewController *)currentViewController {
-    NSArray <UIViewController *>*allViewControllers = NSAllMapTableKeys(self.viewControllerFindCountData);
+    NSArray <UIViewController *>*allViewControllers = NSAllMapTableKeys(self.controllerCountMap);
     UIViewController *mostShowViewController = nil;
     NSInteger mostShowCount = 1;
     for (UIViewController *controller in allViewControllers) {
-        NSNumber *countNumber = [self.viewControllerFindCountData objectForKey:controller];
+        NSNumber *countNumber = [self.controllerCountMap objectForKey:controller];
         if (countNumber.integerValue >= mostShowCount) {
             mostShowCount = countNumber.integerValue;
             mostShowViewController = controller;
