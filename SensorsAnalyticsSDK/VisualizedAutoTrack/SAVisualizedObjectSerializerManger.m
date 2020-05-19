@@ -125,6 +125,9 @@
                 // 是否包含当前 url 的页面信息
                 if ([self.webPageInfoCache objectForKey:url]) {
                     webPageInfo = [self.webPageInfoCache objectForKey:url];
+
+                    // 更新 H5 元素信息，则可视化全埋点可用，此时清空弹框信息
+                    webPageInfo.alertSources = nil;
                 }
                 webPageInfo.elementSources = pageDatas;
                 [self.webPageInfoCache setObject:webPageInfo forKey:url];
@@ -149,10 +152,15 @@
             // 是否包含当前 url 的页面信息
             if ([self.webPageInfoCache objectForKey:url]) {
                 webPageInfo = [self.webPageInfoCache objectForKey:url];
+
+                // 如果 js 发送弹框信息，即 js 环境变化，可视化全埋点不可用，则清空页面信息
+                webPageInfo.elementSources = nil;
+                webPageInfo.url = nil;
+                webPageInfo.title = nil;
             }
             webPageInfo.alertSources = alertDatas;
-            [self.webPageInfoCache setObject:webPageInfo forKey:url];
 
+            [self.webPageInfoCache setObject:webPageInfo forKey:url];
             // 刷新数据
             [self refreshImageHashWithData:alertDatas];
         }
@@ -164,6 +172,9 @@
             // 是否包含当前 url 的页面信息
             if ([self.webPageInfoCache objectForKey:url]) {
                 webPageInfo = [self.webPageInfoCache objectForKey:url];
+
+                // 更新 H5 页面信息，则可视化全埋点可用，此时清空弹框信息
+                webPageInfo.alertSources = nil;
             }
             webPageInfo.url = url;
             webPageInfo.title = webInfo[@"$title"];

@@ -32,7 +32,7 @@
 /// H5 标题
 @property (nonatomic, copy) NSString *title;
 
-/// 元素信息
+/// H5 可点击元素信息
 @property (nonatomic, copy) NSArray *elementSources;
 
 /// 弹框信息
