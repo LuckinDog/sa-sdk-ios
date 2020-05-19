@@ -220,7 +220,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH] = @((NSInteger)size.width);
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_APP_ID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
             // 计算时区偏移
-            NSInteger hourOffsetGMT = [[NSTimeZone systemTimeZone] secondsFromGMTForDate:[NSDate date]] / 60;
+            NSInteger hourOffsetGMT = - ([[NSTimeZone systemTimeZone] secondsFromGMT] / 60);
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_TIMEZONE_OFFSET] = @(hourOffsetGMT);
             
             _automaticProperties = [NSDictionary dictionaryWithDictionary:automaticPropertiesMDic];
