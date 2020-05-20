@@ -120,11 +120,18 @@
         NSArray <NSString *> *subelements = pageData[@"subelements"];
 
         if (height > 0 && visibility) {
-            CGPoint subviwePoint = [webView convertPoint:CGPointMake(0, 0) toView:nil];
-            CGFloat realX = left + subviwePoint.x - contentOffset.x + scrollX;
-            CGFloat realY = top + subviwePoint.y - contentOffset.y + scrollY;
+            CGRect webViewRect = [webView convertRect:webView.bounds toView:nil];
+            CGFloat realX = left + webViewRect.origin.x - contentOffset.x + scrollX;
+            CGFloat realY = top + webViewRect.origin.y - contentOffset.y + scrollY;
 
-            SAJSTouchEventView *touchView = [[SAJSTouchEventView alloc] initWithFrame:CGRectMake(realX, realY, width, height)];
+            // H5 元素的显示位置
+            CGRect touchViewRect = CGRectMake(realX, realY, width, height);
+            // 计算 webView 和 H5 元素的交叉区域
+            CGRect validFrame = CGRectIntersection(webViewRect, touchViewRect);
+            if (CGRectIsNull(validFrame) || CGSizeEqualToSize(validFrame.size, CGSizeZero)) {
+                continue;
+            }
+            SAJSTouchEventView *touchView = [[SAJSTouchEventView alloc] initWithFrame:validFrame];
             touchView.userInteractionEnabled = YES;
             touchView.elementContent = pageData[@"$element_content"];
             touchView.elementSelector = pageData[@"$element_selector"];
