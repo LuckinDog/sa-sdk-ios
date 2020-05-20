@@ -114,8 +114,8 @@
         CGFloat top = [pageData[@"top"] floatValue] * zoomScale;
         CGFloat width = [pageData[@"width"] floatValue] * zoomScale;
         CGFloat height = [pageData[@"height"] floatValue] * zoomScale;
-        CGFloat scrollX = [pageData[@"scrollX"] floatValue];
-        CGFloat scrollY = [pageData[@"scrollY"] floatValue];
+        CGFloat scrollX = [pageData[@"scrollX"] floatValue] * zoomScale;
+        CGFloat scrollY = [pageData[@"scrollY"] floatValue] * zoomScale;
         BOOL visibility = [pageData[@"visibility"] boolValue];
         NSArray <NSString *> *subelements = pageData[@"subelements"];
 
@@ -137,10 +137,6 @@
             touchView.jsSubElementIds = subelements;
             [touchViewArray addObject:touchView];
         }
-    }
-
-    if (zoomScale != 1) { // 页面缩放，强制刷新数据
-        [[SAVisualizedObjectSerializerManger sharedInstance] refreshImageHashWithData:@(zoomScale)];
     }
 
     // 构建子元素数组

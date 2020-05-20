@@ -92,9 +92,6 @@
 /// 重置最后截图 hash
 - (void)resetLastImageHash:(NSString *)imageHash;
 
-/// 刷新截图 imageHash 信息
-- (void)refreshImageHashWithData:(id)obj;
-
 /// 添加弹框
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos;
 
