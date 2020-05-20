@@ -1074,6 +1074,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
 
         NSMutableString *javaScriptSource = [NSMutableString string];
+
         // 开启 WKWebView 的 H5 打通功能
         if (self.configOptions.enableJavaScriptBridge) {
             if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
@@ -1091,7 +1092,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
             }
         }
-
         
         if (javaScriptSource.length == 0) {
             return;
@@ -1114,6 +1114,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
+}
+
+/// 注入 H5 打通信息
+- (void)addJSCallScriptMessageHandlerWithWebView:(WKWebView *)webView {
+    NSMutableString *javaScriptSource = [NSMutableString string];
+    if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+        [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
+        [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+    } else {
+        SALogError(@"%@ get network serverURL is failed!", self);
+    }
+}
+
+- (void)addVisualizedScriptMessageHandlerWithWebView:(WKWebView *)webView {
+
 }
 
 #pragma mark - Heat Map

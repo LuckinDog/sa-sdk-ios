@@ -32,7 +32,7 @@
 /// H5 标题
 @property (nonatomic, copy) NSString *title;
 
-/// 元素信息
+/// H5 可点击元素信息
 @property (nonatomic, copy) NSArray *elementSources;
 
 /// 弹框信息
@@ -55,7 +55,7 @@
 /// 上次截图 hash
 @property (nonatomic, copy, readonly) NSString *lastImageHash;
 
-/// App 内嵌 H5 页面信息
+/// 当前 App 内嵌 H5 页面信息
 @property (nonatomic, strong, readonly) SAVisualizedWebPageInfo *webPageInfo;
 
 /// 弹框信息

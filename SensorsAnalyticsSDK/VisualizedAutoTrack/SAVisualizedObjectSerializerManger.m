@@ -24,7 +24,7 @@
 
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAJSONUtil.h"
-
+#import "SALog.h"
 
 @implementation SAVisualizedWebPageInfo
 
@@ -47,7 +47,7 @@
 @property (nonatomic, copy, readwrite) NSString *lastImageHash;
 
 /// 保存不同 controller 可点击元素个数
-@property (nonatomic, copy) NSMapTable <UIViewController *, NSNumber *> *viewControllerFindCountData;
+@property (nonatomic, copy) NSMapTable <UIViewController *, NSNumber *> *controllerCountMap;
 
 /// 弹框信息
 @property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
@@ -81,7 +81,7 @@
 }
 
 - (void)initializeObjectSerializer {
-    _viewControllerFindCountData = [NSMapTable weakToStrongObjectsMapTable];
+    _controllerCountMap = [NSMapTable weakToStrongObjectsMapTable];
     _alertInfos = [NSMutableArray array];
     _webPageInfoCache = [[NSCache alloc] init];
     _jsonUtil = [[SAJSONUtil alloc] init];
@@ -91,7 +91,7 @@
 /// 重置解析配置
 - (void)resetObjectSerializer {
     self.isContainWebView = NO;
-    [self.viewControllerFindCountData removeAllObjects];
+    [self.controllerCountMap removeAllObjects];
 
     self.webPageInfo = nil;
     [self.alertInfos removeAllObjects];
@@ -102,9 +102,15 @@
     /*
       App 内嵌 H5 的可视化全埋点，可能页面加载完成，但是未及时接收到 Html 页面信息。
       等接收到 JS SDK 发送的页面信息，由于页面截图不变，前端页面未重新加载解析 viewTree 信息，导致无法圈选。
-      所以，接收到 JS 的页面信息，在原有 imageHash 基础上拼接 html 页面属于 hash 值，使得前端重新加载页面信息
+      所以，接收到 JS 的页面信息，在原有 imageHash 基础上拼接 html 页面数据 hash 值，使得前端重新加载页面信息
       */
-    NSData *jsonData = [self.jsonUtil JSONSerializeObject:obj];
+    NSData *jsonData = nil;
+    @try {
+        jsonData = [self.jsonUtil JSONSerializeObject:obj];
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
+
     if (jsonData) {
         NSUInteger hashCode = [jsonData hash];
         self.imageHashUpdateMessage = [NSString stringWithFormat:@"%lu", (unsigned long)hashCode];
@@ -113,9 +119,10 @@
 
 /// 缓存可视化全埋点相关 web 信息
 - (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSDictionary *)pageInfo {
+
     NSString *callType = pageInfo[@"callType"];
-    if (([callType isEqualToString:@"visualized_track"])) { // 解析 js 页面可点击元素数据
-        // 页面结构数据
+    if (([callType isEqualToString:@"visualized_track"])) {
+        // H5 页面可点击元素数据
         NSArray *pageDatas = pageInfo[@"data"];
         if ([pageDatas isKindOfClass:NSArray.class]) {
             NSDictionary *elementInfo = [pageDatas firstObject];
@@ -125,6 +132,9 @@
                 // 是否包含当前 url 的页面信息
                 if ([self.webPageInfoCache objectForKey:url]) {
                     webPageInfo = [self.webPageInfoCache objectForKey:url];
+
+                    // 更新 H5 元素信息，则可视化全埋点可用，此时清空弹框信息
+                    webPageInfo.alertSources = nil;
                 }
                 webPageInfo.elementSources = pageDatas;
                 [self.webPageInfoCache setObject:webPageInfo forKey:url];
@@ -149,10 +159,15 @@
             // 是否包含当前 url 的页面信息
             if ([self.webPageInfoCache objectForKey:url]) {
                 webPageInfo = [self.webPageInfoCache objectForKey:url];
+
+                // 如果 js 发送弹框信息，即 js 环境变化，可视化全埋点不可用，则清空页面信息
+                webPageInfo.elementSources = nil;
+                webPageInfo.url = nil;
+                webPageInfo.title = nil;
             }
             webPageInfo.alertSources = alertDatas;
-            [self.webPageInfoCache setObject:webPageInfo forKey:url];
 
+            [self.webPageInfoCache setObject:webPageInfo forKey:url];
             // 刷新数据
             [self refreshImageHashWithData:alertDatas];
         }
@@ -164,6 +179,9 @@
             // 是否包含当前 url 的页面信息
             if ([self.webPageInfoCache objectForKey:url]) {
                 webPageInfo = [self.webPageInfoCache objectForKey:url];
+
+                // 更新 H5 页面信息，则可视化全埋点可用，此时清空弹框信息
+                webPageInfo.alertSources = nil;
             }
             webPageInfo.url = url;
             webPageInfo.title = webInfo[@"$title"];
@@ -195,12 +213,12 @@
 
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController {
-    NSNumber *countNumber = [self.viewControllerFindCountData objectForKey:viewController];
+    NSNumber *countNumber = [self.controllerCountMap objectForKey:viewController];
     if (countNumber) {
         NSInteger countValue = [countNumber integerValue];
-        [self.viewControllerFindCountData setObject:@(countValue + 1) forKey:viewController];
+        [self.controllerCountMap setObject:@(countValue + 1) forKey:viewController];
     } else {
-        [self.viewControllerFindCountData setObject:@(1) forKey:viewController];
+        [self.controllerCountMap setObject:@(1) forKey:viewController];
     }
 }
 
@@ -209,11 +227,11 @@
     self.imageHashUpdateMessage = nil;
 }
 - (UIViewController *)currentViewController {
-    NSArray <UIViewController *>*allViewControllers = NSAllMapTableKeys(self.viewControllerFindCountData);
+    NSArray <UIViewController *>*allViewControllers = NSAllMapTableKeys(self.controllerCountMap);
     UIViewController *mostShowViewController = nil;
     NSInteger mostShowCount = 1;
     for (UIViewController *controller in allViewControllers) {
-        NSNumber *countNumber = [self.viewControllerFindCountData objectForKey:controller];
+        NSNumber *countNumber = [self.controllerCountMap objectForKey:controller];
         if (countNumber.integerValue >= mostShowCount) {
             mostShowCount = countNumber.integerValue;
             mostShowViewController = controller;

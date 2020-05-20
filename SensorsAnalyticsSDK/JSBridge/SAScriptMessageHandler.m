@@ -85,7 +85,12 @@
             NSData *trackMessageData = [NSJSONSerialization dataWithJSONObject:trackMessageDic options:0 error:nil];
             NSString *trackMessageString = [[NSString alloc] initWithData:trackMessageData encoding:NSUTF8StringEncoding];
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
-        } else if ([callType isEqualToString:@"visualized_track"] || [callType isEqualToString:@"app_alert"] || [callType isEqualToString:@"page_info"]) { // 缓存 js 页面信息
+        } else if ([callType isEqualToString:@"visualized_track"] || [callType isEqualToString:@"app_alert"] || [callType isEqualToString:@"page_info"]) {
+            /* 缓存 H5 页面信息
+             visualized_track：H5 可点击元素数据，数组；
+             app_alert：H5 弹框信息，提示配置错误信息；
+             page_info：H5 页面信息，包括 url 和 title
+             */
             WKWebView *webView = message.webView;
             [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo: messageDic];
         }

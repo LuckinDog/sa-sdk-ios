@@ -95,6 +95,8 @@
     NSMutableArray <NSString *> *allNoRepeatElementIds = [NSMutableArray array];
 
     UIScrollView *scrollView = webView.scrollView;
+    /// webView 缩放系数
+    CGFloat zoomScale = scrollView.zoomScale;
     // 位置偏移量
     CGPoint contentOffset = scrollView.contentOffset;
     NSMutableArray *touchViewArray = [NSMutableArray array];
@@ -108,26 +110,28 @@
         }
 
         // NSInteger scale = [pageData[@"scale"] integerValue];
-        CGFloat left = [pageData[@"left"] floatValue];
-
-        CGFloat top = [pageData[@"top"] floatValue];
-        CGFloat width = [pageData[@"width"] floatValue];
-        CGFloat height = [pageData[@"height"] floatValue];
-        CGFloat scrollX = [pageData[@"scrollX"] floatValue];
-        CGFloat scrollY = [pageData[@"scrollY"] floatValue];
+        CGFloat left = [pageData[@"left"] floatValue] * zoomScale;
+        CGFloat top = [pageData[@"top"] floatValue] * zoomScale;
+        CGFloat width = [pageData[@"width"] floatValue] * zoomScale;
+        CGFloat height = [pageData[@"height"] floatValue] * zoomScale;
+        CGFloat scrollX = [pageData[@"scrollX"] floatValue] * zoomScale;
+        CGFloat scrollY = [pageData[@"scrollY"] floatValue] * zoomScale;
         BOOL visibility = [pageData[@"visibility"] boolValue];
         NSArray <NSString *> *subelements = pageData[@"subelements"];
 
         if (height > 0 && visibility) {
-            UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-            CGPoint subviwePoint = [keyWindow convertPoint:CGPointMake(0, 0) toView:webView];
-            CGFloat realX = left + subviwePoint.x - contentOffset.x + scrollX;
-            CGFloat realY = top + subviwePoint.y - contentOffset.y + scrollY;
+            CGRect webViewRect = [webView convertRect:webView.bounds toView:nil];
+            CGFloat realX = left + webViewRect.origin.x - contentOffset.x + scrollX;
+            CGFloat realY = top + webViewRect.origin.y - contentOffset.y + scrollY;
 
-//            CGFloat realX = left + subviwePoint.x - contentOffset.x;
-//            CGFloat realY = top + subviwePoint.y - contentOffset.y;
-
-            SAJSTouchEventView *touchView = [[SAJSTouchEventView alloc] initWithFrame:CGRectMake(realX, realY, width, height)];
+            // H5 元素的显示位置
+            CGRect touchViewRect = CGRectMake(realX, realY, width, height);
+            // 计算 webView 和 H5 元素的交叉区域
+            CGRect validFrame = CGRectIntersection(webViewRect, touchViewRect);
+            if (CGRectIsNull(validFrame) || CGSizeEqualToSize(validFrame.size, CGSizeZero)) {
+                continue;
+            }
+            SAJSTouchEventView *touchView = [[SAJSTouchEventView alloc] initWithFrame:validFrame];
             touchView.userInteractionEnabled = YES;
             touchView.elementContent = pageData[@"$element_content"];
             touchView.elementSelector = pageData[@"$element_selector"];

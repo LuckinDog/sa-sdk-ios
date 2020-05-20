@@ -43,7 +43,7 @@
 
     //网址
     NSString *httpStr = @"https://869359954.github.io/sadefine/definedemo.html";
-    httpStr = @"https://869359954.github.io/sadefine/dingdongdemo.html";
+//    httpStr = @"https://869359954.github.io/sadefine/dingdongdemo.html";
 
     // 单页面
 //    httpStr = @"https://869359954.github.io/sadefine/vue/index.html";
