@@ -113,9 +113,10 @@
 
 /// 缓存可视化全埋点相关 web 信息
 - (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSDictionary *)pageInfo {
+
     NSString *callType = pageInfo[@"callType"];
-    if (([callType isEqualToString:@"visualized_track"])) { // 解析 js 页面可点击元素数据
-        // 页面结构数据
+    if (([callType isEqualToString:@"visualized_track"])) {
+        // H5 页面可点击元素数据
         NSArray *pageDatas = pageInfo[@"data"];
         if ([pageDatas isKindOfClass:NSArray.class]) {
             NSDictionary *elementInfo = [pageDatas firstObject];
