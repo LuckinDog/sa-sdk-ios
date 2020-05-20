@@ -95,6 +95,8 @@
     NSMutableArray <NSString *> *allNoRepeatElementIds = [NSMutableArray array];
 
     UIScrollView *scrollView = webView.scrollView;
+    /// webView 缩放系数
+    CGFloat zoomScale = scrollView.zoomScale;
     // 位置偏移量
     CGPoint contentOffset = scrollView.contentOffset;
     NSMutableArray *touchViewArray = [NSMutableArray array];
@@ -108,11 +110,10 @@
         }
 
         // NSInteger scale = [pageData[@"scale"] integerValue];
-        CGFloat left = [pageData[@"left"] floatValue];
-
-        CGFloat top = [pageData[@"top"] floatValue];
-        CGFloat width = [pageData[@"width"] floatValue];
-        CGFloat height = [pageData[@"height"] floatValue];
+        CGFloat left = [pageData[@"left"] floatValue] * zoomScale;
+        CGFloat top = [pageData[@"top"] floatValue] * zoomScale;
+        CGFloat width = [pageData[@"width"] floatValue] * zoomScale;
+        CGFloat height = [pageData[@"height"] floatValue] * zoomScale;
         CGFloat scrollX = [pageData[@"scrollX"] floatValue];
         CGFloat scrollY = [pageData[@"scrollY"] floatValue];
         BOOL visibility = [pageData[@"visibility"] boolValue];
@@ -136,6 +137,10 @@
             touchView.jsSubElementIds = subelements;
             [touchViewArray addObject:touchView];
         }
+    }
+
+    if (zoomScale != 1) { // 页面缩放，强制刷新数据
+        [[SAVisualizedObjectSerializerManger sharedInstance] refreshImageHashWithData:@(zoomScale)];
     }
 
     // 构建子元素数组
