@@ -50,7 +50,7 @@
 
 - (void)write:(DISPATCH_NOESCAPE dispatch_block_t)block {
     if (block) {
-        dispatch_barrier_sync(self.concurentQueue, block);
+        dispatch_barrier_async(self.concurentQueue, block);
     }
 }
 
