@@ -20,10 +20,14 @@
 
 
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAJSTouchEventView : UIView
+
+/// 根据 web 页面元素信息构造对象
+- (instancetype)initWithWebView:(WKWebView *)webView webElementInfo:(NSDictionary *)elementInfo;
 
 // html 标签名称
 @property (nonatomic, copy) NSString *tagName;

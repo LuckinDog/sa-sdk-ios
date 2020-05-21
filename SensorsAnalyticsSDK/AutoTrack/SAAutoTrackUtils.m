@@ -85,20 +85,23 @@
 }
 
 + (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    __block UIViewController *currentViewController = nil;
+    __block UIViewController *currentViewController = viewController;
     if (viewController.presentedViewController && ![viewController.presentedViewController isKindOfClass:UIAlertController.class]) {
         viewController = [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
     }
 
     if ([viewController isKindOfClass:[UITabBarController class]]) {
-        currentViewController = [self findCurrentViewControllerFromRootViewController:[(UITabBarController *)viewController selectedViewController] isRoot:NO];
-    } else if ([viewController isKindOfClass:[UINavigationController class]]) {
+        return [self findCurrentViewControllerFromRootViewController:[(UITabBarController *)viewController selectedViewController] isRoot:NO];
+    }
+    if ([viewController isKindOfClass:[UINavigationController class]]) {
         // 根视图为 UINavigationController
         UIViewController *topViewController = [(UINavigationController *)viewController topViewController];
-        currentViewController = [self findCurrentViewControllerFromRootViewController:topViewController isRoot:NO];
-    } else if (viewController.childViewControllers.count > 0) {
+        return [self findCurrentViewControllerFromRootViewController:topViewController isRoot:NO];
+    }
+
+    if (viewController.childViewControllers.count > 0) {
         if (viewController.childViewControllers.count == 1 && isRoot) {
-            currentViewController = [self findCurrentViewControllerFromRootViewController:viewController.childViewControllers.firstObject isRoot:NO];
+            return [self findCurrentViewControllerFromRootViewController:viewController.childViewControllers.firstObject isRoot:NO];
         } else {
             //从最上层遍历（逆序），查找正在显示的 UITabBarController 或 UINavigationController 类型的
             // 是否包含 UINavigationController 或 UITabBarController 类全屏显示的 controller
@@ -119,7 +122,7 @@
                 }
             }];
             if (!isContainController) {
-                currentViewController = viewController;
+                return viewController;
             }
         }
     } else if ([viewController respondsToSelector:NSSelectorFromString(@"contentViewController")]) {
@@ -130,9 +133,7 @@
         if (tempViewController) {
             currentViewController = [self findCurrentViewControllerFromRootViewController:tempViewController isRoot:NO];
         }
-    } else {
-        currentViewController = viewController;
-    }
+    } 
     return currentViewController;
 }
 

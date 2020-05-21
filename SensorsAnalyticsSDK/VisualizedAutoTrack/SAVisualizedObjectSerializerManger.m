@@ -97,6 +97,13 @@
     [self.alertInfos removeAllObjects];
 }
 
+- (void)cleanVisualizedWebPageInfoCache {
+    [self.webPageInfoCache removeAllObjects];
+
+    self.imageHashUpdateMessage = nil;
+    self.lastImageHash = nil;
+}
+
 /// 刷新截图 imageHash 信息
 - (void)refreshImageHashWithData:(id)obj {
     /*
@@ -200,10 +207,6 @@
     return webPageInfo;
 }
 
-- (void)cleanVisualizedWebPageInfoCache {
-    [self.webPageInfoCache removeAllObjects];
-}
-
 - (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo; {
     self.isContainWebView = YES;
     if (webInfo) {
@@ -226,6 +229,7 @@
     self.lastImageHash = imageHash;
     self.imageHashUpdateMessage = nil;
 }
+
 - (UIViewController *)currentViewController {
     NSArray <UIViewController *>*allViewControllers = NSAllMapTableKeys(self.controllerCountMap);
     UIViewController *mostShowViewController = nil;
@@ -241,26 +245,27 @@
 }
 
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {
-    if (infos.count > 0) {
-        // 通过 Dictionary 构造所有不同 message 的弹框集合
-        NSMutableDictionary *alertMessageInfoDic = [NSMutableDictionary dictionary];
-        for (NSDictionary *alertInfo in self.alertInfos) {
-            NSString *message = alertInfo[@"message"];
-            if (message) {
-                alertMessageInfoDic[message] = alertInfo;
-            }
-        }
-
-        // 只添加 message 不重复的弹框信息
-        for (NSDictionary *alertInfo in infos) {
-            NSString *message = alertInfo[@"message"];
-            if (message && ![alertMessageInfoDic.allKeys containsObject:message]) {
-                [self.alertInfos addObject:alertInfo];
-            }
-        }
-
-        // 强制刷新数据
-        [self refreshImageHashWithData:infos];
+    if (infos.count == 0) {
+        return;
     }
+    // 通过 Dictionary 构造所有不同 message 的弹框集合
+    NSMutableDictionary *alertMessageInfoDic = [NSMutableDictionary dictionary];
+    for (NSDictionary *alertInfo in self.alertInfos) {
+        NSString *message = alertInfo[@"message"];
+        if (message) {
+            alertMessageInfoDic[message] = alertInfo;
+        }
+    }
+
+    // 只添加 message 不重复的弹框信息
+    for (NSDictionary *alertInfo in infos) {
+        NSString *message = alertInfo[@"message"];
+        if (message && ![alertMessageInfoDic.allKeys containsObject:message]) {
+            [self.alertInfos addObject:alertInfo];
+        }
+    }
+
+    // 强制刷新数据
+    [self refreshImageHashWithData:infos];
 }
 @end

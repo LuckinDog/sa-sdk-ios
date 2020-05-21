@@ -293,6 +293,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     // 当前 WKWebView 是否注入可视化全埋点 Bridge 标记
     WKUserContentController *contentController = webView.configuration.userContentController;
     NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+    // 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
     __block BOOL isContainVisualized = NO;
     [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         if ([obj.source containsString:@"sensorsdata_visualized_mode"]) {
@@ -301,27 +302,25 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
         }
     }];
 
-    /*
-     isContainVisualized 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
-     可能延迟开启可视化全埋点，未成功注入标记，通过调用 JS 方法，手动通知 JS SDK 发送数据
-     */
+    // 注入 bridge 属性值，标记当前处于可视化全埋点调试
+    NSMutableString *javaScriptSource = [NSMutableString string];
     if (!isContainVisualized) {
-        // 注入 bridge 属性值，标记当前处于可视化全埋点调试
-        NSMutableString *javaScriptSource = [NSMutableString string];
         [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+    }
+    // 可能延迟开启可视化全埋点，未成功注入标记，通过调用 JS 方法，手动通知 JS SDK 发送数据
+    [javaScriptSource appendString:@"window.sensorsdata_app_call_js('visualized')"];
+    [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+        if (error) {
+            /*
+             如果 JS SDK 尚未加载完成，可能方法不存在；
+             等到 JS SDK加载完成检测到 sensorsdata_visualized_mode 会尝试发送数据页面数据
+             */
+            SALogError(@"window.sensorsdata_app_call_js error：%@", error);
+        }
+    }];
 
-        // 通知 js 发送页面数据
-        [javaScriptSource appendString:@"window.sensorsdata_app_call_js('visualized')"];
-
-        [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable response, NSError *_Nullable error) {
-            if (error) {
-                /*
-                 如果 JS SDK 尚未加载完成，可能方法不存在；
-                 等到 JS SDK加载完成检测到 sensorsdata_visualized_mode 会尝试发送数据页面数据
-                 */
-                SALogError(@"window.sensorsdata_app_call_js error：%@", error);
-            }
-        }];
+    // 只有包含可视化全埋点 Bridge 标记，才可能需要检测 JS SDK 集成情况
+    if (!isContainVisualized) {
         return;
     }
 

@@ -74,14 +74,14 @@
 /// 重置解析配置
 - (void)resetObjectSerializer;
 
+/// 清除 web 页面信息缓存
+- (void)cleanVisualizedWebPageInfoCache;
+
 /// 缓存可视化全埋点相关 web 信息
 - (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSDictionary *)pageInfo;
 
 /// 读取当前 webView 页面信息
 - (SAVisualizedWebPageInfo *)readWebPageInfoWithWebView:(WKWebView *)webView;
-
-/// 清除 web 页面信息缓存
-- (void)cleanVisualizedWebPageInfoCache;
 
 /// 进入 web 页面
 - (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo;
