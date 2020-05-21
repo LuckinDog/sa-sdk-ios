@@ -172,6 +172,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
+@property (nonatomic, strong) SAReadWriteLock *remoteConfigLock;
+@property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
@@ -316,6 +318,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             NSString *readWriteLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
             _readWriteQueue = dispatch_queue_create([readWriteLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+            
+            _remoteConfigLock = [[SAReadWriteLock alloc] init];
+            
+            _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] init];
             
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
@@ -2060,17 +2066,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    [[SAReadWriteLock sharedInstance] write:^{
-        self.dynamicSuperProperties = dynamicSuperProperties;
+    __weak typeof(self) weakSelf = self;
+    [self.dynamicSuperPropertiesLock write:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+
+        strongSelf.dynamicSuperProperties = dynamicSuperProperties;
     }];
 }
 
 - (NSDictionary *)acquireDynamicSuperProperties {
     // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
     __block NSDictionary *dynamicSuperPropertiesDict = nil;
-    [[SAReadWriteLock sharedInstance] read:^{
-        if (self.dynamicSuperProperties) {
-            dynamicSuperPropertiesDict = self.dynamicSuperProperties();
+    
+    __weak typeof(self) weakSelf = self;
+    [self.dynamicSuperPropertiesLock read:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+
+        if (strongSelf.dynamicSuperProperties) {
+            dynamicSuperPropertiesDict = strongSelf.dynamicSuperProperties();
         }
     }];
     return dynamicSuperPropertiesDict;
@@ -2891,15 +2904,22 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    [[SAReadWriteLock sharedInstance] write:^{
-        self->_remoteConfig = remoteConfig;
+    __weak typeof(self) weakSelf = self;
+    [self.remoteConfigLock write:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        
+        strongSelf->_remoteConfig = remoteConfig;
     }];
 }
 
 - (id)remoteConfig {
     __block SASDKRemoteConfig *remoteConfig = nil;
-    [[SAReadWriteLock sharedInstance] read:^{
-        remoteConfig = self->_remoteConfig;
+    
+    __weak typeof(self) weakSelf = self;
+    [self.remoteConfigLock read:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        
+        remoteConfig = strongSelf->_remoteConfig;
     }];
     return remoteConfig;
 }

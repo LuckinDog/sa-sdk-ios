@@ -33,15 +33,6 @@
 
 @implementation SAReadWriteLock
 
-+ (instancetype)sharedInstance {
-    static SAReadWriteLock *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[SAReadWriteLock alloc] init];
-    });
-    return sharedInstance;
-}
-
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -51,27 +42,15 @@
     return self;
 }
 
-- (void)read:(dispatch_block_t)block {
-    @try {
-        dispatch_sync(self.concurentQueue, ^{
-            if (block) {
-                block();
-            }
-        });
-    } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+- (void)read:(DISPATCH_NOESCAPE dispatch_block_t)block {
+    if (block) {
+        dispatch_sync(self.concurentQueue, block);
     }
 }
 
-- (void)write:(dispatch_block_t)block {
-    @try {
-        dispatch_barrier_async(self.concurentQueue, ^{
-            if (block) {
-                block();
-            }
-        });
-    } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+- (void)write:(DISPATCH_NOESCAPE dispatch_block_t)block {
+    if (block) {
+        dispatch_barrier_sync(self.concurentQueue, block);
     }
 }
 

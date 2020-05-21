@@ -24,11 +24,30 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAReadWriteLock : NSObject
 
-+ (instancetype)sharedInstance;
+/**
+*  @abstract
+*  初始化方法
+*
+*/
+- (instancetype)init;
 
-- (void)read:(dispatch_block_t)block;
+/**
+*  @abstract
+*  通过读写锁读取数据
+*
+*  @param block 读取操作
+*
+*/
+- (void)read:(DISPATCH_NOESCAPE dispatch_block_t)block;
 
-- (void)write:(dispatch_block_t)block;
+/**
+*  @abstract
+*  通过读写锁写入数据
+*
+*  @param block 写入操作
+*
+*/
+- (void)write:(DISPATCH_NOESCAPE dispatch_block_t)block;
 
 @end
 
