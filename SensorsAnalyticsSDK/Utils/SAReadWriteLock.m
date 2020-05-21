@@ -42,16 +42,26 @@
     return self;
 }
 
-- (void)read:(DISPATCH_NOESCAPE dispatch_block_t)block {
-    if (block) {
-        dispatch_sync(self.concurentQueue, block);
+- (id)readWithBlock:(id(^)(void))block {
+    if (!block) {
+        return nil;
     }
+    
+    __block id obj = nil;
+    dispatch_sync(self.concurentQueue, ^{
+        obj = block();
+    });
+    return obj;
 }
 
-- (void)write:(DISPATCH_NOESCAPE dispatch_block_t)block {
-    if (block) {
-        dispatch_barrier_async(self.concurentQueue, block);
+- (void)writeWithBlock:(void (^)(void))block {
+    if (!block) {
+        return;
     }
+    
+    dispatch_barrier_async(self.concurentQueue, ^{
+        block();
+    });
 }
 
 @end

@@ -37,8 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 *
 *  @param block 读取操作
 *
+*  @return 读取的数据
+*
 */
-- (void)read:(DISPATCH_NOESCAPE dispatch_block_t)block;
+- (id)readWithBlock:(id(^)(void))block;
 
 /**
 *  @abstract
@@ -47,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 *  @param block 写入操作
 *
 */
-- (void)write:(DISPATCH_NOESCAPE dispatch_block_t)block;
+- (void)writeWithBlock:(void (^)(void))block;
 
 @end
 
