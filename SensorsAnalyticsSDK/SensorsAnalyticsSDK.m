@@ -3132,14 +3132,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (SAReadWriteLock *)remoteConfigLock {
     if (!_remoteConfigLock) {
-        _remoteConfigLock = [[SAReadWriteLock alloc] init];
+        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
+        _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
     }
     return _remoteConfigLock;
 }
 
 - (SAReadWriteLock *)dynamicSuperPropertiesLock {
     if (!_dynamicSuperPropertiesLock) {
-        _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] init];
+        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
+        _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
     }
     return _dynamicSuperPropertiesLock;
 }

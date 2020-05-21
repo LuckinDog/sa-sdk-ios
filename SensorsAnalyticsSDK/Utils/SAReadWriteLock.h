@@ -28,8 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
 *  @abstract
 *  初始化方法
 *
+*  @param queueLabel 队列的标识
+*
+*  @return 读写锁实例
+*
 */
-- (instancetype)init;
+- (instancetype)initWithQueueLabel:(NSString *)queueLabel;
 
 /**
 *  @abstract

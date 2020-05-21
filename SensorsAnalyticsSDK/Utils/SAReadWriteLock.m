@@ -23,7 +23,7 @@
 #endif
 
 #import "SAReadWriteLock.h"
-#import "SALog.h"
+#import "SAValidator.h"
 
 @interface SAReadWriteLock ()
 
@@ -33,14 +33,24 @@
 
 @implementation SAReadWriteLock
 
-- (instancetype)init {
+#pragma mark - Life Cycle
+
+- (instancetype)initWithQueueLabel:(NSString *)queueLabel {
     self = [super init];
     if (self) {
-        NSString *concurentQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
+        NSString *concurentQueueLabel = nil;
+        if ([SAValidator isValidString:queueLabel]) {
+            concurentQueueLabel = queueLabel;
+        } else {
+            concurentQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
+        }
+        
         self.concurentQueue = dispatch_queue_create([concurentQueueLabel UTF8String], DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
+
+#pragma mark - Public Methods
 
 - (id)readWithBlock:(id(^)(void))block {
     if (!block) {
