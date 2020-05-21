@@ -108,13 +108,13 @@
                 if (obj.isViewLoaded) {
                     CGPoint point = [obj.view convertPoint:CGPointMake(0, 0) toView:nil];
                    // 正在全屏显示
-                    if (!obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0))) {
+                    BOOL isFullScreenShow = !obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0));
                    // 判断类型
-                        if ([obj isKindOfClass:UINavigationController.class] || [obj isKindOfClass:UITabBarController.class]) {
-                            currentViewController = [self findCurrentViewControllerFromRootViewController:obj isRoot:NO];
-                            *stop = YES;
-                            isContainController = YES;
-                        }
+                    BOOL isStopFindController = [obj isKindOfClass:UINavigationController.class] || [obj isKindOfClass:UITabBarController.class];
+                    if (isFullScreenShow && isStopFindController) {
+                        currentViewController = [self findCurrentViewControllerFromRootViewController:obj isRoot:NO];
+                        *stop = YES;
+                        isContainController = YES;
                     }
                 }
             }];

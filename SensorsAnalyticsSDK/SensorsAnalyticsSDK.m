@@ -1116,21 +1116,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-/// 注入 H5 打通信息
-- (void)addJSCallScriptMessageHandlerWithWebView:(WKWebView *)webView {
-    NSMutableString *javaScriptSource = [NSMutableString string];
-    if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
-        [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
-        [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
-    } else {
-        SALogError(@"%@ get network serverURL is failed!", self);
-    }
-}
-
-- (void)addVisualizedScriptMessageHandlerWithWebView:(WKWebView *)webView {
-
-}
-
 #pragma mark - Heat Map
 - (BOOL)isHeatMapEnabled {
     return self.configOptions.enableHeatMap;

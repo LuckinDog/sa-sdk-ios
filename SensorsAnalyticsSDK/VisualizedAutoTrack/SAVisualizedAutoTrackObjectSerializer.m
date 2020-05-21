@@ -72,7 +72,7 @@
     } @catch (NSException *e) {
         SALogError(@"Failed to serialize objects: %@", e);
     }
-    
+
     NSMutableDictionary *serializedObjects = [NSMutableDictionary dictionaryWithDictionary:@{
         @"objects" : [context allSerializedObjects],
         @"rootObject": [_objectIdentityProvider identifierForObject:rootObject]
