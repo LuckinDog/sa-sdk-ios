@@ -47,6 +47,7 @@
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAAutoTrackUtils.h"
+#import "SAReadWriteLock.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     #import "SAKeyChainItemWrapper.h"
@@ -170,8 +171,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
-@property (nonatomic, strong) dispatch_queue_t readWriteSerialQueue;
-@property (nonatomic, strong) dispatch_queue_t readWriteConcurrentQueue;
+@property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
@@ -314,11 +314,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
             
-            NSString *readWriteSerialLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteSerialQueue.%p", self];
-            _readWriteSerialQueue = dispatch_queue_create([readWriteSerialLabel UTF8String], DISPATCH_QUEUE_SERIAL);
-            
-            NSString *readWriteConcurrentLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteConcurrentQueue.%p", self];
-            _readWriteConcurrentQueue = dispatch_queue_create([readWriteConcurrentLabel UTF8String], DISPATCH_QUEUE_CONCURRENT);
+            NSString *readWriteLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
+            _readWriteQueue = dispatch_queue_create([readWriteLabel UTF8String], DISPATCH_QUEUE_SERIAL);
             
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
@@ -362,7 +359,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self startFlushTimer];
             }
 
-            _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteSerialQueue];
+            _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
             
@@ -2063,19 +2060,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    sensorsdata_dispatch_safe_sync(self.readWriteConcurrentQueue, ^{
+    [[SAReadWriteLock sharedInstance] write:^{
         self.dynamicSuperProperties = dynamicSuperProperties;
-    });
+    }];
 }
 
 - (NSDictionary *)acquireDynamicSuperProperties {
     // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
     __block NSDictionary *dynamicSuperPropertiesDict = nil;
-    sensorsdata_dispatch_safe_sync(self.readWriteConcurrentQueue, ^{
+    [[SAReadWriteLock sharedInstance] read:^{
         if (self.dynamicSuperProperties) {
             dynamicSuperPropertiesDict = self.dynamicSuperProperties();
         }
-    });
+    }];
     return dynamicSuperPropertiesDict;
 }
 
@@ -2894,16 +2891,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    sensorsdata_dispatch_safe_sync(self.readWriteConcurrentQueue, ^{
+    [[SAReadWriteLock sharedInstance] write:^{
         self->_remoteConfig = remoteConfig;
-    });
+    }];
 }
 
 - (id)remoteConfig {
     __block SASDKRemoteConfig *remoteConfig = nil;
-    sensorsdata_dispatch_safe_sync(self.readWriteConcurrentQueue, ^{
+    [[SAReadWriteLock sharedInstance] read:^{
         remoteConfig = self->_remoteConfig;
-    });
+    }];
     return remoteConfig;
 }
 
