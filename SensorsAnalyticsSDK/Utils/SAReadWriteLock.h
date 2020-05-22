@@ -33,7 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 *  @return 读写锁实例
 *
 */
-- (instancetype)initWithQueueLabel:(NSString *)queueLabel;
+- (instancetype)initWithQueueLabel:(NSString *)queueLabel NS_DESIGNATED_INITIALIZER; 
+
+/// 禁用 init 初始化
+- (instancetype)init NS_UNAVAILABLE;
+
+/// 禁用 new 初始化
++ (instancetype)new NS_UNAVAILABLE;
 
 /**
 *  @abstract
