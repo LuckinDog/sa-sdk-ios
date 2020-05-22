@@ -35,30 +35,41 @@
 #import "SAFileStore.h"
 #import "SADateFormatter.h"
 
-#define VERSION @"2.0.7-pre"
-
 //中国运营商 mcc 标识
 static NSString* const CARRIER_CHINA_MCC = @"460";
 
 @interface SAPresetProperty ()
 
+@property (nonatomic, strong) dispatch_queue_t queue;
 @property (nonatomic, copy) NSDictionary *automaticProperties;
 @property (nonatomic, copy) NSString *firstDay;
+@property (nonatomic, copy) NSString *libVersion;
 
 @end
 
 @implementation SAPresetProperty
 
+#pragma mark - Life Cycle
+
+- (instancetype)initWithQueue:(dispatch_queue_t)queue libVersion:(NSString *)libVersion {
+    self = [super init];
+    if (self) {
+        self.queue = queue;
+        self.libVersion = libVersion;
+    }
+    return self;
+}
+
 #pragma mark – Public Methods
 
 - (void)unarchiveFirstDay {
     @try {
-        sensorsdata_dispatch_safe_sync(self.queue, ^{
+        dispatch_async(self.queue, ^{
             self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
             if (self.firstDay == nil) {
                 NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
                 self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
-                [self archiveFirstDay];
+                [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
             }
         });
     } @catch (NSException *exception) {
@@ -103,17 +114,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
     return self.automaticProperties[SA_EVENT_COMMON_PROPERTY_LIB];
 }
 
-- (NSString *)libVersion {
-    return self.automaticProperties[SA_EVENT_COMMON_PROPERTY_LIB_VERSION];
-}
-
 #pragma mark – Private Methods
-
-- (void)archiveFirstDay {
-    dispatch_async(self.queue, ^{
-        [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
-    });
-}
 
 + (NSString *)deviceModel {
     NSString *results = nil;
@@ -210,7 +211,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_DEVICE_ID] = [SAIdentifier uniqueHardwareId];
 #endif
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_LIB] = @"iOS";
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_LIB_VERSION] = VERSION;
+            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_LIB_VERSION] = self.libVersion;
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_MANUFACTURER] = @"Apple";
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_OS] = @"iOS";
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_OS_VERSION] = [[UIDevice currentDevice] systemVersion];
@@ -219,7 +220,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT] = @((NSInteger)size.height);
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH] = @((NSInteger)size.width);
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_APP_ID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-            // 计算时区偏移
+            // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
             NSInteger hourOffsetGMT = - ([[NSTimeZone systemTimeZone] secondsFromGMT] / 60);
             automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_TIMEZONE_OFFSET] = @(hourOffsetGMT);
             

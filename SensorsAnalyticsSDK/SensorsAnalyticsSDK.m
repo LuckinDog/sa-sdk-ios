@@ -74,6 +74,8 @@
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
 
+#define VERSION @"2.0.7-pre"
+
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
 static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
@@ -351,7 +353,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
             
-            _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue];
+            _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
             
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
@@ -1621,7 +1623,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSString *)libVersion {
-    return self.presetProperty.libVersion;
+    return VERSION;
 }
 
 - (BOOL)assertPropertyTypes:(NSDictionary **)propertiesAddress withEventType:(NSString *)eventType {

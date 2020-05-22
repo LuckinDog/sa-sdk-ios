@@ -18,17 +18,32 @@
 // limitations under the License.
 //
 
-#import "SAProperty.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAPresetProperty : SAProperty
+@interface SAPresetProperty : NSObject
 
 @property (nonatomic, copy, readonly) NSDictionary *automaticProperties;
-
 @property (nonatomic, copy, readonly) NSString *appVersion;
 @property (nonatomic, copy, readonly) NSString *lib;
 @property (nonatomic, copy, readonly) NSString *libVersion;
+
+/**
+ 初始化方法
+ 
+ @param queue 一个全局队列
+ @param libVersion SDK 版本
+ 
+ @return 初始化对象
+ */
+- (instancetype)initWithQueue:(dispatch_queue_t)queue libVersion:(NSString *)libVersion NS_DESIGNATED_INITIALIZER;
+
+/// 禁用 init 初始化
+- (instancetype)init NS_UNAVAILABLE;
+
+/// 禁用 new 初始化
++ (instancetype)new NS_UNAVAILABLE;
 
 /**
 获取首日的日期
