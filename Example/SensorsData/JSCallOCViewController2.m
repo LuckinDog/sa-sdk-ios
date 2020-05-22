@@ -32,8 +32,8 @@
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
     self.title = @"WKWebView";
 
-//    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
-//    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
+    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
 
     [_webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     _webView.UIDelegate = self;
@@ -42,23 +42,12 @@
     [self.view addSubview:_webView];
 
     //网址
-    NSString *httpStr = @"https://869359954.github.io/sadefine/definedemo.html";
-//    httpStr = @"https://869359954.github.io/sadefine/dingdongdemo.html";
-
-    // 单页面
-//    httpStr = @"https://869359954.github.io/sadefine/vue/index.html";
-
-    NSURL *httpUrl=[NSURL URLWithString:httpStr];
-    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
+//    NSString *httpStr=@"https://www.sensorsdata.cn/test/in.html";
+//    NSURL *httpUrl=[NSURL URLWithString:httpStr];
+//    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
 
     [self.webView loadRequest:request];
 
-    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"刷新" style:UIBarButtonItemStyleDone target:self action:@selector(refreshAction)];
-    self.navigationItem.rightBarButtonItem = rightItem;
-}
-
-- (void)refreshAction {
-    [self.webView reload];
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler {
@@ -70,21 +59,14 @@
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:navigationAction.request enableVerify:NO]) {
-        decisionHandler(WKNavigationActionPolicyCancel);
-        return;
-    }
-
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
-    if (!_webView.loading) {
-        //[[SensorsAnalyticsSDK sharedInstance] showUpWebView:_webView];
-    }
 }
 
 -(void)dealloc {
     [_webView removeObserver:self forKeyPath:@"loading"];
 }
 @end
+

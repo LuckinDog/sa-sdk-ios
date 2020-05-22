@@ -22,10 +22,7 @@
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 #import <SensorsAnalyticsExtension/SensorsAnalyticsExtension.h>
 
-static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdata.cn/sa?project=chuqiangsheng&token=5a394d2405c147ca";
-
-static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=default";
-//  http://liuxing.debugbox.sensorsdata.cn：8107/sa?project=default',
+static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
 @interface AppDelegate ()
 
@@ -35,15 +32,16 @@ static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:SA_DebugBox_ServerURL launchOptions:launchOptions];
+    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:Sa_Default_ServerURL launchOptions:launchOptions];
     options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
     options.enableTrackAppCrash = YES;
 //    options.flushInterval = 10 * 1000;
 //    options.flushBulkSize = 100;
     options.enableHeatMap = YES;
     options.enableVisualizedAutoTrack = YES;
-    options.maxCacheSize = 20000;
     options.enableJavaScriptBridge = YES;
+    options.enableLog = YES;
+    options.maxCacheSize = 20000;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
 
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
@@ -58,10 +56,7 @@ static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=
         }
         return @{@"__APPState__":@(appState)};
     }];
-    
-    [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
-//    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag:NO];
-    
+
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
 
@@ -97,7 +92,7 @@ static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     //@"group.cn.com.sensorsAnalytics.share"
     [[SensorsAnalyticsSDK sharedInstance]trackEventFromExtensionWithGroupIdentifier:@"group.cn.com.sensorsAnalytics.share" completion:^(NSString *identifiy ,NSArray *events){
-        
+
     }];
 //   NSArray  *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier: @"group.cn.com.sensorsAnalytics.share"];
 //    NSLog(@"applicationDidBecomeActive::::::%@",eventArray);
@@ -117,3 +112,4 @@ static NSString* SA_DebugBox_ServerURL = @"http://10.120.81.212:8106/sa?project=
 }
 
 @end
+
