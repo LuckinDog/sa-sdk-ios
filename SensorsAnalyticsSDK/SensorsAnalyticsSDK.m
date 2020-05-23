@@ -46,6 +46,7 @@
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAAutoTrackUtils.h"
+#import "SAReadWriteLock.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     #import "SAKeyChainItemWrapper.h"
@@ -170,6 +171,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
+@property (nonatomic, strong) SAReadWriteLock *remoteConfigLock;
+@property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
@@ -2065,20 +2068,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    dispatch_async(self.readWriteQueue, ^{
+    [self.dynamicSuperPropertiesLock writeWithBlock:^{
         self.dynamicSuperProperties = dynamicSuperProperties;
-    });
+    }];
 }
 
 - (NSDictionary *)acquireDynamicSuperProperties {
     // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
-    __block NSDictionary *dynamicSuperPropertiesDict = nil;
-    dispatch_sync(self.readWriteQueue, ^{
+    return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
         if (self.dynamicSuperProperties) {
-            dynamicSuperPropertiesDict = self.dynamicSuperProperties();
+            return self.dynamicSuperProperties();
         }
-    });
-    return dynamicSuperPropertiesDict;
+        return nil;
+    }];
 }
 
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
@@ -2896,17 +2898,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    dispatch_async(self.readWriteQueue, ^{
+    [self.remoteConfigLock writeWithBlock:^{
         self->_remoteConfig = remoteConfig;
-    });
+    }];
 }
 
 - (id)remoteConfig {
-    __block SASDKRemoteConfig *remoteConfig = nil;
-    dispatch_sync(self.readWriteQueue, ^{
-        remoteConfig = self->_remoteConfig;
-    });
-    return remoteConfig;
+    return [self.remoteConfigLock readWithBlock:^id _Nonnull{
+        return self->_remoteConfig;
+    }];
 }
 
 - (void)shouldRequestRemoteConfig {
@@ -3132,6 +3132,24 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
         });
     }
+}
+
+#pragma mark – Getters and Setters
+
+- (SAReadWriteLock *)remoteConfigLock {
+    if (!_remoteConfigLock) {
+        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
+        _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
+    }
+    return _remoteConfigLock;
+}
+
+- (SAReadWriteLock *)dynamicSuperPropertiesLock {
+    if (!_dynamicSuperPropertiesLock) {
+        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
+        _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
+    }
+    return _dynamicSuperPropertiesLock;
 }
 
 @end
