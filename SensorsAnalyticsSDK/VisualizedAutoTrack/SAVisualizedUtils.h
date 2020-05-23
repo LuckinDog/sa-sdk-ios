@@ -21,7 +21,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-
+#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 判断一个 view 是否被覆盖
 + (BOOL) isCoveredForView:(UIView *)view;
 
+/// 解析构造 web 元素
++ (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
 @end
 
 NS_ASSUME_NONNULL_END

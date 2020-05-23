@@ -24,6 +24,7 @@
 
 #import "WKWebView+SABridge.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAVisualizedObjectSerializerManger.h"
 
 @implementation WKWebView (SABridge)
 
