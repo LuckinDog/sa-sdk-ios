@@ -104,7 +104,7 @@
 
     if (
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        [NSStringFromClass(object.class) isEqualToString:@"UIWebView"] ||
+        [NSStringFromClass(object.class) isEqualToString:@"UIWebView"]
 #else
         [object isKindOfClass:UIWebView.class]
 #endif
