@@ -32,7 +32,6 @@
 #import <UIKit/UIApplication.h>
 #import <UIKit/UIDevice.h>
 #import <UIKit/UIScreen.h>
-
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
@@ -388,7 +387,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             // WKWebView 打通
-            if (_configOptions.enableJavaScriptBridge) {
+            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
                 [self swizzleWebViewMethod];
             }
         }
@@ -1037,25 +1036,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     static dispatch_once_t onceTokenWebView;
     dispatch_once(&onceTokenWebView, ^{
         NSError *error = NULL;
-        
+
         [WKWebView sa_swizzleMethod:@selector(loadRequest:)
                          withMethod:@selector(sensorsdata_loadRequest:)
                               error:&error];
-        
+
         [WKWebView sa_swizzleMethod:@selector(loadHTMLString:baseURL:)
                          withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
                               error:&error];
-        
+
         if (@available(iOS 9.0, *)) {
             [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
                              withMethod:@selector(sensorsdata_loadFileURL:allowingReadAccessToURL:)
                                   error:&error];
-            
+
             [WKWebView sa_swizzleMethod:@selector(loadData:MIMEType:characterEncodingName:baseURL:)
                              withMethod:@selector(sensorsdata_loadData:MIMEType:characterEncodingName:baseURL:)
                                   error:&error];
         }
-        
+
         if (error) {
             SALogError(@"Failed to swizzle on WKWebView. Details: %@", error);
             error = NULL;
@@ -1068,14 +1067,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![webView isKindOfClass:[WKWebView class]]) {
         return;
     }
-    
+
     @try {
         WKUserContentController *contentController = webView.configuration.userContentController;
         [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
         [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
-        
+
         NSMutableString *javaScriptSource = [NSMutableString string];
-        
+
         // 开启 WKWebView 的 H5 打通功能
         if (self.configOptions.enableJavaScriptBridge) {
             if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
@@ -1083,6 +1082,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
             } else {
                 SALogError(@"%@ get network serverURL is failed!", self);
+            }
+        }
+
+        // App 内嵌 H5 数据交互
+        if (self.configOptions.enableVisualizedAutoTrack) {
+            [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
+            if ([SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting) {
+                [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
             }
         }
         
@@ -1093,7 +1100,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSArray<WKUserScript *> *userScripts = contentController.userScripts;
         __block BOOL isContainJavaScriptBridge = NO;
         [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if ([obj.source containsString:@"sensorsdata_app_server_url"]) {
+            if ([obj.source containsString:@"sensorsdata_app_server_url"] || [obj.source containsString:@"sensorsdata_visualized_mode"]) {
                 isContainJavaScriptBridge = YES;
                 *stop = YES;
             }
@@ -1104,7 +1111,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
             [contentController addUserScript:userScript];
         }
-        
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
@@ -3660,6 +3666,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)enableVisualizedAutoTrack {
     self.configOptions.enableVisualizedAutoTrack = YES;
+
+    // 开启 WKWebView 和 js 的数据交互
+    [self swizzleWebViewMethod];
 }
 
 - (void)enableHeatMap {
