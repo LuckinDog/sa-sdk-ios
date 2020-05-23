@@ -26,6 +26,8 @@
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
+#import "SAVisualizedObjectSerializerManger.h"
+
 
 @interface SAScriptMessageHandler ()
 
@@ -51,12 +53,12 @@
     if (![message.name isEqualToString:SA_SCRIPT_MESSAGE_HANDLER_NAME]) {
         return;
     }
-    
+
     if (![message.body isKindOfClass:[NSString class]]) {
         SALogError(@"Message body is not kind of 'NSString' from JS SDK");
         return;
     }
-    
+
     @try {
         NSString *body = message.body;
         NSData *messageData = [body dataUsingEncoding:NSUTF8StringEncoding];
@@ -64,13 +66,13 @@
             SALogError(@"Message body is invalid from JS SDK");
             return;
         }
-        
+
         NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
         if (![messageDic isKindOfClass:[NSDictionary class]]) {
             SALogError(@"Message body is formatted failure from JS SDK");
             return;
         }
-        
+
         NSString *callType = messageDic[@"callType"];
         if ([callType isEqualToString:@"app_h5_track"]) {
             // H5 发送事件
@@ -79,10 +81,18 @@
                 SALogError(@"Data of message body is not kind of 'NSDictionary' from JS SDK");
                 return;
             }
-            
+
             NSData *trackMessageData = [NSJSONSerialization dataWithJSONObject:trackMessageDic options:0 error:nil];
             NSString *trackMessageString = [[NSString alloc] initWithData:trackMessageData encoding:NSUTF8StringEncoding];
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
+        } else if ([callType isEqualToString:@"visualized_track"] || [callType isEqualToString:@"app_alert"] || [callType isEqualToString:@"page_info"]) {
+            /* 缓存 H5 页面信息
+             visualized_track：H5 可点击元素数据，数组；
+             app_alert：H5 弹框信息，提示配置错误信息；
+             page_info：H5 页面信息，包括 url 和 title
+             */
+            WKWebView *webView = message.webView;
+            [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo: messageDic];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
