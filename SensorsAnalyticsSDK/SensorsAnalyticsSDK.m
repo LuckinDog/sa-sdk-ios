@@ -1270,43 +1270,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                  @(arc4random()), SA_EVENT_TRACK_ID,
                  nil];
         } else if([type isEqualToString:@"track"]) {
-            @try {
-                //  是否首日访问
-                p[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self.presetProperty isFirstDay]);
-
-                if ([self isLaunchedPassively]) {
-                    p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE] = @"background";
-                }
-            } @catch (NSException *e) {
-                SALogError(@"%@: %@", self, e);
-            }
-
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-            @try {
-                //采集设备方向
-                if (self.deviceOrientationConfig.enableTrackScreenOrientation && self.deviceOrientationConfig.deviceOrientation.length) {
-                    p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION] = self.deviceOrientationConfig.deviceOrientation;
-                }
-            } @catch (NSException *e) {
-                SALogError(@"%@: %@", self, e);
-            }
-#endif
-
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-            @try {
-                //采集地理位置信息
-                if (self.locationConfig.enableGPSLocation) {
-                    if (CLLocationCoordinate2DIsValid(self.locationConfig.coordinate)) {
-                        NSInteger latitude = self.locationConfig.coordinate.latitude * pow(10, 6);
-                        NSInteger longitude = self.locationConfig.coordinate.longitude * pow(10, 6);
-                        p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE] = @(latitude);
-                        p[SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE] = @(longitude);
-                    }
-                }
-            } @catch (NSException *e) {
-                SALogError(@"%@: %@", self, e);
-            }
-#endif
+            NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]
+                                                                                       orientationConfig:self.deviceOrientationConfig
+                                                                                          locationConfig:self.locationConfig];
+            [p addEntriesFromDictionary:presetPropertiesOfTrackType];
+            
             e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                  eventName, SA_EVENT_NAME,
                  [NSDictionary dictionaryWithDictionary:p], SA_EVENT_PROPERTIES,

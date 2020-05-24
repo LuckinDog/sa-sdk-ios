@@ -34,6 +34,9 @@
 #import "SALog.h"
 #import "SAFileStore.h"
 #import "SADateFormatter.h"
+#import "SADeviceOrientationManager.h"
+#import "SALocationManager.h"
+#import "SAValidator.h"
 
 //中国运营商 mcc 标识
 static NSString* const CARRIER_CHINA_MCC = @"460";
@@ -112,6 +115,45 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 
 - (NSString *)lib {
     return self.automaticProperties[SA_EVENT_COMMON_PROPERTY_LIB];
+}
+
+- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
+                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
+                               locationConfig:(SAGPSLocationConfig *)locationConfig {
+    
+    NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
+    
+    @try {
+        sensorsdata_dispatch_safe_sync(self.queue, ^{
+            // 是否首日访问
+            presetPropertiesOfTrackType[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self isFirstDay]);
+            
+            // 是否被动启动
+            if (isLaunchedPassively) {
+                presetPropertiesOfTrackType[SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE] = @"background";
+            }
+            
+            // 采集设备方向
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+            if (orientationConfig.enableTrackScreenOrientation && [SAValidator isValidString:orientationConfig.deviceOrientation]) {
+                presetPropertiesOfTrackType[SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION] = orientationConfig.deviceOrientation;
+            }
+#endif
+            // 采集地理位置信息
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+            if (locationConfig.enableGPSLocation && CLLocationCoordinate2DIsValid(locationConfig.coordinate)) {
+                NSInteger latitude = locationConfig.coordinate.latitude * pow(10, 6);
+                NSInteger longitude = locationConfig.coordinate.longitude * pow(10, 6);
+                presetPropertiesOfTrackType[SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE] = @(latitude);
+                presetPropertiesOfTrackType[SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE] = @(longitude);
+            }
+#endif
+        });
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:presetPropertiesOfTrackType];
 }
 
 #pragma mark – Private Methods

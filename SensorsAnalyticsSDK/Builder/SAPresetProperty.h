@@ -20,6 +20,9 @@
 
 #import <Foundation/Foundation.h>
 
+@class SADeviceOrientationConfig;
+@class SAGPSLocationConfig;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAPresetProperty : NSObject
@@ -28,6 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly) NSString *appVersion;
 @property (nonatomic, copy, readonly) NSString *lib;
 @property (nonatomic, copy, readonly) NSString *libVersion;
+
+/// track 类型特有的预置属性
+@property (nonatomic, copy, readonly) NSDictionary *trackTypePresetProperty;
 
 /**
  初始化方法
@@ -46,24 +52,37 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)new NS_UNAVAILABLE;
 
 /**
-获取首日的日期
+ 获取首日的日期
 
 */
 - (void)unarchiveFirstDay;
 
 /**
-是否为首日
+ 是否为首日
 
-@return 首日的判断结果
+ @return 首日的判断结果
 */
 - (BOOL)isFirstDay;
 
 /**
-获取预置属性
+ 获取预置属性
 
-@return 当前的预置属性
+ @return 当前的预置属性
 */
 - (NSDictionary *)currentPresetProperties;
+
+/**
+ track 类型特有的预置属性
+
+ @param isLaunchedPassively 是否是被动启动
+ @param orientationConfig 方向信息
+ @param locationConfig 位置信息
+
+ @return 当前的预置属性
+*/
+- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
+                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
+                               locationConfig:(SAGPSLocationConfig *)locationConfig;
 
 @end
 
