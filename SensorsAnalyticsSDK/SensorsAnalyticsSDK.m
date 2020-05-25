@@ -1543,6 +1543,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
+
+    if (_configOptions.addChannelInfoForTrackEvents) {
+        [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeCode];
+        return;
+    }
+
     NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // ua
     NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
@@ -1595,7 +1601,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([_presetEventNames containsObject:event]) {
             SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
-        
+
+        if (_configOptions.addChannelInfoForTrackEvents) {
+            BOOL isContains = [self.trackChannelEventNames containsObject:event];
+            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isContains);
+            eventProperties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
+            if (!isContains) {
+                [self.trackChannelEventNames addObject:event];
+                dispatch_async(self.serialQueue, ^{
+                    [self archiveTrackChannelEventNames];
+                });
+            }
+        }
+
         [self track:event withProperties:eventProperties withType:@"codeTrack"];
     } else {
         [self track:event withProperties:eventProperties withType:@"track"];
@@ -1721,7 +1739,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [eventProperties addEntriesFromDictionary:propertyDict];
             }
             // 先发送 track
-            [self track:event withProperties:eventProperties withType:@"track"];
+            [self track:event withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeCode];
 
             // 再发送 profile_set_once
             // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
