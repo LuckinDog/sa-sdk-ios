@@ -90,30 +90,6 @@ NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
 
 #pragma mark - common property
-NSString * const SA_EVENT_COMMON_PROPERTY_LIB = @"$lib";
-NSString * const SA_EVENT_COMMON_PROPERTY_LIB_VERSION = @"$lib_version";
-NSString * const SA_EVENT_COMMON_PROPERTY_LIB_DETAIL = @"$lib_detail";
-NSString * const SA_EVENT_COMMON_PROPERTY_LIB_METHOD = @"$lib_method";
-
-NSString * const SA_EVENT_COMMON_PROPERTY_APP_ID = @"$app_id";
-NSString * const SA_EVENT_COMMON_PROPERTY_APP_VERSION = @"$app_version";
-NSString * const SA_EVENT_COMMON_PROPERTY_MODEL =@"$model";
-NSString * const SA_EVENT_COMMON_PROPERTY_MANUFACTURER = @"$manufacturer";
-NSString * const SA_EVENT_COMMON_PROPERTY_OS = @"$os";
-NSString * const SA_EVENT_COMMON_PROPERTY_OS_VERSION = @"$os_version";
-NSString * const SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT = @"$screen_height";
-NSString * const SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH = @"$screen_width";
-NSString * const SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE = @"$network_type";
-NSString * const SA_EVENT_COMMON_PROPERTY_WIFI = @"$wifi";
-NSString * const SA_EVENT_COMMON_PROPERTY_CARRIER = @"$carrier";
-NSString * const SA_EVENT_COMMON_PROPERTY_DEVICE_ID = @"$device_id";
-NSString * const SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY = @"$is_first_day";
-NSString * const SA_EVENT_COMMON_PROPERTY_TIMEZONE_OFFSET = @"$timezone_offset";
-
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE = @"$latitude";
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE = @"$longitude";
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION = @"$screen_orientation";
-
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE = @"$app_state";
 
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";

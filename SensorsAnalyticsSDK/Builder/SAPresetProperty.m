@@ -39,7 +39,66 @@
 #import "SAValidator.h"
 
 //中国运营商 mcc 标识
-static NSString* const CARRIER_CHINA_MCC = @"460";
+static NSString* const SACarrierChinaMCC = @"460";
+
+#pragma mark - device
+/// 设备 ID
+NSString * const SAEventPresetPropertyDeviceID = @"$device_id";
+/// 运营商
+static NSString * const SAEventPresetPropertyCarrier = @"$carrier";
+/// 型号
+static NSString * const SAEventPresetPropertyModel = @"$model";
+/// 生产商
+static NSString * const SAEventPresetPropertyManufacturer = @"$manufacturer";
+/// 屏幕高
+static NSString * const SAEventPresetPropertyScreenHeight = @"$screen_height";
+/// 屏幕宽
+static NSString * const SAEventPresetPropertyScreenWidth = @"$screen_width";
+
+#pragma mark - os
+/// 系统
+static NSString * const SAEventPresetPropertyOS = @"$os";
+/// 系统版本
+static NSString * const SAEventPresetPropertyOSVersion = @"$os_version";
+
+#pragma mark - app
+/// 应用版本
+NSString * const SAEventPresetPropertyAppVersion = @"$app_version";
+/// 应用 ID
+static NSString * const SAEventPresetPropertyAppID = @"$app_id";
+/// 时区偏移量
+static NSString * const SAEventPresetPropertyTimezoneOffset = @"$timezone_offset";
+
+#pragma mark - state
+/// 网络类型
+NSString * const SAEventPresetPropertyNetworkType = @"$network_type";
+/// 是否 WI-FI
+NSString * const SAEventPresetPropertyWifi = @"$wifi";
+/// 是否首日
+NSString * const SAEventPresetPropertyIsFirstDay = @"$is_first_day";
+/// 应用程序状态
+static NSString * const SAEventPresetPropertyAppState = @"$app_state";
+
+#pragma mark - lib
+/// SDK 类型
+NSString * const SAEventPresetPropertyLib = @"$lib";
+/// SDK 方法
+NSString * const SAEventPresetPropertyLibMethod = @"$lib_method";
+/// SDK 版本
+NSString * const SAEventPresetPropertyLibVersion = @"$lib_version";
+/// SDK 版本
+NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orientation";
+#endif
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+static NSString * const SAEventPresetPropertyLatitude = @"$latitude";
+static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
+#endif
+
+#pragma mark -
 
 @interface SAPresetProperty ()
 
@@ -57,8 +116,8 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 - (instancetype)initWithQueue:(dispatch_queue_t)queue libVersion:(NSString *)libVersion {
     self = [super init];
     if (self) {
-        self.queue = queue;
-        self.libVersion = libVersion;
+        _queue = queue;
+        _libVersion = libVersion;
     }
     return self;
 }
@@ -66,18 +125,14 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 #pragma mark – Public Methods
 
 - (void)unarchiveFirstDay {
-    @try {
-        dispatch_async(self.queue, ^{
-            self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
-            if (self.firstDay == nil) {
-                NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
-                self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
-                [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
-            }
-        });
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
+    dispatch_async(self.queue, ^{
+        self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
+        if (self.firstDay == nil) {
+            NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
+            self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
+            [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
+        }
+    });
 }
 
 - (BOOL)isFirstDay {
@@ -92,67 +147,67 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
 
 - (NSDictionary *)currentPresetProperties {
     __block NSDictionary *presetProperties = nil;
-    @try {
-        sensorsdata_dispatch_safe_sync(self.queue, ^{
-            NSString *networkType = [SACommonUtility currentNetworkStatus];
-            
-            NSMutableDictionary *automaticPropertiesMDic = [NSMutableDictionary dictionaryWithDictionary:self.automaticProperties];
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE] = networkType;
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_WIFI] = @([networkType isEqualToString:@"WIFI"]);
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self isFirstDay]);
-            
-            presetProperties = [NSDictionary dictionaryWithDictionary:automaticPropertiesMDic];
-        });
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
+    sensorsdata_dispatch_safe_sync(self.queue, ^{
+        NSString *networkType = [SACommonUtility currentNetworkStatus];
+
+        NSMutableDictionary *automaticPropertiesMDic = [NSMutableDictionary dictionaryWithDictionary:self.automaticProperties];
+        automaticPropertiesMDic[SAEventPresetPropertyNetworkType] = networkType;
+        automaticPropertiesMDic[SAEventPresetPropertyWifi] = @([networkType isEqualToString:@"WIFI"]);
+        automaticPropertiesMDic[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
+
+        presetProperties = [NSDictionary dictionaryWithDictionary:automaticPropertiesMDic];
+    });
     return presetProperties;
 }
 
 - (NSString *)appVersion {
-    return self.automaticProperties[SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+    return self.automaticProperties[SAEventPresetPropertyAppVersion];
 }
 
 - (NSString *)lib {
-    return self.automaticProperties[SA_EVENT_COMMON_PROPERTY_LIB];
+    return self.automaticProperties[SAEventPresetPropertyLib];
+}
+
+- (NSString *)deviceID {
+    return self.automaticProperties[SAEventPresetPropertyDeviceID];
 }
 
 - (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
                             orientationConfig:(SADeviceOrientationConfig *)orientationConfig
-                               locationConfig:(SAGPSLocationConfig *)locationConfig {
+#endif
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+                               locationConfig:(SAGPSLocationConfig *)locationConfig
+#endif
+{
     
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     
-    @try {
-        sensorsdata_dispatch_safe_sync(self.queue, ^{
-            // 是否首日访问
-            presetPropertiesOfTrackType[SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY] = @([self isFirstDay]);
-            
-            // 是否被动启动
-            if (isLaunchedPassively) {
-                presetPropertiesOfTrackType[SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE] = @"background";
-            }
-            
-            // 采集设备方向
+    sensorsdata_dispatch_safe_sync(self.queue, ^{
+        // 是否首日访问
+        presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
+
+        // 是否被动启动
+        if (isLaunchedPassively) {
+            presetPropertiesOfTrackType[SAEventPresetPropertyAppState] = @"background";
+        }
+
+        // 采集设备方向
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-            if (orientationConfig.enableTrackScreenOrientation && [SAValidator isValidString:orientationConfig.deviceOrientation]) {
-                presetPropertiesOfTrackType[SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION] = orientationConfig.deviceOrientation;
-            }
+        if (orientationConfig.enableTrackScreenOrientation && [SAValidator isValidString:orientationConfig.deviceOrientation]) {
+            presetPropertiesOfTrackType[SAEventPresetPropertyScreenOrientation] = orientationConfig.deviceOrientation;
+        }
 #endif
-            // 采集地理位置信息
+        // 采集地理位置信息
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-            if (locationConfig.enableGPSLocation && CLLocationCoordinate2DIsValid(locationConfig.coordinate)) {
-                NSInteger latitude = locationConfig.coordinate.latitude * pow(10, 6);
-                NSInteger longitude = locationConfig.coordinate.longitude * pow(10, 6);
-                presetPropertiesOfTrackType[SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE] = @(latitude);
-                presetPropertiesOfTrackType[SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE] = @(longitude);
-            }
+        if (locationConfig.enableGPSLocation && CLLocationCoordinate2DIsValid(locationConfig.coordinate)) {
+            NSInteger latitude = locationConfig.coordinate.latitude * pow(10, 6);
+            NSInteger longitude = locationConfig.coordinate.longitude * pow(10, 6);
+            presetPropertiesOfTrackType[SAEventPresetPropertyLatitude] = @(latitude);
+            presetPropertiesOfTrackType[SAEventPresetPropertyLongitude] = @(longitude);
+        }
 #endif
-        });
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
-    
+    });
     return [NSDictionary dictionaryWithDictionary:presetPropertiesOfTrackType];
 }
 
@@ -196,7 +251,7 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
             NSString *countryCode = [carrier mobileCountryCode];
             
             //中国运营商
-            if (countryCode && [countryCode isEqualToString:CARRIER_CHINA_MCC]) {
+            if (countryCode && [countryCode isEqualToString:SACarrierChinaMCC]) {
                 if (networkCode) {
                     //中国移动
                     if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
@@ -247,25 +302,27 @@ static NSString* const CARRIER_CHINA_MCC = @"460";
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         if (!_automaticProperties) {
             NSMutableDictionary *automaticPropertiesMDic = [NSMutableDictionary dictionary];
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_CARRIER] = [SAPresetProperty carrierName];
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_APP_VERSION] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_DEVICE_ID] = [SAIdentifier uniqueHardwareId];
+            automaticPropertiesMDic[SAEventPresetPropertyDeviceID] = [SAIdentifier uniqueHardwareId];
 #endif
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_LIB] = @"iOS";
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_LIB_VERSION] = self.libVersion;
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_MANUFACTURER] = @"Apple";
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_OS] = @"iOS";
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_OS_VERSION] = [[UIDevice currentDevice] systemVersion];
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_MODEL] = [SAPresetProperty deviceModel];
+            automaticPropertiesMDic[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
+            automaticPropertiesMDic[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
+            automaticPropertiesMDic[SAEventPresetPropertyManufacturer] = @"Apple";
             CGSize size = [UIScreen mainScreen].bounds.size;
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT] = @((NSInteger)size.height);
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH] = @((NSInteger)size.width);
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_APP_ID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+            automaticPropertiesMDic[SAEventPresetPropertyScreenHeight] = @((NSInteger)size.height);
+            automaticPropertiesMDic[SAEventPresetPropertyScreenWidth] = @((NSInteger)size.width);
+
+            automaticPropertiesMDic[SAEventPresetPropertyOS] = @"iOS";
+            automaticPropertiesMDic[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
+
+            automaticPropertiesMDic[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+            automaticPropertiesMDic[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+            automaticPropertiesMDic[SAEventPresetPropertyLib] = @"iOS";
+            automaticPropertiesMDic[SAEventPresetPropertyLibVersion] = self.libVersion;
             // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
             NSInteger hourOffsetGMT = - ([[NSTimeZone systemTimeZone] secondsFromGMT] / 60);
-            automaticPropertiesMDic[SA_EVENT_COMMON_PROPERTY_TIMEZONE_OFFSET] = @(hourOffsetGMT);
-            
+            automaticPropertiesMDic[SAEventPresetPropertyTimezoneOffset] = @(hourOffsetGMT);
+
             _automaticProperties = [NSDictionary dictionaryWithDictionary:automaticPropertiesMDic];
         }
         automaticProperties = _automaticProperties;

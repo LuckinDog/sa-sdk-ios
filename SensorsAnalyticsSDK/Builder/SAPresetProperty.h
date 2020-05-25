@@ -25,6 +25,25 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString * const SAEventPresetPropertyDeviceID;
+
+/// SDK 类型
+extern NSString * const SAEventPresetPropertyLib;
+/// SDK 方法
+extern NSString * const SAEventPresetPropertyLibMethod;
+/// SDK 版本
+extern NSString * const SAEventPresetPropertyLibVersion;
+/// SDK 调用栈
+extern NSString * const SAEventPresetPropertyLibDetail;
+/// 应用版本
+extern NSString * const SAEventPresetPropertyAppVersion;
+
+extern NSString * const SAEventPresetPropertyNetworkType;
+extern NSString * const SAEventPresetPropertyWifi;
+/// 是否首日
+extern NSString * const SAEventPresetPropertyIsFirstDay;
+
+#pragma mark -
 @interface SAPresetProperty : NSObject
 
 @property (nonatomic, copy, readonly) NSDictionary *automaticProperties;
@@ -57,18 +76,13 @@ NS_ASSUME_NONNULL_BEGIN
 */
 - (void)unarchiveFirstDay;
 
-/**
- 是否为首日
-
- @return 首日的判断结果
-*/
+/// 是否为首日
 - (BOOL)isFirstDay;
 
-/**
- 获取预置属性
+/// 设备 ID
+- (NSString *)deviceID;
 
- @return 当前的预置属性
-*/
+/// 当前的预置属性
 - (NSDictionary *)currentPresetProperties;
 
 /**
@@ -81,8 +95,13 @@ NS_ASSUME_NONNULL_BEGIN
  @return 当前的预置属性
 */
 - (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
                             orientationConfig:(SADeviceOrientationConfig *)orientationConfig
-                               locationConfig:(SAGPSLocationConfig *)locationConfig;
+#endif
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+                               locationConfig:(SAGPSLocationConfig *)locationConfig
+#endif
+;
 
 @end
 
