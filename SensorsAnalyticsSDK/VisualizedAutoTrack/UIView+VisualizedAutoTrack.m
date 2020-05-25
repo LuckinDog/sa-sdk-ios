@@ -74,8 +74,26 @@
         return NO;
     }
 
-    if ([SAAutoTrackUtils isAlertClickForView:self]) { // 标记弹框
+    // 标记弹框
+    if ([SAAutoTrackUtils isAlertClickForView:self]) {
         return YES;
+    }
+
+    // RN 可点击元素的区分
+    Class managerClass = NSClassFromString(@"SAReactNativeManager");
+    SEL sharedInstanceSEL = NSSelectorFromString(@"sharedInstance");
+    if (managerClass && [managerClass respondsToSelector:sharedInstanceSEL]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        id manager = [managerClass performSelector:sharedInstanceSEL];
+        SEL clickableSEL = NSSelectorFromString(@"clickableForView:");
+        if ([manager respondsToSelector:clickableSEL]) {
+            BOOL clickable = (BOOL)[manager performSelector:clickableSEL withObject:self];
+            if (clickable) {
+                return YES;
+            }
+        }
+#pragma clang diagnostic pop
     }
 
     if ([self isKindOfClass:UIControl.class]) {
