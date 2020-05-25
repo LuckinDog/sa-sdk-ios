@@ -269,7 +269,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
     alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
     alertInfo[@"link_text"] = @"配置文档";
-    alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/visual_auto_track-7541326.html";
+    alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/开启可视化全埋点-7548675.html";
     [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
 }
 
@@ -341,7 +341,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
                         alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
                         alertInfo[@"message"] = @"此页面未集成 Web JS SDK 或者 Web JS SDK 版本过低，请集成最新版 Web JS SDK";
                         alertInfo[@"link_text"] = @"配置文档";
-                        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/tech_sdk_client_web_access-7545017.html";
+                        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/web-js-sdk-7548173.html";
                         NSDictionary *alertInfoMessage = @{ @"callType": @"app_alert", @"data": @[alertInfo] };
                         [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
                     }
