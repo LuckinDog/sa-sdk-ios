@@ -217,6 +217,10 @@
     }
 }
 
+- (BOOL)sensorsdata_isFromWeb {
+    return NO;
+}
+
 - (CGRect)sensorsdata_frame {
     CGRect showRect = [self convertRect:self.bounds toView:nil];
     if (self.superview && self.sensorsdata_enableAppClick) {
@@ -434,6 +438,11 @@
     }
     return [super sensorsdata_subElements];
 }
+
+- (BOOL)sensorsdata_isFromWeb {
+    return YES;
+}
+
 @end
 
 @implementation UIViewController (VisualizedAutoTrack)
