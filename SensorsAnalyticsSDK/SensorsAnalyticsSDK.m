@@ -1544,7 +1544,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
 
-    if (_configOptions.addChannelInfoForTrackEvents) {
+    if (_configOptions.enableAutoAddChannelCallbackEvent) {
         [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeCode];
         return;
     }
@@ -1589,7 +1589,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:event withProperties:nil withTrackType:trackType];
 }
 
-- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
+- ( void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
     // 添加 latest utms 属性，用户传入的属性优先级更高，最后添加到字典中
     [eventProperties addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
@@ -1602,10 +1602,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
 
-        if (_configOptions.addChannelInfoForTrackEvents) {
-            BOOL isContains = [self.trackChannelEventNames containsObject:event];
-            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isContains);
+        if (_configOptions.enableAutoAddChannelCallbackEvent) {
+            // 后端匹配逻辑已经不需要 $channel_device_info 信息
+            // 这里仍然添加此字段是为了解决服务端版本兼容问题
             eventProperties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
+
+            BOOL isContains = [self.trackChannelEventNames containsObject:event];
+            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
             if (!isContains) {
                 [self.trackChannelEventNames addObject:event];
                 dispatch_async(self.serialQueue, ^{

@@ -126,8 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// DeepLink 中用户自定义来源渠道属性 key 值，可传多个。
 @property (nonatomic, copy) NSArray<NSString *> *sourceChannels;
 
-/// 手动埋点事件是否添加渠道信息。Default to NO
-@property (nonatomic, assign) BOOL addChannelInfoForTrackEvents;
+/// 手动埋点事件是否自动添加渠道匹配信息
+@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
 @end
 
