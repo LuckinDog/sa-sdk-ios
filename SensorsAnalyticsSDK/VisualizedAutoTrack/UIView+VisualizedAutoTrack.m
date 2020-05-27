@@ -479,27 +479,22 @@
     if (childViewControllers.count > 0 && ![self isKindOfClass:UIAlertController.class]) {
         // UIAlertController 如果添加 TextField 也会嵌套 childViewController，直接返回 .view 即可
 
-        subElements = [NSMutableArray arrayWithArray:self.view.subviews];
         UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-
-        __block BOOL isContainFullScreen = NO; // 是否包含全屏
+        subElements = [NSMutableArray arrayWithArray:self.view.subviews];
+        // 是否包含全屏视图
+        __block BOOL isContainFullScreen = NO;
         //逆序遍历
         [childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if (obj.isViewLoaded) {
                 UIView *objSuperview = obj.view;
-                do {
-                    if ([subElements containsObject:objSuperview]) {
-                        NSInteger index = [subElements indexOfObject:objSuperview];
-                        if (objSuperview.sensorsdata_isDisplayedInScreen && !isContainFullScreen) {
-                            [subElements replaceObjectAtIndex:index withObject:obj];
-                        } else {
-                            [subElements removeObject:objSuperview];
-                        }
-                        break;
+                if ([subElements containsObject:objSuperview]) {
+                    NSInteger index = [subElements indexOfObject:objSuperview];
+                    if (objSuperview.sensorsdata_isDisplayedInScreen && !isContainFullScreen) {
+                        [subElements replaceObjectAtIndex:index withObject:obj];
+                    } else {
+                        [subElements removeObject:objSuperview];
                     }
-               //childViewController.view 可能不直接添加在 self.view，而是在子视图
-                } while ((objSuperview = objSuperview.superview));
-
+                }
                 CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
                // 是否全屏
                 BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
@@ -523,4 +518,5 @@
     }
     return subElements;
 }
+
 @end
