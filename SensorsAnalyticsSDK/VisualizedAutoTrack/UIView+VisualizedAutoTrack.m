@@ -303,7 +303,7 @@
 @implementation UIWindow (VisualizedAutoTrack)
 
 - (NSArray *)sensorsdata_subElements {
-    if ([UIApplication sharedApplication].keyWindow != self && !self.rootViewController) {
+    if (!self.rootViewController) {
         return super.sensorsdata_subElements;
     }
 
