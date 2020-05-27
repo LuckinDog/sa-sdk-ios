@@ -1589,7 +1589,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:event withProperties:nil withTrackType:trackType];
 }
 
-- ( void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
+- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
     // 添加 latest utms 属性，用户传入的属性优先级更高，最后添加到字典中
     [eventProperties addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
@@ -1742,7 +1742,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [eventProperties addEntriesFromDictionary:propertyDict];
             }
             // 先发送 track
-            [self track:event withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeCode];
+            [self track:event withProperties:eventProperties withType:@"track"];
 
             // 再发送 profile_set_once
             // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
