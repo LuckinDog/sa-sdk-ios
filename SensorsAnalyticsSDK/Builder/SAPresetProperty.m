@@ -127,7 +127,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 - (void)unarchiveFirstDay {
     dispatch_async(self.queue, ^{
         self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
-        if (self.firstDay == nil) {
+        if (!self.firstDay) {
             NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
             self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
             [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
@@ -298,7 +298,6 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 #pragma mark – Getters and Setters
 
 - (NSDictionary *)automaticProperties {
-    __block NSDictionary *automaticProperties = nil;
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         if (!_automaticProperties) {
             NSMutableDictionary *automaticPropertiesMDic = [NSMutableDictionary dictionary];
@@ -311,10 +310,10 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
             CGSize size = [UIScreen mainScreen].bounds.size;
             automaticPropertiesMDic[SAEventPresetPropertyScreenHeight] = @((NSInteger)size.height);
             automaticPropertiesMDic[SAEventPresetPropertyScreenWidth] = @((NSInteger)size.width);
-
+            
             automaticPropertiesMDic[SAEventPresetPropertyOS] = @"iOS";
             automaticPropertiesMDic[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
-
+            
             automaticPropertiesMDic[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
             automaticPropertiesMDic[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             automaticPropertiesMDic[SAEventPresetPropertyLib] = @"iOS";
@@ -322,12 +321,11 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
             // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
             NSInteger hourOffsetGMT = - ([[NSTimeZone systemTimeZone] secondsFromGMT] / 60);
             automaticPropertiesMDic[SAEventPresetPropertyTimezoneOffset] = @(hourOffsetGMT);
-
+            
             _automaticProperties = [NSDictionary dictionaryWithDictionary:automaticPropertiesMDic];
         }
-        automaticProperties = _automaticProperties;
     });
-    return automaticProperties;
+    return _automaticProperties;
 }
 
 @end

@@ -56,9 +56,6 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 @property (nonatomic, copy, readonly) NSString *lib;
 @property (nonatomic, copy, readonly) NSString *libVersion;
 
-/// track 类型特有的预置属性
-@property (nonatomic, copy, readonly) NSDictionary *trackTypePresetProperty;
-
 /**
  初始化方法
  
@@ -75,10 +72,7 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 /// 禁用 new 初始化
 + (instancetype)new NS_UNAVAILABLE;
 
-/**
- 获取首日的日期
-
-*/
+/// 获取首日的日期
 - (void)unarchiveFirstDay;
 
 /// 是否为首日
