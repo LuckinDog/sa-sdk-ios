@@ -20,8 +20,13 @@
 
 #import <Foundation/Foundation.h>
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @class SADeviceOrientationConfig;
+#endif
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
 @class SAGPSLocationConfig;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
