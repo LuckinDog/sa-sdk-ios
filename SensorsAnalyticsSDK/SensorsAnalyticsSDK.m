@@ -457,53 +457,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isBlackListContainsViewController:(UIViewController *)viewController ofType:(SensorsAnalyticsAutoTrackEventType)type {
-    static NSSet *publicClasses = nil;
-    static NSSet *privateClasses = nil;
-    static NSSet *viewScreenPublicClasses = nil;
-    static NSSet *viewScreenPrivateClasses = nil;
-
     static dispatch_once_t onceToken;
-
+    static NSDictionary *classes = nil;
     dispatch_once(&onceToken, ^{
         NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
         //文件路径
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
         @try {
-            NSDictionary *ignoredClasses = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
-            publicClasses = [NSSet setWithArray:ignoredClasses[@"public"]];
-            privateClasses = [NSSet setWithArray:ignoredClasses[@"private"]];
-
-            viewScreenPublicClasses = [NSSet setWithArray:ignoredClasses[SA_EVENT_NAME_APP_VIEW_SCREEN][@"public"]];
-            viewScreenPrivateClasses = [NSSet setWithArray:ignoredClasses[SA_EVENT_NAME_APP_VIEW_SCREEN][@"private"]];
+            classes = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
         } @catch(NSException *exception) {  // json加载和解析可能失败
             SALogError(@"%@ error: %@", self, exception);
         }
     });
 
-    NSMutableSet *newPrivateClasses = [privateClasses mutableCopy];
-    NSMutableSet *newPublicClasses = [publicClasses mutableCopy];
-    // some viewController class, only ignored AppViewScreen and track AppViewClick
-    if (type == SensorsAnalyticsEventTypeAppViewScreen) {
-        [newPrivateClasses addObjectsFromArray:viewScreenPrivateClasses.allObjects];
-        [newPublicClasses addObjectsFromArray:viewScreenPublicClasses.allObjects];
-    }
-    
-    //check public ignored classes contains viewController or not
-    for (NSString *ignoreClass in newPublicClasses) {
-        if ([viewController isKindOfClass:NSClassFromString(ignoreClass)]) {
+    NSDictionary *dictonary = type == SensorsAnalyticsEventTypeAppViewScreen ? classes[SA_EVENT_NAME_APP_VIEW_SCREEN] : classes[SA_EVENT_NAME_APP_CLICK];
+
+    for (NSString *cla in dictonary[@"public"]) {
+        if ([viewController isKindOfClass:NSClassFromString(cla)]) {
             return YES;
         }
     }
-    
-    //check private ignored classes contains viewController or not
-    for (NSString *ignoreClass in newPrivateClasses) {
-        if ([ignoreClass isEqualToString:NSStringFromClass([viewController class])]) {
-            return YES;
-        }
-    }
-    //neither public nor private ignore classes, then return NO
-    return NO;
+    return [(NSArray *)dictonary[@"private"] containsObject:NSStringFromClass(viewController.class)];
 }
 
 - (NSDictionary *)getPresetProperties {
