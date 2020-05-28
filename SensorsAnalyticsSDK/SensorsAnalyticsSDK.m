@@ -3098,7 +3098,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             //update lib $app_version from super properties
             id appVersion = self->_superProperties[SAEventPresetPropertyAppVersion];
             if (!appVersion) {
-                libMDic[SAEventPresetPropertyAppVersion] = self.presetProperty.appVersion;
+                appVersion = self.presetProperty.appVersion;
+            }
+            
+            if (appVersion) {
+                libMDic[SAEventPresetPropertyAppVersion] = appVersion;
             }
 
             NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:self.presetProperty.automaticProperties];

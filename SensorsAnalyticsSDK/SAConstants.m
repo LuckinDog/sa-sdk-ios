@@ -90,8 +90,6 @@ NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
 
 #pragma mark - common property
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE = @"$app_state";
-
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";

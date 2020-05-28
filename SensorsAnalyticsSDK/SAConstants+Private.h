@@ -88,8 +88,6 @@ extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
 
 #pragma mark--common property
 //可选参数
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE;
-
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
