@@ -393,6 +393,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
                 [self swizzleWebViewMethod];
             }
+            
+            // 获取加密公钥
+            if (_configOptions.enableEncrypt) {
+                SASecretKey *secretKey = [self loadSecretKey];
+                if (secretKey.key.length > 0) {
+                    self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
+                }
+            }
         }
         
     } @catch(NSException *exception) {
@@ -908,9 +916,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     NSInteger recordCount = recordArray.count;
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    recordArray = [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray];
-#endif
+    if ([SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt) {
+        recordArray = [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray];
+    }
     
     // 2、上传获取到的记录。如果数据上传完成，结束递归
     if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
@@ -2910,15 +2918,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)shouldRequestRemoteConfig {
-
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    // 如果开启加密，并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
-    if (!self.encryptBuilder) {
-        [self requestFunctionalManagermentConfig];
-        return;
+    if (self.configOptions.enableEncrypt) {
+        // 如果开启加密，并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
+        if (!self.encryptBuilder) {
+            [self requestFunctionalManagermentConfig];
+            return;
+        }
     }
-#endif
-
+    
      //判断是否符合分散 remoteconfig 请求条件
     if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval < self.configOptions.minRequestHourInterval) {
         [self requestFunctionalManagermentConfig];
@@ -2931,22 +2938,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
     //当前时间，以开机时间为准，单位：秒
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
-
-    dispatch_block_t createRandomTimeBlock = ^() {
-        //转换成 秒 再取随机时间
-        NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
-        NSInteger randomDurationTime = arc4random() % durationSecond;
-        double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
-
-        NSDictionary *createRequestTimeConfig = @{@"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
-        [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
-    };
-
     if (currentTime >= startDeviceTime && currentTime < randomTime) {
         return;
     }
+    
     [self requestFunctionalManagermentConfig];
-    createRandomTimeBlock();
+    
+    //转换成 秒 再取随机时间
+    NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
+    NSInteger randomDurationTime = arc4random() % durationSecond;
+    double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
+
+    NSDictionary *createRequestTimeConfig = @{@"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
+    [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
 }
 
 - (void)requestFunctionalManagermentConfig {
@@ -2990,15 +2994,20 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                         configToBeSet =  [NSMutableDictionary dictionaryWithDictionary:@{@"configs": @{@"disableSDK": disableSDK, @"disableDebugMode": disableDebugMode, @"autoTrackMode": autoTrackMode}}];
                     }
 
-                    NSDictionary *publicKeyDic = [configDict valueForKeyPath:@"configs.key"];
-                    if (publicKeyDic) {
-                        SASecretKey *secreKey = [[SASecretKey alloc] init];
-                        secreKey.version = [publicKeyDic[@"pkv"] integerValue];
-                        secreKey.key = publicKeyDic[@"public_key"];
-
-                        [self loadSecretKey:secreKey];
-                        if (self.saveSecretKeyCompletion) {
-                            self.saveSecretKeyCompletion(secreKey);
+                    if (self.configOptions.enableEncrypt) {
+                        NSDictionary *publicKeyDic = [configDict valueForKeyPath:@"configs.key"];
+                        if (publicKeyDic) {
+                            SASecretKey *secretKey = [[SASecretKey alloc] init];
+                            secretKey.version = [publicKeyDic[@"pkv"] integerValue];
+                            secretKey.key = publicKeyDic[@"public_key"];
+                            
+                            SALogDebug(@"Secret key from remote config is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+                            
+                            // 存储公钥
+                            [self saveSecretKey:secretKey];
+                            
+                            // 更新加密构造器
+                            [self updateEncryptBuilder];
                         }
                     }
 
@@ -3122,7 +3131,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 #pragma mark - SecretKey
-- (void)loadSecretKey:(SASecretKey *)secretKey {
+- (void)updateEncryptBuilder {
+    // 获取公钥
+    SASecretKey *secretKey = [self loadSecretKey];
     if (secretKey.key.length > 0) {
         dispatch_async(self.serialQueue, ^{
             if (self.encryptBuilder) {
@@ -3132,6 +3143,52 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
         });
     }
+}
+
+- (SASecretKey *)loadSecretKey {
+    SASecretKey *secretKey = nil;
+    
+    @try {
+        if (self.configOptions.loadSecretKeyCompletion) {
+            // 先尝试通过用户的方法获取公钥
+            secretKey = self.configOptions.loadSecretKeyCompletion();
+            if (secretKey) {
+                SALogDebug(@"Load secret key from loadSecretKeyCompletion is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+            }
+        } else {
+            // 再尝试通过本地获取公钥
+            secretKey = [self localSecretKey];
+            if (secretKey) {
+                SALogDebug(@"Load secret key from localSecretKey is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+            }
+        }
+        
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
+    
+    return secretKey;
+}
+
+- (void)saveSecretKey:(SASecretKey *)secretKey {
+    @try {
+        // 先存储到本地
+        NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
+        [[NSUserDefaults standardUserDefaults] setObject:secretKeyData forKey:SA_SDK_SECRET_KEY];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        
+        // 再通过用户的方法存储公钥
+        if (self.configOptions.saveSecretKeyCompletion) {
+            self.configOptions.saveSecretKeyCompletion(secretKey);
+        }
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
+}
+
+- (SASecretKey *)localSecretKey {
+    NSData *secretKeyData = [[NSUserDefaults standardUserDefaults] dataForKey:SA_SDK_SECRET_KEY];
+    return [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
 }
 
 #pragma mark – Getters and Setters

@@ -72,6 +72,11 @@
     options.enableLog = self.enableLog;
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
+    
+    options.enableEncrypt = self.enableEncrypt;
+    options.saveSecretKeyCompletion = self.saveSecretKeyCompletion;
+    options.loadSecretKeyCompletion = self.loadSecretKeyCompletion;
+    
     return options;
 }
 
@@ -105,6 +110,20 @@
 
 
 @implementation SASecretKey
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeInteger:self.version forKey:@"version"];
+    [coder encodeObject:self.key forKey:@"key"];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self) {
+        self.version = [coder decodeIntegerForKey:@"version"];
+        self.key = [coder decodeObjectForKey:@"key"];
+    }
+    return self;
+}
 
 @end
 

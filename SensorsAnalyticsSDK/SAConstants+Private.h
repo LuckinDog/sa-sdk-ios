@@ -136,6 +136,7 @@ extern NSString * const SA_REQUEST_REMOTECONFIG_TIME;
 extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
+extern NSString * const SA_SDK_SECRET_KEY;
 
 #pragma mark - bridge name
 extern NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME;

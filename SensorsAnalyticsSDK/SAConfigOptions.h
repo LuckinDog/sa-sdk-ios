@@ -21,6 +21,8 @@
 #import <Foundation/Foundation.h>
 #import "SAConstants.h"
 
+@class SASecretKey;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -126,11 +128,20 @@ NS_ASSUME_NONNULL_BEGIN
 /// DeepLink 中用户自定义来源渠道属性 key 值，可传多个。
 @property (nonatomic, copy) NSArray<NSString *> *sourceChannels;
 
+/// 是否开启加密
+@property (nonatomic, assign) BOOL enableEncrypt;
+
+/// 存储公钥的回调
+@property (nonatomic, copy) void (^saveSecretKeyCompletion)(SASecretKey * _Nullable secretKey);
+
+/// 获取公钥的回调
+@property (nonatomic, copy) SASecretKey *(^loadSecretKeyCompletion)(void);
+
 @end
 
 
 /// RSA 公钥秘钥信息
-@interface SASecretKey : NSObject
+@interface SASecretKey : NSObject <NSCoding>
 
 /// 秘钥版本
 @property(nonatomic, assign) NSInteger version;

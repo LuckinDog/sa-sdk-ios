@@ -27,6 +27,7 @@
 #import "SAEncryptUtils.h"
 #import "SAGzipUtility.h"
 #import "SAJSONUtil.h"
+#import "SALog.h"
 
 @interface SADataEncryptBuilder()
 
@@ -81,6 +82,7 @@
 
 - (nullable NSDictionary *)encryptionJSONObject:(id)obj {
     if (!self.rsaSecretKey || !self.rsaEncryptAESKey) {
+        SALogDebug(@"Enable encryption but the secret key is nil!");
         return nil;
     }
 

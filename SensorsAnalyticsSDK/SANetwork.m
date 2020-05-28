@@ -156,14 +156,15 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     @try {
         int gzip = 9; // gzip = 9 表示加密编码
         NSString *b64String = [jsonString copy];
-#ifndef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-        // 加密数据已经做过 gzip 压缩和 base64 处理了，就不需要再处理。
-        gzip = 1;
-        // 使用gzip进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[b64String dataUsingEncoding:NSUTF8StringEncoding]];
-        // base64
-        b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-#endif
+        
+        if (![SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt) {
+            // 加密数据已经做过 gzip 压缩和 base64 处理了，就不需要再处理。
+            gzip = 1;
+            // 使用gzip进行压缩
+            NSData *zippedData = [SAGzipUtility gzipData:[b64String dataUsingEncoding:NSUTF8StringEncoding]];
+            // base64
+            b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+        }
 
         int hashCode = [b64String sensorsdata_hashCode];
         b64String = [b64String stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
