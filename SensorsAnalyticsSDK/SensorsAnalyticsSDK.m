@@ -3152,17 +3152,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (self.configOptions.loadSecretKeyCompletion) {
             // 先尝试通过用户的方法获取公钥
             secretKey = self.configOptions.loadSecretKeyCompletion();
+            
             if (secretKey) {
                 SALogDebug(@"Load secret key from loadSecretKeyCompletion is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
             }
         } else {
             // 再尝试通过本地获取公钥
-            secretKey = [self localSecretKey];
+            NSData *secretKeyData = [[NSUserDefaults standardUserDefaults] dataForKey:SA_SDK_SECRET_KEY];
+            secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
+            
             if (secretKey) {
                 SALogDebug(@"Load secret key from localSecretKey is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
             }
         }
-        
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -3184,11 +3186,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
-}
-
-- (SASecretKey *)localSecretKey {
-    NSData *secretKeyData = [[NSUserDefaults standardUserDefaults] dataForKey:SA_SDK_SECRET_KEY];
-    return [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
 }
 
 #pragma mark – Getters and Setters

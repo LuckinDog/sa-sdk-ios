@@ -132,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL enableEncrypt;
 
 /// 存储公钥的回调
-@property (nonatomic, copy) void (^saveSecretKeyCompletion)(SASecretKey * _Nullable secretKey);
+@property (nonatomic, copy) void (^saveSecretKeyCompletion)(SASecretKey *secretKey);
 
 /// 获取公钥的回调
 @property (nonatomic, copy) SASecretKey *(^loadSecretKeyCompletion)(void);
