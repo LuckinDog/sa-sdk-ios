@@ -45,7 +45,7 @@
 - (NSString *)sensorsdata_title {
     __block NSString *titleViewContent = nil;
     __block NSString *controllerTitle = nil;
-    sensorsdata_dispatch_main_safe_sync(^{
+    sensorsdata_dispatch_mainThread_sync(^{
         titleViewContent = self.navigationItem.titleView.sensorsdata_elementContent;
         controllerTitle = self.navigationItem.title;
     });

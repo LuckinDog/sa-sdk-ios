@@ -179,7 +179,7 @@ static void SAHandleException(NSException *exception) {
                 [instance track:SA_EVENT_NAME_APP_CRASHED withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                sensorsdata_dispatch_main_safe_sync(^{
+                sensorsdata_dispatch_mainThread_sync(^{
                     if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
                         [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
                     }

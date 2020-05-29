@@ -145,8 +145,13 @@ NSSet* sensorsdata_reserved_properties() {
     return [NSSet setWithObjects:@"date", @"datetime", @"distinct_id", @"event", @"events", @"first_id", @"id", @"original_id", @"device_id", @"properties", @"second_id", @"time", @"user_id", @"users", nil];
 }
 
-void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block) {
-    sensorsdata_dispatch_safe_sync(dispatch_get_main_queue(),block);
+/// 主线程执行
+void sensorsdata_dispatch_mainThread_sync(DISPATCH_NOESCAPE dispatch_block_t block) {
+    if (NSThread.isMainThread) {
+        block();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
 }
 
 BOOL sensorsdata_is_same_queue(dispatch_queue_t queue) {
