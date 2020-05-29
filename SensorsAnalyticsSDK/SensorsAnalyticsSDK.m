@@ -462,28 +462,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
 
-    return ![self isBlackListContainsViewController:controller ofType:type];
+    return ![self isBlackListViewController:controller ofType:type];
 }
 
-- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController ofType:(SensorsAnalyticsAutoTrackEventType)type {
+- (BOOL)isBlackListViewController:(UIViewController *)viewController ofType:(SensorsAnalyticsAutoTrackEventType)type {
     static dispatch_once_t onceToken;
-    static NSDictionary *classes = nil;
+    static NSDictionary *allClasses = nil;
     dispatch_once(&onceToken, ^{
         NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
         //文件路径
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
         @try {
-            classes = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
+            allClasses = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
         } @catch(NSException *exception) {  // json加载和解析可能失败
             SALogError(@"%@ error: %@", self, exception);
         }
     });
 
-    NSDictionary *dictonary = type == SensorsAnalyticsEventTypeAppViewScreen ? classes[SA_EVENT_NAME_APP_VIEW_SCREEN] : classes[SA_EVENT_NAME_APP_CLICK];
-
-    for (NSString *cla in dictonary[@"public"]) {
-        if ([viewController isKindOfClass:NSClassFromString(cla)]) {
+    NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[SA_EVENT_NAME_APP_VIEW_SCREEN] : allClasses[SA_EVENT_NAME_APP_CLICK];
+    for (NSString *publicClass in dictonary[@"public"]) {
+        if ([viewController isKindOfClass:NSClassFromString(publicClass)]) {
             return YES;
         }
     }
@@ -2371,7 +2370,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    if ([self isBlackListContainsViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
+    if ([self isBlackListViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
 
