@@ -51,10 +51,9 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 #pragma mark -
 @interface SAPresetProperty : NSObject
 
-@property (nonatomic, copy, readonly) NSDictionary *automaticProperties;
+@property (nonatomic, strong, readonly) NSMutableDictionary *automaticProperties;
 @property (nonatomic, copy, readonly) NSString *appVersion;
-@property (nonatomic, copy, readonly) NSString *lib;
-@property (nonatomic, copy, readonly) NSString *libVersion;
+@property (nonatomic, copy, readonly) NSString *deviceID;
 
 /**
  初始化方法
@@ -72,17 +71,23 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 /// 禁用 new 初始化
 + (instancetype)new NS_UNAVAILABLE;
 
-/// 获取首日的日期
-- (void)unarchiveFirstDay;
+/**
+获取 lib 相关属性
+
+@param method SDK 方法
+
+@return lib 相关属性
+*/
+- (NSMutableDictionary *)libPropertiesWithMethod:(NSString *)method;
 
 /// 是否为首日
 - (BOOL)isFirstDay;
 
-/// 设备 ID
-- (NSString *)deviceID;
+/// 当前的网络属性
+- (NSMutableDictionary *)currentNetworkProperties;
 
 /// 当前的预置属性
-- (NSDictionary *)currentPresetProperties;
+- (NSMutableDictionary *)currentPresetProperties;
 
 /**
  track 类型特有的预置属性
@@ -93,12 +98,12 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 
  @return 当前的预置属性
 */
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
+- (NSMutableDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
+                                   orientationConfig:(SADeviceOrientationConfig *)orientationConfig
 #endif
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-                               locationConfig:(SAGPSLocationConfig *)locationConfig
+                                      locationConfig:(SAGPSLocationConfig *)locationConfig
 #endif
 ;
 

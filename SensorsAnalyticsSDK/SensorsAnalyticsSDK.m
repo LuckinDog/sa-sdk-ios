@@ -496,7 +496,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSDictionary *)getPresetProperties {
-    return [self.presetProperty currentPresetProperties];
+    return [NSDictionary dictionaryWithDictionary:[self.presetProperty currentPresetProperties]];
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
@@ -922,11 +922,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (URL == nil) {
         return NO;
     }
-    NSString *networkType = [SACommonUtility currentNetworkStatus];
-    BOOL isWifi = NO;
-    if ([networkType isEqualToString:@"WIFI"]) {
-        isWifi = YES;
-    }
+    
+    BOOL isWifi = [[SACommonUtility currentNetworkStatus] isEqualToString:@"WIFI"];
     return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
 }
 
@@ -1149,15 +1146,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
     }
 
-    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    libProperties[SAEventPresetPropertyLib] = self.presetProperty.lib;
-    libProperties[SAEventPresetPropertyLibMethod] = @"code";
-    libProperties[SAEventPresetPropertyLibVersion] = self.presetProperty.libVersion;
-    libProperties[SAEventPresetPropertyAppVersion] = self.presetProperty.appVersion;
-
-    if (libProperties.count > 0) {
-        itemProperties[SA_EVENT_LIB] = [NSDictionary dictionaryWithDictionary:libProperties];
-    }
+    itemProperties[SA_EVENT_LIB] = [NSDictionary dictionaryWithDictionary:[self.presetProperty libPropertiesWithMethod:@"code"]];
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     itemProperties[SA_EVENT_TIME] = timeStamp;
@@ -1215,8 +1204,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     propertieDict = [propertieDict copy];
     
-    NSMutableDictionary *libProperties = [NSMutableDictionary dictionary];
-    libProperties[SAEventPresetPropertyLibMethod] = @"autoTrack";
+    NSMutableDictionary *libProperties = [self.presetProperty libPropertiesWithMethod:@"autoTrack"];
 
     // 对于type是track数据，它们的event名称是有意义的
     if ([type isEqualToString:@"track"] || [type isEqualToString:@"codeTrack"]) {
@@ -1249,10 +1237,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
     }
-
-    libProperties[SAEventPresetPropertyLib] = self.presetProperty.lib;
-    libProperties[SAEventPresetPropertyLibVersion] = self.presetProperty.libVersion;
-    libProperties[SAEventPresetPropertyAppVersion] = self.presetProperty.appVersion;
 
     NSString *libDetail = nil;
     if ([self isAutoTrackEnabled] && propertieDict) {
@@ -1303,9 +1287,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             // 每次 track 时手机网络状态
-            NSString *networkType = [SACommonUtility currentNetworkStatus];
-            p[SAEventPresetPropertyNetworkType] = networkType;
-            p[SAEventPresetPropertyWifi] = @([networkType isEqualToString:@"WIFI"]);
+            [p addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
 
             //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
             //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
@@ -1960,7 +1942,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)unarchive {
     [self unarchiveSuperProperties];
-    [self.presetProperty unarchiveFirstDay];
     [self unarchiveTrackChannelEvents];
 }
 
@@ -3096,11 +3077,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
             NSMutableDictionary *libMDic = eventDict[SA_EVENT_LIB];
             //update lib $app_version from super properties
-            id appVersion = self->_superProperties[SAEventPresetPropertyAppVersion];
-            if (!appVersion) {
-                appVersion = self.presetProperty.appVersion;
-            }
-            
+            id appVersion = self->_superProperties[SAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
             if (appVersion) {
                 libMDic[SAEventPresetPropertyAppVersion] = appVersion;
             }
@@ -3129,9 +3106,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
                 // 每次 track 时手机网络状态
-                NSString *networkType = [SACommonUtility currentNetworkStatus];
-                propertiesDict[SAEventPresetPropertyNetworkType] = networkType;
-                propertiesDict[SAEventPresetPropertyWifi] = @([networkType isEqualToString:@"WIFI"]);
+                [propertiesDict addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
 
                 //  是否首日访问
                 if([type isEqualToString:@"track"]) {
