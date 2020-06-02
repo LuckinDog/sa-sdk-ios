@@ -1607,10 +1607,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 这里仍然添加此字段是为了解决服务端版本兼容问题
             eventProperties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
 
-            // 服务端暂时只支持此字段为 true / false，所以声明变量为 bool 类型
             bool isContains = [self.trackChannelEventNames containsObject:event];
-            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isContains);
-            if (!isContains) {
+            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
+            if (!isContains && !event) {
                 [self.trackChannelEventNames addObject:event];
                 dispatch_async(self.serialQueue, ^{
                     [self archiveTrackChannelEventNames];
