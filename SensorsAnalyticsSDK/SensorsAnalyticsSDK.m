@@ -3253,7 +3253,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSMutableDictionary *paramsDic = [[SAURLUtils queryItemsWithURLString:urlstr] mutableCopy];
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        NSAssert(![webView isKindOfClass:NSClassFromString(@"UIWebView")], @"当前集成方式已禁用 UIWebView！❌");
+        NSAssert([webView isKindOfClass:WKWebView.class], @"当前集成方式，请使用 WKWebView！❌");
 #else
 
         if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
@@ -3292,7 +3292,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 }
             }
         } else {
-            SALogDebug(@"showUpWebView: not UIWebView or WKWebView");
+            SALogDebug(@"showUpWebView: not valid webview");
         }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
