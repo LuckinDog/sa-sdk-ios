@@ -3225,6 +3225,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if (![self shouldHandleWebView:webView request:request]) {
         return NO;
     }
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+    NSAssert([webView isKindOfClass:WKWebView.class], @"当前集成方式，请使用 WKWebView！❌");
+#endif
+
     @try {
         SALogDebug(@"showUpWebView");
         SAJSONUtil *_jsonUtil = [[SAJSONUtil alloc] init];
@@ -3236,8 +3240,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (propertyDict) {
             [properties addEntriesFromDictionary:propertyDict];
         }
-        NSData* jsonData = [_jsonUtil JSONSerializeObject:properties];
-        NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSData *jsonData = [_jsonUtil JSONSerializeObject:properties];
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
 
@@ -3249,13 +3253,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             return YES;
         }
 
-         //解析参数
+        //解析参数
         NSMutableDictionary *paramsDic = [[SAURLUtils queryItemsWithURLString:urlstr] mutableCopy];
 
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        NSAssert([webView isKindOfClass:WKWebView.class], @"当前集成方式，请使用 WKWebView！❌");
-#else
-
+#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
         if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
             SALogDebug(@"showUpWebView: UIWebView");
             if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
@@ -3264,7 +3265,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if ([paramsDic count] > 0) {
                     NSString *eventInfo = [paramsDic objectForKey:SA_EVENT_NAME];
                     if (eventInfo != nil) {
-                        NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                        NSString *encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                         [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
                     }
                 }
@@ -3274,8 +3275,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (wkWebViewClass && [webView isKindOfClass:wkWebViewClass]) {//WKWebView
             SALogDebug(@"showUpWebView: WKWebView");
             if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
-                typedef void(^Myblock)(id, NSError *);
-                Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error) {
+                typedef void (^Myblock)(id, NSError *);
+                Myblock myBlock = ^(id _Nullable response, NSError *_Nullable error) {
                     SALogDebug(@"response: %@ error: %@", response, error);
                 };
                 SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
@@ -3286,7 +3287,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if ([paramsDic count] > 0) {
                     NSString *eventInfo = [paramsDic objectForKey:SA_EVENT_NAME];
                     if (eventInfo != nil) {
-                        NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                        NSString *encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                         [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
                     }
                 }
