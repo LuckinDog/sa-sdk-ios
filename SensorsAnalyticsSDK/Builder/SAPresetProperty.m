@@ -117,9 +117,11 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     self = [super init];
     if (self) {
         _queue = queue;
-        _libVersion = libVersion;
         
-        [self unarchiveFirstDay];
+        dispatch_async(self.queue, ^{
+            self.libVersion = libVersion;
+            [self unarchiveFirstDay];
+        });
     }
     return self;
 }
@@ -209,14 +211,12 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 #pragma mark – Private Methods
 
 - (void)unarchiveFirstDay {
-    dispatch_async(self.queue, ^{
-        self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
-        if (!self.firstDay) {
-            NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
-            self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
-            [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
-        }
-    });
+    self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
+    if (!self.firstDay) {
+        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
+        self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
+        [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
+    }
 }
 
 + (NSString *)deviceModel {
@@ -302,27 +302,29 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 #pragma mark – Getters and Setters
 
 - (NSMutableDictionary *)automaticProperties {
-    if (!_automaticProperties) {
-        _automaticProperties = [NSMutableDictionary dictionary];
+    sensorsdata_dispatch_safe_sync(self.queue, ^{
+        if (!_automaticProperties) {
+            _automaticProperties = [NSMutableDictionary dictionary];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-        _automaticProperties[SAEventPresetPropertyDeviceID] = [SAIdentifier uniqueHardwareId];
+            _automaticProperties[SAEventPresetPropertyDeviceID] = [SAIdentifier uniqueHardwareId];
 #endif
-        _automaticProperties[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
-        _automaticProperties[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
-        _automaticProperties[SAEventPresetPropertyManufacturer] = @"Apple";
-        CGSize size = [UIScreen mainScreen].bounds.size;
-        _automaticProperties[SAEventPresetPropertyScreenHeight] = @((NSInteger)size.height);
-        _automaticProperties[SAEventPresetPropertyScreenWidth] = @((NSInteger)size.width);
-        _automaticProperties[SAEventPresetPropertyOS] = @"iOS";
-        _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
-        _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-        _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-        _automaticProperties[SAEventPresetPropertyLib] = @"iOS";
-        _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;
-        // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
-        NSInteger hourOffsetGMT = - ([[NSTimeZone systemTimeZone] secondsFromGMT] / 60);
-        _automaticProperties[SAEventPresetPropertyTimezoneOffset] = @(hourOffsetGMT);
-    }
+            _automaticProperties[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
+            _automaticProperties[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
+            _automaticProperties[SAEventPresetPropertyManufacturer] = @"Apple";
+            CGSize size = [UIScreen mainScreen].bounds.size;
+            _automaticProperties[SAEventPresetPropertyScreenHeight] = @((NSInteger)size.height);
+            _automaticProperties[SAEventPresetPropertyScreenWidth] = @((NSInteger)size.width);
+            _automaticProperties[SAEventPresetPropertyOS] = @"iOS";
+            _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
+            _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+            _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+            _automaticProperties[SAEventPresetPropertyLib] = @"iOS";
+            _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;
+            // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
+            NSInteger hourOffsetGMT = - ([[NSTimeZone systemTimeZone] secondsFromGMT] / 60);
+            _automaticProperties[SAEventPresetPropertyTimezoneOffset] = @(hourOffsetGMT);
+        }
+    });
     return _automaticProperties;
 }
 
