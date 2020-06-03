@@ -1607,7 +1607,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 这里仍然添加此字段是为了解决服务端版本兼容问题
             eventProperties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
 
-            bool isContains = [self.trackChannelEventNames containsObject:event];
+            BOOL isContains = [self.trackChannelEventNames containsObject:event];
             eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
             if (!isContains && !event) {
                 [self.trackChannelEventNames addObject:event];
