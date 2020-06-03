@@ -1146,7 +1146,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
     }
 
-    itemProperties[SA_EVENT_LIB] = [NSDictionary dictionaryWithDictionary:[self.presetProperty libPropertiesWithMethod:@"code"]];
+    itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithMethod:@"code"];
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     itemProperties[SA_EVENT_TIME] = timeStamp;
