@@ -149,7 +149,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     return isFirstDay;
 }
 
-- (NSMutableDictionary *)currentNetworkProperties {
+- (NSDictionary *)currentNetworkProperties {
     NSString *networkType = [SACommonUtility currentNetworkStatus];
 
     NSMutableDictionary *networkProperties = [NSMutableDictionary dictionary];
@@ -158,7 +158,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     return networkProperties;
 }
 
-- (NSMutableDictionary *)currentPresetProperties {
+- (NSDictionary *)currentPresetProperties {
     NSMutableDictionary *presetProperties = [NSMutableDictionary dictionary];
     [presetProperties addEntriesFromDictionary:self.automaticProperties];
     [presetProperties addEntriesFromDictionary:[self currentNetworkProperties]];
@@ -174,12 +174,12 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     return self.automaticProperties[SAEventPresetPropertyDeviceID];
 }
 
-- (NSMutableDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
+- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                                   orientationConfig:(SADeviceOrientationConfig *)orientationConfig
+                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
 #endif
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-                                      locationConfig:(SAGPSLocationConfig *)locationConfig
+                               locationConfig:(SAGPSLocationConfig *)locationConfig
 #endif
 {
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
