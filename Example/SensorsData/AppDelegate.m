@@ -24,8 +24,6 @@
 
 static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
-static NSString* SA_Cqs_ServerURL = @"https://newsdktest.datasink.sensorsdata.cn/sa?project=chuqiangsheng&token=5a394d2405c147ca";
-
 @interface AppDelegate ()
 
 @end
@@ -34,7 +32,7 @@ static NSString* SA_Cqs_ServerURL = @"https://newsdktest.datasink.sensorsdata.cn
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:SA_Cqs_ServerURL launchOptions:launchOptions];
+    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:Sa_Default_ServerURL launchOptions:launchOptions];
     options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
     options.enableTrackAppCrash = YES;
 //    options.flushInterval = 10 * 1000;
