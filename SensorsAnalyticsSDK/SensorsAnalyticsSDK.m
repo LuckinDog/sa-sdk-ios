@@ -1272,13 +1272,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
-        NSMutableDictionary *p = [NSMutableDictionary dictionary];
+        NSMutableDictionary *eventPropertiesDic = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
-            [p addEntriesFromDictionary:self.presetProperty.automaticProperties];
-            [p addEntriesFromDictionary:self->_superProperties];
-            [p addEntriesFromDictionary:dynamicSuperPropertiesDict];
+            [eventPropertiesDic addEntriesFromDictionary:self.presetProperty.automaticProperties];
+            [eventPropertiesDic addEntriesFromDictionary:self->_superProperties];
+            [eventPropertiesDic addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
             //update lib $app_version from super properties
             id appVersion = self->_superProperties[SAEventPresetPropertyAppVersion];
@@ -1287,13 +1287,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             // 每次 track 时手机网络状态
-            [p addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
+            [eventPropertiesDic addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
 
             //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
             //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
             NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:event currentSysUpTime:currentSystemUpTime];
             if (eventDuration) {
-                p[@"event_duration"] = eventDuration;
+                eventPropertiesDic[@"event_duration"] = eventDuration;
             }
         }
 
@@ -1324,33 +1324,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         // 序列化所有 NSDate 类型
                         NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
                         NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-                        p[key] = dateStr;
+                        eventPropertiesDic[key] = dateStr;
                     } else {
-                        p[key] = obj;
+                        eventPropertiesDic[key] = obj;
                     }
                 }
             }
         }
 
         //修正 $device_id，防止用户修改
-        if (p[SAEventPresetPropertyDeviceID]) {
-            p[SAEventPresetPropertyDeviceID] = self.presetProperty.deviceID;
+        if (eventPropertiesDic[SAEventPresetPropertyDeviceID]) {
+            eventPropertiesDic[SAEventPresetPropertyDeviceID] = self.presetProperty.deviceID;
         }
 
-        NSMutableDictionary *e;
+        NSMutableDictionary *eventDic = nil;
         NSString *bestId = self.distinctId;
 
         if ([type isEqualToString:@"track_signup"]) {
-            e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                 eventName, SA_EVENT_NAME,
-                 [NSDictionary dictionaryWithDictionary:p], SA_EVENT_PROPERTIES,
-                 bestId, SA_EVENT_DISTINCT_ID,
-                 self.originalId, @"original_id",
-                 timeStamp, SA_EVENT_TIME,
-                 type, SA_EVENT_TYPE,
-                 libProperties, SA_EVENT_LIB,
-                 @(arc4random()), SA_EVENT_TRACK_ID,
-                 nil];
+            eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        eventName, SA_EVENT_NAME,
+                        [NSDictionary dictionaryWithDictionary:eventPropertiesDic], SA_EVENT_PROPERTIES,
+                        bestId, SA_EVENT_DISTINCT_ID,
+                        self.originalId, @"original_id",
+                        timeStamp, SA_EVENT_TIME,
+                        type, SA_EVENT_TYPE,
+                        libProperties, SA_EVENT_LIB,
+                        @(arc4random()), SA_EVENT_TRACK_ID,
+                        nil];
         } else if([type isEqualToString:@"track"]) {
             NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
@@ -1360,48 +1360,48 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                                           locationConfig:self.locationConfig
 #endif
                                                          ];
-            [p addEntriesFromDictionary:presetPropertiesOfTrackType];
+            [eventPropertiesDic addEntriesFromDictionary:presetPropertiesOfTrackType];
             
-            e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                 eventName, SA_EVENT_NAME,
-                 [NSDictionary dictionaryWithDictionary:p], SA_EVENT_PROPERTIES,
-                 bestId, SA_EVENT_DISTINCT_ID,
-                 timeStamp, SA_EVENT_TIME,
-                 type, SA_EVENT_TYPE,
-                 libProperties, SA_EVENT_LIB,
-                 @(arc4random()), SA_EVENT_TRACK_ID,
-                 nil];
+            eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        eventName, SA_EVENT_NAME,
+                        [NSDictionary dictionaryWithDictionary:eventPropertiesDic], SA_EVENT_PROPERTIES,
+                        bestId, SA_EVENT_DISTINCT_ID,
+                        timeStamp, SA_EVENT_TIME,
+                        type, SA_EVENT_TYPE,
+                        libProperties, SA_EVENT_LIB,
+                        @(arc4random()), SA_EVENT_TRACK_ID,
+                        nil];
         } else {
             // 此时应该都是对Profile的操作
-            e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                 [NSDictionary dictionaryWithDictionary:p], SA_EVENT_PROPERTIES,
-                 bestId, SA_EVENT_DISTINCT_ID,
-                 timeStamp, SA_EVENT_TIME,
-                 type, SA_EVENT_TYPE,
-                 libProperties, SA_EVENT_LIB,
-                 @(arc4random()), SA_EVENT_TRACK_ID,
-                 nil];
+            eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        [NSDictionary dictionaryWithDictionary:eventPropertiesDic], SA_EVENT_PROPERTIES,
+                        bestId, SA_EVENT_DISTINCT_ID,
+                        timeStamp, SA_EVENT_TIME,
+                        type, SA_EVENT_TYPE,
+                        libProperties, SA_EVENT_LIB,
+                        @(arc4random()), SA_EVENT_TRACK_ID,
+                        nil];
         }
 
         if (project) {
-            e[SA_EVENT_PROJECT] = project;
+            eventDic[SA_EVENT_PROJECT] = project;
         }
         if (token) {
-            e[SA_EVENT_TOKEN] = token;
+            eventDic[SA_EVENT_TOKEN] = token;
         }
 
-        e[SA_EVENT_LOGIN_ID] = self.loginId;
-        e[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
+        eventDic[SA_EVENT_LOGIN_ID] = self.loginId;
+        eventDic[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
-        NSDictionary *eventDic = [self willEnqueueWithType:type andEvent:e];
-        if (!eventDic) {
+        NSDictionary *trackEventDic = [self willEnqueueWithType:type andEvent:eventDic];
+        if (!trackEventDic) {
             return;
         }
 
-        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:eventDic];
-        SALogDebug(@"\n【track event】:\n%@", eventDic);
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:trackEventDic];
+        SALogDebug(@"\n【track event】:\n%@", trackEventDic);
 
-        [self enqueueWithType:type andEvent:eventDic];
+        [self enqueueWithType:type andEvent:trackEventDic];
 
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
