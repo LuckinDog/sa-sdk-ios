@@ -24,6 +24,7 @@
 
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
+#import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+HeatMap.h"
 #import "UIView+AutoTrack.h"
@@ -75,7 +76,7 @@
         currentViewController = [SAAutoTrackUtils findCurrentViewControllerFromRootViewController:rootViewController isRoot:YES];
     };
 
-    sensorsdata_dispatch_mainThread_sync(block);
+    [SACommonUtility mainThreadSyncForBlock:block];
     return currentViewController;
 }
 

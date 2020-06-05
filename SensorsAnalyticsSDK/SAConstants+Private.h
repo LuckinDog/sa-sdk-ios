@@ -144,9 +144,6 @@ extern NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME;
 NSSet* sensorsdata_reserved_properties(void);
 
 #pragma mark - safe sync
-/// 主线程执行
-void sensorsdata_dispatch_mainThread_sync(DISPATCH_NOESCAPE dispatch_block_t block);
-
 BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);

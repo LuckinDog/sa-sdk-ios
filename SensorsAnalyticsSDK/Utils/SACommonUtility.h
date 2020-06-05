@@ -26,4 +26,6 @@
 ///按字节截取指定长度字符，包括汉字和表情
 + (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )length;
 
+/// 主线程执行
++ (void)mainThreadSyncForBlock:(DISPATCH_NOESCAPE dispatch_block_t)block;
 @end
