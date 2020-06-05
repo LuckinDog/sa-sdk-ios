@@ -1281,9 +1281,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [p addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
             //update lib $app_version from super properties
-            id app_version = self->_superProperties[SAEventPresetPropertyAppVersion];
-            if (app_version) {
-                libProperties[SAEventPresetPropertyAppVersion] = app_version;
+            id appVersion = self->_superProperties[SAEventPresetPropertyAppVersion];
+            if (appVersion) {
+                libProperties[SAEventPresetPropertyAppVersion] = appVersion;
             }
 
             // 每次 track 时手机网络状态
