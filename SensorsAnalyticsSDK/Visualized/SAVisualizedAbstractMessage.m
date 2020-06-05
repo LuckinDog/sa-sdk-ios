@@ -101,7 +101,7 @@
         NSDictionary <NSString *, NSString *> *RNScreenInfo = nil;
         Class managerClass = NSClassFromString(@"SAReactNativeManager");
         SEL sharedInstanceSEL = NSSelectorFromString(@"sharedInstance");
-        if (managerClass && [managerClass respondsToSelector:sharedInstanceSEL]) {
+        if ([managerClass respondsToSelector:sharedInstanceSEL]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
             id manager = [managerClass performSelector:sharedInstanceSEL];
