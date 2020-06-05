@@ -27,5 +27,5 @@
 + (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )length;
 
 /// 主线程执行
-+ (void)mainThreadSyncForBlock:(DISPATCH_NOESCAPE dispatch_block_t)block;
++ (void)performBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block;
 @end

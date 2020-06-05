@@ -294,7 +294,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     self->_launchedPassively = YES;
                 }
             };
-            [SACommonUtility mainThreadSyncForBlock:mainThreadBlock];
+            [SACommonUtility performBlockOnMainThread:mainThreadBlock];
             
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
@@ -449,7 +449,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     });
 #else
-    [SACommonUtility mainThreadSyncForBlock:^{
+    [SACommonUtility performBlockOnMainThread:^{
         UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
         self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
         completion(self.userAgent);

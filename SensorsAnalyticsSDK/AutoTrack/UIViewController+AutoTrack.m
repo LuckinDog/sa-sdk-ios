@@ -46,7 +46,7 @@
 - (NSString *)sensorsdata_title {
     __block NSString *titleViewContent = nil;
     __block NSString *controllerTitle = nil;
-    [SACommonUtility mainThreadSyncForBlock:^{
+    [SACommonUtility performBlockOnMainThread:^{
         titleViewContent = self.navigationItem.titleView.sensorsdata_elementContent;
         controllerTitle = self.navigationItem.title;
     }];

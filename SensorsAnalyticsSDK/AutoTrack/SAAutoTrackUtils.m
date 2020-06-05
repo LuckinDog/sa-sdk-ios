@@ -76,7 +76,7 @@
         currentViewController = [SAAutoTrackUtils findCurrentViewControllerFromRootViewController:rootViewController isRoot:YES];
     };
 
-    [SACommonUtility mainThreadSyncForBlock:block];
+    [SACommonUtility performBlockOnMainThread:block];
     return currentViewController;
 }
 

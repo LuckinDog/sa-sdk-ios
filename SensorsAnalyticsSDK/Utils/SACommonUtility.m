@@ -53,7 +53,7 @@
     return txt;
 }
 
-+ (void)mainThreadSyncForBlock:(DISPATCH_NOESCAPE dispatch_block_t)block {
++ (void)performBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block {
     if (NSThread.isMainThread) {
         block();
     } else {
