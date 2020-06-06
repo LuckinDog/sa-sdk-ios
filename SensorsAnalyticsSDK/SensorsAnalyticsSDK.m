@@ -1656,11 +1656,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackTimerEnd:(NSString *)event {
-    [self track:event withTrackType:SensorsAnalyticsTrackTypeAuto];
+    [self trackTimerEnd:event withProperties:nil];
 }
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeAuto];
+    // trackTimerEnd 事件需要支持新渠道匹配功能，且用户手动调用 trackTimerEnd 应归为手动埋点
+    // 所以这里 type 类型为 Code
+    [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeCode];
 }
 
 - (void)trackTimerPause:(NSString *)event {
