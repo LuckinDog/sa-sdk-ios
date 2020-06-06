@@ -1609,7 +1609,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             BOOL isContains = [self.trackChannelEventNames containsObject:event];
             eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
-            if (!isContains && !event) {
+            if (!isContains && event) {
                 [self.trackChannelEventNames addObject:event];
                 dispatch_async(self.serialQueue, ^{
                     [self archiveTrackChannelEventNames];
