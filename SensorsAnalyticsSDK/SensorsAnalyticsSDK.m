@@ -77,6 +77,7 @@
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
+#import "SADataStore.h"
 
 #define VERSION @"2.0.8-pre"
 
@@ -173,6 +174,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 @property (nonatomic, strong) SAReadWriteLock *remoteConfigLock;
 @property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
+@property (nonatomic, strong) SAReadWriteLock *encryptBuilderLock;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
@@ -250,10 +252,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 @synthesize remoteConfig = _remoteConfig;
+@synthesize encryptBuilder = _encryptBuilder;
 
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
+    if (configOptions.enableEncrypt) {
+        NSAssert((configOptions.saveSecretKeyBlock && configOptions.loadSecretKeyBlock) ||
+                 (!configOptions.saveSecretKeyBlock && !configOptions.loadSecretKeyBlock), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
+    }
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
     });
@@ -396,10 +403,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 获取加密公钥
             if (_configOptions.enableEncrypt) {
-                SASecretKey *secretKey = [self loadSecretKey];
-                if (secretKey.key.length > 0) {
-                    self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
-                }
+                [self updateEncryptBuilder];
             }
         }
         
@@ -3135,56 +3139,47 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     // 获取公钥
     SASecretKey *secretKey = [self loadSecretKey];
     if (secretKey.key.length > 0) {
-        dispatch_async(self.serialQueue, ^{
-            if (self.encryptBuilder) {
-                [self.encryptBuilder updateRSAPublicSecretKey:secretKey];
-            } else {
-                self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
-            }
-        });
+        self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
     }
 }
 
 - (SASecretKey *)loadSecretKey {
     SASecretKey *secretKey = nil;
     
-    @try {
-        if (self.configOptions.loadSecretKeyCompletion) {
-            // 先尝试通过用户的方法获取公钥
-            secretKey = self.configOptions.loadSecretKeyCompletion();
-            
-            if (secretKey) {
-                SALogDebug(@"Load secret key from loadSecretKeyCompletion is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-            }
+    if (self.configOptions.loadSecretKeyBlock) {
+        // 通过用户的回调获取公钥
+        secretKey = self.configOptions.loadSecretKeyBlock();
+        
+        if (secretKey) {
+            SALogDebug(@"Load secret key from loadSecretKeyBlock is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
         } else {
-            // 再尝试通过本地获取公钥
-            NSData *secretKeyData = [[NSUserDefaults standardUserDefaults] dataForKey:SA_SDK_SECRET_KEY];
-            secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
-            
-            if (secretKey) {
-                SALogDebug(@"Load secret key from localSecretKey is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-            }
+            SALogDebug(@"Load secret key from loadSecretKeyBlock failed!");
         }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
+    } else {
+        // 通过本地获取公钥
+        NSData *secretKeyData = [SADataStore dataForKey:SA_SDK_SECRET_KEY];
+        secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
+        
+        if (secretKey) {
+            SALogDebug(@"Load secret key from localSecretKey is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+        } else {
+            SALogDebug(@"Load secret key from localSecretKey failed!");
+        }
     }
     
     return secretKey;
 }
 
 - (void)saveSecretKey:(SASecretKey *)secretKey {
-    @try {
-        // 先存储到本地
-        NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
-        [[NSUserDefaults standardUserDefaults] setObject:secretKeyData forKey:SA_SDK_SECRET_KEY];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+    if (self.configOptions.saveSecretKeyBlock) {
+        // 通过用户的回调保存公钥
+        self.configOptions.saveSecretKeyBlock(secretKey);
         
-        // 再通过用户的方法存储公钥
-        if (self.configOptions.saveSecretKeyCompletion) {
-            self.configOptions.saveSecretKeyCompletion(secretKey);
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
+        [SADataStore deleteDataForKey:SA_SDK_SECRET_KEY];
+    } else {
+        // 存储到本地
+        NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
+        [SADataStore saveData:secretKeyData forKey:SA_SDK_SECRET_KEY];
     }
 }
 
@@ -3204,6 +3199,26 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
     }
     return _dynamicSuperPropertiesLock;
+}
+
+- (SAReadWriteLock *)encryptBuilderLock {
+    if (!_encryptBuilderLock) {
+        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.encryptBuilderLock.%p", self];
+        _encryptBuilderLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
+    }
+    return _encryptBuilderLock;
+}
+
+- (void)setEncryptBuilder:(SADataEncryptBuilder *)encryptBuilder {
+    [self.encryptBuilderLock writeWithBlock:^{
+        self->_encryptBuilder = encryptBuilder;
+    }];
+}
+
+- (SADataEncryptBuilder *)encryptBuilder {
+    return [self.encryptBuilderLock readWithBlock:^id _Nonnull{
+        return self->_encryptBuilder;
+    }];
 }
 
 @end

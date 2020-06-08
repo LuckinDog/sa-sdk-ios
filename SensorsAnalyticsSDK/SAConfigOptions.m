@@ -74,8 +74,8 @@
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
     
     options.enableEncrypt = self.enableEncrypt;
-    options.saveSecretKeyCompletion = self.saveSecretKeyCompletion;
-    options.loadSecretKeyCompletion = self.loadSecretKeyCompletion;
+    options.saveSecretKeyBlock = self.saveSecretKeyBlock;
+    options.loadSecretKeyBlock = self.loadSecretKeyBlock;
     
     return options;
 }

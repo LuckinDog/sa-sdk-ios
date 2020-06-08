@@ -51,6 +51,8 @@
 		8888473724530F9100EBA7F6 /* SANetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888473124530F9100EBA7F6 /* SANetwork.h */; };
 		8888473824530F9100EBA7F6 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473224530F9100EBA7F6 /* SANetwork.m */; };
 		8888473924530F9100EBA7F6 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473324530F9100EBA7F6 /* SASecurityPolicy.m */; };
+		A80B468F248E38780045A558 /* SADataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A80B468D248E38780045A558 /* SADataStore.m */; };
+		A80B4690248E38780045A558 /* SADataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = A80B468E248E38780045A558 /* SADataStore.h */; };
 		A84FE7B8247661110090BC37 /* SAReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = A84FE7B6247661100090BC37 /* SAReadWriteLock.h */; };
 		A84FE7B9247661110090BC37 /* SAReadWriteLock.m in Sources */ = {isa = PBXBuildFile; fileRef = A84FE7B7247661100090BC37 /* SAReadWriteLock.m */; };
 		A869D69F242F57F600069B6E /* WKWebView+SABridge.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69B242F57F600069B6E /* WKWebView+SABridge.h */; };
@@ -237,6 +239,8 @@
 		8888473124530F9100EBA7F6 /* SANetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SANetwork.h; sourceTree = "<group>"; };
 		8888473224530F9100EBA7F6 /* SANetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		8888473324530F9100EBA7F6 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
+		A80B468D248E38780045A558 /* SADataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SADataStore.m; path = Utils/SADataStore.m; sourceTree = "<group>"; };
+		A80B468E248E38780045A558 /* SADataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SADataStore.h; path = Utils/SADataStore.h; sourceTree = "<group>"; };
 		A84FE7B6247661100090BC37 /* SAReadWriteLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAReadWriteLock.h; path = Utils/SAReadWriteLock.h; sourceTree = "<group>"; };
 		A84FE7B7247661100090BC37 /* SAReadWriteLock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAReadWriteLock.m; path = Utils/SAReadWriteLock.m; sourceTree = "<group>"; };
 		A869D69B242F57F600069B6E /* WKWebView+SABridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+SABridge.h"; sourceTree = "<group>"; };
@@ -688,6 +692,8 @@
 				FC5A4BB7244E976F00063624 /* SAWeakPropertyContainer.m */,
 				A84FE7B6247661100090BC37 /* SAReadWriteLock.h */,
 				A84FE7B7247661100090BC37 /* SAReadWriteLock.m */,
+				A80B468E248E38780045A558 /* SADataStore.h */,
+				A80B468D248E38780045A558 /* SADataStore.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -773,6 +779,7 @@
 				CB30C09E22840EC00004061D /* SAKeyChainItemWrapper.h in Headers */,
 				CB30C05C22840EC00004061D /* SALocationManager.h in Headers */,
 				FC5A4BE8244E98DC00063624 /* SADataEncryptBuilder.h in Headers */,
+				A80B4690248E38780045A558 /* SADataStore.h in Headers */,
 				FC5A4BBB244E976F00063624 /* SAURLUtils.h in Headers */,
 				FC5A4BDB244E980700063624 /* SAAutoTrackProperty.h in Headers */,
 				CB30C32922843E740004061D /* SAApplicationStateSerializer.h in Headers */,
@@ -1026,6 +1033,7 @@
 				CB30C06722840EC00004061D /* SAEnumDescription.m in Sources */,
 				FC5A4BBD244E976F00063624 /* SAJSONUtil.m in Sources */,
 				CB30C05D22840EC00004061D /* SAAlertController.m in Sources */,
+				A80B468F248E38780045A558 /* SADataStore.m in Sources */,
 				4DA4CB87237936BC006892D6 /* SAVisualizedAbstractMessage.m in Sources */,
 				FC5A4BDD244E980700063624 /* UIGestureRecognizer+AutoTrack.m in Sources */,
 				FC5A4BBE244E976F00063624 /* SAGzipUtility.m in Sources */,
