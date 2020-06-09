@@ -321,8 +321,8 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
             _automaticProperties[SAEventPresetPropertyLib] = @"iOS";
             _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;
             // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
-            NSInteger hourOffsetGMT = - ([[NSTimeZone defaultTimeZone] secondsFromGMT] / 60);
-            _automaticProperties[SAEventPresetPropertyTimezoneOffset] = @(hourOffsetGMT);
+            NSInteger minutesOffsetGMT = - ([[NSTimeZone defaultTimeZone] secondsFromGMT] / 60);
+            _automaticProperties[SAEventPresetPropertyTimezoneOffset] = @(minutesOffsetGMT);
         }
     });
     return _automaticProperties;
