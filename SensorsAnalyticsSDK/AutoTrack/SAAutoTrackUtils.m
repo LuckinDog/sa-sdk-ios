@@ -260,7 +260,7 @@
 + (NSArray<NSString *> *)viewPathsForViewController:(UIViewController<SAAutoTrackViewPathProperty> *)viewController {
     NSMutableArray *viewPaths = [NSMutableArray array];
     do {
-        [viewPaths addObject:viewController.sensorsdata_itemPath];
+        [viewPaths addObject:viewController.sensorsdata_headMapPath];
         viewController = (UIViewController<SAAutoTrackViewPathProperty> *)viewController.parentViewController;
     } while (viewController);
 
@@ -274,8 +274,8 @@
 + (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPathProperty> *)view {
     NSMutableArray *viewPathArray = [NSMutableArray array];
     do { // 遍历 view 层级 路径
-        if (view.sensorsdata_itemPath) {
-            [viewPathArray addObject:view.sensorsdata_itemPath];
+        if (view.sensorsdata_headMapPath) {
+            [viewPathArray addObject:view.sensorsdata_headMapPath];
         }
     } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class] && ![view isKindOfClass:UIWindow.class]);
 
@@ -394,6 +394,32 @@
     }
     NSString *viewVarString = [valueArray componentsJoinedByString:@" AND "];
     return [NSString stringWithFormat:@"%@[(%@)]", NSStringFromClass([view class]), viewVarString];
+}
+
++ (NSString *)itemHeatMapPathForResponder:(UIResponder *)responder {
+    NSString *classString = NSStringFromClass(responder.class);
+
+    NSArray *subResponder = nil;
+    if ([responder isKindOfClass:UIView.class]) {
+        UIResponder *next = [responder nextResponder];
+        if ([next isKindOfClass:UIView.class]) {
+            subResponder = [(UIView *)next subviews];
+        }
+    } else if ([responder isKindOfClass:UIViewController.class]) {
+        subResponder = [(UIViewController *)responder parentViewController].childViewControllers;
+    }
+
+    NSInteger count = 0;
+    NSInteger index = -1;
+    for (UIResponder *res in subResponder) {
+        if ([classString isEqualToString:NSStringFromClass(res.class)]) {
+            count++;
+        }
+        if (res == responder) {
+            index = count - 1;
+        }
+    }
+    return count <= 1 ? classString : [NSString stringWithFormat:@"%@[%ld]", classString, (long)index];
 }
 
 @end

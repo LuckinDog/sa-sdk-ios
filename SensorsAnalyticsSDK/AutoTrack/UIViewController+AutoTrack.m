@@ -69,6 +69,11 @@
 - (NSString *)sensorsdata_similarPath {
     return self.sensorsdata_itemPath;
 }
+
+- (NSString *)sensorsdata_headMapPath {
+    return [SAAutoTrackUtils itemHeatMapPathForResponder:self];
+}
+
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
 

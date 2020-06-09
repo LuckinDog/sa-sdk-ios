@@ -163,6 +163,14 @@
     }
 }
 
+- (NSString *)sensorsdata_headMapPath {
+    NSString *identifier = [SAAutoTrackUtils viewIdentifierForView:self];
+    if (identifier) {
+        return identifier;
+    }
+    return [SAAutoTrackUtils itemHeatMapPathForResponder:self];
+}
+
 @end
 
 @implementation UILabel (AutoTrack)
@@ -205,7 +213,6 @@
 
 @end
 
-
 @implementation UISearchBar (AutoTrack)
 
 - (NSString *)sensorsdata_elementContent {
@@ -235,6 +242,26 @@
     }
 
     return super.sensorsdata_itemPath;
+}
+
+- (NSString *)sensorsdata_headMapPath {
+    UITableView *tableView = (UITableView *)self.superview;
+    while (![tableView isKindOfClass:UITableView.class]) {
+        tableView = (UITableView *)tableView.superview;
+        if (!tableView) {
+            return super.sensorsdata_headMapPath;
+        }
+    }
+
+    for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
+        if (self == [tableView headerViewForSection:i]) {
+            return [NSString stringWithFormat:@"[SectionHeader][%ld]", (long)i];
+        }
+        if (self == [tableView footerViewForSection:i]) {
+            return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
+        }
+    }
+    return super.sensorsdata_headMapPath;
 }
 
 @end
@@ -333,6 +360,11 @@
 - (NSString *)sensorsdata_similarPath {
     NSString *subPath = [NSString stringWithFormat:@"%@[-]", @"UISegment"];
     return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_itemPath, subPath];
+}
+
+- (NSString *)sensorsdata_headMapPath {
+    NSString *subPath = [NSString stringWithFormat:@"%@[%ld]", @"UISegment", (long)self.selectedSegmentIndex];
+    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_headMapPath, subPath];
 }
 #endif
 
