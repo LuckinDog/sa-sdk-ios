@@ -32,7 +32,6 @@
 #import <UIKit/UIApplication.h>
 #import <UIKit/UIDevice.h>
 #import <UIKit/UIScreen.h>
-
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
@@ -47,6 +46,7 @@
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAAutoTrackUtils.h"
+#import "SAReadWriteLock.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     #import "SAKeyChainItemWrapper.h"
@@ -71,12 +71,14 @@
 #import "SALinkHandler.h"
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
+#import "SAScriptMessageHandler.h"
+#import "WKWebView+SABridge.h"
 #import "SAIdentifier.h"
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
 
-#define VERSION @"2.0.21";
+#define VERSION @"2.0.8-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -169,6 +171,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
+@property (nonatomic, strong) SAReadWriteLock *remoteConfigLock;
+@property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
@@ -383,6 +387,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
+            }
+            
+            // WKWebView 打通
+            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
+                [self swizzleWebViewMethod];
             }
         }
         
@@ -1024,6 +1033,92 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [_visualizedAutoTrackViewControllers containsObject:screenName];
 }
 
+#pragma mark - WKWebView 打通
+
+- (void)swizzleWebViewMethod {
+    static dispatch_once_t onceTokenWebView;
+    dispatch_once(&onceTokenWebView, ^{
+        NSError *error = NULL;
+
+        [WKWebView sa_swizzleMethod:@selector(loadRequest:)
+                         withMethod:@selector(sensorsdata_loadRequest:)
+                              error:&error];
+
+        [WKWebView sa_swizzleMethod:@selector(loadHTMLString:baseURL:)
+                         withMethod:@selector(sensorsdata_loadHTMLString:baseURL:)
+                              error:&error];
+
+        if (@available(iOS 9.0, *)) {
+            [WKWebView sa_swizzleMethod:@selector(loadFileURL:allowingReadAccessToURL:)
+                             withMethod:@selector(sensorsdata_loadFileURL:allowingReadAccessToURL:)
+                                  error:&error];
+
+            [WKWebView sa_swizzleMethod:@selector(loadData:MIMEType:characterEncodingName:baseURL:)
+                             withMethod:@selector(sensorsdata_loadData:MIMEType:characterEncodingName:baseURL:)
+                                  error:&error];
+        }
+
+        if (error) {
+            SALogError(@"Failed to swizzle on WKWebView. Details: %@", error);
+            error = NULL;
+        }
+    });
+}
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
+    NSAssert([webView isKindOfClass:[WKWebView class]], @"此注入方案只支持 WKWebView！❌");
+    if (![webView isKindOfClass:[WKWebView class]]) {
+        return;
+    }
+
+    @try {
+        WKUserContentController *contentController = webView.configuration.userContentController;
+        [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
+        [contentController addScriptMessageHandler:[SAScriptMessageHandler sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
+
+        NSMutableString *javaScriptSource = [NSMutableString string];
+
+        // 开启 WKWebView 的 H5 打通功能
+        if (self.configOptions.enableJavaScriptBridge) {
+            if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+                [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
+                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+            } else {
+                SALogError(@"%@ get network serverURL is failed!", self);
+            }
+        }
+
+        // App 内嵌 H5 数据交互
+        if (self.configOptions.enableVisualizedAutoTrack) {
+            [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
+            if ([SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting) {
+                [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+            }
+        }
+        
+        if (javaScriptSource.length == 0) {
+            return;
+        }
+        
+        NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+        __block BOOL isContainJavaScriptBridge = NO;
+        [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj.source containsString:@"sensorsdata_app_server_url"] || [obj.source containsString:@"sensorsdata_visualized_mode"]) {
+                isContainJavaScriptBridge = YES;
+                *stop = YES;
+            }
+        }];
+        
+        if (!isContainJavaScriptBridge) {
+            // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
+            WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+            [contentController addUserScript:userScript];
+        }
+    } @catch (NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    }
+}
+
 #pragma mark - Heat Map
 - (BOOL)isHeatMapEnabled {
     return self.configOptions.enableHeatMap;
@@ -1229,8 +1324,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (lib_detail) {
         [libProperties setValue:lib_detail forKey:SA_EVENT_COMMON_PROPERTY_LIB_DETAIL];
     }
-    __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+    
+    __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
+    
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+    
     dispatch_async(self.serialQueue, ^{
         //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
         NSString *eventName = [self.trackTimer eventNameFromEventId:event];
@@ -1239,10 +1337,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
             SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
             dynamicSuperPropertiesDict = nil;
-        } else {
-            if ([self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
-                dynamicSuperPropertiesDict = nil;
-            }
+        } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
+            dynamicSuperPropertiesDict = nil;
         }
         //去重
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
@@ -1793,7 +1889,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         } else if ([propertyValue isKindOfClass:[NSArray class]]) {
             NSMutableArray *newArray = nil;
-            for (NSInteger index = 0; index < [propertyValue count]; index++) {
+            for (NSInteger index = 0; index < [(NSArray *)propertyValue count]; index++) {
                 id object = [propertyValue objectAtIndex:index];
                 NSString *string = verifyString(object, &newProperties, &newArray);
                 if (string == nil) {
@@ -1972,9 +2068,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    dispatch_async(self.serialQueue, ^{
+    [self.dynamicSuperPropertiesLock writeWithBlock:^{
         self.dynamicSuperProperties = dynamicSuperProperties;
-    });
+    }];
+}
+
+- (NSDictionary *)acquireDynamicSuperProperties {
+    // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
+    return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
+        if (self.dynamicSuperProperties) {
+            return self.dynamicSuperProperties();
+        }
+        return nil;
+    }];
 }
 
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
@@ -2300,13 +2406,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [_linkHandler clearUtmProperties];
     }
 
-    if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
-        UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
-        if ([SAValidator isValidDictionary:trackProperties]) {
-            [eventProperties addEntriesFromDictionary:trackProperties];
-        }
-    }
     _lastScreenTrackProperties = [eventProperties copy];
 
     NSString *currentScreenUrl;
@@ -2799,17 +2898,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    dispatch_async(self.readWriteQueue, ^{
+    [self.remoteConfigLock writeWithBlock:^{
         self->_remoteConfig = remoteConfig;
-    });
+    }];
 }
 
 - (id)remoteConfig {
-    __block SASDKRemoteConfig *remoteConfig = nil;
-    dispatch_sync(self.readWriteQueue, ^{
-        remoteConfig = self->_remoteConfig;
-    });
-    return remoteConfig;
+    return [self.remoteConfigLock readWithBlock:^id _Nonnull{
+        return self->_remoteConfig;
+    }];
 }
 
 - (void)shouldRequestRemoteConfig {
@@ -3037,6 +3134,24 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
+#pragma mark – Getters and Setters
+
+- (SAReadWriteLock *)remoteConfigLock {
+    if (!_remoteConfigLock) {
+        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
+        _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
+    }
+    return _remoteConfigLock;
+}
+
+- (SAReadWriteLock *)dynamicSuperPropertiesLock {
+    if (!_dynamicSuperPropertiesLock) {
+        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
+        _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
+    }
+    return _dynamicSuperPropertiesLock;
+}
+
 @end
 
 
@@ -3206,11 +3321,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 #pragma mark trackFromH5
+
 - (void)trackFromH5WithEvent:(NSString *)eventInfo {
     [self trackFromH5WithEvent:eventInfo enableVerify:NO];
 }
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
+    __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
+    
     dispatch_async(self.serialQueue, ^{
         @try {
             if (eventInfo == nil) {
@@ -3267,9 +3385,17 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-                NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
-                //去重
+                
+                //获取用户自定义的动态公共属性
+                if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+                    SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
+                    dynamicSuperPropertiesDict = nil;
+                } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
+                    dynamicSuperPropertiesDict = nil;
+                }
+                // 去重
                 [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+                
                 [propertiesDict addEntriesFromDictionary:self->_superProperties];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
@@ -3558,6 +3684,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)enableVisualizedAutoTrack {
     self.configOptions.enableVisualizedAutoTrack = YES;
+
+    // 开启 WKWebView 和 js 的数据交互
+    [self swizzleWebViewMethod];
 }
 
 - (void)enableHeatMap {
