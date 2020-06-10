@@ -397,7 +397,8 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
                                                                        error:&err];
     if (!err && eventDict) {
         if ([SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt) {
-            if (![eventDict.allKeys containsObject:@"ekey"]) { //缓存数据未加密，再加密
+            if (![eventDict.allKeys containsObject:@"ekey"]) {
+                //缓存数据未加密，再加密
                 NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
                 if (encryptDic) {
                     eventDict = [encryptDic mutableCopy];
@@ -407,14 +408,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
             UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
             [eventDict setValue:@(time) forKey:@"flush_time"];
         } else {
-            if ([eventDict.allKeys containsObject:@"ekey"]) { //非加密模式，缓存数据已加密，丢弃
-                if (deleteBlock) {
-                    deleteBlock();
-                }
-                return nil;
-            }
-            
-            //非加密
+            //非加密模式，不论数据是否加密都上传
             UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
             [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
         }

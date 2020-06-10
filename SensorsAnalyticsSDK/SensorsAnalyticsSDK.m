@@ -913,19 +913,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)flushByType:(NSString *)type flushSize:(int)flushSize {
     // 1、获取前 n 条数据
-    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
+    __block NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
     if (recordArray == nil) {
         SALogError(@"Failed to get records from SQLite.");
         return NO;
     }
 
     NSInteger recordCount = recordArray.count;
+    __block BOOL isRecordEncrypted = NO;
     if ([SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt) {
-        recordArray = [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray];
+        [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray
+                                                      completion:^(BOOL isContentEncrypted, NSArray * _Nonnull contentArray) {
+            isRecordEncrypted = isContentEncrypted;
+            recordArray = contentArray;
+        }];
     }
     
     // 2、上传获取到的记录。如果数据上传完成，结束递归
-    if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
+    if (recordArray.count == 0 || ![self.network flushEvents:recordArray isEncrypted:isRecordEncrypted]) {
         return NO;
     }
     // 3、删除已上传的记录。删除失败，结束递归

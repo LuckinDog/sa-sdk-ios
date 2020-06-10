@@ -105,16 +105,29 @@
     return secretObj;
 }
 
-- (nullable NSArray *)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray {
+- (void)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray
+                                 completion:(void (^ __nullable)(BOOL isContentEncrypted, NSArray *contentArray))completion {
     /***** 构造加密数据结构 *****/
+    // 存储明文数据
+    NSMutableArray *unencryptedArray = [NSMutableArray array];
+    // 存储密文数据
+    NSMutableArray *encryptedArray = [NSMutableArray array];
+    
     // 字典，方便去重
     NSMutableDictionary <NSString *,NSMutableArray *> *ekeyPayloadsDic = [NSMutableDictionary dictionary];
-    
     for (NSString *json in recordArray) {
         NSData *jsonData = [json dataUsingEncoding:NSUTF8StringEncoding];
+        if (!jsonData) {
+            continue;
+        }
+        
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-        if (jsonDic && [jsonDic.allKeys containsObject:@"ekey"]) {
-            
+        if (!jsonDic) {
+            continue;
+        }
+        
+        if ([jsonDic.allKeys containsObject:@"ekey"]) {
+            // 加密数据
             NSMutableArray *sameEncryptArray = ekeyPayloadsDic[jsonDic[@"ekey"]];
             if (sameEncryptArray.count == 0) {
                 sameEncryptArray = [NSMutableArray array];
@@ -123,10 +136,12 @@
             } else {
                 [sameEncryptArray addObject:[jsonDic mutableCopy]];
             }
+        } else {
+            // 未加密数据
+            [unencryptedArray addObject:json];
         }
     }
     
-    NSMutableArray *encryptArray = [NSMutableArray array];
     for (NSString *ekey in ekeyPayloadsDic.allKeys) {
         NSMutableArray *sameEncryptArray = ekeyPayloadsDic[ekey];
         NSMutableDictionary *encryptDic = [NSMutableDictionary dictionaryWithDictionary:sameEncryptArray.firstObject];
@@ -139,14 +154,19 @@
         
         NSData *encrypData = [self.jsonUtil JSONSerializeObject:encryptDic];
         NSString *encrypString = [[NSString alloc] initWithData:encrypData encoding:NSUTF8StringEncoding];
-        [encryptArray addObject:encrypString];
+        [encryptedArray addObject:encrypString];
     }
     
-    if (encryptArray.count > 0) {
-        NSArray *contentArray = [NSArray arrayWithArray:encryptArray];
-        return contentArray;
-    } else {
-        return nil;
+    if (completion) {
+        if (encryptedArray.count > 0) {
+            // 优先使用密文
+            BOOL isContentEncrypted = YES;
+            completion(isContentEncrypted, encryptedArray);
+        } else {
+            // 没有密文则使用明文
+            BOOL isContentEncrypted = NO;
+            completion(isContentEncrypted, unencryptedArray);
+        }
     }
 }
 
