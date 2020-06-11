@@ -1016,6 +1016,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 return NO;
             }
+        } else if ([[SAAuxiliaryToolManager sharedInstance] isCheckSecretKeyURL:url]) {
+            // 校验加密公钥
+            [self checkSecretKeyURL:url];
+            return YES;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
         }
@@ -3186,6 +3190,26 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
         [SADataStore saveData:secretKeyData forKey:SA_SDK_SECRET_KEY];
     }
+}
+
+- (void)checkSecretKeyURL:(NSURL *)url {
+    NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
+    NSString *urlVersion = paramDic[@"v"];
+    NSString *urlKey = paramDic[@"key"];
+    
+    NSString *message = @"密钥验证不通过，所选密钥与 App 端密钥不相同";
+    if ([SAValidator isValidString:urlVersion] && [SAValidator isValidString:urlKey]) {
+        SASecretKey *secretKey = [self loadSecretKey];
+        NSString *loadVersion = [@(secretKey.version) stringValue];
+        NSString *loadKey = [secretKey.key stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
+        if ([loadVersion isEqualToString:urlVersion] && [loadKey isEqualToString:urlKey]) {
+            message = @"密钥验证通过，所选密钥与 App 端密钥相同";
+        }
+    }
+    
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:nil message:message preferredStyle:SAAlertControllerStyleAlert];
+    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:nil];
+    [alertController show];
 }
 
 #pragma mark – Getters and Setters

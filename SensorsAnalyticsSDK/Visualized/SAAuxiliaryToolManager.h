@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isHeatMapURL:(NSURL *)url;
 - (BOOL)isVisualizedAutoTrackURL:(NSURL *)url;
 - (BOOL)isDebugModeURL:(NSURL *)url;
+- (BOOL)isCheckSecretKeyURL:(NSURL *)url;
 
 - (BOOL)isVisualizedConnecting;
 
