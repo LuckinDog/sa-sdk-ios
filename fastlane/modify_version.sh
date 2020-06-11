@@ -13,9 +13,9 @@ git pull
 ######################
 # Podspec version
 ######################
-POD_PAHT=${SRCROOT_PATH}/${FRAMEWORK_NAME}.podspec
+POD_PAHT=./${FRAMEWORK_NAME}.podspec
 if [[ $BRANCH == 'pre' ]]; then
-    POD_PAHT=${SRCROOT_PATH}/${FRAMEWORK_NAME}-pre.podspec
+    POD_PAHT=./${FRAMEWORK_NAME}-pre.podspec
 fi
 
 POD_VERSION_CODE="  s.version      = "
