@@ -1333,7 +1333,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         //修正 $device_id，防止用户修改
-        if (eventPropertiesDic[SAEventPresetPropertyDeviceID]) {
+        if (eventPropertiesDic[SAEventPresetPropertyDeviceID] && self.presetProperty.deviceID) {
             eventPropertiesDic[SAEventPresetPropertyDeviceID] = self.presetProperty.deviceID;
         }
 
