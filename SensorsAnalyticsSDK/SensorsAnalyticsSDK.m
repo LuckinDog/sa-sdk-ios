@@ -1343,7 +1343,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([type isEqualToString:@"track_signup"]) {
             eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                         eventName, SA_EVENT_NAME,
-                        [NSDictionary dictionaryWithDictionary:eventPropertiesDic], SA_EVENT_PROPERTIES,
+                        eventPropertiesDic, SA_EVENT_PROPERTIES,
                         bestId, SA_EVENT_DISTINCT_ID,
                         self.originalId, @"original_id",
                         timeStamp, SA_EVENT_TIME,
@@ -1364,7 +1364,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                         eventName, SA_EVENT_NAME,
-                        [NSDictionary dictionaryWithDictionary:eventPropertiesDic], SA_EVENT_PROPERTIES,
+                        eventPropertiesDic, SA_EVENT_PROPERTIES,
                         bestId, SA_EVENT_DISTINCT_ID,
                         timeStamp, SA_EVENT_TIME,
                         type, SA_EVENT_TYPE,
@@ -1374,7 +1374,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             // 此时应该都是对Profile的操作
             eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        [NSDictionary dictionaryWithDictionary:eventPropertiesDic], SA_EVENT_PROPERTIES,
+                        eventPropertiesDic, SA_EVENT_PROPERTIES,
                         bestId, SA_EVENT_DISTINCT_ID,
                         timeStamp, SA_EVENT_TIME,
                         type, SA_EVENT_TYPE,
