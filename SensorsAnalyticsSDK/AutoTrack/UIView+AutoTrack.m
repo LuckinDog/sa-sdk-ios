@@ -133,7 +133,7 @@
 - (NSString *)sensorsdata_itemPath {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     /* 忽略路径
-     UITableViewWrapperView 为 iOS11 新增 UITableView 与 cell 之间的 view
+     UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
      */
     if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"]) {
         return nil;
@@ -163,7 +163,16 @@
     }
 }
 
-- (NSString *)sensorsdata_headMapPath {
+- (NSString *)sensorsdata_heatMapPath {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        /* 忽略路径
+         UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
+         */
+        if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"]) {
+            return nil;
+        }
+#endif
+
     NSString *identifier = [SAAutoTrackUtils viewIdentifierForView:self];
     if (identifier) {
         return identifier;
@@ -244,12 +253,12 @@
     return super.sensorsdata_itemPath;
 }
 
-- (NSString *)sensorsdata_headMapPath {
+- (NSString *)sensorsdata_heatMapPath {
     UITableView *tableView = (UITableView *)self.superview;
     while (![tableView isKindOfClass:UITableView.class]) {
         tableView = (UITableView *)tableView.superview;
         if (!tableView) {
-            return super.sensorsdata_headMapPath;
+            return super.sensorsdata_heatMapPath;
         }
     }
 
@@ -261,7 +270,7 @@
             return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
         }
     }
-    return super.sensorsdata_headMapPath;
+    return super.sensorsdata_heatMapPath;
 }
 
 @end
@@ -362,9 +371,9 @@
     return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_itemPath, subPath];
 }
 
-- (NSString *)sensorsdata_headMapPath {
+- (NSString *)sensorsdata_heatMapPath {
     NSString *subPath = [NSString stringWithFormat:@"%@[%ld]", @"UISegment", (long)self.selectedSegmentIndex];
-    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_headMapPath, subPath];
+    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_heatMapPath, subPath];
 }
 #endif
 
@@ -419,6 +428,13 @@
         return self.sensorsdata_itemPath;
     }
 }
+
+- (NSString *)sensorsdata_heatMapPath {
+    if (self.sensorsdata_IndexPath) {
+        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
+    }
+    return [super sensorsdata_heatMapPath];
+}
                 
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {
     return [NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section, (long)indexPath.row];
@@ -458,6 +474,13 @@
     } else {
         return super.sensorsdata_similarPath;
     }
+}
+
+- (NSString *)sensorsdata_heatMapPath {
+    if (self.sensorsdata_IndexPath) {
+        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
+    }
+    return [super sensorsdata_heatMapPath];
 }
 
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {

@@ -260,7 +260,7 @@
 + (NSArray<NSString *> *)viewPathsForViewController:(UIViewController<SAAutoTrackViewPathProperty> *)viewController {
     NSMutableArray *viewPaths = [NSMutableArray array];
     do {
-        [viewPaths addObject:viewController.sensorsdata_headMapPath];
+        [viewPaths addObject:viewController.sensorsdata_heatMapPath];
         viewController = (UIViewController<SAAutoTrackViewPathProperty> *)viewController.parentViewController;
     } while (viewController);
 
@@ -274,8 +274,8 @@
 + (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPathProperty> *)view {
     NSMutableArray *viewPathArray = [NSMutableArray array];
     do { // 遍历 view 层级 路径
-        if (view.sensorsdata_headMapPath) {
-            [viewPathArray addObject:view.sensorsdata_headMapPath];
+        if (view.sensorsdata_heatMapPath) {
+            [viewPathArray addObject:view.sensorsdata_heatMapPath];
         }
     } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class] && ![view isKindOfClass:UIWindow.class]);
 
@@ -474,8 +474,8 @@
         [properties addEntriesFromDictionary:propDict];
     }
 
-    NSString *viewPath = [self viewPathForView:((UIView *)cell).superview atViewController:viewController];
-    properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@", viewPath, [cell sensorsdata_itemPathWithIndexPath:indexPath]];
+    NSString *viewPath = [self viewPathForView:((UIView *)cell) atViewController:viewController];
+    properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = viewPath;
     
     NSString *viewSimilarPath = [self viewSimilarPathForView:(UIView *)cell atViewController:viewController shouldSimilarPath:YES];
     properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewSimilarPath;

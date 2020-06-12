@@ -70,7 +70,7 @@
     return self.sensorsdata_itemPath;
 }
 
-- (NSString *)sensorsdata_headMapPath {
+- (NSString *)sensorsdata_heatMapPath {
     return [SAAutoTrackUtils itemHeatMapPathForResponder:self];
 }
 

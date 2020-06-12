@@ -61,7 +61,7 @@
 @property (nonatomic, copy, readonly) NSString *sensorsdata_itemPath;
 
 /// $AppClick 某个元素的相对路径，拼接 $element_selector，用于点击图
-@property (nonatomic, copy, readonly) NSString *sensorsdata_headMapPath;
+@property (nonatomic, copy, readonly) NSString *sensorsdata_heatMapPath;
 
 @optional
 /// 元素相似路径，可能包含 [-]
