@@ -249,19 +249,19 @@
             return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
         }
     }
-
     return super.sensorsdata_itemPath;
 }
 
 - (NSString *)sensorsdata_heatMapPath {
-    UITableView *tableView = (UITableView *)self.superview;
-    while (![tableView isKindOfClass:UITableView.class]) {
-        tableView = (UITableView *)tableView.superview;
-        if (!tableView) {
+    UIView *currentTableView = self.superview;
+    while (![currentTableView isKindOfClass:UITableView.class]) {
+        currentTableView = currentTableView.superview;
+        if (!currentTableView) {
             return super.sensorsdata_heatMapPath;
         }
     }
 
+    UITableView *tableView = (UITableView *)currentTableView;
     for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
         if (self == [tableView headerViewForSection:i]) {
             return [NSString stringWithFormat:@"[SectionHeader][%ld]", (long)i];
