@@ -77,6 +77,7 @@
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
+#import "SAVisualizedObjectSerializerManger.h"
 
 #define VERSION @"2.0.8-pre"
 
@@ -2373,6 +2374,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         return;
     }
+
+    // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
+    [[SAVisualizedObjectSerializerManger sharedInstance] saveLastViewScreenController:controller];
 
     [self trackViewScreen:controller properties:nil autoTrack:YES];
 }

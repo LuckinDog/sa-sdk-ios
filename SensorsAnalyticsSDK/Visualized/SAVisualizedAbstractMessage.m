@@ -85,16 +85,15 @@
     jsonObject[@"lib"] = @"iOS"; // SDK 类型
 
     @try {
-        UIViewController<SAAutoTrackViewControllerProperty> *viewController = nil;
         if ([SAVisualizedObjectSerializerManger sharedInstance].currentViewController) {
-            viewController = [SAVisualizedObjectSerializerManger sharedInstance].currentViewController;
-        } else {
-            viewController = (UIViewController<SAAutoTrackViewControllerProperty> *)[SAAutoTrackUtils currentViewController];
-        }
-        if (viewController) {
-            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
+            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:[SAVisualizedObjectSerializerManger sharedInstance].currentViewController];
             jsonObject[@"screen_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
+        }
+
+        if ([SAVisualizedObjectSerializerManger sharedInstance].lastViewScreenController) {
+            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:[SAVisualizedObjectSerializerManger sharedInstance].lastViewScreenController];
+            jsonObject[@"page_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);

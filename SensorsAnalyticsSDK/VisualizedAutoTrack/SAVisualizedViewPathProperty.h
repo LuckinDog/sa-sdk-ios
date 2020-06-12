@@ -39,6 +39,13 @@
 
 /// 相对 keywindow 的坐标
 @property (nonatomic, assign, readonly) CGRect sensorsdata_frame;
+
+/// 当前元素所在页面名称
+@property (nonatomic, copy, readonly) NSString *sensorsdata_screenName;
+
+/// 当前元素所在页面标题
+@property (nonatomic, copy, readonly) NSString *sensorsdata_title;
+
 @end
 
 

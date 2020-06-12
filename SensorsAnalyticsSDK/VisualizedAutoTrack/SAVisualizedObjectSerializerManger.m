@@ -25,6 +25,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
+#import "SAAutoTrackUtils.h"
 
 @implementation SAVisualizedWebPageInfo
 
@@ -51,6 +52,8 @@
 
 /// 弹框信息
 @property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
+
+@property (nonatomic, strong, readwrite, setter=saveLastViewScreenController:) UIViewController *lastViewScreenController;
 
 ///  App 内嵌 H5 页面 缓存
 /*
@@ -225,6 +228,10 @@
     }
 }
 
+- (void)saveLastViewScreenController:(UIViewController *)controller {
+    _lastViewScreenController = controller;
+}
+
 - (void)resetLastImageHash:(NSString *)imageHash {
     self.lastImageHash = imageHash;
     self.imageHashUpdateMessage = nil;
@@ -241,7 +248,10 @@
             mostShowViewController = controller;
         }
     }
-    return mostShowViewController;
+    if (mostShowViewController) {
+        return mostShowViewController;
+    }
+    return [SAAutoTrackUtils currentViewController];
 }
 
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {

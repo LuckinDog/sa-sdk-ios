@@ -93,7 +93,19 @@
             {
               "name": "restorationIdentifier",
               "type": "NSString"
-            }
+            },
+            {
+              "name": "sensorsdata_screenName",
+              "key": "screen_name",
+              "type": "NSString",
+              "use_kvc": false
+            },
+            {
+              "name": "sensorsdata_title",
+              "key": "title",
+              "type": "NSString",
+              "use_kvc": false
+            },
           ]
         },
         {

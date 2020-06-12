@@ -28,6 +28,7 @@
 #import "UIViewController+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
+#import "SAConstants+Private.h"
 
 @implementation UIView (VisualizedAutoTrack)
 
@@ -217,6 +218,21 @@
  return validFrame;
 }
 
+- (NSString *)sensorsdata_screenName {
+    if (self.sensorsdata_viewController) {
+        NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
+        return autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+    }
+    return nil;
+}
+
+- (NSString *)sensorsdata_title {
+    if (self.sensorsdata_viewController) {
+        NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
+        return autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
+    }
+    return nil;
+}
 @end
 
 
