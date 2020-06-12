@@ -34,7 +34,7 @@
 #import <UIKit/UIScreen.h>
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "MessageQueueBySqlite.h"
+#import "SADatabase.h"
 #import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
@@ -181,7 +181,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSRegularExpression *propertiesRegex;
 @property (nonatomic, copy) NSSet *presetEventNames;
 
-@property (atomic, strong) MessageQueueBySqlite *messageQueue;
+@property (nonatomic, strong) SADatabase *messageQueue;
 
 @property (nonatomic, strong) NSTimer *timer;
 
@@ -340,7 +340,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
 
-            _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
+            _messageQueue = [[SADatabase alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
+            _messageQueue.maxCacheSize = (NSUInteger)configOptions.maxCacheSize;
             if (self.messageQueue == nil) {
                 SALogError(@"SqliteException: init Message Queue in Sqlite fail");
             }
@@ -708,6 +709,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //防止设置的值太小导致事件丢失
         UInt64 temMaxCacheSize = maxCacheSize > 10000 ? maxCacheSize : 10000;
         self.configOptions.maxCacheSize = (NSInteger)temMaxCacheSize;
+        self.messageQueue.maxCacheSize = (NSUInteger)temMaxCacheSize;
     };
 }
 
@@ -901,28 +903,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)flushByType:(NSString *)type flushSize:(int)flushSize {
     // 1、获取前 n 条数据
-    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
-    if (recordArray == nil) {
-        SALogError(@"Failed to get records from SQLite.");
-        return NO;
-    }
-
-    NSInteger recordCount = recordArray.count;
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    recordArray = [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray];
-#endif
-    
-    // 2、上传获取到的记录。如果数据上传完成，结束递归
-    if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
-        return NO;
-    }
-    // 3、删除已上传的记录。删除失败，结束递归
-    if (![self.messageQueue removeFirstRecords:recordCount withType:@"POST"]) {
-        SALogError(@"Failed to remove records from SQLite.");
-        return NO;
-    }
-    // 4、继续上传剩余数据
-    [self flushByType:type flushSize:flushSize];
+//    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
+//    if (recordArray == nil) {
+//        SALogError(@"Failed to get records from SQLite.");
+//        return NO;
+//    }
+//
+//    NSInteger recordCount = recordArray.count;
+//#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
+//    recordArray = [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray];
+//#endif
+//
+//    // 2、上传获取到的记录。如果数据上传完成，结束递归
+//    if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
+//        return NO;
+//    }
+//    // 3、删除已上传的记录。删除失败，结束递归
+//    if (![self.messageQueue removeFirstRecords:recordCount withType:@"POST"]) {
+//        SALogError(@"Failed to remove records from SQLite.");
+//        return NO;
+//    }
+//    // 4、继续上传剩余数据
+//    [self flushByType:type flushSize:flushSize];
     return YES;
 }
 
@@ -956,9 +958,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)deleteAll {
     // 新增线程保护
-    dispatch_async(self.serialQueue, ^{
-        [self.messageQueue deleteAll];
-    });
+    [self.messageQueue deleteAllRecordsWithCompletion:^(BOOL success) {
+        SALogInfo(@"Delete all events from database %@", success ? @"successfully" : @"failed");
+    }];
 }
 
 #pragma mark - HandleURL
@@ -1257,7 +1259,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    [self.messageQueue addObject:e withType:@"Post"];
+    SAEventRecord *record = [[SAEventRecord alloc] init];
+    record.content = @"Welcome to China!";
+    record.type = @"POST";
+    [self.messageQueue insertRecord:record completion:^(BOOL success) {
+    }];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {

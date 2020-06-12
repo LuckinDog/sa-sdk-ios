@@ -22,14 +22,14 @@
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "MessageQueueBySqlite.h"
+#import "SADatabase.h"
 
 @interface SensorsAnalyticsTests : XCTestCase
 @property (nonatomic, weak) SensorsAnalyticsSDK *sensorsAnalytics;
 @end
 
 @interface SensorsAnalyticsSDK()
-@property (atomic, strong) MessageQueueBySqlite *messageQueue;
+@property (atomic, strong) SADatabase *messageQueue;
 @end
 
 @implementation SensorsAnalyticsTests
