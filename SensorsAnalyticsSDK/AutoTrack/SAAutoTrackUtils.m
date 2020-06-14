@@ -29,6 +29,7 @@
 #import "UIView+HeatMap.h"
 #import "UIView+AutoTrack.h"
 #import "SALog.h"
+#import "SAAlertController.h"
 #import "SAValidator.h"
 
 @implementation SAAutoTrackUtils
@@ -143,6 +144,9 @@
 
         BOOL isUIAlertController = [responder isKindOfClass:UIAlertController.class];
 
+        if ([[responder nextResponder] isKindOfClass:SAAlertController.class]) {
+            return NO;
+        }
         if (isUIAlertController || isUIAlertView || isUIActionSheet) {
             return YES;
         }
