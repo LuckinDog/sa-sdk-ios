@@ -24,6 +24,7 @@
 
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
+#import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+HeatMap.h"
 #import "UIView+AutoTrack.h"
@@ -75,12 +76,7 @@
         currentViewController = [SAAutoTrackUtils findCurrentViewControllerFromRootViewController:rootViewController isRoot:YES];
     };
 
-    if (dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL) == dispatch_queue_get_label(dispatch_get_main_queue())) {
-        block();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), block);
-    }
-
+    [SACommonUtility performBlockOnMainThread:block];
     return currentViewController;
 }
 
