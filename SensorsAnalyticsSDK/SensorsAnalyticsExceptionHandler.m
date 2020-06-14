@@ -29,6 +29,7 @@
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
 #import "SAConstants+Private.h"
+#import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
@@ -182,11 +183,11 @@ static void SAHandleException(NSException *exception) {
                 [instance track:SA_EVENT_NAME_APP_CRASHED withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                sensorsdata_dispatch_main_safe_sync(^{
+                [SACommonUtility performBlockOnMainThread:^{
                     if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
                         [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
                     }
-                });
+                }];
             }
             // 阻塞当前线程，完成 serialQueue 中数据相关的任务
             sensorsdata_dispatch_safe_sync(instance.serialQueue, ^{});

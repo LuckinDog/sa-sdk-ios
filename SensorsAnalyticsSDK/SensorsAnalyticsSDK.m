@@ -294,7 +294,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     self->_launchedPassively = YES;
                 }
             };
-            sensorsdata_dispatch_main_safe_sync(mainThreadBlock);
+            [SACommonUtility performBlockOnMainThread:mainThreadBlock];
             
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
@@ -449,11 +449,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     });
 #else
-    sensorsdata_dispatch_main_safe_sync(^{
+    [SACommonUtility performBlockOnMainThread:^{
         UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
         self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
         completion(self.userAgent);
-    });
+    }];
 #endif
 }
 
@@ -3170,12 +3170,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent {
-
-    void (^changeUserAgent)(BOOL verify, NSString *oldUserAgent) = ^void (BOOL verify, NSString *oldUserAgent) {
+    void (^ changeUserAgent)(BOOL verify, NSString *oldUserAgent) = ^void (BOOL verify, NSString *oldUserAgent) {
         NSString *newAgent = oldUserAgent;
         if ([oldUserAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
             if (verify) {
-                newAgent = [oldUserAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ", self.network.host, self.network.project]];
+                newAgent = [oldUserAgent stringByAppendingString:[NSString stringWithFormat:@" /sa-sdk-ios/sensors-verify/%@?%@ ", self.network.host, self.network.project]];
             } else {
                 newAgent = [oldUserAgent stringByAppendingString:@" /sa-sdk-ios"];
             }
@@ -3187,25 +3186,22 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [[NSUserDefaults standardUserDefaults] synchronize];
     };
 
-    dispatch_block_t mainThreadBlock = ^(){
-        BOOL verify = enableVerify;
-        @try {
-            if (![self.network isValidServerURL]) {
-                verify = NO;
-            }
-            NSString *oldAgent = userAgent.length > 0 ? userAgent : self.userAgent;
-            if (oldAgent) {
-                changeUserAgent(verify, oldAgent);
-            } else {
-                [self loadUserAgentWithCompletion:^(NSString *ua) {
-                    changeUserAgent(verify, ua);
-                }];
-            }
-        } @catch (NSException *exception) {
-            SALogError(@"%@: %@", self, exception);
+    BOOL verify = enableVerify;
+    @try {
+        if (![self.network isValidServerURL]) {
+            verify = NO;
         }
-    };
-    sensorsdata_dispatch_main_safe_sync(mainThreadBlock);
+        NSString *oldAgent = userAgent.length > 0 ? userAgent : self.userAgent;
+        if (oldAgent) {
+            changeUserAgent(verify, oldAgent);
+        } else {
+            [self loadUserAgentWithCompletion:^(NSString *ua) {
+                changeUserAgent(verify, ua);
+            }];
+        }
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
 }
 
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request {
