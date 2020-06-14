@@ -102,15 +102,12 @@
         }
     }
 
-    if (
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        [NSStringFromClass(object.class) isEqualToString:@"UIWebView"]
-#else
-        [object isKindOfClass:UIWebView.class]
-#endif
-        ) { // 暂不支持 UIWebView，添加弹框
+#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+    if ([object isKindOfClass:UIWebView.class]) { // 暂不支持 UIWebView，添加弹框
         [self addUIWebViewAlertInfo];
-    } else if ([object isKindOfClass:WKWebView.class]) {
+    } else
+#endif
+    if ([object isKindOfClass:WKWebView.class]) {
         // 针对 WKWebView 数据检查
         WKWebView *webView = (WKWebView *)object;
         [self checkWKWebViewInfoWithWebView:webView];
@@ -261,6 +258,8 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 }
 
 #pragma mark webview
+
+#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 /// 添加 UIWebView 弹框信息
 - (void)addUIWebViewAlertInfo {
     [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:nil];
@@ -272,6 +271,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/visual_auto_track-7541326.html";
     [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
 }
+#endif
 
 /// 检查 WKWebView 相关信息
 - (void)checkWKWebViewInfoWithWebView:(WKWebView *)webView {
