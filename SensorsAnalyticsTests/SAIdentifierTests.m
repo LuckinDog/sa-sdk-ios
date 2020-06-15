@@ -93,16 +93,16 @@
     for (int i = 0; i < 300; i++) {
         [str appendString:@"a"];
     }
-    XCTAssertFalse([_identifier login:str]);
+    XCTAssertFalse([_identifier isValidLoginId:str]);
 }
 
 - (void)testLoginWithLoginId {
     [_identifier login:@"new_login_id"];
-    XCTAssertFalse([_identifier login:_identifier.loginId]);
+    XCTAssertFalse([_identifier isValidLoginId:_identifier.loginId]);
 }
 
 - (void)testLoginWithAnonymousId {
-    XCTAssertFalse([_identifier login:_identifier.anonymousId]);
+    XCTAssertFalse([_identifier isValidLoginId:_identifier.anonymousId]);
 }
 
 - (void)testLoginIdAfterLogin {

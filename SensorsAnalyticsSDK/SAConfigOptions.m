@@ -72,7 +72,7 @@
     options.enableLog = self.enableLog;
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
-    
+    options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
     options.enableEncrypt = self.enableEncrypt;
     options.saveSecretKeyBlock = self.saveSecretKeyBlock;
     options.loadSecretKeyBlock = self.loadSecretKeyBlock;

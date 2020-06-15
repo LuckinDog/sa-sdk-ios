@@ -53,6 +53,8 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
+fastlane/ReleaseNote.md
+fastlane/README.md
 
 */.DS_Store
 .DS_Store
