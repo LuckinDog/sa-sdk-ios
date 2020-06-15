@@ -94,6 +94,7 @@
         if ([SAVisualizedObjectSerializerManger sharedInstance].lastViewScreenController) {
             NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:[SAVisualizedObjectSerializerManger sharedInstance].lastViewScreenController];
             jsonObject[@"page_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+            jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
