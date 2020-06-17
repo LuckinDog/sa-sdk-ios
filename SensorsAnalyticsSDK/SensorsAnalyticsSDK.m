@@ -75,7 +75,6 @@
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
-#import "SADataStore.h"
 
 #define VERSION @"2.0.8-pre";
 
@@ -2881,7 +2880,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     } else {
         // 通过本地获取公钥
-        NSData *secretKeyData = [SADataStore dataForKey:SA_SDK_SECRET_KEY];
+        id secretKeyData = [SAFileStore unarchiveWithFileName:SA_SDK_SECRET_KEY];
         secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
         
         if (secretKey) {
@@ -2899,11 +2898,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         // 通过用户的回调保存公钥
         self.configOptions.saveSecretKey(secretKey);
         
-        [SADataStore deleteDataForKey:SA_SDK_SECRET_KEY];
+        [SAFileStore archiveWithFileName:SA_SDK_SECRET_KEY value:nil];
     } else {
         // 存储到本地
         NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
-        [SADataStore saveData:secretKeyData forKey:SA_SDK_SECRET_KEY];
+        [SAFileStore archiveWithFileName:SA_SDK_SECRET_KEY value:secretKeyData];
     }
 }
 
