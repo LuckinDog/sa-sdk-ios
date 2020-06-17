@@ -253,8 +253,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
     if (configOptions.enableEncrypt) {
-        NSAssert((configOptions.saveSecretKeyBlock && configOptions.loadSecretKeyBlock) ||
-                 (!configOptions.saveSecretKeyBlock && !configOptions.loadSecretKeyBlock), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
+        NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) ||
+                 (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
     }
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
@@ -2869,14 +2869,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (SASecretKey *)loadSecretKey {
     SASecretKey *secretKey = nil;
     
-    if (self.configOptions.loadSecretKeyBlock) {
+    if (self.configOptions.loadSecretKey) {
         // 通过用户的回调获取公钥
-        secretKey = self.configOptions.loadSecretKeyBlock();
+        secretKey = self.configOptions.loadSecretKey();
         
         if (secretKey) {
-            SALogDebug(@"Load secret key from loadSecretKeyBlock is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+            SALogDebug(@"Load secret key from loadSecretKey is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
         } else {
-            SALogDebug(@"Load secret key from loadSecretKeyBlock failed!");
+            SALogDebug(@"Load secret key from loadSecretKey failed!");
         }
     } else {
         // 通过本地获取公钥
@@ -2894,9 +2894,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)saveSecretKey:(SASecretKey *)secretKey {
-    if (self.configOptions.saveSecretKeyBlock) {
+    if (self.configOptions.saveSecretKey) {
         // 通过用户的回调保存公钥
-        self.configOptions.saveSecretKeyBlock(secretKey);
+        self.configOptions.saveSecretKey(secretKey);
         
         [SADataStore deleteDataForKey:SA_SDK_SECRET_KEY];
     } else {

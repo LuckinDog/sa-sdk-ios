@@ -74,8 +74,8 @@
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
     options.enableEncrypt = self.enableEncrypt;
-    options.saveSecretKeyBlock = self.saveSecretKeyBlock;
-    options.loadSecretKeyBlock = self.loadSecretKeyBlock;
+    options.saveSecretKey = self.saveSecretKey;
+    options.loadSecretKey = self.loadSecretKey;
     
     return options;
 }
