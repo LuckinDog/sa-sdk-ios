@@ -2725,8 +2725,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                             secretKey.version = [publicKeyDic[@"pkv"] integerValue];
                             secretKey.key = publicKeyDic[@"public_key"];
                             
-                            SALogDebug(@"Secret key from remote config is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-                            
                             // 存储公钥
                             [self saveSecretKey:secretKey];
                             
@@ -2874,9 +2872,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         secretKey = self.configOptions.loadSecretKey();
         
         if (secretKey) {
-            SALogDebug(@"Load secret key from loadSecretKey is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+            SALogDebug(@"Load secret key from loadSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
         } else {
-            SALogDebug(@"Load secret key from loadSecretKey failed!");
+            SALogDebug(@"Load secret key from loadSecretKey callback failed!");
         }
     } else {
         // 通过本地获取公钥
@@ -2884,7 +2882,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
         
         if (secretKey) {
-            SALogDebug(@"Load secret key from localSecretKey is pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+            SALogDebug(@"Load secret key from localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
         } else {
             SALogDebug(@"Load secret key from localSecretKey failed!");
         }
@@ -2899,10 +2897,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         self.configOptions.saveSecretKey(secretKey);
         
         [SAFileStore archiveWithFileName:SA_SDK_SECRET_KEY value:nil];
+        
+        SALogDebug(@"Save secret key by saveSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
     } else {
         // 存储到本地
         NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
         [SAFileStore archiveWithFileName:SA_SDK_SECRET_KEY value:secretKeyData];
+        
+        SALogDebug(@"Save secret key by localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
     }
 }
 
