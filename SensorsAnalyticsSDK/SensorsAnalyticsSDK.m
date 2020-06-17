@@ -857,7 +857,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSInteger recordCount = recordArray.count;
     __block BOOL isRecordEncrypted = NO;
-    if ([SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt) {
+    if (self.configOptions.enableEncrypt) {
         [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray
                                                       completion:^(BOOL isContentEncrypted, NSArray * _Nonnull contentArray) {
             isRecordEncrypted = isContentEncrypted;
@@ -949,7 +949,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 return NO;
             }
-        } else if ([[SAAuxiliaryToolManager sharedInstance] isCheckSecretKeyURL:url]) {
+        } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
             // 校验加密公钥
             [self checkSecretKeyURL:url];
             return YES;
@@ -2645,12 +2645,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)shouldRequestRemoteConfig {
-    if (self.configOptions.enableEncrypt) {
-        // 如果开启加密，并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
-        if (!self.encryptBuilder) {
-            [self requestFunctionalManagermentConfig];
-            return;
-        }
+    // 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
+    if (self.configOptions.enableEncrypt && !self.encryptBuilder) {
+        [self requestFunctionalManagermentConfig];
+        return;
     }
     
      //判断是否符合分散 remoteconfig 请求条件
@@ -2771,7 +2769,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             return;
         }
         NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
-        BOOL shouldAddVersion = [self.remoteConfig.localLibVersion isEqualToString:self.libVersion] && self.encryptBuilder;
+        BOOL shouldAddVersion = [self.remoteConfig.localLibVersion isEqualToString:self.libVersion];
+        if (self.configOptions.enableEncrypt) {
+            shouldAddVersion = shouldAddVersion && self.encryptBuilder;
+        }
         NSString *configVersion = shouldAddVersion ? self.remoteConfig.v : nil;
         [self.network functionalManagermentConfigWithRemoteConfigURL:url version:configVersion completion:completion];
     } @catch (NSException *e) {
@@ -2907,7 +2908,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)checkSecretKeyURL:(NSURL *)url {
-    NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
+    NSDictionary *paramDic = [SAURLUtils queryItemsWithURL:url];
     NSString *urlVersion = paramDic[@"v"];
     NSString *urlKey = paramDic[@"key"];
     

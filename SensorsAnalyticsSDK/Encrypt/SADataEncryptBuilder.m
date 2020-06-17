@@ -160,12 +160,10 @@
     if (completion) {
         if (encryptedArray.count > 0) {
             // 优先使用密文
-            BOOL isContentEncrypted = YES;
-            completion(isContentEncrypted, encryptedArray);
+            completion(YES, encryptedArray);
         } else {
             // 没有密文则使用明文
-            BOOL isContentEncrypted = NO;
-            completion(isContentEncrypted, unencryptedArray);
+            completion(NO, unencryptedArray);
         }
     }
 }
