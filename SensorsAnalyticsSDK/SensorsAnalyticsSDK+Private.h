@@ -30,12 +30,14 @@
 /**
  埋点方式
 
- - SensorsAnalyticsTrackTypeCode: 代码埋点
- - SensorsAnalyticsTrackTypeAuto: SDK埋点
+ - SensorsAnalyticsTrackTypeCustom: 自定义事件埋点
+ - SensorsAnalyticsTrackTypeCode: 手动预置事件埋点
+ - SensorsAnalyticsTrackTypeAuto: 自动预置事件埋点
  */
 typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
+    SensorsAnalyticsTrackTypeCustom,
     SensorsAnalyticsTrackTypeCode,
-    SensorsAnalyticsTrackTypeAuto,
+    SensorsAnalyticsTrackTypeAuto
 };
 
 @interface SensorsAnalyticsSDK(Private)
