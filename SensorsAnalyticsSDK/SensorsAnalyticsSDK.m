@@ -167,9 +167,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
-@property (nonatomic, strong) SAReadWriteLock *remoteConfigLock;
+@property (nonatomic, strong) SAReadWriteLock *readWriteLock;
 @property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
-@property (nonatomic, strong) SAReadWriteLock *encryptBuilderLock;
 
 @property (atomic, strong) NSDictionary *superProperties;
 @property (nonatomic, strong) SATrackTimer *trackTimer;
@@ -2637,18 +2636,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-- (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    [self.remoteConfigLock writeWithBlock:^{
-        self->_remoteConfig = remoteConfig;
-    }];
-}
-
-- (id)remoteConfig {
-    return [self.remoteConfigLock readWithBlock:^id _Nonnull{
-        return self->_remoteConfig;
-    }];
-}
-
 - (void)shouldRequestRemoteConfig {
     // 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
     if (self.configOptions.enableEncrypt && !self.encryptBuilder) {
@@ -2872,12 +2859,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 #pragma mark – Getters and Setters
 
-- (SAReadWriteLock *)remoteConfigLock {
-    if (!_remoteConfigLock) {
-        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
-        _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
+- (SAReadWriteLock *)readWriteLock {
+    if (!_readWriteLock) {
+        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
+        _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
     }
-    return _remoteConfigLock;
+    return _readWriteLock;
 }
 
 - (SAReadWriteLock *)dynamicSuperPropertiesLock {
@@ -2888,22 +2875,26 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     return _dynamicSuperPropertiesLock;
 }
 
-- (SAReadWriteLock *)encryptBuilderLock {
-    if (!_encryptBuilderLock) {
-        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.encryptBuilderLock.%p", self];
-        _encryptBuilderLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
-    }
-    return _encryptBuilderLock;
+- (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
+    [self.readWriteLock writeWithBlock:^{
+        self->_remoteConfig = remoteConfig;
+    }];
+}
+
+- (id)remoteConfig {
+    return [self.readWriteLock readWithBlock:^id _Nonnull{
+        return self->_remoteConfig;
+    }];
 }
 
 - (void)setEncryptBuilder:(SADataEncryptBuilder *)encryptBuilder {
-    [self.encryptBuilderLock writeWithBlock:^{
+    [self.readWriteLock writeWithBlock:^{
         self->_encryptBuilder = encryptBuilder;
     }];
 }
 
 - (SADataEncryptBuilder *)encryptBuilder {
-    return [self.encryptBuilderLock readWithBlock:^id _Nonnull{
+    return [self.readWriteLock readWithBlock:^id _Nonnull{
         return self->_encryptBuilder;
     }];
 }
