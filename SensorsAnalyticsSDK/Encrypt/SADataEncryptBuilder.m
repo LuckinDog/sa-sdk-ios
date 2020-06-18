@@ -106,7 +106,7 @@
 }
 
 - (void)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray
-                                 completion:(void (^ __nullable)(BOOL isContentEncrypted, NSArray *contentArray))completion {
+                                 completion:(void (^)(BOOL isContentEncrypted, NSArray *contentArray))completion {
     /***** 构造加密数据结构 *****/
     // 存储明文数据
     NSMutableArray *unencryptedArray = [NSMutableArray array];

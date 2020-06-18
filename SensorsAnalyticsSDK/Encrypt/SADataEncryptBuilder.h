@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 构造加密的数据结构
 - (void)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray
-                                 completion:(void (^ __nullable)(BOOL isContentEncrypted, NSArray *contentArray))completion;
+                                 completion:(void (^)(BOOL isContentEncrypted, NSArray *contentArray))completion;
 @end
 
 NS_ASSUME_NONNULL_END
