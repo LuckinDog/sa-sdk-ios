@@ -28,6 +28,7 @@
 #import "SAGzipUtility.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
+#import "SAValidator.h"
 
 @interface SADataEncryptBuilder()
 
@@ -113,58 +114,53 @@
     // 存储密文数据
     NSMutableArray *encryptedArray = [NSMutableArray array];
     
-    // 字典，方便去重
-    NSMutableDictionary <NSString *,NSMutableArray *> *ekeyPayloadsDic = [NSMutableDictionary dictionary];
-    for (NSString *json in recordArray) {
+    // 根据加密数据中相同的 ekey 进行合并
+    NSMutableArray *encryptedDicArray = [NSMutableArray array];
+    NSMutableArray *allKeys = [NSMutableArray arrayWithCapacity:recordArray.count];
+    [recordArray enumerateObjectsUsingBlock:^(id  _Nonnull json, NSUInteger idx, BOOL * _Nonnull stop) {
         NSData *jsonData = [json dataUsingEncoding:NSUTF8StringEncoding];
         if (!jsonData) {
-            continue;
+            return;
         }
         
-        NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+        NSMutableDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
         if (!jsonDic) {
-            continue;
+            return;
         }
         
-        if ([jsonDic.allKeys containsObject:@"ekey"]) {
-            // 加密数据
-            NSMutableArray *sameEncryptArray = ekeyPayloadsDic[jsonDic[@"ekey"]];
-            if (sameEncryptArray.count == 0) {
-                sameEncryptArray = [NSMutableArray array];
-                [sameEncryptArray addObject:[jsonDic mutableCopy]];
-                [ekeyPayloadsDic setObject:sameEncryptArray forKey:jsonDic[@"ekey"]];
-            } else {
-                [sameEncryptArray addObject:[jsonDic mutableCopy]];
-            }
-        } else {
-            // 未加密数据
+        if (!jsonDic[@"ekey"]) {
+            // 构造未加密数据
             [unencryptedArray addObject:json];
+            return;
         }
-    }
-    
-    for (NSString *ekey in ekeyPayloadsDic.allKeys) {
-        NSMutableArray *sameEncryptArray = ekeyPayloadsDic[ekey];
-        NSMutableDictionary *encryptDic = [NSMutableDictionary dictionaryWithDictionary:sameEncryptArray.firstObject];
-        [encryptDic removeObjectForKey:@"payload"];
-        NSMutableArray *sameEncryptPayloads = [NSMutableArray array];
-        for (NSDictionary *dic in sameEncryptArray) {
-            [sameEncryptPayloads addObject:dic[@"payload"]];
-        }
-        encryptDic[@"payloads"] = sameEncryptPayloads;
         
-        NSData *encrypData = [self.jsonUtil JSONSerializeObject:encryptDic];
-        NSString *encrypString = [[NSString alloc] initWithData:encrypData encoding:NSUTF8StringEncoding];
-        [encryptedArray addObject:encrypString];
-    }
-    
-    if (completion) {
-        if (encryptedArray.count > 0) {
-            // 优先使用密文
-            completion(YES, encryptedArray);
-        } else {
-            // 没有密文则使用明文
-            completion(NO, unencryptedArray);
+        NSInteger index = [allKeys indexOfObject:jsonDic[@"ekey"]];
+        if (index == NSNotFound) {
+            [allKeys addObject:jsonDic[@"ekey"]];
+            jsonDic[@"payloads"] = [NSMutableArray arrayWithObject:jsonDic[@"payload"]];
+            jsonDic[@"payload"] = nil;
+            [encryptedDicArray addObject:jsonDic];
+            return;
         }
+        NSMutableDictionary *contentDic = encryptedDicArray[index];
+        [(NSMutableArray *)contentDic[@"payloads"] addObject:jsonDic[@"payload"]];
+    }];
+    
+    // 构造加密数据
+    [encryptedDicArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSData *encrypData = [self.jsonUtil JSONSerializeObject:obj];
+        NSString *encrypString = [[NSString alloc] initWithData:encrypData encoding:NSUTF8StringEncoding];
+        if ([SAValidator isValidString:encrypString]) {
+            [encryptedArray addObject:encrypString];
+        }
+    }];
+    
+    if (encryptedArray.count > 0) {
+        // 优先使用密文
+        completion(YES, encryptedArray);
+    } else {
+        // 没有密文则使用明文
+        completion(NO, unencryptedArray);
     }
 }
 
