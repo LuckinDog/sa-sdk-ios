@@ -53,90 +53,56 @@
     XCTAssertTrue(self.database != nil);
 }
 
-//- (void)testDBOpen {
-//    XCTAssertTrue([self.database open]);
-//}
-//
-//- (void)testDBCreateTable {
-//    XCTAssertTrue([self.database createTable]);
-//}
+- (void)testDBOpen {
+    XCTAssertTrue([self.database open]);
+}
+
+- (void)testDBCreateTable {
+    XCTAssertTrue([self.database createTable]);
+}
 
 - (void)testInsertSingleRecord {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"testInsertSingleRecord"];
     NSString *content = @"testInsertSingleRecord";
     NSString *type = @"POST";
     SAEventRecord *record = [[SAEventRecord alloc] init];
     record.content = content;
     record.type = type;
-    [self.database insertRecord:record completion:^(BOOL success) {
-        if (success) {
-            [self.database fetchRecords:1 Completion:^(NSArray<SAEventRecord *> * _Nonnull records) {
-                SAEventRecord *record = records.firstObject;
-                XCTAssertTrue(record != nil && [record.content isEqualToString:content]);
-                [expectation fulfill];
-            }];
-        }
-    }];
-    [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable error) {
-        NSLog(@"insert single record timeout");
-    }];
+    [self.database insertRecord:record];
+    SAEventRecord *tempRecord = [self.database fetchRecords:1].firstObject;
+    XCTAssertTrue(tempRecord != nil && [tempRecord.content isEqualToString:content]);
 }
 
 - (void)testFetchRecord {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"testInsertSingleRecord"];
     NSString *content = @"testFetchRecord";
     NSString *type = @"POST";
     SAEventRecord *record = [[SAEventRecord alloc] init];
     record.content = content;
     record.type = type;
-    [self.database insertRecord:record completion:^(BOOL success) {
-        if (success) {
-            [self.database fetchRecords:1 Completion:^(NSArray<SAEventRecord *> * _Nonnull records) {
-                SAEventRecord *record = records.firstObject;
-                XCTAssertTrue(record != nil && [record.content isEqualToString:content]);
-                [expectation fulfill];
-            }];
-        }
-    }];
-    [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable error) {
-        NSLog(@"insert single record timeout");
-    }];
+    [self.database insertRecord:record];
+    SAEventRecord *tempRecord = [self.database fetchRecords:1].firstObject;
+    XCTAssertTrue(tempRecord != nil && [tempRecord.content isEqualToString:content]);
 }
 
 - (void)testDeleteRecords {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"testBulkInsertRecords"];
     NSMutableArray<SAEventRecord *> *tempRecords = [NSMutableArray array];
     for (NSUInteger index = 0; index < 10000; index++) {
-        NSString *content = [NSString stringWithFormat:@"testBulkInsertRecords_%lu",index];
+        NSString *content = [NSString stringWithFormat:@"testDeleteRecords_%lu",index];
         NSString *type = @"POST";
         SAEventRecord *record = [[SAEventRecord alloc] init];
         record.content = content;
         record.type = type;
         [tempRecords addObject:record];
     }
-    [self.database insertRecords:tempRecords completion:^(BOOL success) {
-        if (success) {
-            [self.database fetchRecords:10000 Completion:^(NSArray<SAEventRecord *> * _Nonnull records) {
-                NSMutableArray <NSString *> *recordIDs = [NSMutableArray array];
-                for (SAEventRecord *record in records) {
-                    [recordIDs addObject:record.recordID];
-                }
-                [self.database deleteRecords:recordIDs completion:^(BOOL success) {
-                    [self.database fetchRecords:NSUIntegerMax Completion:^(NSArray<SAEventRecord *> * _Nonnull records) {
-                        XCTAssertTrue(records.count == 0);
-                        [expectation fulfill];
-                    }];
-                }];
-            }];
-        }
-    }];
-    [self waitForExpectationsWithTimeout:50 handler:^(NSError * _Nullable error) {
-        NSLog(@"insert single record timeout");
-    }];
+    [self.database insertRecords:tempRecords];
+    NSMutableArray <NSString *> *recordIDs = [NSMutableArray array];
+    for (SAEventRecord *record in [self.database fetchRecords:10000]) {
+        [recordIDs addObject:record.recordID];
+    }
+    [self.database deleteRecords:recordIDs];
+    XCTAssertTrue([self.database fetchRecords:10000].count == 0);
 }
 
 - (void)testBulkInsertRecords {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"testBulkInsertRecords"];
     NSMutableArray<SAEventRecord *> *tempRecords = [NSMutableArray array];
     for (NSUInteger index = 0; index < 10000; index++) {
         NSString *content = [NSString stringWithFormat:@"testBulkInsertRecords_%lu",index];
@@ -146,57 +112,34 @@
         record.type = type;
         [tempRecords addObject:record];
     }
-    [self.database insertRecords:tempRecords completion:^(BOOL success) {
-        if (success) {
-            [self.database fetchRecords:10000 Completion:^(NSArray<SAEventRecord *> * _Nonnull records) {
-                BOOL success = YES;
-                if (records.count != 10000) {
-                    XCTAssertFalse(true);
-                    [expectation fulfill];
-                    return;
-                }
-                for (NSUInteger index; index < 10000; index++) {
-                    if (![records[index].content isEqualToString:tempRecords[index].content]) {
-                        success = NO;
-                    }
-                }
-                XCTAssertTrue(success);
-                [expectation fulfill];
-            }];
+    [self.database insertRecords:tempRecords];
+    NSArray<SAEventRecord *> *fetchRecords = [self.database fetchRecords:10000];
+    if (fetchRecords.count != 10000) {
+        XCTAssertFalse(true);
+        return;
+    }
+    BOOL success = YES;
+    for (NSUInteger index; index < 10000; index++) {
+        if (![fetchRecords[index].content isEqualToString:tempRecords[index].content]) {
+            success = NO;
         }
-    }];
-    [self waitForExpectationsWithTimeout:50 handler:^(NSError * _Nullable error) {
-        NSLog(@"insert single record timeout");
-    }];
+    }
+    XCTAssertTrue(success);
 }
 
 - (void)testDeleteAllRecords {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"testInsertSingleRecord"];
     NSMutableArray<SAEventRecord *> *tempRecords = [NSMutableArray array];
     for (NSUInteger index = 0; index < 10000; index++) {
-        NSString *content = [NSString stringWithFormat:@"testBulkInsertRecords_%lu",index];
+        NSString *content = [NSString stringWithFormat:@"testDeleteAllRecords_%lu",index];
         NSString *type = @"POST";
         SAEventRecord *record = [[SAEventRecord alloc] init];
         record.content = content;
         record.type = type;
         [tempRecords addObject:record];
     }
-    [self.database insertRecords:tempRecords completion:^(BOOL success) {
-        if (success) {
-            [self.database deleteAllRecordsWithCompletion:^(BOOL success) {
-                if (success) {
-                    [self.database fetchRecords:100 Completion:^(NSArray<SAEventRecord *> * _Nonnull records) {
-                        XCTAssertTrue(records.count == 0);
-                        [expectation fulfill];
-                    }];
-                }
-            }];
-        }
-    }];
-
-    [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable error) {
-        NSLog(@"insert single record timeout");
-    }];
+    [self.database insertRecords:tempRecords];
+    [self.database deleteAllRecords];
+    XCTAssertTrue([self.database fetchRecords:10000].count == 0);
 }
 
 @end
