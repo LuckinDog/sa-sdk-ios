@@ -75,6 +75,7 @@
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
+#import "SAEncryptSecretKeyHandler.h"
 
 #define VERSION @"2.0.8-pre";
 
@@ -230,6 +231,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAConsoleLogger *consoleLogger;
 
+@property (nonatomic, strong) SAEncryptSecretKeyHandler *secretKeyHandler;
+
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -340,6 +343,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
+            
+            // 初始化密钥处理器
+            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
 
             _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
             if (self.messageQueue == nil) {
@@ -390,7 +396,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self swizzleWebViewMethod];
             }
             
-            // 获取加密公钥
+            // 加密
             if (_configOptions.enableEncrypt) {
                 [self updateEncryptBuilder];
             }
@@ -950,7 +956,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
             // 校验加密公钥
-            [self checkSecretKeyURL:url];
+            [self.secretKeyHandler checkSecretKeyURL:url];
             return YES;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
@@ -2726,7 +2732,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                             secretKey.key = publicKeyDic[@"public_key"];
                             
                             // 存储公钥
-                            [self saveSecretKey:secretKey];
+                            [self.secretKeyHandler saveSecretKey:secretKey];
                             
                             // 更新加密构造器
                             [self updateEncryptBuilder];
@@ -2858,74 +2864,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - SecretKey
 - (void)updateEncryptBuilder {
     // 获取公钥
-    SASecretKey *secretKey = [self loadSecretKey];
+    SASecretKey *secretKey = [self.secretKeyHandler loadSecretKey];
     if (secretKey.key.length > 0) {
         self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
     }
-}
-
-- (SASecretKey *)loadSecretKey {
-    SASecretKey *secretKey = nil;
-    
-    if (self.configOptions.loadSecretKey) {
-        // 通过用户的回调获取公钥
-        secretKey = self.configOptions.loadSecretKey();
-        
-        if (secretKey) {
-            SALogDebug(@"Load secret key from loadSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-        } else {
-            SALogDebug(@"Load secret key from loadSecretKey callback failed!");
-        }
-    } else {
-        // 通过本地获取公钥
-        id secretKeyData = [SAFileStore unarchiveWithFileName:SA_SDK_SECRET_KEY];
-        secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
-        
-        if (secretKey) {
-            SALogDebug(@"Load secret key from localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-        } else {
-            SALogDebug(@"Load secret key from localSecretKey failed!");
-        }
-    }
-    
-    return secretKey;
-}
-
-- (void)saveSecretKey:(SASecretKey *)secretKey {
-    if (self.configOptions.saveSecretKey) {
-        // 通过用户的回调保存公钥
-        self.configOptions.saveSecretKey(secretKey);
-        
-        [SAFileStore archiveWithFileName:SA_SDK_SECRET_KEY value:nil];
-        
-        SALogDebug(@"Save secret key by saveSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-    } else {
-        // 存储到本地
-        NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
-        [SAFileStore archiveWithFileName:SA_SDK_SECRET_KEY value:secretKeyData];
-        
-        SALogDebug(@"Save secret key by localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-    }
-}
-
-- (void)checkSecretKeyURL:(NSURL *)url {
-    NSDictionary *paramDic = [SAURLUtils queryItemsWithURL:url];
-    NSString *urlVersion = paramDic[@"v"];
-    NSString *urlKey = paramDic[@"key"];
-    
-    NSString *message = @"密钥验证不通过，所选密钥与 App 端密钥不相同";
-    if ([SAValidator isValidString:urlVersion] && [SAValidator isValidString:urlKey]) {
-        SASecretKey *secretKey = [self loadSecretKey];
-        NSString *loadVersion = [@(secretKey.version) stringValue];
-        NSString *loadKey = [secretKey.key stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
-        if ([loadVersion isEqualToString:urlVersion] && [loadKey isEqualToString:urlKey]) {
-            message = @"密钥验证通过，所选密钥与 App 端密钥相同";
-        }
-    }
-    
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:nil message:message preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:nil];
-    [alertController show];
 }
 
 #pragma mark – Getters and Setters
