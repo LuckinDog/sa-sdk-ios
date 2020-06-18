@@ -45,6 +45,8 @@
 		4DBE3C1E24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBE3C1C24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m */; };
 		6523731E23EBC44000A786A2 /* SAHeatMapObjectSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6523731C23EBC44000A786A2 /* SAHeatMapObjectSerializer.m */; };
 		6523731F23EBC44000A786A2 /* SAHeatMapObjectSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6523731D23EBC44000A786A2 /* SAHeatMapObjectSerializer.h */; };
+		88824F91249B5184003ADC59 /* SAEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 88824F8F249B5184003ADC59 /* SAEventStore.h */; };
+		88824F92249B5184003ADC59 /* SAEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 88824F90249B5184003ADC59 /* SAEventStore.m */; };
 		8888473424530F9100EBA7F6 /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888472E24530F9100EBA7F6 /* SAReachability.m */; };
 		8888473524530F9100EBA7F6 /* SAReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888472F24530F9100EBA7F6 /* SAReachability.h */; };
 		8888473624530F9100EBA7F6 /* SASecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888473024530F9100EBA7F6 /* SASecurityPolicy.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -232,6 +234,8 @@
 		4DBE3C1C24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedObjectSerializerManger.m; sourceTree = "<group>"; };
 		6523731C23EBC44000A786A2 /* SAHeatMapObjectSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHeatMapObjectSerializer.m; sourceTree = "<group>"; };
 		6523731D23EBC44000A786A2 /* SAHeatMapObjectSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAHeatMapObjectSerializer.h; sourceTree = "<group>"; };
+		88824F8F249B5184003ADC59 /* SAEventStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventStore.h; sourceTree = "<group>"; };
+		88824F90249B5184003ADC59 /* SAEventStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventStore.m; sourceTree = "<group>"; };
 		8888472E24530F9100EBA7F6 /* SAReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAReachability.m; sourceTree = "<group>"; };
 		8888472F24530F9100EBA7F6 /* SAReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAReachability.h; sourceTree = "<group>"; };
 		8888473024530F9100EBA7F6 /* SASecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASecurityPolicy.h; sourceTree = "<group>"; };
@@ -564,6 +568,8 @@
 				4DB14DC92456C106002C224C /* SALogger */,
 				CB30C03122840EBF0004061D /* SADatabase.h */,
 				CB30BFFF22840EBF0004061D /* SADatabase.m */,
+				88824F8F249B5184003ADC59 /* SAEventStore.h */,
+				88824F90249B5184003ADC59 /* SAEventStore.m */,
 				CB30BFE822840EBF0004061D /* NSObject+SensorsAnalyticsDelegate.h */,
 				CB30C01122840EBF0004061D /* NSObject+SensorsAnalyticsDelegate.m */,
 				CB30C00922840EBF0004061D /* NSString+HashCode.h */,
@@ -785,6 +791,7 @@
 				CB30C09622840EC00004061D /* SAPropertyDescription.h in Headers */,
 				CB30C09D22840EC00004061D /* SADatabase.h in Headers */,
 				CB30C05E22840EC00004061D /* SAObjectSerializerConfig.h in Headers */,
+				88824F91249B5184003ADC59 /* SAEventStore.h in Headers */,
 				8888473724530F9100EBA7F6 /* SANetwork.h in Headers */,
 				4DB14DDC2456C107002C224C /* SAConsoleLogger.h in Headers */,
 				FC5A4BC6244E976F00063624 /* SAJSONUtil.h in Headers */,
@@ -1018,6 +1025,7 @@
 				FC5A4BBF244E976F00063624 /* SACommonUtility.m in Sources */,
 				8888473924530F9100EBA7F6 /* SASecurityPolicy.m in Sources */,
 				4D5A02042411EDFA007E651A /* UIView+VisualizedAutoTrack.m in Sources */,
+				88824F92249B5184003ADC59 /* SAEventStore.m in Sources */,
 				4DBE3C1E24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m in Sources */,
 				FC5A4BCA244E97A600063624 /* SAValidator.m in Sources */,
 				CB30C04D22840EC00004061D /* SASDKRemoteConfig.m in Sources */,
