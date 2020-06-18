@@ -47,8 +47,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 @interface SADatabase ()
 
 @property (nonatomic, copy) NSString *filePath;
-/// store data in memory
-@property (nonatomic, strong) NSMutableArray<NSString *> *messageCaches;
 @property (nonatomic, assign) BOOL isOpen;
 @property (nonatomic, assign) BOOL isCreatedTable;
 
@@ -299,7 +297,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 }
 
 - (BOOL)deleteAllRecords {
-    [self.messageCaches removeAllObjects];
     if (![self databaseCheck]) {
         return NO;
     }
@@ -329,10 +326,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     CFDictionaryKeyCallBacks keyCallbacks = kCFCopyStringDictionaryKeyCallBacks;
     CFDictionaryValueCallBacks valueCallbacks = { 0 };
     _dbStmtCache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &keyCallbacks, &valueCallbacks);
-}
-
-- (NSInteger)count {
-    return [self messagesCount] + self.messageCaches.count;
 }
 
 - (BOOL)vacuum {
@@ -386,15 +379,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     return (NSUInteger)count;
 }
 
-#pragma mark - Getters and Setters
-- (NSMutableArray<NSString *> *)messageCaches {
-    if (!_messageCaches) {
-        _messageCaches = [NSMutableArray array];
-    }
-    return _messageCaches;
-}
-
-#pragma mark - Life Cycle
 - (void)dealloc {
     [self close];
 }

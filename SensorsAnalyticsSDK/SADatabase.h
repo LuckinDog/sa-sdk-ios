@@ -43,49 +43,49 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
 @property (nonatomic, assign) NSUInteger maxCacheSize;
 
-/**
- *  @abstract
- *  根据传入的文件路径初始化
- *
- *  @param filePath 传入的数据文件路径
- *
- *  @return 初始化的结果
- */
+/// init method
+/// @param filePath path for database file
 - (instancetype)initWithFilePath:(NSString *)filePath;
 
 
-/// fetch records
-/// @param recordSize records size
-/// @param completion if fetching records successfully, error is nil and get an array of records, otherwise, error is not nil, and records array should be empty
-- (void)fetchRecords:(NSUInteger)recordSize Completion:(void (^)(NSArray<SAEventRecord *> *records))completion;
-
-/// insert single record to database
-/// @param record event record object
-/// @param completion completion handler, insert successfully, then error is nil, otherwise, error return
-- (void)insertRecord:(SAEventRecord *)record completion:(void (^)(BOOL success))completion;
+/// open database, return YES or NO
+- (BOOL)open;
 
 
-/// bulk insert records
+/// create default event table, return YES or NO
+- (BOOL)createTable;
+
+/// fetch first records with a certain size
+/// @param recordSize record size
+- (NSArray<SAEventRecord *> *)fetchRecords:(NSUInteger)recordSize;
+
+
+/// bulk insert event records
 /// @param records event records
-/// @param completion completion handler, insert successfully, then error is nil, otherwise, error return
-- (void)insertRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion;
+- (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records;
 
-/// delete records
-/// @param recordIDs an array of event id in database table
-/// @param completion completion handler, delete successfully, then error is nil, otherwise, error return
-- (void)deleteRecords:(NSArray<NSString *> *)recordIDs completion:(void (^)(BOOL success))completion;
 
-/// delete all records
-/// @param completion completion handler, delete successfully, then error is nil, otherwise, error return
-- (void) deleteAllRecordsWithCompletion:(void (^)(BOOL success))completion;
+/// insert single record
+/// @param record event record
+- (BOOL)insertRecord:(SAEventRecord *)record;
 
-/**
- *  @abstract
- *  获取当前记录的数量
- *
- *  @return 当前记录的数量
- */
-- (NSInteger) count;
+
+/// delete records with IDs
+/// @param recordIDs event record IDs
+- (BOOL)deleteRecords:(NSArray<NSString *> *)recordIDs;
+
+
+/// delete first records with a certain size
+/// @param recordSize record size
+- (BOOL)deleteFirstRecords:(NSUInteger)recordSize;
+
+
+/// delete all records from database
+- (BOOL)deleteAllRecords;
+
+
+/// event record count stored in database
+- (NSUInteger)messagesCount;
 
 /**
  *  @abstract
@@ -94,20 +94,6 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return 是否成功
  */
 - (BOOL) vacuum;
-
-- (NSArray<SAEventRecord *> *)fetchRecords:(NSUInteger)recordSize;
-
-- (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records;
-
-- (BOOL)insertRecord:(SAEventRecord *)record;
-
-- (BOOL)deleteRecords:(NSArray<NSString *> *)recordIDs;
-
-- (BOOL)deleteFirstRecords:(NSUInteger)recordSize;
-
-- (BOOL)deleteAllRecords;
-
-- (NSUInteger)messagesCount;
 
 @end
 
