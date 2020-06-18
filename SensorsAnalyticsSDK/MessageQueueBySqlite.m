@@ -385,9 +385,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 - (NSString *)addFlushTimeToRecord:(NSString *)record withDeleteBlock:(void (^)(void))deleteBlock {
     NSData *jsonData = [record dataUsingEncoding:NSUTF8StringEncoding];
     if (!jsonData) {
-        if (deleteBlock) {
-            deleteBlock();
-        }
+        deleteBlock();
         return nil;
     }
     
@@ -395,29 +393,26 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                      options:NSJSONReadingMutableContainers
                                                                        error:&err];
-    if (!err && eventDict) {
-        if ([SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt) {
-            if (![eventDict.allKeys containsObject:@"ekey"]) {
-                //缓存数据未加密，再加密
-                NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
-                if (encryptDic) {
-                    eventDict = [encryptDic mutableCopy];
-                }
-            }
-            //加密数据上传时间 flush_time
-            UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-            [eventDict setValue:@(time) forKey:@"flush_time"];
-        } else {
-            //非加密模式，不论数据是否加密都上传
-            UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-            [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
-        }
-    } else { //删除内容为空的数据
-        if (deleteBlock) {
-            deleteBlock();
-        }
+    if (err || !eventDict) {
+        // 删除内容为空的数据
+        deleteBlock();
         return nil;
     }
+    
+    BOOL isEnableEncrypt = [SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt;
+    if (isEnableEncrypt) {
+        if (![eventDict.allKeys containsObject:@"ekey"]) {
+            // 缓存数据未加密，再加密
+            NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
+            if (encryptDic) {
+                eventDict = [encryptDic mutableCopy];
+            }
+        }
+    }
+    
+    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
+    // 后台设计如此，根据是否开启加密传入不同的 flush time 名字
+    eventDict[isEnableEncrypt ? @"flush_time" : @"_flush_time"] = @(time);
     
     return [[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding];
 }
