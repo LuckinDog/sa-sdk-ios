@@ -36,7 +36,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 @interface SANetwork () <NSURLSessionDelegate, NSURLSessionTaskDelegate>
 /// 存储原始的 ServerURL，当修改 DebugMode 为 Off 时，会使用此值去设置 ServerURL
-@property (nonatomic, readwrite, strong) NSURL *originServerURL;
+@property (atomic, readwrite, strong) NSURL *originServerURL;
 /// 网络请求调用结束的 Block 所在的线程
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 @property (nonatomic, strong) NSURLSession *session;
@@ -48,6 +48,8 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 @end
 
 @implementation SANetwork
+
+@synthesize serverURL = _serverURL;
 
 #pragma mark - init
 - (instancetype)init {
@@ -76,26 +78,36 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 #pragma mark - property
 - (void)setServerURL:(NSURL *)serverURL {
-    _originServerURL = serverURL;
-    if (self.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
-        _serverURL = serverURL;
-    } else {
-        // 将 Server URI Path 替换成 Debug 模式的 '/debug'
-        if (serverURL.lastPathComponent.length > 0) {
-            serverURL = [serverURL URLByDeletingLastPathComponent];
+    self.originServerURL = serverURL;
+    
+    @synchronized (self) {
+        if (self.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
+            _serverURL = serverURL;
+        } else {
+            // 将 Server URI Path 替换成 Debug 模式的 '/debug'
+            if (serverURL.lastPathComponent.length > 0) {
+                serverURL = [serverURL URLByDeletingLastPathComponent];
+            }
+            NSURL *url = [serverURL URLByAppendingPathComponent:@"debug"];
+            if ([url.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
+                NSString * referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
+                SALogWarn(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
+            }
+            _serverURL = url;
         }
-        NSURL *url = [serverURL URLByAppendingPathComponent:@"debug"];
-        if ([url.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
-            NSString * referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
-            SALogWarn(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
-        }
-        _serverURL = url;
     }
 }
 
+- (NSURL *)serverURL {
+    @synchronized (self) {
+        return _serverURL;
+    }
+}
+
+
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     _debugMode = debugMode;
-    self.serverURL = _originServerURL;
+    self.serverURL = self.originServerURL;
 }
 
 - (NSURLSession *)session {
@@ -435,7 +447,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 - (BOOL)isValidServerURL {
-    return _serverURL.absoluteString.length > 0;
+    return self.serverURL.absoluteString.length > 0;
 }
 
 @end
