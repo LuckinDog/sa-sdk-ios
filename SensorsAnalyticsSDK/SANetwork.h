@@ -36,7 +36,7 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 /// debug mode
 @property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 
-- (instancetype)initWithServerURL:(NSURL *)serverURL session:(SAHTTPSession *)session;
+- (instancetype)initWithServerURL:(NSURL *)serverURL;
 
 /**
  * @abstract

@@ -26,6 +26,7 @@
 #import "NSString+HashCode.h"
 #import "SAGzipUtility.h"
 #import "SensorsAnalyticsSDK.h"
+#import "SensorsAnalyticsSDK+Private.h"
 #import "SANetwork.h"
 #import "SALog.h"
 
@@ -35,57 +36,57 @@
 
 @implementation SAEventFlush
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue {
-    self = [super init];
-    if (self) {
-
+// 1. 先完成这一系列Json字符串的拼接
+- (NSString *)buildFlushJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
+    NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
+    for (SAEventRecord *record in records) {
+        [contents addObject:record.content];
     }
-    return self;
+    return [NSString stringWithFormat:@"[%@]", [contents componentsJoinedByString:@","]];
 }
 
 // 1. 先完成这一系列Json字符串的拼接
-- (NSString *)buildFlushJSONStringWithEvents:(NSArray<SAEventRecord *> *)events {
-    return [NSString stringWithFormat:@"[%@]", [events componentsJoinedByString:@","]];
+- (NSData *)buildBodyWithEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted {
+    NSString *dataString = [self buildFlushJSONStringWithEventRecords:records];
+    int gzip = 1; // gzip = 9 表示加密编码
+    if (isEncrypted) {
+        // 加密数据已{经做过 gzip 压缩和 base64 处理了，就不需要再处理。
+        gzip = 9;
+    } else {
+        // 使用gzip进行压缩
+        NSData *zippedData = [SAGzipUtility gzipData:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
+        // base64
+        dataString = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+    }
+    int hashCode = [dataString sensorsdata_hashCode];
+    dataString = [dataString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
+    NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, dataString];
+    return [bodyString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-- (NSURLRequest *)buildFlushRequestWithJSONString:(NSString *)jsonString HTTPMethod:(NSString *)HTTPMethod {
-    NSString *postBody;
-    int gzip = 9; // gzip = 9 表示加密编码
-    NSString *b64String = [jsonString copy];
-//#ifndef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-//    // 加密数据已经做过 gzip 压缩和 base64 处理了，就不需要再处理。
-//    gzip = 1;
-//    // 使用gzip进行压缩
-//    NSData *zippedData = [SAGzipUtility gzipData:[b64String dataUsingEncoding:NSUTF8StringEncoding]];
-//    // base64
-//    b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-//#endif
-
-    int hashCode = [b64String sensorsdata_hashCode];
-    b64String = [b64String stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
-    postBody = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, b64String];
-
-    NSURL *url = [NSURL URLWithString:SensorsAnalyticsSDK.sharedInstance.serverUrl];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+- (NSURLRequest *)buildFlushRequestWithServerUrl:(NSString *)serverUrl eventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:serverUrl]];
     request.timeoutInterval = 30;
-    request.HTTPMethod = HTTPMethod;
-    request.HTTPBody = [postBody dataUsingEncoding:NSUTF8StringEncoding];
+    request.HTTPMethod = @"POST";
+    request.HTTPBody = [self buildBodyWithEventRecords:records isEncrypted:isEncrypted];
     // 普通事件请求，使用标准 UserAgent
     [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-    if (SensorsAnalyticsSDK.sharedInstance.debugMode == SensorsAnalyticsDebugOnly) {
+    if ([SensorsAnalyticsSDK.sharedInstance debugMode] == SensorsAnalyticsDebugOnly) {
         [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
     }
 
     return request;
 }
 
-- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion {
-    if (![self isValidServerURL]) {
+- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+    NSString *serverUrl = SensorsAnalyticsSDK.sharedInstance.serverUrl;
+    if (serverUrl.length == 0) {
         SALogError(@"serverURL error，Please check the serverURL");
         return completion(NO);
     }
 
-    NSString *jsonString = [self buildFlushJSONStringWithEvents:records];
+    SensorsAnalyticsDebugMode debugMode = [SensorsAnalyticsSDK.sharedInstance debugMode];
+    NSString *jsonString = [self buildFlushJSONStringWithEventRecords:records];
 
     SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
@@ -100,7 +101,7 @@
             messageDesc = @"\n【valid message】\n";
         } else {
             messageDesc = @"\n【invalid message】\n";
-            if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
+            if (statusCode >= 300 && debugMode != SensorsAnalyticsDebugOff) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
                 [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
@@ -108,7 +109,7 @@
         // 1、开启 debug 模式，都删除；
         // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
         BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
-        BOOL flushSuccess = self.debugMode != SensorsAnalyticsDebugOff || successCode;
+        BOOL flushSuccess = debugMode != SensorsAnalyticsDebugOff || successCode;
 
         SALogDebug(@"==========================================================================");
         @try {
@@ -126,8 +127,8 @@
         completion(flushSuccess);
     };
 
-    NSURLRequest *request = [self buildFlushRequestWithJSONString:jsonString HTTPMethod:@"POST"];
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
+    NSURLRequest *request = [self buildFlushRequestWithServerUrl:serverUrl eventRecords:records isEncrypted:isEncrypted];
+    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
     [task resume];
 }
 

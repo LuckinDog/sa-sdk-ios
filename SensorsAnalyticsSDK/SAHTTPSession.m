@@ -38,43 +38,42 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 @implementation SAHTTPSession
 
-- (instancetype)initWithDelegateQueue:(dispatch_queue_t)queue {
++ (SAHTTPSession *)sharedInstance {
+    static dispatch_once_t onceToken;
+    static SAHTTPSession *session = nil;
+    dispatch_once(&onceToken, ^{
+        session = [[SAHTTPSession alloc] init];
+    });
+    return session;
+}
+
+- (instancetype)init {
     self = [super init];
     if (self) {
         _securityPolicy = [SASecurityPolicy defaultPolicy];
-
-        NSOperationQueue *delegateQueue = [[NSOperationQueue alloc] init];
-        delegateQueue.name = [NSString stringWithFormat:@"cn.sensorsdata.SAHTTPSession.%p", self];
-        delegateQueue.underlyingQueue = queue;
-
-        NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-        config.timeoutIntervalForRequest = 30.0;
-        config.HTTPShouldUsePipelining = NO;
-        _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:delegateQueue];
     }
     return self;
 }
 
-- (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
-    if (securityPolicy.SSLPinningMode != SASSLPinningModeNone
-//        && ![self.serverURL.scheme isEqualToString:@"https"]
-        ) {
-        NSString *pinningMode = @"Unknown Pinning Mode";
-        switch (securityPolicy.SSLPinningMode) {
-            case SASSLPinningModeNone:
-                pinningMode = @"SASSLPinningModeNone";
-                break;
-            case SASSLPinningModeCertificate:
-                pinningMode = @"SASSLPinningModeCertificate";
-                break;
-            case SASSLPinningModePublicKey:
-                pinningMode = @"SASSLPinningModePublicKey";
-                break;
-        }
-        NSString *reason = [NSString stringWithFormat:@"A security policy configured with `%@` can only be applied on a manager with a secure base URL (i.e. https)", pinningMode];
-        @throw [NSException exceptionWithName:@"Invalid Security Policy" reason:reason userInfo:nil];
+- (void)setDelegateQueue:(dispatch_queue_t)delegateQueue {
+    if (_delegateQueue == delegateQueue) {
+        return;
     }
-    _securityPolicy = securityPolicy;
+    _delegateQueue = delegateQueue;
+    
+    static dispatch_once_t onceToken;
+    static NSOperationQueue *queue = nil;
+    dispatch_once(&onceToken, ^{
+        queue = [[NSOperationQueue alloc] init];
+        queue.name = [NSString stringWithFormat:@"cn.sensorsdata.SAHTTPSession.%p", self];
+    });
+    [queue waitUntilAllOperationsAreFinished];
+    queue.underlyingQueue = delegateQueue;
+
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    config.timeoutIntervalForRequest = 30.0;
+    config.HTTPShouldUsePipelining = NO;
+    _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:queue];
 }
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(SAURLSessionTaskCompletionHandler)completionHandler {

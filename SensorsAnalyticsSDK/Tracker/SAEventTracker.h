@@ -24,6 +24,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SAEventRecord.h"
+#import "SAHTTPSession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,6 +41,8 @@ typedef NS_ENUM(NSUInteger, SAEventTrackerFlushType) {
 - (instancetype)initWithQueue:(dispatch_queue_t)queue;
 
 - (void)trackEvent:(NSDictionary *)event flushType:(SAEventTrackerFlushType)type;
+
+- (void)flushWithType:(SAEventTrackerFlushType)type;
 
 - (void)flush;
 

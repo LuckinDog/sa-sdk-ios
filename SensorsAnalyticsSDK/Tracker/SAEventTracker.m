@@ -51,7 +51,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
         _queue = queue;
 
         _eventStore = [[SAEventStore alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
-        _eventFlush = [[SAEventFlush alloc] initWithQueue:_queue];
+        _eventFlush = [[SAEventFlush alloc] init];
     }
     return self;
 }
@@ -64,7 +64,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
     });
 
     dispatch_async(self.queue, ^{
-        [self flushWithRecordSize:type];
+        [self flushWithType:type];
     });
 }
 
@@ -76,14 +76,14 @@ NSUInteger const SAEventFlushRecordSize = 50;
 
 }
 
-- (void)flushWithRecordSize:(NSUInteger)recordSize {
+- (void)flushWithType:(SAEventTrackerFlushType)type {
     // TODO: -
     // 1. 判断是否可以 flush
-    if (recordSize == 0) {
+    if (type == SAEventTrackerFlushTypeNone) {
         return;
     }
     // 2. 从数据库中查询数据
-    NSArray *records = [self.eventStore fetchRecords:recordSize];
+    NSArray *records = [self.eventStore fetchRecords:type];
     if (records.count == 0) {
         return;
     }
@@ -91,27 +91,27 @@ NSUInteger const SAEventFlushRecordSize = 50;
     [self encryptEventRecords:records];
 
     // 4. network
-    [self.eventFlush flushEventRecords:records completion:^(BOOL success) {
+    [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
         if (!success) {
             return;
         }
 
         // 5. 删除数据
-        NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:recordSize];
+        NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:type];
         for (SAEventRecord *record in records) {
             [recordIDs addObject:record.recordID];
         }
         [self.eventStore deleteRecords:recordIDs];
 
         // 5. 循环
-        [self flushWithRecordSize:recordSize];
+        [self flushWithType:type];
     }];
 }
 
 // MARK: - Public
 - (void)flush {
     dispatch_async(self.queue, ^{
-        [self flushWithRecordSize:SAEventTrackerFlushTypeNormal];
+        [self flushWithType:SAEventTrackerFlushTypeNormal];
     });
 }
 

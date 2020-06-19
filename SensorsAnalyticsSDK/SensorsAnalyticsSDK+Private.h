@@ -90,7 +90,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 
 @property (nonatomic, strong, readonly) SANetwork *network;
-@property (nonatomic, strong, readonly) SAHTTPSession *session;
 
 @property (nonatomic, strong, readonly) SADataEncryptBuilder *encryptBuilder;
 

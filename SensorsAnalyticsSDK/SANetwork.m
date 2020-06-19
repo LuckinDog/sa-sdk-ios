@@ -37,7 +37,6 @@
 @property (nonatomic, readwrite, strong) NSURL *originServerURL;
 
 //@property (nonatomic, strong) NSOperationQueue *delegateQueue;
-@property (nonatomic, strong) SAHTTPSession *session;
 @property (nonatomic, copy) NSString *cookie;
 
 @end
@@ -45,12 +44,10 @@
 @implementation SANetwork
 
 #pragma mark - init
-- (instancetype)initWithServerURL:(NSURL *)serverURL session:(SAHTTPSession *)session {
+- (instancetype)initWithServerURL:(NSURL *)serverURL {
     self = [super init];
     if (self) {
 //        _delegateQueue = queue;
-        _session = session;
-
         self.serverURL = serverURL;
     }
     return self;
@@ -97,11 +94,11 @@
         NSString *reason = [NSString stringWithFormat:@"A security policy configured with `%@` can only be applied on a manager with a secure base URL (i.e. https)", pinningMode];
         @throw [NSException exceptionWithName:@"Invalid Security Policy" reason:reason userInfo:nil];
     }
-    self.session.securityPolicy = securityPolicy;
+    SAHTTPSession.sharedInstance.securityPolicy = securityPolicy;
 }
 
 - (SASecurityPolicy *)securityPolicy {
-    return self.session.securityPolicy;
+    return SAHTTPSession.sharedInstance.securityPolicy;
 }
 
 #pragma mark - cookie
@@ -262,7 +259,7 @@
     };
     
     NSURLRequest *request = [self buildFlushRequestWithJSONString:jsonString HTTPMethod:@"POST"];
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
+    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
     [task resume];
 
     dispatch_semaphore_wait(flushSemaphore, DISPATCH_TIME_FOREVER);
@@ -278,7 +275,7 @@
     NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
     NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
 
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         NSInteger statusCode = response.statusCode;
         if (statusCode == 200) {
             SALogDebug(@"config debugMode CallBack success");
@@ -296,7 +293,7 @@
         return nil;
     }
     NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL version:version];
-    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (!completion) {
             return ;
         }

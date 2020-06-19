@@ -168,7 +168,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSOperationQueue *queue;
 
-@property (nonatomic, strong) SAHTTPSession *session;
 @property (nonatomic, strong) SANetwork *network;
 
 @property (nonatomic, strong) SAEventStore *eventStore;
@@ -306,9 +305,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
+            SAHTTPSession.sharedInstance.delegateQueue = _serialQueue;
 
-            _session = [[SAHTTPSession alloc] initWithDelegateQueue:_serialQueue];
-            _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_configOptions.serverURL] session:_session];
+            _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_configOptions.serverURL]];
 
             _eventStore = [[SAEventStore alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
             _eventStore.maxCacheSize = (NSUInteger)configOptions.maxCacheSize;
@@ -2530,7 +2529,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     if (self.flushBeforeEnterBackground) {
         dispatch_async(self.serialQueue, ^{
-//            [self _flush:YES];
+            [self.eventTracker flushWithType:SAEventTrackerFlushTypeNormal];
             endBackgroundTask();
         });
     } else {
