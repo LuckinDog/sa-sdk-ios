@@ -32,18 +32,6 @@
 
 static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大缓存条数时默认的删除条数
 
-@implementation SAEventRecord
-
-- (instancetype)initWithContent:(NSString *)content type:(NSString *)type {
-    if (self = [super init]) {
-        self.content = content;
-        self.type = type;
-    }
-    return self;
-}
-
-@end
-
 @interface SADatabase ()
 
 @property (nonatomic, copy) NSString *filePath;
@@ -60,7 +48,8 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 - (instancetype)initWithFilePath:(NSString *)filePath {
     self = [super init];
     if (self) {
-        self.filePath = filePath;
+        _maxCacheSize = 10000;
+        _filePath = filePath;
         _serialQueue = dispatch_queue_create("cn.sensorsdata.SADatabaseSerialQueue", DISPATCH_QUEUE_SERIAL);
         [self createStmtCache];
         [self open];

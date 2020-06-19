@@ -30,7 +30,6 @@
 
 @interface SADataEncryptBuilder()
 
-@property(nonatomic,strong) SAJSONUtil *jsonUtil;
 /// RSA 公钥配置
 @property(nonatomic, strong) SASecretKey *rsaSecretKey;
 
@@ -47,7 +46,6 @@
 - (instancetype)initWithRSAPublicKey:(SASecretKey *)secretKey {
     self = [super init];
     if (self) {
-        _jsonUtil = [[SAJSONUtil alloc] init];
         [self updateRSAPublicSecretKey:secretKey];
     }
     return self;
@@ -84,7 +82,7 @@
         return nil;
     }
 
-    NSData *jsonData = [self.jsonUtil JSONSerializeObject:obj];
+    NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
     NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
     //使用 gzip 进行压缩
@@ -135,7 +133,7 @@
         }
         encryptDic[@"payloads"] = sameEncryptPayloads;
         
-        NSData *encrypData = [self.jsonUtil JSONSerializeObject:encryptDic];
+        NSData *encrypData = [SAJSONUtil JSONSerializeObject:encryptDic];
         NSString *encrypString = [[NSString alloc] initWithData:encrypData encoding:NSUTF8StringEncoding];
         [encryptArray addObject:encrypString];
     }

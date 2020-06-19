@@ -30,45 +30,27 @@
 #import "SAGzipUtility.h"
 #import "SALog.h"
 #import "SAJSONUtil.h"
+#import "SAHTTPSession.h"
 
-typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
-typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
-
-@interface SANetwork () <NSURLSessionDelegate, NSURLSessionTaskDelegate>
+@interface SANetwork ()
 /// 存储原始的 ServerURL，当修改 DebugMode 为 Off 时，会使用此值去设置 ServerURL
 @property (nonatomic, readwrite, strong) NSURL *originServerURL;
-/// 网络请求调用结束的 Block 所在的线程
-@property (nonatomic, strong) NSOperationQueue *operationQueue;
-@property (nonatomic, strong) NSURLSession *session;
-@property (nonatomic, copy) NSString *cookie;
 
-@property (nonatomic, copy) SAURLSessionDidReceiveAuthenticationChallengeBlock sessionDidReceiveAuthenticationChallenge;
-@property (nonatomic, copy) SAURLSessionTaskDidReceiveAuthenticationChallengeBlock taskDidReceiveAuthenticationChallenge;
+//@property (nonatomic, strong) NSOperationQueue *delegateQueue;
+@property (nonatomic, strong) SAHTTPSession *session;
+@property (nonatomic, copy) NSString *cookie;
 
 @end
 
 @implementation SANetwork
 
 #pragma mark - init
-- (instancetype)init {
+- (instancetype)initWithServerURL:(NSURL *)serverURL session:(SAHTTPSession *)session {
     self = [super init];
     if (self) {
-        _securityPolicy = [SASecurityPolicy defaultPolicy];
-        
-        _operationQueue = [[NSOperationQueue alloc] init];
-        _operationQueue.maxConcurrentOperationCount = 1;
-    }
-    return self;
-}
+//        _delegateQueue = queue;
+        _session = session;
 
-- (instancetype)initWithServerURL:(NSURL *)serverURL {
-    self = [super init];
-    if (self) {
-        _securityPolicy = [SASecurityPolicy defaultPolicy];
-        
-        _operationQueue = [[NSOperationQueue alloc] init];
-        _operationQueue.maxConcurrentOperationCount = 1;
-        
         self.serverURL = serverURL;
     }
     return self;
@@ -98,18 +80,6 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     self.serverURL = _originServerURL;
 }
 
-- (NSURLSession *)session {
-    @synchronized (self) {
-        if (!_session) {
-            NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-            config.timeoutIntervalForRequest = 30.0;
-            config.HTTPShouldUsePipelining = NO;
-            _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:self.operationQueue];
-        }
-    }
-    return _session;
-}
-
 - (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
     if (securityPolicy.SSLPinningMode != SASSLPinningModeNone && ![self.serverURL.scheme isEqualToString:@"https"]) {
         NSString *pinningMode = @"Unknown Pinning Mode";
@@ -127,7 +97,11 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSString *reason = [NSString stringWithFormat:@"A security policy configured with `%@` can only be applied on a manager with a secure base URL (i.e. https)", pinningMode];
         @throw [NSException exceptionWithName:@"Invalid Security Policy" reason:reason userInfo:nil];
     }
-    _securityPolicy = securityPolicy;
+    self.session.securityPolicy = securityPolicy;
+}
+
+- (SASecurityPolicy *)securityPolicy {
+    return self.session.securityPolicy;
 }
 
 #pragma mark - cookie
@@ -206,8 +180,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     [request setHTTPMethod:@"POST"];
     
     NSDictionary *callData = @{@"distinct_id": distinctId};
-    SAJSONUtil *jsonUtil = [[SAJSONUtil alloc] init];
-    NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
+    NSData *jsonData = [SAJSONUtil JSONSerializeObject:callData];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
     
@@ -238,15 +211,6 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 }
 
 #pragma mark - request
-- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(SAURLSessionTaskCompletionHandler)completionHandler {
-    return [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
-            return completionHandler(nil, nil, error);
-        }
-        return completionHandler(data, (NSHTTPURLResponse *)response, error);
-    }];
-}
-
 - (BOOL)flushEvents:(NSArray<NSString *> *)events {
     if (![self isValidServerURL]) {
         SALogError(@"serverURL error，Please check the serverURL");
@@ -254,7 +218,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     }
     
     NSString *jsonString = [self buildFlushJSONStringWithEvents:events];
-    
+
     __block BOOL flushSuccess = NO;
     dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
     SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -293,16 +257,16 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         if (statusCode != 200) {
             SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);
         }
-        
+
         dispatch_semaphore_signal(flushSemaphore);
     };
     
     NSURLRequest *request = [self buildFlushRequestWithJSONString:jsonString HTTPMethod:@"POST"];
-    NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:handler];
+    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
     [task resume];
-    
+
     dispatch_semaphore_wait(flushSemaphore, DISPATCH_TIME_FOREVER);
-    
+
     return flushSuccess;
 }
 
@@ -314,7 +278,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
     NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
 
-    NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         NSInteger statusCode = response.statusCode;
         if (statusCode == 200) {
             SALogDebug(@"config debugMode CallBack success");
@@ -332,7 +296,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         return nil;
     }
     NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL version:version];
-    NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (!completion) {
             return ;
         }
@@ -351,60 +315,6 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     }];
     [task resume];
     return task;
-}
-
-#pragma mark - NSURLSessionDelegate
-- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
-    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-    __block NSURLCredential *credential = nil;
-    
-    if (self.sessionDidReceiveAuthenticationChallenge) {
-        disposition = self.sessionDidReceiveAuthenticationChallenge(session, challenge, &credential);
-    } else {
-        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-            if ([self.securityPolicy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) {
-                credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-                if (credential) {
-                    disposition = NSURLSessionAuthChallengeUseCredential;
-                } else {
-                    disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-                }
-            } else {
-                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
-            }
-        } else {
-            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-        }
-    }
-    
-    if (completionHandler) {
-        completionHandler(disposition, credential);
-    }
-}
-
-#pragma mark - NSURLSessionTaskDelegate
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
-    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-    __block NSURLCredential *credential = nil;
-    
-    if (self.taskDidReceiveAuthenticationChallenge) {
-        disposition = self.taskDidReceiveAuthenticationChallenge(session, task, challenge, &credential);
-    } else {
-        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-            if ([self.securityPolicy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) {
-                disposition = NSURLSessionAuthChallengeUseCredential;
-                credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-            } else {
-                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
-            }
-        } else {
-            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-        }
-    }
-    
-    if (completionHandler) {
-        completionHandler(disposition, credential);
-    }
 }
 
 @end
@@ -436,19 +346,6 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 - (BOOL)isValidServerURL {
     return _serverURL.absoluteString.length > 0;
-}
-
-@end
-
-#pragma mark -
-@implementation SANetwork (SessionAndTask)
-
-- (void)setSessionDidReceiveAuthenticationChallengeBlock:(NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential))block {
-    self.sessionDidReceiveAuthenticationChallenge = block;
-}
-
-- (void)setTaskDidReceiveAuthenticationChallengeBlock:(NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential))block {
-    self.taskDidReceiveAuthenticationChallenge = block;
 }
 
 @end

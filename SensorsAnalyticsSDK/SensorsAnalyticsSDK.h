@@ -114,6 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, readonly, strong) SensorsAnalyticsPeople *people;
 
+@property (nonatomic, copy) NSString *serverUrl;
+
 /**
  * @property
  *
@@ -182,13 +184,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return NSDictionary 返回预置的属性
  */
 - (NSDictionary *)getPresetProperties;
-
-/**
- * @abstract
- * 设置当前 serverUrl
- *
- */
-- (void)setServerUrl:(NSString *)serverUrl;
 
 #pragma mark--cache and flush
 

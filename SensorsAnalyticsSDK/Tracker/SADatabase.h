@@ -19,19 +19,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAEventRecord.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface SAEventRecord : NSObject
-
-@property (nonatomic, copy) NSString *recordID;
-@property (nonatomic, copy) NSString *content;
-@property (nonatomic, copy) NSString *type;
-
-- (instancetype)initWithContent:(NSString *)content type:(NSString *)type;
-
-@end
-
 
 /**
  *  @abstract

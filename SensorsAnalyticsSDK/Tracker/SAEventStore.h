@@ -23,7 +23,7 @@
 #endif
 
 #import <Foundation/Foundation.h>
-#import "SADatabase.h"
+#import "SAEventRecord.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,6 +71,29 @@ NS_ASSUME_NONNULL_BEGIN
 /// delete all records
 /// @param completion completion handler, delete successfully, then error is nil, otherwise, error return
 - (void) deleteAllRecordsWithCompletion:(void (^)(BOOL success))completion;
+
+/// fetch first records with a certain size
+/// @param recordSize record size
+- (NSArray<SAEventRecord *> *)fetchRecords:(NSUInteger)recordSize;
+
+
+/// bulk insert event records
+/// @param records event records
+- (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records;
+
+
+/// insert single record
+/// @param record event record
+- (BOOL)insertRecord:(SAEventRecord *)record;
+
+
+/// delete records with IDs
+/// @param recordIDs event record IDs
+- (BOOL)deleteRecords:(NSArray<NSString *> *)recordIDs;
+
+
+/// delete all records from database
+- (BOOL)deleteAllRecords;
 
 /**
  *  @abstract

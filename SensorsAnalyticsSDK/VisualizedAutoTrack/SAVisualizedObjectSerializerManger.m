@@ -33,7 +33,6 @@
 
 @interface SAVisualizedObjectSerializerManger()
 
-@property (nonatomic, strong) SAJSONUtil *jsonUtil;
 /// 是否包含 webview
 @property (nonatomic, assign, readwrite) BOOL isContainWebView;
 
@@ -84,7 +83,6 @@
     _controllerCountMap = [NSMapTable weakToStrongObjectsMapTable];
     _alertInfos = [NSMutableArray array];
     _webPageInfoCache = [[NSCache alloc] init];
-    _jsonUtil = [[SAJSONUtil alloc] init];
     [self resetObjectSerializer];
 }
 
@@ -113,7 +111,7 @@
       */
     NSData *jsonData = nil;
     @try {
-        jsonData = [self.jsonUtil JSONSerializeObject:obj];
+        jsonData = [SAJSONUtil JSONSerializeObject:obj];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
