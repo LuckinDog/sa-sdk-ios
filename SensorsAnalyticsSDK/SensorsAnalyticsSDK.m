@@ -1250,6 +1250,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     
+    __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
+    
     dispatch_async(self.serialQueue, ^{
         //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
         NSString *eventName = [self.trackTimer eventNameFromEventId:event];
@@ -1264,7 +1266,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //去重
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *eventPropertiesDic = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
@@ -1300,11 +1301,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         id originalTime = eventPropertiesDic[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
         if ([originalTime isKindOfClass:NSDate.class]) {
             NSDate *customTime = (NSDate *)originalTime;
-            UInt64 customTimeInt = [customTime timeIntervalSince1970] * 1000;
+            NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
             if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
                 timeStamp = @(customTimeInt);
             } else {
-                SALogError(@"$time error %llu，Please check the value", customTimeInt);
+                SALogError(@"$time error %ld，Please check the value", (long)customTimeInt);
             }
         } else if (originalTime) {
             SALogError(@"$time '%@' invalid，Please check the value", originalTime);
