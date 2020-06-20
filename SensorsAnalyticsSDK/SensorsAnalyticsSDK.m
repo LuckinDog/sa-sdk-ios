@@ -1118,16 +1118,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // 校验 properties
     NSString *type = itemDict[SA_EVENT_TYPE];
-    if (![self assertPropertyTypes:&propertyMDict withEventType:type]) {
+    if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
         SALogError(@"%@ failed to item properties", self);
         return;
     }
-
+    
     NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
+    
     // 处理 $project
+    NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     id project = propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     if (project) {
         itemProperties[SA_EVENT_PROJECT] = project;
@@ -1135,7 +1136,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (propertyMDict.count > 0) {
-        itemProperties[SA_EVENT_PROPERTIES] = [NSDictionary dictionaryWithDictionary:propertyMDict];
+        itemProperties[SA_EVENT_PROPERTIES] = propertyMDict;
     }
     
     itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithMethod:@"code"];
