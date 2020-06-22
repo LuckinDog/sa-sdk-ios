@@ -80,7 +80,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
 
 - (BOOL)canFlushWithType:(SAEventTrackerFlushType)type {
     // serverURL 是否有效
-    if (SensorsAnalyticsSDK.sharedInstance.configOptions.serverURL.length > 0) {
+    if (SensorsAnalyticsSDK.sharedInstance.serverUrl.length > 0) {
         return NO;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
