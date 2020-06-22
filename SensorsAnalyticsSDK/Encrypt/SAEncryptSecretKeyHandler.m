@@ -105,15 +105,19 @@ static NSString * const SAEncryptSecretKey = @"SAEncryptSecretKey";
         NSString *urlVersion = paramDic[@"v"];
         NSString *urlKey = paramDic[@"key"];
         
-        message = @"密钥验证不通过，所选密钥与 App 端密钥不相同";
         if ([SAValidator isValidString:urlVersion] && [SAValidator isValidString:urlKey]) {
             SASecretKey *secretKey = [self loadSecretKey];
             NSString *loadVersion = [@(secretKey.version) stringValue];
             // url 中的 key 为 encode 之后的
             NSString *loadKey = [secretKey.key stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
+            
             if ([loadVersion isEqualToString:urlVersion] && [loadKey isEqualToString:urlKey]) {
                 message = @"密钥验证通过，所选密钥与 App 端密钥相同";
+            } else {
+                message = [NSString stringWithFormat:@"密钥验证不通过，所选密钥与 App 端密钥不相同。所选密钥版本:%@，App 端密钥版本:%@", urlVersion, loadVersion];
             }
+        } else {
+            message = @"密钥验证不通过，所选密钥无效";
         }
     }
     
