@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 //serial queue for database read and write
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
 @property (nonatomic, assign) NSUInteger maxCacheSize;
+@property (nonatomic, assign, readonly) NSUInteger count;
 
 /// init method
 /// @param filePath path for database file
@@ -47,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// fetch first records with a certain size
 /// @param recordSize record size
-- (NSArray<SAEventRecord *> *)fetchRecords:(NSUInteger)recordSize;
+- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize;
 
 
 /// bulk insert event records
@@ -72,10 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// delete all records from database
 - (BOOL)deleteAllRecords;
-
-
-/// event record count stored in database
-- (NSUInteger)messagesCount;
 
 /**
  *  @abstract

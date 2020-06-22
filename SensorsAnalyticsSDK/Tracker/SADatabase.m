@@ -37,6 +37,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 @property (nonatomic, copy) NSString *filePath;
 @property (nonatomic, assign) BOOL isOpen;
 @property (nonatomic, assign) BOOL isCreatedTable;
+@property (nonatomic, assign) NSUInteger count;
 
 @end
 
@@ -93,37 +94,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     return YES;
 }
 
-//MARK: Public APIs for database CRUD
-- (void)fetchRecords:(NSUInteger)recordSize Completion:(void (^)(NSArray<SAEventRecord *> * _Nonnull))completion {
-    dispatch_async(self.serialQueue, ^{
-        completion([self fetchRecords:recordSize]);
-    });
-}
-
-- (void)insertRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL))completion {
-    dispatch_async(self.serialQueue, ^{
-        completion([self insertRecords:records]);
-    });
-}
-
-- (void)insertRecord:(SAEventRecord *)record completion:(void (^)(BOOL))completion {
-    dispatch_async(self.serialQueue, ^{
-        completion([self insertRecord:record]);
-    });
-}
-
-- (void)deleteRecords:(NSArray<NSString *> *)recordIDs completion:(void (^)(BOOL))completion {
-    dispatch_async(self.serialQueue, ^{
-        completion([self deleteRecords:recordIDs]);
-    });
-}
-
-- (void)deleteAllRecordsWithCompletion:(void (^)(BOOL))completion {
-    dispatch_async(self.serialQueue, ^{
-        completion([self deleteAllRecords]);
-    });
-}
-
 // MARK: Internal APIs for database CRUD
 - (BOOL)createTable {
     if (!self.isOpen) {
@@ -139,13 +109,14 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         return NO;
     }
     self.isCreatedTable = YES;
-    SALogDebug(@"Create dataCache table success, current count is %lu", [self messagesCount]);
+    self.count = [self messagesCount];
+    SALogDebug(@"Create dataCache table success, current count is %lu", self.count);
     return YES;
 }
 
-- (NSArray<SAEventRecord *> *)fetchRecords:(NSUInteger)recordSize {
+- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize {
     NSMutableArray *contentArray = [[NSMutableArray alloc] init];
-    if (([self messagesCount] == 0) || (recordSize == 0)) {
+    if ((self.count == 0) || (recordSize == 0)) {
         return [contentArray copy];
     }
     if (![self databaseCheck]) {
@@ -181,6 +152,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (![self databaseCheck]) {
         return NO;
     }
+    if (![self preCheckForInsertRecords: records.count]) {
+        return NO;
+    }
     if (sqlite3_exec(_database, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {
         return NO;
     }
@@ -205,7 +179,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         sqlite3_reset(insertStatement);
     }
     sqlite3_finalize(insertStatement);
-    return sqlite3_exec(_database, success ? "COMMIT" : "ROLLBACK", 0, 0, 0) == SQLITE_OK;
+    BOOL bulkInsertResult = sqlite3_exec(_database, success ? "COMMIT" : "ROLLBACK", 0, 0, 0) == SQLITE_OK;
+    self.count = [self messagesCount];
+    return bulkInsertResult;
 }
 
 - (BOOL)insertRecord:(SAEventRecord *)record {
@@ -233,8 +209,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
             SALogError(@"insert into dataCache table of sqlite fail, rc is %d", rc);
             return success;
         }
-        SALogDebug(@"insert into dataCache table of sqlite success, current count is %lu", [self messagesCount]);
         success = YES;
+        self.count++;
+        SALogDebug(@"insert into dataCache table of sqlite success, current count is %lu", self.count);
         return success;
     } else {
         SALogError(@"insert into dataCache table of sqlite error");
@@ -243,7 +220,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 }
 
 - (BOOL)deleteRecords:(NSArray<NSString *> *)recordIDs {
-    if (([self messagesCount] == 0) || (recordIDs.count == 0)) {
+    if ((self.count == 0) || (recordIDs.count == 0)) {
         return NO;
     }
     if (![self databaseCheck]) {
@@ -260,17 +237,18 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         SALogError(@"Failed to delete record from database, error: %s", sqlite3_errmsg(_database));
     }
     sqlite3_finalize(stmt);
+    self.count = [self messagesCount];
     return YES;
 }
 
 - (BOOL)deleteFirstRecords:(NSUInteger)recordSize {
-    if ([self messagesCount] == 0 || recordSize == 0) {
-        return YES;
+    if (self.count == 0 || recordSize == 0) {
+        return NO;
     }
     if (![self databaseCheck]) {
         return NO;
     }
-    NSUInteger removeSize = MIN(recordSize, [self messagesCount]);
+    NSUInteger removeSize = MIN(recordSize, self.count);
     NSString *query = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache ORDER BY id ASC LIMIT %lu);", (unsigned long)removeSize];
     sqlite3_stmt *stmt;
 
@@ -282,10 +260,14 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         SALogError(@"Failed to delete record from database, error: %s", sqlite3_errmsg(_database));
     }
     sqlite3_finalize(stmt);
+    self.count = self.count - removeSize;
     return YES;
 }
 
 - (BOOL)deleteAllRecords {
+    if (self.count == 0) {
+        return NO;
+    }
     if (![self databaseCheck]) {
         return NO;
     }
@@ -294,6 +276,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         SALogError(@"Failed to delete all records");
         return NO;
     }
+    self.count = 0;
     return YES;
 }
 
@@ -301,7 +284,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (recordSize > self.maxCacheSize) {
         return NO;
     }
-    while (([self messagesCount] + recordSize) >= self.maxCacheSize) {
+    while ((self.count + recordSize) >= self.maxCacheSize) {
         SALogWarn(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%lu, try to delete some old events", self.maxCacheSize);
         if (![self deleteFirstRecords:kRemoveFirstRecordsDefaultCount]) {
             SALogError(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%lu, try to delete some old events FAILED", self.maxCacheSize);
@@ -355,6 +338,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     return stmt;
 }
 
+//MARK: execute sql statement to get total event records count stored in database
 - (NSUInteger)messagesCount {
     NSString *query = @"select count(*) from dataCache";
     int count = 0;

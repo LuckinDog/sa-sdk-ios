@@ -68,7 +68,7 @@
     record.content = content;
     record.type = type;
     [self.database insertRecord:record];
-    SAEventRecord *tempRecord = [self.database fetchRecords:1].firstObject;
+    SAEventRecord *tempRecord = [self.database selectRecords:1].firstObject;
     XCTAssertTrue(tempRecord != nil && [tempRecord.content isEqualToString:content]);
 }
 
@@ -79,7 +79,7 @@
     record.content = content;
     record.type = type;
     [self.database insertRecord:record];
-    SAEventRecord *tempRecord = [self.database fetchRecords:1].firstObject;
+    SAEventRecord *tempRecord = [self.database selectRecords:1].firstObject;
     XCTAssertTrue(tempRecord != nil && [tempRecord.content isEqualToString:content]);
 }
 
@@ -95,11 +95,11 @@
     }
     [self.database insertRecords:tempRecords];
     NSMutableArray <NSString *> *recordIDs = [NSMutableArray array];
-    for (SAEventRecord *record in [self.database fetchRecords:10000]) {
+    for (SAEventRecord *record in [self.database selectRecords:10000]) {
         [recordIDs addObject:record.recordID];
     }
     [self.database deleteRecords:recordIDs];
-    XCTAssertTrue([self.database fetchRecords:10000].count == 0);
+    XCTAssertTrue([self.database selectRecords:10000].count == 0);
 }
 
 - (void)testBulkInsertRecords {
@@ -113,7 +113,7 @@
         [tempRecords addObject:record];
     }
     [self.database insertRecords:tempRecords];
-    NSArray<SAEventRecord *> *fetchRecords = [self.database fetchRecords:10000];
+    NSArray<SAEventRecord *> *fetchRecords = [self.database selectRecords:10000];
     if (fetchRecords.count != 10000) {
         XCTAssertFalse(true);
         return;
@@ -139,7 +139,7 @@
     }
     [self.database insertRecords:tempRecords];
     [self.database deleteAllRecords];
-    XCTAssertTrue([self.database fetchRecords:10000].count == 0);
+    XCTAssertTrue([self.database selectRecords:10000].count == 0);
 }
 
 @end

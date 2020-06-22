@@ -63,7 +63,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
         
         [self.database addObserver:self forKeyPath:@"isCreatedTable" options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
 
-        self.count = [self.database messagesCount];
+        self.count = self.database.count;
     });
 }
 
@@ -83,7 +83,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 }
 
 - (NSArray<SAEventRecord *> *)fetchRecords:(NSUInteger)recordSize {
-    return [self.database fetchRecords:recordSize];
+    return [self.database selectRecords:recordSize];
 }
 
 - (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records {
@@ -124,7 +124,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 
 - (void)fetchRecords:(NSUInteger)recordSize completion:(void (^)(NSArray<SAEventRecord *> *records))completion {
     dispatch_async(self.serialQueue, ^{
-        completion([self fetchRecords:recordSize]);
+        completion([self.database selectRecords:recordSize]);
     });
 }
 
