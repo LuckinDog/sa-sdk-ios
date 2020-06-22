@@ -314,12 +314,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
             _flushBeforeEnterBackground = YES;
             
-            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
-            _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
+            _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
             
-            NSString *readWriteLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
-            _readWriteQueue = dispatch_queue_create([readWriteLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+            NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
+            _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+            
+            NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
+            _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
+            
+            NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
+            _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
             
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
@@ -2858,22 +2864,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 #pragma mark – Getters and Setters
-
-- (SAReadWriteLock *)readWriteLock {
-    if (!_readWriteLock) {
-        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
-        _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
-    }
-    return _readWriteLock;
-}
-
-- (SAReadWriteLock *)dynamicSuperPropertiesLock {
-    if (!_dynamicSuperPropertiesLock) {
-        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
-        _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
-    }
-    return _dynamicSuperPropertiesLock;
-}
 
 - (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
     [self.readWriteLock writeWithBlock:^{
