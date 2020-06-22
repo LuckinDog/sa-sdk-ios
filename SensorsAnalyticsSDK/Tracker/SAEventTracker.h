@@ -32,7 +32,7 @@ extern NSUInteger const SAEventFlushRecordSize;
 
 typedef NS_ENUM(NSUInteger, SAEventTrackerFlushType) {
     SAEventTrackerFlushTypeNone = 0,
-    SAEventTrackerFlushTypeNow = 1,
+    SAEventTrackerFlushTypeDebug = 1,
     SAEventTrackerFlushTypeNormal = 50,
 };
 
@@ -43,8 +43,6 @@ typedef NS_ENUM(NSUInteger, SAEventTrackerFlushType) {
 - (void)trackEvent:(NSDictionary *)event flushType:(SAEventTrackerFlushType)type;
 
 - (void)flushWithType:(SAEventTrackerFlushType)type;
-
-- (void)flush;
 
 @end
 

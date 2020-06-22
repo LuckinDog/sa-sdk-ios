@@ -36,6 +36,14 @@
 
 @implementation SAEventFlush
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+
+    }
+    return self;
+}
+
 // 1. 先完成这一系列Json字符串的拼接
 - (NSString *)buildFlushJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
@@ -79,12 +87,6 @@
 }
 
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
-    NSString *serverUrl = SensorsAnalyticsSDK.sharedInstance.serverUrl;
-    if (serverUrl.length == 0) {
-        SALogError(@"serverURL error，Please check the serverURL");
-        return completion(NO);
-    }
-
     SensorsAnalyticsDebugMode debugMode = [SensorsAnalyticsSDK.sharedInstance debugMode];
     NSString *jsonString = [self buildFlushJSONStringWithEventRecords:records];
 
@@ -127,6 +129,7 @@
         completion(flushSuccess);
     };
 
+    NSString *serverUrl = SensorsAnalyticsSDK.sharedInstance.serverUrl;
     NSURLRequest *request = [self buildFlushRequestWithServerUrl:serverUrl eventRecords:records isEncrypted:isEncrypted];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
     [task resume];

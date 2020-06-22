@@ -29,6 +29,10 @@
 #import "SANetwork.h"
 #import "SAFileStore.h"
 #import "SAJSONUtil.h"
+#import "SALog.h"
+#import "SensorsAnalyticsSDK.h"
+#import "SensorsAnalyticsSDK+Private.h"
+#import "SACommonUtility.h"
 //#import "SAConstants.h"
 
 NSUInteger const SAEventFlushRecordSize = 50;
@@ -40,6 +44,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
 @property (nonatomic, strong) SAEventFlush *eventFlush;
 
 @property (nonatomic, strong) dispatch_queue_t queue;
+@property (nonatomic, strong) dispatch_semaphore_t flushSemaphore;
 
 @end
 
@@ -56,63 +61,90 @@ NSUInteger const SAEventFlushRecordSize = 50;
     return self;
 }
 
+- (dispatch_semaphore_t)flushSemaphore {
+    if (!_flushSemaphore) {
+        _flushSemaphore = dispatch_semaphore_create(0);
+    }
+    return _flushSemaphore;
+}
+
 - (void)trackEvent:(NSDictionary *)event flushType:(SAEventTrackerFlushType)type {
-    dispatch_async(self.queue, ^{
-        NSString *content = [[NSString alloc] initWithData:[SAJSONUtil JSONSerializeObject:event] encoding:NSUTF8StringEncoding];
-        SAEventRecord *record = [[SAEventRecord alloc] initWithContent:content type:@"POST"];
-        [self.eventStore insertRecord:record];
-    });
+    NSString *content = [[NSString alloc] initWithData:[SAJSONUtil JSONSerializeObject:event] encoding:NSUTF8StringEncoding];
+    SAEventRecord *record = [[SAEventRecord alloc] initWithContent:content type:@"POST"];
+    [self.eventStore insertRecord:record];
 
     dispatch_async(self.queue, ^{
         [self flushWithType:type];
     });
 }
 
-- (BOOL)canFlush {
-    return YES;
+- (BOOL)canFlushWithType:(SAEventTrackerFlushType)type {
+    // serverURL 是否有效
+    if (SensorsAnalyticsSDK.sharedInstance.configOptions.serverURL.length > 0) {
+        return NO;
+    }
+    // 判断当前网络类型是否符合同步数据的网络策略
+    if (!([SACommonUtility currentNetworkType] & [[SensorsAnalyticsSDK.sharedInstance valueForKey:@"networkTypePolicy"] integerValue])) {
+        return NO;
+    }
+    // 本地缓存的数据是否超过 flushBulkSize
+    BOOL isGreaterSize = self.eventStore.count > SensorsAnalyticsSDK.sharedInstance.configOptions.flushBulkSize;
+    // 是否需要 flush
+    BOOL isFlushType = type != SAEventTrackerFlushTypeNone;
+    return isGreaterSize || isFlushType;
 }
 
 - (void)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
 
 }
 
-- (void)flushWithType:(SAEventTrackerFlushType)type {
-    // TODO: -
-    // 1. 判断是否可以 flush
-    if (type == SAEventTrackerFlushTypeNone) {
-        return;
-    }
-    // 2. 从数据库中查询数据
-    NSArray *records = [self.eventStore fetchRecords:type];
-    if (records.count == 0) {
-        return;
-    }
-    // 3. 加密
-    [self encryptEventRecords:records];
-
-    // 4. network
+- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
     [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
+        if (SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate) {
+            dispatch_semaphore_signal(self.flushSemaphore);
+        }
         if (!success) {
             return;
         }
 
+        dispatch_async(self.queue, ^{
+            completion(success);
+        });
+    }];
+    if (SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate) {
+        dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER);
+    }
+}
+
+- (void)flushWithType:(SAEventTrackerFlushType)type {
+    // TODO: -
+    // 1. 判断是否可以 flush
+    if ([self canFlushWithType:type]) {
+        return;
+    }
+
+    // 2. 从数据库中查询数据
+    NSArray<SAEventRecord *> *records = [self.eventStore fetchRecords:type];
+    if (records.count == 0) {
+        return;
+    }
+
+    // 3. 加密
+    [self encryptEventRecords:records];
+
+    // 4. network
+    [self flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
         // 5. 删除数据
         NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:type];
         for (SAEventRecord *record in records) {
             [recordIDs addObject:record.recordID];
         }
         [self.eventStore deleteRecords:recordIDs];
+        SALogError(@"+++++++++++++++%@", recordIDs);
+        SALogDebug(@"===============%ld", self.eventStore.count);
 
-        // 5. 循环
         [self flushWithType:type];
     }];
-}
-
-// MARK: - Public
-- (void)flush {
-    dispatch_async(self.queue, ^{
-        [self flushWithType:SAEventTrackerFlushTypeNormal];
-    });
 }
 
 @end

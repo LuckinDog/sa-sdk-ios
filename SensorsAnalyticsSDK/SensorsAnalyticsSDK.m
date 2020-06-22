@@ -305,7 +305,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
-            SAHTTPSession.sharedInstance.delegateQueue = _serialQueue;
 
             _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_configOptions.serverURL]];
 
@@ -904,7 +903,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //}
 
 - (void)flush {
-    [self.eventTracker flush];
+    dispatch_async(self.serialQueue, ^{
+        SAEventTrackerFlushType type = [self debugMode] == SensorsAnalyticsDebugOff ? SAEventTrackerFlushTypeNormal : SAEventTrackerFlushTypeDebug;
+        [self.eventTracker flushWithType:type];
+    });
 }
 
 - (void)deleteAll {
@@ -1410,7 +1412,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAEventTrackerFlushType flushType = SAEventTrackerFlushTypeNone;
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
-            flushType = SAEventTrackerFlushTypeNow;
+            flushType = SAEventTrackerFlushTypeDebug;
         } else if ([type isEqualToString:@"track_signup"]
 //                   || [[self eventStore] count] >= self.configOptions.flushBulkSize
                    ) {
@@ -2529,7 +2531,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     if (self.flushBeforeEnterBackground) {
         dispatch_async(self.serialQueue, ^{
-            [self.eventTracker flushWithType:SAEventTrackerFlushTypeNormal];
+            SAEventTrackerFlushType type = [self debugMode] == SensorsAnalyticsDebugOff ? SAEventTrackerFlushTypeNormal : SAEventTrackerFlushTypeDebug;
+            [self.eventTracker flushWithType:type];
             endBackgroundTask();
         });
     } else {
@@ -2540,8 +2543,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 - (void)applicationWillTerminateNotification:(NSNotification *)notification {
     SALogDebug(@"applicationWillTerminateNotification");
-    dispatch_sync(self.serialQueue, ^{
-    });
+    dispatch_sync(self.serialQueue, ^{});
 }
 
 #pragma mark - SensorsData  Analytics
@@ -2616,7 +2618,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     printLog = YES;
 #endif
     
-    if ( [self debugMode] != SensorsAnalyticsDebugOff) {
+    if ([self debugMode] != SensorsAnalyticsDebugOff) {
         printLog = YES;
     }
     [self enableLog:printLog];

@@ -61,9 +61,8 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
  数据将同步发送，请在异步线程中调用
 
  @param events 事件的 json 字符串组成的数组
- @param completion 网络请求结束后的回调
  */
-- (void)flushEvents:(NSArray<NSString *> *)events completion:(void(^)(NSError *error))completion;
+- (BOOL)flushEvents:(NSArray<NSString *> *)events;
 
 /**
  设置 DebugMode 时回调请求方法

@@ -22,8 +22,8 @@
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 #import <SensorsAnalyticsExtension/SensorsAnalyticsExtension.h>
 
-//static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdata.cn/sa?project=zhangminchao&token=5a394d2405c147ca";
-static NSString* Sa_Default_ServerURL = @"https://developer.apple.com/";
+static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdata.cn/sa?project=zhangminchao&token=5a394d2405c147ca";
+//static NSString* Sa_Default_ServerURL = @"https://www.2123123123123.com/";
 
 @interface AppDelegate ()
 
@@ -43,8 +43,10 @@ static NSString* Sa_Default_ServerURL = @"https://developer.apple.com/";
     options.enableJavaScriptBridge = YES;
     options.enableLog = YES;
     options.maxCacheSize = 20000;
+//    options.flushBeforeTerminate = NO;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
 
+    [[SensorsAnalyticsSDK sharedInstance] setDebugMode:SensorsAnalyticsDebugOnly];
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;
@@ -65,8 +67,8 @@ static NSString* Sa_Default_ServerURL = @"https://developer.apple.com/";
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
 
-    for (NSInteger i = 0; i < 2000; i++) {
-        [[SensorsAnalyticsSDK sharedInstance] track:@"WeakTest"];
+    for (NSInteger i = 0; i < 20; i++) {
+        [[SensorsAnalyticsSDK sharedInstance] track:@"WeakTest" withProperties:@{@"index": @(i)}];
     }
 
     return YES;

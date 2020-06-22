@@ -118,49 +118,37 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
     return success;
 }
 
+- (BOOL)vacuum {
+    return [self.database vacuum];
+}
+
 - (void)fetchRecords:(NSUInteger)recordSize completion:(void (^)(NSArray<SAEventRecord *> *records))completion {
     dispatch_async(self.serialQueue, ^{
-        completion([self.database fetchRecords:recordSize]);
+        completion([self fetchRecords:recordSize]);
     });
 }
 
 - (void)insertRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL))completion {
     dispatch_async(self.serialQueue, ^{
-        BOOL success = [self.database insertRecords:records];
-        if (success) {
-            self.count += records.count;
-        }
-        completion(success);
+        completion([self insertRecords:records]);
     });
 }
 
 - (void)insertRecord:(SAEventRecord *)record completion:(void (^)(BOOL))completion {
     dispatch_async(self.serialQueue, ^{
-        BOOL success = [self.database insertRecord:record];
-        if (success) {
-            self.count++;
-        }
-        completion(success);
+        completion([self insertRecord:record]);
     });
 }
 
 - (void)deleteRecords:(NSArray<NSString *> *)recordIDs completion:(void (^)(BOOL))completion {
     dispatch_async(self.serialQueue, ^{
-        BOOL success = [self.database deleteRecords:recordIDs];
-        if (success) {
-            self.count -= recordIDs.count;
-        }
-        completion(success);
+        completion([self deleteRecords:recordIDs]);
     });
 }
 
 - (void)deleteAllRecordsWithCompletion:(void (^)(BOOL))completion {
     dispatch_async(self.serialQueue, ^{
-        BOOL success = [self.database deleteAllRecords];
-        if (success) {
-            self.count = 0;
-        }
-        completion(success);
+        completion([self deleteAllRecords]);
     });
 }
 

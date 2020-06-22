@@ -55,6 +55,7 @@
 		88824F9E249B7CE8003ADC59 /* SAEventRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 88824F9C249B7CE8003ADC59 /* SAEventRecord.m */; };
 		88824FA2249C55A2003ADC59 /* SAHTTPSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 88824FA0249C55A2003ADC59 /* SAHTTPSession.h */; };
 		88824FA3249C55A2003ADC59 /* SAHTTPSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 88824FA1249C55A2003ADC59 /* SAHTTPSession.m */; };
+		88824FA4249DB120003ADC59 /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		8888473424530F9100EBA7F6 /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888472E24530F9100EBA7F6 /* SAReachability.m */; };
 		8888473524530F9100EBA7F6 /* SAReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888472F24530F9100EBA7F6 /* SAReachability.h */; };
 		8888473624530F9100EBA7F6 /* SASecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888473024530F9100EBA7F6 /* SASecurityPolicy.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -62,14 +63,14 @@
 		8888473824530F9100EBA7F6 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473224530F9100EBA7F6 /* SANetwork.m */; };
 		8888473924530F9100EBA7F6 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473324530F9100EBA7F6 /* SASecurityPolicy.m */; };
 		A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */; };
-		A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E9246A4373006A337D /* SAPresetProperty.h */; };
-		A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		A84FE7B8247661110090BC37 /* SAReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = A84FE7B6247661100090BC37 /* SAReadWriteLock.h */; };
 		A84FE7B9247661110090BC37 /* SAReadWriteLock.m in Sources */ = {isa = PBXBuildFile; fileRef = A84FE7B7247661100090BC37 /* SAReadWriteLock.m */; };
 		A869D69F242F57F600069B6E /* WKWebView+SABridge.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69B242F57F600069B6E /* WKWebView+SABridge.h */; };
 		A869D6A0242F57F600069B6E /* SAScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */; };
 		A869D6A1242F57F600069B6E /* WKWebView+SABridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69D242F57F600069B6E /* WKWebView+SABridge.m */; };
 		A869D6A2242F57F600069B6E /* SAScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */; };
+		A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E9246A4373006A337D /* SAPresetProperty.h */; };
+		A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		CB30C03F22840EC00004061D /* SATypeDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD222840EBF0004061D /* SATypeDescription.m */; };
 		CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD522840EBF0004061D /* NSString+HashCode.m */; };
 		CB30C04522840EC00004061D /* NSInvocation+SAHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30BFD822840EBF0004061D /* NSInvocation+SAHelpers.h */; };
@@ -262,14 +263,14 @@
 		8888473224530F9100EBA7F6 /* SANetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		8888473324530F9100EBA7F6 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTests.m; sourceTree = "<group>"; };
-		A8E962E9246A4373006A337D /* SAPresetProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPresetProperty.h; sourceTree = "<group>"; };
-		A8E962EA246A4373006A337D /* SAPresetProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetProperty.m; sourceTree = "<group>"; };
 		A84FE7B6247661100090BC37 /* SAReadWriteLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAReadWriteLock.h; path = Utils/SAReadWriteLock.h; sourceTree = "<group>"; };
 		A84FE7B7247661100090BC37 /* SAReadWriteLock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAReadWriteLock.m; path = Utils/SAReadWriteLock.m; sourceTree = "<group>"; };
 		A869D69B242F57F600069B6E /* WKWebView+SABridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+SABridge.h"; sourceTree = "<group>"; };
 		A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAScriptMessageHandler.m; sourceTree = "<group>"; };
 		A869D69D242F57F600069B6E /* WKWebView+SABridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+SABridge.m"; sourceTree = "<group>"; };
 		A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAScriptMessageHandler.h; sourceTree = "<group>"; };
+		A8E962E9246A4373006A337D /* SAPresetProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPresetProperty.h; sourceTree = "<group>"; };
+		A8E962EA246A4373006A337D /* SAPresetProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetProperty.m; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30BFD222840EBF0004061D /* SATypeDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATypeDescription.m; sourceTree = "<group>"; };
 		CB30BFD522840EBF0004061D /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
@@ -834,7 +835,7 @@
 				CB30C09622840EC00004061D /* SAPropertyDescription.h in Headers */,
 				CB30C09D22840EC00004061D /* SADatabase.h in Headers */,
 				A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */,
-				CB30C09D22840EC00004061D /* MessageQueueBySqlite.h in Headers */,
+				CB30C09D22840EC00004061D /* SADatabase.h in Headers */,
 				CB30C05E22840EC00004061D /* SAObjectSerializerConfig.h in Headers */,
 				88824F91249B5184003ADC59 /* SAEventStore.h in Headers */,
 				8888473724530F9100EBA7F6 /* SANetwork.h in Headers */,
@@ -1118,6 +1119,7 @@
 				A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */,
 				4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */,
 				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
+				88824FA4249DB120003ADC59 /* SAPresetProperty.m in Sources */,
 				FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */,
 				4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */,
 				CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */,

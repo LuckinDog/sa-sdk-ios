@@ -51,29 +51,16 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     self = [super init];
     if (self) {
         _securityPolicy = [SASecurityPolicy defaultPolicy];
+
+        NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+        queue.name = [NSString stringWithFormat:@"cn.sensorsdata.SAHTTPSession.%p", self];
+
+        NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+        config.timeoutIntervalForRequest = 30.0;
+        config.HTTPShouldUsePipelining = NO;
+        _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:queue];
     }
     return self;
-}
-
-- (void)setDelegateQueue:(dispatch_queue_t)delegateQueue {
-    if (_delegateQueue == delegateQueue) {
-        return;
-    }
-    _delegateQueue = delegateQueue;
-    
-    static dispatch_once_t onceToken;
-    static NSOperationQueue *queue = nil;
-    dispatch_once(&onceToken, ^{
-        queue = [[NSOperationQueue alloc] init];
-        queue.name = [NSString stringWithFormat:@"cn.sensorsdata.SAHTTPSession.%p", self];
-    });
-    [queue waitUntilAllOperationsAreFinished];
-    queue.underlyingQueue = delegateQueue;
-
-    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-    config.timeoutIntervalForRequest = 30.0;
-    config.HTTPShouldUsePipelining = NO;
-    _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:queue];
 }
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(SAURLSessionTaskCompletionHandler)completionHandler {

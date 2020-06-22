@@ -45,6 +45,9 @@
 
         _minRequestHourInterval = 24;
         _maxRequestHourInterval = 48;
+
+        _flushBeforeEnterBackground = YES;
+        _flushBeforeTerminate = YES;
     }
     return self;
 }
@@ -74,6 +77,10 @@
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
 
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
+
+    options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
+    options.flushBeforeTerminate = self.flushBeforeTerminate;
+    
     return options;
 }
 

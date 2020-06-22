@@ -31,7 +31,7 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 @interface SAHTTPSession : NSObject
 
-@property (nonatomic, class) SAHTTPSession *sharedInstance;
+@property (nonatomic, class, readonly) SAHTTPSession *sharedInstance;
 
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 
