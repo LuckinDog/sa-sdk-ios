@@ -145,6 +145,28 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     return [contentArray copy];
 }
 
+- (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs atColumn:(NSString *)columnName withValue:(NSString *)newValue inTable:(NSString *)tableName {
+    if (recordIDs.count == 0 || !columnName || !newValue || !tableName) {
+        return NO;
+    }
+    if (![self columnExists:columnName inTable:tableName]) {
+        return NO;
+    }
+    NSString *query = [NSString stringWithFormat:@"UPDATE %@ SET %@ = '%@' WHERE id IN (%@);", tableName, columnName, newValue, [recordIDs componentsJoinedByString:@","]];
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
+        SALogError(@"Prepare update records query failure: %s", sqlite3_errmsg(_database));
+        return NO;
+    }
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        SALogError(@"Failed to update records from database, error: %s", sqlite3_errmsg(_database));
+        return NO;
+    }
+    sqlite3_finalize(stmt);
+    return YES;
+}
+
 - (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records {
     if (records.count == 0) {
         return NO;
@@ -336,6 +358,51 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         sqlite3_reset(stmt);
     }
     return stmt;
+}
+
+- (BOOL)columnExists:(NSString *)columnName inTable:(NSString *)tableName {
+    if (!columnName) {
+        return NO;
+    }
+    return [[self columnsInTable:tableName] containsObject:columnName];
+}
+
+- (NSArray<NSString *>*)columnsInTable:(NSString *)tableName {
+    NSMutableArray<NSString *> *columns = [NSMutableArray array];
+    NSString *query = [NSString stringWithFormat: @"PRAGMA table_info('%@');", tableName];
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
+        SALogError(@"Prepare PRAGMA table_info query failure: %s", sqlite3_errmsg(_database));
+        return columns;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        char *name = (char *)sqlite3_column_text(stmt, 1);
+        if (!name) {
+            continue;
+        }
+        NSString *column = [NSString stringWithUTF8String:name];
+        if (column) {
+            [columns addObject:column];
+        }
+    }
+    return columns;
+}
+
+- (BOOL)createColumn:(NSString *)columnName inTable:(NSString *)tableName {
+    NSString *query = [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ TEXT;", tableName, columnName];
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
+        SALogError(@"Prepare create column query failure: %s", sqlite3_errmsg(_database));
+        return NO;
+    }
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        SALogError(@"Failed to create column, error: %s", sqlite3_errmsg(_database));
+        return NO;
+    }
+    sqlite3_finalize(stmt);
+    return YES;
 }
 
 //MARK: execute sql statement to get total event records count stored in database
