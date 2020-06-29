@@ -129,6 +129,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否在手动埋点事件中自动添加渠道匹配信息
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
+
+/// default is NO, if set to yes, when track installation, profile set will be executed, otherwise, profile set once will be executed
+@property (nonatomic, assign) BOOL disableChannelFirstMatch;
+
 @end
 
 
