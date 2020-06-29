@@ -400,13 +400,11 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
     
     BOOL isEnableEncrypt = [SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt;
-    if (isEnableEncrypt) {
-        if (![eventDict.allKeys containsObject:@"ekey"]) {
-            // 缓存数据未加密，再加密
-            NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
-            if (encryptDic) {
-                eventDict = [encryptDic mutableCopy];
-            }
+    if (isEnableEncrypt && ![eventDict.allKeys containsObject:@"ekey"]) {
+        // 缓存数据未加密，再加密
+        NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
+        if (encryptDic) {
+            eventDict = [encryptDic mutableCopy];
         }
     }
     

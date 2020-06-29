@@ -35,7 +35,7 @@ static NSString * const SAEncryptSecretKey = @"SAEncryptSecretKey";
 @interface SAEncryptSecretKeyHandler ()
 
 /// SDK初始化时的 ConfigOptions
-@property (nonatomic, strong) SAConfigOptions *configOptions;
+@property (nonatomic, copy) SAConfigOptions *configOptions;
 
 @end
 
@@ -44,7 +44,7 @@ static NSString * const SAEncryptSecretKey = @"SAEncryptSecretKey";
 - (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions {
     self = [super init];
     if (self) {
-        _configOptions = configOptions;
+        self.configOptions = configOptions;
     }
     return self;
 }
