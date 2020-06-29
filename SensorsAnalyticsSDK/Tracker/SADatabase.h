@@ -60,6 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param record event record
 - (BOOL)insertRecord:(SAEventRecord *)record;
 
+/// update records' status
+/// @param recordIDs event recordIDs
+/// @param status status
+- (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs status:(SAEventRecordStatus)status;
 
 /// delete records with IDs
 /// @param recordIDs event record IDs

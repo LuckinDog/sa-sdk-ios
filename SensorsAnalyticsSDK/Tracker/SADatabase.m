@@ -30,6 +30,8 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 
+static NSString *const kDatabaseTableName = @"dataCache";
+static NSString *const kDatabaseColumnStatus = @"status";
 static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大缓存条数时默认的删除条数
 
 @interface SADatabase ()
@@ -102,15 +104,20 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (self.isCreatedTable) {
         return YES;
     }
-    NSString *sql = @"create table if not exists dataCache (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, content TEXT)";
+    NSString *sql = [NSString stringWithFormat:@"create table if not exists %@ (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, content TEXT)", kDatabaseTableName];
     if (sqlite3_exec(_database, sql.UTF8String, NULL, NULL, NULL) != SQLITE_OK) {
-        SALogError(@"Create dataCache table fail.");
+        SALogError(@"Create %@ table fail.", kDatabaseTableName);
+        self.isCreatedTable = NO;
+        return NO;
+    }
+    if (![self createColumn:kDatabaseColumnStatus inTable:kDatabaseTableName]) {
+        SALogError(@"Alert table %@ add %@ fail.", kDatabaseTableName, kDatabaseColumnStatus);
         self.isCreatedTable = NO;
         return NO;
     }
     self.isCreatedTable = YES;
     self.count = [self messagesCount];
-    SALogDebug(@"Create dataCache table success, current count is %lu", self.count);
+    SALogDebug(@"Create %@ table success, current count is %lu", kDatabaseTableName, self.count);
     return YES;
 }
 
@@ -122,7 +129,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (![self databaseCheck]) {
         return [contentArray copy];
     }
-    NSString *query = [NSString stringWithFormat:@"SELECT id,content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
+    NSString *query = [NSString stringWithFormat:@"SELECT id,content FROM dataCache WHERE %@ = 0 ORDER BY id ASC LIMIT %lu", kDatabaseColumnStatus, (unsigned long)recordSize];
     sqlite3_stmt *stmt = [self dbCacheStmt:query];
     if (!stmt) {
         SALogError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
@@ -145,17 +152,26 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     return [contentArray copy];
 }
 
+- (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs status:(SAEventRecordStatus)status {
+    NSString *sql = [NSString stringWithFormat:@"UPDATE %@ SET %@ = %d WHERE id IN (%@);", kDatabaseTableName, kDatabaseColumnStatus, status, [recordIDs componentsJoinedByString:@","]];
+    return [self execUpdateSQL:sql];
+}
+
 - (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs atColumn:(NSString *)columnName withValue:(NSString *)newValue inTable:(NSString *)tableName {
     if (recordIDs.count == 0 || !columnName || !newValue || !tableName) {
         return NO;
     }
-    if (![self columnExists:columnName inTable:tableName]) {
+    NSString *sql = [NSString stringWithFormat:@"UPDATE %@ SET %@ = '%@' WHERE id IN (%@);", tableName, columnName, newValue, [recordIDs componentsJoinedByString:@","]];
+    return [self execUpdateSQL:sql];
+}
+
+- (BOOL)execUpdateSQL:(NSString *)sql {
+    if (![self databaseCheck]) {
         return NO;
     }
-    NSString *query = [NSString stringWithFormat:@"UPDATE %@ SET %@ = '%@' WHERE id IN (%@);", tableName, columnName, newValue, [recordIDs componentsJoinedByString:@","]];
-    sqlite3_stmt *stmt;
 
-    if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(_database, sql.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
         SALogError(@"Prepare update records query failure: %s", sqlite3_errmsg(_database));
         return NO;
     }
@@ -386,11 +402,16 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
             [columns addObject:column];
         }
     }
+    sqlite3_finalize(stmt);
     return columns;
 }
 
 - (BOOL)createColumn:(NSString *)columnName inTable:(NSString *)tableName {
-    NSString *query = [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ TEXT;", tableName, columnName];
+    if ([self columnExists:kDatabaseColumnStatus inTable:kDatabaseTableName]) {
+        return YES;
+    }
+
+    NSString *query = [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ INTEGER NOT NULL DEFAULT (0);", tableName, columnName];
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {

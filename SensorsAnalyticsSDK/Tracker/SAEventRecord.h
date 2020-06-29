@@ -26,6 +26,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(int, SAEventRecordStatus) {
+    SAEventRecordStatusNone,
+    SAEventRecordStatusFlush,
+};
+
 @interface SAEventRecord : NSObject
 
 @property (nonatomic, copy) NSString *recordID;

@@ -34,7 +34,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 @property (nonatomic, strong) SADatabase *database;
 
 /// store data in memory
-@property (nonatomic, strong) NSMutableArray<SAEventRecord *> *messageCaches;
+@property (nonatomic, strong) NSMutableArray<SAEventRecord *> *recordCaches;
 
 @end
 
@@ -57,15 +57,21 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 
 - (void)setupDatabase:(NSString *)filePath {
     dispatch_async(self.serialQueue, ^{
-        self.messageCaches = [NSMutableArray array];
+        self.recordCaches = [NSMutableArray array];
         self.database = [[SADatabase alloc] initWithFilePath:filePath];
         [self.database open];
         
         [self.database addObserver:self forKeyPath:@"isCreatedTable" options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
-
-        self.count = self.database.count;
     });
 }
+
+#pragma mark - property
+
+- (NSUInteger)count {
+    return self.database.count;
+}
+
+#pragma mark - observe
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context != SAEventStoreContext) {
@@ -74,48 +80,58 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
     if (![keyPath isEqualToString:@"isCreatedTable"]) {
         return;
     }
-    if (![change[@"isCreatedTable"] boolValue] || self.messageCaches.count == 0) {
+    if (![change[@"isCreatedTable"] boolValue] || self.recordCaches.count == 0) {
         return;
     }
-    dispatch_async(self.serialQueue, ^{
-        [self.database insertRecords:self.messageCaches];
-    });
+    [self.database insertRecords:self.recordCaches];
 }
 
-- (NSArray<SAEventRecord *> *)fetchRecords:(NSUInteger)recordSize {
-    return [self.database selectRecords:recordSize];
+#pragma mark - record
+
+- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize {
+    NSArray<SAEventRecord *> *records = [self.database selectRecords:recordSize];
+    // 如果能从数据库中，查询到数据，那么 isCreatedTable 一定是 YES，所有内存中的数据也都会正确入库
+    // 如果数据库中查询的数据量为 0 并且缓存中有数据，那么表示只能从缓存中获取数据
+    if (records.count == 0 && self.recordCaches.count != 0) {
+        return self.recordCaches.count <= recordSize ? [self.recordCaches copy] : [self.recordCaches subarrayWithRange:NSMakeRange(0, self.maxCacheSize)];
+    }
+    return records;
 }
 
 - (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records {
-    BOOL success = [self.database insertRecords:records];
-    if (success) {
-        self.count += records.count;
-    }
-    return success;
+    return [self.database insertRecords:records];
 }
 
 - (BOOL)insertRecord:(SAEventRecord *)record {
     BOOL success = [self.database insertRecord:record];
-    if (success) {
-        self.count++;
+    if (!success) {
+        [self.recordCaches addObject:record];
     }
     return success;
+}
+
+- (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs status:(SAEventRecordStatus)status {
+    return [self.database updateRecords:recordIDs status:SAEventRecordStatusFlush];
 }
 
 - (BOOL)deleteRecords:(NSArray<NSString *> *)recordIDs {
-    BOOL success = [self.database deleteRecords:recordIDs];
-    if (success) {
-        self.count -= recordIDs.count;
+    // 当缓存中的不存在数据时，说明数据库是正确打开，其他情况不会删除数据
+    if (self.recordCaches.count == 0) {
+        return [self.database deleteRecords:recordIDs];
     }
-    return success;
+    // 删除缓存数据
+    NSUInteger maxLoopIndex = MIN(self.recordCaches.count, recordIDs.count) - 1;
+    for (NSInteger index = maxLoopIndex; index >= 0; index--) {
+        if ([recordIDs containsObject:self.recordCaches[index].recordID]) {
+            [self.recordCaches removeObjectAtIndex:index];
+        }
+    }
+    return YES;
 }
 
 - (BOOL)deleteAllRecords {
-    BOOL success = [self.database deleteAllRecords];
-    if (success) {
-        self.count = 0;
-    }
-    return success;
+    [self.recordCaches removeAllObjects];
+    return [self.database deleteAllRecords];
 }
 
 - (BOOL)vacuum {

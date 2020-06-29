@@ -67,10 +67,6 @@ static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdat
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
 
-    for (NSInteger i = 0; i < 20; i++) {
-        [[SensorsAnalyticsSDK sharedInstance] track:@"WeakTest" withProperties:@{@"index": @(i)}];
-    }
-
     return YES;
 }
 

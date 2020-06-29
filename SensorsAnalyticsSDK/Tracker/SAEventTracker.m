@@ -80,7 +80,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
 
 - (BOOL)canFlushWithType:(SAEventTrackerFlushType)type {
     // serverURL 是否有效
-    if (SensorsAnalyticsSDK.sharedInstance.serverUrl.length > 0) {
+    if (SensorsAnalyticsSDK.sharedInstance.serverUrl.length == 0) {
         return NO;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
@@ -99,51 +99,59 @@ NSUInteger const SAEventFlushRecordSize = 50;
 }
 
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+    BOOL isWait = SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate || [SensorsAnalyticsSDK.sharedInstance debugMode] != SensorsAnalyticsDebugOff;
     [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
-        if (SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate) {
+        NSLog(@"dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER) start");
+        if (isWait) {
             dispatch_semaphore_signal(self.flushSemaphore);
-        }
-        if (!success) {
-            return;
         }
 
         dispatch_async(self.queue, ^{
             completion(success);
         });
     }];
-    if (SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate) {
+    if (isWait) {
         dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER);
     }
+    NSLog(@"dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER) end");
 }
 
 - (void)flushWithType:(SAEventTrackerFlushType)type {
-    // TODO: -
-    // 1. 判断是否可以 flush
-    if ([self canFlushWithType:type]) {
+    // 判断是否可以 flush
+    if (![self canFlushWithType:type]) {
         return;
     }
 
-    // 2. 从数据库中查询数据
-    NSArray<SAEventRecord *> *records = [self.eventStore fetchRecords:type];
+    // 从数据库中查询数据
+    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:type];
     if (records.count == 0) {
         return;
     }
 
-    // 3. 加密
+    NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:records.count];
+    for (SAEventRecord *record in records) {
+        [recordIDs addObject:record.recordID];
+    }
+    // 更新数据状态
+    [self.eventStore updateRecords:recordIDs status:SAEventRecordStatusFlush];
+
+    // 加密
     [self encryptEventRecords:records];
 
-    // 4. network
+    // flush
+    __weak typeof(self) weakSelf = self;
     [self flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
-        // 5. 删除数据
-        NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:type];
-        for (SAEventRecord *record in records) {
-            [recordIDs addObject:record.recordID];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!success) {
+            [strongSelf.eventStore updateRecords:recordIDs status:SAEventRecordStatusNone];
+            return;
         }
-        [self.eventStore deleteRecords:recordIDs];
+        // 5. 删除数据
+        [strongSelf.eventStore deleteRecords:recordIDs];
         SALogError(@"+++++++++++++++%@", recordIDs);
-        SALogDebug(@"===============%ld", self.eventStore.count);
+        SALogDebug(@"===============%ld", strongSelf.eventStore.count);
 
-        [self flushWithType:type];
+        [strongSelf flushWithType:type];
     }];
 }
 

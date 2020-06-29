@@ -27,6 +27,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+
+
 @interface SAEventStore : NSObject
 
 //serial queue for database read and write
@@ -74,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// fetch first records with a certain size
 /// @param recordSize record size
-- (NSArray<SAEventRecord *> *)fetchRecords:(NSUInteger)recordSize;
+- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize;
 
 
 /// bulk insert event records
@@ -85,6 +87,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// insert single record
 /// @param record event record
 - (BOOL)insertRecord:(SAEventRecord *)record;
+
+
+- (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs status:(SAEventRecordStatus)status;
 
 
 /// delete records with IDs
