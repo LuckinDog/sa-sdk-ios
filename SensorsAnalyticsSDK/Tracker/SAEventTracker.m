@@ -99,9 +99,9 @@ NSUInteger const SAEventFlushRecordSize = 50;
 }
 
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+    // 当在程序终止或 debug 模式下，使用线程锁
     BOOL isWait = SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate || [SensorsAnalyticsSDK.sharedInstance debugMode] != SensorsAnalyticsDebugOff;
     [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
-        NSLog(@"dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER) start");
         if (isWait) {
             dispatch_semaphore_signal(self.flushSemaphore);
         }
@@ -113,7 +113,6 @@ NSUInteger const SAEventFlushRecordSize = 50;
     if (isWait) {
         dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER);
     }
-    NSLog(@"dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER) end");
 }
 
 - (void)flushWithType:(SAEventTrackerFlushType)type {
@@ -127,7 +126,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
     if (records.count == 0) {
         return;
     }
-
+    // 获取查询到的数据的 id
     NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
         [recordIDs addObject:record.recordID];

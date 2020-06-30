@@ -46,7 +46,7 @@ static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdat
 //    options.flushBeforeTerminate = NO;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
 
-    [[SensorsAnalyticsSDK sharedInstance] setDebugMode:SensorsAnalyticsDebugOnly];
+    [[SensorsAnalyticsSDK sharedInstance] setDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;
