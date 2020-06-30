@@ -103,7 +103,7 @@
     secretObj[@"pkv"] = @(self.rsaSecretKey.version);
     secretObj[@"ekey"] = self.rsaEncryptAESKey;
     secretObj[@"payload"] = encryptString;
-    return secretObj;
+    return [NSDictionary dictionaryWithDictionary:secretObj];
 }
 
 - (void)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray
