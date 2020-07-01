@@ -27,7 +27,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void(^SALinkHandlerCallback)(NSString *params, BOOL status, NSTimeInterval appAwakePassedTime);
+
 @interface SALinkHandler : NSObject
+
+@property (nonatomic, copy) SALinkHandlerCallback callback;
 
 /**
 @abstract
