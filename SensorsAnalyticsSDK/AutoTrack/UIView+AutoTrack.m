@@ -76,10 +76,7 @@
                 [elementContent appendString:title];
             }
         }
-#pragma clang diagnostic pop
     } else if ([self isKindOfClass:NSClassFromString(@"YYLabel")]) {    // RTLabel:https://github.com/ibireme/YYKit
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         if ([self respondsToSelector:NSSelectorFromString(@"text")]) {
             NSString *title = [self performSelector:NSSelectorFromString(@"text")];
             if (title.length > 0) {
@@ -87,7 +84,11 @@
             }
         }
 #pragma clang diagnostic pop
-
+    } else if ([self isKindOfClass:NSClassFromString(@"RCTView")]) { // RCTView RN 元素，https://reactnative.dev
+        NSString *content = [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (content.length > 0) {
+            [elementContent appendString:content];
+        }
     } else {
         NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
         for (UIView *subview in self.subviews) {
@@ -133,7 +134,7 @@
 - (NSString *)sensorsdata_itemPath {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     /* 忽略路径
-     UITableViewWrapperView 为 iOS11 新增 UITableView 与 cell 之间的 view
+     UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
      */
     if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"]) {
         return nil;
@@ -161,6 +162,23 @@
     } else {
         return self.sensorsdata_itemPath;
     }
+}
+
+- (NSString *)sensorsdata_heatMapPath {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        /* 忽略路径
+         UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
+         */
+        if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"]) {
+            return nil;
+        }
+#endif
+
+    NSString *identifier = [SAAutoTrackUtils viewIdentifierForView:self];
+    if (identifier) {
+        return identifier;
+    }
+    return [SAAutoTrackUtils itemHeatMapPathForResponder:self];
 }
 
 @end
@@ -205,7 +223,6 @@
 
 @end
 
-
 @implementation UISearchBar (AutoTrack)
 
 - (NSString *)sensorsdata_elementContent {
@@ -233,8 +250,28 @@
             return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
         }
     }
-
     return super.sensorsdata_itemPath;
+}
+
+- (NSString *)sensorsdata_heatMapPath {
+    UIView *currentTableView = self.superview;
+    while (![currentTableView isKindOfClass:UITableView.class]) {
+        currentTableView = currentTableView.superview;
+        if (!currentTableView) {
+            return super.sensorsdata_heatMapPath;
+        }
+    }
+
+    UITableView *tableView = (UITableView *)currentTableView;
+    for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
+        if (self == [tableView headerViewForSection:i]) {
+            return [NSString stringWithFormat:@"[SectionHeader][%ld]", (long)i];
+        }
+        if (self == [tableView footerViewForSection:i]) {
+            return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
+        }
+    }
+    return super.sensorsdata_heatMapPath;
 }
 
 @end
@@ -334,6 +371,11 @@
     NSString *subPath = [NSString stringWithFormat:@"%@[-]", @"UISegment"];
     return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_itemPath, subPath];
 }
+
+- (NSString *)sensorsdata_heatMapPath {
+    NSString *subPath = [NSString stringWithFormat:@"%@[%ld]", @"UISegment", (long)self.selectedSegmentIndex];
+    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_heatMapPath, subPath];
+}
 #endif
 
 @end
@@ -387,6 +429,13 @@
         return self.sensorsdata_itemPath;
     }
 }
+
+- (NSString *)sensorsdata_heatMapPath {
+    if (self.sensorsdata_IndexPath) {
+        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
+    }
+    return [super sensorsdata_heatMapPath];
+}
                 
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {
     return [NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section, (long)indexPath.row];
@@ -426,6 +475,13 @@
     } else {
         return super.sensorsdata_similarPath;
     }
+}
+
+- (NSString *)sensorsdata_heatMapPath {
+    if (self.sensorsdata_IndexPath) {
+        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
+    }
+    return [super sensorsdata_heatMapPath];
 }
 
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {

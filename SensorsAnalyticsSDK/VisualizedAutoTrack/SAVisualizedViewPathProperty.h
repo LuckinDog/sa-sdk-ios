@@ -46,6 +46,8 @@
 /// 当前元素所在页面标题
 @property (nonatomic, copy, readonly) NSString *sensorsdata_title;
 
+/// 是否为 Web 元素
+@property (nonatomic, assign) BOOL sensorsdata_isFromWeb;
 @end
 
 
