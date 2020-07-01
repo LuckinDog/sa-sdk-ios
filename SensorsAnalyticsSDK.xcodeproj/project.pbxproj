@@ -45,6 +45,10 @@
 		4DBE3C1E24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBE3C1C24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m */; };
 		6523731E23EBC44000A786A2 /* SAHeatMapObjectSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6523731C23EBC44000A786A2 /* SAHeatMapObjectSerializer.m */; };
 		6523731F23EBC44000A786A2 /* SAHeatMapObjectSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6523731D23EBC44000A786A2 /* SAHeatMapObjectSerializer.h */; };
+		880F37D624AB5D84005AC8A0 /* SAObject+SAConfigOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 880F37D424AB5D84005AC8A0 /* SAObject+SAConfigOptions.h */; };
+		880F37DA24AC34A4005AC8A0 /* SAEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 880F37D924AC34A4005AC8A0 /* SAEventStoreTests.m */; };
+		880F37DB24AC6112005AC8A0 /* SADatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFFF22840EBF0004061D /* SADatabase.m */; };
+		880F37DF24AC68C5005AC8A0 /* SAObject+SAConfigOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 880F37D524AB5D84005AC8A0 /* SAObject+SAConfigOptions.m */; };
 		88824F91249B5184003ADC59 /* SAEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 88824F8F249B5184003ADC59 /* SAEventStore.h */; };
 		88824F92249B5184003ADC59 /* SAEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 88824F90249B5184003ADC59 /* SAEventStore.m */; };
 		88824F95249B6A53003ADC59 /* SAEventTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 88824F93249B6A53003ADC59 /* SAEventTracker.h */; };
@@ -246,6 +250,9 @@
 		4DBE3C1C24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedObjectSerializerManger.m; sourceTree = "<group>"; };
 		6523731C23EBC44000A786A2 /* SAHeatMapObjectSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHeatMapObjectSerializer.m; sourceTree = "<group>"; };
 		6523731D23EBC44000A786A2 /* SAHeatMapObjectSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAHeatMapObjectSerializer.h; sourceTree = "<group>"; };
+		880F37D424AB5D84005AC8A0 /* SAObject+SAConfigOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAObject+SAConfigOptions.h"; sourceTree = "<group>"; };
+		880F37D524AB5D84005AC8A0 /* SAObject+SAConfigOptions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SAObject+SAConfigOptions.m"; sourceTree = "<group>"; };
+		880F37D924AC34A4005AC8A0 /* SAEventStoreTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventStoreTests.m; sourceTree = "<group>"; };
 		88824F8F249B5184003ADC59 /* SAEventStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventStore.h; sourceTree = "<group>"; };
 		88824F90249B5184003ADC59 /* SAEventStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventStore.m; sourceTree = "<group>"; };
 		88824F93249B6A53003ADC59 /* SAEventTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventTracker.h; sourceTree = "<group>"; };
@@ -340,7 +347,7 @@
 		CB6EBAF022855222003CFBA8 /* ca.cer1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ca.cer1; sourceTree = "<group>"; };
 		CB6EBAF122855222003CFBA8 /* ca.der.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = ca.der.cer; sourceTree = "<group>"; };
 		CB6EBAF222855222003CFBA8 /* SANetworkTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetworkTests.m; sourceTree = "<group>"; };
-		F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SADatabaseUnitTest.m; path = SensorsAnalyticsTests/SADatabaseUnitTest.m; sourceTree = SOURCE_ROOT; };
+		F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SADatabaseUnitTest.m; path = SensorsAnalyticsTests/Tracker/SADatabaseUnitTest.m; sourceTree = SOURCE_ROOT; };
 		F2402D85244176B000F7B06D /* SALogMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogMessage.h; sourceTree = "<group>"; };
 		F2402D86244176B000F7B06D /* SAAbstractLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAbstractLogger.h; sourceTree = "<group>"; };
 		F2402D87244176B000F7B06D /* SALoggerPrePostFixFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALoggerPrePostFixFormatter.m; sourceTree = "<group>"; };
@@ -427,7 +434,6 @@
 		4D6A188D22978F5B00F6B218 /* AutoTrack */ = {
 			isa = PBXGroup;
 			children = (
-				F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */,
 				4D6A189022978F5B00F6B218 /* ElementViewController.h */,
 				4D6A188E22978F5B00F6B218 /* ElementViewController.m */,
 				4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */,
@@ -530,6 +536,15 @@
 			path = VisualizedAutoTrack;
 			sourceTree = "<group>";
 		};
+		880F37D824AC31A6005AC8A0 /* Tracker */ = {
+			isa = PBXGroup;
+			children = (
+				F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */,
+				880F37D924AC34A4005AC8A0 /* SAEventStoreTests.m */,
+			);
+			path = Tracker;
+			sourceTree = "<group>";
+		};
 		88824F9F249C5213003ADC59 /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
@@ -619,6 +634,8 @@
 				CB30BFF722840EBF0004061D /* SAAppExtensionDataManager.m */,
 				CB30BFEC22840EBF0004061D /* SAConfigOptions.h */,
 				CB30C01022840EBF0004061D /* SAConfigOptions.m */,
+				880F37D424AB5D84005AC8A0 /* SAObject+SAConfigOptions.h */,
+				880F37D524AB5D84005AC8A0 /* SAObject+SAConfigOptions.m */,
 				CB30BFE322840EBF0004061D /* SAConstants.h */,
 				CB30C01822840EBF0004061D /* SAConstants.m */,
 				CB30BFED22840EBF0004061D /* SAConstants+Private.h */,
@@ -671,6 +688,7 @@
 		CB6EBAE4228551EC003CFBA8 /* SensorsAnalyticsTests */ = {
 			isa = PBXGroup;
 			children = (
+				880F37D824AC31A6005AC8A0 /* Tracker */,
 				4D6A188D22978F5B00F6B218 /* AutoTrack */,
 				CB6EBAEE22855222003CFBA8 /* Resources */,
 				CB6EBAF222855222003CFBA8 /* SANetworkTests.m */,
@@ -868,6 +886,7 @@
 				FC5A4BC1244E976F00063624 /* SAWeakPropertyContainer.h in Headers */,
 				4DB14DE62456C107002C224C /* SALog+Private.h in Headers */,
 				4DBE3C1D24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.h in Headers */,
+				880F37D624AB5D84005AC8A0 /* SAObject+SAConfigOptions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1044,6 +1063,7 @@
 				4D9D5E32240E4ADE00E6A9A5 /* SAVisualizedUtils.m in Sources */,
 				4DB14DE42456C107002C224C /* SALog.m in Sources */,
 				CB30C07E22840EC00004061D /* NSObject+SensorsAnalyticsDelegate.m in Sources */,
+				880F37DF24AC68C5005AC8A0 /* SAObject+SAConfigOptions.m in Sources */,
 				A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */,
 				CB30C08522840EC00004061D /* SAConstants.m in Sources */,
 				CB30C06522840EC00004061D /* SASwizzler.m in Sources */,
@@ -1116,10 +1136,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				880F37DA24AC34A4005AC8A0 /* SAEventStoreTests.m in Sources */,
 				A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */,
 				4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */,
 				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
 				88824FA4249DB120003ADC59 /* SAPresetProperty.m in Sources */,
+				880F37DB24AC6112005AC8A0 /* SADatabase.m in Sources */,
 				FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */,
 				4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */,
 				CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */,
@@ -1388,6 +1410,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 75FYWDWHL5;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = SensorsAnalyticsTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (

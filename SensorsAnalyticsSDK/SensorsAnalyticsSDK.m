@@ -166,11 +166,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 // 在内部，重新声明成可读写的
 @property (atomic, strong) SensorsAnalyticsPeople *people;
 
-@property (nonatomic, strong) NSOperationQueue *queue;
-
 @property (nonatomic, strong) SANetwork *network;
-
-@property (nonatomic, strong) SAEventStore *eventStore;
 
 @property (nonatomic, strong) SAEventTracker *eventTracker;
 
@@ -307,13 +303,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
 
             _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_configOptions.serverURL]];
-
-            _eventStore = [[SAEventStore alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
-            _eventStore.maxCacheSize = (NSUInteger)configOptions.maxCacheSize;
-            if (self.eventStore == nil) {
-                SALogError(@"SqliteException: init Message Queue in Sqlite fail");
-            }
-
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
             _appRelaunched = NO;
@@ -350,8 +339,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-
-
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -497,11 +484,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
-    self.network.serverURL = [NSURL URLWithString:serverUrl];
-}
-
-- (NSString *)serverUrl {
-    return self.network.serverURL.absoluteString;
+    self.configOptions.serverURL = serverUrl;
 }
 
 - (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode showDebugModeWarning:(BOOL)isShow {
@@ -661,7 +644,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //防止设置的值太小导致事件丢失
         UInt64 temMaxCacheSize = maxCacheSize > 10000 ? maxCacheSize : 10000;
         self.configOptions.maxCacheSize = (NSInteger)temMaxCacheSize;
-        self.eventStore.maxCacheSize = (NSUInteger)temMaxCacheSize;
     };
 }
 
@@ -853,55 +835,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     _showDebugAlertView = show;
 }
 
-- (BOOL)flushByType:(NSString *)type flushSize:(int)flushSize {
-    // 1、获取前 n 条数据
-//    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
-//    if (recordArray == nil) {
-//        SALogError(@"Failed to get records from SQLite.");
-//        return NO;
-//    }
-//
-//    NSInteger recordCount = recordArray.count;
-//#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-//    recordArray = [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray];
-//#endif
-//
-//    // 2、上传获取到的记录。如果数据上传完成，结束递归
-//    if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
-//        return NO;
-//    }
-//    // 3、删除已上传的记录。删除失败，结束递归
-//    if (![self.messageQueue removeFirstRecords:recordCount withType:@"POST"]) {
-//        SALogError(@"Failed to remove records from SQLite.");
-//        return NO;
-//    }
-//    // 4、继续上传剩余数据
-//    [self flushByType:type flushSize:flushSize];
-    return YES;
-}
-
-//- (void)_flush:(BOOL) vacuumAfterFlushing {
-//    if (![self.network isValidServerURL]) {
-//        return;
-//    }
-//    // 判断当前网络类型是否符合同步数据的网络策略
-//    NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-//    if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
-//        return;
-//    }
-//
-//    BOOL uploadedEvents = [self flushByType:@"Post" flushSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
-//
-//    if (vacuumAfterFlushing) {
-//        if (![self.eventStore vacuum]) {
-//            SALogError(@"failed to VACUUM SQLite.");
-//        }
-//    }
-//    if (uploadedEvents) {
-//        SALogDebug(@"events flushed.");
-//    }
-//}
-
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
         SAEventTrackerFlushType type = [self debugMode] == SensorsAnalyticsDebugOff ? SAEventTrackerFlushTypeNormal : SAEventTrackerFlushTypeDebug;
@@ -910,10 +843,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)deleteAll {
-    // 新增线程保护
-    [self.eventStore deleteAllRecordsWithCompletion:^(BOOL success) {
-        SALogInfo(@"Delete all events from database %@", success ? @"successfully" : @"failed");
-    }];
+    dispatch_async(self.serialQueue, ^{
+        [self.eventTracker.eventStore deleteAllRecords];
+    });
 }
 
 #pragma mark - HandleURL
@@ -1032,9 +964,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         // 开启 WKWebView 的 H5 打通功能
         if (self.configOptions.enableJavaScriptBridge) {
-            if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+            if (self.configOptions.serverURL) {
                 [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
-                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", self.configOptions.serverURL];
             } else {
                 SALogError(@"%@ get network serverURL is failed!", self);
             }
@@ -1196,14 +1128,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     return event;
 }
-
-//- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-//    SAEventRecord *record = [[SAEventRecord alloc] init];
-//    record.content = @"Welcome to China!";
-//    record.type = @"POST";
-//    [self.eventStore insertRecord:record completion:^(BOOL success) {
-//    }];
-//}
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
     if (self.remoteConfig.disableSDK) {
@@ -1408,14 +1332,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:trackEventDic];
         SALogDebug(@"\n【track event】:\n%@", trackEventDic);
 
-//        [self enqueueWithType:type andEvent:eventDic];
         SAEventTrackerFlushType flushType = SAEventTrackerFlushTypeNone;
         if (self->_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
             flushType = SAEventTrackerFlushTypeDebug;
-        } else if ([type isEqualToString:@"track_signup"]
-//                   || [[self eventStore] count] >= self.configOptions.flushBulkSize
-                   ) {
+        } else if ([type isEqualToString:@"track_signup"]) {
             // 否则，在满足发送条件时，发送事件
             flushType = SAEventTrackerFlushTypeNormal;
         }

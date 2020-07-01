@@ -33,10 +33,7 @@
 #import "SAHTTPSession.h"
 
 @interface SANetwork ()
-/// 存储原始的 ServerURL，当修改 DebugMode 为 Off 时，会使用此值去设置 ServerURL
-@property (nonatomic, readwrite, strong) NSURL *originServerURL;
 
-//@property (nonatomic, strong) NSOperationQueue *delegateQueue;
 @property (nonatomic, copy) NSString *cookie;
 
 @end
@@ -54,29 +51,6 @@
 }
 
 #pragma mark - property
-- (void)setServerURL:(NSURL *)serverURL {
-    _originServerURL = serverURL;
-    if (self.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
-        _serverURL = serverURL;
-    } else {
-        // 将 Server URI Path 替换成 Debug 模式的 '/debug'
-        if (serverURL.lastPathComponent.length > 0) {
-            serverURL = [serverURL URLByDeletingLastPathComponent];
-        }
-        NSURL *url = [serverURL URLByAppendingPathComponent:@"debug"];
-        if ([url.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
-            NSString * referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
-            SALogWarn(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
-        }
-        _serverURL = url;
-    }
-}
-
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    _debugMode = debugMode;
-    self.serverURL = _originServerURL;
-}
-
 - (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
     if (securityPolicy.SSLPinningMode != SASSLPinningModeNone && ![self.serverURL.scheme isEqualToString:@"https"]) {
         NSString *pinningMode = @"Unknown Pinning Mode";
@@ -117,48 +91,6 @@
 #pragma mark -
 
 #pragma mark - build
-// 1. 先完成这一系列Json字符串的拼接
-- (NSString *)buildFlushJSONStringWithEvents:(NSArray<NSString *> *)events {
-    return [NSString stringWithFormat:@"[%@]", [events componentsJoinedByString:@","]];
-}
-
-- (NSURLRequest *)buildFlushRequestWithJSONString:(NSString *)jsonString HTTPMethod:(NSString *)HTTPMethod {
-    NSString *postBody;
-    @try {
-        int gzip = 9; // gzip = 9 表示加密编码
-        NSString *b64String = [jsonString copy];
-#ifndef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-        // 加密数据已经做过 gzip 压缩和 base64 处理了，就不需要再处理。
-        gzip = 1;
-        // 使用gzip进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[b64String dataUsingEncoding:NSUTF8StringEncoding]];
-        // base64
-        b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-#endif
-
-        int hashCode = [b64String sensorsdata_hashCode];
-        b64String = [b64String stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
-        postBody = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, b64String];
-
-    } @catch (NSException *exception) {
-        SALogError(@"%@ flushByPost format data error: %@", self, exception);
-        return nil;
-    }
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.serverURL];
-    request.timeoutInterval = 30;
-    request.HTTPMethod = HTTPMethod;
-    request.HTTPBody = [postBody dataUsingEncoding:NSUTF8StringEncoding];
-    // 普通事件请求，使用标准 UserAgent
-    [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-    if (self.debugMode == SensorsAnalyticsDebugOnly) {
-        [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
-    }
-    
-    //Cookie
-    [request setValue:[self cookieWithDecoded:NO] forHTTPHeaderField:@"Cookie"];
-    return request;
-}
 
 - (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, id> *)params {
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
@@ -208,64 +140,6 @@
 }
 
 #pragma mark - request
-- (BOOL)flushEvents:(NSArray<NSString *> *)events {
-    if (![self isValidServerURL]) {
-        SALogError(@"serverURL error，Please check the serverURL");
-        return NO;
-    }
-    
-    NSString *jsonString = [self buildFlushJSONStringWithEvents:events];
-
-    __block BOOL flushSuccess = NO;
-    dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
-    SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
-            SALogError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
-            dispatch_semaphore_signal(flushSemaphore);
-            return;
-        }
-        
-        NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSInteger statusCode = response.statusCode;
-        NSString *messageDesc = nil;
-        if (statusCode >= 200 && statusCode < 300) {
-            messageDesc = @"\n【valid message】\n";
-        } else {
-            messageDesc = @"\n【invalid message】\n";
-            if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-                [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
-        }
-        // 1、开启 debug 模式，都删除；
-        // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
-        BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
-        flushSuccess = self.debugMode != SensorsAnalyticsDebugOff || successCode;
-
-        SALogDebug(@"==========================================================================");
-        @try {
-            NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-            SALogDebug(@"%@ %@: %@", self, messageDesc, dict);
-        } @catch (NSException *exception) {
-            SALogError(@"%@: %@", self, exception);
-        }
-        
-        if (statusCode != 200) {
-            SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);
-        }
-
-        dispatch_semaphore_signal(flushSemaphore);
-    };
-    
-    NSURLRequest *request = [self buildFlushRequestWithJSONString:jsonString HTTPMethod:@"POST"];
-    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
-    [task resume];
-
-    dispatch_semaphore_wait(flushSemaphore, DISPATCH_TIME_FOREVER);
-
-    return flushSuccess;
-}
 
 - (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
     if (![self isValidServerURL]) {
@@ -318,6 +192,24 @@
 
 #pragma mark -
 @implementation SANetwork (ServerURL)
+
+- (NSURL *)serverURL {
+    NSURL *serverURL = [NSURL URLWithString:[SensorsAnalyticsSDK sharedInstance].configOptions.serverURL];
+    if (self.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
+        return serverURL;
+    }
+    NSURL *url = serverURL;
+    // 将 Server URI Path 替换成 Debug 模式的 '/debug'
+    if (serverURL.lastPathComponent.length > 0) {
+        url = [serverURL URLByDeletingLastPathComponent];
+    }
+    url = [url URLByAppendingPathComponent:@"debug"];
+    if (url.host && [url.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
+        NSString *referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
+        SALogWarn(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL, referenceURL);
+    }
+    return url;
+}
 
 - (NSString *)host {
     return [SAURLUtils hostWithURL:self.serverURL] ?: @"";

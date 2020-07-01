@@ -25,8 +25,8 @@
 #import "SAEventFlush.h"
 #import "NSString+HashCode.h"
 #import "SAGzipUtility.h"
-#import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAObject+SAConfigOptions.h"
 #import "SANetwork.h"
 #import "SALog.h"
 
@@ -72,8 +72,8 @@
     return [bodyString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-- (NSURLRequest *)buildFlushRequestWithServerUrl:(NSString *)serverUrl eventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:serverUrl]];
+- (NSURLRequest *)buildFlushRequestWithServerURL:(NSURL *)serverURL eventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
     request.timeoutInterval = 30;
     request.HTTPMethod = @"POST";
     request.HTTPBody = [self buildBodyWithEventRecords:records isEncrypted:isEncrypted];
@@ -87,7 +87,6 @@
 }
 
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
-    SensorsAnalyticsDebugMode debugMode = [SensorsAnalyticsSDK.sharedInstance debugMode];
     NSString *jsonString = [self buildFlushJSONStringWithEventRecords:records];
 
     SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -96,22 +95,19 @@
             return completion(NO);
         }
 
-        NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         NSInteger statusCode = response.statusCode;
+        
+        NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         NSString *messageDesc = nil;
         if (statusCode >= 200 && statusCode < 300) {
             messageDesc = @"\n【valid message】\n";
         } else {
             messageDesc = @"\n【invalid message】\n";
-            if (statusCode >= 300 && debugMode != SensorsAnalyticsDebugOff) {
+            if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
                 [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
         }
-        // 1、开启 debug 模式，都删除；
-        // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
-        BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
-        BOOL flushSuccess = debugMode != SensorsAnalyticsDebugOff || successCode;
 
         SALogDebug(@"==========================================================================");
         @try {
@@ -126,11 +122,14 @@
             SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);
         }
 
+        // 1、开启 debug 模式，都删除；
+        // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
+        BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
+        BOOL flushSuccess = self.debugMode != SensorsAnalyticsDebugOff || successCode;
         completion(flushSuccess);
     };
 
-    NSString *serverUrl = SensorsAnalyticsSDK.sharedInstance.serverUrl;
-    NSURLRequest *request = [self buildFlushRequestWithServerUrl:serverUrl eventRecords:records isEncrypted:isEncrypted];
+    NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL eventRecords:records isEncrypted:isEncrypted];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
     [task resume];
 }

@@ -22,8 +22,7 @@
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 #import <SensorsAnalyticsExtension/SensorsAnalyticsExtension.h>
 
-static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdata.cn/sa?project=zhangminchao&token=5a394d2405c147ca";
-//static NSString* Sa_Default_ServerURL = @"https://www.2123123123123.com/";
+static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
 @interface AppDelegate ()
 
@@ -43,10 +42,9 @@ static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdat
     options.enableJavaScriptBridge = YES;
     options.enableLog = YES;
     options.maxCacheSize = 20000;
-//    options.flushBeforeTerminate = NO;
+    options.flushBeforeTerminate = NO;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
 
-    [[SensorsAnalyticsSDK sharedInstance] setDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;

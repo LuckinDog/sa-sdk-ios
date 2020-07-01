@@ -29,9 +29,11 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
+#import "SAObject+SAConfigOptions.h"
 
 static NSString *const kDatabaseTableName = @"dataCache";
 static NSString *const kDatabaseColumnStatus = @"status";
+
 static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大缓存条数时默认的删除条数
 
 @interface SADatabase ()
@@ -51,7 +53,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 - (instancetype)initWithFilePath:(NSString *)filePath {
     self = [super init];
     if (self) {
-        _maxCacheSize = 10000;
         _filePath = filePath;
         _serialQueue = dispatch_queue_create("cn.sensorsdata.SADatabaseSerialQueue", DISPATCH_QUEUE_SERIAL);
         [self createStmtCache];
@@ -116,6 +117,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         return NO;
     }
     self.isCreatedTable = YES;
+    // 如果数据在上传过程中，App 被强杀或者 crash，可能存在状态不对的数据
+    // 重置所有数据状态，重新上传
+    [self resetAllRecordsStatus];
     self.count = [self messagesCount];
     SALogDebug(@"Create %@ table success, current count is %lu", kDatabaseTableName, self.count);
     return YES;
@@ -150,6 +154,11 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
 
     return [contentArray copy];
+}
+
+- (BOOL)resetAllRecordsStatus {
+    NSString *sql = [NSString stringWithFormat:@"UPDATE %@ SET %@ = %d WHERE %@ = (%d);", kDatabaseTableName, kDatabaseColumnStatus, SAEventRecordStatusNone, kDatabaseColumnStatus, SAEventRecordStatusFlush];
+    return [self execUpdateSQL:sql];
 }
 
 - (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs status:(SAEventRecordStatus)status {
@@ -190,7 +199,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (![self databaseCheck]) {
         return NO;
     }
-    if (![self preCheckForInsertRecords: records.count]) {
+    if (![self preCheckForInsertRecords:records.count]) {
         return NO;
     }
     if (sqlite3_exec(_database, "BEGIN TRANSACTION", 0, 0, 0) != SQLITE_OK) {

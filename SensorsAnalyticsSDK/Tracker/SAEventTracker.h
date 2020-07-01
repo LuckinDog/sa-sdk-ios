@@ -25,6 +25,7 @@
 #import <Foundation/Foundation.h>
 #import "SAEventRecord.h"
 #import "SAHTTPSession.h"
+#import "SAEventStore.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,6 +38,8 @@ typedef NS_ENUM(NSUInteger, SAEventTrackerFlushType) {
 };
 
 @interface SAEventTracker : NSObject
+
+@property (nonatomic, strong, readonly) SAEventStore *eventStore;
 
 - (instancetype)initWithQueue:(dispatch_queue_t)queue;
 

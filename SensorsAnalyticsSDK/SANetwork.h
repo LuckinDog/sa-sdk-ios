@@ -57,14 +57,6 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 - (NSString *)cookieWithDecoded:(BOOL)decode;
 
 /**
- 将数据上传到 Sensors Analytics 的服务器上
- 数据将同步发送，请在异步线程中调用
-
- @param events 事件的 json 字符串组成的数组
- */
-- (BOOL)flushEvents:(NSArray<NSString *> *)events;
-
-/**
  设置 DebugMode 时回调请求方法
 
  @param distinctId 设备 ID 或 登录 ID
@@ -86,6 +78,7 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 @interface SANetwork (ServerURL)
 
+@property (nonatomic, copy, readonly) NSURL *serverURL;
 /// 通过 serverURL 获取的 host
 @property (nonatomic, copy, readonly, nullable) NSString *host;
 /// 在 serverURL 中获取的 project 名称

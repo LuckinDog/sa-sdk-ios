@@ -1,8 +1,8 @@
 //
-// SAEventRecord.m
+// SAObject+SAConfigOptions.m
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/6/18.
+// Created by 张敏超🍎 on 2020/6/30.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,19 +22,34 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAEventRecord.h"
+#import "SAObject+SAConfigOptions.h"
+#import "SensorsAnalyticsSDK+Private.h"
+#import "SALog.h"
 
-@implementation SAEventRecord
+@implementation SADatabase (SAConfigOptions)
 
-static long recordIndex = 0;
-
-- (instancetype)initWithContent:(NSString *)content type:(NSString *)type {
-    if (self = [super init]) {
-        _recordID = [NSString stringWithFormat:@"%ld", recordIndex];
-        _content = content;
-        _type = type;
+- (NSUInteger)maxCacheSize {
+#ifdef DEBUG
+    if (NSClassFromString(@"XCTestCase")) {
+        return 10000;
     }
-    return self;
+#endif
+    return [SensorsAnalyticsSDK sharedInstance].configOptions.maxCacheSize;
+}
+
+@end
+
+
+#pragma mark -
+
+@implementation SAEventFlush (SAConfigOptions)
+
+- (SensorsAnalyticsDebugMode)debugMode {
+    return [[SensorsAnalyticsSDK sharedInstance] debugMode];
+}
+
+- (NSURL *)serverURL {
+    return [SensorsAnalyticsSDK sharedInstance].network.serverURL;
 }
 
 @end

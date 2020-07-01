@@ -24,12 +24,11 @@
 
 #import "SAEventStore.h"
 #import "SADatabase.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 
 @interface SAEventStore ()
-
-@property (nonatomic) NSUInteger count;
 
 @property (nonatomic, strong) SADatabase *database;
 
@@ -52,23 +51,24 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 }
 
 - (void)dealloc {
-    [self.database removeObserver:self forKeyPath:@"isCreatedTable"];
+    if (!self.database.isCreatedTable) {
+        [self.database removeObserver:self forKeyPath:@"isCreatedTable"];
+    }
+    self.database = nil;
 }
 
 - (void)setupDatabase:(NSString *)filePath {
-    dispatch_async(self.serialQueue, ^{
+    self.database = [[SADatabase alloc] initWithFilePath:filePath];
+    if (!self.database.isCreatedTable) {
         self.recordCaches = [NSMutableArray array];
-        self.database = [[SADatabase alloc] initWithFilePath:filePath];
-        [self.database open];
-        
         [self.database addObserver:self forKeyPath:@"isCreatedTable" options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
-    });
+    }
 }
 
 #pragma mark - property
 
 - (NSUInteger)count {
-    return self.database.count;
+    return self.database.count + self.recordCaches.count;
 }
 
 #pragma mark - observe
@@ -93,7 +93,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
     // 如果能从数据库中，查询到数据，那么 isCreatedTable 一定是 YES，所有内存中的数据也都会正确入库
     // 如果数据库中查询的数据量为 0 并且缓存中有数据，那么表示只能从缓存中获取数据
     if (records.count == 0 && self.recordCaches.count != 0) {
-        return self.recordCaches.count <= recordSize ? [self.recordCaches copy] : [self.recordCaches subarrayWithRange:NSMakeRange(0, self.maxCacheSize)];
+        return self.recordCaches.count <= recordSize ? [self.recordCaches copy] : [self.recordCaches subarrayWithRange:NSMakeRange(0, recordSize)];
     }
     return records;
 }
@@ -130,7 +130,10 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 }
 
 - (BOOL)deleteAllRecords {
-    [self.recordCaches removeAllObjects];
+    if (self.recordCaches.count > 0) {
+        [self.recordCaches removeAllObjects];
+        return YES;
+    }
     return [self.database deleteAllRecords];
 }
 

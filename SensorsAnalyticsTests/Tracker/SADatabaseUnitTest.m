@@ -38,7 +38,6 @@
     // Put setup code here. This method is called before the invocation of each test method in the class.
     NSString *path = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"test.db"];
     self.database = [[SADatabase alloc] initWithFilePath:path];
-    self.database.maxCacheSize = 20000;
 }
 
 - (void)tearDown {

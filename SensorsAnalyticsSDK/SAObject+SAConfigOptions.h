@@ -1,8 +1,8 @@
 //
-// SAEventRecord.m
+// SAObject+SAConfigOptions.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/6/18.
+// Created by 张敏超🍎 on 2020/6/30.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,19 +22,27 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAEventRecord.h"
+#import "SADatabase.h"
+#import "SAEventFlush.h"
+#import "SAConstants.h"
 
-@implementation SAEventRecord
+NS_ASSUME_NONNULL_BEGIN
 
-static long recordIndex = 0;
+@interface SADatabase (SAConfigOptions)
 
-- (instancetype)initWithContent:(NSString *)content type:(NSString *)type {
-    if (self = [super init]) {
-        _recordID = [NSString stringWithFormat:@"%ld", recordIndex];
-        _content = content;
-        _type = type;
-    }
-    return self;
-}
+@property (nonatomic, assign, readonly) NSUInteger maxCacheSize;
 
 @end
+
+
+#pragma mark -
+
+@interface SAEventFlush (SAConfigOptions)
+
+@property (nonatomic, readonly) SensorsAnalyticsDebugMode debugMode;
+
+@property (nonatomic, strong, readonly) NSURL *serverURL;
+
+@end
+
+NS_ASSUME_NONNULL_END

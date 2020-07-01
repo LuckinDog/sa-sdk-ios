@@ -27,13 +27,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
-
 @interface SAEventStore : NSObject
 
 //serial queue for database read and write
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
-@property (nonatomic, assign) NSUInteger maxCacheSize;
 
 /// All event record count
 @property (nonatomic, readonly) NSUInteger count;
@@ -72,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// delete all records
 /// @param completion completion handler, delete successfully, then error is nil, otherwise, error return
-- (void) deleteAllRecordsWithCompletion:(void (^)(BOOL success))completion;
+- (void)deleteAllRecordsWithCompletion:(void (^)(BOOL success))completion;
 
 /// fetch first records with a certain size
 /// @param recordSize record size

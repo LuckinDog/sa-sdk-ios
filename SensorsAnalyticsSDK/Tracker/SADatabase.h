@@ -31,7 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 //serial queue for database read and write
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
-@property (nonatomic, assign) NSUInteger maxCacheSize;
+
+@property (nonatomic, assign, readonly) BOOL isCreatedTable;
+
 @property (nonatomic, assign, readonly) NSUInteger count;
 
 /// init method
