@@ -66,9 +66,6 @@
 
 -(IBAction)picSwitchClick:(UISwitch *)sender {
     NSLog(@"switch on:%d",sender.on);
-    for (NSInteger i = 0; i < 20; i++) {
-        [[SensorsAnalyticsSDK sharedInstance] track:@"WeakTest" withProperties:@{@"index": @(i)}];
-    }
 }
 
 - (IBAction)onButton1Click:(UIButton *)sender {
