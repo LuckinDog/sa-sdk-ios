@@ -682,14 +682,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([loginId isEqualToString:self.anonymousId]) {
         return;
     }
-
-    NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
-    // 添加来源渠道信息
-    [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-    if ([SAValidator isValidDictionary:properties]) {
-        [eventProperties addEntriesFromDictionary:properties];
-    }
-    [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
+    [self track:SA_EVENT_NAME_APP_SIGN_UP properties:properties type:@"track_signup" libMethod:SALibMethodCode];
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
 }
 
@@ -761,7 +754,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //添加 deeplink 相关渠道信息，可能不存在
         [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
 
-        [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [self track:eventName properties:properties type:SAEventTypeTrack libMethod:SALibMethodAuto];
     });
 }
 
@@ -1130,7 +1123,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
     }
 
-    itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithMethod:@"code"];
+    itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithLibMethod:@"code"];
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     itemProperties[SA_EVENT_TIME] = timeStamp;
@@ -1182,42 +1175,88 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self.messageQueue addObject:e withType:@"Post"];
 }
 
-- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
+- (BOOL)isValidNameForTrackEvent:(NSString *)eventName {
+    if (eventName == nil || [eventName length] == 0) {
+        NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
+        SALogError(@"%@", errMsg);
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+        }
+        return NO;
+    }
+    if (![self isValidName:eventName]) {
+        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
+        SALogError(@"%@", errMsg);
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+        }
+        return NO;
+    }
+    return YES;
+}
+
+- (void)track:(NSString *)event properties:(NSDictionary *)propertieDict type:(NSString *)type libMethod:(NSString *)libMethod {
+
     if (self.remoteConfig.disableSDK) {
         return;
     }
     propertieDict = [propertieDict copy];
 
-    NSMutableDictionary *libProperties = [self.presetProperty libPropertiesWithMethod:type];
+    NSMutableDictionary *libProperties = [self.presetProperty libPropertiesWithLibMethod:libMethod];
 
-    // 对于type是track数据，它们的event名称是有意义的
-    if ([type isEqualToString:@"track"] || [type isEqualToString:@"codeTrack"]) {
-        if (event == nil || [event length] == 0) {
-            NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
-            SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+    NSArray *addUtmEvents = @[SAEventTypeTrack, SAEventTypeCode, @"track_signup"];
+    if ([addUtmEvents containsObject:type]) {
+        NSMutableDictionary *tempProps = [NSMutableDictionary dictionary];
+        // 添加 latest utms 属性，用户传入的属性优先级更高，最后添加到字典中
+        [tempProps addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
+        if ([SAValidator isValidDictionary:propertieDict]) {
+            [tempProps addEntriesFromDictionary:propertieDict];
+        }
+        propertieDict = [tempProps copy];
+    }
+
+    if ([type isEqualToString:@"track"]) {
+        if (![self isValidNameForTrackEvent:event]) {
             return;
         }
-        if (![self isValidName:event]) {
-            NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
-            SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
-            return;
-        }
-
         //第三方插件的全埋点自动采集事件 lib_method 修改为 autoTrack，并移除标记位属性
-        if ([propertieDict[@"sensorsdata_auto_track_lib_method"] boolValue]) {
-            libProperties[SAEventPresetPropertyLibMethod] = @"auoTrack";
-            NSMutableDictionary *newProps = [propertieDict mutableCopy];
-            [newProps removeObjectForKey:@"sensorsdata_auto_track_lib_method"];
-            propertieDict = [newProps copy];
+        NSMutableDictionary *tempProps = [propertieDict mutableCopy];
+        NSString *tagKey = @"sensorsdata_auto_track_lib_method";
+        if ([tempProps[tagKey] boolValue]) {
+            libProperties[SAEventPresetPropertyLibMethod] = SALibMethodAuto;
+            [tempProps removeObjectForKey:tagKey];
+            propertieDict = [tempProps copy];
         }
 
-        //手动埋点和自动埋点上传时 type 类型都修改为 track
+    } else if ([type isEqualToString:@"codeTrack"]) {
+
+        if (![self isValidNameForTrackEvent:event]) {
+            return;
+        }
+        //事件校验，预置事件提醒
+        if ([_presetEventNames containsObject:event]) {
+            SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
+        }
+        if (_configOptions.enableAutoAddChannelCallbackEvent) {
+            NSMutableDictionary *tempProps = [NSMutableDictionary dictionary];
+            if ([SAValidator isValidDictionary:propertieDict]) {
+                [tempProps addEntriesFromDictionary:propertieDict];
+            }
+            // 后端匹配逻辑已经不需要 $channel_device_info 信息
+            // 这里仍然添加此字段是为了解决服务端版本兼容问题
+            tempProps[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
+
+            BOOL isContains = [self.trackChannelEventNames containsObject:event];
+            tempProps[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
+            if (!isContains && event) {
+                [self.trackChannelEventNames addObject:event];
+                dispatch_async(self.serialQueue, ^{
+                    [self archiveTrackChannelEventNames];
+                });
+            }
+            propertieDict = [tempProps copy];
+        }
+        //手动埋点上传时 type 类型要修改为 track
         type = @"track";
     }
 
@@ -1413,7 +1452,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
-    [self track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeCustom];
+    [self track:event properties:propertieDict type:SAEventTypeCode libMethod:SALibMethodCode];
 }
 
 - (void)trackChannelEvent:(NSString *)event {
@@ -1423,7 +1462,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
 
     if (_configOptions.enableAutoAddChannelCallbackEvent) {
-        [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeCustom];
+        [self track:event properties:propertyDict type:SAEventTypeCode libMethod:SALibMethodCode];
         return;
     }
 
@@ -1449,8 +1488,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self archiveTrackChannelEventNames];
             });
         }
-
-        [self track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeCustom];
+        [self track:event properties:properties type:SAEventTypeCode libMethod:SALibMethodCode];
     };
 
     if (userAgent.length == 0) {
@@ -1460,48 +1498,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }];
     } else {
         trackChannelEventBlock();
-    }
-}
-
-- (void)track:(NSString *)event withTrackType:(SensorsAnalyticsTrackType)trackType {
-    [self track:event withProperties:nil withTrackType:trackType];
-}
-
-- (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
-    NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
-    // 添加 latest utms 属性，用户传入的属性优先级更高，最后添加到字典中
-    [eventProperties addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
-    if ([SAValidator isValidDictionary:propertieDict]) {
-        [eventProperties addEntriesFromDictionary:propertieDict];
-    }
-
-    if (trackType == SensorsAnalyticsTrackTypeCustom) {
-        //事件校验，预置事件提醒
-        if ([_presetEventNames containsObject:event]) {
-            SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
-        };
-        if (_configOptions.enableAutoAddChannelCallbackEvent) {
-            // 后端匹配逻辑已经不需要 $channel_device_info 信息
-            // 这里仍然添加此字段是为了解决服务端版本兼容问题
-            eventProperties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
-
-            BOOL isContains = [self.trackChannelEventNames containsObject:event];
-            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
-            if (!isContains && event) {
-                [self.trackChannelEventNames addObject:event];
-                dispatch_async(self.serialQueue, ^{
-                    [self archiveTrackChannelEventNames];
-                });
-            }
-        }
-        [self track:event withProperties:eventProperties withType:@"codeTrack"];
-
-    } else if (trackType == SensorsAnalyticsTrackTypeCode) {
-        // 手动调用接口触发的预置事件埋点
-        [self track:event withProperties:eventProperties withType:@"codeTrack"];
-
-    } else {
-        [self track:event withProperties:eventProperties withType:@"track"];
     }
 }
 
@@ -1543,8 +1539,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
     // trackTimerEnd 事件需要支持新渠道匹配功能，且用户手动调用 trackTimerEnd 应归为手动埋点
-    // 所以这里 type 类型为 Custom
-    [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeCustom];
+    // 所以这里 type 类型为 Code
+    [self track:event properties:propertyDict type:SAEventTypeCode libMethod:SALibMethodCode];
 }
 
 - (void)trackTimerPause:(NSString *)event {
@@ -1618,22 +1614,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
             }
 
-            // 添加 deepLink 来源渠道信息
-            // 来源渠道消息只需要添加到 event 事件中，这里使用一个新的字典来添加 latest_utms 参数
-            NSMutableDictionary *eventProperties = [properties mutableCopy];
-            [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-            if ([SAValidator isValidDictionary:propertyDict]) {
-                [eventProperties addEntriesFromDictionary:propertyDict];
+            if (propertyDict != nil) {
+                [properties addEntriesFromDictionary:propertyDict];
             }
+
             // 先发送 track
-            [self track:event withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeCode];
+            [self track:event properties:properties type:SAEventTypeTrack libMethod:SALibMethodCode];
 
             // 再发送 profile_set_once
-            // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
             NSMutableDictionary *profileProperties = [properties mutableCopy];
-            if ([SAValidator isValidDictionary:propertyDict]) {
-                [profileProperties addEntriesFromDictionary:propertyDict];
-            }
             [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
             [self setOnce:profileProperties];
 
@@ -2040,7 +2029,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([SAValidator isValidDictionary:p]) {
             [properties addEntriesFromDictionary:p];
         }
-        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeCode];
+        [self track:SA_EVENT_NAME_APP_CLICK properties:properties type:SAEventTypeTrack libMethod:SALibMethodCode];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -2158,8 +2147,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _lastScreenTrackProperties = [tempProperties copy];
     }
 
-    SensorsAnalyticsTrackType type = autoTrack ? SensorsAnalyticsTrackTypeAuto : SensorsAnalyticsTrackTypeCode;
-    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:type];
+    NSString *libMethod = autoTrack ? SALibMethodAuto : SALibMethodCode;
+    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties type:SAEventTypeTrack libMethod:libMethod];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2239,7 +2228,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     }
                 }
 
-                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK properties:properties type:SAEventTypeTrack libMethod:SALibMethodAuto];
             }
         } @catch (NSException *exception) {
             SALogError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
@@ -2351,7 +2340,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
         if (eventArray) {
             for (NSDictionary *dict in eventArray) {
-                [[SensorsAnalyticsSDK sharedInstance] track:dict[SA_EVENT_NAME] withProperties:dict[SA_EVENT_PROPERTIES] withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [[SensorsAnalyticsSDK sharedInstance] track:dict[SA_EVENT_NAME] properties:dict[SA_EVENT_PROPERTIES] type:SAEventTypeTrack libMethod:SALibMethodAuto];
             }
             [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
             if (completion) {
@@ -2439,8 +2428,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(_appRelaunched);
             properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
             [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
-
-            [self track:SA_EVENT_NAME_APP_START withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+            [self track:SA_EVENT_NAME_APP_START properties:properties type:SAEventTypeTrack libMethod:SALibMethodAuto];
         }
     }
 
@@ -2515,7 +2503,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
-            [self track:SA_EVENT_NAME_APP_END withTrackType:SensorsAnalyticsTrackTypeAuto];
+            [self track:SA_EVENT_NAME_APP_END properties:nil type:SAEventTypeTrack libMethod:SALibMethodAuto];
         }
     }
 
@@ -2699,7 +2687,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     NSNumber *autoTrackMode = [configDict valueForKeyPath:@"configs.autoTrackMode"];
                     //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
                     if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
-                        [weakself track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeAuto];
+                        [weakself track:@"DisableSensorsDataSDK" properties:@{} type:SAEventTypeTrack libMethod:SALibMethodAuto];
                     }
                     //如果有字段缺失，需要设置为默认值
                     if (disableSDK == nil) {
@@ -3210,56 +3198,56 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)set:(NSDictionary *)profileDict {
     if (profileDict) {
-        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:SA_PROFILE_SET];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil properties:profileDict type:SA_PROFILE_SET libMethod:SALibMethodCode];
     }
 }
 
 - (void)setOnce:(NSDictionary *)profileDict {
     if (profileDict) {
-        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:SA_PROFILE_SET_ONCE];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil properties:profileDict type:SA_PROFILE_SET_ONCE libMethod:SALibMethodCode];
     }
 }
 
 - (void)set:(NSString *) profile to:(id)content {
     if (profile && content) {
-        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:SA_PROFILE_SET];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil properties:@{profile: content} type:SA_PROFILE_SET libMethod:SALibMethodCode];
     }
 }
 
 - (void)setOnce:(NSString *) profile to:(id)content {
     if (profile && content) {
-        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:SA_PROFILE_SET_ONCE];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil properties:@{profile: content} type:SA_PROFILE_SET_ONCE libMethod:SALibMethodCode];
     }
 }
 
 - (void)unset:(NSString *) profile {
     if (profile) {
-        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: @""} withType:SA_PROFILE_UNSET];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil properties:@{profile: @""} type:SA_PROFILE_UNSET libMethod:SALibMethodCode];
     }
 }
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
-        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: amount} withType:SA_PROFILE_INCREMENT];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil properties:@{profile: amount} type:SA_PROFILE_INCREMENT libMethod:SALibMethodCode];
     }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
-        [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:profileDict withType:SA_PROFILE_INCREMENT];
+        [[SensorsAnalyticsSDK sharedInstance] track:nil properties:profileDict type:SA_PROFILE_INCREMENT libMethod:SALibMethodCode];
     }
 }
 
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-            [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{profile: content} withType:SA_PROFILE_APPEND];
+            [[SensorsAnalyticsSDK sharedInstance] track:nil properties:@{profile: content} type:SA_PROFILE_APPEND libMethod:SALibMethodCode];
         }
     }
 }
 
 - (void)deleteUser {
-    [[SensorsAnalyticsSDK sharedInstance] track:nil withProperties:@{} withType:SA_PROFILE_DELETE];
+    [[SensorsAnalyticsSDK sharedInstance] track:nil properties:@{} type:SA_PROFILE_DELETE libMethod:SALibMethodCode];
 }
 
 @end
@@ -3380,7 +3368,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
-    [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:propertieDict withType:@"track_signup"];
+    [self track:SA_EVENT_NAME_APP_SIGN_UP properties:propertieDict type:@"track_signup" libMethod:SALibMethodCode];
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId {
@@ -3418,6 +3406,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
-    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeCode];
+    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN properties:trackProperties type:SAEventTypeTrack libMethod:SALibMethodCode];
 }
 @end

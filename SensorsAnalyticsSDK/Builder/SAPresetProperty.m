@@ -128,14 +128,12 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 
 #pragma mark – Public Methods
 
-- (NSMutableDictionary *)libPropertiesWithMethod:(NSString *)method {
+- (NSMutableDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod {
     NSMutableDictionary *libProperties = [NSMutableDictionary dictionary];
     libProperties[SAEventPresetPropertyLib] = self.automaticProperties[SAEventPresetPropertyLib];
     libProperties[SAEventPresetPropertyLibVersion] = self.automaticProperties[SAEventPresetPropertyLibVersion];
     libProperties[SAEventPresetPropertyAppVersion] = self.automaticProperties[SAEventPresetPropertyAppVersion];
-    if ([SAValidator isValidString:method]) {
-        // method 为 track 表示为全埋点事件，除了全埋点事件为 autoTrack，其他事件都是 code
-        NSString *libMethod = [method isEqualToString:@"track"] ? @"autoTrack" : @"code";
+    if ([SAValidator isValidString:libMethod]) {
         libProperties[SAEventPresetPropertyLibMethod] = libMethod;
     }
     return libProperties;
