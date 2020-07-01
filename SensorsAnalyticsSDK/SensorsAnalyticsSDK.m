@@ -2894,8 +2894,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (propertyDict) {
             [properties addEntriesFromDictionary:propertyDict];
         }
-        NSData* jsonData = [SAJSONUtil JSONSerializeObject:properties];
-        NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSData *jsonData = [SAJSONUtil JSONSerializeObject:properties];
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
 
