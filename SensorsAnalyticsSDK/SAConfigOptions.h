@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
 
-/// default is NO, if set to yes, when track installation, profile set will be executed, otherwise, profile set once will be executed
+/// 是否关闭首次渠道匹配，关闭后调用 profile_set,不关闭则调用 profile_set_once
 @property (nonatomic, assign) BOOL disableChannelFirstMatch;
 
 @end
