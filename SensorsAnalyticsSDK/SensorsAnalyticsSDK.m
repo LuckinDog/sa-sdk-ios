@@ -1204,8 +1204,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSMutableDictionary *libProperties = [self.presetProperty libPropertiesWithLibMethod:libMethod];
 
-    NSArray *addUtmEvents = @[SAEventTypeTrack, SAEventTypeCode, @"track_signup"];
-    if ([addUtmEvents containsObject:type]) {
+    NSArray *trackEventTypes = @[SAEventTypeTrack, SAEventTypeCode, @"track_signup"];
+    if ([trackEventTypes containsObject:type]) {
         NSMutableDictionary *tempProps = [NSMutableDictionary dictionary];
         // 添加 latest utms 属性，用户传入的属性优先级更高，最后添加到字典中
         [tempProps addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
@@ -1361,8 +1361,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
 
-        //SDK 自动采集的 $lib_method 属性优先级最高，覆盖客户手动传入的 lib_method 属性内容
-        eventPropertiesDic[SAEventPresetPropertyLibMethod] = libProperties[SAEventPresetPropertyLibMethod];
+        if ([trackEventTypes containsObject:type]) {
+            //SDK 自动采集的 $lib_method 属性优先级最高，覆盖客户手动传入的 lib_method 属性内容
+            eventPropertiesDic[SAEventPresetPropertyLibMethod] = libProperties[SAEventPresetPropertyLibMethod];
+        }
 
         //修正 $device_id，防止用户修改
         if (eventPropertiesDic[SAEventPresetPropertyDeviceID] && self.presetProperty.deviceID) {
