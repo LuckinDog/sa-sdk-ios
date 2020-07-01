@@ -88,22 +88,22 @@
     XCTAssertTrue(_identifier.anonymousId.length == 300);
 }
 
-//- (void)testLoginIdMaxLength {
-//    NSMutableString *str = [[NSMutableString alloc] initWithString:@""];
-//    for (int i = 0; i < 300; i++) {
-//        [str appendString:@"a"];
-//    }
-//    XCTAssertFalse([_identifier login:str]);
-//}
-//
-//- (void)testLoginWithLoginId {
-//    [_identifier login:@"new_login_id"];
-//    XCTAssertFalse([_identifier login:_identifier.loginId]);
-//}
-//
-//- (void)testLoginWithAnonymousId {
-//    XCTAssertFalse([_identifier login:_identifier.anonymousId]);
-//}
+- (void)testLoginIdMaxLength {
+    NSMutableString *str = [[NSMutableString alloc] initWithString:@""];
+    for (int i = 0; i < 300; i++) {
+        [str appendString:@"a"];
+    }
+    XCTAssertFalse([_identifier isValidLoginId:str]);
+}
+
+- (void)testLoginWithLoginId {
+    [_identifier login:@"new_login_id"];
+    XCTAssertFalse([_identifier isValidLoginId:_identifier.loginId]);
+}
+
+- (void)testLoginWithAnonymousId {
+    XCTAssertFalse([_identifier isValidLoginId:_identifier.anonymousId]);
+}
 
 - (void)testLoginIdAfterLogin {
     [_identifier login:@"new_login_id"];
