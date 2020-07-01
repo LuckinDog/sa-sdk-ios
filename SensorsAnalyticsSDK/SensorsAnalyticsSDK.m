@@ -1177,7 +1177,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isValidNameForTrackEvent:(NSString *)eventName {
     if (eventName == nil || [eventName length] == 0) {
-        NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
+        NSString *errMsg = @"Event name should not be empty or nil";
         SALogError(@"%@", errMsg);
         if (_debugMode != SensorsAnalyticsDebugOff) {
             [self showDebugModeWarning:errMsg withNoMoreButton:YES];

@@ -133,9 +133,8 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     libProperties[SAEventPresetPropertyLib] = self.automaticProperties[SAEventPresetPropertyLib];
     libProperties[SAEventPresetPropertyLibVersion] = self.automaticProperties[SAEventPresetPropertyLibVersion];
     libProperties[SAEventPresetPropertyAppVersion] = self.automaticProperties[SAEventPresetPropertyAppVersion];
-    if ([SAValidator isValidString:libMethod]) {
-        libProperties[SAEventPresetPropertyLibMethod] = libMethod;
-    }
+    NSString *method = [SAValidator isValidString:libMethod] ? libMethod : SALibMethodCode;
+    libProperties[SAEventPresetPropertyLibMethod] = method;
     return libProperties;
 }
 
