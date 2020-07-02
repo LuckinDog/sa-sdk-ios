@@ -20,6 +20,7 @@
 
 #import "SADatabase.h"
 #import "SAEventFlush.h"
+#import "SAEventTracker.h"
 #import "SAConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,6 +39,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) SensorsAnalyticsDebugMode debugMode;
 
 @property (nonatomic, strong, readonly) NSURL *serverURL;
+
+@end
+
+
+#pragma mark -
+
+@interface SAEventTracker (SAConfigOptions)
+
+@property (nonatomic, readonly) SensorsAnalyticsDebugMode debugMode;
+
+@property (nonatomic, readonly) SensorsAnalyticsNetworkType networkTypePolicy;
+
+@property (nonatomic, readonly) NSInteger flushBulkSize;
+
+@property (nonatomic, readonly) BOOL flushBeforeTerminate;
 
 @end
 

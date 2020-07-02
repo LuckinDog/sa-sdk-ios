@@ -30,8 +30,6 @@
 #import "SAFileStore.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
-#import "SensorsAnalyticsSDK.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAObject+SAConfigOptions.h"
 #import "SACommonUtility.h"
 //#import "SAConstants.h"
@@ -85,11 +83,11 @@ NSUInteger const SAEventFlushRecordSize = 50;
         return NO;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
-    if (!([SACommonUtility currentNetworkType] & [[SensorsAnalyticsSDK.sharedInstance valueForKey:@"networkTypePolicy"] integerValue])) {
+    if (!([SACommonUtility currentNetworkType] & self.networkTypePolicy)) {
         return NO;
     }
     // 本地缓存的数据是否超过 flushBulkSize
-    BOOL isGreaterSize = self.eventStore.count > SensorsAnalyticsSDK.sharedInstance.configOptions.flushBulkSize;
+    BOOL isGreaterSize = self.eventStore.count > self.flushBulkSize;
     // 是否需要 flush
     BOOL isFlushType = type != SAEventTrackerFlushTypeNone;
     return isGreaterSize || isFlushType;
@@ -101,7 +99,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
 
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
     // 当在程序终止或 debug 模式下，使用线程锁
-    BOOL isWait = SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate || [SensorsAnalyticsSDK.sharedInstance debugMode] != SensorsAnalyticsDebugOff;
+    BOOL isWait = self.flushBeforeTerminate || self.debugMode != SensorsAnalyticsDebugOff;
     [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
         if (isWait) {
             dispatch_semaphore_signal(self.flushSemaphore);

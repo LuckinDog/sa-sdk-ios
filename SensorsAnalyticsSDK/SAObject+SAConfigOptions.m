@@ -53,3 +53,26 @@
 }
 
 @end
+
+
+#pragma mark -
+
+@implementation SAEventTracker (SAConfigOptions)
+
+- (SensorsAnalyticsDebugMode)debugMode {
+    return [[SensorsAnalyticsSDK sharedInstance] debugMode];
+}
+
+- (SensorsAnalyticsNetworkType)networkTypePolicy {
+    return [[SensorsAnalyticsSDK.sharedInstance valueForKey:@"networkTypePolicy"] integerValue];
+}
+
+- (NSInteger)flushBulkSize {
+    return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBulkSize;
+}
+
+- (BOOL)flushBeforeTerminate {
+    return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate;
+}
+
+@end
