@@ -103,6 +103,7 @@ NSString * const SALibMethodCode = @"code";
 #pragma mark--track type
 NSString * const SAEventTypeTrack = @"track";
 NSString * const SAEventTypeCode = @"codeTrack";
+NSString * const SAEventTypeSignup = @"track_signup";
 
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";
@@ -147,3 +148,11 @@ NSString *const SA_TRACK_LOGIN_NOTIFICATION = @"SensorsAnalyticsTrackLoginNotifi
 NSString *const SA_TRACK_LOGOUT_NOTIFICATION = @"SensorsAnalyticsTrackLogoutNotification";
 NSString *const SA_TRACK_IDENTIFY_NOTIFICATION = @"SensorsAnalyticsTrackIdentifyNotification";
 NSString *const SA_TRACK_RESETANONYMOUSID_NOTIFICATION = @"SensorsAnalyticsTrackResetAnonymousIdNotification";
+
+@implementation SAConstants
+
++ (NSArray *)trackEventTypes {
+    return @[SAEventTypeTrack, SAEventTypeCode, SAEventTypeSignup];
+}
+
+@end

@@ -100,6 +100,7 @@ extern NSString * const SALibMethodCode;
 #pragma mark--track
 extern NSString * const SAEventTypeTrack;
 extern NSString * const SAEventTypeCode;
+extern NSString * const SAEventTypeSignup;
 
 #pragma mark--profile
 extern NSString * const SA_PROFILE_SET;
@@ -134,3 +135,9 @@ extern NSString *const SA_TRACK_LOGIN_NOTIFICATION;
 extern NSString *const SA_TRACK_LOGOUT_NOTIFICATION;
 extern NSString *const SA_TRACK_IDENTIFY_NOTIFICATION;
 extern NSString *const SA_TRACK_RESETANONYMOUSID_NOTIFICATION;
+
+@interface SAConstants (Private)
+
++ (NSArray *)trackEventTypes;
+
+@end
