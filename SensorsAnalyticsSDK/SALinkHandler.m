@@ -144,7 +144,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
             return YES;
         }
     }
-    return [self isValidDeeplinkURL:url];
+    return [self isValidDeepLinkURL:url];
 }
 
 // 解析冷启动来源渠道信息
@@ -179,15 +179,15 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         return;
     }
 
-    [[SensorsAnalyticsSDK sharedInstance] track:@"$AppDeeplinkLaunch" withProperties:@{@"$deeplink_url":url.absoluteString}];
 
     // 当客户唤起 App 且 deeplink 是合法 URL 时，直接清除 上一次的 utm 信息
     [self clearUtmProperties];
+    _latestUtms = @{};
     // 将 $deeplink_url 加入到 $AppStart 和 第一个 $ViewScreen 事件中
     _utms[@"$deeplink_url"] = url.absoluteString;
 
-    if ([self isValidDeeplinkURL:url]) {
-        [self requestForDeeplinkInfoWithURL:url];
+    if ([self isValidDeepLinkURL:url]) {
+        [self requestForDeepLinkInfoWithURL:url];
         return;
     }
 
@@ -242,10 +242,18 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         _latestUtms = latest;
         [self updateSavedChannelProperties];
     }
+    [self trackAppDeepLinkLaunchEvent];
+}
+
+- (void)trackAppDeepLinkLaunchEvent {
+    NSMutableDictionary *props = [NSMutableDictionary dictionary];
+    [props addEntriesFromDictionary:[self utmProperties]];
+    [props addEntriesFromDictionary:[self latestUtmProperties]];
+    [[SensorsAnalyticsSDK sharedInstance] track:@"$AppDeeplinkLaunch" withProperties:props];
 }
 
 #pragma mark - Server Mode
-- (BOOL)isValidDeeplinkURL:(NSURL *)url {
+- (BOOL)isValidDeepLinkURL:(NSURL *)url {
     NSString *urlStr = url.absoluteString;
     NSString *host = [[SensorsAnalyticsSDK sharedInstance] network].serverURL.host;
     NSString *universalLink = [NSString stringWithFormat:@"%@/deeplink", host];
@@ -253,21 +261,25 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     return ([urlStr containsString:universalLink] || [urlStr containsString:schemeLink]);
 }
 
-- (void)requestForDeeplinkInfoWithURL:(NSURL *)url {
-    NSString *deeplinkId = url.path.lastPathComponent;
-    if (!deeplinkId.length) {
-        return;
-    }
+- (void)requestForDeepLinkInfoWithURL:(NSURL *)url {
 
-    NSString *path = url.path.lastPathComponent;
+    [self trackAppDeepLinkLaunchEvent];
 
-    NSURL *URL = [NSURL URLWithString:@"测试连接"];
+    NSURL *serverURL = [[[SensorsAnalyticsSDK sharedInstance] network] serverURL];
+    NSURLComponents *components = [[NSURLComponents alloc] init];
+    components.scheme = @"http";
+    components.host = serverURL.host;
+    components.port = serverURL.port;
+    components.path = @"/api/v2/sa/channel_accounts/channel_deeplink_param";
+    components.query = [NSString stringWithFormat:@"key=%@&system_type=ANDROID",url.lastPathComponent];
+    NSURL *URL = [components URL];
+
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    request.timeoutInterval = 60;
     [request setHTTPMethod:@"GET"];
-    [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
-    NSTimeInterval start = [[NSDate alloc] timeIntervalSince1970];
+    NSTimeInterval start = [[NSDate date] timeIntervalSince1970];
     NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        NSTimeInterval interval = [[NSDate alloc] timeIntervalSince1970] - start;
+        NSTimeInterval interval = ([[NSDate date] timeIntervalSince1970] - start);
         NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
        if (response.statusCode == 200) {
            NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
@@ -276,15 +288,16 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
            NSDictionary *channelParams = params[@"channel_params"];
            [self parseUtmsWithDictionary:channelParams];
            if (self.callback) {
-               self.callback(pageParams, 1, interval);
+               self.callback(pageParams, YES, interval);
            }
        } else {
            // 指定错误码处理逻辑
            if (self.callback) {
-               self.callback(@"", 0, interval);
+               self.callback(@"", NO, interval);
            }
        }
     }];
+    [task resume];
 }
 
 @end
