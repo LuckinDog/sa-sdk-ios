@@ -179,8 +179,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         return;
     }
 
-
-    // 当客户唤起 App 且 deeplink 是合法 URL 时，直接清除 上一次的 utm 信息
+    // 当客户唤起 App 且 deeplink 是合法 URL 时，直接清除上一次的 utm 信息
     [self clearUtmProperties];
     _latestUtms = @{};
     // 将 $deeplink_url 加入到 $AppStart 和 第一个 $ViewScreen 事件中
@@ -256,61 +255,60 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 - (BOOL)isValidDeepLinkURL:(NSURL *)url {
     NSString *urlStr = url.absoluteString;
     NSString *host = [[SensorsAnalyticsSDK sharedInstance] network].serverURL.host;
-    NSString *universalLink = [NSString stringWithFormat:@"%@/deeplink", host];
-    NSString *schemeLink = @"sensorsanalytics/deeplink";
+    NSString *universalLink = [NSString stringWithFormat:@"%@/sd", host];
+    NSString *schemeLink = @"sensorsdata/deeplink";
     return ([urlStr containsString:universalLink] || [urlStr containsString:schemeLink]);
+}
+
+- (NSURLRequest *)buildRequestWithURL:(NSURL *)url {
+    NSURL *serverURL = [[[SensorsAnalyticsSDK sharedInstance] network] serverURL];
+    NSURLComponents *components = [[NSURLComponents alloc] init];
+    components.scheme = serverURL.scheme;
+    components.host = serverURL.host;
+    components.path = @"/api/v2/sa/channel_accounts/channel_deeplink_param";
+#warning 这里需要确认使用的最后一段 path 还是倒数第二段 path
+    NSArray *pathComponent = [[url.pathComponents reverseObjectEnumerator] allObjects];
+    components.query = [NSString stringWithFormat:@"key=%@&system_type=IOS",pathComponent[1]];
+    NSURL *URL = [components URL];
+
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    request.timeoutInterval = 60;
+    [request setHTTPMethod:@"GET"];
+    return request;
 }
 
 - (void)requestForDeepLinkInfoWithURL:(NSURL *)url {
 
     [self trackAppDeepLinkLaunchEvent];
 
-    NSURL *serverURL = [[[SensorsAnalyticsSDK sharedInstance] network] serverURL];
-    NSURLComponents *components = [[NSURLComponents alloc] init];
-    components.scheme = @"http";
-    components.host = serverURL.host;
-    components.port = serverURL.port;
-    components.path = @"/api/v2/sa/channel_accounts/channel_deeplink_param";
-    components.query = [NSString stringWithFormat:@"key=%@&system_type=ANDROID",url.lastPathComponent];
-    NSURL *URL = [components URL];
-
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-    request.timeoutInterval = 60;
-    [request setHTTPMethod:@"GET"];
     NSTimeInterval start = [[NSDate date] timeIntervalSince1970];
+    NSURLRequest *request = [self buildRequestWithURL:url];
     NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSTimeInterval interval = ([[NSDate date] timeIntervalSince1970] - start);
-        NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-       if (response.statusCode == 200) {
-           NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
-           NSDictionary *params = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-           NSString *pageParams = params[@"page_params"];
-           NSDictionary *channelParams = params[@"channel_params"];
-           [self parseUtmsWithDictionary:channelParams];
-           [self trackDeeplinkMatchedResult:params];
-           if (self.callback) {
-               self.callback(pageParams, YES, interval);
-           }
-       } else {
-           // 指定错误码处理逻辑
-           [self trackDeeplinkMatchedResult:nil];
-           if (self.callback) {
-               self.callback(@"", NO, interval);
-           }
-       }
+
+        NSDictionary *result;
+        BOOL success = NO;
+        if (response.statusCode == 200) {
+            result = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            NSString *errorMsg = result[@"errorMsg"];
+            [self parseUtmsWithDictionary:result[@"channel_params"]];
+            success = (errorMsg.length <= 0);
+        }
+        [self trackDeeplinkMatchedResult:result interval:interval];
+        if (self.callback) {
+            self.callback(result[@"page_params"], success, interval);
+        }
     }];
     [task resume];
 }
 
-- (void)trackDeeplinkMatchedResult:(NSURL *)url interval:(NSTimeInterval)interval result:(NSDictionary *)result {
-    NSString *pageParams = result[@"page_params"];
-    NSDictionary *channelParams = result[@"channel_params"];
+- (void)trackDeeplinkMatchedResult:(NSDictionary *)result interval:(NSTimeInterval)interval {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
-    props[@"$deeplink_url"] = url.absoluteString;
     props[@"$event_duration"] = @(interval);
-    props[@"$deeplink_options"] = pageParams;
-    props[@"$deeplink_match_fail_reason"] = result[@""];
-
+    props[@"$deeplink_options"] = result[@"page_params"];
+    props[@"$deeplink_match_fail_reason"] = result[@"errMsg"];
+//    [props addEntriesFromDictionary:[self utmProperties]];
+    [[SensorsAnalyticsSDK sharedInstance] track:@"$DeeplinkMatchedResult" withProperties:props];
 }
 
 @end
