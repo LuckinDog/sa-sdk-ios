@@ -54,8 +54,10 @@ NSUInteger const SAEventFlushRecordSize = 50;
     if (self) {
         _queue = queue;
 
-        _eventStore = [[SAEventStore alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
-        _eventFlush = [[SAEventFlush alloc] init];
+        dispatch_async(self.queue, ^{
+            self.eventStore = [[SAEventStore alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
+            self.eventFlush = [[SAEventFlush alloc] init];
+        });
     }
     return self;
 }
@@ -72,9 +74,11 @@ NSUInteger const SAEventFlushRecordSize = 50;
     SAEventRecord *record = [[SAEventRecord alloc] initWithContent:content type:@"POST"];
     [self.eventStore insertRecord:record];
 
-    dispatch_async(self.queue, ^{
-        [self flushWithType:type];
-    });
+    // 判断是否可以 flush
+    if (![self canFlushWithType:type]) {
+        return;
+    }
+    [self flushWithType:type];
 }
 
 - (BOOL)canFlushWithType:(SAEventTrackerFlushType)type {
@@ -98,28 +102,26 @@ NSUInteger const SAEventFlushRecordSize = 50;
 }
 
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+    __block BOOL flushSuccess = NO;
     // 当在程序终止或 debug 模式下，使用线程锁
-    BOOL isWait = self.flushBeforeTerminate || self.debugMode != SensorsAnalyticsDebugOff;
+    BOOL isWait = self.flushBeforeEnterBackground || self.debugMode != SensorsAnalyticsDebugOff;
     [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
         if (isWait) {
             dispatch_semaphore_signal(self.flushSemaphore);
+            flushSuccess = success;
+        } else {
+            dispatch_async(self.queue, ^{
+                completion(success);
+            });
         }
-
-        dispatch_async(self.queue, ^{
-            completion(success);
-        });
     }];
     if (isWait) {
         dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER);
+        completion(flushSuccess);
     }
 }
 
 - (void)flushWithType:(SAEventTrackerFlushType)type {
-    // 判断是否可以 flush
-    if (![self canFlushWithType:type]) {
-        return;
-    }
-
     // 从数据库中查询数据
     NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:type];
     if (records.count == 0) {
@@ -146,8 +148,6 @@ NSUInteger const SAEventFlushRecordSize = 50;
         }
         // 5. 删除数据
         [strongSelf.eventStore deleteRecords:recordIDs];
-        SALogError(@"+++++++++++++++%@", recordIDs);
-        SALogDebug(@"===============%ld", strongSelf.eventStore.count);
 
         [strongSelf flushWithType:type];
     }];

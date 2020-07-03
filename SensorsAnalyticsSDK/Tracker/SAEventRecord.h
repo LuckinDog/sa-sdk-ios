@@ -37,6 +37,8 @@ typedef NS_ENUM(int, SAEventRecordStatus) {
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSString *type;
 
+@property (nonatomic) SAEventRecordStatus status;
+
 - (instancetype)initWithContent:(NSString *)content type:(NSString *)type;
 
 @end

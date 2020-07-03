@@ -71,8 +71,8 @@
     return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBulkSize;
 }
 
-- (BOOL)flushBeforeTerminate {
-    return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeTerminate;
+- (BOOL)flushBeforeEnterBackground {
+    return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeEnterBackground;
 }
 
 @end

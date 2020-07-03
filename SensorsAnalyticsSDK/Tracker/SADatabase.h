@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @return 是否成功
  */
-- (BOOL) vacuum;
+- (BOOL)vacuum;
 
 @end
 

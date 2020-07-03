@@ -132,10 +132,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics，默认为 YES
 @property (nonatomic, assign) BOOL flushBeforeEnterBackground;
 
-/// 当 App 被强杀时，是否执行 flush 将数据发送到 SensrosAnalytics，默认为 YES
-/// ⚠️ 默认为 YES，存在网络较差时，用户立刻重新打开 App 导致崩溃的情况
-@property (nonatomic, assign) BOOL flushBeforeTerminate;
-
 @end
 
 

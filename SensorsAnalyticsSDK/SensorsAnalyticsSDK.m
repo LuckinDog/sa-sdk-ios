@@ -2452,17 +2452,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     }
 
-    if (self.flushBeforeEnterBackground) {
-        dispatch_async(self.serialQueue, ^{
-            SAEventTrackerFlushType type = [self debugMode] == SensorsAnalyticsDebugOff ? SAEventTrackerFlushTypeNormal : SAEventTrackerFlushTypeDebug;
-            [self.eventTracker flushWithType:type];
-            endBackgroundTask();
-        });
-    } else {
-        dispatch_async(self.serialQueue, ^{
-            endBackgroundTask();
-        });
-    }
+    dispatch_async(self.serialQueue, ^{
+        SAEventTrackerFlushType type = [self debugMode] == SensorsAnalyticsDebugOff ? SAEventTrackerFlushTypeNormal : SAEventTrackerFlushTypeDebug;
+        [self.eventTracker flushWithType:type];
+        endBackgroundTask();
+    });
 }
 - (void)applicationWillTerminateNotification:(NSNotification *)notification {
     SALogDebug(@"applicationWillTerminateNotification");

@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSInteger flushBulkSize;
 
-@property (nonatomic, readonly) BOOL flushBeforeTerminate;
+@property (nonatomic, readonly) BOOL flushBeforeEnterBackground;
 
 @end
 

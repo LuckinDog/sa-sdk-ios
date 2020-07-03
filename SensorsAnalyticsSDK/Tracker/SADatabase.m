@@ -26,8 +26,6 @@
 #import "SAJSONUtil.h"
 #import "SADatabase.h"
 #import "SALog.h"
-#import "SensorsAnalyticsSDK.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAObject+SAConfigOptions.h"
 

@@ -51,9 +51,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 }
 
 - (void)dealloc {
-    if (!self.database.isCreatedTable) {
-        [self.database removeObserver:self forKeyPath:@"isCreatedTable"];
-    }
+    [self.database removeObserver:self forKeyPath:@"isCreatedTable"];
     self.database = nil;
 }
 
@@ -61,8 +59,8 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
     self.database = [[SADatabase alloc] initWithFilePath:filePath];
     if (!self.database.isCreatedTable) {
         self.recordCaches = [NSMutableArray array];
-        [self.database addObserver:self forKeyPath:@"isCreatedTable" options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
     }
+    [self.database addObserver:self forKeyPath:@"isCreatedTable" options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
 }
 
 #pragma mark - property
@@ -84,6 +82,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
         return;
     }
     [self.database insertRecords:self.recordCaches];
+    [self.recordCaches removeAllObjects];
 }
 
 #pragma mark - record
@@ -111,7 +110,19 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 }
 
 - (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs status:(SAEventRecordStatus)status {
-    return [self.database updateRecords:recordIDs status:SAEventRecordStatusFlush];
+    if (self.recordCaches.count == 0) {
+        return [self.database updateRecords:recordIDs status:status];
+    }
+    // 如果加密失败，会导致 recordIDs 可能不是前 recordIDs.count 条数据，所以此处必须使用两个循环
+    for (NSString *recordID in recordIDs) {
+        for (SAEventRecord *record in self.recordCaches) {
+            if ([recordID isEqualToString:record.recordID]) {
+                record.status = status;
+                break;
+            }
+        }
+    }
+    return YES;
 }
 
 - (BOOL)deleteRecords:(NSArray<NSString *> *)recordIDs {
@@ -120,10 +131,14 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
         return [self.database deleteRecords:recordIDs];
     }
     // 删除缓存数据
-    NSUInteger maxLoopIndex = MIN(self.recordCaches.count, recordIDs.count) - 1;
-    for (NSInteger index = maxLoopIndex; index >= 0; index--) {
-        if ([recordIDs containsObject:self.recordCaches[index].recordID]) {
-            [self.recordCaches removeObjectAtIndex:index];
+    // 如果加密失败，会导致 recordIDs 可能不是前 recordIDs.count 条数据，所以此处必须使用两个循环
+    // 由于加密失败的可能性较小，所以第二个循环次数不回很多
+    for (NSString *recordID in recordIDs) {
+        for (NSInteger index = 0; index < self.recordCaches.count; index++) {
+            if ([recordID isEqualToString:self.recordCaches[index].recordID]) {
+                [self.recordCaches removeObjectAtIndex:index];
+                break;
+            }
         }
     }
     return YES;

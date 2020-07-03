@@ -47,7 +47,6 @@
         _maxRequestHourInterval = 48;
 
         _flushBeforeEnterBackground = YES;
-        _flushBeforeTerminate = YES;
     }
     return self;
 }
@@ -79,7 +78,6 @@
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
 
     options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
-    options.flushBeforeTerminate = self.flushBeforeTerminate;
     
     return options;
 }
