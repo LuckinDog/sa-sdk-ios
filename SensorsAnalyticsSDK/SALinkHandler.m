@@ -287,17 +287,30 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
            NSString *pageParams = params[@"page_params"];
            NSDictionary *channelParams = params[@"channel_params"];
            [self parseUtmsWithDictionary:channelParams];
+           [self trackDeeplinkMatchedResult:params];
            if (self.callback) {
                self.callback(pageParams, YES, interval);
            }
        } else {
            // 指定错误码处理逻辑
+           [self trackDeeplinkMatchedResult:nil];
            if (self.callback) {
                self.callback(@"", NO, interval);
            }
        }
     }];
     [task resume];
+}
+
+- (void)trackDeeplinkMatchedResult:(NSURL *)url interval:(NSTimeInterval)interval result:(NSDictionary *)result {
+    NSString *pageParams = result[@"page_params"];
+    NSDictionary *channelParams = result[@"channel_params"];
+    NSMutableDictionary *props = [NSMutableDictionary dictionary];
+    props[@"$deeplink_url"] = url.absoluteString;
+    props[@"$event_duration"] = @(interval);
+    props[@"$deeplink_options"] = pageParams;
+    props[@"$deeplink_match_fail_reason"] = result[@""];
+
 }
 
 @end
