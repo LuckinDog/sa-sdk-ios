@@ -1222,7 +1222,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSNumber *tag = tempProps[@"sensorsdata_auto_track_lib_method"];
         if ([tag isKindOfClass:NSNumber.class] && [tag boolValue]) {
             libProperties[SAEventPresetPropertyLibMethod] = SALibMethodAuto;
-            [tempProps removeObjectForKey:@"sensorsdata_auto_track_lib_method"];
+            tempProps[@"sensorsdata_auto_track_lib_method"] = nil;
         }
     } else if ([type isEqualToString:SAEventTypeCode]) {
 
@@ -1260,15 +1260,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     NSString *libDetail = nil;
-    if ([self isAutoTrackEnabled] && propertieDict.count) {
+    if ([self isAutoTrackEnabled] && propertieDict.count > 0) {
         //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
         if ([event isEqualToString:SA_EVENT_NAME_APP_CLICK]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
-                libDetail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
+                libDetail = [NSString stringWithFormat:@"%@######", propertieDict[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
             }
         } else if ([event isEqualToString:SA_EVENT_NAME_APP_VIEW_SCREEN]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen] == NO) {
-                libDetail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
+                libDetail = [NSString stringWithFormat:@"%@######", propertieDict[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
             }
         }
     }
@@ -1294,7 +1294,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *eventPropertiesDic = [NSMutableDictionary dictionary];
-        if ([type isEqualToString:@"track"] || [type isEqualToString:SAEventTypeSignup]) {
+        if ([type isEqualToString:SAEventTypeTrack] || [type isEqualToString:SAEventTypeSignup]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
             [eventPropertiesDic addEntriesFromDictionary:self.presetProperty.automaticProperties];
@@ -1377,7 +1377,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         libProperties, SA_EVENT_LIB,
                         @(arc4random()), SA_EVENT_TRACK_ID,
                         nil];
-        } else if([type isEqualToString:@"track"]) {
+        } else if([type isEqualToString:SAEventTypeTrack]) {
             NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
                                                                                        orientationConfig:self.deviceOrientationConfig
@@ -3083,7 +3083,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             automaticPropertiesCopy[SAEventPresetPropertyLibVersion] = nil;
 
             NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
-            if([type isEqualToString:@"track"] || [type isEqualToString:SAEventTypeSignup]) {
+            if([type isEqualToString:SAEventTypeTrack] || [type isEqualToString:SAEventTypeSignup]) {
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
@@ -3105,7 +3105,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [propertiesDict addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
 
                 //  是否首日访问
-                if([type isEqualToString:@"track"]) {
+                if([type isEqualToString:SAEventTypeTrack]) {
                     propertiesDict[SAEventPresetPropertyIsFirstDay] = @([self.presetProperty isFirstDay]);
                 }
                 [propertiesDict removeObjectForKey:@"_nocache"];
