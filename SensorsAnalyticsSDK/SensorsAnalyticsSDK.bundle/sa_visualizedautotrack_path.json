@@ -106,6 +106,7 @@
               "type": "NSString",
               "use_kvc": false
             },
+            {
               "name": "sensorsdata_isFromWeb",
               "key": "is_h5",
               "type": "BOOL",

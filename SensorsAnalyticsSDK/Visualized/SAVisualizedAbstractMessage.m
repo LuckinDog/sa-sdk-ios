@@ -112,6 +112,7 @@
         }
         if (RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME]) {
             jsonObject[@"page_name"] = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
+            jsonObject[@"screen_name"] = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"title"] = RNScreenInfo[SA_EVENT_PROPERTY_TITLE];
         }
     } @catch (NSException *exception) {
