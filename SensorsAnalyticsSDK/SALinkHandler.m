@@ -83,12 +83,10 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         [SAFileStore archiveWithFileName:kSavedDeepLinkInfoFileName value:@{}];
         return;
     }
-
     NSDictionary *local = [SAFileStore unarchiveWithFileName:kSavedDeepLinkInfoFileName];
     if (!local) {
         return;
     }
-
     NSMutableDictionary *latest = [NSMutableDictionary dictionary];
     for (NSString *name in _presetUtms) {
         NSString *newName = [NSString stringWithFormat:@"$latest_%@", name];
@@ -120,7 +118,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 #pragma mark - save latest utms in local file
-- (void)updateSavedChannelProperties {
+- (void)updateSavedDeepLinkInfo {
     if (!_configOptions.enableSaveDeepLinkInfo) {
         return;
     }
@@ -144,7 +142,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
             return YES;
         }
     }
-    return [self isValidDeepLinkURL:url];
+    return [self isValidURLOfServerMode:url];
 }
 
 // 解析冷启动来源渠道信息
@@ -178,29 +176,25 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     if (![url isKindOfClass:NSURL.class]) {
         return;
     }
-
-    // 当客户唤起 App 且 deeplink 是合法 URL 时，直接清除上一次的 utm 信息
+    // 当客户唤起 App 且 deeplink 是有效的 URL 时，直接清除上一次的 utm 信息
     [self clearUtmProperties];
     _latestUtms = @{};
-    // 将 $deeplink_url 加入到 $AppStart 和 第一个 $ViewScreen 事件中
+    // 将 $deeplink_url 加入到 $AppStart 和 第一个 $AppViewScreen 事件中
     _utms[@"$deeplink_url"] = url.absoluteString;
 
-    if ([self isValidDeepLinkURL:url]) {
-        [self requestForDeepLinkInfoWithURL:url];
+    if ([self isValidURLOfServerMode:url]) {
+        [self requestDeepLinkInfo:url];
         return;
     }
-
-    NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
-    [self parseUtmsWithDictionary:queryItems];
+    [self fetchNormalDeepLinkInfo:url];
 }
 
-#pragma mark - Local Mode
+#pragma mark - parse properties
 //解析渠道信息字段
 - (void)parseUtmsWithDictionary:(NSDictionary *)dictionary {
     if (![dictionary isKindOfClass:NSDictionary.class]) {
         return;
     }
-
     NSMutableDictionary *latest = [NSMutableDictionary dictionary];
     BOOL coverLastInfo = NO;
     for (NSString *name in _presetUtms) {
@@ -209,7 +203,6 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         if (value) {
             coverLastInfo = YES;
         }
-
         // 只有字典中 name 对应的值不为空字符串时才需要添加到 latest utms 中
         // 即只有对应渠道消息有内容时才需要加到埋点数据中
         if (value.length > 0) {
@@ -234,39 +227,44 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
             latest[latestKey] = value;
         }
     }
-
     // latest utms 字段在 App 销毁前一直保存在内存中
     // 当 coverLastInfo 为 YES 时，表示本次渠道信息解析中有相关渠道参数字段（不论参数内容是否为空）
     if (coverLastInfo) {
         _latestUtms = latest;
-        [self updateSavedChannelProperties];
+        [self updateSavedDeepLinkInfo];
     }
-    [self trackAppDeepLinkLaunchEvent];
 }
 
-- (void)trackAppDeepLinkLaunchEvent {
+- (void)trackAppDeepLinkLaunchEvent:(NSURL *)url {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
     [props addEntriesFromDictionary:[self utmProperties]];
     [props addEntriesFromDictionary:[self latestUtmProperties]];
+    props[@"$deeplink_url"] = url.absoluteString;
     [[SensorsAnalyticsSDK sharedInstance] track:@"$AppDeeplinkLaunch" withProperties:props];
 }
 
+#pragma mark - Local Mode
+- (void)fetchNormalDeepLinkInfo:(NSURL *)url {
+    NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
+    [self parseUtmsWithDictionary:queryItems];
+    [self trackAppDeepLinkLaunchEvent:url];
+}
+
 #pragma mark - Server Mode
-- (BOOL)isValidDeepLinkURL:(NSURL *)url {
-    NSString *urlStr = url.absoluteString;
+- (BOOL)isValidURLOfServerMode:(NSURL *)url {
+    if ([url.pathComponents.firstObject isEqualToString:@"sd"]) {
+        return NO;
+    }
     NSString *host = [[SensorsAnalyticsSDK sharedInstance] network].serverURL.host;
-    NSString *universalLink = [NSString stringWithFormat:@"%@/sd", host];
-    NSString *schemeLink = @"sensorsdata/deeplink";
-    return ([urlStr containsString:universalLink] || [urlStr containsString:schemeLink]);
+    return ([url.host isEqualToString:@"sensorsdata"] || [url.host isEqualToString:host]);
 }
 
 - (NSURLRequest *)buildRequestWithURL:(NSURL *)url {
     NSURL *serverURL = [[[SensorsAnalyticsSDK sharedInstance] network] serverURL];
     NSURLComponents *components = [[NSURLComponents alloc] init];
-    components.scheme = serverURL.scheme;
+    components.scheme = @"https";
     components.host = serverURL.host;
     components.path = @"/api/v2/sa/channel_accounts/channel_deeplink_param";
-#warning 这里需要确认使用的最后一段 path 还是倒数第二段 path
     NSArray *pathComponent = [[url.pathComponents reverseObjectEnumerator] allObjects];
     components.query = [NSString stringWithFormat:@"key=%@&system_type=IOS",pathComponent[1]];
     NSURL *URL = [components URL];
@@ -277,37 +275,40 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     return request;
 }
 
-- (void)requestForDeepLinkInfoWithURL:(NSURL *)url {
+- (void)requestDeepLinkInfo:(NSURL *)url {
+    [self trackAppDeepLinkLaunchEvent:url];
 
-    [self trackAppDeepLinkLaunchEvent];
-
-    NSTimeInterval start = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval start = NSDate.date.timeIntervalSince1970;
     NSURLRequest *request = [self buildRequestWithURL:url];
     NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        NSTimeInterval interval = ([[NSDate date] timeIntervalSince1970] - start);
-
+        NSTimeInterval interval = (NSDate.date.timeIntervalSince1970 - start);
         NSDictionary *result;
-        BOOL success = NO;
+        NSString *errorMsg = @"";
         if (response.statusCode == 200) {
             result = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-            NSString *errorMsg = result[@"errorMsg"];
+            errorMsg = result[@"errorMsg"];
             [self parseUtmsWithDictionary:result[@"channel_params"]];
-            success = (errorMsg.length <= 0);
+        } else {
+            errorMsg = error.localizedFailureReason;
         }
-        [self trackDeeplinkMatchedResult:result interval:interval];
+        NSString *pageParams = result[@"page_params"];
+        [self trackDeeplinkMatchedResult:url pageParams:pageParams interval:interval errorMsg:errorMsg];
         if (self.callback) {
-            self.callback(result[@"page_params"], success, interval);
+            self.callback(pageParams, (errorMsg.length <= 0), interval);
         }
     }];
     [task resume];
 }
 
-- (void)trackDeeplinkMatchedResult:(NSDictionary *)result interval:(NSTimeInterval)interval {
+- (void)trackDeeplinkMatchedResult:(NSURL *)url pageParams:(NSString *)pageParams interval:(NSTimeInterval)interval errorMsg:(NSString *)errorMsg {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
-    props[@"$event_duration"] = @(interval);
-    props[@"$deeplink_options"] = result[@"page_params"];
-    props[@"$deeplink_match_fail_reason"] = result[@"errMsg"];
-//    [props addEntriesFromDictionary:[self utmProperties]];
+    props[@"$event_duration"] = [NSString stringWithFormat:@"%.3f", interval];
+    props[@"$deeplink_options"] = pageParams;
+    props[@"$deeplink_match_fail_reason"] = errorMsg;
+    props[@"$deeplink_url"] = url.absoluteString;
+    [props addEntriesFromDictionary:[self utmProperties]];
+    // Server Mode 只需要在 Result 事件中添加 utm 属性，所以添加到 Result 事件中后直接清空
+    [self clearUtmProperties];
     [[SensorsAnalyticsSDK sharedInstance] track:@"$DeeplinkMatchedResult" withProperties:props];
 }
 
