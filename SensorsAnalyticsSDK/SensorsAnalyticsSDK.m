@@ -1045,8 +1045,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }];
         
         if (!isContainJavaScriptBridge) {
-            // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
-            WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+            // forMainFrameOnly:标识脚本是仅应注入主框架（YES）还是注入所有框架（NO）
+            WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
             [contentController addUserScript:userScript];
         }
     } @catch (NSException *exception) {
