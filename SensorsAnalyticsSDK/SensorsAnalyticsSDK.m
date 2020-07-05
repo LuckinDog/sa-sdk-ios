@@ -686,10 +686,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self.identifier login:loginId];
     });
 
-    if ([loginId isEqualToString:self.anonymousId]) {
-        return;
-    }
-
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
     // 添加来源渠道信息
     [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
@@ -3127,11 +3123,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 NSString *newLoginId = eventDict[SA_EVENT_DISTINCT_ID];
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
-                    if (![newLoginId isEqualToString:self.anonymousId]) {
-                        enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
-                        [self enqueueWithType:type andEvent:[enqueueEvent copy]];
-                        SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
-                    }
+                    enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
+                    [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                    SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
                 }
             } else {
                 [self enqueueWithType:type andEvent:[enqueueEvent copy]];
