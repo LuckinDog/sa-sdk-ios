@@ -74,14 +74,13 @@ NSUInteger const SAEventFlushRecordSize = 50;
     SAEventRecord *record = [[SAEventRecord alloc] initWithContent:content type:@"POST"];
     [self.eventStore insertRecord:record];
 
-    // 判断是否可以 flush
-    if (![self canFlushWithType:type]) {
-        return;
+    // 本地缓存的数据是否超过 flushBulkSize
+    if (self.eventStore.count > self.flushBulkSize || type != SAEventTrackerFlushTypeNone) {
+        [self flushWithType:type];
     }
-    [self flushWithType:type];
 }
 
-- (BOOL)canFlushWithType:(SAEventTrackerFlushType)type {
+- (BOOL)canFlush {
     // serverURL 是否有效
     if (self.eventFlush.serverURL.absoluteString.length == 0) {
         return NO;
@@ -90,11 +89,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
     if (!([SACommonUtility currentNetworkType] & self.networkTypePolicy)) {
         return NO;
     }
-    // 本地缓存的数据是否超过 flushBulkSize
-    BOOL isGreaterSize = self.eventStore.count > self.flushBulkSize;
-    // 是否需要 flush
-    BOOL isFlushType = type != SAEventTrackerFlushTypeNone;
-    return isGreaterSize || isFlushType;
+    return YES;
 }
 
 - (void)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
@@ -122,10 +117,20 @@ NSUInteger const SAEventFlushRecordSize = 50;
 }
 
 - (void)flushWithType:(SAEventTrackerFlushType)type {
-    // 从数据库中查询数据
-    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:type];
-    if (records.count == 0) {
+    if (![self canFlush]) {
         return;
+    }
+    BOOL isFlushed = [self flushRecordsWithSize:type];
+    if (isFlushed) {
+        SALogInfo(@"Events flushed!");
+    }
+}
+
+- (BOOL)flushRecordsWithSize:(NSUInteger)size {
+    // 从数据库中查询数据
+    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:size];
+    if (records.count == 0) {
+        return NO;
     }
     // 获取查询到的数据的 id
     NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:records.count];
@@ -149,8 +154,9 @@ NSUInteger const SAEventFlushRecordSize = 50;
         // 5. 删除数据
         [strongSelf.eventStore deleteRecords:recordIDs];
 
-        [strongSelf flushWithType:type];
+        [strongSelf flushRecordsWithSize:size];
     }];
+    return YES;
 }
 
 @end
