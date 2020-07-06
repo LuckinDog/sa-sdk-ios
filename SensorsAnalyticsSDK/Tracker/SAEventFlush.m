@@ -129,9 +129,11 @@
         completion(flushSuccess);
     };
 
-    NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL eventRecords:records isEncrypted:isEncrypted];
-    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
-    [task resume];
+    [SAHTTPSession.sharedInstance.delegateQueue addOperationWithBlock:^{
+        NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL eventRecords:records isEncrypted:isEncrypted];
+        NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
+        [task resume];
+    }];
 }
 
 @end

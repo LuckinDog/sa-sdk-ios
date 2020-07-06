@@ -35,7 +35,7 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 
-@property (nonatomic, strong) dispatch_queue_t delegateQueue;
+@property (nonatomic, strong, readonly) NSOperationQueue *delegateQueue;
 
 /**
  通过 URLRequest 创建一个 task，并设置完成的回调

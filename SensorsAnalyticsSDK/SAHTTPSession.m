@@ -30,6 +30,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 @interface SAHTTPSession () <NSURLSessionDelegate, NSURLSessionTaskDelegate>
 
 @property (nonatomic, strong) NSURLSession *session;
+@property (nonatomic, strong) NSOperationQueue *delegateQueue;
 
 @property (nonatomic, copy) SAURLSessionDidReceiveAuthenticationChallengeBlock sessionDidReceiveAuthenticationChallenge;
 @property (nonatomic, copy) SAURLSessionTaskDidReceiveAuthenticationChallengeBlock taskDidReceiveAuthenticationChallenge;
@@ -52,13 +53,14 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     if (self) {
         _securityPolicy = [SASecurityPolicy defaultPolicy];
 
-        NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-        queue.name = [NSString stringWithFormat:@"cn.sensorsdata.SAHTTPSession.%p", self];
+        _delegateQueue = [[NSOperationQueue alloc] init];
+        _delegateQueue.name = [NSString stringWithFormat:@"cn.sensorsdata.SAHTTPSession.%p", self];
+        _delegateQueue.maxConcurrentOperationCount = 1;
 
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
         config.timeoutIntervalForRequest = 30.0;
         config.HTTPShouldUsePipelining = NO;
-        _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:queue];
+        _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:_delegateQueue];
     }
     return self;
 }
