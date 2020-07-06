@@ -262,6 +262,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 - (NSURLRequest *)buildRequestWithURL:(NSURL *)url {
     NSURL *serverURL = [[[SensorsAnalyticsSDK sharedInstance] network] serverURL];
     NSURLComponents *components = [[NSURLComponents alloc] init];
+#warning 这里需要改成获取 serverURL 的 scheme。为了测试方便暂时 hard code 为 https
     components.scheme = @"https";
     components.host = serverURL.host;
     components.path = @"/api/v2/sa/channel_accounts/channel_deeplink_param";
