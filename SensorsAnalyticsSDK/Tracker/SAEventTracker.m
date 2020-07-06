@@ -70,8 +70,8 @@ NSUInteger const SAEventFlushRecordSize = 50;
 }
 
 - (void)trackEvent:(NSDictionary *)event flushType:(SAEventTrackerFlushType)type {
-    NSString *content = [[NSString alloc] initWithData:[SAJSONUtil JSONSerializeObject:event] encoding:NSUTF8StringEncoding];
-    SAEventRecord *record = [[SAEventRecord alloc] initWithContent:content type:@"POST"];
+//    [self encryptionJSONObject:event];
+    SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
     [self.eventStore insertRecord:record];
 
     // 本地缓存的数据是否超过 flushBulkSize

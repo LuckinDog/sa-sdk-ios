@@ -145,9 +145,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
             SALogError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
             return @[];
         }
-        SAEventRecord *record = [[SAEventRecord alloc] init];
-        record.recordID = [NSString stringWithFormat:@"%d",index];
-        record.content = [NSString stringWithUTF8String:jsonChar];
+        NSString *recordID = [NSString stringWithFormat:@"%d", index];
+        NSString *content = [NSString stringWithUTF8String:jsonChar];
+        SAEventRecord *record = [[SAEventRecord alloc] initWithRecordID:recordID content:content];
         [contentArray addObject:record];
     }
 

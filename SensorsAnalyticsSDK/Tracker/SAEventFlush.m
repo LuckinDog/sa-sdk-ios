@@ -48,6 +48,7 @@
 - (NSString *)buildFlushJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
+        [record addFlushTime];
         [contents addObject:record.content];
     }
     return [NSString stringWithFormat:@"[%@]", [contents componentsJoinedByString:@","]];

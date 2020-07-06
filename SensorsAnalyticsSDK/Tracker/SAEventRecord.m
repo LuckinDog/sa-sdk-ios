@@ -23,18 +23,55 @@
 #endif
 
 #import "SAEventRecord.h"
+#import "SAJSONUtil.h"
 
-@implementation SAEventRecord
+@implementation SAEventRecord {
+    NSMutableDictionary *_event;
+}
 
 static long recordIndex = 0;
 
-- (instancetype)initWithContent:(NSString *)content type:(NSString *)type {
+- (instancetype)initWithEvent:(NSDictionary *)event type:(NSString *)type {
     if (self = [super init]) {
         _recordID = [NSString stringWithFormat:@"%ld", recordIndex];
-        _content = content;
+        _event = [event mutableCopy];
         _type = type;
     }
     return self;
+}
+
+- (instancetype)initWithRecordID:(NSString *)recordID content:(NSString *)content {
+    if (self = [super init]) {
+        _recordID = recordID;
+        _content = content;
+    }
+    return self;
+}
+
+- (NSString *)content {
+    if (!_content && _event) {
+        NSData *data = [SAJSONUtil JSONSerializeObject:self.event];
+        _content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
+    return _content;
+}
+
+- (NSDictionary *)event {
+    if (!_event && _content.length > 0) {
+        NSData *jsonData = [self.content dataUsingEncoding:NSUTF8StringEncoding];
+        if (jsonData) {
+            _event = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+        }
+    }
+    return _event;
+}
+
+- (void)addFlushTime {
+    _content = nil;
+    NSMutableDictionary *dic = [self.event mutableCopy];
+    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
+    dic[self.isEncrypted ? @"flush_time" : @"_flush_time"] = @(time);
+    self.event = dic;
 }
 
 @end
