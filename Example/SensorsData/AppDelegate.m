@@ -42,7 +42,6 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     options.enableJavaScriptBridge = YES;
     options.enableLog = YES;
     options.maxCacheSize = 20000;
-    options.flushBeforeTerminate = NO;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
 
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
