@@ -68,10 +68,8 @@ static long recordIndex = 0;
 
 - (void)addFlushTime {
     _content = nil;
-    NSMutableDictionary *dic = [self.event mutableCopy];
     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-    dic[self.isEncrypted ? @"flush_time" : @"_flush_time"] = @(time);
-    self.event = dic;
+    _event[self.isEncrypted ? @"flush_time" : @"_flush_time"] = @(time);
 }
 
 @end
