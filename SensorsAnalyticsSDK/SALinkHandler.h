@@ -31,7 +31,7 @@ typedef void(^SALinkHandlerCallback)(NSString *params, BOOL success, NSTimeInter
 
 @interface SALinkHandler : NSObject
 
-@property (nonatomic, copy) SALinkHandlerCallback callback;
+@property (nonatomic, copy) SALinkHandlerCallback linkHandlerCallback;
 
 /**
 @abstract

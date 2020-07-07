@@ -936,6 +936,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
+            return YES;
         }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
@@ -2875,7 +2876,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 @implementation SensorsAnalyticsSDK (Deeplink)
 
 - (void)setDeeplinkCallback:(void(^)(NSString *params, BOOL success, NSTimeInterval appAwakePassedTime))callback {
-    _linkHandler.callback = callback;
+    _linkHandler.linkHandlerCallback = callback;
 }
 
 @end
