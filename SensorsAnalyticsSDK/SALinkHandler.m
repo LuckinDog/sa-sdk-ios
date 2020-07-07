@@ -252,15 +252,16 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
 #pragma mark - Server Mode
 - (BOOL)isValidURLOfServerMode:(NSURL *)url {
-    if ([url.pathComponents.firstObject isEqualToString:@"sd"]) {
+    NSArray *pathComponents = url.pathComponents;
+    if (pathComponents.count >=2 && ![pathComponents[1] isEqualToString:@"sd"]) {
         return NO;
     }
-    NSString *host = [[SensorsAnalyticsSDK sharedInstance] network].serverURL.host;
+    NSString *host = [[NSURL URLWithString:_configOptions.serverURL] host];
     return ([url.host isEqualToString:@"sensorsdata"] || [url.host isEqualToString:host]);
 }
 
 - (NSURLRequest *)buildRequestWithURL:(NSURL *)url {
-    NSURL *serverURL = [[[SensorsAnalyticsSDK sharedInstance] network] serverURL];
+    NSURL *serverURL = [NSURL URLWithString:_configOptions.serverURL];
     NSURLComponents *components = [[NSURLComponents alloc] init];
 #warning 这里需要改成获取 serverURL 的 scheme。为了测试方便暂时 hard code 为 https
     components.scheme = @"https";
