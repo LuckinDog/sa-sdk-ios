@@ -141,12 +141,11 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
 #pragma mark - save latest utms in local file
 /// 开启本地保存 DeepLinkInfo 开关时，每次 DeepLink 唤起解析后都需要更新本地文件中数据
-- (void)updateSavedDeepLinkInfo {
+- (void)saveDeepLinkInfo:(NSDictionary *)dictionary {
     if (!_configOptions.enableSaveDeepLinkInfo) {
         return;
     }
-    NSDictionary *value = _latestUtms ?: [NSDictionary dictionary];
-    [SAFileStore archiveWithFileName:kSavedDeepLinkInfoFileName value:value];
+    [SAFileStore archiveWithFileName:kSavedDeepLinkInfoFileName value:dictionary];
 }
 
 #pragma mark - parse utms
@@ -243,44 +242,47 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     if (![dictionary isKindOfClass:NSDictionary.class]) {
         return;
     }
-    NSMutableDictionary *latest = [NSMutableDictionary dictionary];
-    BOOL coverLastInfo = NO;
-    for (NSString *name in _presetUtms) {
-        NSString *value = [dictionary[name] stringByRemovingPercentEncoding];
-        // 字典中只要当前 name 的值存在（不论值是否为空字符串），就需要将上次的 latest utms 覆盖
-        if (value) {
-            coverLastInfo = YES;
-        }
-        // 只有字典中 name 对应的值不为空字符串时才需要添加到 latest utms 中
-        // 即只有对应渠道消息有内容时才需要加到埋点数据中
-        if (value.length > 0) {
-            NSString *utmKey = [NSString stringWithFormat:@"$%@", name];
-            _utms[utmKey] = value;
-            NSString *latestKey = [NSString stringWithFormat:@"$latest_%@", name];
-            latest[latestKey] = value;
-        }
-    }
+    _utms = [self acquireUtmProperties:dictionary];
+    _latestUtms = [self acquireLatestUtmProperties:dictionary];
+}
 
-    for (NSString *name in _sourceChannels) {
-        NSString *value = [dictionary[name] stringByRemovingPercentEncoding];
-        // 字典中只要当前 name 的值存在（不论值是否为空字符串），就需要将上次的 latest utms 覆盖
-        if (value) {
-            coverLastInfo = YES;
-        }
-        // 只有字典中 name 对应的值不为空字符串时才需要添加到 latest utms 中
-        // 即只有对应渠道消息有内容时才需要加到埋点数据中
-        if (value.length > 0) {
-            _utms[name] = value;
-            NSString *latestKey = [NSString stringWithFormat:@"_latest_%@", name];
-            latest[latestKey] = value;
+- (NSMutableDictionary *)acquireUtmProperties:(NSDictionary *)dictionary {
+    NSMutableDictionary *utmProperties = [NSMutableDictionary dictionary];
+        for (NSString *propKey in _presetUtms) {
+        NSString *propValue = [dictionary[propKey] stringByRemovingPercentEncoding];
+        if (propValue.length > 0) {
+            NSString *utmKey = [NSString stringWithFormat:@"$%@", propKey];
+            utmProperties[utmKey] = propValue;
         }
     }
-    // latest utms 字段在 App 销毁前一直保存在内存中
-    // 当 coverLastInfo 为 YES 时，表示本次渠道信息解析中有相关渠道参数字段（不论参数内容是否为空）
-    if (coverLastInfo) {
-        _latestUtms = latest;
-        [self updateSavedDeepLinkInfo];
+    for (NSString *propKey in _sourceChannels) {
+        NSString *propValue = [dictionary[propKey] stringByRemovingPercentEncoding];
+        if (propValue.length > 0) {
+            utmProperties[propKey] = propValue;
+        }
     }
+    return utmProperties;
+}
+
+- (NSDictionary *)acquireLatestUtmProperties:(NSDictionary *)dictionary {
+    __block NSMutableDictionary *latest = [NSMutableDictionary dictionary];
+    void(^block)(NSString *propKey, NSString *keyPrefix) = ^(NSString *propKey, NSString *keyPrefix) {
+        NSString *propValue = [dictionary[propKey] stringByRemovingPercentEncoding];
+        if (propValue.length > 0) {
+            NSString *latestKey = [NSString stringWithFormat:@"%@_%@", keyPrefix, propKey];
+            latest[latestKey] = propValue;
+        }
+    };
+    //SDK 预置属性，示例：$latest_utm_content。
+    for (NSString *propKey in _presetUtms) {
+        block(propKey, @"$latest");
+    }
+    // 用户自定义的属性，不是 SDK 的预置属性，因此以 _latest 开头，避免 SA 平台报错。示例：_lateset_customKey
+    for (NSString *propKey in _sourceChannels) {
+        block(propKey, @"_latest");
+    }
+    [self saveDeepLinkInfo:latest];
+    return latest;
 }
 
 #pragma mark - Server Mode
@@ -328,14 +330,13 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
             result = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
             errorMsg = result[@"errorMsg"];
             success =  (errorMsg.length <= 0);
-            [self acquireCurrentDeepLinkInfo:result[@"channel_params"]];
+            self.latestUtms = [self acquireLatestUtmProperties:result[@"channel_params"]];
         } else {
             errorMsg = error.localizedFailureReason;
         }
-        NSString *pageParams = result[@"page_params"];
-        [self trackDeeplinkMatchedResult:url pageParams:pageParams interval:interval errorMsg:errorMsg];
+        [self trackDeeplinkMatchedResult:url result:result interval:interval errorMsg:errorMsg];
         if (self.linkHandlerCallback) {
-            self.linkHandlerCallback(pageParams, success, interval);
+            self.linkHandlerCallback(result[@"page_params"], success, interval);
         }
     }];
     [task resume];
@@ -350,15 +351,14 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     [[SensorsAnalyticsSDK sharedInstance] track:SAAppDeeplinkLaunchEvent withProperties:props];
 }
 
-- (void)trackDeeplinkMatchedResult:(NSURL *)url pageParams:(NSString *)pageParams interval:(NSTimeInterval)interval errorMsg:(NSString *)errorMsg {
+- (void)trackDeeplinkMatchedResult:(NSURL *)url result:(NSDictionary *)result interval:(NSTimeInterval)interval errorMsg:(NSString *)errorMsg {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
     props[@"$event_duration"] = [NSString stringWithFormat:@"%.3f", interval];
-    props[@"$deeplink_options"] = pageParams;
+    props[@"$deeplink_options"] = result[@"page_params"];
     props[@"$deeplink_match_fail_reason"] = errorMsg;
     props[@"$deeplink_url"] = url.absoluteString;
-    [props addEntriesFromDictionary:[self utmProperties]];
-    // Server Mode 只需要在 Result 事件中添加 utm 属性，所以添加到 Result 事件中后直接清空
-    [self clearUtmProperties];
+    NSDictionary *utms = [self acquireUtmProperties:result[@"channel_params"]];
+    [props addEntriesFromDictionary:utms];
     [[SensorsAnalyticsSDK sharedInstance] track:SADeeplinkMatchedResultEvent withProperties:props];
 }
 
