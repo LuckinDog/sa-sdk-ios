@@ -915,15 +915,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
 }
 
-
 - (BOOL)handleSchemeUrl:(NSURL *)url {
-//    @try {
+    @try {
         if (!url) {
             return NO;
         }
-        
+
         if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
-            //点击图 & 可视化全埋点
+            // 点击图 & 可视化全埋点
             return [self handleAutoTrackURL:url];
         } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
             // url query 解析
@@ -939,9 +938,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
         }
-//    } @catch (NSException *exception) {
-//        SALogError(@"%@: %@", self, exception);
-//    }
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
     return NO;
 }
 
