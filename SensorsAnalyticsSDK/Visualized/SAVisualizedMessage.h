@@ -32,6 +32,7 @@
 
 - (NSData *)JSONData:(BOOL)useGzip featureCode:(NSString *)featureCode;
 
+@optional
 - (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection;
 
 @end

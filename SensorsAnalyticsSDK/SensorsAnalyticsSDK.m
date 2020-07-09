@@ -917,7 +917,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
-    @try {
+//    @try {
         if (!url) {
             return NO;
         }
@@ -939,9 +939,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
         }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
+//    } @catch (NSException *exception) {
+//        SALogError(@"%@: %@", self, exception);
+//    }
     return NO;
 }
 

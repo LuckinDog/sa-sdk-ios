@@ -223,6 +223,24 @@
     }
 }
 
+- (NSString *)sensorsdata_elementSelector {
+        // 处理特殊控件
+    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
+        if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
+            UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
+            if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
+                return [SAAutoTrackUtils viewPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController];
+            }
+        }
+    #endif
+    if (self.sensorsdata_enableAppClick) {
+        return [SAAutoTrackUtils viewPathForView:self atViewController:self.sensorsdata_viewController];
+    } else {
+        return nil;
+    }
+}
+
 - (BOOL)sensorsdata_isFromWeb {
     return NO;
 }

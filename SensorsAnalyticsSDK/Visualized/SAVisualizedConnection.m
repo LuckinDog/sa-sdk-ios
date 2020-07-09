@@ -172,17 +172,10 @@
     }
 }
 
-- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr type:(NSString *)type {
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr {
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-    
-    /* type
-     heatmap 点击图
-     visualized 可视化全埋点
-     */
-    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visualizedautotrack_path.json" ofType:nil];
-    if ([type isEqualToString:@"heatmap"]) { // 点击图
-        jsonPath = [sensorsBundle pathForResource:@"sa_headmap_path.json" ofType:nil];
-    }
+
+    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visualized_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     _commandQueue.suspended = NO;

@@ -54,6 +54,12 @@
                 "use_kvc": false
             },
             {
+                "name": "sensorsdata_elementSelector",
+                "key": "element_selector",
+                "type": "NSString",
+                "use_kvc": false
+            },
+            {
               "name": "sensorsdata_elementPosition",
               "key": "element_position",
               "type": "NSString",
@@ -123,25 +129,9 @@
           ]
         },
         {
-          "name": "UIWindow",
-          "superclass": "UIView",
-          "properties": [
-            {
-              "name": "screen",
-              "type": "UIScreen",
-              "readonly": true
-            }
-          ]
-        },
-        {
           "name": "UIViewController",
           "superclass": "UIResponder",
           "properties": [
-            {
-              "name": "isViewLoaded",
-              "type": "BOOL",
-              "readonly": true
-            },
             {
               "name": "sensorsdata_subElements",
               "key": "subelements",

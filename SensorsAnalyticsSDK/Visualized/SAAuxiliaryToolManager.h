@@ -29,9 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isDebugModeURL:(NSURL *)url;
 
 - (BOOL)isVisualizedConnecting;
-
-/// 当前类型
-- (SensorsAnalyticsVisualizedType)currentVisualizedType;
 @end
 
 NS_ASSUME_NONNULL_END

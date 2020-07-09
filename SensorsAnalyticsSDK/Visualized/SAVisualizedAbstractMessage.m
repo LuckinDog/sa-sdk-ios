@@ -166,10 +166,6 @@
     return jsonData;
 }
 
-- (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {
-    return nil;
-}
-
 - (NSString *)debugDescription {
     return [NSString stringWithFormat:@"<%@:%p type='%@'>", NSStringFromClass([self class]), (__bridge void *)self, self.type];
 }

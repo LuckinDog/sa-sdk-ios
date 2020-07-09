@@ -28,14 +28,12 @@
 #import "SAClassDescription.h"
 #import "SALog.h"
 #import "SAObjectIdentityProvider.h"
-#import "SAHeatMapObjectSerializer.h"
 #import "SAVisualizedAutoTrackObjectSerializer.h"
 #import "SAObjectSerializerConfig.h"
 #import "SAAuxiliaryToolManager.h"
 
 @implementation SAApplicationStateSerializer {
-    SAHeatMapObjectSerializer *_heatmapSerializer;
-    SAVisualizedAutoTrackObjectSerializer *_visualizedAutoTrackSerializer;
+    SAVisualizedAutoTrackObjectSerializer *_visualizedSerializer;
     UIApplication *_application;
 }
 
@@ -50,8 +48,7 @@
     self = [super init];
     if (self) {
         _application = application;
-        _heatmapSerializer = [[SAHeatMapObjectSerializer alloc] initWithConfiguration:configuration objectIdentityProvider:objectIdentityProvider];
-        _visualizedAutoTrackSerializer = [[SAVisualizedAutoTrackObjectSerializer alloc] initWithConfiguration:configuration objectIdentityProvider:objectIdentityProvider];
+        _visualizedSerializer = [[SAVisualizedAutoTrackObjectSerializer alloc] initWithConfiguration:configuration objectIdentityProvider:objectIdentityProvider];
     }
     
     return self;
@@ -128,25 +125,19 @@
 - (NSDictionary *)objectHierarchyForWindow:(UIWindow *)window {
     UIWindow *mainWindow = [self uiMainWindow:window];
     if (mainWindow) {
-        // 点击图
-        if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
-            return [_heatmapSerializer serializedObjectsWithRootObject:mainWindow];
-            
-            // 可视化全埋点
-        } else if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeAutoTrack) {
-            // 遍历其他 window，兼容自定义 window 弹框等场景
-            __block UIWindow *validWindow = [UIApplication sharedApplication].keyWindow;
-            // 逆序遍历，获取最上层全屏 window
-            [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size) && !obj.hidden) {
-                    validWindow = obj;
-                    *stop = YES;
-                }
-            }];
-            return [_visualizedAutoTrackSerializer serializedObjectsWithRootObject:validWindow];
-        }
+        // 点击图 & 可视化全埋点
+        // 遍历其他 window，兼容自定义 window 弹框等场景
+        __block UIWindow *validWindow = [UIApplication sharedApplication].keyWindow;
+        // 逆序遍历，获取最上层全屏 window
+        [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+            if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size) && !obj.hidden) {
+                validWindow = obj;
+                *stop = YES;
+            }
+        }];
+        return [_visualizedSerializer serializedObjectsWithRootObject:validWindow];
     }
-    
+
     return @{};
 }
 

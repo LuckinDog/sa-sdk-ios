@@ -37,6 +37,9 @@
 /// 当前元素的相对路径
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementPath;
 
+/// 当前元素的元素选择器
+@property (nonatomic, copy, readonly) NSString *sensorsdata_elementSelector;
+
 /// 相对 keywindow 的坐标
 @property (nonatomic, assign, readonly) CGRect sensorsdata_frame;
 

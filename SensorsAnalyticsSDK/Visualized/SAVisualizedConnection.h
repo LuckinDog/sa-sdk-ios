@@ -30,7 +30,7 @@
 - (instancetype)initWithURL:(NSURL *)url;
 
 - (void)sendMessage:(id<SAVisualizedMessage>)message;
-- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr type:(NSString *)type;
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr;
 - (void)close;
 
 // 是否正在进行可视化全埋点上传页面信息

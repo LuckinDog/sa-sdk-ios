@@ -27,7 +27,6 @@
 #import <WebKit/WebKit.h>
 #import "NSInvocation+SAHelpers.h"
 #import "SAClassDescription.h"
-#import "SAEnumDescription.h"
 #import "SALog.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAVisualizedAutoTrackObjectSerializer.h"
@@ -94,11 +93,9 @@
     if (classDescription) {
         // 遍历自身和父类的所需的属性及类型，合并为当前类所有属性
         for (SAPropertyDescription *propertyDescription in [classDescription propertyDescriptions]) {
-            if ([propertyDescription shouldReadPropertyValueForObject:object]) {
-                //  根据是否符号要求（是否显示等）构建属性，通过 KVC 和 NSInvocation 动态调用获取描述信息
-                id propertyValue = [self propertyValueForObject:object withPropertyDescription:propertyDescription context:context]; // $递增作为元素 id
-                propertyValues[propertyDescription.key] = propertyValue ? : [NSNull null];
-            }
+            //  根据是否符号要求（是否显示等）构建属性，通过 KVC 和 NSInvocation 动态调用获取描述信息
+            id propertyValue = [self propertyValueForObject:object withPropertyDescription:propertyDescription context:context];         // $递增作为元素 id
+            propertyValues[propertyDescription.key] = propertyValue ? : [NSNull null];
         }
     }
 

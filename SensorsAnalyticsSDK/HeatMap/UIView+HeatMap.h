@@ -23,29 +23,9 @@
 
 @interface UIView (HeatMap)
 
-- (UIImage *)sa_snapshotImage;
-- (UIImage *)sa_snapshotForBlur;
-
 - (NSString *)jjf_varA;
 - (NSString *)jjf_varB;
 - (NSString *)jjf_varC;
-- (NSArray *)jjf_varSetD;
 - (NSString *)jjf_varE;
 
 @end
-
-
-
-@interface UITableViewCell (HeatMap)
-- (NSString *)sa_indexPath;
-@end
-
-@interface UICollectionViewCell (HeatMap)
-- (NSString *)sa_indexPath;
-@end
-
-
-@interface UITableViewHeaderFooterView (HeatMap)
-- (NSString *)sa_section;
-@end
-
