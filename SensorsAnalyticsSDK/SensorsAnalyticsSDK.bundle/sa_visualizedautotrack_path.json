@@ -26,21 +26,6 @@
           ]
         },
         {
-          "name": "UIStoryboardSegueTemplate",
-          "superclass": "NSObject",
-          "properties": [
-            {
-              "name": "identifier",
-              "type": "NSString",
-              "readonly": true
-            },
-            {
-              "name": "performOnViewLoad",
-              "type": "BOOL"
-            }
-          ]
-        },
-        {
           "name": "UIView",
           "superclass": "UIResponder",
           "properties": [
@@ -134,26 +119,6 @@
             {
               "name": "contentSize",
               "type": "CGSize"
-            }
-          ]
-        },
-        {
-          "name": "UITableView",
-          "superclass": "UIScrollView",
-          "properties": [
-            {
-              "name": "allowsSelection",
-              "type": "BOOL"
-            }
-          ]
-        },
-        {
-          "name": "UICollectionView",
-          "superclass": "UIScrollView",
-          "properties": [
-            {
-              "name": "allowsSelection",
-              "type": "BOOL"
             }
           ]
         },
