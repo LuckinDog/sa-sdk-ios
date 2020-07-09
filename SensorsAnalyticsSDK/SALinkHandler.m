@@ -329,7 +329,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         if (response.statusCode == 200 && data) {
             result = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
             errorMsg = result[@"errorMsg"];
-            success =  (errorMsg.length <= 0);
+            success = errorMsg.length <= 0;
             self.latestUtms = [self acquireLatestUtmProperties:result[@"channel_params"]];
         } else {
             errorMsg = error.localizedFailureReason;
@@ -345,8 +345,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 #pragma mark - deeplink event
 - (void)trackAppDeepLinkLaunchEvent:(NSURL *)url {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
-    [props addEntriesFromDictionary:[self utmProperties]];
-    [props addEntriesFromDictionary:[self latestUtmProperties]];
+    [props addEntriesFromDictionary:_utms];
+    [props addEntriesFromDictionary:_latestUtms];
     props[@"$deeplink_url"] = url.absoluteString;
     [[SensorsAnalyticsSDK sharedInstance] track:SAAppDeeplinkLaunchEvent withProperties:props];
 }
