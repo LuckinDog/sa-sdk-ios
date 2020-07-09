@@ -51,6 +51,8 @@ typedef void(^SALinkHandlerCallback)(NSString *params, BOOL success, NSTimeInter
 */
 - (BOOL)canHandleURL:(NSURL *)url;
 
+- (void)acquireColdLaunchDeepLinkInfo;
+
 /**
  @abstract
  解析当前 URL 中的来源渠道信息

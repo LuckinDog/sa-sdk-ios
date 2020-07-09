@@ -750,6 +750,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
+    [_linkHandler acquireColdLaunchDeepLinkInfo];
+
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
