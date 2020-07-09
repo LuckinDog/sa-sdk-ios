@@ -43,7 +43,7 @@ static void sa_tablViewDidSelectRowAtIndexPath(id self, SEL _cmd, id tableView, 
         return;
     }
     [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackDelegate:tableView didSelectedAtIndexPath:indexPath]];
-    [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK properties:properties type:SAEventTypeTrack libMethod:SALibMethodAuto];
+    [[SensorsAnalyticsSDK sharedInstance] trackAutoEventByAuto:SA_EVENT_NAME_APP_CLICK properties:properties];
 }
 
 static void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id collectionView, id indexPath) {
@@ -55,7 +55,7 @@ static void sa_collectionViewDidSelectItemAtIndexPath(id self, SEL _cmd, id coll
         return;
     }
     [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackDelegate:collectionView didSelectedAtIndexPath:indexPath]];
-    [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK properties:properties type:SAEventTypeTrack libMethod:SALibMethodAuto];
+    [[SensorsAnalyticsSDK sharedInstance] trackAutoEventByAuto:SA_EVENT_NAME_APP_CLICK properties:properties];
 }
 
 static void sa_setDelegate(id obj , SEL sel, id delegate) {

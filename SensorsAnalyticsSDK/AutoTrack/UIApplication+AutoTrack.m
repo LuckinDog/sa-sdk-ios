@@ -89,12 +89,12 @@
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
         [object isKindOfClass:[UIPageControl class]]) {
-        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK properties:properties type:SAEventTypeTrack libMethod:SALibMethodAuto];
+        [[SensorsAnalyticsSDK sharedInstance] trackAutoEventByAuto:SA_EVENT_NAME_APP_CLICK properties:properties];
         return;
     }
 
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
-        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK properties:properties type:SAEventTypeTrack libMethod:SALibMethodAuto];
+        [[SensorsAnalyticsSDK sharedInstance] trackAutoEventByAuto:SA_EVENT_NAME_APP_CLICK properties:properties];
         return;
     }
 }

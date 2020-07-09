@@ -34,14 +34,35 @@
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
 
 /**
-调用 track 接口
+触发 signup 事件
 
-@param event 事件名称
-@param propertieDict event的属性
-@param type track 类型
-@param libMethod libMethod 类型
+@param propertiesDict event 的属性
 */
-- (void)track:(NSString *)event properties:(NSDictionary *)propertieDict type:(NSString *)type libMethod:(NSString *)libMethod;
+- (void)trackSignupEvent:(NSDictionary *)propertiesDict;
+
+/**
+触发自定义事件
+
+@param event 事件名
+@param propertiesDict 事件的属性
+*/
+- (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)propertiesDict;
+
+/**
+手动触发全埋点事件
+
+@param event 事件名
+@param propertiesDict 事件的属性
+*/
+- (void)trackAutoEventByCode:(NSString *)event properties:(NSDictionary *)propertiesDict;
+
+/**
+自动触发全埋点事件
+
+@param event 事件名
+@param propertiesDict 事件的属性
+*/
+- (void)trackAutoEventByAuto:(NSString *)event properties:(NSDictionary *)propertiesDict;
 
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
 
