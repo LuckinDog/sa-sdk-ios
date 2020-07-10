@@ -25,7 +25,6 @@
 @interface SAVisualizedConnection : NSObject
 
 @property (nonatomic, readonly) BOOL connected;
-@property (nonatomic, assign) BOOL useGzip;
 
 - (instancetype)initWithURL:(NSURL *)url;
 

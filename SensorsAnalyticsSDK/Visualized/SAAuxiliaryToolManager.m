@@ -71,7 +71,7 @@
     } else if (featureCode && postURLStr) {
         [self showOpenDialogWithURL:URL featureCode:featureCode postURL:postURLStr isWifi:isWifi];
         return YES;
-    } else { //feature_code  url 参数错误
+    } else { //feature_code url 参数错误
         [self showParameterError:@"ERROR" message:@"参数错误"];
         return NO;
     }

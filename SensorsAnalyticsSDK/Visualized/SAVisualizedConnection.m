@@ -54,7 +54,6 @@
             SAVisualizedSnapshotRequestMessageType : [SAVisualizedSnapshotRequestMessage class],
         };
         _connected = NO;
-        _useGzip = YES;
         _url = url;
 
         _commandQueue = [[NSOperationQueue alloc] init];
@@ -93,7 +92,7 @@
         if (_featureCode == nil || _postUrl == nil) {
             return;
         }
-        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip featureCode:_featureCode] encoding:NSUTF8StringEncoding];
+        NSString *jsonString = [[NSString alloc] initWithData:[message JSONDataWithFeatureCode:_featureCode] encoding:NSUTF8StringEncoding];
         NSURL *URL = [NSURL URLWithString:_postUrl];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
         [request setHTTPMethod:@"POST"];
