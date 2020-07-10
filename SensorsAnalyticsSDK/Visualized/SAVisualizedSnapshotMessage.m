@@ -88,6 +88,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
                     snapshotMessage.serializedObjects = serializedObjects;
                     [conn sendMessage:snapshotMessage];
 
+                    // 重置截图 hash 信息
                     [[SAVisualizedObjectSerializerManger sharedInstance] resetLastImageHash:snapshotMessage.imageHash];
                 }
             }];
