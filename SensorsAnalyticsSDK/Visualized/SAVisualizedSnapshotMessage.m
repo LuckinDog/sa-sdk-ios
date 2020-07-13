@@ -68,7 +68,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
         // Get the object identity provider from the connection's session store or create one if there is none already.
         SAObjectIdentityProvider *objectIdentityProvider = [[SAObjectIdentityProvider alloc] init];
 
-        SAApplicationStateSerializer *serializer = [[SAApplicationStateSerializer alloc] initWithApplication:[UIApplication sharedApplication] configuration:serializerConfig objectIdentityProvider:objectIdentityProvider];
+        SAApplicationStateSerializer *serializer = [[SAApplicationStateSerializer alloc] initWithConfiguration:serializerConfig objectIdentityProvider:objectIdentityProvider];
 
         SAVisualizedSnapshotResponseMessage *snapshotMessage = [SAVisualizedSnapshotResponseMessage message];
 
@@ -84,7 +84,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
                     [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
 
                     // 解析页面信息
-                    NSDictionary *serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
+                    NSDictionary *serializedObjects = [serializer objectHierarchyForRootObject];
                     snapshotMessage.serializedObjects = serializedObjects;
                     [conn sendMessage:snapshotMessage];
 

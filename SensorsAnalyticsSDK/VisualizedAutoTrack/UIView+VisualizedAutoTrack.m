@@ -53,7 +53,7 @@
     }
 #endif
 
-    if (!(self.window && self.superview && self.alpha > 0) || self.hidden) {
+    if (!(self.window && self.superview && self.alpha > 0.01) || self.hidden) {
         return NO;
     }
     // 计算 view 在 keyWindow 上的坐标

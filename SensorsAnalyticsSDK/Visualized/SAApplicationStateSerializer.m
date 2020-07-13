@@ -34,20 +34,16 @@
 
 @implementation SAApplicationStateSerializer {
     SAVisualizedAutoTrackObjectSerializer *_visualizedSerializer;
-    UIApplication *_application;
 }
 
-- (instancetype)initWithApplication:(UIApplication *)application
-                      configuration:(SAObjectSerializerConfig *)configuration
+- (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
              objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider {
-    NSParameterAssert(application != nil);
     NSParameterAssert(configuration != nil);
-    if (!application || !configuration) {
+    if (!configuration) {
         return nil;
     }
     self = [super init];
     if (self) {
-        _application = application;
         _visualizedSerializer = [[SAVisualizedAutoTrackObjectSerializer alloc] initWithConfiguration:configuration objectIdentityProvider:objectIdentityProvider];
     }
     
@@ -60,7 +56,7 @@
 
     NSMutableArray <UIWindow *> *validWindows = [NSMutableArray array];
     for (UIWindow *window in [UIApplication sharedApplication].windows) {
-        if ([window isMemberOfClass:UIWindow.class] && !window.hidden) {
+        if ([window isMemberOfClass:UIWindow.class] && !window.hidden && window.alpha > 0.01) {
             [validWindows addObject:window];
         }
     }
@@ -115,30 +111,16 @@
     return screenshotImage;
 }
 
-- (UIWindow *)uiMainWindow:(UIWindow *)window {
-    if (window != nil) {
-        return window;
-    }
-    return _application.windows[0];
-}
-
-- (NSDictionary *)objectHierarchyForWindow:(UIWindow *)window {
-    UIWindow *mainWindow = [self uiMainWindow:window];
-    if (mainWindow) {
-        // 点击图 & 可视化全埋点
-        // 遍历其他 window，兼容自定义 window 弹框等场景
-        __block UIWindow *validWindow = [UIApplication sharedApplication].keyWindow;
-        // 逆序遍历，获取最上层全屏 window
-        [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size) && !obj.hidden) {
-                validWindow = obj;
-                *stop = YES;
-            }
-        }];
-        return [_visualizedSerializer serializedObjectsWithRootObject:validWindow];
-    }
-
-    return @{};
+- (NSDictionary *)objectHierarchyForRootObject {
+    __block UIWindow *validWindow = [UIApplication sharedApplication].keyWindow;
+    // 逆序遍历其他 window，获取最上层全屏 window，兼容自定义 window 弹框等场景
+    [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize([UIScreen mainScreen].bounds.size, obj.frame.size) && !obj.hidden && obj.alpha > 0.01) {
+            validWindow = obj;
+            *stop = YES;
+        }
+    }];
+    return [_visualizedSerializer serializedObjectsWithRootObject:validWindow];
 }
 
 @end
