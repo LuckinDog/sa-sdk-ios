@@ -64,10 +64,6 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
 
-    for (NSInteger index = 0; index < 100; index++) {
-        [[SensorsAnalyticsSDK sharedInstance] track:@"WeakTest" withProperties:@{@"index": @(index)}];
-    }
-
     return YES;
 }
 

@@ -40,16 +40,6 @@
 
 @implementation SANetwork
 
-#pragma mark - init
-- (instancetype)initWithServerURL:(NSURL *)serverURL {
-    self = [super init];
-    if (self) {
-//        _delegateQueue = queue;
-        self.serverURL = serverURL;
-    }
-    return self;
-}
-
 #pragma mark - property
 - (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
     if (securityPolicy.SSLPinningMode != SASSLPinningModeNone && ![self.serverURL.scheme isEqualToString:@"https"]) {
@@ -234,7 +224,7 @@
 }
 
 - (BOOL)isValidServerURL {
-    return _serverURL.absoluteString.length > 0;
+    return self.serverURL.absoluteString.length > 0;
 }
 
 @end

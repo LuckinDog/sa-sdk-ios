@@ -45,40 +45,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithFilePath:(NSString *)filePath;
 
-
-/// fetch records
-/// @param recordSize records size
-/// @param completion if fetching records successfully, error is nil and get an array of records, otherwise, error is not nil, and records array should be empty
-- (void)fetchRecords:(NSUInteger)recordSize completion:(void (^)(NSArray<SAEventRecord *> *records))completion;
-
-/// insert single record to database
-/// @param record event record object
-/// @param completion completion handler, insert successfully, then error is nil, otherwise, error return
-- (void)insertRecord:(SAEventRecord *)record completion:(void (^)(BOOL success))completion;
-
-
-/// bulk insert records
-/// @param records event records
-/// @param completion completion handler, insert successfully, then error is nil, otherwise, error return
-- (void)insertRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion;
-
-/// delete records
-/// @param recordIDs an array of event id in database table
-/// @param completion completion handler, delete successfully, then error is nil, otherwise, error return
-- (void)deleteRecords:(NSArray<NSString *> *)recordIDs completion:(void (^)(BOOL success))completion;
-
-/// delete all records
-/// @param completion completion handler, delete successfully, then error is nil, otherwise, error return
-- (void)deleteAllRecordsWithCompletion:(void (^)(BOOL success))completion;
-
 /// fetch first records with a certain size
 /// @param recordSize record size
 - (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize;
-
-
-/// bulk insert event records
-/// @param records event records
-- (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records;
 
 
 /// insert single record
@@ -96,14 +65,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// delete all records from database
 - (BOOL)deleteAllRecords;
-
-/**
- *  @abstract
- *  缩减表格文件空洞数据的空间
- *
- *  @return 是否成功
- */
-- (BOOL)vacuum;
 
 @end
 

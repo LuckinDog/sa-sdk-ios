@@ -36,25 +36,19 @@
 
 @implementation SAEventFlush
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-
-    }
-    return self;
-}
-
-// 1. 先完成这一系列Json字符串的拼接
+// 1. 先完成这一系列 Json 字符串的拼接
 - (NSString *)buildFlushJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
-        [record addFlushTime];
-        [contents addObject:record.content];
+        if (record.content) {
+            [record addFlushTime];
+            [contents addObject:record.content];
+        }
     }
     return [NSString stringWithFormat:@"[%@]", [contents componentsJoinedByString:@","]];
 }
 
-// 1. 先完成这一系列Json字符串的拼接
+// 2. 完成 HTTP 请求拼接
 - (NSData *)buildBodyWithEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted {
     NSString *dataString = [self buildFlushJSONStringWithEventRecords:records];
     int gzip = 1; // gzip = 9 表示加密编码
@@ -104,7 +98,7 @@
             messageDesc = @"\n【valid message】\n";
         } else {
             messageDesc = @"\n【invalid message】\n";
-            if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
+            if (statusCode >= 300 && self.isDebugOff) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
                 [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
@@ -126,7 +120,7 @@
         // 1、开启 debug 模式，都删除；
         // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
         BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
-        BOOL flushSuccess = self.debugMode != SensorsAnalyticsDebugOff || successCode;
+        BOOL flushSuccess = self.isDebugOff || successCode;
         completion(flushSuccess);
     };
 

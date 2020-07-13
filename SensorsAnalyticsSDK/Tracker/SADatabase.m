@@ -23,7 +23,6 @@
 #endif
 
 #import <sqlite3.h>
-#import "SAJSONUtil.h"
 #import "SADatabase.h"
 #import "SALog.h"
 #import "SAConstants+Private.h"
@@ -82,6 +81,8 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     _dbStmtCache = NULL;
     sqlite3_close(_database);
     sqlite3_shutdown();
+    _isCreatedTable = NO;
+    _isOpen = NO;
     SALogDebug(@"%@ close database", self);
 }
 
@@ -345,28 +346,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     _dbStmtCache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &keyCallbacks, &valueCallbacks);
 }
 
-- (BOOL)vacuum {
-#ifdef SENSORS_ANALYTICS_ENABLE_VACUUM
-    @try {
-        if (![self databaseCheck]) {
-            SALogError(@"Failed to VACUUM record because the database failed to open");
-            return NO;
-        }
-        
-        NSString *sql = @"VACUUM";
-        if (![self databaseExecute:sql]) {
-            SALogError(@"Failed to VACUUM record");
-            return NO;
-        }
-        return YES;
-    } @catch (NSException *exception) {
-        return NO;
-    }
-#else
-    return YES;
-#endif
-}
-
 - (sqlite3_stmt *)dbCacheStmt:(NSString *)sql {
     if (sql.length == 0 || !_dbStmtCache) return NULL;
     sqlite3_stmt *stmt = (sqlite3_stmt *)CFDictionaryGetValue(_dbStmtCache, (__bridge const void *)(sql));
@@ -442,7 +421,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         while (sqlite3_step(statement) == SQLITE_ROW)
             count = sqlite3_column_int(statement, 0);
     } else {
-        SALogError(@"Failed to prepare statement");
+        SALogError(@"Failed to get count form dataCache");
     }
     return (NSUInteger)count;
 }

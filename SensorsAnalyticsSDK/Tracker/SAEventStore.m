@@ -27,6 +27,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 
 static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
+static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 
 @interface SAEventStore ()
 
@@ -51,7 +52,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 }
 
 - (void)dealloc {
-    [self.database removeObserver:self forKeyPath:@"isCreatedTable"];
+    [self.database removeObserver:self forKeyPath:SAEventStoreObserverKeyPath];
     self.database = nil;
 }
 
@@ -60,7 +61,7 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
     if (!self.database.isCreatedTable) {
         self.recordCaches = [NSMutableArray array];
     }
-    [self.database addObserver:self forKeyPath:@"isCreatedTable" options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
+    [self.database addObserver:self forKeyPath:SAEventStoreObserverKeyPath options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
 }
 
 #pragma mark - property
@@ -75,14 +76,19 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
     if (context != SAEventStoreContext) {
         return [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
-    if (![keyPath isEqualToString:@"isCreatedTable"]) {
+    if (![keyPath isEqualToString:SAEventStoreObserverKeyPath]) {
         return;
     }
-    if (![change[@"isCreatedTable"] boolValue] || self.recordCaches.count == 0) {
+    if (![change[SAEventStoreObserverKeyPath] boolValue] || self.recordCaches.count == 0) {
         return;
     }
-    [self.database insertRecords:self.recordCaches];
-    [self.recordCaches removeAllObjects];
+    // 对于内存中的数据，重试 3 次插入数据库中。
+    for (NSInteger i = 0; i < 3; i++) {
+        if ([self.database insertRecords:self.recordCaches]) {
+            [self.recordCaches removeAllObjects];
+            return;
+        }
+    }
 }
 
 #pragma mark - record
@@ -150,10 +156,6 @@ static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
         return YES;
     }
     return [self.database deleteAllRecords];
-}
-
-- (BOOL)vacuum {
-    return [self.database vacuum];
 }
 
 - (void)fetchRecords:(NSUInteger)recordSize completion:(void (^)(NSArray<SAEventRecord *> *records))completion {

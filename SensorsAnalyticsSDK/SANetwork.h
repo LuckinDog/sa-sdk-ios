@@ -31,12 +31,8 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 /// 用于评价请求是否是服务器信任的链接，默认为：defaultPolicy
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
-/// 服务器的 URL
-@property (nonatomic, strong) NSURL *serverURL;
 /// debug mode
 @property (nonatomic) SensorsAnalyticsDebugMode debugMode;
-
-- (instancetype)initWithServerURL:(NSURL *)serverURL;
 
 /**
  * @abstract

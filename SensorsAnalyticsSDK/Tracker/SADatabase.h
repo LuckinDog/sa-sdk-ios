@@ -80,14 +80,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// delete all records from database
 - (BOOL)deleteAllRecords;
 
-/**
- *  @abstract
- *  缩减表格文件空洞数据的空间
- *
- *  @return 是否成功
- */
-- (BOOL)vacuum;
-
 @end
 
 NS_ASSUME_NONNULL_END

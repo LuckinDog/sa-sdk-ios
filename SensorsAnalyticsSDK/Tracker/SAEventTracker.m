@@ -32,9 +32,6 @@
 #import "SALog.h"
 #import "SAObject+SAConfigOptions.h"
 #import "SACommonUtility.h"
-//#import "SAConstants.h"
-
-NSUInteger const SAEventFlushRecordSize = 50;
 
 @interface SAEventTracker ()
 
@@ -99,7 +96,7 @@ NSUInteger const SAEventFlushRecordSize = 50;
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
     __block BOOL flushSuccess = NO;
     // 当在程序终止或 debug 模式下，使用线程锁
-    BOOL isWait = self.flushBeforeEnterBackground || self.debugMode != SensorsAnalyticsDebugOff;
+    BOOL isWait = self.flushBeforeEnterBackground || self.isDebugOff;
     [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
         if (isWait) {
             dispatch_semaphore_signal(self.flushSemaphore);

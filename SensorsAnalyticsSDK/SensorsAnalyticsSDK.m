@@ -305,7 +305,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
-            _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_configOptions.serverURL]];
+            _network = [[SANetwork alloc] init];
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
             _appRelaunched = NO;
@@ -316,7 +316,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
-            _flushBeforeEnterBackground = YES;
             
             NSString *remoteConfigLockLabel = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
             _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:remoteConfigLockLabel];
@@ -3248,6 +3247,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //加上最小值保护，50
         NSInteger newBulkSize = (NSInteger)bulkSize;
         self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
+    }
+}
+
+- (BOOL)flushBeforeEnterBackground {
+    @synchronized(self) {
+        return self.configOptions.flushBeforeEnterBackground;
+    }
+}
+
+- (void)setFlushBeforeEnterBackground:(BOOL)flushBeforeEnterBackground {
+    @synchronized(self) {
+        self.configOptions.flushBeforeEnterBackground = flushBeforeEnterBackground;
     }
 }
 
