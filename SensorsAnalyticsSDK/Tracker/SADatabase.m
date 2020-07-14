@@ -30,6 +30,7 @@
 
 static NSString *const kDatabaseTableName = @"dataCache";
 static NSString *const kDatabaseColumnStatus = @"status";
+static NSString *const kDatabaseColumnEncrypted = @"encrypted";
 
 static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大缓存条数时默认的删除条数
 
@@ -212,7 +213,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
     BOOL success = YES;
     for (SAEventRecord *record in records) {
-        if (!record.content || ![record.type isKindOfClass:[NSString class]]) {
+        if (![record isValid]) {
             success = NO;
             break;
         }
@@ -232,7 +233,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 
 - (BOOL)insertRecord:(SAEventRecord *)record {
     BOOL success = NO;
-    if (!record.content || ![record.type isKindOfClass:[NSString class]]) {
+    if (![record isValid]) {
         SALogError(@"%@ input parameter is invalid for addObjectToDatabase", self);
         return success;
     }

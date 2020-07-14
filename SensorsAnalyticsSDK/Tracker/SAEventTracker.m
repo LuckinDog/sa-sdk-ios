@@ -40,7 +40,6 @@
 @property (nonatomic, strong) SAEventFlush *eventFlush;
 
 @property (nonatomic, strong) dispatch_queue_t queue;
-@property (nonatomic, strong) dispatch_semaphore_t flushSemaphore;
 
 @end
 
@@ -57,13 +56,6 @@
         });
     }
     return self;
-}
-
-- (dispatch_semaphore_t)flushSemaphore {
-    if (!_flushSemaphore) {
-        _flushSemaphore = dispatch_semaphore_create(0);
-    }
-    return _flushSemaphore;
 }
 
 - (void)trackEvent:(NSDictionary *)event flushType:(SAEventTrackerFlushType)type {
@@ -90,26 +82,10 @@
 }
 
 - (void)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
-
-}
-
-- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
-    __block BOOL flushSuccess = NO;
-    // 当在程序终止或 debug 模式下，使用线程锁
-    BOOL isWait = self.flushBeforeEnterBackground || self.isDebugOff;
-    [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
-        if (isWait) {
-            dispatch_semaphore_signal(self.flushSemaphore);
-            flushSuccess = success;
-        } else {
-            dispatch_async(self.queue, ^{
-                completion(success);
-            });
-        }
-    }];
-    if (isWait) {
-        dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER);
-        completion(flushSuccess);
+    // 缓存数据未加密，再加密
+    NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:records.event];
+    if (encryptDic) {
+        records.event = [encryptDic mutableCopy];
     }
 }
 
@@ -142,7 +118,7 @@
 
     // flush
     __weak typeof(self) weakSelf = self;
-    [self flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
+    [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!success) {
             [strongSelf.eventStore updateRecords:recordIDs status:SAEventRecordStatusNone];

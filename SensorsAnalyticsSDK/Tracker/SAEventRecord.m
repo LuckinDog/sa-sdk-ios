@@ -36,6 +36,8 @@ static long recordIndex = 0;
         _recordID = [NSString stringWithFormat:@"%ld", recordIndex];
         _event = [event mutableCopy];
         _type = type;
+
+        _encrypted = _event[@"ekey"] != nil;
     }
     return self;
 }
@@ -43,33 +45,36 @@ static long recordIndex = 0;
 - (instancetype)initWithRecordID:(NSString *)recordID content:(NSString *)content {
     if (self = [super init]) {
         _recordID = recordID;
-        _content = content;
+
+        NSData *jsonData = [content dataUsingEncoding:NSUTF8StringEncoding];
+        if (jsonData) {
+            _event = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+            _encrypted = _event[@"ekey"] != nil;
+        }
     }
     return self;
 }
 
 - (NSString *)content {
-    if (!_content && _event) {
-        NSData *data = [SAJSONUtil JSONSerializeObject:self.event];
-        _content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    }
-    return _content;
+    NSData *data = [SAJSONUtil JSONSerializeObject:self.event];
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
-- (NSDictionary *)event {
-    if (!_event && _content.length > 0) {
-        NSData *jsonData = [self.content dataUsingEncoding:NSUTF8StringEncoding];
-        if (jsonData) {
-            _event = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-        }
-    }
-    return _event;
+- (BOOL)isValid {
+    return self.event.count > 0;
 }
 
 - (void)addFlushTime {
-    _content = nil;
     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
     _event[self.isEncrypted ? @"flush_time" : @"_flush_time"] = @(time);
+}
+
+- (void)encryptEventWithPKV:(NSString *)pkv ekey:(NSString *)ekey payload:(NSString *)payload {
+    [_event removeAllObjects];
+    
+    _event[@"pkv"] = pkv;
+    _event[@"ekey"] = ekey;
+    _event[@"payload"] = payload;
 }
 
 @end

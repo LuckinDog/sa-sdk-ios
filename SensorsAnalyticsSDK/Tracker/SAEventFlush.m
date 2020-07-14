@@ -32,15 +32,24 @@
 
 @interface SAEventFlush ()
 
+@property (nonatomic, strong) dispatch_semaphore_t flushSemaphore;
+
 @end
 
 @implementation SAEventFlush
+
+- (dispatch_semaphore_t)flushSemaphore {
+    if (!_flushSemaphore) {
+        _flushSemaphore = dispatch_semaphore_create(0);
+    }
+    return _flushSemaphore;
+}
 
 // 1. 先完成这一系列 Json 字符串的拼接
 - (NSString *)buildFlushJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
-        if (record.content) {
+        if ([record isValid]) {
             [record addFlushTime];
             [contents addObject:record.content];
         }
@@ -130,5 +139,25 @@
         [task resume];
     }];
 }
+
+//- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+//    __block BOOL flushSuccess = NO;
+//    // 当在程序终止或 debug 模式下，使用线程锁
+//    BOOL isWait = self.flushBeforeEnterBackground || self.isDebugOff;
+//    [self flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
+//        if (isWait) {
+//            dispatch_semaphore_signal(self.flushSemaphore);
+//            flushSuccess = success;
+//        } else {
+//            dispatch_async(self.queue, ^{
+//                completion(success);
+//            });
+//        }
+//    }];
+//    if (isWait) {
+//        dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER);
+//        completion(flushSuccess);
+//    }
+//}
 
 @end

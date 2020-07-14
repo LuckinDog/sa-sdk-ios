@@ -34,8 +34,8 @@ typedef NS_ENUM(int, SAEventRecordStatus) {
 @interface SAEventRecord : NSObject
 
 @property (nonatomic, copy) NSString *recordID;
-@property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSString *type;
+@property (nonatomic, copy, readonly) NSString *content;
 
 @property (nonatomic) SAEventRecordStatus status;
 @property (nonatomic, getter=isEncrypted) BOOL encrypted;
@@ -55,6 +55,8 @@ typedef NS_ENUM(int, SAEventRecordStatus) {
 - (instancetype)initWithRecordID:(NSString *)recordID content:(NSString *)content;
 
 - (instancetype)init NS_UNAVAILABLE;
+
+- (BOOL)isValid;
 
 - (void)addFlushTime;
 

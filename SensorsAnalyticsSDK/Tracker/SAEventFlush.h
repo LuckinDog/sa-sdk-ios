@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventFlush : NSObject
 
+//- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion;
+
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion;
 
 @end
