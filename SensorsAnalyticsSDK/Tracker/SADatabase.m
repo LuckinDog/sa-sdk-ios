@@ -139,18 +139,21 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         return [contentArray copy];
     }
 
+    NSMutableArray<NSString *> *invalidRecords = [NSMutableArray array];
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         int index = sqlite3_column_int(stmt, 0);
         char *jsonChar = (char *)sqlite3_column_text(stmt, 1);
         if (!jsonChar) {
             SALogError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
-            return @[];
+            [invalidRecords addObject:[NSString stringWithFormat:@"%d", index]];
+            continue;
         }
         NSString *recordID = [NSString stringWithFormat:@"%d", index];
         NSString *content = [NSString stringWithUTF8String:jsonChar];
         SAEventRecord *record = [[SAEventRecord alloc] initWithRecordID:recordID content:content];
         [contentArray addObject:record];
     }
+    [self deleteRecords:invalidRecords];
 
     return [contentArray copy];
 }
