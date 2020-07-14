@@ -52,6 +52,10 @@
     return [SensorsAnalyticsSDK sharedInstance].network.serverURL;
 }
 
+- (BOOL)flushBeforeEnterBackground {
+    return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeEnterBackground;
+}
+
 @end
 
 
@@ -69,10 +73,6 @@
 
 - (NSInteger)flushBulkSize {
     return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBulkSize;
-}
-
-- (BOOL)flushBeforeEnterBackground {
-    return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeEnterBackground;
 }
 
 @end

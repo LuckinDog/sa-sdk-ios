@@ -90,7 +90,7 @@
     return request;
 }
 
-- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+- (void)requestWithRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
     NSString *jsonString = [self buildFlushJSONStringWithEventRecords:records];
 
     SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -140,24 +140,22 @@
     }];
 }
 
-//- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
-//    __block BOOL flushSuccess = NO;
-//    // 当在程序终止或 debug 模式下，使用线程锁
-//    BOOL isWait = self.flushBeforeEnterBackground || self.isDebugOff;
-//    [self flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
-//        if (isWait) {
-//            dispatch_semaphore_signal(self.flushSemaphore);
-//            flushSuccess = success;
-//        } else {
-//            dispatch_async(self.queue, ^{
-//                completion(success);
-//            });
-//        }
-//    }];
-//    if (isWait) {
-//        dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER);
-//        completion(flushSuccess);
-//    }
-//}
+- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+    __block BOOL flushSuccess = NO;
+    // 当在程序终止或 debug 模式下，使用线程锁
+    BOOL isWait = self.flushBeforeEnterBackground || self.isDebugOff;
+    [self requestWithRecords:records isEncrypted:NO completion:^(BOOL success) {
+        if (isWait) {
+            dispatch_semaphore_signal(self.flushSemaphore);
+            flushSuccess = success;
+        } else {
+            completion(success);
+        }
+    }];
+    if (isWait) {
+        dispatch_semaphore_wait(self.flushSemaphore, DISPATCH_TIME_FOREVER);
+        completion(flushSuccess);
+    }
+}
 
 @end

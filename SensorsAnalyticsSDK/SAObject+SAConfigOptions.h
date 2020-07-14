@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readonly) NSURL *serverURL;
 
+@property (nonatomic, readonly) BOOL flushBeforeEnterBackground;
+
 @end
 
 
@@ -52,8 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) SensorsAnalyticsNetworkType networkTypePolicy;
 
 @property (nonatomic, readonly) NSInteger flushBulkSize;
-
-@property (nonatomic, readonly) BOOL flushBeforeEnterBackground;
 
 @end
 
