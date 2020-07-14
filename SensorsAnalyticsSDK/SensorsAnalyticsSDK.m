@@ -840,8 +840,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
-        SAEventTrackerFlushType type = [self debugMode] == SensorsAnalyticsDebugOff ? SAEventTrackerFlushTypeNormal : SAEventTrackerFlushTypeDebug;
-        [self.eventTracker flushWithType:type];
+        [self.eventTracker flush];
     });
 }
 
@@ -1100,7 +1099,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     SALogDebug(@"\n【track event】:\n%@", itemProperties);
 
-    [self.eventTracker trackEvent:itemProperties flushType:SAEventTrackerFlushTypeNone];
+    [self.eventTracker trackEvent:itemProperties];
 }
 #pragma mark - track event
 
@@ -1345,15 +1344,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:trackEventDic];
         SALogDebug(@"\n【track event】:\n%@", trackEventDic);
 
-        SAEventTrackerFlushType flushType = SAEventTrackerFlushTypeNone;
-        if (self->_debugMode != SensorsAnalyticsDebugOff) {
-            // 在DEBUG模式下，直接发送事件
-            flushType = SAEventTrackerFlushTypeDebug;
-        } else if ([type isEqualToString:@"track_signup"]) {
-            // 否则，在满足发送条件时，发送事件
-            flushType = SAEventTrackerFlushTypeNormal;
-        }
-        [self.eventTracker trackEvent:trackEventDic flushType:flushType];
+        [self.eventTracker trackEvent:trackEventDic isSignUp:[type isEqualToString:@"track_signup"]];
     });
 }
 
@@ -2464,8 +2455,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 
     dispatch_async(self.serialQueue, ^{
-        SAEventTrackerFlushType type = [self debugMode] == SensorsAnalyticsDebugOff ? SAEventTrackerFlushTypeNormal : SAEventTrackerFlushTypeDebug;
-        [self.eventTracker flushWithType:type];
+        [self.eventTracker flush];
         endBackgroundTask();
     });
 }
@@ -3106,11 +3096,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
                     enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
-                    [self.eventTracker trackEvent:enqueueEvent flushType:SAEventTrackerFlushTypeNone];
+                    [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
                     SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
                 }
             } else {
-                [self.eventTracker trackEvent:enqueueEvent flushType:SAEventTrackerFlushTypeNone];
+                [self.eventTracker trackEvent:enqueueEvent];
                 SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
             }
         } @catch (NSException *exception) {
