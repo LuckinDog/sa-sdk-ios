@@ -117,28 +117,23 @@
     __weak typeof(self) weakSelf = self;
     [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
+        void(^block)() = ^ {
+            if (!success) {
+                [strongSelf.eventStore updateRecords:recordIDs status:SAEventRecordStatusNone];
+                return;
+            }
+            // 5. 删除数据
+            [strongSelf.eventStore deleteRecords:recordIDs];
+
+            [strongSelf flushRecordsWithSize:size];
+        }
         if (sensorsdata_is_same_queue(strongSelf.queue)) {
-            [strongSelf flushCompletedWithRecordIDs:recordIDs success:success];
+            block();
         } else {
-            dispatch_sync(strongSelf.queue, ^ {
-                [strongSelf flushCompletedWithRecordIDs:recordIDs success:success];
-            });
+            dispatch_sync(strongSelf.queue, block);
         }
     }];
     return YES;
-}
-
-- (void)flushCompletedWithRecordIDs:(NSArray *)recordIDs success:(BOOL)success {
-    if (!success) {
-        [self.eventStore updateRecords:recordIDs status:SAEventRecordStatusNone];
-        return;
-    }
-    // 5. 删除数据
-    if (![self.eventStore deleteRecords:recordIDs]) {
-        return;
-    }
-
-    [self flushRecordsWithSize:size];
 }
 
 @end
