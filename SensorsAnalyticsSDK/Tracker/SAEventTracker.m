@@ -59,14 +59,17 @@
     return self;
 }
 
-- (void)trackEvent:(NSDictionary *)event flushType:(SAEventTrackerFlushType)type {
-//    [self encryptionJSONObject:event];
+- (void)trackEvent:(NSDictionary *)event {
+    [self trackEvent:event isSignUp:NO];
+}
+
+- (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp {
     SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
     [self.eventStore insertRecord:record];
 
-    // 本地缓存的数据是否超过 flushBulkSize
-    if (self.eventStore.count > self.flushBulkSize || type != SAEventTrackerFlushTypeNone) {
-        [self flushWithType:type];
+    // $SignUp 事件或者本地缓存的数据是超过 flushBulkSize
+    if (isSignUp || self.eventStore.count > self.flushBulkSize) {
+        [self flush];
     }
 }
 
@@ -86,11 +89,11 @@
 
 }
 
-- (void)flushWithType:(SAEventTrackerFlushType)type {
+- (void)flush {
     if (![self canFlush]) {
         return;
     }
-    BOOL isFlushed = [self flushRecordsWithSize:type];
+    BOOL isFlushed = [self flushRecordsWithSize:self.isDebugOff ? 50 : 1];
     if (isFlushed) {
         SALogInfo(@"Events flushed!");
     }
@@ -117,7 +120,7 @@
     __weak typeof(self) weakSelf = self;
     [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        void(^block)() = ^ {
+        void(^block)(void) = ^ {
             if (!success) {
                 [strongSelf.eventStore updateRecords:recordIDs status:SAEventRecordStatusNone];
                 return;
@@ -126,7 +129,7 @@
             [strongSelf.eventStore deleteRecords:recordIDs];
 
             [strongSelf flushRecordsWithSize:size];
-        }
+        };
         if (sensorsdata_is_same_queue(strongSelf.queue)) {
             block();
         } else {

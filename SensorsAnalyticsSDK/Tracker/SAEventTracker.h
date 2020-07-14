@@ -31,21 +31,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern NSUInteger const SAEventFlushRecordSize;
 
-typedef NS_ENUM(NSUInteger, SAEventTrackerFlushType) {
-    SAEventTrackerFlushTypeNone = 0,
-    SAEventTrackerFlushTypeDebug = 1,
-    SAEventTrackerFlushTypeNormal = 50,
-};
-
 @interface SAEventTracker : NSObject
 
 @property (nonatomic, strong, readonly) SAEventStore *eventStore;
 
 - (instancetype)initWithQueue:(dispatch_queue_t)queue;
 
-- (void)trackEvent:(NSDictionary *)event flushType:(SAEventTrackerFlushType)type;
+- (void)trackEvent:(NSDictionary *)event;
+- (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp;
 
-- (void)flushWithType:(SAEventTrackerFlushType)type;
+- (void)flush;
 
 @end
 
