@@ -82,11 +82,7 @@
 }
 
 - (void)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
-    // 缓存数据未加密，再加密
-    NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:records.event];
-    if (encryptDic) {
-        records.event = [encryptDic mutableCopy];
-    }
+
 }
 
 - (void)flushWithType:(SAEventTrackerFlushType)type {
