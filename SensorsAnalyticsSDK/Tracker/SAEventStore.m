@@ -45,7 +45,7 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
     if (self) {
         NSString *label = [NSString stringWithFormat:@"cn.sensorsdata.SAEventStore.%p", self];
         _serialQueue = dispatch_queue_create(label.UTF8String, DISPATCH_QUEUE_SERIAL);
-
+        // 直接初始化，防止数据库文件，意外删除等问题
         _recordCaches = [NSMutableArray array];
 
         [self setupDatabase:filePath];
