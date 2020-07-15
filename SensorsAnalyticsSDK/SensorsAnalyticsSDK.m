@@ -489,9 +489,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
-    dispatch_async(self.serialQueue, ^{
-        self.configOptions.serverURL = serverUrl;
-    });
+    self.configOptions.serverURL = serverUrl;
 }
 
 - (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode showDebugModeWarning:(BOOL)isShow {

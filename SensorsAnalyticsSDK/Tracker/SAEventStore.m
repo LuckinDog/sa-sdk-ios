@@ -137,7 +137,7 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
     }
     // 删除缓存数据
     // 如果加密失败，会导致 recordIDs 可能不是前 recordIDs.count 条数据，所以此处必须使用两个循环
-    // 由于加密失败的可能性较小，所以第二个循环次数不回很多
+    // 由于加密失败的可能性较小，所以第二个循环次数不会很多
     for (NSString *recordID in recordIDs) {
         for (NSInteger index = 0; index < self.recordCaches.count; index++) {
             if ([recordID isEqualToString:self.recordCaches[index].recordID]) {

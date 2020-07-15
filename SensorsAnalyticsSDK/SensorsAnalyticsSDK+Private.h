@@ -106,7 +106,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 @interface SAConfigOptions()
 
 /// 数据接收地址 serverURL
-@property(nonatomic, copy) NSString *serverURL;
+@property(atomic, copy) NSString *serverURL;
 
 /// App 启动的 launchOptions
 @property(nonatomic, copy) NSDictionary *launchOptions;
