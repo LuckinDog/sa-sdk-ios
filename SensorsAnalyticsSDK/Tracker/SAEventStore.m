@@ -46,6 +46,8 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
         NSString *label = [NSString stringWithFormat:@"cn.sensorsdata.SAEventStore.%p", self];
         _serialQueue = dispatch_queue_create(label.UTF8String, DISPATCH_QUEUE_SERIAL);
 
+        _recordCaches = [NSMutableArray array];
+
         [self setupDatabase:filePath];
     }
     return self;
@@ -58,9 +60,6 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 
 - (void)setupDatabase:(NSString *)filePath {
     self.database = [[SADatabase alloc] initWithFilePath:filePath];
-    if (!self.database.isCreatedTable) {
-        self.recordCaches = [NSMutableArray array];
-    }
     [self.database addObserver:self forKeyPath:SAEventStoreObserverKeyPath options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
 }
 
