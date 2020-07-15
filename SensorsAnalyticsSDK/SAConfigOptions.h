@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /// 是否关闭首次渠道匹配，关闭后调用 profile_set,不关闭则调用 profile_set_once
-@property (nonatomic, assign) BOOL disableChannelFirstMatch;
+@property (nonatomic, assign) BOOL enableMultipleChannelMatch;
 
 @end
 

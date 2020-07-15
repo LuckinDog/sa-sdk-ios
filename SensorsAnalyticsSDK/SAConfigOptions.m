@@ -74,7 +74,7 @@
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
 
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
-    options.disableChannelFirstMatch = self.disableChannelFirstMatch;
+    options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
     return options;
 }
 
