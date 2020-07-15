@@ -143,7 +143,7 @@
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
     __block BOOL flushSuccess = NO;
     // 当在程序终止或 debug 模式下，使用线程锁
-    BOOL isWait = self.flushBeforeEnterBackground || self.isDebugOff;
+    BOOL isWait = self.flushBeforeEnterBackground || !self.isDebugOff;
     [self requestWithRecords:records isEncrypted:NO completion:^(BOOL success) {
         if (isWait) {
             flushSuccess = success;
