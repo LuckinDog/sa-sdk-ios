@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
 
-/// 是否关闭首次渠道匹配，关闭后调用 profile_set,不关闭则调用 profile_set_once
+/// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once
 @property (nonatomic, assign) BOOL enableMultipleChannelMatch;
 
 @end
