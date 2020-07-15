@@ -22,7 +22,7 @@
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 #import <SensorsAnalyticsExtension/SensorsAnalyticsExtension.h>
 
-static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdata.cn/sa?project=zhangminchao&token=5a394d2405c147ca";
+static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
 @interface AppDelegate ()
 
@@ -63,11 +63,6 @@ static NSString* Sa_Default_ServerURL = @"https://newsdktest.datasink.sensorsdat
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
-
-
-    for (NSInteger index = 0; index < 1000; index++) {
-        [[SensorsAnalyticsSDK sharedInstance] track:@"WeakTest" withProperties:@{@"index": @(index)}];
-    }
 
     return YES;
 }

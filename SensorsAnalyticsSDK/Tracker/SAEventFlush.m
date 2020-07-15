@@ -146,8 +146,8 @@
     BOOL isWait = self.flushBeforeEnterBackground || self.isDebugOff;
     [self requestWithRecords:records isEncrypted:NO completion:^(BOOL success) {
         if (isWait) {
-            dispatch_semaphore_signal(self.flushSemaphore);
             flushSuccess = success;
+            dispatch_semaphore_signal(self.flushSemaphore);
         } else {
             completion(success);
         }
