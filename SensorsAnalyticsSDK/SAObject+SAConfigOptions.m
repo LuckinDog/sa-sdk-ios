@@ -44,7 +44,7 @@
 
 @implementation SAEventFlush (SAConfigOptions)
 
-- (BOOL)isDebugOff {
+- (BOOL)isDebugMode {
     return [[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff;
 }
 
@@ -63,7 +63,7 @@
 
 @implementation SAEventTracker (SAConfigOptions)
 
-- (BOOL)isDebugOff {
+- (BOOL)isDebugMode {
     return [[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff;
 }
 
