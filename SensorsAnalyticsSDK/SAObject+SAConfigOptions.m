@@ -45,7 +45,7 @@
 @implementation SAEventFlush (SAConfigOptions)
 
 - (BOOL)isDebugOff {
-    return [[SensorsAnalyticsSDK sharedInstance] debugMode] == SensorsAnalyticsDebugOff;
+    return [[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff;
 }
 
 - (NSURL *)serverURL {
@@ -64,7 +64,7 @@
 @implementation SAEventTracker (SAConfigOptions)
 
 - (BOOL)isDebugOff {
-    return [[SensorsAnalyticsSDK sharedInstance] debugMode] == SensorsAnalyticsDebugOff;
+    return [[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff;
 }
 
 - (SensorsAnalyticsNetworkType)networkTypePolicy {

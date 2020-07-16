@@ -235,10 +235,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 }
 
 - (BOOL)insertRecord:(SAEventRecord *)record {
-    BOOL success = NO;
     if (![record isValid]) {
         SALogError(@"%@ input parameter is invalid for addObjectToDatabase", self);
-        return success;
+        return NO;
     }
     if (![self databaseCheck]) {
         return NO;
@@ -257,15 +256,14 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         rc = sqlite3_step(insertStatement);
         if (rc != SQLITE_DONE) {
             SALogError(@"insert into dataCache table of sqlite fail, rc is %d", rc);
-            return success;
+            return NO;
         }
-        success = YES;
         self.count++;
         SALogDebug(@"insert into dataCache table of sqlite success, current count is %lu", self.count);
-        return success;
+        return YES;
     } else {
         SALogError(@"insert into dataCache table of sqlite error");
-        return success;
+        return NO;
     }
 }
 
@@ -283,12 +281,14 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         SALogError(@"Prepare delete records query failure: %s", sqlite3_errmsg(_database));
         return NO;
     }
+    BOOL success = YES;
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         SALogError(@"Failed to delete record from database, error: %s", sqlite3_errmsg(_database));
+        success = NO;
     }
     sqlite3_finalize(stmt);
     self.count = [self messagesCount];
-    return YES;
+    return success;
 }
 
 - (BOOL)deleteFirstRecords:(NSUInteger)recordSize {
@@ -308,6 +308,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         SALogError(@"Failed to delete record from database, error: %s", sqlite3_errmsg(_database));
+        sqlite3_finalize(stmt);
+        self.count = [self messagesCount];
+        return NO;
     }
     sqlite3_finalize(stmt);
     self.count = self.count - removeSize;

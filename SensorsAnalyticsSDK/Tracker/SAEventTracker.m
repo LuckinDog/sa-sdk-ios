@@ -71,7 +71,7 @@
     if (isSignUp || self.eventStore.count > self.flushBulkSize) {
         // 添加异步队列任务，保证数据继续入库
         dispatch_async(self.queue, ^{
-            [self flush];
+            [self flushAllEventRecords];
         });
     }
 }
@@ -92,11 +92,11 @@
 
 }
 
-- (void)flush {
+- (void)flushAllEventRecords {
     if (![self canFlush]) {
         return;
     }
-    BOOL isFlushed = [self flushRecordsWithSize:self.isDebugOff ? 50 : 1];
+    BOOL isFlushed = [self flushRecordsWithSize:self.isDebugMode ? 1 : 50];
     if (isFlushed) {
         SALogInfo(@"Events flushed!");
     }
