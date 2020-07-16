@@ -53,7 +53,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#import "SASDKRemoteConfig.h"
+#import "SARemoteConfigModel.h"
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
@@ -191,7 +191,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
-@property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
+@property (nonatomic, strong) SARemoteConfigModel *remoteConfig;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 @property (nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
 
@@ -256,7 +256,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
     NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
-    if (sharedInstance.remoteConfig.disableSDK) {
+    if (sharedInstance.remoteConfig.mainConfigModel.disableSDK) {
         return nil;
     }
     return sharedInstance;
@@ -782,11 +782,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isAutoTrackEnabled {
-    if (sharedInstance.remoteConfig.disableSDK) {
+    if (sharedInstance.remoteConfig.mainConfigModel.disableSDK) {
         return NO;
     }
-    if (self.remoteConfig.autoTrackMode != kSAAutoTrackModeDefault) {
-        if (self.remoteConfig.autoTrackMode == kSAAutoTrackModeDisabledAll) {
+    if (self.remoteConfig.mainConfigModel.autoTrackMode != kSAAutoTrackModeDefault) {
+        if (self.remoteConfig.mainConfigModel.autoTrackMode == kSAAutoTrackModeDisabledAll) {
             return NO;
         } else {
             return YES;
@@ -797,14 +797,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
 
-    if (sharedInstance.remoteConfig.disableSDK) {
+    if (sharedInstance.remoteConfig.mainConfigModel.disableSDK) {
         return YES;
     }
-    if (self.remoteConfig.autoTrackMode != kSAAutoTrackModeDefault) {
-        if (self.remoteConfig.autoTrackMode == kSAAutoTrackModeDisabledAll) {
+    if (self.remoteConfig.mainConfigModel.autoTrackMode != kSAAutoTrackModeDefault) {
+        if (self.remoteConfig.mainConfigModel.autoTrackMode == kSAAutoTrackModeDisabledAll) {
             return YES;
         } else {
-            return !(self.remoteConfig.autoTrackMode & eventType);
+            return !(self.remoteConfig.mainConfigModel.autoTrackMode & eventType);
         }
     }
     return !(self.configOptions.autoTrackEventType & eventType);
@@ -1196,7 +1196,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
-    if (self.remoteConfig.disableSDK) {
+    if (self.remoteConfig.mainConfigModel.disableSDK) {
         return;
     }
     propertieDict = [propertieDict copy];
@@ -1985,7 +1985,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)startFlushTimer {
-    if (self.remoteConfig.disableSDK || (self.timer && [self.timer isValid])) {
+    if (self.remoteConfig.mainConfigModel.disableSDK || (self.timer && [self.timer isValid])) {
         return;
     }
     SALogDebug(@"starting flush timer.");
@@ -2385,7 +2385,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
         [self setSDKWithRemoteConfigDict:sdkConfig];
     }
-    if (self.remoteConfig.disableSDK) {
+    if (self.remoteConfig.mainConfigModel.disableSDK) {
         //停止 SDK 的 flushtimer
         [self stopFlushTimer];
         
@@ -2616,8 +2616,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
-        self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
-        if (self.remoteConfig.disableDebugMode) {
+        self.remoteConfig = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
+        if (self.remoteConfig.mainConfigModel.disableDebugMode) {
             [self configServerURLWithDebugMode:SensorsAnalyticsDebugOff  showDebugModeWarning:NO];
         }
     } @catch (NSException *e) {
@@ -2625,7 +2625,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-- (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
+- (void)setRemoteConfig:(SARemoteConfigModel *)remoteConfig {
     [self.remoteConfigLock writeWithBlock:^{
         self->_remoteConfig = remoteConfig;
     }];
@@ -2691,33 +2691,39 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         @try {
             if (success) {
                 if(configDict != nil) {
-                    //重新设置 config,处理 configDict 中的缺失参数
-                    //用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
-                    NSString *v = [configDict valueForKey:@"v"];
-                    NSNumber *disableSDK = [configDict valueForKeyPath:@"configs.disableSDK"];
-                    NSNumber *disableDebugMode = [configDict valueForKeyPath:@"configs.disableDebugMode"];
-                    NSNumber *autoTrackMode = [configDict valueForKeyPath:@"configs.autoTrackMode"];
-                    //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
-                    if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
+                    // 重新设置 config,处理 configDict 中的缺失参数
+                    // 用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
+                    SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
+                    
+                    // 只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
+                    if (remoteConfigModel.mainConfigModel.disableSDK == YES &&
+                        weakself.remoteConfig.mainConfigModel.disableSDK == NO) {
                         [weakself track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeAuto];
                     }
-                    //如果有字段缺失，需要设置为默认值
-                    if (disableSDK == nil) {
-                        disableSDK = [NSNumber numberWithBool:NO];
+                    
+                    // 只在 event_config 的 v 改变的时候触发远程配置事件
+                    if (![remoteConfigModel.eventConfigModel.version isEqualToString:weakself.remoteConfig.eventConfigModel.version]) {
+                        NSString *eventConfigStr = @"";
+                        NSDictionary *eventConfigDic = [remoteConfigModel.eventConfigModel toDictionary];
+                        NSData *eventConfigData = [[[SAJSONUtil alloc] init] JSONSerializeObject:eventConfigDic];
+                        if (eventConfigData) {
+                           eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
+                        }
+                        
+                        [weakself track:@"$RemoteEventConfigChanged" withProperties:@{@"$remote_event_config" : eventConfigStr} withTrackType:SensorsAnalyticsTrackTypeAuto];
                     }
-                    if (disableDebugMode == nil) {
-                        disableDebugMode = [NSNumber numberWithBool:NO];
-                    }
-                    if (autoTrackMode == nil) {
-                        autoTrackMode = [NSNumber numberWithInteger:-1];
-                    }
-                    NSMutableDictionary *configToBeSet = nil;
-                    if (v) {
-                        configToBeSet = [NSMutableDictionary dictionaryWithDictionary:@{@"v": v, @"configs": @{@"disableSDK": disableSDK, @"disableDebugMode": disableDebugMode, @"autoTrackMode": autoTrackMode}}];
-                    } else {
-                        configToBeSet =  [NSMutableDictionary dictionaryWithDictionary:@{@"configs": @{@"disableSDK": disableSDK, @"disableDebugMode": disableDebugMode, @"autoTrackMode": autoTrackMode}}];
-                    }
+                    
+                    NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
+                    // 存储当前 SDK 版本号
+                    localStoreConfig[@"localLibVersion"] = self.libVersion;
+                    [[NSUserDefaults standardUserDefaults] setObject:localStoreConfig forKey:SA_SDK_TRACK_CONFIG];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                    
+                    // 事件黑名单要立即生效
+                    weakself.remoteConfig.eventConfigModel = remoteConfigModel.eventConfigModel;
+                    
 
+                    // 加密相关内容
                     NSDictionary *publicKeyDic = [configDict valueForKeyPath:@"configs.key"];
                     if (publicKeyDic) {
                         SASecretKey *secreKey = [[SASecretKey alloc] init];
@@ -2729,11 +2735,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                             self.saveSecretKeyCompletion(secreKey);
                         }
                     }
-
-                    //存储当前 SDK 版本号
-                    [configToBeSet setValue:self.libVersion forKey:@"localLibVersion"];
-                    [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:SA_SDK_TRACK_CONFIG];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
                 }
             } else {
                 if (index < weakself.pullSDKConfigurationRetryMaxCount - 1) {
@@ -2764,7 +2765,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
         BOOL shouldAddVersion = [self.remoteConfig.localLibVersion isEqualToString:self.libVersion] && self.encryptBuilder;
-        NSString *configVersion = shouldAddVersion ? self.remoteConfig.v : nil;
+        NSString *configVersion = shouldAddVersion ? self.remoteConfig.version : nil;
         [self.network functionalManagermentConfigWithRemoteConfigURL:url version:configVersion completion:completion];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);

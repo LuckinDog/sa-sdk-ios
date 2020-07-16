@@ -52,14 +52,14 @@
 		8888473824530F9100EBA7F6 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473224530F9100EBA7F6 /* SANetwork.m */; };
 		8888473924530F9100EBA7F6 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473324530F9100EBA7F6 /* SASecurityPolicy.m */; };
 		A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */; };
-		A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E9246A4373006A337D /* SAPresetProperty.h */; };
-		A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		A84FE7B8247661110090BC37 /* SAReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = A84FE7B6247661100090BC37 /* SAReadWriteLock.h */; };
 		A84FE7B9247661110090BC37 /* SAReadWriteLock.m in Sources */ = {isa = PBXBuildFile; fileRef = A84FE7B7247661100090BC37 /* SAReadWriteLock.m */; };
 		A869D69F242F57F600069B6E /* WKWebView+SABridge.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69B242F57F600069B6E /* WKWebView+SABridge.h */; };
 		A869D6A0242F57F600069B6E /* SAScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */; };
 		A869D6A1242F57F600069B6E /* WKWebView+SABridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69D242F57F600069B6E /* WKWebView+SABridge.m */; };
 		A869D6A2242F57F600069B6E /* SAScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */; };
+		A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E9246A4373006A337D /* SAPresetProperty.h */; };
+		A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		CB30C03F22840EC00004061D /* SATypeDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD222840EBF0004061D /* SATypeDescription.m */; };
 		CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD522840EBF0004061D /* NSString+HashCode.m */; };
 		CB30C04522840EC00004061D /* NSInvocation+SAHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30BFD822840EBF0004061D /* NSInvocation+SAHelpers.h */; };
@@ -67,7 +67,7 @@
 		CB30C04922840EC00004061D /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFDC22840EBF0004061D /* SensorsAnalyticsSDK.m */; };
 		CB30C04A22840EC00004061D /* SAObjectSerializerContext.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30BFDD22840EBF0004061D /* SAObjectSerializerContext.h */; };
 		CB30C04C22840EC00004061D /* SAClassDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30BFDF22840EBF0004061D /* SAClassDescription.h */; };
-		CB30C04D22840EC00004061D /* SASDKRemoteConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFE022840EBF0004061D /* SASDKRemoteConfig.m */; };
+		CB30C04D22840EC00004061D /* SARemoteConfigModel.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFE022840EBF0004061D /* SARemoteConfigModel.m */; };
 		CB30C05022840EC00004061D /* SAConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30BFE322840EBF0004061D /* SAConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CB30C05122840EC00004061D /* SASwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30BFE422840EBF0004061D /* SASwizzle.h */; };
 		CB30C05422840EC00004061D /* SensorsAnalyticsExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFE722840EBF0004061D /* SensorsAnalyticsExceptionHandler.m */; };
@@ -100,7 +100,7 @@
 		CB30C08122840EC00004061D /* SASwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C01422840EBF0004061D /* SASwizzle.m */; };
 		CB30C08522840EC00004061D /* SAConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C01822840EBF0004061D /* SAConstants.m */; };
 		CB30C08722840EC00004061D /* SAClassDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C01A22840EBF0004061D /* SAClassDescription.m */; };
-		CB30C08822840EC00004061D /* SASDKRemoteConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C01B22840EBF0004061D /* SASDKRemoteConfig.h */; };
+		CB30C08822840EC00004061D /* SARemoteConfigModel.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C01B22840EBF0004061D /* SARemoteConfigModel.h */; };
 		CB30C08922840EC00004061D /* SAObjectSerializerContext.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C01C22840EBF0004061D /* SAObjectSerializerContext.m */; };
 		CB30C08B22840EC00004061D /* SAEnumDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C01E22840EBF0004061D /* SAEnumDescription.h */; };
 		CB30C08C22840EC00004061D /* SAVisualizedAutoTrackObjectSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C01F22840EBF0004061D /* SAVisualizedAutoTrackObjectSerializer.m */; };
@@ -241,14 +241,14 @@
 		8888473224530F9100EBA7F6 /* SANetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		8888473324530F9100EBA7F6 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTests.m; sourceTree = "<group>"; };
-		A8E962E9246A4373006A337D /* SAPresetProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPresetProperty.h; sourceTree = "<group>"; };
-		A8E962EA246A4373006A337D /* SAPresetProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetProperty.m; sourceTree = "<group>"; };
 		A84FE7B6247661100090BC37 /* SAReadWriteLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAReadWriteLock.h; path = Utils/SAReadWriteLock.h; sourceTree = "<group>"; };
 		A84FE7B7247661100090BC37 /* SAReadWriteLock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAReadWriteLock.m; path = Utils/SAReadWriteLock.m; sourceTree = "<group>"; };
 		A869D69B242F57F600069B6E /* WKWebView+SABridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+SABridge.h"; sourceTree = "<group>"; };
 		A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAScriptMessageHandler.m; sourceTree = "<group>"; };
 		A869D69D242F57F600069B6E /* WKWebView+SABridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+SABridge.m"; sourceTree = "<group>"; };
 		A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAScriptMessageHandler.h; sourceTree = "<group>"; };
+		A8E962E9246A4373006A337D /* SAPresetProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPresetProperty.h; sourceTree = "<group>"; };
+		A8E962EA246A4373006A337D /* SAPresetProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetProperty.m; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30BFD222840EBF0004061D /* SATypeDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATypeDescription.m; sourceTree = "<group>"; };
 		CB30BFD522840EBF0004061D /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
@@ -257,7 +257,7 @@
 		CB30BFDC22840EBF0004061D /* SensorsAnalyticsSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDK.m; sourceTree = "<group>"; };
 		CB30BFDD22840EBF0004061D /* SAObjectSerializerContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAObjectSerializerContext.h; sourceTree = "<group>"; };
 		CB30BFDF22840EBF0004061D /* SAClassDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAClassDescription.h; sourceTree = "<group>"; };
-		CB30BFE022840EBF0004061D /* SASDKRemoteConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASDKRemoteConfig.m; sourceTree = "<group>"; };
+		CB30BFE022840EBF0004061D /* SARemoteConfigModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SARemoteConfigModel.m; sourceTree = "<group>"; };
 		CB30BFE322840EBF0004061D /* SAConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAConstants.h; sourceTree = "<group>"; };
 		CB30BFE422840EBF0004061D /* SASwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASwizzle.h; sourceTree = "<group>"; };
 		CB30BFE722840EBF0004061D /* SensorsAnalyticsExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsExceptionHandler.m; sourceTree = "<group>"; };
@@ -291,7 +291,7 @@
 		CB30C01422840EBF0004061D /* SASwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASwizzle.m; sourceTree = "<group>"; };
 		CB30C01822840EBF0004061D /* SAConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConstants.m; sourceTree = "<group>"; };
 		CB30C01A22840EBF0004061D /* SAClassDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAClassDescription.m; sourceTree = "<group>"; };
-		CB30C01B22840EBF0004061D /* SASDKRemoteConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASDKRemoteConfig.h; sourceTree = "<group>"; };
+		CB30C01B22840EBF0004061D /* SARemoteConfigModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SARemoteConfigModel.h; sourceTree = "<group>"; };
 		CB30C01C22840EBF0004061D /* SAObjectSerializerContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAObjectSerializerContext.m; sourceTree = "<group>"; };
 		CB30C01E22840EBF0004061D /* SAEnumDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAEnumDescription.h; sourceTree = "<group>"; };
 		CB30C01F22840EBF0004061D /* SAVisualizedAutoTrackObjectSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedAutoTrackObjectSerializer.m; sourceTree = "<group>"; };
@@ -530,6 +530,15 @@
 			path = JSBridge;
 			sourceTree = "<group>";
 		};
+		A86CA70724BF20F400DB5C45 /* RemoteConfig */ = {
+			isa = PBXGroup;
+			children = (
+				CB30C01B22840EBF0004061D /* SARemoteConfigModel.h */,
+				CB30BFE022840EBF0004061D /* SARemoteConfigModel.m */,
+			);
+			path = RemoteConfig;
+			sourceTree = "<group>";
+		};
 		CB30BD4A22840CA40004061D = {
 			isa = PBXGroup;
 			children = (
@@ -554,6 +563,7 @@
 		CB30BFD122840EBF0004061D /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				A86CA70724BF20F400DB5C45 /* RemoteConfig */,
 				CB30C0AB22840F1B0004061D /* Resources */,
 				FC1AFF0723C45CA800F1B9E4 /* Utils */,
 				FCB60249242B46FC003CFA47 /* Builder */,
@@ -586,8 +596,6 @@
 				CB30BFFE22840EBF0004061D /* SAKeyChainItemWrapper.m */,
 				CB30BFEF22840EBF0004061D /* SALocationManager.h */,
 				CB30C00C22840EBF0004061D /* SALocationManager.m */,
-				CB30C01B22840EBF0004061D /* SASDKRemoteConfig.h */,
-				CB30BFE022840EBF0004061D /* SASDKRemoteConfig.m */,
 				CB30BFE422840EBF0004061D /* SASwizzle.h */,
 				CB30C01422840EBF0004061D /* SASwizzle.m */,
 				CB30C02022840EBF0004061D /* SASwizzler.h */,
@@ -803,7 +811,7 @@
 				8888473524530F9100EBA7F6 /* SAReachability.h in Headers */,
 				CB30C04A22840EC00004061D /* SAObjectSerializerContext.h in Headers */,
 				4DB14DE72456C107002C224C /* SALoggerConsoleFormatter.h in Headers */,
-				CB30C08822840EC00004061D /* SASDKRemoteConfig.h in Headers */,
+				CB30C08822840EC00004061D /* SARemoteConfigModel.h in Headers */,
 				CB30C07F22840EC00004061D /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				FC1AFF0123C32AB000F1B9E4 /* SALinkHandler.h in Headers */,
 				4DB14DE02456C107002C224C /* SALoggerPrePostFixFormatter.h in Headers */,
@@ -1028,7 +1036,7 @@
 				4D5A02042411EDFA007E651A /* UIView+VisualizedAutoTrack.m in Sources */,
 				4DBE3C1E24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.m in Sources */,
 				FC5A4BCA244E97A600063624 /* SAValidator.m in Sources */,
-				CB30C04D22840EC00004061D /* SASDKRemoteConfig.m in Sources */,
+				CB30C04D22840EC00004061D /* SARemoteConfigModel.m in Sources */,
 				CB30C05422840EC00004061D /* SensorsAnalyticsExceptionHandler.m in Sources */,
 				A84FE7B9247661110090BC37 /* SAReadWriteLock.m in Sources */,
 				CB30C09722840EC00004061D /* SAAuxiliaryToolManager.m in Sources */,
