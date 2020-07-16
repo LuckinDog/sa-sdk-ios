@@ -84,15 +84,16 @@
     jsonObject[@"os"] = @"iOS"; // 操作系统类型
     jsonObject[@"lib"] = @"iOS"; // SDK 类型
 
+    SAVisualizedObjectSerializerManger *serializerManger = [SAVisualizedObjectSerializerManger sharedInstance];
     @try {
-        if ([SAVisualizedObjectSerializerManger sharedInstance].currentViewController) {
-            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:[SAVisualizedObjectSerializerManger sharedInstance].currentViewController];
+        if (serializerManger.currentViewController) {
+            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:serializerManger.currentViewController];
             jsonObject[@"screen_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
 
-        if ([SAVisualizedObjectSerializerManger sharedInstance].lastViewScreenController) {
-            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:[SAVisualizedObjectSerializerManger sharedInstance].lastViewScreenController];
+        if (serializerManger.lastViewScreenController) {
+            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:serializerManger.lastViewScreenController];
             jsonObject[@"page_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
@@ -121,16 +122,16 @@
 
     jsonObject[@"app_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
     jsonObject[@"feature_code"] = featureCode;
-    jsonObject[@"is_webview"] = @([SAVisualizedObjectSerializerManger sharedInstance].isContainWebView);
+    jsonObject[@"is_webview"] = @(serializerManger.isContainWebView);
 
     // 添加前端弹框信息
-    if ([SAVisualizedObjectSerializerManger sharedInstance].alertInfos.count > 0) {
-        jsonObject[@"app_alert_infos"] = [[SAVisualizedObjectSerializerManger sharedInstance].alertInfos copy];
+    if (serializerManger.alertInfos.count > 0) {
+        jsonObject[@"app_alert_infos"] = [serializerManger.alertInfos copy];
     }
 
     // H5 页面信息
-    if ([SAVisualizedObjectSerializerManger sharedInstance].webPageInfo) {
-        SAVisualizedWebPageInfo *webPageInfo = [SAVisualizedObjectSerializerManger sharedInstance].webPageInfo;
+    if (serializerManger.webPageInfo) {
+        SAVisualizedWebPageInfo *webPageInfo = serializerManger.webPageInfo;
         jsonObject[@"h5_url"] = webPageInfo.url;
         jsonObject[@"h5_title"] = webPageInfo.title;
     }
