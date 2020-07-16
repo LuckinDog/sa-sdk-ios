@@ -40,7 +40,7 @@ extern NSUInteger const SAEventFlushRecordSize;
 - (void)trackEvent:(NSDictionary *)event;
 - (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp;
 
-- (void)flush;
+- (void)flushAllEventRecords;
 
 @end
 

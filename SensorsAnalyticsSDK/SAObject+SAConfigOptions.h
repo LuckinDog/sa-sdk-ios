@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventFlush (SAConfigOptions)
 
-@property (nonatomic, readonly) BOOL isDebugOff;
+@property (nonatomic, readonly) BOOL isDebugMode;
 
 @property (nonatomic, strong, readonly) NSURL *serverURL;
 
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventTracker (SAConfigOptions)
 
-@property (nonatomic, readonly) BOOL isDebugOff;
+@property (nonatomic, readonly) BOOL isDebugMode;
 
 @property (nonatomic, readonly) SensorsAnalyticsNetworkType networkTypePolicy;
 

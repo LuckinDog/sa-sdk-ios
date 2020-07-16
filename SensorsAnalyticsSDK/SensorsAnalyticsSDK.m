@@ -838,7 +838,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
-        [self.eventTracker flush];
+        [self.eventTracker flushAllEventRecords];
     });
 }
 
@@ -2453,7 +2453,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 
     dispatch_async(self.serialQueue, ^{
-        [self.eventTracker flush];
+        [self.eventTracker flushAllEventRecords];
         endBackgroundTask();
     });
 }

@@ -107,7 +107,7 @@
             messageDesc = @"\n【valid message】\n";
         } else {
             messageDesc = @"\n【invalid message】\n";
-            if (statusCode >= 300 && self.isDebugOff) {
+            if (statusCode >= 300 && self.isDebugMode) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
                 [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
@@ -129,7 +129,7 @@
         // 1、开启 debug 模式，都删除；
         // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
         BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
-        BOOL flushSuccess = self.isDebugOff || successCode;
+        BOOL flushSuccess = self.isDebugMode || successCode;
         completion(flushSuccess);
     };
 
@@ -143,7 +143,7 @@
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
     __block BOOL flushSuccess = NO;
     // 当在程序终止或 debug 模式下，使用线程锁
-    BOOL isWait = self.flushBeforeEnterBackground || !self.isDebugOff;
+    BOOL isWait = self.flushBeforeEnterBackground || self.isDebugMode;
     [self requestWithRecords:records isEncrypted:NO completion:^(BOOL success) {
         if (isWait) {
             flushSuccess = success;
