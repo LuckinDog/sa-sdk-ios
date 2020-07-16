@@ -1195,12 +1195,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return YES;
 }
 
-- (NSMutableDictionary *)addDeepLinkInfo:(NSDictionary *)propertiesDict {
+- (NSMutableDictionary *)addDeepLinkInfo:(NSDictionary *)properties {
     NSMutableDictionary *deepLinkInfo = [NSMutableDictionary dictionary];
     // 添加 latest utms 属性。用户传入的属性优先级更高。
     [deepLinkInfo addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
-    if ([SAValidator isValidDictionary:propertiesDict]) {
-        [deepLinkInfo addEntriesFromDictionary:propertiesDict];
+    if ([SAValidator isValidDictionary:properties]) {
+        [deepLinkInfo addEntriesFromDictionary:properties];
     }
     return deepLinkInfo;
 }
@@ -1248,7 +1248,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNumber *tag = eventProps[@"sensorsdata_auto_track_lib_method"];
     if ([tag isKindOfClass:NSNumber.class] && [tag boolValue]) {
         libMethod = SALibMethodAuto;
-        eventProps[@"sensorsdata_auto_track_lib_method"] = nil;
+        [eventProps removeObjectForKey:@"sensorsdata_auto_track_lib_method"];
     }
     eventProps[SAEventPresetPropertyLibMethod] = libMethod;
     [self track:event properties:eventProps type:SAEventTypeTrack libMethod:libMethod];
@@ -1278,13 +1278,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 * trackAutoEventByAuto: 自动触发全埋点事件
 * profile: profile 操作
 */
-- (void)track:(NSString *)event properties:(NSDictionary *)propertieDict type:(NSString *)type libMethod:(NSString *)libMethod {
+- (void)track:(NSString *)event properties:(NSDictionary *)properties type:(NSString *)type libMethod:(NSString *)libMethod {
 
     if (self.remoteConfig.disableSDK) {
         return;
     }
     NSMutableDictionary *libProperties = [self.presetProperty libPropertiesWithLibMethod:libMethod];
-    propertieDict = [propertieDict copy];
+    NSDictionary *propertieDict = [properties copy];
 
     if (propertieDict) {
         if (![self assertPropertyTypes:&propertieDict withEventType:type]) {
