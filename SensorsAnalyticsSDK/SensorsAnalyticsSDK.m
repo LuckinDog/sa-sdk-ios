@@ -1925,11 +1925,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)unregisterSuperProperty:(NSString *)property {
     dispatch_async(self.serialQueue, ^{
-        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
-        if (tmp[property] != nil) {
-            [tmp removeObjectForKey:property];
+        NSMutableDictionary *superProperties = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
+        if (property) {
+            [superProperties removeObjectForKey:property];
         }
-        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
+        self->_superProperties = [NSDictionary dictionaryWithDictionary:superProperties];
         [self archiveSuperProperties];
     });
 }
@@ -1939,7 +1939,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
         [tmp removeObjectsForKeys:propertys];
         self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
-        [self archiveSuperProperties];
     };
     if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
         block();
