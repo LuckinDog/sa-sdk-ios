@@ -30,6 +30,7 @@
 #import "SAGzipUtility.h"
 #import "SALog.h"
 #import "SAJSONUtil.h"
+#import "SAValidator.h"
 
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
@@ -214,8 +215,10 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return request;
 }
 
-- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version {
-
+- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
+                                                               mainConfigVersion:(NSString *)mainConfigVersion
+                                                              eventConfigVersion:(NSString *)eventConfigVersion  {
+    
     NSURLComponents *urlComponets = nil;
     if (remoteConfigURL) {
         urlComponets = [NSURLComponents componentsWithURL:remoteConfigURL resolvingAgainstBaseURL:YES];
@@ -231,10 +234,44 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
     }
 
-    if (version.length) {
-        urlComponets.query = [NSString stringWithFormat:@"v=%@", version];
-    }
+    urlComponets.query = [self buildConfigRequestQueryWithMainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion];
+    
     return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
+}
+
+- (NSString *)buildConfigRequestQueryWithMainConfigVersion:(NSString *)mainConfigVersion eventConfigVersion:(NSString *)eventConfigVersion {
+    NSString *query = nil;
+    
+    if ([SAValidator isValidString:mainConfigVersion]) {
+        query = [NSString stringWithFormat:@"v=%@", mainConfigVersion];
+    }
+    
+    if ([SAValidator isValidString:eventConfigVersion]) {
+        if (query) {
+            query = [query stringByAppendingFormat:@"&ve=%@", eventConfigVersion];
+        } else {
+            query = [NSString stringWithFormat:@"ve=%@", eventConfigVersion];
+        }
+    }
+    
+    NSString *appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+    if ([SAValidator isValidString:appId]) {
+        if (query) {
+            query = [query stringByAppendingFormat:@"&app_id=%@", appId];
+        } else {
+            query = [NSString stringWithFormat:@"app_id=%@", appId];
+        }
+    }
+    
+    if ([SAValidator isValidString:self.project]) {
+        if (query) {
+            query = [query stringByAppendingFormat:@"&project=%@", self.project];
+        } else {
+            query = [NSString stringWithFormat:@"project=%@", self.project];
+        }
+    }
+    
+    return query;
 }
 
 #pragma mark - request
@@ -326,12 +363,15 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return task;
 }
 
-- (NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
+- (NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
+                                                   mainConfigVersion:(NSString *)mainConfigVersion
+                                                  eventConfigVersion:(NSString *)eventConfigVersion
+                                                          completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
     if (![self isValidServerURL]) {
         SALogError(@"serverURL error，Please check the serverURL");
         return nil;
     }
-    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL version:version];
+    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL mainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion];
     NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (!completion) {
             return ;

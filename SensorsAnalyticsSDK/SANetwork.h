@@ -86,11 +86,16 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 /**
  请求远程配置
 
- @param version 远程配置的 version
+ @param remoteConfigURL 远程配置的 URL
+ @param mainConfigVersion 远程配置的版本
+ @param eventConfigVersion 事件配置的版本
  @param completion 结束的回调
  @return request task
  */
-- (nullable NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
+- (nullable NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
+                                                            mainConfigVersion:(NSString *)mainConfigVersion
+                                                           eventConfigVersion:(NSString *)eventConfigVersion
+                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
 
 @end
 
