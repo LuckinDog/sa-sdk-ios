@@ -113,6 +113,8 @@ static NSString * const SAEncryptSecretKey = @"SAEncryptSecretKey";
             
             if ([loadVersion isEqualToString:urlVersion] && [loadKey isEqualToString:urlKey]) {
                 message = @"密钥验证通过，所选密钥与 App 端密钥相同";
+            } else if (![SAValidator isValidString:loadKey]) {
+                message = @"密钥验证不通过，本地密钥为空";
             } else {
                 message = [NSString stringWithFormat:@"密钥验证不通过，所选密钥与 App 端密钥不相同。所选密钥版本:%@，App 端密钥版本:%@", urlVersion, loadVersion];
             }
