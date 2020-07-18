@@ -237,7 +237,7 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
             eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
         }
         
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$RemoteEventConfigChanged" withProperties:@{@"$remote_event_config" : eventConfigStr} withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppRemoteEventConfigChanged" withProperties:@{@"$remote_event_config" : eventConfigStr} withTrackType:SensorsAnalyticsTrackTypeAuto];
     }
     
     NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
