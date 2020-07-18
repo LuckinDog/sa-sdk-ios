@@ -25,6 +25,7 @@
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK.h"
+#import <objc/runtime.h>
 
 #pragma mark - UIView
 
@@ -39,6 +40,15 @@
     BOOL isAutoTrackEventTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
     BOOL isViewTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[self class]];
     return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored;
+}
+
+
+- (void)setLastTrackClickSystemTime:(NSTimeInterval)lastTrackClickSystemTime {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsUIViewLastTrackClickSystemTime", [NSNumber numberWithDouble:lastTrackClickSystemTime], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSTimeInterval)lastTrackClickSystemTime {
+    return [objc_getAssociatedObject(self, @"sensorsAnalyticsUIViewLastTrackClickSystemTime") doubleValue];
 }
 
 - (NSString *)sensorsdata_elementType {

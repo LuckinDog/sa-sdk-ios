@@ -30,6 +30,8 @@
 #pragma mark -
 @protocol SAAutoTrackViewProperty <NSObject>
 @property (nonatomic, readonly) BOOL sensorsdata_isIgnored;
+/// 记录上次触发点击事件的开机时间
+@property (nonatomic, assign) NSTimeInterval lastTrackClickSystemTime;
 
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementType;
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementContent;
