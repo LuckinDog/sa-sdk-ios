@@ -62,6 +62,8 @@ NSString * const SA_EVENT_NAME_APP_START_PASSIVELY = @"$AppStartPassively";
 NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
 
 NSString * const SA_EVENT_NAME_APP_CRASHED = @"AppCrashed";
+// 远程控制配置变化
+NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED = @"$AppRemoteConfigChanged";
 
 #pragma mark - app install property
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE = @"$ios_install_source";
@@ -88,6 +90,8 @@ NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT = @"$element_content";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE = @"$element_type";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
+// 远程控制配置信息
+NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG = @"$app_remote_config";
 
 #pragma mark - common property
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";

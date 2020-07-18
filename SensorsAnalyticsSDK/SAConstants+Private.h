@@ -60,6 +60,8 @@ extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
 
 extern NSString * const SA_EVENT_NAME_APP_CRASHED;
 
+extern NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED;
+
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
@@ -85,6 +87,8 @@ extern NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
+// 远程控制配置信息
+extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
 
 #pragma mark--common property
 //可选参数

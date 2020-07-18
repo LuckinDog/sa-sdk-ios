@@ -343,7 +343,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                       SA_EVENT_NAME_APP_VIEW_SCREEN,
                                       SA_EVENT_NAME_APP_CLICK,
                                       SA_EVENT_NAME_APP_SIGN_UP,
-                                      SA_EVENT_NAME_APP_CRASHED, nil];
+                                      SA_EVENT_NAME_APP_CRASHED,
+                                      SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];
 
             if (!_launchedPassively) {
                 [self startFlushTimer];
