@@ -88,6 +88,7 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
     // 如果开启加密，并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
     if (![SensorsAnalyticsSDK sharedInstance].encryptBuilder) {
         [self requestRemoteConfig];
+        [self createRandomTime];
         return;
     }
 #endif
@@ -111,18 +112,7 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
         return;
     }
     [self requestRemoteConfig];
-    
-    // 触发请求后，再次生成下次随机触发时间
-    int createRandomTime = (int)[SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval * 60 * 60;
-    if ([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval > [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) {
-        // 转换成 秒 再取随机时间
-        int durationSecond = (int)([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval - [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) * 60 * 60;
-        
-        // arc4random_uniform 的取值范围，是左闭右开，所以 +1
-        createRandomTime += arc4random_uniform(durationSecond + 1);
-    }
-    NSDictionary *createRequestTimeConfig = @{ @"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
-    [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
+    [self createRandomTime];
 }
 
 - (void)retryRequestRemoteConfig {
@@ -146,6 +136,23 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
 }
 
 #pragma mark – Private Methods
+
+- (void)createRandomTime {
+    // 当前时间，以开机时间为准，单位：秒
+    NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
+    
+    // 触发请求后，再次生成下次随机触发时间
+    int createRandomTime = (int)[SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval * 60 * 60;
+    if ([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval > [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) {
+        // 转换成 秒 再取随机时间
+        int durationSecond = (int)([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval - [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) * 60 * 60;
+        
+        // arc4random_uniform 的取值范围，是左闭右开，所以 +1
+        createRandomTime += arc4random_uniform(durationSecond + 1);
+    }
+    NSDictionary *createRequestTimeConfig = @{ @"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
+    [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
+}
 
 - (BOOL)isLibVersionEqualToSDK {
     return [self.remoteConfigModel.localLibVersion isEqualToString:[[SensorsAnalyticsSDK sharedInstance] libVersion]];
