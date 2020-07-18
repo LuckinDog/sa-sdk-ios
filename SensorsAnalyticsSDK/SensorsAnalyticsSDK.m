@@ -1636,7 +1636,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [profileProperties addEntriesFromDictionary:propertyDict];
             }
             [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-            [self track:nil withProperties:profileProperties withType:SA_PROFILE_SET_ONCE];
+            [self track:nil withProperties:profileProperties withType: self.configOptions.enableMultipleChannelMatch ? SA_PROFILE_SET : SA_PROFILE_SET_ONCE];
 
             [self flush];
         };
