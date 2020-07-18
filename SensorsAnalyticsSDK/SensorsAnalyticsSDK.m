@@ -1136,7 +1136,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     id project = propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     if (project) {
         itemProperties[SA_EVENT_PROJECT] = project;
-        propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT] = nil;
+        [propertyMDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     }
     
     if (propertyMDict.count > 0) {
@@ -3079,8 +3079,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
 
             NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:self.presetProperty.automaticProperties];
-            automaticPropertiesCopy[SAEventPresetPropertyLib] = nil;
-            automaticPropertiesCopy[SAEventPresetPropertyLibVersion] = nil;
+            [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLib];
+            [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLibVersion];
 
             NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
             if([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
