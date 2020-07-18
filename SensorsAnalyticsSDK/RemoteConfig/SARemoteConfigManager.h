@@ -32,16 +32,19 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SARemoteMainConfigModel *mainConfigModel;
 @property (nonatomic, strong, readonly) SARemoteEventConfigModel *eventConfigModel;
 
-
-
+/// 获取远程配置管理类的实例
 + (instancetype)sharedInstance;
 
+/// 创建本地远程配置模型
 - (void)createLocalRemoteConfigModel;
 
+/// 尝试请求远程配置
 - (void)shouldRequestRemoteConfig;
 
+/// 删除远程配置请求
 - (void)cancelRequestRemoteConfig;
 
+/// 重试远程配置请求
 - (void)retryRequestRemoteConfig;
 
 @end
