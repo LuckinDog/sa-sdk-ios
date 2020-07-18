@@ -142,10 +142,10 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
     
     // 触发请求后，再次生成下次随机触发时间
-    int createRandomTime = (int)[SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval * 60 * 60;
+    double createRandomTime = [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval * 60 * 60;
     if ([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval > [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) {
         // 转换成 秒 再取随机时间
-        int durationSecond = (int)([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval - [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) * 60 * 60;
+        double durationSecond = ([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval - [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) * 60 * 60;
         
         // arc4random_uniform 的取值范围，是左闭右开，所以 +1
         createRandomTime += arc4random_uniform(durationSecond + 1);
@@ -237,7 +237,7 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
             eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
         }
         
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppRemoteEventConfigChanged" withProperties:@{@"$remote_event_config" : eventConfigStr} withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppRemoteConfigChanged" withProperties:@{@"$app_remote_config" : eventConfigStr} withTrackType:SensorsAnalyticsTrackTypeAuto];
     }
     
     NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];

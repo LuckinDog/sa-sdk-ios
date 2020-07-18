@@ -23,6 +23,7 @@
 #endif
 
 #import "SARemoteConfigModel.h"
+#import "SAValidator.h"
 
 static BOOL isAutoTrackModeValid(NSInteger autoTrackMode) {
     BOOL valid = NO;
@@ -42,16 +43,18 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
     if (self) {
-        self.disableSDK = [dictionaryValueForKey(dictionary, @"disableSDK") boolValue];
-        self.disableDebugMode = [dictionaryValueForKey(dictionary, @"disableDebugMode") boolValue];
-        [self setupAutoTrackMode:dictionary];
+        if ([SAValidator isValidDictionary:dictionary]) {
+            self.disableSDK = [dictionaryValueForKey(dictionary, @"disableSDK") boolValue];
+            self.disableDebugMode = [dictionaryValueForKey(dictionary, @"disableDebugMode") boolValue];
+            [self setupAutoTrackMode:dictionary];
+        }
     }
     return self;
 }
 
 - (void)setupAutoTrackMode:(NSDictionary *)dictionary {
     self.autoTrackMode = kSAAutoTrackModeDefault;
-
+    
     NSNumber *autoTrackMode = dictionaryValueForKey(dictionary, @"autoTrackMode");
     if (autoTrackMode != nil) {
         NSInteger iMode = autoTrackMode.integerValue;
@@ -76,8 +79,10 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
     if (self) {
-        self.version = dictionaryValueForKey(dictionary, @"v");
-        self.blackList = dictionaryValueForKey(dictionary, @"event_blacklist");
+        if ([SAValidator isValidDictionary:dictionary]) {
+            self.version = dictionaryValueForKey(dictionary, @"v");
+            self.blackList = dictionaryValueForKey(dictionary, @"event_blacklist");
+        }
     }
     return self;
 }
@@ -95,10 +100,12 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
     if (self = [super init]) {
-        self.version = dictionaryValueForKey(dictionary, @"v");
-        self.localLibVersion = dictionaryValueForKey(dictionary, @"localLibVersion");
-        self.mainConfigModel = [[SARemoteMainConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"configs")];
-        self.eventConfigModel = [[SARemoteEventConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"event_config")];
+        if ([SAValidator isValidDictionary:dictionary]) {
+            self.version = dictionaryValueForKey(dictionary, @"v");
+            self.localLibVersion = dictionaryValueForKey(dictionary, @"localLibVersion");
+            self.mainConfigModel = [[SARemoteMainConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"configs")];
+            self.eventConfigModel = [[SARemoteEventConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"event_config")];
+        }
     }
     return self;
 }
