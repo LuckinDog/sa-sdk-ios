@@ -30,6 +30,10 @@
 #import "SACommonUtility.h"
 #import "SALog.h"
 
+static NSString * const SA_SDK_TRACK_CONFIG = @"SASDKConfig";
+///保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
+static NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTime";
+
 typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
 
 @interface SARemoteConfigManager ()
@@ -84,45 +88,58 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
 }
 
 - (void)shouldRequestRemoteConfig {
+    // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
+    if ([SensorsAnalyticsSDK sharedInstance].configOptions.disableRandomTimeRequestRemoteConfig ||
+        [SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval < [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) {
+        [self requestRemoteConfigWithRemoveRandomTimeFlag:YES];
+        SALogDebug(@"Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
+        return;
+    }
+    
+    // 2. 如果 SDK 版本变化，则强制请求远程配置，同时本地生成随机时间
+    if (![self isLibVersionEqualToSDK]) {
+        [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
+        SALogDebug(@"Request remote config because SDK version is changed");
+        return;
+    }
+    
+    // 3. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    // 如果开启加密，并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
     if (![SensorsAnalyticsSDK sharedInstance].encryptBuilder) {
-        [self requestRemoteConfig];
-        [self createRandomTime];
+        [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
+        SALogDebug(@"Request remote config because encrypt builder is nil");
         return;
     }
 #endif
     
-    // 判断是否符合分散 remoteconfig 请求条件
-    if ([SensorsAnalyticsSDK sharedInstance].configOptions.disableRandomTimeRequestRemoteConfig ||
-        [SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval < [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) {
-        [self requestRemoteConfig];
-        SALogDebug(@"disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
-        return;
-    }
-    
+    // 4. 满足分散请求的条件，则请求远程配置，同时本地生成随机时间
     NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
     double randomTime = [[requestTimeConfig objectForKey:@"randomTime"] doubleValue];
     double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
     // 当前时间，以开机时间为准，单位：秒
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
-    
     // 不满足触发条件
     if (currentTime >= startDeviceTime && currentTime < randomTime) {
         return;
     }
-    [self requestRemoteConfig];
-    [self createRandomTime];
+    [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
+    SALogDebug(@"Request remote config because satisfy the random request condition");
 }
 
 - (void)retryRequestRemoteConfig {
     [self cancelRequestRemoteConfig];
-    [self requestRemoteConfig];
+    [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
 }
 
-- (void)requestRemoteConfig {
+- (void)requestRemoteConfigWithRemoveRandomTimeFlag:(BOOL)isRemoveRandomTime {
     @try {
         [self requestRemoteConfigWithDelay:0 index:0];
+        
+        if (isRemoveRandomTime) {
+            [self removeRandomTime];
+        } else {
+            [self createRandomTime];
+        }
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
@@ -152,6 +169,12 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
     }
     NSDictionary *createRequestTimeConfig = @{ @"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
     [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)removeRandomTime {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:SA_REQUEST_REMOTECONFIG_TIME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (BOOL)isLibVersionEqualToSDK {
