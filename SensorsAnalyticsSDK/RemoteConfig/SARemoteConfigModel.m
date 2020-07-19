@@ -72,6 +72,10 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     return mDic;
 }
 
+- (NSString *)description {
+    return [[NSString alloc] initWithFormat:@"<%@:%p>, disableSDK=%d, disableDebugMode=%d, autoTrackMode=%ld",self.class, self, self.disableSDK, self.disableDebugMode, (long)self.autoTrackMode];
+}
+
 @end
 
 @implementation SARemoteEventConfigModel
@@ -92,6 +96,10 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     mDic[@"v"] = self.version;
     mDic[@"event_blacklist"] = self.blackList;
     return mDic;
+}
+
+- (NSString *)description {
+    return [[NSString alloc] initWithFormat:@"<%@:%p>, event_v=%@, event_blackList=%@",self.class, self, self.version, self.blackList];
 }
 
 @end
@@ -120,7 +128,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 }
 
 - (NSString *)description {
-    return [[NSString alloc] initWithFormat:@"<%@:%p>,v=%@,disableSDK=%d,disableDebugMode=%d,autoTrackMode=%ld",self.class, self, self.version, self.mainConfigModel.disableSDK, self.mainConfigModel.disableDebugMode, (long)self.mainConfigModel.autoTrackMode];
+    return [[NSString alloc] initWithFormat:@"<%@:%p>, \n v=%@, \n configs=%@, \n event_config=%@, \n localLibVersion=%@",self.class, self, self.version, self.mainConfigModel, self.eventConfigModel, self.localLibVersion];
 }
 
 @end

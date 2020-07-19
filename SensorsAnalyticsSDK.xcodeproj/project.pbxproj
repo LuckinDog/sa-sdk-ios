@@ -58,8 +58,6 @@
 		A869D6A0242F57F600069B6E /* SAScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */; };
 		A869D6A1242F57F600069B6E /* WKWebView+SABridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69D242F57F600069B6E /* WKWebView+SABridge.m */; };
 		A869D6A2242F57F600069B6E /* SAScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */; };
-		A8B52D6C24C0437900244800 /* SARemoteConfigManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A8B52D6A24C0437900244800 /* SARemoteConfigManager.h */; };
-		A8B52D6D24C0437900244800 /* SARemoteConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B52D6B24C0437900244800 /* SARemoteConfigManager.m */; };
 		A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E9246A4373006A337D /* SAPresetProperty.h */; };
 		A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		CB30C03F22840EC00004061D /* SATypeDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD222840EBF0004061D /* SATypeDescription.m */; };
@@ -249,8 +247,6 @@
 		A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAScriptMessageHandler.m; sourceTree = "<group>"; };
 		A869D69D242F57F600069B6E /* WKWebView+SABridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+SABridge.m"; sourceTree = "<group>"; };
 		A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAScriptMessageHandler.h; sourceTree = "<group>"; };
-		A8B52D6A24C0437900244800 /* SARemoteConfigManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SARemoteConfigManager.h; sourceTree = "<group>"; };
-		A8B52D6B24C0437900244800 /* SARemoteConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SARemoteConfigManager.m; sourceTree = "<group>"; };
 		A8E962E9246A4373006A337D /* SAPresetProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPresetProperty.h; sourceTree = "<group>"; };
 		A8E962EA246A4373006A337D /* SAPresetProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetProperty.m; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -539,8 +535,6 @@
 			children = (
 				CB30C01B22840EBF0004061D /* SARemoteConfigModel.h */,
 				CB30BFE022840EBF0004061D /* SARemoteConfigModel.m */,
-				A8B52D6A24C0437900244800 /* SARemoteConfigManager.h */,
-				A8B52D6B24C0437900244800 /* SARemoteConfigManager.m */,
 			);
 			path = RemoteConfig;
 			sourceTree = "<group>";
@@ -792,7 +786,6 @@
 				FC1AFF0523C3400E00F1B9E4 /* SAFileStore.h in Headers */,
 				FC5A4BD8244E980700063624 /* SAAutoTrackUtils.h in Headers */,
 				4D5A01FB2411ECB2007E651A /* UIView+HeatMap.h in Headers */,
-				A8B52D6C24C0437900244800 /* SARemoteConfigManager.h in Headers */,
 				CB30C04522840EC00004061D /* NSInvocation+SAHelpers.h in Headers */,
 				CB30C09E22840EC00004061D /* SAKeyChainItemWrapper.h in Headers */,
 				CB30C05C22840EC00004061D /* SALocationManager.h in Headers */,
@@ -1020,7 +1013,6 @@
 				4DB14DE22456C107002C224C /* SALogMessage.m in Sources */,
 				4D5A01FC2411ECB2007E651A /* UIView+HeatMap.m in Sources */,
 				4DB14DE52456C107002C224C /* SAConsoleLogger.m in Sources */,
-				A8B52D6D24C0437900244800 /* SARemoteConfigManager.m in Sources */,
 				4DB14DDF2456C107002C224C /* SALoggerConsoleFormatter.m in Sources */,
 				CB30C06B22840EC00004061D /* SAKeyChainItemWrapper.m in Sources */,
 				CB30C07B22840EC00004061D /* SADeviceOrientationManager.m in Sources */,
