@@ -2810,26 +2810,28 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)requestRemoteConfigWithDelay:(NSTimeInterval) delay index:(NSUInteger) index {
-    __weak typeof(self) weakself = self;
+    __weak typeof(self) weakSelf = self;
     void(^block)(BOOL success , NSDictionary *configDict) = ^(BOOL success , NSDictionary *configDict) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        
         @try {
             if (success) {
                 if(configDict != nil) {
                     // 远程配置
-                    [self dealWithRemoteConfigWithRequestResult:configDict];
+                    [strongSelf dealWithRemoteConfigWithRequestResult:configDict];
                     
                     // 加密相关内容
-                    [self dealWithSecretKeyWithRequestResult:configDict];
+                    [strongSelf dealWithSecretKeyWithRequestResult:configDict];
                 }
             } else {
-                if (index < weakself.requestRemoteConfigRetryMaxCount - 1) {
+                if (index < strongSelf.requestRemoteConfigRetryMaxCount - 1) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [weakself requestRemoteConfigWithDelay:30 index:index + 1];
+                        [strongSelf requestRemoteConfigWithDelay:30 index:index + 1];
                     });
                 }
             }
         } @catch (NSException *e) {
-            SALogError(@"%@ error: %@", self, e);
+            SALogError(@"%@ error: %@", strongSelf, e);
         }
     };
     @try {
