@@ -142,12 +142,7 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
 - (void)requestRemoteConfigWithRemoveRandomTimeFlag:(BOOL)isRemoveRandomTime {
     @try {
         [self requestRemoteConfigWithDelay:0 index:0];
-        
-        if (isRemoveRandomTime) {
-            [self removeRandomTime];
-        } else {
-            [self createRandomTime];
-        }
+        isRemoveRandomTime ? [self removeRandomTime] : [self createRandomTime];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
@@ -166,16 +161,20 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
     // 当前时间，以开机时间为准，单位：秒
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
     
-    // 触发请求后，再次生成下次随机触发时间
-    double createRandomTime = [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval * 60 * 60;
+    // 计算实际间隔时间（此时只需要考虑 minRequestHourInterval <= maxRequestHourInterval 的情况）
+    double realIntervalTime = [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval * 60 * 60;
     if ([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval > [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) {
         // 转换成 秒 再取随机时间
         double durationSecond = ([SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval - [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) * 60 * 60;
         
         // arc4random_uniform 的取值范围，是左闭右开，所以 +1
-        createRandomTime += arc4random_uniform(durationSecond + 1);
+        realIntervalTime += arc4random_uniform(durationSecond + 1);
     }
-    NSDictionary *createRequestTimeConfig = @{ @"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
+    
+    // 触发请求后，生成下次随机触发时间
+    double randomTime = currentTime + realIntervalTime;
+    
+    NSDictionary *createRequestTimeConfig = @{ @"randomTime": @(randomTime), @"startDeviceTime": @(currentTime) };
     [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
