@@ -30,6 +30,12 @@
 #import "SACommonUtility.h"
 #import "SALog.h"
 
+typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
+    SARemoteConfigHandleRandomTimeTypeCreate, // 创建分散请求时间
+    SARemoteConfigHandleRandomTimeTypeRemove, // 移除分散请求时间
+    SARemoteConfigHandleRandomTimeTypeNone    // 不处理分散请求时间
+};
+
 static NSString * const SA_SDK_TRACK_CONFIG = @"SASDKConfig";
 ///保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
 static NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTime";
@@ -92,14 +98,14 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if ([SensorsAnalyticsSDK sharedInstance].configOptions.disableRandomTimeRequestRemoteConfig ||
         [SensorsAnalyticsSDK sharedInstance].configOptions.maxRequestHourInterval < [SensorsAnalyticsSDK sharedInstance].configOptions.minRequestHourInterval) {
-        [self requestRemoteConfigWithRemoveRandomTimeFlag:YES];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove];
         SALogDebug(@"Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
         return;
     }
     
     // 2. 如果 SDK 版本变化，则强制请求远程配置，同时本地生成随机时间
     if (![self isLibVersionEqualToSDK]) {
-        [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
         SALogDebug(@"Request remote config because SDK version is changed");
         return;
     }
@@ -107,7 +113,7 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
     // 3. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
     if (![SensorsAnalyticsSDK sharedInstance].encryptBuilder) {
-        [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
         SALogDebug(@"Request remote config because encrypt builder is nil");
         return;
     }
@@ -122,27 +128,39 @@ typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
     
     // 4. 如果设备重启过，则强制请求远程配置，同时本地生成随机时间
     if (currentTime < startDeviceTime) {
-        [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
         SALogDebug(@"Request remote config because the device has been restarted");
         return;
     }
     
     // 5. 满足分散请求的条件，则请求远程配置，同时本地生成随机时间
     if (currentTime >= randomTime) {
-        [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
         SALogDebug(@"Request remote config because satisfy the random request condition");
     }
 }
 
 - (void)retryRequestRemoteConfig {
     [self cancelRequestRemoteConfig];
-    [self requestRemoteConfigWithRemoveRandomTimeFlag:NO];
+    [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
 }
 
-- (void)requestRemoteConfigWithRemoveRandomTimeFlag:(BOOL)isRemoveRandomTime {
+- (void)requestRemoteConfigWithHandleRandomTimeType:(SARemoteConfigHandleRandomTimeType)type {
     @try {
         [self requestRemoteConfigWithDelay:0 index:0];
-        isRemoveRandomTime ? [self removeRandomTime] : [self createRandomTime];
+        
+        switch (type) {
+            case SARemoteConfigHandleRandomTimeTypeCreate:
+                [self createRandomTime];
+                break;
+                
+            case SARemoteConfigHandleRandomTimeTypeRemove:
+                [self removeRandomTime];
+                break;
+                
+            default:
+                break;
+        }
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
