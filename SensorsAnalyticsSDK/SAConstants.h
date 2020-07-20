@@ -99,7 +99,3 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
     SensorsAnalyticsNetworkTypeWIFI     = 1 << 3,
     SensorsAnalyticsNetworkTypeALL      = 0xFF,
 };
-
-@interface SAConstants : NSObject
-
-@end

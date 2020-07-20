@@ -2169,7 +2169,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _lastScreenTrackProperties = [tempProperties copy];
     }
 
-    NSString *libMethod = autoTrack ? SALibMethodAuto : SALibMethodCode;
     if (autoTrack) {
         [self trackAutoEventByAuto:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties];
     } else {
@@ -2366,7 +2365,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
         if (eventArray) {
             for (NSDictionary *dict in eventArray) {
-                [self trackAutoEventByAuto:dict[SA_EVENT_NAME] properties:dict[SA_EVENT_PROPERTIES]];
+                [self trackCustomEvent:dict[SA_EVENT_NAME] properties:dict[SA_EVENT_PROPERTIES]];
             }
             [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
             if (completion) {
