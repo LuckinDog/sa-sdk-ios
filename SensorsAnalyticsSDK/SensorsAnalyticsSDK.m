@@ -2693,6 +2693,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     };
     managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict, SensorsAnalyticsTrackType trackType) {
         [self track:event withProperties:propertieDict withTrackType:trackType];
+        // 触发 DisableSensorsDataSDK 或者 $AppRemoteConfigChanged 时 flush 一次
+        [self flush];
     };
     
     [SARemoteConfigManager startWithRemoteConfigManagerOptions:managerOptions];

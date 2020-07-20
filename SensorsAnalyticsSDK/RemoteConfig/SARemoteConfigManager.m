@@ -290,7 +290,6 @@ static dispatch_once_t initializeOnceToken;
         if (self.managerOptions.trackEventBlock) {
             self.managerOptions.trackEventBlock(@"DisableSensorsDataSDK", @{}, SensorsAnalyticsTrackTypeAuto);
         }
-//        [self track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeAuto];
     }
     
     // 只在 event_config 的 v 改变的时候触发远程配置事件
@@ -304,9 +303,7 @@ static dispatch_once_t initializeOnceToken;
         
         if (self.managerOptions.trackEventBlock) {
             self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr}, SensorsAnalyticsTrackTypeAuto);
-        }
-        
-//        [self track:SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED withProperties:@{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr} withTrackType:SensorsAnalyticsTrackTypeAuto];
+        }        
     }
     
     NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
