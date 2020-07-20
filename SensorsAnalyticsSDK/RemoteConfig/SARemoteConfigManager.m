@@ -1,0 +1,346 @@
+//
+// SARemoteConfigManager.m
+// SensorsAnalyticsSDK
+//
+// Created by wenquan on 2020/7/20.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
+#import "SARemoteConfigManager.h"
+#import "SAConstants+Private.h"
+#import "SAReadWriteLock.h"
+#import "SAJSONUtil.h"
+#import "SACommonUtility.h"
+#import "SALog.h"
+
+@implementation SARemoteConfigManagerModel
+
+@end
+
+typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
+    SARemoteConfigHandleRandomTimeTypeCreate, // 创建分散请求时间
+    SARemoteConfigHandleRandomTimeTypeRemove, // 移除分散请求时间
+    SARemoteConfigHandleRandomTimeTypeNone    // 不处理分散请求时间
+};
+
+static NSString * const SA_SDK_TRACK_CONFIG = @"SASDKConfig";
+///保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
+static NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTime";
+
+typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
+
+static SARemoteConfigManager *sharedInstance = nil;
+static dispatch_once_t initializeOnceToken;
+
+@interface SARemoteConfigManager ()
+
+@property (nonatomic, strong) SARemoteConfigModel *remoteConfigModel;
+
+@property (nonatomic, strong) SAReadWriteLock *remoteConfigLock;
+
+@property (nonatomic, assign) NSUInteger requestRemoteConfigRetryMaxCount; // SDK 开启关闭功能接口最大重试次数
+
+@property (nonatomic, copy) SARequestConfigBlock requestConfigBlock;
+
+@property (nonatomic, strong) SARemoteConfigManagerModel *managerModel;
+
+@end
+
+@implementation SARemoteConfigManager
+
+@synthesize remoteConfigModel = _remoteConfigModel;
+
+#pragma mark - Life Cycle
+
++ (void)initWithRemoteConfigManagerModel:(SARemoteConfigManagerModel *)managerModel {
+    dispatch_once(&initializeOnceToken, ^{
+        sharedInstance = [[SARemoteConfigManager alloc] initWithManagerModel:managerModel];
+    });
+}
+
++ (SARemoteConfigManager *_Nullable)sharedInstance {
+    return sharedInstance;
+}
+
+- (instancetype)initWithManagerModel:(SARemoteConfigManagerModel *)managerModel {
+    self = [super init];
+    if (self) {
+        _managerModel = managerModel;
+        
+        NSString *remoteConfigLockLabel = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
+        _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:remoteConfigLockLabel];
+        _requestRemoteConfigRetryMaxCount = 3;
+    }
+    return self;
+}
+
+#pragma mark - Public Methods
+
+- (void)createLocalRemoteConfigModel {
+    @try {
+        NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
+        self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
+        if (self.remoteConfigModel.mainConfigModel.disableDebugMode && self.managerModel.disableDebugModeBlock) {
+            self.managerModel.disableDebugModeBlock();
+        }
+    } @catch (NSException *e) {
+        SALogError(@"%@ error: %@", self, e);
+    }
+}
+
+- (void)shouldRequestRemoteConfig {
+    // 触发远程配置请求的五个条件
+    // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
+    if (self.managerModel.configOptions.disableRandomTimeRequestRemoteConfig || self.managerModel.configOptions.maxRequestHourInterval < self.managerModel.configOptions.minRequestHourInterval) {
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove];
+        SALogDebug(@"Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
+        return;
+    }
+    
+    // 2. 如果 SDK 版本变化，则强制请求远程配置，同时本地生成随机时间
+    if (![self isLocalLibVersionEqualToCurrent]) {
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+        SALogDebug(@"Request remote config because SDK version is changed");
+        return;
+    }
+    
+    // 3. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
+#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
+    if (!self.managerModel.encryptBuilderCreateResultBlock || !self.managerModel.encryptBuilderCreateResultBlock()) {
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+        SALogDebug(@"Request remote config because encrypt builder is nil");
+        return;
+    }
+#endif
+    
+    // 获取本地保存的随机时间和设备启动时间
+    NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
+    double randomTime = [[requestTimeConfig objectForKey:@"randomTime"] doubleValue];
+    double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
+    // 获取当前设备启动时间，以开机时间为准，单位：秒
+    NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
+    
+    // 4. 如果设备重启过，则强制请求远程配置，同时本地生成随机时间
+    if (currentTime < startDeviceTime) {
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+        SALogDebug(@"Request remote config because the device has been restarted");
+        return;
+    }
+    
+    // 5. 满足分散请求的条件，则请求远程配置，同时本地生成随机时间
+    if (currentTime >= randomTime) {
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+        SALogDebug(@"Request remote config because satisfy the random request condition");
+    }
+}
+
+- (void)retryRequestRemoteConfig {
+    [self cancelRequestRemoteConfig];
+    [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+}
+
+- (void)requestRemoteConfigWithHandleRandomTimeType:(SARemoteConfigHandleRandomTimeType)type {
+    @try {
+        [self requestRemoteConfigWithDelay:0 index:0];
+        
+        switch (type) {
+            case SARemoteConfigHandleRandomTimeTypeCreate:
+                [self createRandomTime];
+                break;
+                
+            case SARemoteConfigHandleRandomTimeTypeRemove:
+                [self removeRandomTime];
+                break;
+                
+            default:
+                break;
+        }
+    } @catch (NSException *e) {
+        SALogError(@"%@ error: %@", self, e);
+    }
+}
+
+- (void)cancelRequestRemoteConfig {
+    if (self.requestConfigBlock) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestRemoteConfigWithCompletion:) object:self.requestConfigBlock];
+        self.requestConfigBlock = nil;
+    }
+}
+
+#pragma mark – Private Methods
+
+- (void)createRandomTime {
+    // 当前时间，以开机时间为准，单位：秒
+    NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
+    
+    // 计算实际间隔时间（此时只需要考虑 minRequestHourInterval <= maxRequestHourInterval 的情况）
+    double realIntervalTime = self.managerModel.configOptions.minRequestHourInterval * 60 * 60;
+    if (self.managerModel.configOptions.maxRequestHourInterval > self.managerModel.configOptions.minRequestHourInterval) {
+        // 转换成 秒 再取随机时间
+        double durationSecond = (self.managerModel.configOptions.maxRequestHourInterval - self.managerModel.configOptions.minRequestHourInterval) * 60 * 60;
+        
+        // arc4random_uniform 的取值范围，是左闭右开，所以 +1
+        realIntervalTime += arc4random_uniform(durationSecond + 1);
+    }
+    
+    // 触发请求后，生成下次随机触发时间
+    double randomTime = currentTime + realIntervalTime;
+    
+    NSDictionary *createRequestTimeConfig = @{ @"randomTime": @(randomTime), @"startDeviceTime": @(currentTime) };
+    [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)removeRandomTime {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:SA_REQUEST_REMOTECONFIG_TIME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)isLocalLibVersionEqualToCurrent {
+    return [self.remoteConfigModel.localLibVersion isEqualToString:self.managerModel.currentLibVersion];
+}
+
+- (BOOL)isCreateEncryptBuilder {
+    if (self.managerModel.encryptBuilderCreateResultBlock) {
+        return self.managerModel.encryptBuilderCreateResultBlock();
+    }
+    return NO;
+}
+
+- (void)requestRemoteConfigWithDelay:(NSTimeInterval) delay index:(NSUInteger) index {
+    __weak typeof(self) weakSelf = self;
+    void(^block)(BOOL success , NSDictionary *configDict) = ^(BOOL success , NSDictionary *configDict) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        
+        @try {
+            if (success) {
+                if(configDict != nil) {
+                    // 远程配置
+                    [strongSelf dealWithRemoteConfigWithRequestResult:configDict];
+                    
+                    // 加密相关内容
+                    if (strongSelf.managerModel.dealWithSecretKeyBlock) {
+                        strongSelf.managerModel.dealWithSecretKeyBlock(configDict);
+                    }
+                }
+            } else {
+                if (index < strongSelf.requestRemoteConfigRetryMaxCount - 1) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [strongSelf requestRemoteConfigWithDelay:30 index:index + 1];
+                    });
+                }
+            }
+        } @catch (NSException *e) {
+            SALogError(@"%@ error: %@", strongSelf, e);
+        }
+    };
+    @try {
+        self.requestConfigBlock = block;
+        [self performSelector:@selector(requestRemoteConfigWithCompletion:) withObject:self.requestConfigBlock afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
+    } @catch (NSException *e) {
+        SALogError(@"%@ error: %@", self, e);
+    }
+}
+
+- (void)requestRemoteConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
+    @try {
+        NSString *networkTypeString = [SACommonUtility currentNetworkStatus];
+        SensorsAnalyticsNetworkType networkType = [SACommonUtility toNetworkType:networkTypeString];
+        if (networkType == SensorsAnalyticsNetworkTypeNONE) {
+            completion(NO, nil);
+            return;
+        }
+        NSURL *url = [NSURL URLWithString:self.managerModel.configOptions.remoteConfigURL];
+        
+        BOOL shouldAddVersion = [self isLocalLibVersionEqualToCurrent];
+#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
+        shouldAddVersion = shouldAddVersion && [self isCreateEncryptBuilder];
+#endif
+        NSString *mainConfigVersion = shouldAddVersion ? self.remoteConfigModel.version : nil;
+        NSString *eventConfigVersion = shouldAddVersion ? self.eventConfigModel.version : nil;
+        [self.managerModel.network functionalManagermentConfigWithRemoteConfigURL:url mainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
+    } @catch (NSException *e) {
+        SALogError(@"%@ error: %@", self, e);
+    }
+}
+
+- (void)dealWithRemoteConfigWithRequestResult:(NSDictionary *)configDict {
+    // 重新设置 config,处理 configDict 中的缺失参数
+    // 用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
+    SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
+    
+    // 只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
+    if (remoteConfigModel.mainConfigModel.disableSDK == YES && self.mainConfigModel.disableSDK == NO) {
+        if (self.managerModel.trackEventBlock) {
+            self.managerModel.trackEventBlock(@"DisableSensorsDataSDK", @{}, SensorsAnalyticsTrackTypeAuto);
+        }
+//        [self track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeAuto];
+    }
+    
+    // 只在 event_config 的 v 改变的时候触发远程配置事件
+    if (![remoteConfigModel.eventConfigModel.version isEqualToString:self.eventConfigModel.version]) {
+        NSString *eventConfigStr = @"";
+        NSDictionary *eventConfigDic = [remoteConfigModel.eventConfigModel toDictionary];
+        NSData *eventConfigData = [[[SAJSONUtil alloc] init] JSONSerializeObject:eventConfigDic];
+        if (eventConfigData) {
+            eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
+        }
+        
+        if (self.managerModel.trackEventBlock) {
+            self.managerModel.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr}, SensorsAnalyticsTrackTypeAuto);
+        }
+        
+//        [self track:SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED withProperties:@{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr} withTrackType:SensorsAnalyticsTrackTypeAuto];
+    }
+    
+    NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
+    // 存储当前 SDK 版本号
+    localStoreConfig[@"localLibVersion"] = self.managerModel.currentLibVersion;
+    [[NSUserDefaults standardUserDefaults] setObject:localStoreConfig forKey:SA_SDK_TRACK_CONFIG];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    // 事件黑名单要立即生效
+    self.remoteConfigModel.eventConfigModel = remoteConfigModel.eventConfigModel;
+}
+
+#pragma mark – Getters and Setters
+
+- (void)setRemoteConfigModel:(SARemoteConfigModel *)remoteConfigModel {
+    [self.remoteConfigLock writeWithBlock:^{
+        self->_remoteConfigModel = remoteConfigModel;
+    }];
+}
+
+- (SARemoteConfigModel *)remoteConfigModel {
+    return [self.remoteConfigLock readWithBlock:^id _Nonnull{
+        return self->_remoteConfigModel;
+    }];
+}
+
+- (SARemoteMainConfigModel *)mainConfigModel {
+    return self.remoteConfigModel.mainConfigModel;
+}
+
+- (SARemoteEventConfigModel *)eventConfigModel {
+    return self.remoteConfigModel.eventConfigModel;
+}
+
+
+@end
+

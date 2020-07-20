@@ -125,4 +125,21 @@
     }
 }
 
++ (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType {
+    if ([@"NULL" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkTypeNONE;
+    } else if ([@"WIFI" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkTypeWIFI;
+    } else if ([@"2G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType2G;
+    }   else if ([@"3G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType3G;
+    }   else if ([@"4G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType4G;
+    } else if ([@"UNKNOWN" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType4G;
+    }
+    return SensorsAnalyticsNetworkTypeNONE;
+}
+
 @end

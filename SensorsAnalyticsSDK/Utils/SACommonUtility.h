@@ -19,7 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "SAConstants+Private.h"
 
 @interface SACommonUtility : NSObject
 
@@ -31,5 +31,9 @@
 
 /// 主线程执行
 + (void)performBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block;
+
+/// 转换为自定义的网络类型
+/// @param networkType 网络类型字符串
++ (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType;
 
 @end
