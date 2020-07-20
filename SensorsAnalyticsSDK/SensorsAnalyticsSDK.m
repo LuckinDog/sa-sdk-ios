@@ -2678,24 +2678,24 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)initRemoteConfigManager {
     // 初始化远程配置类
-    SARemoteConfigManagerModel *managerModel = [[SARemoteConfigManagerModel alloc] init];
-    managerModel.configOptions = _configOptions;
-    managerModel.currentLibVersion = [self libVersion];
-    managerModel.network = _network;
-    managerModel.encryptBuilderCreateResultBlock = ^BOOL{
+    SARemoteConfigManagerOptions *managerOptions = [[SARemoteConfigManagerOptions alloc] init];
+    managerOptions.configOptions = _configOptions;
+    managerOptions.currentLibVersion = [self libVersion];
+    managerOptions.network = _network;
+    managerOptions.encryptBuilderCreateResultBlock = ^BOOL{
         return self.encryptBuilder ? YES : NO;
     };
-    managerModel.disableDebugModeBlock = ^{
+    managerOptions.disableDebugModeBlock = ^{
         [self configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
     };
-    managerModel.dealWithSecretKeyBlock = ^(NSDictionary * _Nonnull configDict) {
+    managerOptions.dealWithSecretKeyBlock = ^(NSDictionary * _Nonnull configDict) {
         [self dealWithSecretKeyWithRequestResult:configDict];
     };
-    managerModel.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict, SensorsAnalyticsTrackType trackType) {
+    managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict, SensorsAnalyticsTrackType trackType) {
         [self track:event withProperties:propertieDict withTrackType:trackType];
     };
     
-    [SARemoteConfigManager initWithRemoteConfigManagerModel:managerModel];
+    [SARemoteConfigManager startWithRemoteConfigManagerOptions:managerOptions];
     
     [[SARemoteConfigManager sharedInstance] createLocalRemoteConfigModel];
 }

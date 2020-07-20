@@ -29,7 +29,7 @@
 #import "SACommonUtility.h"
 #import "SALog.h"
 
-@implementation SARemoteConfigManagerModel
+@implementation SARemoteConfigManagerOptions
 
 @end
 
@@ -58,7 +58,7 @@ static dispatch_once_t initializeOnceToken;
 
 @property (nonatomic, copy) SARequestConfigBlock requestConfigBlock;
 
-@property (nonatomic, strong) SARemoteConfigManagerModel *managerModel;
+@property (nonatomic, strong) SARemoteConfigManagerOptions *managerOptions;
 
 @end
 
@@ -68,9 +68,9 @@ static dispatch_once_t initializeOnceToken;
 
 #pragma mark - Life Cycle
 
-+ (void)initWithRemoteConfigManagerModel:(SARemoteConfigManagerModel *)managerModel {
++ (void)startWithRemoteConfigManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
     dispatch_once(&initializeOnceToken, ^{
-        sharedInstance = [[SARemoteConfigManager alloc] initWithManagerModel:managerModel];
+        sharedInstance = [[SARemoteConfigManager alloc] initWithManagerOptions:managerOptions];
     });
 }
 
@@ -78,10 +78,10 @@ static dispatch_once_t initializeOnceToken;
     return sharedInstance;
 }
 
-- (instancetype)initWithManagerModel:(SARemoteConfigManagerModel *)managerModel {
+- (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
     self = [super init];
     if (self) {
-        _managerModel = managerModel;
+        _managerOptions = managerOptions;
         
         NSString *remoteConfigLockLabel = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
         _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:remoteConfigLockLabel];
@@ -96,8 +96,8 @@ static dispatch_once_t initializeOnceToken;
     @try {
         NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
         self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
-        if (self.remoteConfigModel.mainConfigModel.disableDebugMode && self.managerModel.disableDebugModeBlock) {
-            self.managerModel.disableDebugModeBlock();
+        if (self.remoteConfigModel.mainConfigModel.disableDebugMode && self.managerOptions.disableDebugModeBlock) {
+            self.managerOptions.disableDebugModeBlock();
         }
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
@@ -107,7 +107,7 @@ static dispatch_once_t initializeOnceToken;
 - (void)shouldRequestRemoteConfig {
     // 触发远程配置请求的五个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
-    if (self.managerModel.configOptions.disableRandomTimeRequestRemoteConfig || self.managerModel.configOptions.maxRequestHourInterval < self.managerModel.configOptions.minRequestHourInterval) {
+    if (self.managerOptions.configOptions.disableRandomTimeRequestRemoteConfig || self.managerOptions.configOptions.maxRequestHourInterval < self.managerOptions.configOptions.minRequestHourInterval) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove];
         SALogDebug(@"Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
         return;
@@ -122,7 +122,7 @@ static dispatch_once_t initializeOnceToken;
     
     // 3. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    if (!self.managerModel.encryptBuilderCreateResultBlock || !self.managerModel.encryptBuilderCreateResultBlock()) {
+    if (!self.managerOptions.encryptBuilderCreateResultBlock || !self.managerOptions.encryptBuilderCreateResultBlock()) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
         SALogDebug(@"Request remote config because encrypt builder is nil");
         return;
@@ -190,10 +190,10 @@ static dispatch_once_t initializeOnceToken;
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
     
     // 计算实际间隔时间（此时只需要考虑 minRequestHourInterval <= maxRequestHourInterval 的情况）
-    double realIntervalTime = self.managerModel.configOptions.minRequestHourInterval * 60 * 60;
-    if (self.managerModel.configOptions.maxRequestHourInterval > self.managerModel.configOptions.minRequestHourInterval) {
+    double realIntervalTime = self.managerOptions.configOptions.minRequestHourInterval * 60 * 60;
+    if (self.managerOptions.configOptions.maxRequestHourInterval > self.managerOptions.configOptions.minRequestHourInterval) {
         // 转换成 秒 再取随机时间
-        double durationSecond = (self.managerModel.configOptions.maxRequestHourInterval - self.managerModel.configOptions.minRequestHourInterval) * 60 * 60;
+        double durationSecond = (self.managerOptions.configOptions.maxRequestHourInterval - self.managerOptions.configOptions.minRequestHourInterval) * 60 * 60;
         
         // arc4random_uniform 的取值范围，是左闭右开，所以 +1
         realIntervalTime += arc4random_uniform(durationSecond + 1);
@@ -213,12 +213,12 @@ static dispatch_once_t initializeOnceToken;
 }
 
 - (BOOL)isLocalLibVersionEqualToCurrent {
-    return [self.remoteConfigModel.localLibVersion isEqualToString:self.managerModel.currentLibVersion];
+    return [self.remoteConfigModel.localLibVersion isEqualToString:self.managerOptions.currentLibVersion];
 }
 
 - (BOOL)isCreateEncryptBuilder {
-    if (self.managerModel.encryptBuilderCreateResultBlock) {
-        return self.managerModel.encryptBuilderCreateResultBlock();
+    if (self.managerOptions.encryptBuilderCreateResultBlock) {
+        return self.managerOptions.encryptBuilderCreateResultBlock();
     }
     return NO;
 }
@@ -235,8 +235,8 @@ static dispatch_once_t initializeOnceToken;
                     [strongSelf dealWithRemoteConfigWithRequestResult:configDict];
                     
                     // 加密相关内容
-                    if (strongSelf.managerModel.dealWithSecretKeyBlock) {
-                        strongSelf.managerModel.dealWithSecretKeyBlock(configDict);
+                    if (strongSelf.managerOptions.dealWithSecretKeyBlock) {
+                        strongSelf.managerOptions.dealWithSecretKeyBlock(configDict);
                     }
                 }
             } else {
@@ -266,7 +266,7 @@ static dispatch_once_t initializeOnceToken;
             completion(NO, nil);
             return;
         }
-        NSURL *url = [NSURL URLWithString:self.managerModel.configOptions.remoteConfigURL];
+        NSURL *url = [NSURL URLWithString:self.managerOptions.configOptions.remoteConfigURL];
         
         BOOL shouldAddVersion = [self isLocalLibVersionEqualToCurrent];
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
@@ -274,7 +274,7 @@ static dispatch_once_t initializeOnceToken;
 #endif
         NSString *mainConfigVersion = shouldAddVersion ? self.remoteConfigModel.version : nil;
         NSString *eventConfigVersion = shouldAddVersion ? self.eventConfigModel.version : nil;
-        [self.managerModel.network functionalManagermentConfigWithRemoteConfigURL:url mainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
+        [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url mainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
@@ -287,8 +287,8 @@ static dispatch_once_t initializeOnceToken;
     
     // 只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
     if (remoteConfigModel.mainConfigModel.disableSDK == YES && self.mainConfigModel.disableSDK == NO) {
-        if (self.managerModel.trackEventBlock) {
-            self.managerModel.trackEventBlock(@"DisableSensorsDataSDK", @{}, SensorsAnalyticsTrackTypeAuto);
+        if (self.managerOptions.trackEventBlock) {
+            self.managerOptions.trackEventBlock(@"DisableSensorsDataSDK", @{}, SensorsAnalyticsTrackTypeAuto);
         }
 //        [self track:@"DisableSensorsDataSDK" withProperties:@{} withTrackType:SensorsAnalyticsTrackTypeAuto];
     }
@@ -302,8 +302,8 @@ static dispatch_once_t initializeOnceToken;
             eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
         }
         
-        if (self.managerModel.trackEventBlock) {
-            self.managerModel.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr}, SensorsAnalyticsTrackTypeAuto);
+        if (self.managerOptions.trackEventBlock) {
+            self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr}, SensorsAnalyticsTrackTypeAuto);
         }
         
 //        [self track:SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED withProperties:@{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr} withTrackType:SensorsAnalyticsTrackTypeAuto];
@@ -311,7 +311,7 @@ static dispatch_once_t initializeOnceToken;
     
     NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
     // 存储当前 SDK 版本号
-    localStoreConfig[@"localLibVersion"] = self.managerModel.currentLibVersion;
+    localStoreConfig[@"localLibVersion"] = self.managerOptions.currentLibVersion;
     [[NSUserDefaults standardUserDefaults] setObject:localStoreConfig forKey:SA_SDK_TRACK_CONFIG];
     [[NSUserDefaults standardUserDefaults] synchronize];
     

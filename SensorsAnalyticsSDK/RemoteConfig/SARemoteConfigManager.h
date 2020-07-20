@@ -30,7 +30,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SARemoteConfigManagerModel : NSObject
+@interface SARemoteConfigManagerOptions : NSObject
 
 /// SensorsAnalyticsSDK 初始化配置
 @property (nonatomic, strong) SAConfigOptions *configOptions;
@@ -62,8 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SARemoteEventConfigModel *eventConfigModel;
 
 /// 初始化远程配置管理类
-/// @param managerModel 管理模型
-+ (void)initWithRemoteConfigManagerModel:(SARemoteConfigManagerModel *)managerModel;
+/// @param managerOptions 管理模型
++ (void)startWithRemoteConfigManagerOptions:(SARemoteConfigManagerOptions *)managerOptions;
 
 /// 获取管理类的实例
 + (SARemoteConfigManager *_Nullable)sharedInstance;
