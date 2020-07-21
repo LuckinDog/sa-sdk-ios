@@ -2688,8 +2688,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     managerOptions.disableDebugModeBlock = ^{
         [self configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
     };
-    managerOptions.dealWithSecretKeyBlock = ^(NSDictionary * _Nonnull configDict) {
-        [self dealWithSecretKeyWithRequestResult:configDict];
+    managerOptions.handleSecretKeyBlock = ^(NSDictionary * _Nonnull configDict) {
+        [self handleSecretKeyWithRequestResult:configDict];
     };
     managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict, SensorsAnalyticsTrackType trackType) {
         [self track:event withProperties:propertieDict withTrackType:trackType];
@@ -2704,7 +2704,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 #pragma mark - SecretKey
 
-- (void)dealWithSecretKeyWithRequestResult:(NSDictionary *)configDict {
+- (void)handleSecretKeyWithRequestResult:(NSDictionary *)configDict {
     NSDictionary *publicKeyDic = [configDict valueForKeyPath:@"configs.key"];
     if (publicKeyDic) {
         SASecretKey *secreKey = [[SASecretKey alloc] init];

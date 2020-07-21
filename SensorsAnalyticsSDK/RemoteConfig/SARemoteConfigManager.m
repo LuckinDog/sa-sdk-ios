@@ -232,11 +232,11 @@ static dispatch_once_t initializeOnceToken;
             if (success) {
                 if(configDict != nil) {
                     // 远程配置
-                    [strongSelf dealWithRemoteConfigWithRequestResult:configDict];
+                    [strongSelf handleRemoteConfigWithRequestResult:configDict];
                     
                     // 加密相关内容
-                    if (strongSelf.managerOptions.dealWithSecretKeyBlock) {
-                        strongSelf.managerOptions.dealWithSecretKeyBlock(configDict);
+                    if (strongSelf.managerOptions.handleSecretKeyBlock) {
+                        strongSelf.managerOptions.handleSecretKeyBlock(configDict);
                     }
                 }
             } else {
@@ -280,7 +280,7 @@ static dispatch_once_t initializeOnceToken;
     }
 }
 
-- (void)dealWithRemoteConfigWithRequestResult:(NSDictionary *)configDict {
+- (void)handleRemoteConfigWithRequestResult:(NSDictionary *)configDict {
     // 重新设置 config,处理 configDict 中的缺失参数
     // 用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
     SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
