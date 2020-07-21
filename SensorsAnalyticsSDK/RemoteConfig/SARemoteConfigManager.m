@@ -105,7 +105,7 @@ static dispatch_once_t initializeOnceToken;
 }
 
 - (void)shouldRequestRemoteConfig {
-    // 触发远程配置请求的五个条件
+    // 触发远程配置请求的四个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if (self.managerOptions.configOptions.disableRandomTimeRequestRemoteConfig || self.managerOptions.configOptions.maxRequestHourInterval < self.managerOptions.configOptions.minRequestHourInterval) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove];
@@ -113,14 +113,7 @@ static dispatch_once_t initializeOnceToken;
         return;
     }
     
-    // 2. 如果 SDK 版本变化，则强制请求远程配置，同时本地生成随机时间
-    if (![self isLocalLibVersionEqualToCurrent]) {
-        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
-        SALogDebug(@"Request remote config because SDK version is changed");
-        return;
-    }
-    
-    // 3. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
+    // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
     if (!self.managerOptions.encryptBuilderCreateResultBlock || !self.managerOptions.encryptBuilderCreateResultBlock()) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
@@ -136,14 +129,14 @@ static dispatch_once_t initializeOnceToken;
     // 获取当前设备启动时间，以开机时间为准，单位：秒
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
     
-    // 4. 如果设备重启过，则强制请求远程配置，同时本地生成随机时间
+    // 3. 如果设备重启过，则强制请求远程配置，同时本地生成随机时间
     if (currentTime < startDeviceTime) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
         SALogDebug(@"Request remote config because the device has been restarted");
         return;
     }
     
-    // 5. 满足分散请求的条件，则请求远程配置，同时本地生成随机时间
+    // 4. 满足分散请求的条件，则请求远程配置，同时本地生成随机时间
     if (currentTime >= randomTime) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
         SALogDebug(@"Request remote config because satisfy the random request condition");
