@@ -288,8 +288,7 @@ static dispatch_once_t initializeOnceToken;
     // 只在 event_config 的 v 改变的时候触发远程配置事件
     if (![remoteConfigModel.eventConfigModel.version isEqualToString:self.eventConfigModel.version]) {
         NSString *eventConfigStr = @"";
-        NSDictionary *eventConfigDic = [remoteConfigModel.eventConfigModel toDictionary];
-        NSData *eventConfigData = [[[SAJSONUtil alloc] init] JSONSerializeObject:eventConfigDic];
+        NSData *eventConfigData = [[[SAJSONUtil alloc] init] JSONSerializeObject:[remoteConfigModel.eventConfigModel toDictionary]];
         if (eventConfigData) {
             eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
         }
