@@ -73,9 +73,12 @@
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
+    
     options.enableEncrypt = self.enableEncrypt;
     options.saveSecretKey = self.saveSecretKey;
     options.loadSecretKey = self.loadSecretKey;
+    
+    options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
     
     return options;
 }

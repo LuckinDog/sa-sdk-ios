@@ -140,6 +140,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 获取公钥的回调
 @property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void);
 
+/// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once
+@property (nonatomic, assign) BOOL enableMultipleChannelMatch;
+
 @end
 
 
