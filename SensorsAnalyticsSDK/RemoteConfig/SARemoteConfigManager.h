@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) void (^handleSecretKeyBlock)(NSDictionary *configDict);
 
 /// 触发事件的回调
-@property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *propertieDict, SensorsAnalyticsTrackType trackType);
+@property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *propertieDict);
 
 @end
 

@@ -2691,8 +2691,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     managerOptions.handleSecretKeyBlock = ^(NSDictionary * _Nonnull configDict) {
         [self handleSecretKeyWithRequestResult:configDict];
     };
-    managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict, SensorsAnalyticsTrackType trackType) {
-        [self track:event withProperties:propertieDict withTrackType:trackType];
+    managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
+        [self track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeAuto];
         // 触发 DisableSensorsDataSDK 或者 $AppRemoteConfigChanged 时 flush 一次
         [self flush];
     };

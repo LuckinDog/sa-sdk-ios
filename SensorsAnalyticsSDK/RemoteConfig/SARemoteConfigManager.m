@@ -205,7 +205,7 @@ static dispatch_once_t initializeOnceToken;
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-- (BOOL)isLocalLibVersionEqualToCurrent {
+- (BOOL)isLibVersionUnchanged {
     return [self.remoteConfigModel.localLibVersion isEqualToString:self.managerOptions.currentLibVersion];
 }
 
@@ -261,7 +261,7 @@ static dispatch_once_t initializeOnceToken;
         }
         NSURL *url = [NSURL URLWithString:self.managerOptions.configOptions.remoteConfigURL];
         
-        BOOL shouldAddVersion = [self isLocalLibVersionEqualToCurrent];
+        BOOL shouldAddVersion = [self isLibVersionUnchanged];
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
         shouldAddVersion = shouldAddVersion && [self isCreateEncryptBuilder];
 #endif
@@ -281,7 +281,7 @@ static dispatch_once_t initializeOnceToken;
     // 只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
     if (remoteConfigModel.mainConfigModel.disableSDK == YES && self.mainConfigModel.disableSDK == NO) {
         if (self.managerOptions.trackEventBlock) {
-            self.managerOptions.trackEventBlock(@"DisableSensorsDataSDK", @{}, SensorsAnalyticsTrackTypeAuto);
+            self.managerOptions.trackEventBlock(@"DisableSensorsDataSDK", @{});
         }
     }
     
@@ -295,7 +295,7 @@ static dispatch_once_t initializeOnceToken;
         }
         
         if (self.managerOptions.trackEventBlock) {
-            self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr}, SensorsAnalyticsTrackTypeAuto);
+            self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
         }        
     }
     

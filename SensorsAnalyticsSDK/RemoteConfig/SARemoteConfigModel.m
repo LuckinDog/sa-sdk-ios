@@ -25,14 +25,6 @@
 #import "SARemoteConfigModel.h"
 #import "SAValidator.h"
 
-static BOOL isAutoTrackModeValid(NSInteger autoTrackMode) {
-    BOOL valid = NO;
-    if (autoTrackMode >= kSAAutoTrackModeDefault && autoTrackMode <= kSAAutoTrackModeEnabledAll) {
-        valid = YES;
-    }
-    return valid;
-}
-
 static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     id value = dic[key];
     return (value && ![value isKindOfClass:NSNull.class]) ? value : nil;
@@ -58,10 +50,18 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     NSNumber *autoTrackMode = dictionaryValueForKey(dictionary, @"autoTrackMode");
     if (autoTrackMode != nil) {
         NSInteger iMode = autoTrackMode.integerValue;
-        if (isAutoTrackModeValid(iMode)) {
+        if ([self isAutoTrackModeValid:iMode]) {
             self.autoTrackMode = iMode;
         }
     }
+}
+
+- (BOOL)isAutoTrackModeValid:(NSInteger)autoTrackMode {
+    BOOL valid = NO;
+    if (autoTrackMode >= kSAAutoTrackModeDefault && autoTrackMode <= kSAAutoTrackModeEnabledAll) {
+        valid = YES;
+    }
+    return valid;
 }
 
 - (NSDictionary *)toDictionary {
