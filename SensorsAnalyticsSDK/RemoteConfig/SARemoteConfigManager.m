@@ -106,7 +106,7 @@ static dispatch_once_t initializeOnceToken;
     // 触发远程配置请求的四个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if (self.managerOptions.configOptions.disableRandomTimeRequestRemoteConfig || self.managerOptions.configOptions.maxRequestHourInterval < self.managerOptions.configOptions.minRequestHourInterval) {
-        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove isForceUpdate:NO];
         SALogDebug(@"Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
         return;
     }
@@ -114,7 +114,7 @@ static dispatch_once_t initializeOnceToken;
     // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
     if (!self.managerOptions.encryptBuilderCreateResultBlock || !self.managerOptions.encryptBuilderCreateResultBlock()) {
-        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
         SALogDebug(@"Request remote config because encrypt builder is nil");
         return;
     }
@@ -129,26 +129,26 @@ static dispatch_once_t initializeOnceToken;
     
     // 3. 如果设备重启过，则强制请求远程配置，同时本地生成随机时间
     if (currentTime < startDeviceTime) {
-        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
         SALogDebug(@"Request remote config because the device has been restarted");
         return;
     }
     
     // 4. 满足分散请求的条件，则请求远程配置，同时本地生成随机时间
     if (currentTime >= randomTime) {
-        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
         SALogDebug(@"Request remote config because satisfy the random request condition");
     }
 }
 
-- (void)retryRequestRemoteConfig {
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
     [self cancelRequestRemoteConfig];
-    [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate];
+    [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:isForceUpdate];
 }
 
-- (void)requestRemoteConfigWithHandleRandomTimeType:(SARemoteConfigHandleRandomTimeType)type {
+- (void)requestRemoteConfigWithHandleRandomTimeType:(SARemoteConfigHandleRandomTimeType)type isForceUpdate:(BOOL)isForceUpdate {
     @try {
-        [self requestRemoteConfigWithDelay:0 index:0];
+        [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:isForceUpdate];
         
         switch (type) {
             case SARemoteConfigHandleRandomTimeTypeCreate:
@@ -211,11 +211,10 @@ static dispatch_once_t initializeOnceToken;
     return NO;
 }
 
-- (void)requestRemoteConfigWithDelay:(NSTimeInterval) delay index:(NSUInteger) index {
+- (void)requestRemoteConfigWithDelay:(NSTimeInterval) delay index:(NSUInteger) index isForceUpdate:(BOOL)isForceUpdate {
     __weak typeof(self) weakSelf = self;
-    void(^completionBlock)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = ^(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) {
+    void(^completion)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = ^(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        
         @try {
             if (error.code == -999) {
                 // 主动 cancel task 的情况，不重试远程配置请求
@@ -235,7 +234,7 @@ static dispatch_once_t initializeOnceToken;
             } else {
                 if (index < strongSelf.requestRemoteConfigRetryMaxCount - 1) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [strongSelf requestRemoteConfigWithDelay:30 index:index + 1];
+                        [strongSelf requestRemoteConfigWithDelay:30 index:index + 1 isForceUpdate:isForceUpdate];
                     });
                 }
             }
@@ -243,15 +242,27 @@ static dispatch_once_t initializeOnceToken;
             SALogError(@"%@ error: %@", strongSelf, e);
         }
     };
+    
     @try {
-        [self performSelector:@selector(requestRemoteConfigWithCompletion:) withObject:completionBlock afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
+        NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
+        // 在子线程中，有 afterDelay 参数的方法不会被执行
+        if ([[NSThread currentThread] isMainThread]) {
+            [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
+            });
+        }
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
 }
 
-- (void)requestRemoteConfigWithCompletion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error))completion {
+- (void)requestRemoteConfigWithParams:(NSDictionary *)params {
     @try {
+        BOOL isForceUpdate = [params[@"isForceUpdate"] boolValue];
+        void(^completion)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = params[@"completion"];
+        
         NSString *networkTypeString = [SACommonUtility currentNetworkStatus];
         SensorsAnalyticsNetworkType networkType = [SACommonUtility toNetworkType:networkTypeString];
         if (networkType == SensorsAnalyticsNetworkTypeNONE) {
@@ -260,7 +271,8 @@ static dispatch_once_t initializeOnceToken;
         }
         NSURL *url = [NSURL URLWithString:self.managerOptions.configOptions.remoteConfigURL];
         
-        BOOL shouldAddVersion = [self isLibVersionUnchanged];
+        BOOL shouldAddVersion = !isForceUpdate;
+        shouldAddVersion = shouldAddVersion && [self isLibVersionUnchanged];
 #ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
         shouldAddVersion = shouldAddVersion && [self isCreateEncryptBuilder];
 #endif

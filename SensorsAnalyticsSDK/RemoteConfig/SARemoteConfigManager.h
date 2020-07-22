@@ -78,7 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cancelRequestRemoteConfig;
 
 /// 重试远程配置请求
-- (void)retryRequestRemoteConfig;
+/// @param isForceUpdate 是否强制请求最新的远程配置
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
 
 @end
 

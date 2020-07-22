@@ -487,7 +487,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         self.network.serverURL = [NSURL URLWithString:serverUrl];
         if (isRequestRemoteConfig) {
-            [[SARemoteConfigManager sharedInstance] retryRequestRemoteConfig];
+            [[SARemoteConfigManager sharedInstance] retryRequestRemoteConfigWithForceUpdateFlag:YES];
         }
     });
 }
