@@ -60,6 +60,8 @@ typedef NS_ENUM(int, SAEventRecordStatus) {
 
 - (void)addFlushTime;
 
+- (void)setSecretObject:(NSDictionary *)obj;
+
 @end
 
 NS_ASSUME_NONNULL_END

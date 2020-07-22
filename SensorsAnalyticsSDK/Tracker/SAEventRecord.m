@@ -24,6 +24,7 @@
 
 #import "SAEventRecord.h"
 #import "SAJSONUtil.h"
+#import "SAValidator.h"
 
 @implementation SAEventRecord {
     NSMutableDictionary *_event;
@@ -69,12 +70,14 @@ static long recordIndex = 0;
     _event[self.isEncrypted ? @"flush_time" : @"_flush_time"] = @(time);
 }
 
-- (void)encryptEventWithPKV:(NSString *)pkv ekey:(NSString *)ekey payload:(NSString *)payload {
+- (void)setSecretObject:(NSDictionary *)obj {
+    if (![SAValidator isValidDictionary:obj]) {
+        return;
+    }
     [_event removeAllObjects];
-    
-    _event[@"pkv"] = pkv;
-    _event[@"ekey"] = ekey;
-    _event[@"payload"] = payload;
+    [_event addEntriesFromDictionary:obj];
+
+    _encrypted = YES;
 }
 
 @end
