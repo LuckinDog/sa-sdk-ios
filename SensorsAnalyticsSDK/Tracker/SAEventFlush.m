@@ -32,6 +32,7 @@
 
 @interface SAEventFlush ()
 
+@property (nonatomic, copy) NSString *cookie;
 @property (nonatomic, strong) dispatch_semaphore_t flushSemaphore;
 
 @end
@@ -44,6 +45,22 @@
     }
     return _flushSemaphore;
 }
+
+#pragma mark - cookie
+
+- (void)setCookie:(NSString *)cookie isEncoded:(BOOL)encoded {
+    if (encoded) {
+        _cookie = [cookie stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
+    } else {
+        _cookie = cookie;
+    }
+}
+
+- (NSString *)cookieWithDecoded:(BOOL)isDecoded {
+    return isDecoded ? _cookie.stringByRemovingPercentEncoding : _cookie;
+}
+
+#pragma mark - build
 
 // 1. 先完成这一系列 Json 字符串的拼接
 - (NSString *)buildFlushJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
@@ -78,86 +95,91 @@
 }
 
 // 2. 完成 HTTP 请求拼接
-- (NSData *)buildBodyWithEventRecords:(NSArray<SAEventRecord *> *)records {
+- (NSData *)buildBodyWithJSONString:(NSString *)jsonString isEncrypted:(BOOL)isEncrypted {
     int gzip = 1; // gzip = 9 表示加密编码
-    NSString *dataString = nil;
-    if (self.enableEncrypt && records.firstObject.isEncrypted) {
+    if (isEncrypted) {
         // 加密数据已{经做过 gzip 压缩和 base64 处理了，就不需要再处理。
         gzip = 9;
-        // 加密数据需要特殊处理
-        dataString = [self buildFlushEncryptJSONStringWithEventRecords:records];
     } else {
-        dataString = [self buildFlushJSONStringWithEventRecords:records];
         // 使用gzip进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
+        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
         // base64
-        dataString = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+        jsonString = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
     }
-    int hashCode = [dataString sensorsdata_hashCode];
-    dataString = [dataString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
-    NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, dataString];
+    int hashCode = [jsonString sensorsdata_hashCode];
+    jsonString = [jsonString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
+    NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, jsonString];
     return [bodyString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-- (NSURLRequest *)buildFlushRequestWithServerURL:(NSURL *)serverURL eventRecords:(NSArray<SAEventRecord *> *)records {
+- (NSURLRequest *)buildFlushRequestWithServerURL:(NSURL *)serverURL HTTPBody:(NSData *)HTTPBody {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
     request.timeoutInterval = 30;
     request.HTTPMethod = @"POST";
-    request.HTTPBody = [self buildBodyWithEventRecords:records];
+    request.HTTPBody = HTTPBody;
     // 普通事件请求，使用标准 UserAgent
     [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
     if ([SensorsAnalyticsSDK.sharedInstance debugMode] == SensorsAnalyticsDebugOnly) {
         [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
     }
 
+    //Cookie
+    [request setValue:self.cookie forHTTPHeaderField:@"Cookie"];
+
     return request;
 }
 
 - (void)requestWithRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion {
-    NSString *jsonString = [self buildFlushJSONStringWithEventRecords:records];
-
-    SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
-            SALogError(@"%@ network failure: %@", self, error ? error : @"Unknown error");
-            return completion(NO);
-        }
-
-        NSInteger statusCode = response.statusCode;
-        
-        NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSString *messageDesc = nil;
-        if (statusCode >= 200 && statusCode < 300) {
-            messageDesc = @"\n【valid message】\n";
-        } else {
-            messageDesc = @"\n【invalid message】\n";
-            if (statusCode >= 300 && self.isDebugMode) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-                [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
-        }
-
-        SALogDebug(@"==========================================================================");
-        @try {
-            NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-            SALogDebug(@"%@ %@: %@", self, messageDesc, dict);
-        } @catch (NSException *exception) {
-            SALogError(@"%@: %@", self, exception);
-        }
-
-        if (statusCode != 200) {
-            SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);
-        }
-
-        // 1、开启 debug 模式，都删除；
-        // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
-        BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
-        BOOL flushSuccess = self.isDebugMode || successCode;
-        completion(flushSuccess);
-    };
-
     [SAHTTPSession.sharedInstance.delegateQueue addOperationWithBlock:^{
-        NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL eventRecords:records];
+        // 判断是否加密数据
+        BOOL isEncrypted = self.enableEncrypt && records.firstObject.isEncrypted;
+        // 拼接 json 数据
+        NSString *jsonString = isEncrypted ? [self buildFlushEncryptJSONStringWithEventRecords:records] : [self buildFlushJSONStringWithEventRecords:records];
+
+        // 网络请求回调处理
+        SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+            if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
+                SALogError(@"%@ network failure: %@", self, error ? error : @"Unknown error");
+                return completion(NO);
+            }
+
+            NSInteger statusCode = response.statusCode;
+
+            NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSString *messageDesc = nil;
+            if (statusCode >= 200 && statusCode < 300) {
+                messageDesc = @"\n【valid message】\n";
+            } else {
+                messageDesc = @"\n【invalid message】\n";
+                if (statusCode >= 300 && self.isDebugMode) {
+                    NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+                    [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
+                }
+            }
+
+            SALogDebug(@"==========================================================================");
+            @try {
+                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                SALogDebug(@"%@ %@: %@", self, messageDesc, dict);
+            } @catch (NSException *exception) {
+                SALogError(@"%@: %@", self, exception);
+            }
+
+            if (statusCode != 200) {
+                SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);
+            }
+
+            // 1、开启 debug 模式，都删除；
+            // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
+            BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
+            BOOL flushSuccess = self.isDebugMode || successCode;
+            completion(flushSuccess);
+        };
+
+        // 转换成发送的 http 的 body
+        NSData *HTTPBody = [self buildBodyWithJSONString:jsonString isEncrypted:isEncrypted];
+        NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL HTTPBody:HTTPBody];
         NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
         [task resume];
     }];

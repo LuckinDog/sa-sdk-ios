@@ -60,6 +60,10 @@
     return [SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt;
 }
 
+- (NSString *)cookie {
+    return [[SensorsAnalyticsSDK sharedInstance].network cookieWithDecoded:NO];
+}
+
 @end
 
 

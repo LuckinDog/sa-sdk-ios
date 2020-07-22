@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) BOOL enableEncrypt;
 
+@property (nonatomic, copy, readonly) NSString *cookie;
+
 @end
 
 
