@@ -33,6 +33,7 @@
 #import "SAObject+SAConfigOptions.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
+#import "SADataEncryptBuilder.h"
 
 @interface SAEventTracker ()
 
@@ -65,6 +66,12 @@
 
 - (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp {
     SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
+    // 加密
+    if (self.enableEncrypt) {
+        NSDictionary *obj = [self.encryptBuilder encryptionJSONObject:record.event];
+        [record setSecretObject:obj];
+    }
+
     [self.eventStore insertRecord:record];
 
     // $SignUp 事件或者本地缓存的数据是超过 flushBulkSize
@@ -88,8 +95,24 @@
     return YES;
 }
 
-- (void)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
-
+- (NSArray<SAEventRecord *> *)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
+    if (!self.enableEncrypt) {
+        return records;
+    }
+    NSMutableArray *encryptRecords = [NSMutableArray arrayWithCapacity:records.count];
+    for (SAEventRecord *record in records) {
+        if (record.isEncrypted) {
+            [encryptRecords addObject:record];
+        } else {
+            // 缓存数据未加密，再加密
+            NSDictionary *obj = [self.encryptBuilder encryptionJSONObject:record.event];
+            if (obj) {
+                [record setSecretObject:obj];
+                [encryptRecords addObject:record];
+            }
+        }
+    }
+    return encryptRecords.count == 0 ? records : encryptRecords;
 }
 
 - (void)flushAllEventRecords {
@@ -108,20 +131,22 @@
     if (records.count == 0) {
         return NO;
     }
+
+    // 加密
+    NSArray<SAEventRecord *> *encryptRecords = [self encryptEventRecords:records];
+
     // 获取查询到的数据的 id
-    NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:records.count];
-    for (SAEventRecord *record in records) {
+    NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:encryptRecords.count];
+    for (SAEventRecord *record in encryptRecords) {
         [recordIDs addObject:record.recordID];
     }
+
     // 更新数据状态
     [self.eventStore updateRecords:recordIDs status:SAEventRecordStatusFlush];
 
-    // 加密
-    [self encryptEventRecords:records];
-
     // flush
     __weak typeof(self) weakSelf = self;
-    [self.eventFlush flushEventRecords:records isEncrypted:NO completion:^(BOOL success) {
+    [self.eventFlush flushEventRecords:records completion:^(BOOL success) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         void(^block)(void) = ^ {
             if (!success) {

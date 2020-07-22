@@ -56,6 +56,10 @@
     return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeEnterBackground;
 }
 
+- (BOOL)enableEncrypt {
+    return [SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt;
+}
+
 @end
 
 
@@ -73,6 +77,14 @@
 
 - (NSInteger)flushBulkSize {
     return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBulkSize;
+}
+
+- (BOOL)enableEncrypt {
+    return [SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt;
+}
+
+- (SADataEncryptBuilder *)encryptBuilder {
+    return [SensorsAnalyticsSDK sharedInstance].encryptBuilder;
 }
 
 @end

@@ -50,6 +50,7 @@
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
         if ([record isValid]) {
+            // 需要先添加 flush time，再进行 json 拼接
             [record addFlushTime];
             [contents addObject:record.content];
         }
@@ -57,14 +58,36 @@
     return [NSString stringWithFormat:@"[%@]", [contents componentsJoinedByString:@","]];
 }
 
+- (NSString *)buildFlushEncryptJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
+    // 初始化用于保存合并后的事件数据
+    NSMutableArray *encryptRecords = [NSMutableArray arrayWithCapacity:records.count];
+    // 用于保存当前存在的所有 ekey
+    NSMutableArray *ekeys = [NSMutableArray arrayWithCapacity:records.count];
+    for (SAEventRecord *record in records) {
+        NSInteger index = [ekeys indexOfObject:record.ekey];
+        if (index == NSNotFound) {
+            [record removePayload];
+            [encryptRecords addObject:record];
+
+            [ekeys addObject:record.ekey];
+        } else {
+            [encryptRecords[index] mergeSameEKayRecord:record];
+        }
+    }
+    return [self buildFlushJSONStringWithEventRecords:encryptRecords];
+}
+
 // 2. 完成 HTTP 请求拼接
-- (NSData *)buildBodyWithEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted {
-    NSString *dataString = [self buildFlushJSONStringWithEventRecords:records];
+- (NSData *)buildBodyWithEventRecords:(NSArray<SAEventRecord *> *)records {
     int gzip = 1; // gzip = 9 表示加密编码
-    if (isEncrypted) {
+    NSString *dataString = nil;
+    if (self.enableEncrypt && records.firstObject.isEncrypted) {
         // 加密数据已{经做过 gzip 压缩和 base64 处理了，就不需要再处理。
         gzip = 9;
+        // 加密数据需要特殊处理
+        dataString = [self buildFlushEncryptJSONStringWithEventRecords:records];
     } else {
+        dataString = [self buildFlushJSONStringWithEventRecords:records];
         // 使用gzip进行压缩
         NSData *zippedData = [SAGzipUtility gzipData:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
         // base64
@@ -76,11 +99,11 @@
     return [bodyString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-- (NSURLRequest *)buildFlushRequestWithServerURL:(NSURL *)serverURL eventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted {
+- (NSURLRequest *)buildFlushRequestWithServerURL:(NSURL *)serverURL eventRecords:(NSArray<SAEventRecord *> *)records {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
     request.timeoutInterval = 30;
     request.HTTPMethod = @"POST";
-    request.HTTPBody = [self buildBodyWithEventRecords:records isEncrypted:isEncrypted];
+    request.HTTPBody = [self buildBodyWithEventRecords:records];
     // 普通事件请求，使用标准 UserAgent
     [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
     if ([SensorsAnalyticsSDK.sharedInstance debugMode] == SensorsAnalyticsDebugOnly) {
@@ -90,7 +113,7 @@
     return request;
 }
 
-- (void)requestWithRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+- (void)requestWithRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion {
     NSString *jsonString = [self buildFlushJSONStringWithEventRecords:records];
 
     SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -134,17 +157,17 @@
     };
 
     [SAHTTPSession.sharedInstance.delegateQueue addOperationWithBlock:^{
-        NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL eventRecords:records isEncrypted:isEncrypted];
+        NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL eventRecords:records];
         NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
         [task resume];
     }];
 }
 
-- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records isEncrypted:(BOOL)isEncrypted completion:(void (^)(BOOL success))completion {
+- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion {
     __block BOOL flushSuccess = NO;
     // 当在程序终止或 debug 模式下，使用线程锁
     BOOL isWait = self.flushBeforeEnterBackground || self.isDebugMode;
-    [self requestWithRecords:records isEncrypted:NO completion:^(BOOL success) {
+    [self requestWithRecords:records completion:^(BOOL success) {
         if (isWait) {
             flushSuccess = success;
             dispatch_semaphore_signal(self.flushSemaphore);

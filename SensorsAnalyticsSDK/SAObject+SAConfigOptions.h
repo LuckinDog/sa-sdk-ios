@@ -22,6 +22,7 @@
 #import "SAEventFlush.h"
 #import "SAEventTracker.h"
 #import "SAConstants.h"
+#import "SADataEncryptBuilder.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) BOOL flushBeforeEnterBackground;
 
+@property (nonatomic, readonly) BOOL enableEncrypt;
+
 @end
 
 
@@ -54,6 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) SensorsAnalyticsNetworkType networkTypePolicy;
 
 @property (nonatomic, readonly) NSInteger flushBulkSize;
+
+@property (nonatomic, readonly) BOOL enableEncrypt;
+@property (nonatomic, strong, readonly) SADataEncryptBuilder *encryptBuilder;
 
 @end
 
