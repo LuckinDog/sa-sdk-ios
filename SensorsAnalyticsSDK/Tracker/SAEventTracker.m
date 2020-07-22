@@ -146,7 +146,7 @@
 
     // flush
     __weak typeof(self) weakSelf = self;
-    [self.eventFlush flushEventRecords:records completion:^(BOOL success) {
+    [self.eventFlush flushEventRecords:encryptRecords completion:^(BOOL success) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         void(^block)(void) = ^ {
             if (!success) {
