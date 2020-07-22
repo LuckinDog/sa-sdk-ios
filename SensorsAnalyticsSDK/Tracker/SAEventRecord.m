@@ -94,7 +94,7 @@ static long recordIndex = 0;
     [_event removeObjectForKey:SAEncryptRecordKeyPayload];
 }
 
-- (BOOL)mergeSameEKayRecord:(SAEventRecord *)record {
+- (BOOL)mergeSameEKeyRecord:(SAEventRecord *)record {
     if (![self.ekey isEqualToString:record.ekey]) {
         return NO;
     }

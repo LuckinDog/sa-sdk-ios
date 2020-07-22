@@ -88,7 +88,7 @@
 
             [ekeys addObject:record.ekey];
         } else {
-            [encryptRecords[index] mergeSameEKayRecord:record];
+            [encryptRecords[index] mergeSameEKeyRecord:record];
         }
     }
     return [self buildFlushJSONStringWithEventRecords:encryptRecords];
