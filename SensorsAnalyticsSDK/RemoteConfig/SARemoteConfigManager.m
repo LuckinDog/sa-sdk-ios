@@ -43,8 +43,6 @@ static NSString * const SA_SDK_TRACK_CONFIG = @"SASDKConfig";
 ///保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
 static NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTime";
 
-typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error);
-
 static SARemoteConfigManager *sharedInstance = nil;
 static dispatch_once_t initializeOnceToken;
 
@@ -55,8 +53,6 @@ static dispatch_once_t initializeOnceToken;
 @property (nonatomic, strong) SAReadWriteLock *remoteConfigLock;
 
 @property (nonatomic, assign) NSUInteger requestRemoteConfigRetryMaxCount; // SDK 开启关闭功能接口最大重试次数
-
-@property (nonatomic, copy) SARequestConfigBlock requestConfigBlock;
 
 @property (nonatomic, strong) SARemoteConfigManagerOptions *managerOptions;
 
@@ -217,7 +213,7 @@ static dispatch_once_t initializeOnceToken;
 
 - (void)requestRemoteConfigWithDelay:(NSTimeInterval) delay index:(NSUInteger) index {
     __weak typeof(self) weakSelf = self;
-    void(^block)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = ^(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) {
+    void(^completionBlock)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = ^(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         
         @try {
@@ -248,14 +244,13 @@ static dispatch_once_t initializeOnceToken;
         }
     };
     @try {
-        self.requestConfigBlock = block;
-        [self performSelector:@selector(requestRemoteConfigWithCompletion:) withObject:self.requestConfigBlock afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
+        [self performSelector:@selector(requestRemoteConfigWithCompletion:) withObject:completionBlock afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
 }
 
-- (void)requestRemoteConfigWithCompletion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error)) completion{
+- (void)requestRemoteConfigWithCompletion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error))completion {
     @try {
         NSString *networkTypeString = [SACommonUtility currentNetworkStatus];
         SensorsAnalyticsNetworkType networkType = [SACommonUtility toNetworkType:networkTypeString];
