@@ -50,6 +50,7 @@
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
         if ([record isValid]) {
+            // 需要先添加 flush time，再进行 json 拼接
             [record addFlushTime];
             [contents addObject:record.content];
         }
@@ -57,14 +58,36 @@
     return [NSString stringWithFormat:@"[%@]", [contents componentsJoinedByString:@","]];
 }
 
+- (NSString *)buildFlushEncryptJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
+    // 初始化用于保存合并后的事件数据
+    NSMutableArray *encryptRecords = [NSMutableArray arrayWithCapacity:records.count];
+    // 用于保存当前存在的所有 ekey
+    NSMutableArray *ekeys = [NSMutableArray arrayWithCapacity:records.count];
+    for (SAEventRecord *record in records) {
+        NSInteger index = [ekeys indexOfObject:record.ekey];
+        if (index == NSNotFound) {
+            [record removePayload];
+            [encryptRecords addObject:record];
+
+            [ekeys addObject:record.ekey];
+        } else {
+            [encryptRecords[index] mergeSameEKayRecord:record];
+        }
+    }
+    return [self buildFlushJSONStringWithEventRecords:encryptRecords];
+}
+
 // 2. 完成 HTTP 请求拼接
 - (NSData *)buildBodyWithEventRecords:(NSArray<SAEventRecord *> *)records {
-    NSString *dataString = [self buildFlushJSONStringWithEventRecords:records];
     int gzip = 1; // gzip = 9 表示加密编码
+    NSString *dataString = nil;
     if (self.enableEncrypt && records.firstObject.isEncrypted) {
         // 加密数据已{经做过 gzip 压缩和 base64 处理了，就不需要再处理。
         gzip = 9;
+        // 加密数据需要特殊处理
+        dataString = [self buildFlushEncryptJSONStringWithEventRecords:records];
     } else {
+        dataString = [self buildFlushJSONStringWithEventRecords:records];
         // 使用gzip进行压缩
         NSData *zippedData = [SAGzipUtility gzipData:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
         // base64

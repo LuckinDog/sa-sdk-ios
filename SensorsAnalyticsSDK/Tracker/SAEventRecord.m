@@ -26,6 +26,10 @@
 #import "SAJSONUtil.h"
 #import "SAValidator.h"
 
+static NSString * const SAEncryptRecordKeyEKey = @"ekey";
+static NSString * const SAEncryptRecordKeyPayloads = @"payloads";
+static NSString * const SAEncryptRecordKeyPayload = @"payload";
+
 @implementation SAEventRecord {
     NSMutableDictionary *_event;
 }
@@ -38,7 +42,7 @@ static long recordIndex = 0;
         _event = [event mutableCopy];
         _type = type;
 
-        _encrypted = _event[@"ekey"] != nil;
+        _encrypted = _event[SAEncryptRecordKeyEKey] != nil;
     }
     return self;
 }
@@ -50,7 +54,8 @@ static long recordIndex = 0;
         NSData *jsonData = [content dataUsingEncoding:NSUTF8StringEncoding];
         if (jsonData) {
             _event = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-            _encrypted = _event[@"ekey"] != nil;
+
+            _encrypted = _event[SAEncryptRecordKeyEKey] != nil;
         }
     }
     return self;
@@ -67,7 +72,11 @@ static long recordIndex = 0;
 
 - (void)addFlushTime {
     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-    _event[self.isEncrypted ? @"flush_time" : @"_flush_time"] = @(time);
+    _event[self.encrypted ? @"flush_time" : @"_flush_time"] = @(time);
+}
+
+- (NSString *)ekey {
+    return _event[SAEncryptRecordKeyEKey];
 }
 
 - (void)setSecretObject:(NSDictionary *)obj {
@@ -78,6 +87,20 @@ static long recordIndex = 0;
     [_event addEntriesFromDictionary:obj];
 
     _encrypted = YES;
+}
+
+- (void)removePayload {
+    _event[SAEncryptRecordKeyPayloads] = [NSMutableArray arrayWithObject:_event[SAEncryptRecordKeyPayload]];
+    [_event removeObjectForKey:SAEncryptRecordKeyPayload];
+}
+
+- (BOOL)mergeSameEKayRecord:(SAEventRecord *)record {
+    if (![self.ekey isEqualToString:record.ekey]) {
+        return NO;
+    }
+    [(NSMutableArray *)_event[SAEncryptRecordKeyPayloads] addObject:record.event[SAEncryptRecordKeyPayload]];
+    [_event removeObjectForKey:SAEncryptRecordKeyPayload];
+    return YES;
 }
 
 @end

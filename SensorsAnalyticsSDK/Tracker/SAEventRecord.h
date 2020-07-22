@@ -60,7 +60,12 @@ typedef NS_ENUM(int, SAEventRecordStatus) {
 
 - (void)addFlushTime;
 
+@property (nonatomic, copy, readonly) NSString *ekey;
+
 - (void)setSecretObject:(NSDictionary *)obj;
+
+- (void)removePayload;
+- (BOOL)mergeSameEKayRecord:(SAEventRecord *)record;
 
 @end
 
