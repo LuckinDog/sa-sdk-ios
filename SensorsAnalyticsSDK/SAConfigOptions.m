@@ -74,10 +74,15 @@
     options.enableLog = self.enableLog;
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
-
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
 
     options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
+    
+    options.enableEncrypt = self.enableEncrypt;
+    options.saveSecretKey = self.saveSecretKey;
+    options.loadSecretKey = self.loadSecretKey;
+    
+    options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
     
     return options;
 }
@@ -112,6 +117,20 @@
 
 
 @implementation SASecretKey
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeInteger:self.version forKey:@"version"];
+    [coder encodeObject:self.key forKey:@"key"];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self) {
+        self.version = [coder decodeIntegerForKey:@"version"];
+        self.key = [coder decodeObjectForKey:@"key"];
+    }
+    return self;
+}
 
 @end
 
