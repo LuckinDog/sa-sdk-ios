@@ -30,7 +30,7 @@
 #import "SALog.h"
 
 static NSString *const SAAppDeeplinkLaunchEvent = @"$AppDeeplinkLaunch";
-static NSString *const SADeeplinkMatchedResultEvent = @"$DeeplinkMatchedResult";
+static NSString *const SADeeplinkMatchedResultEvent = @"$AppDeeplinkMatchedResult";
 
 @interface SALinkHandler ()
 
@@ -332,7 +332,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
             success = errorMsg.length <= 0;
             self.latestUtms = [self acquireLatestUtmProperties:result[@"channel_params"]];
         } else {
-            errorMsg = error.localizedFailureReason;
+            NSString *codeMsg = [NSString stringWithFormat:@"http status code: %@",@(response.statusCode)];
+            errorMsg = error.localizedDescription ?: codeMsg;
         }
         [self trackDeeplinkMatchedResult:url result:result interval:interval errorMsg:errorMsg];
         if (self.linkHandlerCallback) {
@@ -355,7 +356,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
     props[@"$event_duration"] = [NSString stringWithFormat:@"%.3f", interval];
     props[@"$deeplink_options"] = result[@"page_params"];
-    props[@"$deeplink_match_fail_reason"] = errorMsg;
+    props[@"$deeplink_match_fail_reason"] = errorMsg.length ? errorMsg : nil;
     props[@"$deeplink_url"] = url.absoluteString;
     NSDictionary *utms = [self acquireUtmProperties:result[@"channel_params"]];
     [props addEntriesFromDictionary:utms];
