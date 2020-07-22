@@ -95,7 +95,7 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 - (nullable NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
                                                             mainConfigVersion:(NSString *)mainConfigVersion
                                                            eventConfigVersion:(NSString *)eventConfigVersion
-                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
+                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error))completion;
 
 @end
 

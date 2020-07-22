@@ -43,7 +43,7 @@ static NSString * const SA_SDK_TRACK_CONFIG = @"SASDKConfig";
 ///保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
 static NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTime";
 
-typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary *configDict);
+typedef void (^SARequestConfigBlock)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error);
 
 static SARemoteConfigManager *sharedInstance = nil;
 static dispatch_once_t initializeOnceToken;
@@ -59,6 +59,8 @@ static dispatch_once_t initializeOnceToken;
 @property (nonatomic, copy) SARequestConfigBlock requestConfigBlock;
 
 @property (nonatomic, strong) SARemoteConfigManagerOptions *managerOptions;
+
+@property (nonatomic, strong) NSURLSessionTask *currentNetworkTask;
 
 @end
 
@@ -170,10 +172,7 @@ static dispatch_once_t initializeOnceToken;
 }
 
 - (void)cancelRequestRemoteConfig {
-    if (self.requestConfigBlock) {
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestRemoteConfigWithCompletion:) object:self.requestConfigBlock];
-        self.requestConfigBlock = nil;
-    }
+    [self.currentNetworkTask cancel];
 }
 
 #pragma mark – Private Methods
@@ -218,18 +217,23 @@ static dispatch_once_t initializeOnceToken;
 
 - (void)requestRemoteConfigWithDelay:(NSTimeInterval) delay index:(NSUInteger) index {
     __weak typeof(self) weakSelf = self;
-    void(^block)(BOOL success , NSDictionary *configDict) = ^(BOOL success , NSDictionary *configDict) {
+    void(^block)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = ^(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         
         @try {
+            if (error.code == -999) {
+                // 主动 cancel task 的情况，不重试远程配置请求
+                return;
+            }
+            
             if (success) {
-                if(configDict != nil) {
+                if(config != nil) {
                     // 远程配置
-                    [strongSelf handleRemoteConfigWithRequestResult:configDict];
+                    [strongSelf handleRemoteConfigWithRequestResult:config];
                     
-                    // 加密相关内容
+                    // 加密
                     if (strongSelf.managerOptions.handleSecretKeyBlock) {
-                        strongSelf.managerOptions.handleSecretKeyBlock(configDict);
+                        strongSelf.managerOptions.handleSecretKeyBlock(config);
                     }
                 }
             } else {
@@ -251,12 +255,12 @@ static dispatch_once_t initializeOnceToken;
     }
 }
 
-- (void)requestRemoteConfigWithCompletion:(void(^)(BOOL success, NSDictionary*configDict )) completion{
+- (void)requestRemoteConfigWithCompletion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error)) completion{
     @try {
         NSString *networkTypeString = [SACommonUtility currentNetworkStatus];
         SensorsAnalyticsNetworkType networkType = [SACommonUtility toNetworkType:networkTypeString];
         if (networkType == SensorsAnalyticsNetworkTypeNONE) {
-            completion(NO, nil);
+            completion(NO, nil, nil);
             return;
         }
         NSURL *url = [NSURL URLWithString:self.managerOptions.configOptions.remoteConfigURL];
@@ -267,7 +271,7 @@ static dispatch_once_t initializeOnceToken;
 #endif
         NSString *mainConfigVersion = shouldAddVersion ? self.remoteConfigModel.version : nil;
         NSString *eventConfigVersion = shouldAddVersion ? self.eventConfigModel.version : nil;
-        [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url mainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
+        self.currentNetworkTask = [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url mainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }

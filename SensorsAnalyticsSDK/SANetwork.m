@@ -366,7 +366,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 - (NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
                                                    mainConfigVersion:(NSString *)mainConfigVersion
                                                   eventConfigVersion:(NSString *)eventConfigVersion
-                                                          completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
+                                                          completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error))completion {
     if (![self isValidServerURL]) {
         SALogError(@"serverURL error，Please check the serverURL");
         return nil;
@@ -387,7 +387,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
             SALogError(@"%@ error: %@", self, e);
             success = NO;
         }
-        completion(success, config);
+        completion(success, config, error);
     }];
     [task resume];
     return task;
