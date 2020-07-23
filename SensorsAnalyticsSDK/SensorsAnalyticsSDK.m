@@ -77,7 +77,7 @@
 #import "SAConsoleLogger.h"
 #import "SAEncryptSecretKeyHandler.h"
 
-#define VERSION @"2.0.12-pre"
+#define VERSION @"2.1.0"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
