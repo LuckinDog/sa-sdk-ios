@@ -50,7 +50,7 @@
 @property (nonatomic, strong, readonly) UIViewController *currentViewController;
 
 /// 保存最后一次页面浏览所在的 controller
-@property (nonatomic, strong, readonly) UIViewController *lastViewScreenController;
+@property (nonatomic, strong) UIViewController *lastViewScreenController;
 
 /// 截图 hash 更新信息，如果存在，则添加到 image_hash 后缀
 @property (nonatomic, copy, readonly) NSString *imageHashUpdateMessage;
@@ -91,8 +91,6 @@
 
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController;
-
-- (void)saveLastViewScreenController:(UIViewController *)controller;
 
 /// 重置最后截图 hash
 - (void)resetLastImageHash:(NSString *)imageHash;

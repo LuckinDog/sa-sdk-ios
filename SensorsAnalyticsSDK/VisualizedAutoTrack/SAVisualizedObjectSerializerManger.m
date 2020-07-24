@@ -53,8 +53,6 @@
 /// 弹框信息
 @property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
 
-@property (nonatomic, strong, readwrite, setter=saveLastViewScreenController:) UIViewController *lastViewScreenController;
-
 ///  App 内嵌 H5 页面 缓存
 /*
  key:H5 页面 url
@@ -224,10 +222,6 @@
     } else {
         [self.controllerCountMap setObject:@(1) forKey:viewController];
     }
-}
-
-- (void)saveLastViewScreenController:(UIViewController *)controller {
-    _lastViewScreenController = controller;
 }
 
 - (void)resetLastImageHash:(NSString *)imageHash {
