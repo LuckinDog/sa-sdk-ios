@@ -90,14 +90,14 @@
         [object isKindOfClass:[UISegmentedControl class]] ||
         [object isKindOfClass:[UIPageControl class]]) {
         // 保存当前触发时间
-        object.lastTrackClickSystemTime = [[NSProcessInfo processInfo] systemUptime];
+        object.lastTrackAppClickSystemTime = [[NSProcessInfo processInfo] systemUptime];
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         return;
     }
 
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
         // 保存当前触发时间
-        object.lastTrackClickSystemTime = [[NSProcessInfo processInfo] systemUptime];
+        object.lastTrackAppClickSystemTime = [[NSProcessInfo processInfo] systemUptime];
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         return;
     }

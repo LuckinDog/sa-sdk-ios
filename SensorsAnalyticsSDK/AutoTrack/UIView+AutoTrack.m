@@ -42,13 +42,12 @@
     return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored;
 }
 
-
-- (void)setLastTrackClickSystemTime:(NSTimeInterval)lastTrackClickSystemTime {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsUIViewLastTrackClickSystemTime", [NSNumber numberWithDouble:lastTrackClickSystemTime], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setLastTrackAppClickSystemTime:(NSTimeInterval)lastTrackAppClickSystemTime {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsUIViewLastTrackAppClickSystemTime", [NSNumber numberWithDouble:lastTrackAppClickSystemTime], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSTimeInterval)lastTrackClickSystemTime {
-    return [objc_getAssociatedObject(self, @"sensorsAnalyticsUIViewLastTrackClickSystemTime") doubleValue];
+- (NSTimeInterval)lastTrackAppClickSystemTime {
+    return [objc_getAssociatedObject(self, @"sensorsAnalyticsUIViewLastTrackAppClickSystemTime") doubleValue];
 }
 
 - (NSString *)sensorsdata_elementType {

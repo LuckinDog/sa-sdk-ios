@@ -172,7 +172,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     if (!object) {
         return NO;
     }
-    NSTimeInterval lastTime = object.lastTrackClickSystemTime;
+    NSTimeInterval lastTime = object.lastTrackAppClickSystemTime;
     NSTimeInterval currentTime = [[NSProcessInfo processInfo] systemUptime];
     if (lastTime > 0 && currentTime - lastTime < SATrackAppClickMinTimeInterval) {
         return NO;
@@ -480,11 +480,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
     UIViewController<SAAutoTrackViewControllerProperty> *viewController = object.sensorsdata_viewController;
     if (viewController.sensorsdata_isIgnored) {
-        return nil;
-    }
-
-    // 判断时间间隔
-    if (![self enableAutoTrackAppClickInTimeIntervalWithObject:object]) {
         return nil;
     }
 
