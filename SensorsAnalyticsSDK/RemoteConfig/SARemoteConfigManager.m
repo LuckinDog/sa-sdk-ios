@@ -58,6 +58,8 @@ static dispatch_once_t initializeOnceToken;
 
 @property (nonatomic, strong) NSURLSessionTask *currentNetworkTask;
 
+@property (nonatomic, copy) NSDictionary *requestRemoteConfigParams;
+
 @end
 
 @implementation SARemoteConfigManager
@@ -168,7 +170,16 @@ static dispatch_once_t initializeOnceToken;
 }
 
 - (void)cancelRequestRemoteConfig {
-    [self.currentNetworkTask cancel];
+    [SACommonUtility performAsyncBlockOnMainThread:^{
+        // 还未发出请求
+        if (self.requestRemoteConfigParams) {
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestRemoteConfigWithParams:) object:self.requestRemoteConfigParams];
+            self.requestRemoteConfigParams = nil;
+        }
+        
+        // 已经发出请求
+        [self.currentNetworkTask cancel];
+    }];
 }
 
 #pragma mark – Private Methods
@@ -243,9 +254,9 @@ static dispatch_once_t initializeOnceToken;
     
     @try {
         // 在子线程中，有 afterDelay 参数的方法不会被执行
-        NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
         [SACommonUtility performAsyncBlockOnMainThread:^{
-            [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
+            self.requestRemoteConfigParams = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
+            [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:self.requestRemoteConfigParams afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
         }];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
