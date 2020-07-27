@@ -1913,7 +1913,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }];
         }
         if (unregisterPropertyKeys.count > 0) {
-            [self unregisterSuperPropertys:unregisterPropertyKeys];
+            [self removeDuplicateSuperProperties:unregisterPropertyKeys];
         }
     };
     if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
@@ -1934,17 +1934,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)unregisterSuperPropertys:(NSArray<NSString *> *)propertys {
-    dispatch_block_t block =  ^{
-        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
-        [tmp removeObjectsForKeys:propertys];
-        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
-    };
-    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
-        block();
-    } else {
-        dispatch_async(self.serialQueue, block);
-    }
+//remove duplicate keys, case insensitive
+- (void)removeDuplicateSuperProperties:(NSArray<NSString *> *)properties {
+    NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
+    [tmp removeObjectsForKeys:properties];
+    self.superProperties = [NSDictionary dictionaryWithDictionary:tmp];
 }
 
 - (void)clearSuperProperties {
