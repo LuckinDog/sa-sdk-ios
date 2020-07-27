@@ -243,8 +243,8 @@ static dispatch_once_t initializeOnceToken;
     
     @try {
         // 在子线程中，有 afterDelay 参数的方法不会被执行
+        NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
         [SACommonUtility performAsyncBlockOnMainThread:^{
-            NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
             [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
         }];
     } @catch (NSException *e) {
