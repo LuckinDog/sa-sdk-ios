@@ -136,6 +136,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 - (void)clearLastDeepLinkInfo:(NSURL *)url {
     [self clearUtmProperties];
     [self clearLatestUtmProperties];
+    // 删除本地保存的 DeepLink 信息
+    [self saveDeepLinkInfo:nil];
     _utms[@"$deeplink_url"] = url.absoluteString;
 }
 
@@ -337,7 +339,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         }
         [self trackDeeplinkMatchedResult:url result:result interval:interval errorMsg:errorMsg];
         if (self.linkHandlerCallback) {
-            self.linkHandlerCallback(result[@"page_params"], success, interval);
+            self.linkHandlerCallback(result[@"page_params"], success, interval * 1000);
         }
     }];
     [task resume];

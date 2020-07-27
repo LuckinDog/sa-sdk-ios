@@ -2877,7 +2877,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - Deeplink
 @implementation SensorsAnalyticsSDK (Deeplink)
 
-- (void)setDeeplinkCallback:(void(^)(NSString *params, BOOL success, NSTimeInterval appAwakePassedTime))callback {
+- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback {
     _linkHandler.linkHandlerCallback = callback;
 }
 

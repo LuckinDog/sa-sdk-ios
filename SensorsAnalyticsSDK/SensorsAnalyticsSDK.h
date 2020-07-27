@@ -948,7 +948,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Deeplink
 @interface SensorsAnalyticsSDK (Deeplink)
 
-- (void)setDeeplinkCallback:(void(^)(NSString *params, BOOL success, NSTimeInterval appAwakePassedTime))callback;
+/**
+DeepLink 回调函数
+@param callback 请求成功后的回调函数
+  params：创建渠道链接时填写的 App 内参数
+  succes：deeplink 唤起结果
+  appAwakePassedTime：获取渠道信息所用时间
+*/
+- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback;
 
 @end
 
