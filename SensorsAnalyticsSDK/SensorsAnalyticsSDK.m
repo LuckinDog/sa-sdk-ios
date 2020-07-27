@@ -2130,7 +2130,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
-    [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
+    if (self.configOptions.enableVisualizedAutoTrack) {
+        [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
+    }
 
     [self trackViewScreen:controller properties:nil autoTrack:YES];
 }
