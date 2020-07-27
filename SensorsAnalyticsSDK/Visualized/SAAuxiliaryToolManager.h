@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isVisualizedAutoTrackURL:(NSURL *)url;
 - (BOOL)isDebugModeURL:(NSURL *)url;
 
+/// 是否正在进行可视化全埋点连接
 - (BOOL)isVisualizedConnecting;
 @end
 

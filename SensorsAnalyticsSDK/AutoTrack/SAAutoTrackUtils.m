@@ -239,16 +239,6 @@
 
 #pragma mark -
 @implementation SAAutoTrackUtils (ViewPath)
-
-+ (BOOL)isIgnoredVisualizedAutoTrackForViewController:(UIViewController *)viewController {
-    if (!viewController) {
-        return NO;
-    }
-    SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
-    BOOL isEnableVisualizedAutoTrack = [sa isVisualizedAutoTrackEnabled] && [sa isVisualizedAutoTrackViewController:viewController];
-    return !isEnableVisualizedAutoTrack;
-}
-
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController {
     SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
 
@@ -298,7 +288,7 @@
 
 /// 获取模糊路径
 + (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath {
-    if ([self isIgnoredVisualizedAutoTrackForViewController:viewController]) {
+    if ([self isIgnoredViewPathForViewController:viewController]) {
         return nil;
     }
 

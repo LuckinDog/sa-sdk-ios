@@ -224,15 +224,30 @@
 }
 
 - (NSString *)sensorsdata_elementSelector {
-        // 处理特殊控件
+    // 处理特殊控件
     #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
-        if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
-            UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
-            if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
-                return [SAAutoTrackUtils viewPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController];
-            }
+    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
+    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
+        UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
+        if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
+            /* 原始路径，都是类似以下结构：
+             UINavigationController/AutoTrackViewController/UIView/UISegmentedControl[(jjf_varB='fac459bd36d8326d9140192c7900decaf3744f5e')]/UISegment[0]
+             UISegment[0] 无法标识当前单元格当前显示的序号 index
+             */
+            NSString *elementSelector = [SAAutoTrackUtils viewPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController];
+            // 解析 UISegment 的显示序号 index
+            NSString *postion = [self sensorsdata_elementPosition];
+            // 原始路径分割后的集合
+            NSMutableArray <NSString *> *viewPaths = [[elementSelector componentsSeparatedByString:@"/"] mutableCopy];
+            // 删除最后一个原始 UISegment 路径
+            [viewPaths removeLastObject];
+            // 添加使用位置拼接的正确路径
+            [viewPaths addObject:[NSString stringWithFormat:@"UISegment[%@]", postion]];
+            // 拼接完整路径信息
+            NSString *newElementSelector = [viewPaths componentsJoinedByString:@"/"];
+            return newElementSelector;
         }
+    }
     #endif
     if (self.sensorsdata_enableAppClick) {
         return [SAAutoTrackUtils viewPathForView:self atViewController:self.sensorsdata_viewController];
@@ -440,7 +455,7 @@
 
 @implementation SAJSTouchEventView (VisualizedAutoTrack)
 
-- (NSString *)sensorsdata_elementPath {
+- (NSString *)sensorsdata_elementSelector {
     return self.elementSelector;
 }
 

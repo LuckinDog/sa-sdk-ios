@@ -110,8 +110,9 @@
     [alertController show];
 }
 
+/// 是否正在进行可视化全埋点连接
 - (BOOL)isVisualizedConnecting {
-    return self.visualizedConnection.isVisualizedConnecting;
+    return self.visualizedConnection.isVisualizedConnecting && self.visualizedType == SensorsAnalyticsVisualizedTypeAutoTrack;
 }
 - (NSString *)alertMessageWithURL:(NSURL *)URL isWifi:(BOOL)isWifi {
     NSString *alertMessage = nil;

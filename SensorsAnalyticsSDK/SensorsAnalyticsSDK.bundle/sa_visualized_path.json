@@ -107,7 +107,7 @@
                 "type": "NSString"
               },
               {
-                  "name": "sensorsdata_elementPath",
+                  "name": "sensorsdata_elementSelector",
                   "key": "element_selector",
                   "type": "NSString",
                   "use_kvc": false
