@@ -112,13 +112,13 @@ static dispatch_once_t initializeOnceToken;
     }
     
     // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    if (!self.managerOptions.encryptBuilderCreateResultBlock || !self.managerOptions.encryptBuilderCreateResultBlock()) {
-        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
-        SALogDebug(@"Request remote config because encrypt builder is nil");
-        return;
+    if (self.managerOptions.configOptions.enableEncrypt) {
+        if (!self.managerOptions.encryptBuilderCreateResultBlock || !self.managerOptions.encryptBuilderCreateResultBlock()) {
+            [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
+            SALogDebug(@"Request remote config because encrypt builder is nil");
+            return;
+        }
     }
-#endif
     
     // 获取本地保存的随机时间和设备启动时间
     NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_REQUEST_REMOTECONFIG_TIME];
@@ -227,7 +227,7 @@ static dispatch_once_t initializeOnceToken;
                     [strongSelf handleRemoteConfigWithRequestResult:config];
                     
                     // 加密
-                    if (strongSelf.managerOptions.handleSecretKeyBlock) {
+                    if (strongSelf.managerOptions.configOptions.enableEncrypt && strongSelf.managerOptions.handleSecretKeyBlock) {
                         strongSelf.managerOptions.handleSecretKeyBlock(config);
                     }
                 }
@@ -273,9 +273,10 @@ static dispatch_once_t initializeOnceToken;
         
         BOOL shouldAddVersion = !isForceUpdate;
         shouldAddVersion = shouldAddVersion && [self isLibVersionUnchanged];
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-        shouldAddVersion = shouldAddVersion && [self isCreateEncryptBuilder];
-#endif
+        if (self.managerOptions.configOptions.enableEncrypt) {
+            shouldAddVersion = shouldAddVersion && [self isCreateEncryptBuilder];
+        }
+        
         NSString *mainConfigVersion = shouldAddVersion ? self.remoteConfigModel.version : nil;
         NSString *eventConfigVersion = shouldAddVersion ? self.eventConfigModel.version : nil;
         self.currentNetworkTask = [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url mainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
