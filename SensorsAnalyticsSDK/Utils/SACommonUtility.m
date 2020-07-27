@@ -125,6 +125,14 @@
     }
 }
 
++ (void)performAsyncBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block {
+    if (NSThread.isMainThread) {
+        block();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), block);
+    }
+}
+
 + (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType {
     if ([@"NULL" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkTypeNONE;

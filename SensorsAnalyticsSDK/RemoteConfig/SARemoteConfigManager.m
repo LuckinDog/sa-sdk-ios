@@ -233,9 +233,7 @@ static dispatch_once_t initializeOnceToken;
                 }
             } else {
                 if (index < strongSelf.requestRemoteConfigRetryMaxCount - 1) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [strongSelf requestRemoteConfigWithDelay:30 index:index + 1 isForceUpdate:isForceUpdate];
-                    });
+                    [strongSelf requestRemoteConfigWithDelay:30 index:index + 1 isForceUpdate:isForceUpdate];
                 }
             }
         } @catch (NSException *e) {
@@ -244,15 +242,11 @@ static dispatch_once_t initializeOnceToken;
     };
     
     @try {
-        NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
         // 在子线程中，有 afterDelay 参数的方法不会被执行
-        if ([[NSThread currentThread] isMainThread]) {
+        [SACommonUtility performAsyncBlockOnMainThread:^{
+            NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
             [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
-            });
-        }
+        }];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
