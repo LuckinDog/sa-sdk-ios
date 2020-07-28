@@ -1929,7 +1929,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (property) {
             [superProperties removeObjectForKey:property];
         }
-        self->_superProperties = [NSDictionary dictionaryWithDictionary:superProperties];
+        self.superProperties = [NSDictionary dictionaryWithDictionary:superProperties];
         [self archiveSuperProperties];
     });
 }
