@@ -237,6 +237,8 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
     urlComponets.query = [self buildConfigRequestQueryWithMainConfigVersion:mainConfigVersion eventConfigVersion:eventConfigVersion];
     
+    SALogDebug(@"Request remote config with URL %@", urlComponets.URL);
+    
     return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
 }
 
