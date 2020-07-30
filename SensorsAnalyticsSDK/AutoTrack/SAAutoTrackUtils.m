@@ -168,11 +168,11 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 }
 
 ///  在间隔时间内是否采集 $AppClick 全埋点
-+ (BOOL)enableAutoTrackAppClickInTimeIntervalWithObject:(id<SAAutoTrackViewProperty>)object {
++ (BOOL)isValidAppClickForObject:(id<SAAutoTrackViewProperty>)object {
     if (!object) {
         return NO;
     }
-    NSTimeInterval lastTime = object.lastTrackAppClickSystemTime;
+    NSTimeInterval lastTime = object.timeIntervalForLastAppClick;
     NSTimeInterval currentTime = [[NSProcessInfo processInfo] systemUptime];
     if (lastTime > 0 && currentTime - lastTime < SATrackAppClickMinTimeInterval) {
         return NO;
@@ -228,7 +228,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     }
 
     // 判断时间间隔
-    if (!isCodeTrack && ![self enableAutoTrackAppClickInTimeIntervalWithObject:object]) {
+    if (!isCodeTrack && ![self isValidAppClickForObject:object]) {
         return nil;
     }
 
