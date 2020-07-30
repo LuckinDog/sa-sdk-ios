@@ -97,7 +97,7 @@
 
 /// 解析 ReactNative 元素页面信息
 - (NSDictionary *)sensorsdata_RNViewScreenProperties {
-    SEL screenPropertiesSEL = NSSelectorFromString(@"sensorsdata_screenProperties");
+    SEL screenPropertiesSEL = NSSelectorFromString(@"sa_reactnative_screenProperties");
     if ([self respondsToSelector:screenPropertiesSEL]) {
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
