@@ -321,6 +321,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
             _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
+            
+            // 加密
+            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
+            if (_configOptions.enableEncrypt) {
+                [self updateEncryptBuilder];
+            }
                         
             [self initRemoteConfigManager];
             
@@ -342,9 +348,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-            
-            // 初始化密钥处理器
-            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
 
             _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
             if (self.messageQueue == nil) {
@@ -394,11 +397,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // WKWebView 打通
             if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
                 [self swizzleWebViewMethod];
-            }
-            
-            // 加密
-            if (_configOptions.enableEncrypt) {
-                [self updateEncryptBuilder];
             }
         }
         

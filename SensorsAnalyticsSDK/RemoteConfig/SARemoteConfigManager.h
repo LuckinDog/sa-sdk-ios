@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param managerOptions 管理模型
 + (void)startWithRemoteConfigManagerOptions:(SARemoteConfigManagerOptions *)managerOptions;
 
-/// 获取管理类的实例
+/// 获取远程配置管理类的实例
 + (SARemoteConfigManager *_Nullable)sharedInstance;
 
 /// 创建本地远程配置模型
