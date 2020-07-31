@@ -75,7 +75,7 @@
     [self.eventStore insertRecord:record];
 
     // $SignUp 事件或者本地缓存的数据是超过 flushBulkSize
-    if (isSignUp || self.eventStore.count > self.flushBulkSize) {
+    if (isSignUp || self.eventStore.count > self.flushBulkSize || self.isDebugMode) {
         // 添加异步队列任务，保证数据继续入库
         dispatch_async(self.queue, ^{
             [self flushAllEventRecords];
