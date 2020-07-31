@@ -32,10 +32,6 @@
 /// 主线程执行
 + (void)performBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block;
 
-/// 主线程异步执行
-/// @param block 需要执行的操作
-+ (void)performAsyncBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block;
-
 /// 转换为自定义的网络类型
 /// @param networkType 网络类型字符串
 + (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType;

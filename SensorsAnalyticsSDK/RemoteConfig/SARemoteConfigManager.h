@@ -58,8 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SARemoteConfigManager : NSObject
 
-@property (nonatomic, strong, readonly) SARemoteMainConfigModel *mainConfigModel;
-@property (nonatomic, strong, readonly) SARemoteEventConfigModel *eventConfigModel;
+@property (nonatomic, assign, readonly) BOOL isDisableSDK; // 是否禁用 SDK
+@property (nonatomic, assign, readonly) NSInteger autoTrackMode; // 控制 AutoTrack 采集方式（-1 表示不修改现有的 AutoTrack 方式；0 代表禁用所有的 AutoTrack；其他 1～15 为合法数据）
+
 
 /// 初始化远程配置管理类
 /// @param managerOptions 管理模型
@@ -71,8 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 创建本地远程配置模型
 - (void)createLocalRemoteConfigModel;
 
-/// 尝试请求远程配置
-- (void)shouldRequestRemoteConfig;
+/// 请求远程配置
+- (void)requestRemoteConfig;
 
 /// 删除远程配置请求
 - (void)cancelRequestRemoteConfig;
@@ -80,6 +81,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 重试远程配置请求
 /// @param isForceUpdate 是否强制请求最新的远程配置
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
+
+/// 是否在事件黑名单中
+/// @param event 输入的事件名
+- (BOOL)isBlackListContainsEvent:(NSString *)event;
 
 @end
 

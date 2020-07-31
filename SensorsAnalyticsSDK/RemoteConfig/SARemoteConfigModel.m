@@ -39,8 +39,9 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
     if (self) {
-        self.disableSDK = [dictionaryValueForKey(dictionary, @"disableSDK") boolValue];
-        self.disableDebugMode = [dictionaryValueForKey(dictionary, @"disableDebugMode") boolValue];
+        _disableSDK = [dictionaryValueForKey(dictionary, @"disableSDK") boolValue];
+        _disableDebugMode = [dictionaryValueForKey(dictionary, @"disableDebugMode") boolValue];
+        
         [self setupAutoTrackMode:dictionary];
     }
     return self;
@@ -50,20 +51,12 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     self.autoTrackMode = kSAAutoTrackModeDefault;
     
     NSNumber *autoTrackMode = dictionaryValueForKey(dictionary, @"autoTrackMode");
-    if (autoTrackMode != nil) {
+    if (autoTrackMode) {
         NSInteger iMode = autoTrackMode.integerValue;
-        if ([self isAutoTrackModeValid:iMode]) {
+        if (iMode >= kSAAutoTrackModeDefault && iMode <= kSAAutoTrackModeEnabledAll) {
             self.autoTrackMode = iMode;
         }
     }
-}
-
-- (BOOL)isAutoTrackModeValid:(NSInteger)autoTrackMode {
-    BOOL valid = NO;
-    if (autoTrackMode >= kSAAutoTrackModeDefault && autoTrackMode <= kSAAutoTrackModeEnabledAll) {
-        valid = YES;
-    }
-    return valid;
 }
 
 - (NSDictionary *)toDictionary {
@@ -75,7 +68,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 }
 
 - (NSString *)description {
-    return [[NSString alloc] initWithFormat:@"<%@:%p>, disableSDK=%d, disableDebugMode=%d, autoTrackMode=%ld",self.class, self, self.disableSDK, self.disableDebugMode, (long)self.autoTrackMode];
+    return [[NSString alloc] initWithFormat:@"<%@:%p>, disableSDK=%d, disableDebugMode=%d, autoTrackMode=%ld", self.class, self, self.disableSDK, self.disableDebugMode, (long)self.autoTrackMode];
 }
 
 @end
@@ -85,8 +78,8 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
     if (self) {
-        self.version = dictionaryValueForKey(dictionary, @"v");
-        self.blackList = dictionaryValueForKey(dictionary, @"event_blacklist");
+        _version = dictionaryValueForKey(dictionary, @"v");
+        _blackList = dictionaryValueForKey(dictionary, @"event_blacklist");
     }
     return self;
 }
@@ -99,7 +92,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 }
 
 - (NSString *)description {
-    return [[NSString alloc] initWithFormat:@"<%@:%p>, event_v=%@, event_blackList=%@",self.class, self, self.version, self.blackList];
+    return [[NSString alloc] initWithFormat:@"<%@:%p>, event_v=%@, event_blackList=%@", self.class, self, self.version, self.blackList];
 }
 
 @end
@@ -108,10 +101,10 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
     if (self = [super init]) {
-        self.version = dictionaryValueForKey(dictionary, @"v");
-        self.localLibVersion = dictionaryValueForKey(dictionary, @"localLibVersion");
-        self.mainConfigModel = [[SARemoteMainConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"configs")];
-        self.eventConfigModel = [[SARemoteEventConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"event_config")];
+        _version = dictionaryValueForKey(dictionary, @"v");
+        _localLibVersion = dictionaryValueForKey(dictionary, @"localLibVersion");
+        _mainConfigModel = [[SARemoteMainConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"configs")];
+        _eventConfigModel = [[SARemoteEventConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"event_config")];
     }
     return self;
 }
@@ -126,7 +119,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 }
 
 - (NSString *)description {
-    return [[NSString alloc] initWithFormat:@"<%@:%p>, \n v=%@, \n configs=%@, \n event_config=%@, \n localLibVersion=%@",self.class, self, self.version, self.mainConfigModel, self.eventConfigModel, self.localLibVersion];
+    return [[NSString alloc] initWithFormat:@"<%@:%p>, \n v=%@, \n configs=%@, \n event_config=%@, \n localLibVersion=%@", self.class, self, self.version, self.mainConfigModel, self.eventConfigModel, self.localLibVersion];
 }
 
 @end

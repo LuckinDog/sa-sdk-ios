@@ -260,7 +260,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
     NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
-    if ([SARemoteConfigManager sharedInstance].mainConfigModel.disableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return nil;
     }
     return sharedInstance;
@@ -783,11 +783,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isAutoTrackEnabled {
-    if ([SARemoteConfigManager sharedInstance].mainConfigModel.disableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return NO;
     }
-    if ([SARemoteConfigManager sharedInstance].mainConfigModel.autoTrackMode != kSAAutoTrackModeDefault) {
-        if ([SARemoteConfigManager sharedInstance].mainConfigModel.autoTrackMode == kSAAutoTrackModeDisabledAll) {
+    if ([SARemoteConfigManager sharedInstance].autoTrackMode != kSAAutoTrackModeDefault) {
+        if ([SARemoteConfigManager sharedInstance].autoTrackMode == kSAAutoTrackModeDisabledAll) {
             return NO;
         } else {
             return YES;
@@ -798,14 +798,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
 
-    if ([SARemoteConfigManager sharedInstance].mainConfigModel.disableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return YES;
     }
-    if ([SARemoteConfigManager sharedInstance].mainConfigModel.autoTrackMode != kSAAutoTrackModeDefault) {
-        if ([SARemoteConfigManager sharedInstance].mainConfigModel.autoTrackMode == kSAAutoTrackModeDisabledAll) {
+    if ([SARemoteConfigManager sharedInstance].autoTrackMode != kSAAutoTrackModeDefault) {
+        if ([SARemoteConfigManager sharedInstance].autoTrackMode == kSAAutoTrackModeDisabledAll) {
             return YES;
         } else {
-            return !([SARemoteConfigManager sharedInstance].mainConfigModel.autoTrackMode & eventType);
+            return !([SARemoteConfigManager sharedInstance].autoTrackMode & eventType);
         }
     }
     return !(self.configOptions.autoTrackEventType & eventType);
@@ -1206,11 +1206,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
-    if ([SARemoteConfigManager sharedInstance].mainConfigModel.disableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return;
     }
     
-    if (event && [[SARemoteConfigManager sharedInstance].eventConfigModel.blackList containsObject:event]) {
+    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
         return;
     }
     
@@ -2000,7 +2000,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)startFlushTimer {
-    if ([SARemoteConfigManager sharedInstance].mainConfigModel.disableSDK || (self.timer && [self.timer isValid])) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK || (self.timer && [self.timer isValid])) {
         return;
     }
     SALogDebug(@"starting flush timer.");
@@ -2400,7 +2400,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [[SARemoteConfigManager sharedInstance] createLocalRemoteConfigModel];
     }
     
-    if ([SARemoteConfigManager sharedInstance].mainConfigModel.disableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         //停止 SDK 的 flushtimer
         [self stopFlushTimer];
         
@@ -2433,7 +2433,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         return;
     }
     
-    [[SARemoteConfigManager sharedInstance] shouldRequestRemoteConfig];
+    [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
 
     // 是否首次启动
     BOOL isFirstStart = NO;
