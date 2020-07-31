@@ -55,8 +55,6 @@ static dispatch_once_t initializeOnceToken;
 
 @property (nonatomic, strong) SARemoteConfigManagerOptions *managerOptions;
 
-@property (nonatomic, strong) NSURLSessionTask *currentNetworkTask;
-
 @property (nonatomic, copy) NSDictionary *requestRemoteConfigParams;
 
 @property (nonatomic, copy, readonly) NSArray<NSString *> *blackList;
@@ -171,9 +169,6 @@ static dispatch_once_t initializeOnceToken;
             [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestRemoteConfigWithParams:) object:self.requestRemoteConfigParams];
             self.requestRemoteConfigParams = nil;
         }
-        
-        // 已经发出请求
-        [self.currentNetworkTask cancel];
     });
 }
 
@@ -283,7 +278,7 @@ static dispatch_once_t initializeOnceToken;
         BOOL shouldAddVersion = !isForceUpdate && [self isLibVersionUnchanged] && [self shouldAddVersionOnEnableEncrypt];
         NSString *remoteConfigVersion = shouldAddVersion ? self.remoteConfigVersion : nil;
         NSString *eventConfigVersion = shouldAddVersion ? self.eventConfigVersion : nil;
-        self.currentNetworkTask = [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url remoteConfigVersion:remoteConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
+        [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url remoteConfigVersion:remoteConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
