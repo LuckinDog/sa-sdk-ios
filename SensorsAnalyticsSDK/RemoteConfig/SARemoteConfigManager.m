@@ -95,14 +95,10 @@ static dispatch_once_t initializeOnceToken;
 #pragma mark - Public Methods
 
 - (void)createLocalRemoteConfigModel {
-    @try {
-        NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
-        self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
-        if (self.isDisableDebugMode) {
-            self.managerOptions.disableDebugModeBlock();
-        }
-    } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+    NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
+    self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
+    if (self.isDisableDebugMode) {
+        self.managerOptions.disableDebugModeBlock();
     }
 }
 
