@@ -75,6 +75,7 @@
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
+#import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
 
 #define VERSION @"2.1.0-pre"
@@ -2115,19 +2116,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackViewScreen:(UIViewController *)controller {
+    if (!controller) {
+        return;
+    }
     //过滤用户设置的不被AutoTrack的Controllers
     if (![self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
 
     if (self.launchedPassively) {
-        if (controller) {
-            if (!self.launchedPassivelyControllers) {
-                self.launchedPassivelyControllers = [NSMutableArray array];
-            }
-            [self.launchedPassivelyControllers addObject:controller];
+        if (!self.launchedPassivelyControllers) {
+            self.launchedPassivelyControllers = [NSMutableArray array];
         }
+        [self.launchedPassivelyControllers addObject:controller];
         return;
+    }
+
+    // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
+    if (self.configOptions.enableVisualizedAutoTrack) {
+        [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
     }
 
     [self trackViewScreen:controller properties:nil autoTrack:YES];
