@@ -768,6 +768,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
+    [_linkHandler acquireColdLaunchDeepLinkInfo];
+
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -963,6 +965,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
+            return YES;
         }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
@@ -2899,6 +2902,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 @end
 
+
+#pragma mark - Deeplink
+@implementation SensorsAnalyticsSDK (Deeplink)
+
+- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback {
+    _linkHandler.linkHandlerCallback = callback;
+}
+
+@end
 
 #pragma mark - JSCall
 
