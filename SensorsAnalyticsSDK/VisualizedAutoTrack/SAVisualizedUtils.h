@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
 
 ///  获取 RN 当前页面信息
-+ (nullable NSDictionary <NSString *, NSString *>*)RNScreenVisualizeProperties;
++ (NSDictionary <NSString *, NSString *>*)RNScreenVisualizeProperties;
 @end
 
 NS_ASSUME_NONNULL_END
