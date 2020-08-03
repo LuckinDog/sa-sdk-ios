@@ -269,7 +269,7 @@
 		CB30BFEB22840EBF0004061D /* SADeviceOrientationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADeviceOrientationManager.h; sourceTree = "<group>"; };
 		CB30BFEC22840EBF0004061D /* SAConfigOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAConfigOptions.h; sourceTree = "<group>"; };
 		CB30BFED22840EBF0004061D /* SAConstants+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SAConstants+Private.h"; sourceTree = "<group>"; };
-		CB30BFEF22840EBF0004061D /* SALocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALocationManager.h; sourceTree = "<group>"; };
+		CB30BFEF22840EBF0004061D /* SALocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SALocationManager.h; path = ../SensorsAnalyticsGPSLocation/SensorsAnalyticsGPSLocation/SALocationManager.h; sourceTree = "<group>"; };
 		CB30BFF022840EBF0004061D /* SAAlertController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAlertController.m; sourceTree = "<group>"; };
 		CB30BFF122840EBF0004061D /* SAObjectSerializerConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAObjectSerializerConfig.h; sourceTree = "<group>"; };
 		CB30BFF322840EBF0004061D /* SAAuxiliaryToolManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAuxiliaryToolManager.h; sourceTree = "<group>"; };
@@ -287,7 +287,7 @@
 		CB30C00522840EBF0004061D /* NSInvocation+SAHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSInvocation+SAHelpers.m"; sourceTree = "<group>"; };
 		CB30C00922840EBF0004061D /* NSString+HashCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+HashCode.h"; sourceTree = "<group>"; };
 		CB30C00A22840EBF0004061D /* SATypeDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SATypeDescription.h; sourceTree = "<group>"; };
-		CB30C00C22840EBF0004061D /* SALocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALocationManager.m; sourceTree = "<group>"; };
+		CB30C00C22840EBF0004061D /* SALocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SALocationManager.m; path = ../SensorsAnalyticsGPSLocation/SensorsAnalyticsGPSLocation/SALocationManager.m; sourceTree = "<group>"; };
 		CB30C00E22840EBF0004061D /* SADeviceOrientationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADeviceOrientationManager.m; sourceTree = "<group>"; };
 		CB30C01022840EBF0004061D /* SAConfigOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConfigOptions.m; sourceTree = "<group>"; };
 		CB30C01122840EBF0004061D /* NSObject+SensorsAnalyticsDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SensorsAnalyticsDelegate.m"; sourceTree = "<group>"; };
