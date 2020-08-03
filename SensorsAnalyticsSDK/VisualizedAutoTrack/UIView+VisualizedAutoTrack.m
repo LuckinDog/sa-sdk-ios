@@ -98,6 +98,7 @@
 /// 解析 ReactNative 元素页面信息
 - (NSDictionary *)sensorsdata_RNViewScreenProperties {
     SEL screenPropertiesSEL = NSSelectorFromString(@"sa_reactnative_screenProperties");
+    // 获取 RN 元素所在页面信息
     if ([self respondsToSelector:screenPropertiesSEL]) {
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -106,6 +107,9 @@
             return screenProperties;
         }
         #pragma clang diagnostic pop
+    } else {
+        // 获取 RN 页面信息
+        return [SAVisualizedUtils RNScreenVisualizeProperties];
     }
     return nil;
 }
@@ -273,7 +277,10 @@
     // 处理 ReactNative 元素
     if ([self sensorsdata_clickableForRNView]) {
         NSDictionary *screenProperties = [self sensorsdata_RNViewScreenProperties];
-        return screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+        // 如果 ReactNative 页面信息为空，则使用 Native 的
+        if (screenProperties) {
+            return screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+        }
     }
 
     // 处理 Native 元素
@@ -288,7 +295,10 @@
     // 处理 ReactNative 元素
     if ([self sensorsdata_clickableForRNView]) {
         NSDictionary *screenProperties = [self sensorsdata_RNViewScreenProperties];
-        return screenProperties[SA_EVENT_PROPERTY_TITLE];
+        // 如果 ReactNative 页面信息为空，则使用 Native 的
+        if (screenProperties) {
+            return screenProperties[SA_EVENT_PROPERTY_TITLE];
+        }
     }
 
     // 处理 Native 元素
