@@ -99,7 +99,7 @@
             jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
         // 获取 RN 页面信息
-        NSDictionary <NSString *, NSString *> *RNScreenInfo = [SAVisualizedUtils RNScreenVisualizeProperties];
+        NSDictionary <NSString *, NSString *> *RNScreenInfo = [SAVisualizedUtils currentRNScreenVisualizeProperties];
         if (RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME]) {
             jsonObject[@"page_name"] = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"screen_name"] = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];

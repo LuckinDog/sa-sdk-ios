@@ -133,7 +133,7 @@
     return [touchViewArray copy];
 }
 
-+ (NSDictionary *)RNScreenVisualizeProperties {
++ (NSDictionary *)currentRNScreenVisualizeProperties {
     // 获取 RN 页面信息
     NSDictionary <NSString *, NSString *> *RNScreenInfo = nil;
     Class managerClass = NSClassFromString(@"SAReactNativeManager");
