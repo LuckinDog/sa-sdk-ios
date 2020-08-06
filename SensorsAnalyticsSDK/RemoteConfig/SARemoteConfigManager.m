@@ -222,11 +222,6 @@ static dispatch_once_t initializeOnceToken;
     void(^completion)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = ^(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         @try {
-            if (error.code == -999) {
-                // 主动 cancel task 的情况，不重试远程配置请求
-                return;
-            }
-            
             if (success) {
                 if(config != nil) {
                     // 远程配置
