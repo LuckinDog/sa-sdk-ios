@@ -76,6 +76,7 @@
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
 #import "SARemoteConfigModel.h"
+#import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
 
 #define VERSION @"2.1.0-pre"
@@ -751,6 +752,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
+    [_linkHandler acquireColdLaunchDeepLinkInfo];
+
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -946,6 +949,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
+            return YES;
         }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
@@ -2100,19 +2104,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackViewScreen:(UIViewController *)controller {
+    if (!controller) {
+        return;
+    }
     //过滤用户设置的不被AutoTrack的Controllers
     if (![self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
 
     if (self.launchedPassively) {
-        if (controller) {
-            if (!self.launchedPassivelyControllers) {
-                self.launchedPassivelyControllers = [NSMutableArray array];
-            }
-            [self.launchedPassivelyControllers addObject:controller];
+        if (!self.launchedPassivelyControllers) {
+            self.launchedPassivelyControllers = [NSMutableArray array];
         }
+        [self.launchedPassivelyControllers addObject:controller];
         return;
+    }
+
+    // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
+    if (self.configOptions.enableVisualizedAutoTrack) {
+        [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
     }
 
     [self trackViewScreen:controller properties:nil autoTrack:YES];
@@ -2771,6 +2781,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 @end
 
+
+#pragma mark - Deeplink
+@implementation SensorsAnalyticsSDK (Deeplink)
+
+- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback {
+    _linkHandler.linkHandlerCallback = callback;
+}
+
+@end
 
 #pragma mark - JSCall
 
