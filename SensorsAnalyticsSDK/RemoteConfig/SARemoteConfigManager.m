@@ -279,11 +279,6 @@ static dispatch_once_t initializeOnceToken;
     // 用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
     SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
     
-    // 只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
-    if (remoteConfigModel.mainConfigModel.disableSDK == YES && self.isDisableSDK == NO) {
-        self.managerOptions.trackEventBlock(@"DisableSensorsDataSDK", @{});
-    }
-    
     // 只在 event_config 的 v 改变的时候触发远程配置事件
     if (![remoteConfigModel.eventConfigModel.version isEqualToString:self.eventConfigVersion]) {
         NSString *eventConfigStr = @"";
