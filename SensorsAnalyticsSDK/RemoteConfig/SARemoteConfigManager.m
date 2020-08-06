@@ -279,16 +279,13 @@ static dispatch_once_t initializeOnceToken;
     // 用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
     SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
     
-    // 只在 event_config 的 v 改变的时候触发远程配置事件
-    if (![remoteConfigModel.eventConfigModel.version isEqualToString:self.eventConfigVersion]) {
-        NSString *eventConfigStr = @"";
-        NSData *eventConfigData = [[[SAJSONUtil alloc] init] JSONSerializeObject:[remoteConfigModel.eventConfigModel toDictionary]];
-        if (eventConfigData) {
-            eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
-        }
-        
-        self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
+    // 触发 $AppRemoteConfigChanged 事件
+    NSString *eventConfigStr = @"";
+    NSData *eventConfigData = [[[SAJSONUtil alloc] init] JSONSerializeObject:[remoteConfigModel toDictionary]];
+    if (eventConfigData) {
+        eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }
+    self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
     
     NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
     // 存储当前 SDK 版本号
