@@ -142,4 +142,9 @@
     return SensorsAnalyticsNetworkTypeNONE;
 }
 
++ (SensorsAnalyticsNetworkType)currentNetworkType {
+    NSString *currentNetworkStatus = [SACommonUtility currentNetworkStatus];
+    return [SACommonUtility toNetworkType:currentNetworkStatus];
+}
+
 @end

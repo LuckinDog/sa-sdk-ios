@@ -36,4 +36,7 @@
 /// @param networkType 网络类型字符串
 + (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType;
 
+/// 获取当前网络对应的自定义网络类型
++ (SensorsAnalyticsNetworkType)currentNetworkType;
+
 @end

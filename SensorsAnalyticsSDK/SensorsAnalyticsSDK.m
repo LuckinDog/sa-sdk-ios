@@ -787,29 +787,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return NO;
     }
-    if ([SARemoteConfigManager sharedInstance].autoTrackMode != kSAAutoTrackModeDefault) {
-        if ([SARemoteConfigManager sharedInstance].autoTrackMode == kSAAutoTrackModeDisabledAll) {
-            return NO;
-        } else {
-            return YES;
-        }
+    
+    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
+    if (autoTrackMode == kSAAutoTrackModeDefault) {
+        // 远程配置不修改现有的 autoTrack 方式
+        return (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
+    } else {
+        // 远程配置修改现有的 autoTrack 方式
+        return (autoTrackMode != kSAAutoTrackModeDisabledAll);
     }
-    return (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return YES;
     }
-    if ([SARemoteConfigManager sharedInstance].autoTrackMode != kSAAutoTrackModeDefault) {
-        if ([SARemoteConfigManager sharedInstance].autoTrackMode == kSAAutoTrackModeDisabledAll) {
-            return YES;
-        } else {
-            return !([SARemoteConfigManager sharedInstance].autoTrackMode & eventType);
-        }
+    
+    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
+    if (autoTrackMode == kSAAutoTrackModeDefault) {
+        // 远程配置不修改现有的 autoTrack 方式
+        return !(self.configOptions.autoTrackEventType & eventType);
+    } else {
+        // 远程配置修改现有的 autoTrack 方式
+        return (autoTrackMode == kSAAutoTrackModeDisabledAll) ? YES : !(autoTrackMode & eventType);
     }
-    return !(self.configOptions.autoTrackEventType & eventType);
 }
 
 - (void)ignoreViewType:(Class)aClass {
@@ -878,8 +879,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
-    NSString *networkType = [SACommonUtility currentNetworkStatus];
-    if (!([SACommonUtility toNetworkType:networkType] & _networkTypePolicy)) {
+    if (!([SACommonUtility currentNetworkType] & _networkTypePolicy)) {
         return;
     }
 

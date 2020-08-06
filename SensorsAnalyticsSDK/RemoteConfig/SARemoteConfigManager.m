@@ -258,8 +258,7 @@ static dispatch_once_t initializeOnceToken;
         BOOL isForceUpdate = [params[@"isForceUpdate"] boolValue];
         void(^completion)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = params[@"completion"];
         
-        NSString *networkTypeString = [SACommonUtility currentNetworkStatus];
-        SensorsAnalyticsNetworkType networkType = [SACommonUtility toNetworkType:networkTypeString];
+        SensorsAnalyticsNetworkType networkType = [SACommonUtility currentNetworkType];
         if (networkType == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO, nil, nil);
             return;
