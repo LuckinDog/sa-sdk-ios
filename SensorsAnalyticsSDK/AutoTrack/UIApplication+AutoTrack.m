@@ -85,6 +85,10 @@
         return;
     }
 
+    // 判断时间间隔
+    if (![SAAutoTrackUtils isValidAppClickForObject:object]) {
+        return;
+    }
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||

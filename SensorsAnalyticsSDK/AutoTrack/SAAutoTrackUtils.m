@@ -227,11 +227,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
         return nil;
     }
 
-    // 判断时间间隔
-    if (!isCodeTrack && ![self isValidAppClickForObject:object]) {
-        return nil;
-    }
-
     NSDictionary *dic = [self propertiesWithViewController:viewController];
     [properties addEntriesFromDictionary:dic];
 
