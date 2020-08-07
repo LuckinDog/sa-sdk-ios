@@ -275,9 +275,10 @@ static dispatch_once_t initializeOnceToken;
 }
 
 - (void)handleRemoteConfigWithRequestResult:(NSDictionary *)configDict {
-    // 重新设置 config,处理 configDict 中的缺失参数
     // 用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
+    // 手动添加当前 SDK 版本号
     SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
+    remoteConfigModel.localLibVersion = self.managerOptions.currentLibVersion;
     
     // 触发 $AppRemoteConfigChanged 事件
     NSString *eventConfigStr = @"";
@@ -287,40 +288,41 @@ static dispatch_once_t initializeOnceToken;
     }
     self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
     
+    // 存储最新的远程配置
     NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
-    // 存储当前 SDK 版本号
-    localStoreConfig[@"localLibVersion"] = self.managerOptions.currentLibVersion;
     [[NSUserDefaults standardUserDefaults] setObject:localStoreConfig forKey:kSDKConfigKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    // 事件黑名单要立即生效
-    self.remoteConfigModel.eventConfigModel = remoteConfigModel.eventConfigModel;
+    // 判断远程配置是否立即生效
+    if (remoteConfigModel.effectMode == SARemoteConfigEffectModeNow) {
+        self.remoteConfigModel = remoteConfigModel;
+    }
 }
 
 #pragma mark – Getters and Setters
 
 - (BOOL)isDisableSDK {
-    return self.remoteConfigModel.mainConfigModel.disableSDK;
+    return self.remoteConfigModel.disableSDK;
 }
 
 - (NSInteger)autoTrackMode {
-    return self.remoteConfigModel.mainConfigModel.autoTrackMode;
+    return self.remoteConfigModel.autoTrackMode;
 }
 
-- (NSArray<NSString *> *)blackList {
-    return self.remoteConfigModel.eventConfigModel.blackList;
+- (NSArray<NSString *> *)eventBlackList {
+    return self.remoteConfigModel.eventBlackList;
 }
 
-- (NSString *)eventConfigVersion {
-    return self.remoteConfigModel.eventConfigModel.version;
+- (NSString *)latestVersion {
+    return self.remoteConfigModel.latestVersion;
 }
 
-- (NSString *)remoteConfigVersion {
-    return self.remoteConfigModel.version;
+- (NSString *)originalVersion {
+    return self.remoteConfigModel.originalVersion;
 }
 
 - (BOOL)isDisableDebugMode {
-    return self.remoteConfigModel.mainConfigModel.disableDebugMode;
+    return self.remoteConfigModel.disableDebugMode;
 }
 
 @end

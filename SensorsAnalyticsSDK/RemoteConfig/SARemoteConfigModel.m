@@ -34,92 +34,73 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     return (value && ![value isKindOfClass:NSNull.class]) ? value : nil;
 }
 
-@implementation SARemoteMainConfigModel
+@implementation SARemoteConfigModel
+
+#pragma mark - Life Cycle
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {
-    self = [super init];
-    if (self) {
-        _disableSDK = [dictionaryValueForKey(dictionary, @"disableSDK") boolValue];
-        _disableDebugMode = [dictionaryValueForKey(dictionary, @"disableDebugMode") boolValue];
+    if (self = [super init]) {
+        _originalVersion = dictionaryValueForKey(dictionary, @"v");
+        _localLibVersion = dictionaryValueForKey(dictionary, @"localLibVersion");
         
-        [self setupAutoTrackMode:dictionary];
+        NSDictionary *configs = dictionaryValueForKey(dictionary, @"configs");
+        _latestVersion = dictionaryValueForKey(configs, @"nv");
+        _disableSDK = [dictionaryValueForKey(configs, @"disableSDK") boolValue];
+        _disableDebugMode = [dictionaryValueForKey(configs, @"disableDebugMode") boolValue];
+        _eventBlackList = dictionaryValueForKey(configs, @"event_blacklist");
+        
+        [self setupAutoTrackMode:configs];
+        [self setupEffectMode:configs];
     }
     return self;
 }
 
 - (void)setupAutoTrackMode:(NSDictionary *)dictionary {
-    self.autoTrackMode = kSAAutoTrackModeDefault;
+    _autoTrackMode = kSAAutoTrackModeDefault;
     
     NSNumber *autoTrackMode = dictionaryValueForKey(dictionary, @"autoTrackMode");
     if (autoTrackMode) {
-        NSInteger iMode = autoTrackMode.integerValue;
-        if (iMode >= kSAAutoTrackModeDefault && iMode <= kSAAutoTrackModeEnabledAll) {
-            self.autoTrackMode = iMode;
+        NSInteger remoteAutoTrackMode = autoTrackMode.integerValue;
+        if (remoteAutoTrackMode >= kSAAutoTrackModeDefault && remoteAutoTrackMode <= kSAAutoTrackModeEnabledAll) {
+            _autoTrackMode = remoteAutoTrackMode;
         }
     }
 }
 
+- (void)setupEffectMode:(NSDictionary *)dictionary {
+    _effectMode = SARemoteConfigEffectModeNext;
+    
+    NSNumber *effectMode = dictionaryValueForKey(dictionary, @"effect_mode");
+    if (effectMode && (effectMode.integerValue == 1)) {
+        _effectMode = SARemoteConfigEffectModeNow;
+    }
+}
+
+#pragma mark - Public Methods
+
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *mDic = [NSMutableDictionary dictionaryWithCapacity:3];
-    mDic[@"disableSDK"] = [NSNumber numberWithBool:self.disableSDK];
-    mDic[@"disableDebugMode"] = [NSNumber numberWithBool:self.disableDebugMode];
-    mDic[@"autoTrackMode"] = [NSNumber numberWithInteger:self.autoTrackMode];
-    return mDic;
-}
-
-- (NSString *)description {
-    return [[NSString alloc] initWithFormat:@"<%@:%p>, disableSDK=%d, disableDebugMode=%d, autoTrackMode=%ld", self.class, self, self.disableSDK, self.disableDebugMode, (long)self.autoTrackMode];
-}
-
-@end
-
-@implementation SARemoteEventConfigModel
-
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
-    self = [super init];
-    if (self) {
-        _version = dictionaryValueForKey(dictionary, @"v");
-        _blackList = dictionaryValueForKey(dictionary, @"event_blacklist");
-    }
-    return self;
-}
-
-- (NSDictionary *)toDictionary {
-    NSMutableDictionary *mDic = [NSMutableDictionary dictionaryWithCapacity:2];
-    mDic[@"v"] = self.version;
-    mDic[@"event_blacklist"] = self.blackList;
-    return mDic;
-}
-
-- (NSString *)description {
-    return [[NSString alloc] initWithFormat:@"<%@:%p>, event_v=%@, event_blackList=%@", self.class, self, self.version, self.blackList];
-}
-
-@end
-
-@implementation SARemoteConfigModel
-
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
-    if (self = [super init]) {
-        _version = dictionaryValueForKey(dictionary, @"v");
-        _localLibVersion = dictionaryValueForKey(dictionary, @"localLibVersion");
-        _mainConfigModel = [[SARemoteMainConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"configs")];
-        _eventConfigModel = [[SARemoteEventConfigModel alloc] initWithDictionary:dictionaryValueForKey(dictionary, @"event_config")];
-    }
-    return self;
-}
-
-- (NSDictionary *)toDictionary {
-    NSMutableDictionary *mDic = [NSMutableDictionary dictionaryWithCapacity:4];
-    mDic[@"v"] = self.version;
-    mDic[@"configs"] = [self.mainConfigModel toDictionary];
-    mDic[@"event_config"] = [self.eventConfigModel toDictionary];
+    mDic[@"v"] = self.originalVersion;
     mDic[@"localLibVersion"] = self.localLibVersion;
+    mDic[@"configs"] = [self configsDictionary];
     return mDic;
 }
 
+#pragma mark – Private Methods
+
+- (NSDictionary *)configsDictionary {
+    NSMutableDictionary *configs = [NSMutableDictionary dictionaryWithCapacity:6];
+    configs[@"nv"] = self.latestVersion;
+    configs[@"disableSDK"] = [NSNumber numberWithBool:self.disableSDK];
+    configs[@"disableDebugMode"] = [NSNumber numberWithBool:self.disableDebugMode];
+    configs[@"event_blacklist"] = self.eventBlackList;
+    configs[@"autoTrackMode"] = [NSNumber numberWithInteger:self.autoTrackMode];
+    configs[@"effect_mode"] = [NSNumber numberWithInteger:self.effectMode];
+    return configs;
+}
+
 - (NSString *)description {
-    return [[NSString alloc] initWithFormat:@"<%@:%p>, \n v=%@, \n configs=%@, \n event_config=%@, \n localLibVersion=%@", self.class, self, self.version, self.mainConfigModel, self.eventConfigModel, self.localLibVersion];
+    return [[NSString alloc] initWithFormat:@"<%@:%p>, \n v=%@, \n configs=%@, \n localLibVersion=%@", self.class, self, self.originalVersion, [self configsDictionary], self.localLibVersion];
 }
 
 @end
