@@ -27,8 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import <objc/runtime.h>
 
-
-NSString *const kSALastAppClickIntervalPropertyName = @"sensorsAnalyticsUIViewTimeIntervalForLastAppClick";
+static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
 #pragma mark - UIView
 
@@ -46,11 +45,11 @@ NSString *const kSALastAppClickIntervalPropertyName = @"sensorsAnalyticsUIViewTi
 }
 
 - (void)setTimeIntervalForLastAppClick:(NSTimeInterval)timeIntervalForLastAppClick {
-    objc_setAssociatedObject(self, &kSALastAppClickIntervalPropertyName, [NSNumber numberWithDouble:timeIntervalForLastAppClick], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, kSALastAppClickIntervalPropertyName, [NSNumber numberWithDouble:timeIntervalForLastAppClick], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (NSTimeInterval)timeIntervalForLastAppClick {
-    return [objc_getAssociatedObject(self, &kSALastAppClickIntervalPropertyName) doubleValue];
+    return [objc_getAssociatedObject(self, kSALastAppClickIntervalPropertyName) doubleValue];
 }
 
 - (NSString *)sensorsdata_elementType {
