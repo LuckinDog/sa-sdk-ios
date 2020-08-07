@@ -66,6 +66,8 @@ static NSString * const SAEventPresetPropertyOSVersion = @"$os_version";
 NSString * const SAEventPresetPropertyAppVersion = @"$app_version";
 /// 应用 ID
 static NSString * const SAEventPresetPropertyAppID = @"$app_id";
+/// 应用名称
+static NSString * const SAEventPresetPropertyAppName = @"$app_name";
 /// 时区偏移量
 static NSString * const SAEventPresetPropertyTimezoneOffset = @"$timezone_offset";
 
@@ -317,6 +319,9 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
             _automaticProperties[SAEventPresetPropertyOS] = @"iOS";
             _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
             _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+            NSString *bundleName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+            NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+            _automaticProperties[SAEventPresetPropertyAppName] = displayName ? displayName : bundleName;
             _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             _automaticProperties[SAEventPresetPropertyLib] = @"iOS";
             _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;
