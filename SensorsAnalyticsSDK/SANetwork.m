@@ -216,9 +216,9 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return request;
 }
 
-- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
-                                                             remoteConfigVersion:(NSString *)remoteConfigVersion
-                                                              eventConfigVersion:(NSString *)eventConfigVersion  {
+- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
+                                                             originalVersion:(NSString *)originalVersion
+                                                               latestVersion:(NSString *)latestVersion  {
     
     NSURLComponents *urlComponets = nil;
     if (remoteConfigURL) {
@@ -235,17 +235,17 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
     }
 
-    urlComponets.query = [self buildConfigRequestQueryWithRemoteConfigVersion:remoteConfigVersion eventConfigVersion:eventConfigVersion];
+    urlComponets.query = [self buildRemoteConfigQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
     
     SALogDebug(@"Request remote config with URL %@", urlComponets.URL);
     
     return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
 }
 
-- (NSString *)buildConfigRequestQueryWithRemoteConfigVersion:(NSString *)remoteConfigVersion eventConfigVersion:(NSString *)eventConfigVersion {
+- (NSString *)buildRemoteConfigQueryWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
     NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionaryWithCapacity:4];
-    params[@"v"] = remoteConfigVersion;
-    params[@"ve"] = eventConfigVersion;
+    params[@"v"] = originalVersion;
+    params[@"nv"] = latestVersion;
     params[@"app_id"] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
     params[@"project"] = self.project;
     
@@ -341,15 +341,15 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return task;
 }
 
-- (NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
-                                                 remoteConfigVersion:(NSString *)remoteConfigVersion
-                                                  eventConfigVersion:(NSString *)eventConfigVersion
-                                                          completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error))completion {
+- (nullable NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
+                                                              originalVersion:(NSString *)originalVersion
+                                                                latestVersion:(NSString *)latestVersion
+                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error))completion {
     if (![self isValidServerURL]) {
         SALogError(@"serverURL error，Please check the serverURL");
         return nil;
     }
-    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL remoteConfigVersion:remoteConfigVersion eventConfigVersion:eventConfigVersion];
+    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithRemoteConfigURL:remoteConfigURL originalVersion:originalVersion latestVersion:latestVersion];
     NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (!completion) {
             return ;

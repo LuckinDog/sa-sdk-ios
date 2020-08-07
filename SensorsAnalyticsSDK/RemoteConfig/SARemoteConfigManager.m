@@ -57,11 +57,11 @@ static dispatch_once_t initializeOnceToken;
 
 @property (nonatomic, copy) NSDictionary *requestRemoteConfigParams;
 
-@property (nonatomic, copy, readonly) NSArray<NSString *> *blackList;
+@property (nonatomic, copy, readonly) NSArray<NSString *> *eventBlackList;
 
-@property (nonatomic, copy, readonly) NSString *eventConfigVersion;
+@property (nonatomic, copy, readonly) NSString *latestVersion;
 
-@property (nonatomic, copy, readonly) NSString *remoteConfigVersion;
+@property (nonatomic, copy, readonly) NSString *originalVersion;
 
 @property (nonatomic, assign, readonly) BOOL isDisableDebugMode;
 
@@ -173,7 +173,7 @@ static dispatch_once_t initializeOnceToken;
         return NO;
     }
     
-    return [self.blackList containsObject:event];
+    return [self.eventBlackList containsObject:event];
 }
 
 #pragma mark – Private Methods
@@ -266,9 +266,9 @@ static dispatch_once_t initializeOnceToken;
         NSURL *url = [NSURL URLWithString:self.managerOptions.configOptions.remoteConfigURL];
         
         BOOL shouldAddVersion = !isForceUpdate && [self isLibVersionUnchanged] && [self shouldAddVersionOnEnableEncrypt];
-        NSString *remoteConfigVersion = shouldAddVersion ? self.remoteConfigVersion : nil;
-        NSString *eventConfigVersion = shouldAddVersion ? self.eventConfigVersion : nil;
-        [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url remoteConfigVersion:remoteConfigVersion eventConfigVersion:eventConfigVersion completion:completion];
+        NSString *originalVersion = shouldAddVersion ? self.originalVersion : nil;
+        NSString *latestVersion = shouldAddVersion ? self.latestVersion : nil;
+        [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url originalVersion:originalVersion latestVersion:latestVersion completion:completion];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
