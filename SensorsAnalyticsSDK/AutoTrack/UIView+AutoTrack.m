@@ -27,6 +27,9 @@
 #import "SensorsAnalyticsSDK.h"
 #import <objc/runtime.h>
 
+
+NSString *const kSALastAppClickIntervalPropertyName = @"sensorsAnalyticsUIViewTimeIntervalForLastAppClick";
+
 #pragma mark - UIView
 
 @implementation UIView (AutoTrack)
@@ -43,11 +46,11 @@
 }
 
 - (void)setTimeIntervalForLastAppClick:(NSTimeInterval)timeIntervalForLastAppClick {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsUIViewTimeIntervalForLastAppClick", [NSNumber numberWithDouble:timeIntervalForLastAppClick], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &kSALastAppClickIntervalPropertyName, [NSNumber numberWithDouble:timeIntervalForLastAppClick], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (NSTimeInterval)timeIntervalForLastAppClick {
-    return [objc_getAssociatedObject(self, @"sensorsAnalyticsUIViewTimeIntervalForLastAppClick") doubleValue];
+    return [objc_getAssociatedObject(self, &kSALastAppClickIntervalPropertyName) doubleValue];
 }
 
 - (NSString *)sensorsdata_elementType {
