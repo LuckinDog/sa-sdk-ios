@@ -55,7 +55,6 @@
 
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
-#import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
@@ -77,6 +76,7 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
+#import "SAModuleProtocol.h"
 
 #define VERSION @"2.1.1"
 
@@ -200,11 +200,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
-#endif
-
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-@property (nonatomic, strong) SALocationManager *locationManager;
-@property (nonatomic, strong) SAGPSLocationConfig *locationConfig;
 #endif
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
@@ -333,10 +328,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
-#endif
-            
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-            _locationConfig = [[SAGPSLocationConfig alloc] init];
 #endif
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
@@ -1383,9 +1374,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
                                                                                        orientationConfig:self.deviceOrientationConfig
 #endif
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-                                                                                          locationConfig:self.locationConfig
-#endif
                                                          ];
             [eventPropertiesDic addEntriesFromDictionary:presetPropertiesOfTrackType];
             
@@ -2429,21 +2417,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [self.deviceOrientationManager stopDeviceMotionUpdates];
 #endif
         
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-        [self.locationManager stopUpdatingLocation];
-#endif
-        
         [self flush];//停止采集数据之后 flush 本地数据
     } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
             [self.deviceOrientationManager startDeviceMotionUpdates];
-        }
-#endif
-        
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-        if (self.locationConfig.enableGPSLocation) {
-            [self.locationManager startUpdatingLocation];
         }
 #endif
     }
@@ -2520,10 +2498,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
-#endif
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-    [self.locationManager stopUpdatingLocation];
 #endif
 
     UIApplication *application = UIApplication.sharedApplication;
@@ -2823,36 +2797,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-    dispatch_block_t block = ^{
-        self.locationConfig.enableGPSLocation = enableGPSLocation;
-        if (enableGPSLocation) {
-            if (self.locationManager == nil) {
-                self.locationManager = [[SALocationManager alloc] init];
-                __weak SensorsAnalyticsSDK *weakSelf = self;
-                self.locationManager.updateLocationBlock = ^(CLLocation * location, NSError *error) {
-                    __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
-                    if (location) {
-                        strongSelf.locationConfig.coordinate = location.coordinate;
-                    }
-                    if (error) {
-                        SALogError(@"enableTrackGPSLocation error：%@", error);
-                    }
-                };
-            }
-            [self.locationManager startUpdatingLocation];
-        } else {
-            if (self.locationManager != nil) {
-                [self.locationManager stopUpdatingLocation];
-            }
-        }
-    };
-    if (NSThread.isMainThread) {
-        block();
-    } else {
-        dispatch_async(dispatch_get_main_queue(), block);
+    Class<SAModuleProtocol> cla = NSClassFromString(@"SALocationManager");
+    if (![cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
+        return;
     }
-#endif
+    id<SAModuleProtocol> shared = [cla sharedInstance];
+    if (NSThread.isMainThread) {
+        [shared setEnable:enableGPSLocation];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^ {
+            [shared setEnable:enableGPSLocation];
+        });
+    }
 }
 
 - (void)clearKeychainData {

@@ -26,6 +26,7 @@
 #import <WebKit/WebKit.h>
 #import "SANetwork.h"
 #import "SADataEncryptBuilder.h"
+#import "SASDKRemoteConfig.h"
 
 /**
  埋点方式
@@ -87,12 +88,16 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
+@property (nonatomic, strong, readonly) SASDKRemoteConfig *remoteConfig;
 
 @property (nonatomic, strong, readonly) SANetwork *network;
 
 @property (nonatomic, strong, readonly) SADataEncryptBuilder *encryptBuilder;
 
 @property (nonatomic, weak) UIViewController *previousTrackViewController;
+
+@property (nonatomic, copy) NSString *userAgent;
+- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
 
 @end
 

@@ -951,66 +951,10 @@ DeepLink 回调函数
 #pragma mark - JSCall
 @interface SensorsAnalyticsSDK (JSCall)
 
-#pragma mark about webView
-
-/**
- * @abstract
- * H5 数据打通的时候默认通过 ServerUrl 校验
- */
-- (void)addWebViewUserAgentSensorsDataFlag;
-
-/**
- * @abstract
- * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
- *
- * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
- */
-- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
-
-/**
- * @abstract
- * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
- *
- * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
- * @param userAgent  userAgent = nil ,SDK 会从 webview 中读取 ua
-
- */
-- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
-/**
- * @abstract
- * 将 distinctId 传递给当前的 WebView
- *
- * @discussion
- * 混合开发时,将 distinctId 传递给当前的 WebView
- *
- * @param webView 当前 WebView，支持 WKWebView
- *
- * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
- */
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request;
-
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request enableVerify:(BOOL)enableVerify;
-
-/**
- * @abstract
- * 将 distinctId 传递给当前的 WebView
- *
- * @discussion
- * 混合开发时,将 distinctId 传递给当前的 WebView
- *
- * @param webView 当前 WebView，支持 WKWebView
- * @param request NSURLRequest
- * @param propertyDict NSDictionary 自定义扩展属性
- *
- * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
- */
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(nullable NSDictionary *)propertyDict;
-
-#pragma mark trackFromH5
-
 - (void)trackFromH5WithEvent:(NSString *)eventInfo;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify;
+
 @end
 
 #pragma mark -
