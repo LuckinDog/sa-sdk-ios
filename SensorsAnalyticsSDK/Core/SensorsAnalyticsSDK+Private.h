@@ -96,9 +96,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 
 @property (nonatomic, weak) UIViewController *previousTrackViewController;
 
-@property (nonatomic, copy) NSString *userAgent;
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
-
 @end
 
 

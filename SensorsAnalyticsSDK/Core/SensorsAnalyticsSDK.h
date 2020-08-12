@@ -348,12 +348,12 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - trackTimer
 /**
  开始事件计时
- 
+
  @discussion
  若需要统计某个事件的持续时间，先在事件开始时调用 trackTimerStart:"Event" 记录事件开始时间，该方法并不会真正发送事件；
  随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，
  SDK 会追踪 "Event" 事件，并自动将事件持续时间记录在事件属性 "event_duration" 中，时间单位为秒。
- 
+
  @param event 事件名称
  @return 返回计时事件的 eventId，用于交叉计时场景。普通计时可忽略
  */
@@ -364,7 +364,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @discussion
  多次调用 trackTimerEnd: 时，以首次调用为准
- 
+
  @param event 事件名称或事件的 eventId
  @param propertyDict 自定义属性
  */
@@ -372,10 +372,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  结束事件计时
- 
+
  @discussion
  多次调用 trackTimerEnd: 时，以首次调用为准
- 
+
  @param event 事件名称或事件的 eventId
  */
 - (void)trackTimerEnd:(NSString *)event;
@@ -385,7 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @discussion
  多次调用 trackTimerPause: 时，以首次调用为准。
- 
+
  @param event 事件名称或事件的 eventId
  */
 - (void)trackTimerPause:(NSString *)event;
@@ -395,7 +395,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @discussion
  多次调用 trackTimerResume: 时，以首次调用为准。
- 
+
  @param event 事件名称或事件的 eventId
  */
 - (void)trackTimerResume:(NSString *)event;
@@ -694,7 +694,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * 判断是否为符合要求的 openURL
- 
+
  * @param url 打开的 URL
  * @return YES/NO
  */
@@ -934,27 +934,69 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - Deeplink
-@interface SensorsAnalyticsSDK (Deeplink)
-
-/**
-DeepLink 回调函数
-@param callback 请求成功后的回调函数
-  params：创建渠道链接时填写的 App 内参数
-  succes：deeplink 唤起结果
-  appAwakePassedTime：获取渠道信息所用时间
-*/
-- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback;
-
-@end
-
 #pragma mark - JSCall
 @interface SensorsAnalyticsSDK (JSCall)
+
+#pragma mark about webView
+
+/**
+ * @abstract
+ * H5 数据打通的时候默认通过 ServerUrl 校验
+ */
+- (void)addWebViewUserAgentSensorsDataFlag;
+
+/**
+ * @abstract
+ * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
+ *
+ * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
+ */
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
+
+/**
+ * @abstract
+ * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
+ *
+ * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
+ * @param userAgent  userAgent = nil ,SDK 会从 webview 中读取 ua
+
+ */
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
+/**
+ * @abstract
+ * 将 distinctId 传递给当前的 WebView
+ *
+ * @discussion
+ * 混合开发时,将 distinctId 传递给当前的 WebView
+ *
+ * @param webView 当前 WebView，支持 WKWebView
+ *
+ * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
+ */
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request;
+
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request enableVerify:(BOOL)enableVerify;
+
+/**
+ * @abstract
+ * 将 distinctId 传递给当前的 WebView
+ *
+ * @discussion
+ * 混合开发时,将 distinctId 传递给当前的 WebView
+ *
+ * @param webView 当前 WebView，支持 WKWebView
+ * @param request NSURLRequest
+ * @param propertyDict NSDictionary 自定义扩展属性
+ *
+ * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
+ */
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(nullable NSDictionary *)propertyDict;
+
+#pragma mark trackFromH5
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify;
-
 @end
 
 #pragma mark -

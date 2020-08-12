@@ -3046,7 +3046,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
     __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
     __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
-    
+
     dispatch_async(self.serialQueue, ^{
         @try {
             if (!eventInfo) {
@@ -3097,7 +3097,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-                
+
                 //获取用户自定义的动态公共属性
                 if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
                     SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
@@ -3107,7 +3107,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 }
                 // 去重
                 [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-                
+
                 [propertiesDict addEntriesFromDictionary:self->_superProperties];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
@@ -3147,7 +3147,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 } else if ([timeNumber isKindOfClass:[NSNumber class]]) {
                     customTime = timeNumber;
                 }
-                
+
                 if (!customTime) {
                     SALogError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
                 } else if ([customTime compare:@(SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT)] == NSOrderedAscending) {
