@@ -197,11 +197,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 @property (nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
 
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-@property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
-@property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
-#endif
-
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
 @property (nonatomic, strong) dispatch_group_t loadUAGroup;
@@ -325,10 +320,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
-            
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-            _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
-#endif
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
@@ -1370,11 +1361,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         @(arc4random()), SA_EVENT_TRACK_ID,
                         nil];
         } else if([type isEqualToString:@"track"]) {
-            NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                                                                                       orientationConfig:self.deviceOrientationConfig
-#endif
-                                                         ];
+            NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]];
             [eventPropertiesDic addEntriesFromDictionary:presetPropertiesOfTrackType];
             
             eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -2412,18 +2399,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //停止 SDK 的 flushtimer
         [self stopFlushTimer];
         
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        //停止采集设备方向信息
-        [self.deviceOrientationManager stopDeviceMotionUpdates];
-#endif
-        
         [self flush];//停止采集数据之后 flush 本地数据
-    } else {
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
-            [self.deviceOrientationManager startDeviceMotionUpdates];
-        }
-#endif
     }
     
     if (_applicationWillResignActive) {
@@ -2495,10 +2471,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
         self.reqConfigBlock = nil;
     }
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-    [self.deviceOrientationManager stopDeviceMotionUpdates];
-#endif
 
     UIApplication *application = UIApplication.sharedApplication;
     __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
@@ -2769,31 +2741,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)enableTrackScreenOrientation:(BOOL)enable {
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-    @try {
-        self.deviceOrientationConfig.enableTrackScreenOrientation = enable;
-        if (enable) {
-            if (_deviceOrientationManager == nil) {
-                _deviceOrientationManager = [[SADeviceOrientationManager alloc] init];
-                __weak SensorsAnalyticsSDK *weakSelf = self;
-                _deviceOrientationManager.deviceOrientationBlock = ^(NSString *deviceOrientation) {
-                    __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
-                    if (deviceOrientation) {
-                        strongSelf.deviceOrientationConfig.deviceOrientation = deviceOrientation;
-                    }
-                };
-            }
-            [_deviceOrientationManager startDeviceMotionUpdates];
-        } else {
-            _deviceOrientationConfig.deviceOrientation = @"";
-            if (_deviceOrientationManager) {
-                [_deviceOrientationManager stopDeviceMotionUpdates];
-            }
-        }
-    } @catch (NSException * e) {
-        SALogError(@"%@ error: %@", self, e);
+    Class<SAModuleProtocol> cla = NSClassFromString(@"SADeviceOrientationManager");
+    if (![cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
+        return;
     }
-#endif
+    id<SAModuleProtocol> shared = [cla sharedInstance];
+    shared.enable = enable;
 }
 
 - (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {

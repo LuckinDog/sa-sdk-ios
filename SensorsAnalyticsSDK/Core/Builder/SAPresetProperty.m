@@ -89,9 +89,7 @@ NSString * const SAEventPresetPropertyLibVersion = @"$lib_version";
 /// SDK 版本
 NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
 
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orientation";
-#endif
 
 #pragma mark -
 
@@ -169,11 +167,7 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     return self.automaticProperties[SAEventPresetPropertyDeviceID];
 }
 
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
-#endif
-{
+- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively {
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     // 是否首日访问
     presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
@@ -182,15 +176,18 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
         presetPropertiesOfTrackType[SAEventPresetPropertyAppState] = @"background";
     }
     // 采集设备方向
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-    if (orientationConfig.enableTrackScreenOrientation && [SAValidator isValidString:orientationConfig.deviceOrientation]) {
-        presetPropertiesOfTrackType[SAEventPresetPropertyScreenOrientation] = orientationConfig.deviceOrientation;
+    Class<SAPropertyModuleProtocol> deviceOrientationManagerClass = NSClassFromString(@"SADeviceOrientationManager");
+    if ([deviceOrientationManagerClass conformsToProtocol:@protocol(SAPropertyModuleProtocol)]) {
+        id<SAPropertyModuleProtocol> shared = [deviceOrientationManagerClass sharedInstance];
+        if (shared.enable) {
+            [presetPropertiesOfTrackType addEntriesFromDictionary:shared.properties];
+        }
     }
-#endif
+
     // 采集地理位置信息
-    Class<SAPropertyModuleProtocol> cla = NSClassFromString(@"SALocationManager");
-    if ([cla conformsToProtocol:@protocol(SAPropertyModuleProtocol)]) {
-        id<SAPropertyModuleProtocol> shared = [cla sharedInstance];
+    Class<SAPropertyModuleProtocol> locationManagerClass = NSClassFromString(@"SALocationManager");
+    if ([locationManagerClass conformsToProtocol:@protocol(SAPropertyModuleProtocol)]) {
+        id<SAPropertyModuleProtocol> shared = [locationManagerClass sharedInstance];
         if (shared.enable) {
             [presetPropertiesOfTrackType addEntriesFromDictionary:shared.properties];
         }
