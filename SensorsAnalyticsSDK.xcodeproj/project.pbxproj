@@ -127,7 +127,7 @@
 		88F46C9724E3C433005DF367 /* SAAutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F46C0024E3C433005DF367 /* SAAutoTrackUtils.m */; };
 		88F46C9824E3C433005DF367 /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F46C0124E3C433005DF367 /* UIApplication+AutoTrack.h */; };
 		88F46C9924E3C433005DF367 /* SANetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F46C0224E3C433005DF367 /* SANetwork.h */; };
-		88F46C9A24E3C433005DF367 /* SensorsAnalyticsSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F46C0324E3C433005DF367 /* SensorsAnalyticsSDK.h */; };
+		88F46C9A24E3C433005DF367 /* SensorsAnalyticsSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F46C0324E3C433005DF367 /* SensorsAnalyticsSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88F46C9B24E3C433005DF367 /* SAModuleProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F46C0424E3C433005DF367 /* SAModuleProtocol.h */; };
 		88F46C9C24E3C433005DF367 /* SALinkHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F46C0524E3C433005DF367 /* SALinkHandler.m */; };
 		88F46C9D24E3C433005DF367 /* NSString+HashCode.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F46C0624E3C433005DF367 /* NSString+HashCode.h */; };
