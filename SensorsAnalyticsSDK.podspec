@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.platform = :ios, "8.0"
   s.default_subspec = 'WebView'
-  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreMotion'
+  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'Core' do |c|
@@ -24,11 +24,18 @@ Pod::Spec.new do |s|
     w.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
-  # 打开 log
   s.subspec 'Location' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = 'SensorsAnalyticsSDK/Location/**/*.{h,m}'
     f.private_header_files = 'SensorsAnalyticsSDK/Location/**/*.h'
     f.frameworks = 'CoreLocation'
   end
+
+  s.subspec 'DeviceOrientation' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+    f.source_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.{h,m}'
+    f.private_header_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.h'
+    f.frameworks = 'CoreMotion'
+  end
+  
 end
