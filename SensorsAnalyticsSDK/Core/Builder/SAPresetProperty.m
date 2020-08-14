@@ -36,7 +36,7 @@
 #import "SADateFormatter.h"
 #import "SADeviceOrientationManager.h"
 #import "SAValidator.h"
-#import "SAModuleProtocol.h"
+#import "SAModuleManager.h"
 
 //中国运营商 mcc 标识
 static NSString* const SACarrierChinaMCC = @"460";
@@ -188,14 +188,8 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     }
 #endif
     // 采集地理位置信息
-    Class<SAPropertyModuleProtocol> cla = NSClassFromString(@"SALocationManager");
-    if ([cla conformsToProtocol:@protocol(SAPropertyModuleProtocol)]) {
-        id<SAPropertyModuleProtocol> shared = [cla sharedInstance];
-        if (shared.enable) {
-            [presetPropertiesOfTrackType addEntriesFromDictionary:shared.properties];
-        }
-    }
-
+    [presetPropertiesOfTrackType addEntriesFromDictionary:[SAModuleManager sharedInstance].properties];
+    
     return presetPropertiesOfTrackType;
 }
 

@@ -28,8 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAModuleProtocol <NSObject>
 
-+ (instancetype)sharedInstance;
-
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 @end

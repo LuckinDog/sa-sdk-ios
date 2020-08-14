@@ -10,6 +10,8 @@
 		4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188E22978F5B00F6B218 /* ElementViewController.m */; };
 		4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */; };
 		4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */; };
+		885DD4F024E625DD0040DCEF /* SAModuleManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 885DD4EE24E625DD0040DCEF /* SAModuleManager.h */; };
+		885DD4F124E625DD0040DCEF /* SAModuleManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 885DD4EF24E625DD0040DCEF /* SAModuleManager.m */; };
 		8888368224E5230600FE2763 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888368024E5230500FE2763 /* SAAppExtensionDataManager.m */; };
 		8888368324E5230600FE2763 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888368124E5230600FE2763 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8888369424E5231600FE2763 /* SALogMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888368524E5231600FE2763 /* SALogMessage.h */; };
@@ -27,6 +29,8 @@
 		888836A024E5231600FE2763 /* SAConsoleLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888369124E5231600FE2763 /* SAConsoleLogger.m */; };
 		888836A124E5231600FE2763 /* SALog+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888369224E5231600FE2763 /* SALog+Private.h */; };
 		888836A224E5231600FE2763 /* SALoggerConsoleFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 8888369324E5231600FE2763 /* SALoggerConsoleFormatter.h */; };
+		888836A624E5522F00FE2763 /* SAReactNativeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 888836A424E5522F00FE2763 /* SAReactNativeManager.h */; };
+		888836A724E5522F00FE2763 /* SAReactNativeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 888836A524E5522F00FE2763 /* SAReactNativeManager.m */; };
 		88F46C3824E3C433005DF367 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F46B9C24E3C433005DF367 /* SASecurityPolicy.m */; };
 		88F46C3924E3C433005DF367 /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F46B9D24E3C433005DF367 /* NSString+HashCode.m */; };
 		88F46C3A24E3C433005DF367 /* SALogMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F46B9F24E3C433005DF367 /* SALogMessage.h */; };
@@ -204,6 +208,8 @@
 		4D6A189022978F5B00F6B218 /* ElementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElementViewController.h; sourceTree = "<group>"; };
 		4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAUtilsTest.m; sourceTree = "<group>"; };
 		4D8CE4C622E872B400829B29 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		885DD4EE24E625DD0040DCEF /* SAModuleManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAModuleManager.h; sourceTree = "<group>"; };
+		885DD4EF24E625DD0040DCEF /* SAModuleManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAModuleManager.m; sourceTree = "<group>"; };
 		8888368024E5230500FE2763 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAAppExtensionDataManager.m; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.m; sourceTree = SOURCE_ROOT; };
 		8888368124E5230600FE2763 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAAppExtensionDataManager.h; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.h; sourceTree = SOURCE_ROOT; };
 		8888368524E5231600FE2763 /* SALogMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogMessage.h; sourceTree = "<group>"; };
@@ -221,6 +227,8 @@
 		8888369124E5231600FE2763 /* SAConsoleLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConsoleLogger.m; sourceTree = "<group>"; };
 		8888369224E5231600FE2763 /* SALog+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SALog+Private.h"; sourceTree = "<group>"; };
 		8888369324E5231600FE2763 /* SALoggerConsoleFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALoggerConsoleFormatter.h; sourceTree = "<group>"; };
+		888836A424E5522F00FE2763 /* SAReactNativeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAReactNativeManager.h; sourceTree = "<group>"; };
+		888836A524E5522F00FE2763 /* SAReactNativeManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAReactNativeManager.m; sourceTree = "<group>"; };
 		88F46B9C24E3C433005DF367 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		88F46B9D24E3C433005DF367 /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
 		88F46B9F24E3C433005DF367 /* SALogMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogMessage.h; sourceTree = "<group>"; };
@@ -452,6 +460,15 @@
 			path = SensorsAnalyticsSDK/Core/SALogger;
 			sourceTree = SOURCE_ROOT;
 		};
+		888836A324E5508800FE2763 /* ReactNative */ = {
+			isa = PBXGroup;
+			children = (
+				888836A424E5522F00FE2763 /* SAReactNativeManager.h */,
+				888836A524E5522F00FE2763 /* SAReactNativeManager.m */,
+			);
+			path = ReactNative;
+			sourceTree = "<group>";
+		};
 		88F46B9B24E3C433005DF367 /* Core */ = {
 			isa = PBXGroup;
 			children = (
@@ -488,6 +505,8 @@
 				88F46BAE24E3C433005DF367 /* SALinkHandler.h */,
 				88F46C0524E3C433005DF367 /* SALinkHandler.m */,
 				88F46C0424E3C433005DF367 /* SAModuleProtocol.h */,
+				885DD4EE24E625DD0040DCEF /* SAModuleManager.h */,
+				885DD4EF24E625DD0040DCEF /* SAModuleManager.m */,
 				88F46C0224E3C433005DF367 /* SANetwork.h */,
 				88F46BAF24E3C433005DF367 /* SANetwork.m */,
 				88F46BBB24E3C433005DF367 /* SAReachability.h */,
@@ -711,6 +730,7 @@
 			children = (
 				88F46B9B24E3C433005DF367 /* Core */,
 				88F46C3424E3C433005DF367 /* Location */,
+				888836A324E5508800FE2763 /* ReactNative */,
 				88F46C3724E3C433005DF367 /* SensorsAnalyticsSDK.bundle */,
 			);
 			path = SensorsAnalyticsSDK;
@@ -788,6 +808,7 @@
 				88F46CBA24E3C433005DF367 /* SAKeyChainItemWrapper.h in Headers */,
 				88F46C7224E3C433005DF367 /* SAObjectSerializerContext.h in Headers */,
 				88F46CB424E3C433005DF367 /* SAAlertController.h in Headers */,
+				888836A624E5522F00FE2763 /* SAReactNativeManager.h in Headers */,
 				88F46C6B24E3C433005DF367 /* SACommonUtility.h in Headers */,
 				88F46C6424E3C433005DF367 /* SAGzipUtility.h in Headers */,
 				88F46CA724E3C433005DF367 /* SASwizzler.h in Headers */,
@@ -802,6 +823,7 @@
 				88F46CA224E3C433005DF367 /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				88F46C8624E3C433005DF367 /* SAEnumDescription.h in Headers */,
 				88F46C5424E3C433005DF367 /* SAConstants+Private.h in Headers */,
+				885DD4F024E625DD0040DCEF /* SAModuleManager.h in Headers */,
 				88F46C5624E3C433005DF367 /* SAReachability.h in Headers */,
 				88F46C7824E3C433005DF367 /* SAObjectSerializerConfig.h in Headers */,
 				88F46C8E24E3C433005DF367 /* UIGestureRecognizer+AutoTrack.h in Headers */,
@@ -992,6 +1014,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88F46CAD24E3C433005DF367 /* SAReachability.m in Sources */,
+				885DD4F124E625DD0040DCEF /* SAModuleManager.m in Sources */,
 				88F46CB224E3C433005DF367 /* SAEncryptSecretKeyHandler.m in Sources */,
 				88F46C9F24E3C433005DF367 /* SADeviceOrientationManager.m in Sources */,
 				88F46C4524E3C433005DF367 /* SALog.m in Sources */,
@@ -1043,6 +1066,7 @@
 				88F46C9624E3C433005DF367 /* UIView+AutoTrack.m in Sources */,
 				88F46C6F24E3C433005DF367 /* SATypeDescription.m in Sources */,
 				88F46CAE24E3C433005DF367 /* SAEncryptUtils.m in Sources */,
+				888836A724E5522F00FE2763 /* SAReactNativeManager.m in Sources */,
 				88F46C7F24E3C433005DF367 /* NSInvocation+SAHelpers.m in Sources */,
 				88F46C7E24E3C433005DF367 /* SAObjectIdentityProvider.m in Sources */,
 				88F46C5824E3C433005DF367 /* SAAppExtensionDataManager.m in Sources */,
