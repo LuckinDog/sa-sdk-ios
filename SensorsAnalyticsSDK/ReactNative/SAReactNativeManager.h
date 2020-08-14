@@ -29,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAReactNativeManager : NSObject <SAModuleProtocol>
 
-+ (instancetype)sharedInstance;
-
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 @end
