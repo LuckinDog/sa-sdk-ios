@@ -32,42 +32,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SARemoteConfigManagerOptions : NSObject
 
-/// SensorsAnalyticsSDK 初始化配置
-@property (nonatomic, strong) SAConfigOptions *configOptions;
-
-/// 当前 SDK 版本
-@property (nonatomic, copy) NSString *currentLibVersion;
-
-/// 网络相关类
-@property (nonatomic, strong) SANetwork *network;
-
-/// 加密构造器创建结果
-@property (nonatomic, copy) BOOL (^encryptBuilderCreateResultBlock)(void);
-
-/// 禁用 debugMode 的回调
-@property (nonatomic, copy) void (^disableDebugModeBlock)(void);
-
-/// 处理密钥的回调
-@property (nonatomic, copy) void (^handleSecretKeyBlock)(NSDictionary *configDict);
-
-/// 触发事件的回调
-@property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *propertieDict);
+@property (nonatomic, strong) SAConfigOptions *configOptions; // SensorsAnalyticsSDK 初始化配置
+@property (nonatomic, copy) NSString *currentLibVersion; // 当前 SDK 版本
+@property (nonatomic, strong) SANetwork *network; // 网络相关类
+@property (nonatomic, copy) BOOL (^encryptBuilderCreateResultBlock)(void); // 加密构造器创建结果的回调
+@property (nonatomic, copy) void (^disableDebugModeBlock)(void); // 禁用 debugMode 的回调
+@property (nonatomic, copy) void (^handleSecretKeyBlock)(NSDictionary *configDict); // 处理密钥的回调
+@property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *propertieDict); // 触发事件的回调
 
 @end
-
 
 @interface SARemoteConfigManager : NSObject
 
 @property (nonatomic, assign, readonly) BOOL isDisableSDK; // 是否禁用 SDK
 @property (nonatomic, assign, readonly) NSInteger autoTrackMode; // 控制 AutoTrack 采集方式（-1 表示不修改现有的 AutoTrack 方式；0 代表禁用所有的 AutoTrack；其他 1～15 为合法数据）
 
-
 /// 初始化远程配置管理类
 /// @param managerOptions 管理模型
 + (void)startWithRemoteConfigManagerOptions:(SARemoteConfigManagerOptions *)managerOptions;
 
 /// 获取远程配置管理类的实例
-+ (SARemoteConfigManager *_Nullable)sharedInstance;
++ (instancetype)sharedInstance;
 
 /// 创建本地远程配置模型
 - (void)createLocalRemoteConfigModel;

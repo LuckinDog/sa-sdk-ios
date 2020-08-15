@@ -39,13 +39,8 @@ typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
     SARemoteConfigHandleRandomTimeTypeNone    // 不处理分散请求时间
 };
 
-
 static NSString * const kSDKConfigKey = @"SASDKConfig";
-///保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
-static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfigRandomTime";
-
-static SARemoteConfigManager *sharedInstance = nil;
-static dispatch_once_t initializeOnceToken;
+static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfigRandomTime"; // 保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
 
 @interface SARemoteConfigManager ()
 
@@ -74,19 +69,21 @@ static dispatch_once_t initializeOnceToken;
 #pragma mark - Life Cycle
 
 + (void)startWithRemoteConfigManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
-    dispatch_once(&initializeOnceToken, ^{
-        sharedInstance = [[SARemoteConfigManager alloc] initWithManagerOptions:managerOptions];
-    });
+    [SARemoteConfigManager sharedInstance].managerOptions = managerOptions;
 }
 
-+ (SARemoteConfigManager *_Nullable)sharedInstance {
++ (instancetype)sharedInstance {
+    static SARemoteConfigManager *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[SARemoteConfigManager alloc] init];
+    });
     return sharedInstance;
 }
 
-- (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
+- (instancetype)init {
     self = [super init];
     if (self) {
-        _managerOptions = managerOptions;
         _requestRemoteConfigRetryMaxCount = 3;
     }
     return self;
