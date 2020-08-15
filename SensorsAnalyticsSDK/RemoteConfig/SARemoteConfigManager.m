@@ -273,9 +273,7 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
 
 - (void)handleRemoteConfigWithRequestResult:(NSDictionary *)configDict {
     // 用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
-    // 手动添加当前 SDK 版本号
     SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
-    remoteConfigModel.localLibVersion = self.managerOptions.currentLibVersion;
     
     // 触发 $AppRemoteConfigChanged 事件
     NSString *eventConfigStr = @"";
@@ -284,6 +282,9 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
         eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }
     self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
+    
+    // 手动添加当前 SDK 版本号
+    remoteConfigModel.localLibVersion = self.managerOptions.currentLibVersion;
     
     // 存储最新的远程配置
     NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
