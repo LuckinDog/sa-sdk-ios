@@ -435,7 +435,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return completion(self.userAgent);
     }
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
             dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
@@ -446,16 +445,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self.loadUAGroup = dispatch_group_create();
             dispatch_group_enter(self.loadUAGroup);
 
+            __weak typeof(self) weakSelf = self;
             [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                
                 if (error || !response) {
                     SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
                     completion(nil);
                 } else {
-                    weakSelf.userAgent = response;
-                    completion(weakSelf.userAgent);
+                    strongSelf.userAgent = response;
+                    completion(strongSelf.userAgent);
                 }
-                weakSelf.wkWebView = nil;
-                dispatch_group_leave(weakSelf.loadUAGroup);
+                
+                if (strongSelf.wkWebView && strongSelf.loadUAGroup) {
+                    dispatch_group_leave(strongSelf.loadUAGroup);
+                }
+                
+                strongSelf.wkWebView = nil;
             }];
         }
     });
