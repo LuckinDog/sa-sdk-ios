@@ -301,6 +301,25 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     return carrierName;
 }
 
++ (NSString *)appName {
+    NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+    if (displayName) {
+        return displayName;
+    }
+    
+    NSString *bundleName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+    if (bundleName) {
+        return bundleName;
+    }
+    
+    NSString *executableName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"];
+    if (executableName) {
+        return executableName;
+    }
+    
+    return nil;
+}
+
 #pragma mark – Getters and Setters
 
 - (NSMutableDictionary *)automaticProperties {
@@ -319,9 +338,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
             _automaticProperties[SAEventPresetPropertyOS] = @"iOS";
             _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
             _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-            NSString *bundleName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-            NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
-            _automaticProperties[SAEventPresetPropertyAppName] = displayName ? displayName : bundleName;
+            _automaticProperties[SAEventPresetPropertyAppName] = [SAPresetProperty appName];
             _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             _automaticProperties[SAEventPresetPropertyLib] = @"iOS";
             _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;
