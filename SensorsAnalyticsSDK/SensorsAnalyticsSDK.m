@@ -2559,9 +2559,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)enableLog {
     BOOL printLog = NO;
-#if (defined SENSORS_ANALYTICS_ENABLE_LOG)
-    printLog = YES;
-#endif
     
     if ([self debugMode] != SensorsAnalyticsDebugOff) {
         printLog = YES;
