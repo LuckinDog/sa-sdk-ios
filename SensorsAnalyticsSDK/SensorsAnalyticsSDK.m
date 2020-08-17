@@ -1597,6 +1597,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+- (void)removeTimer:(NSString *)event {
+    if (![self checkEventName:event]) {
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerRemove:event];
+    });
+}
+
 - (void)clearTrackTimer {
     dispatch_async(self.serialQueue, ^{
         [self.trackTimer clearAllEventTimers];

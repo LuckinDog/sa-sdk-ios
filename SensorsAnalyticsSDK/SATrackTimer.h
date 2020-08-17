@@ -82,6 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
 */
 - (void)trackTimerResume:(NSString *)eventId currentSysUpTime:(UInt64)currentSysUpTime;
 
+- (void)trackTimerRemove:(NSString *)eventId;
+
 #pragma mark -
 /**
  @abstract
