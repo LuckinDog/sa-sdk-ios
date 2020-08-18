@@ -32,7 +32,7 @@
 #import <UIKit/UIScreen.h>
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "MessageQueueBySqlite.h"
+#import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIApplication+AutoTrack.h"
@@ -68,6 +68,10 @@
 #import "SALinkHandler.h"
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
+#import "SAEventStore.h"
+#import "SAHTTPSession.h"
+#import "SANetwork.h"
+#import "SAEventTracker.h"
 #import "SAScriptMessageHandler.h"
 #import "WKWebView+SABridge.h"
 #import "SAIdentifier.h"
@@ -167,6 +171,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SANetwork *network;
 
+@property (nonatomic, strong) SAEventTracker *eventTracker;
+
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 @property (nonatomic, strong) SAReadWriteLock *readWriteLock;
@@ -177,8 +183,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSRegularExpression *propertiesRegex;
 @property (nonatomic, copy) NSSet *presetEventNames;
-
-@property (atomic, strong) MessageQueueBySqlite *messageQueue;
 
 @property (nonatomic, strong) NSTimer *timer;
 
@@ -298,9 +302,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
-            
-            _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_configOptions.serverURL]];
-            
+
+            NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
+            _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
+
+            NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
+            _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+
+            _network = [[SANetwork alloc] init];
+            _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
+
             _appRelaunched = NO;
             _showDebugAlertView = YES;
             _debugAlertViewHasShownNumber = 0;
@@ -308,14 +320,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _lastScreenTrackProperties = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
-            _flushBeforeEnterBackground = YES;
-            
-            NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
-            _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
-            dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
-            
-            NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
-            _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
             
             NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
             _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
@@ -349,11 +353,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-
-            _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
-            if (self.messageQueue == nil) {
-                SALogError(@"SqliteException: init Message Queue in Sqlite fail");
-            }
+            // 初始化密钥处理器
+            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -505,7 +506,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig {
     dispatch_async(self.serialQueue, ^{
-        self.network.serverURL = [NSURL URLWithString:serverUrl];
+        self.configOptions.serverURL = serverUrl;
         if (isRequestRemoteConfig) {
             [[SARemoteConfigManager sharedInstance] retryRequestRemoteConfigWithForceUpdateFlag:YES];
         }
@@ -842,69 +843,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     _showDebugAlertView = show;
 }
 
-- (BOOL)flushByType:(NSString *)type flushSize:(int)flushSize {
-    // 1、获取前 n 条数据
-    __block NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
-    if (recordArray == nil) {
-        SALogError(@"Failed to get records from SQLite.");
-        return NO;
-    }
-
-    NSInteger recordCount = recordArray.count;
-    __block BOOL isRecordEncrypted = NO;
-    if (self.configOptions.enableEncrypt) {
-        [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray
-                                                      completion:^(BOOL isContentEncrypted, NSArray * _Nonnull contentArray) {
-            isRecordEncrypted = isContentEncrypted;
-            recordArray = contentArray;
-        }];
-    }
-    
-    // 2、上传获取到的记录。如果数据上传完成，结束递归
-    if (recordArray.count == 0 || ![self.network flushEvents:recordArray isEncrypted:isRecordEncrypted]) {
-        return NO;
-    }
-    // 3、删除已上传的记录。删除失败，结束递归
-    if (![self.messageQueue removeFirstRecords:recordCount withType:@"POST"]) {
-        SALogError(@"Failed to remove records from SQLite.");
-        return NO;
-    }
-    // 4、继续上传剩余数据
-    [self flushByType:type flushSize:flushSize];
-    return YES;
-}
-
-- (void)_flush:(BOOL) vacuumAfterFlushing {
-    if (![self.network isValidServerURL]) {
-        return;
-    }
-    // 判断当前网络类型是否符合同步数据的网络策略
-    if (!([SACommonUtility currentNetworkType] & _networkTypePolicy)) {
-        return;
-    }
-
-    BOOL uploadedEvents = [self flushByType:@"Post" flushSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
-
-    if (vacuumAfterFlushing) {
-        if (![self.messageQueue vacuum]) {
-            SALogError(@"failed to VACUUM SQLite.");
-        }
-    }
-    if (uploadedEvents) {
-        SALogDebug(@"events flushed.");
-    }
-}
-
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
-        [self _flush:NO];
+        [self.eventTracker flushAllEventRecords];
     });
 }
 
 - (void)deleteAll {
-    // 新增线程保护
     dispatch_async(self.serialQueue, ^{
-        [self.messageQueue deleteAll];
+        [self.eventTracker.eventStore deleteAllRecords];
     });
 }
 
@@ -1029,9 +976,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         // 开启 WKWebView 的 H5 打通功能
         if (self.configOptions.enableJavaScriptBridge) {
-            if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+            if (self.configOptions.serverURL) {
                 [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
-                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", self.configOptions.serverURL];
             } else {
                 SALogError(@"%@ get network serverURL is failed!", self);
             }
@@ -1162,7 +1109,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     SALogDebug(@"\n【track event】:\n%@", itemProperties);
 
-    [self enqueueWithType:@"Post" andEvent:itemProperties];
+    [self.eventTracker trackEvent:itemProperties];
 }
 #pragma mark - track event
 
@@ -1201,10 +1148,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return nil;
     }
     return event;
-}
-
-- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    [self.messageQueue addObject:e withType:@"Post"];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
@@ -1416,17 +1359,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:trackEventDic];
         SALogDebug(@"\n【track event】:\n%@", trackEventDic);
 
-        [self enqueueWithType:type andEvent:trackEventDic];
-
-        if (self->_debugMode != SensorsAnalyticsDebugOff) {
-            // 在DEBUG模式下，直接发送事件
-            [self flush];
-        } else {
-            // 否则，在满足发送条件时，发送事件
-            if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.configOptions.flushBulkSize) {
-                [self flush];
-            }
-        }
+        [self.eventTracker trackEvent:trackEventDic isSignUp:[type isEqualToString:@"track_signup"]];
     });
 }
 
@@ -2539,21 +2472,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     }
 
-    if (self.flushBeforeEnterBackground) {
-        dispatch_async(self.serialQueue, ^{
-            [self _flush:YES];
-            endBackgroundTask();
-        });
-    } else {
-        dispatch_async(self.serialQueue, ^{
-            endBackgroundTask();
-        });
-    }
+    dispatch_async(self.serialQueue, ^{
+        [self.eventTracker flushAllEventRecords];
+        endBackgroundTask();
+    });
 }
 - (void)applicationWillTerminateNotification:(NSNotification *)notification {
     SALogDebug(@"applicationWillTerminateNotification");
-    dispatch_sync(self.serialQueue, ^{
-    });
+    dispatch_sync(self.serialQueue, ^{});
 }
 
 #pragma mark - SensorsData  Analytics
@@ -2628,7 +2554,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     printLog = YES;
 #endif
     
-    if ( [self debugMode] != SensorsAnalyticsDebugOff) {
+    if ([self debugMode] != SensorsAnalyticsDebugOff) {
         printLog = YES;
     }
     [self enableLog:printLog];
@@ -2863,7 +2789,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     @try {
         SALogDebug(@"showUpWebView");
-        SAJSONUtil *_jsonUtil = [[SAJSONUtil alloc] init];
         NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         if (bridgeCallbackInfo) {
@@ -2872,7 +2797,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (propertyDict) {
             [properties addEntriesFromDictionary:propertyDict];
         }
-        NSData *jsonData = [_jsonUtil JSONSerializeObject:properties];
+        NSData *jsonData = [SAJSONUtil JSONSerializeObject:properties];
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
@@ -3095,11 +3020,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
                     enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
-                    [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                    [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
                     SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
                 }
             } else {
-                [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                [self.eventTracker trackEvent:enqueueEvent];
                 SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
             }
         } @catch (NSException *exception) {
@@ -3236,6 +3161,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //加上最小值保护，50
         NSInteger newBulkSize = (NSInteger)bulkSize;
         self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
+    }
+}
+
+- (BOOL)flushBeforeEnterBackground {
+    @synchronized(self) {
+        return self.configOptions.flushBeforeEnterBackground;
+    }
+}
+
+- (void)setFlushBeforeEnterBackground:(BOOL)flushBeforeEnterBackground {
+    @synchronized(self) {
+        self.configOptions.flushBeforeEnterBackground = flushBeforeEnterBackground;
     }
 }
 

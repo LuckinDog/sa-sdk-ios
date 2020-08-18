@@ -277,7 +277,7 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
     
     // 触发 $AppRemoteConfigChanged 事件
     NSString *eventConfigStr = @"";
-    NSData *eventConfigData = [[[SAJSONUtil alloc] init] JSONSerializeObject:[remoteConfigModel toDictionary]];
+    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:[remoteConfigModel toDictionary]];
     if (eventConfigData) {
         eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }

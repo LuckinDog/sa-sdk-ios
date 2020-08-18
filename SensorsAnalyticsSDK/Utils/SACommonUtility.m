@@ -26,6 +26,7 @@
 
 #import "SACommonUtility.h"
 #import "SAReachability.h"
+#import "SAConstants.h"
 #import "SALog.h"
 
 @implementation SACommonUtility
