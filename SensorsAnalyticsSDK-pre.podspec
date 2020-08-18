@@ -124,21 +124,13 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_UIWEBVIEW' do |f|
     # 需要使用 WKWebView，支持最低版本为 iOS 8
     f.platform = :ios, "8.0"
-<<<<<<< HEAD:SensorsAnalyticsSDK-pre.podspec
     f.dependency 'SensorsAnalyticsSDK-pre/core'
-=======
-    f.dependency 'SensorsAnalyticsSDK/core'
->>>>>>> 513a45a5a27277c466fe7b685b68dbebd4f4b980:SensorsAnalyticsSDK.podspec
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
   end
 
   # 禁用私有 API，可视化全埋点模块存在私有类名字符串判断
   s.subspec 'DISABLE_PRIVATE_APIS' do |f|
-<<<<<<< HEAD:SensorsAnalyticsSDK-pre.podspec
     f.dependency 'SensorsAnalyticsSDK-pre/core'
-=======
-    f.dependency 'SensorsAnalyticsSDK/core'
->>>>>>> 513a45a5a27277c466fe7b685b68dbebd4f4b980:SensorsAnalyticsSDK.podspec
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS=1'}
   end 
 
