@@ -1,13 +1,7 @@
 Pod::Spec.new do |s|
-<<<<<<< HEAD:SensorsAnalyticsSDK-pre.podspec
   s.name         = "SensorsAnalyticsSDK-pre"
   s.version      = "2.1.0-pre"
   s.summary      = "The official iOS SDK Pre of Sensors Analytics."
-=======
-  s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.1.3"
-  s.summary      = "The official iOS SDK of Sensors Analytics."
->>>>>>> 513a45a5a27277c466fe7b685b68dbebd4f4b980:SensorsAnalyticsSDK.podspec
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
   s.license = { :type => "Apache License, Version 2.0" }
