@@ -457,7 +457,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     completion(strongSelf.userAgent);
                 }
                 
-                if (strongSelf.wkWebView && strongSelf.loadUAGroup) {
+                // 通过 wkWebView 控制 dispatch_group_leave 的次数
+                if (strongSelf.wkWebView) {
                     dispatch_group_leave(strongSelf.loadUAGroup);
                 }
                 
