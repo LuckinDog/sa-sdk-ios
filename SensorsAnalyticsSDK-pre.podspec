@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
-  s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.1.3"
-  s.summary      = "The official iOS SDK of Sensors Analytics."
+  s.name         = "SensorsAnalyticsSDK-pre"
+  s.version      = "2.1.0-pre"
+  s.summary      = "The official iOS SDK Pre of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
   s.license = { :type => "Apache License, Version 2.0" }
@@ -124,13 +124,13 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_UIWEBVIEW' do |f|
     # 需要使用 WKWebView，支持最低版本为 iOS 8
     f.platform = :ios, "8.0"
-    f.dependency 'SensorsAnalyticsSDK/core'
+    f.dependency 'SensorsAnalyticsSDK-pre/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
   end
 
   # 禁用私有 API，可视化全埋点模块存在私有类名字符串判断
   s.subspec 'DISABLE_PRIVATE_APIS' do |f|
-    f.dependency 'SensorsAnalyticsSDK/core'
+    f.dependency 'SensorsAnalyticsSDK-pre/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS=1'}
   end 
 
