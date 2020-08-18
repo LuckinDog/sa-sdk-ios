@@ -45,19 +45,12 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
 @interface SARemoteConfigManager ()
 
 @property (atomic, strong) SARemoteConfigModel *remoteConfigModel;
-
 @property (nonatomic, assign) NSUInteger requestRemoteConfigRetryMaxCount; // SDK 开启关闭功能接口最大重试次数
-
 @property (nonatomic, strong) SARemoteConfigManagerOptions *managerOptions;
 
-@property (nonatomic, copy) NSDictionary *requestRemoteConfigParams;
-
 @property (nonatomic, copy, readonly) NSArray<NSString *> *eventBlackList;
-
 @property (nonatomic, copy, readonly) NSString *latestVersion;
-
 @property (nonatomic, copy, readonly) NSString *originalVersion;
-
 @property (nonatomic, assign, readonly) BOOL isDisableDebugMode;
 
 @end
@@ -158,10 +151,7 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
 - (void)cancelRequestRemoteConfig {
     dispatch_async(dispatch_get_main_queue(), ^{
         // 还未发出请求
-        if (self.requestRemoteConfigParams) {
-            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestRemoteConfigWithParams:) object:self.requestRemoteConfigParams];
-            self.requestRemoteConfigParams = nil;
-        }
+        [NSObject cancelPreviousPerformRequestsWithTarget:self];
     });
 }
 
@@ -242,8 +232,8 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
     @try {
         // 子线程不会主动开启 runloop，因此这里切换到主线程执行
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.requestRemoteConfigParams = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
-            [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:self.requestRemoteConfigParams afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
+            NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
+            [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
         });
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
