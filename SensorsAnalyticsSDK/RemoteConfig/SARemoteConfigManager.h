@@ -54,8 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 获取远程配置管理类的实例
 + (instancetype)sharedInstance;
 
-/// 创建本地远程配置模型
-- (void)createLocalRemoteConfigModel;
+/// 配置本地远程配置模型
+- (void)configLocalRemoteConfigModel;
 
 /// 请求远程配置
 - (void)requestRemoteConfig;

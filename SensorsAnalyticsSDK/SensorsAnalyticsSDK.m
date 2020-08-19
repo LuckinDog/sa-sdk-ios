@@ -2337,7 +2337,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SALogDebug(@"%@ application did become active", self);
     if (_appRelaunched) {
         //下次启动 App 的时候重新初始化
-        [[SARemoteConfigManager sharedInstance] createLocalRemoteConfigModel];
+        [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
     }
     
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
@@ -2662,7 +2662,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     [SARemoteConfigManager startWithRemoteConfigManagerOptions:managerOptions];
     
-    [[SARemoteConfigManager sharedInstance] createLocalRemoteConfigModel];
+    [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
 }
 
 #pragma mark - SecretKey

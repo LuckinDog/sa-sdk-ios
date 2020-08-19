@@ -41,7 +41,9 @@ typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
 };
 
 static NSString * const kSDKConfigKey = @"SASDKConfig";
-static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfigRandomTime"; // 保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
+static NSString * const kRequestRemoteConfigRandomTimeKey = @"SARequestRemoteConfigRandomTime"; // 保存请求远程配置的随机时间 @{@"randomTime":@double,@"startDeviceTime":@double}
+static NSString * const kRandomTimeKey = @"randomTime";
+static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 @interface SARemoteConfigManager ()
 
@@ -88,7 +90,7 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
 
 #pragma mark - Public Methods
 
-- (void)createLocalRemoteConfigModel {
+- (void)configLocalRemoteConfigModel {
     NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
     self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
     if (self.isDisableDebugMode) {
@@ -113,9 +115,9 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
     }
     
     // 获取本地保存的随机时间和设备启动时间
-    NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:kRequestRemoteConfigRandomTime];
-    double randomTime = [[requestTimeConfig objectForKey:@"randomTime"] doubleValue];
-    double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
+    NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:kRequestRemoteConfigRandomTimeKey];
+    double randomTime = [[requestTimeConfig objectForKey:kRandomTimeKey] doubleValue];
+    double startDeviceTime = [[requestTimeConfig objectForKey:kStartDeviceTimeKey] doubleValue];
     // 获取当前设备启动时间，以开机时间为准，单位：秒
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
     
@@ -200,13 +202,13 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
     // 触发请求后，生成下次随机触发时间
     double randomTime = currentTime + realIntervalTime;
     
-    NSDictionary *createRequestTimeConfig = @{ @"randomTime": @(randomTime), @"startDeviceTime": @(currentTime) };
-    [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:kRequestRemoteConfigRandomTime];
+    NSDictionary *createRequestTimeConfig = @{kRandomTimeKey: @(randomTime), kStartDeviceTimeKey: @(currentTime) };
+    [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:kRequestRemoteConfigRandomTimeKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (void)removeRandomTime {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRequestRemoteConfigRandomTime];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRequestRemoteConfigRandomTimeKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -317,8 +319,6 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
     }
 
     urlComponets.query = [self buildRemoteConfigQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
-    
-    SALogDebug(@"Request remote config with URL %@", urlComponets.URL);
     
     return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
 }
