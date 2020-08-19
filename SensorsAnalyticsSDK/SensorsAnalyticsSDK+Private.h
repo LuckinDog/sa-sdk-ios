@@ -42,6 +42,18 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 @interface SensorsAnalyticsSDK(Private)
 
 #pragma mark - method
+
+/**
+ * @abstract
+ * 返回之前所初始化好的单例（不受禁用 SDK 的控制）
+ *
+ * @discussion
+ * 调用这个方法之前，必须先调用 sharedInstanceWithConfig 这个方法
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)safeSharedInstance;
+
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
 
 /**

@@ -270,6 +270,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return sharedInstance;
 }
 
++ (SensorsAnalyticsSDK *)safeSharedInstance {
+    NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
+    return sharedInstance;
+}
+
 - (instancetype)initWithServerURL:(NSString *)serverURL
                  andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
