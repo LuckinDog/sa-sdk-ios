@@ -69,6 +69,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 + (void)startWithRemoteConfigManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
     [SARemoteConfigManager sharedInstance].managerOptions = managerOptions;
+    [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
 }
 
 + (instancetype)sharedInstance {
@@ -356,6 +357,8 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     // 判断远程配置是否立即生效
     if (remoteConfigModel.effectMode == SARemoteConfigEffectModeNow) {
         self.remoteConfigModel = remoteConfigModel;
+        BOOL isDisableSDK = self.remoteConfigModel.disableSDK;
+        self.managerOptions.triggerEffectBlock(isDisableSDK);
     }
 }
 

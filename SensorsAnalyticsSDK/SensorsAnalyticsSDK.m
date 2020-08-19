@@ -2644,25 +2644,32 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SARemoteConfigManagerOptions *managerOptions = [[SARemoteConfigManagerOptions alloc] init];
     managerOptions.configOptions = _configOptions;
     managerOptions.currentLibVersion = [self libVersion];
-    managerOptions.network = _network;
+    
+    __weak typeof(self) weakSelf = self;
     managerOptions.encryptBuilderCreateResultBlock = ^BOOL{
-        return self.encryptBuilder ? YES : NO;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        return strongSelf.encryptBuilder ? YES : NO;
     };
     managerOptions.disableDebugModeBlock = ^{
-        [self configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
     };
     managerOptions.handleSecretKeyBlock = ^(NSDictionary * _Nonnull configDict) {
-        [self handleSecretKeyWithRequestResult:configDict];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf handleSecretKeyWithRequestResult:configDict];
     };
     managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
-        [self track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeAuto];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeAuto];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
-        [self flush];
+        [strongSelf flush];
+    };
+    managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        isDisableSDK ? [strongSelf stopFlushTimer] : [strongSelf startFlushTimer];
     };
     
     [SARemoteConfigManager startWithRemoteConfigManagerOptions:managerOptions];
-    
-    [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
 }
 
 #pragma mark - SecretKey

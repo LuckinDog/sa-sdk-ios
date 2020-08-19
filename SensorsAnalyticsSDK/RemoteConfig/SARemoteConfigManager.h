@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) void (^disableDebugModeBlock)(void); // 禁用 debugMode 的回调
 @property (nonatomic, copy) void (^handleSecretKeyBlock)(NSDictionary *configDict); // 处理密钥的回调
 @property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *propertieDict); // 触发事件的回调
+@property (nonatomic, copy) void (^triggerEffectBlock)(BOOL isDisableSDK); // 触发立即生效的回调
 
 @end
 
