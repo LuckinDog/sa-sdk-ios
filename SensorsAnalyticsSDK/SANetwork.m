@@ -106,42 +106,6 @@
     return request;
 }
 
-- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
-                                                             originalVersion:(NSString *)originalVersion
-                                                               latestVersion:(NSString *)latestVersion  {
-    
-    NSURLComponents *urlComponets = nil;
-    if (remoteConfigURL) {
-        urlComponets = [NSURLComponents componentsWithURL:remoteConfigURL resolvingAgainstBaseURL:YES];
-    }
-    if (!urlComponets.host) {
-        NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
-        urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-        if (urlComponets == nil) {
-            SALogError(@"URLString is malformed, nil is returned.");
-            return nil;
-        }
-        urlComponets.query = nil;
-        urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
-    }
-
-    urlComponets.query = [self buildRemoteConfigQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
-    
-    SALogDebug(@"Request remote config with URL %@", urlComponets.URL);
-    
-    return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
-}
-
-- (NSString *)buildRemoteConfigQueryWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
-    NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionaryWithCapacity:4];
-    params[@"v"] = originalVersion;
-    params[@"nv"] = latestVersion;
-    params[@"app_id"] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-    params[@"project"] = self.project;
-    
-    return [SAURLUtils urlQueryStringWithParams:params];
-}
-
 #pragma mark - request
 
 - (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
@@ -157,38 +121,8 @@
         if (statusCode == 200) {
             SALogDebug(@"config debugMode CallBack success");
         } else {
-            SALogError(@"config debugMode CallBack Faild statusCode：%ld，url：%@", statusCode, url);
+            SALogError(@"config debugMode CallBack Faild statusCode：%ld，url：%@", (long)statusCode, url);
         }
-    }];
-    [task resume];
-    return task;
-}
-
-- (nullable NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL
-                                                              originalVersion:(NSString *)originalVersion
-                                                                latestVersion:(NSString *)latestVersion
-                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error))completion {
-    if (![self isValidServerURL]) {
-        SALogError(@"serverURL error，Please check the serverURL");
-        return nil;
-    }
-    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithRemoteConfigURL:remoteConfigURL originalVersion:originalVersion latestVersion:latestVersion];
-    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (!completion) {
-            return ;
-        }
-        NSInteger statusCode = response.statusCode;
-        BOOL success = statusCode == 200 || statusCode == 304;
-        NSDictionary<NSString *, id> *config = nil;
-        @try{
-            if (statusCode == 200 && data.length) {
-                config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-            }
-        } @catch (NSException *e) {
-            SALogError(@"%@ error: %@", self, e);
-            success = NO;
-        }
-        completion(success, config, error);
     }];
     [task resume];
     return task;
@@ -200,7 +134,7 @@
 @implementation SANetwork (ServerURL)
 
 - (NSURL *)serverURL {
-    NSURL *serverURL = [NSURL URLWithString:[SensorsAnalyticsSDK safeSharedInstance].configOptions.serverURL];
+    NSURL *serverURL = [NSURL URLWithString:[SensorsAnalyticsSDK sharedInstance].configOptions.serverURL];
     if (self.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
         return serverURL;
     }

@@ -249,13 +249,6 @@
     NSString *eventConfigVersion = @"1.3.qqq0";
     
     XCTestExpectation *expect = [self expectationWithDescription:@"请求超时timeout!"];
-    NSURLSessionTask *task = [self.network functionalManagermentConfigWithRemoteConfigURL:nil remoteConfigVersion:remoteConfigVersion eventConfigVersion:eventConfigVersion completion:^(BOOL success, NSDictionary<NSString *,id> * _Nonnull config) {
-        XCTAssertTrue(success);
-        [expect fulfill];
-    }];
-    NSURL *url = task.currentRequest.URL;
-    NSString *string = [NSString stringWithFormat:@"v=%@", remoteConfigVersion];
-    XCTAssertTrue([url.absoluteString rangeOfString:string].location != NSNotFound);
     
     [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
         XCTAssertNil(error);

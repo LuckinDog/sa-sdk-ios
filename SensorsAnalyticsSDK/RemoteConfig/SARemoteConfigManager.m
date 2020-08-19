@@ -28,6 +28,7 @@
 #import "SACommonUtility.h"
 #import "SALog.h"
 #import "SAValidator.h"
+#import "SAURLUtils.h"
 
 @implementation SARemoteConfigManagerOptions
 
@@ -52,6 +53,9 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
 @property (nonatomic, copy, readonly) NSString *latestVersion;
 @property (nonatomic, copy, readonly) NSString *originalVersion;
 @property (nonatomic, assign, readonly) BOOL isDisableDebugMode;
+@property (nonatomic, strong, readonly) NSURL *remoteConfigURL;
+@property (nonatomic, strong, readonly) NSURL *serverURL;
+@property (nonatomic, copy, readonly) NSString *project;
 
 @end
 
@@ -163,7 +167,21 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
     return [self.eventBlackList containsObject:event];
 }
 
-#pragma mark – Private Methods
+#pragma mark - Private Methods
+
+- (BOOL)isLibVersionUnchanged {
+    return [self.remoteConfigModel.localLibVersion isEqualToString:self.managerOptions.currentLibVersion];
+}
+
+- (BOOL)shouldAddVersionOnEnableEncrypt {
+    if (!self.managerOptions.configOptions.enableEncrypt) {
+        return YES;
+    }
+    
+    return self.managerOptions.encryptBuilderCreateResultBlock();
+}
+
+#pragma mark RandomTime
 
 - (void)createRandomTime {
     // 当前时间，以开机时间为准，单位：秒
@@ -192,21 +210,11 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-- (BOOL)isLibVersionUnchanged {
-    return [self.remoteConfigModel.localLibVersion isEqualToString:self.managerOptions.currentLibVersion];
-}
-
-- (BOOL)shouldAddVersionOnEnableEncrypt {
-    if (!self.managerOptions.configOptions.enableEncrypt) {
-        return YES;
-    }
-    
-    return self.managerOptions.encryptBuilderCreateResultBlock();
-}
+#pragma mark Network
 
 - (void)requestRemoteConfigWithDelay:(NSTimeInterval) delay index:(NSUInteger) index isForceUpdate:(BOOL)isForceUpdate {
     __weak typeof(self) weakSelf = self;
-    void(^completion)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = ^(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) {
+    void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = ^(BOOL success, NSDictionary<NSString *, id> *config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         @try {
             if (success) {
@@ -243,22 +251,86 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
 - (void)requestRemoteConfigWithParams:(NSDictionary *)params {
     @try {
         BOOL isForceUpdate = [params[@"isForceUpdate"] boolValue];
-        void(^completion)(BOOL success, NSDictionary<NSString *, id> *config, NSError * _Nullable error) = params[@"completion"];
+        void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = params[@"completion"];
         
         SensorsAnalyticsNetworkType networkType = [SACommonUtility currentNetworkType];
         if (networkType == SensorsAnalyticsNetworkTypeNONE) {
-            completion(NO, nil, nil);
+            completion(NO, nil);
             return;
         }
-        NSURL *url = [NSURL URLWithString:self.managerOptions.configOptions.remoteConfigURL];
         
         BOOL shouldAddVersion = !isForceUpdate && [self isLibVersionUnchanged] && [self shouldAddVersionOnEnableEncrypt];
         NSString *originalVersion = shouldAddVersion ? self.originalVersion : nil;
         NSString *latestVersion = shouldAddVersion ? self.latestVersion : nil;
-        [self.managerOptions.network functionalManagermentConfigWithRemoteConfigURL:url originalVersion:originalVersion latestVersion:latestVersion completion:completion];
+        [self functionalManagermentConfigWithOriginalVersion:originalVersion latestVersion:latestVersion completion:completion];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
+}
+
+- (nullable NSURLSessionTask *)functionalManagermentConfigWithOriginalVersion:(NSString *)originalVersion
+                                                                latestVersion:(NSString *)latestVersion
+                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
+    
+    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithOriginalVersion:originalVersion latestVersion:latestVersion];
+    if (!request) {
+        return nil;
+    }
+    
+    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (!completion) {
+            return ;
+        }
+        NSInteger statusCode = response.statusCode;
+        BOOL success = statusCode == 200 || statusCode == 304;
+        NSDictionary<NSString *, id> *config = nil;
+        @try{
+            if (statusCode == 200 && data.length) {
+                config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+            }
+        } @catch (NSException *e) {
+            SALogError(@"%@ error: %@", self, e);
+            success = NO;
+        }
+        completion(success, config);
+    }];
+    [task resume];
+    return task;
+}
+
+- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithOriginalVersion:(NSString *)originalVersion
+                                                               latestVersion:(NSString *)latestVersion  {
+    
+    NSURLComponents *urlComponets = nil;
+    if (self.remoteConfigURL) {
+        urlComponets = [NSURLComponents componentsWithURL:self.remoteConfigURL resolvingAgainstBaseURL:YES];
+    }
+    if (!urlComponets.host) {
+        NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
+        urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+        if (urlComponets == nil) {
+            SALogError(@"URLString is malformed, nil is returned.");
+            return nil;
+        }
+        urlComponets.query = nil;
+        urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+    }
+
+    urlComponets.query = [self buildRemoteConfigQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
+    
+    SALogDebug(@"Request remote config with URL %@", urlComponets.URL);
+    
+    return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
+}
+
+- (NSString *)buildRemoteConfigQueryWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
+    NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionaryWithCapacity:4];
+    params[@"v"] = originalVersion;
+    params[@"nv"] = latestVersion;
+    params[@"app_id"] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+    params[@"project"] = self.project;
+    
+    return [SAURLUtils urlQueryStringWithParams:params];
 }
 
 - (void)handleRemoteConfigWithRequestResult:(NSDictionary *)configDict {
@@ -287,7 +359,7 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
     }
 }
 
-#pragma mark – Getters and Setters
+#pragma mark - Getters and Setters
 
 - (BOOL)isDisableSDK {
     return self.remoteConfigModel.disableSDK;
@@ -311,6 +383,18 @@ static NSString * const kRequestRemoteConfigRandomTime = @"SARequestRemoteConfig
 
 - (BOOL)isDisableDebugMode {
     return self.remoteConfigModel.disableDebugMode;
+}
+
+- (NSURL *)remoteConfigURL {
+    return [NSURL URLWithString:self.managerOptions.configOptions.remoteConfigURL];
+}
+
+- (NSURL *)serverURL {
+    return [NSURL URLWithString:self.managerOptions.configOptions.serverURL];
+}
+
+- (NSString *)project {
+    return [SAURLUtils queryItemsWithURL:self.serverURL][@"project"] ?: @"default";
 }
 
 @end
