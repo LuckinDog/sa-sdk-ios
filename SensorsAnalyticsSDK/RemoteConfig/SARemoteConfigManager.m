@@ -401,7 +401,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (NSString *)project {
-    return [SAURLUtils queryItemsWithURL:self.serverURL][@"project"] ?: @"default";
+    return [SAURLUtils queryItemsWithURL:self.serverURL][@"project"];
 }
 
 @end
