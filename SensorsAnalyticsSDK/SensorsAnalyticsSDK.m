@@ -82,7 +82,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
 
-#define VERSION @"2.1.3"
+#define VERSION @"2.1.4"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -267,6 +267,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return nil;
     }
+    return sharedInstance;
+}
+
++ (SensorsAnalyticsSDK *)sdkInstance {
+    NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
     return sharedInstance;
 }
 
