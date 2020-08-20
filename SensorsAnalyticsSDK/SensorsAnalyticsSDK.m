@@ -82,7 +82,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
 
-#define VERSION @"2.1.3"
+#define VERSION @"2.1.4"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
