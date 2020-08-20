@@ -335,10 +335,10 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (void)handleRemoteConfigWithRequestResult:(NSDictionary *)configDict {
-    // 用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
+    // 1. 初始化远程配置 Model（不会使用加密相关内容）
     SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
     
-    // 触发 $AppRemoteConfigChanged 事件
+    // 2. 触发 $AppRemoteConfigChanged 事件
     NSString *eventConfigStr = @"";
     NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:[remoteConfigModel toDictionary]];
     if (eventConfigData) {
@@ -346,19 +346,23 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     }
     self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
     
-    // 手动添加当前 SDK 版本号
+    // 3. 手动添加当前 SDK 版本号
     remoteConfigModel.localLibVersion = self.managerOptions.currentLibVersion;
     
-    // 存储最新的远程配置
+    // 4. 存储最新的远程配置
     NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
     [[NSUserDefaults standardUserDefaults] setObject:localStoreConfig forKey:kSDKConfigKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    // 判断远程配置是否立即生效
+    // 5. 判断远程配置是否立即生效
     if (remoteConfigModel.effectMode == SARemoteConfigEffectModeNow) {
         self.remoteConfigModel = remoteConfigModel;
-        BOOL isDisableSDK = self.remoteConfigModel.disableSDK;
-        self.managerOptions.triggerEffectBlock(isDisableSDK);
+        
+        if (self.isDisableDebugMode) {
+            self.managerOptions.disableDebugModeBlock();
+        }
+                
+        self.managerOptions.triggerEffectBlock(remoteConfigModel.disableSDK);
     }
 }
 
