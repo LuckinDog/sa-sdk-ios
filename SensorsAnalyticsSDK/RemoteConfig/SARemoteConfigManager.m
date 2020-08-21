@@ -223,11 +223,13 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
             if (success) {
                 if(config != nil) {
                     // 远程配置
-                    [strongSelf handleRemoteConfigWithRequestResult:config];
+                    NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
+                    [strongSelf handleRemoteConfig:remoteConfig];
                     
                     // 加密
                     if (strongSelf.managerOptions.configOptions.enableEncrypt) {
-                        strongSelf.managerOptions.handleSecretKeyBlock(config);
+                        NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
+                        strongSelf.managerOptions.handleEncryptBlock(encryptConfig);
                     }
                 }
             } else {
@@ -249,6 +251,20 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
+}
+
+- (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config {
+    NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionaryWithDictionary:config[@"configs"]];
+    [configs removeObjectForKey:@"key"];
+    
+    NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:config];
+    remoteConfig[@"configs"] = configs;
+    
+    return remoteConfig;
+}
+
+- (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
+    return [config valueForKeyPath:@"configs.key"];
 }
 
 - (void)requestRemoteConfigWithParams:(NSDictionary *)params {
@@ -334,35 +350,37 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     return [SAURLUtils urlQueryStringWithParams:params];
 }
 
-- (void)handleRemoteConfigWithRequestResult:(NSDictionary *)configDict {
-    // 1. 初始化远程配置 Model（不会使用加密相关内容）
-    SARemoteConfigModel *remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDict];
-    
-    // 2. 触发 $AppRemoteConfigChanged 事件
+- (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
+    [self trackAppRemoteConfigChanged:remoteConfig];
+    [self saveRemoteConfig:remoteConfig];
+    [self triggerRemoteConfigEffect:remoteConfig];
+}
+
+- (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
     NSString *eventConfigStr = @"";
-    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:[remoteConfigModel toDictionary]];
+    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:remoteConfig];
     if (eventConfigData) {
         eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }
     self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
+}
+
+- (void)saveRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
+    // 手动添加当前 SDK 版本号
+    NSMutableDictionary *localRemoteConfig = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+    localRemoteConfig[@"localLibVersion"] = self.managerOptions.currentLibVersion;
     
-    // 3. 手动添加当前 SDK 版本号
-    remoteConfigModel.localLibVersion = self.managerOptions.currentLibVersion;
-    
-    // 4. 存储最新的远程配置
-    NSMutableDictionary *localStoreConfig = [NSMutableDictionary dictionaryWithDictionary:[remoteConfigModel toDictionary]];
-    [[NSUserDefaults standardUserDefaults] setObject:localStoreConfig forKey:kSDKConfigKey];
+    [[NSUserDefaults standardUserDefaults] setObject:localRemoteConfig forKey:kSDKConfigKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
-    // 5. 判断远程配置是否立即生效
-    if (remoteConfigModel.effectMode == SARemoteConfigEffectModeNow) {
-        self.remoteConfigModel = remoteConfigModel;
+}
+
+- (void)triggerRemoteConfigEffect:(NSDictionary<NSString *, id> *)remoteConfig {
+    NSNumber *effectMode = [remoteConfig valueForKeyPath:@"configs.effect_mode"];
+    if ([effectMode integerValue] == SARemoteConfigEffectModeNow) {
+        [self configLocalRemoteConfigModel];
         
-        if (self.isDisableDebugMode) {
-            self.managerOptions.disableDebugModeBlock();
-        }
-                
-        self.managerOptions.triggerEffectBlock(remoteConfigModel.disableSDK);
+        BOOL isDisableSDK = self.isDisableSDK;
+        self.managerOptions.triggerEffectBlock(isDisableSDK);
     }
 }
 

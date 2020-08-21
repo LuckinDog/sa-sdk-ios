@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SANetwork *network; // 网络相关类
 @property (nonatomic, copy) BOOL (^encryptBuilderCreateResultBlock)(void); // 加密构造器创建结果的回调
 @property (nonatomic, copy) void (^disableDebugModeBlock)(void); // 禁用 debugMode 的回调
-@property (nonatomic, copy) void (^handleSecretKeyBlock)(NSDictionary *configDict); // 处理密钥的回调
+@property (nonatomic, copy) void (^handleEncryptBlock)(NSDictionary *encryptConfig); // 处理加密的回调
 @property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *propertieDict); // 触发事件的回调
 @property (nonatomic, copy) void (^triggerEffectBlock)(BOOL isDisableSDK); // 触发立即生效的回调
 

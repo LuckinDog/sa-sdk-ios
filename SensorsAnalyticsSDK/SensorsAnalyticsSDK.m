@@ -2659,9 +2659,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
     };
-    managerOptions.handleSecretKeyBlock = ^(NSDictionary * _Nonnull configDict) {
+    managerOptions.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf handleSecretKeyWithRequestResult:configDict];
+        [strongSelf handleEncryptWithConfig:encryptConfig];
     };
     managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -2679,12 +2679,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 #pragma mark - SecretKey
 
-- (void)handleSecretKeyWithRequestResult:(NSDictionary *)configDict {
-    NSDictionary *publicKeyDic = [configDict valueForKeyPath:@"configs.key"];
-    if (publicKeyDic) {
+- (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
+    if (encryptConfig) {
         SASecretKey *secretKey = [[SASecretKey alloc] init];
-        secretKey.version = [publicKeyDic[@"pkv"] integerValue];
-        secretKey.key = publicKeyDic[@"public_key"];
+        secretKey.version = [encryptConfig[@"pkv"] integerValue];
+        secretKey.key = encryptConfig[@"public_key"];
                                     
         // 存储公钥
         [self.secretKeyHandler saveSecretKey:secretKey];
