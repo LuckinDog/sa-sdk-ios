@@ -102,13 +102,13 @@
 }
 
 - (void)setMinRequestHourInterval:(NSInteger)minRequestHourInterval {
-    if ((minRequestHourInterval > 0) && (minRequestHourInterval <= 148)) {
+    if ((minRequestHourInterval > 0) && (minRequestHourInterval <= 168)) {
         _minRequestHourInterval = minRequestHourInterval;
     }
 }
 
 - (void)setMaxRequestHourInterval:(NSInteger)maxRequestHourInterval {
-    if ((maxRequestHourInterval > 0) && (maxRequestHourInterval <= 148)) {
+    if ((maxRequestHourInterval > 0) && (maxRequestHourInterval <= 168)) {
         _maxRequestHourInterval = maxRequestHourInterval;
     }
 }
