@@ -80,15 +80,16 @@
     }
 
     NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)from;
+    // 判断时间间隔
+    if (![SAAutoTrackUtils isValidAppClickForObject:object]) {
+        return;
+    }
+    
     NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:nil];
     if (!properties) {
         return;
     }
 
-    // 判断时间间隔
-    if (![SAAutoTrackUtils isValidAppClickForObject:object]) {
-        return;
-    }
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
