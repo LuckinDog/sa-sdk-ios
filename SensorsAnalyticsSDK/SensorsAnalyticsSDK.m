@@ -2557,15 +2557,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self enableLoggers:enabelLog];
 }
 
-- (void)enableLog {
-    BOOL printLog = NO;
-    
-    if ([self debugMode] != SensorsAnalyticsDebugOff) {
-        printLog = YES;
-    }
-    [self enableLog:printLog];
-}
-
 - (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
         self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
