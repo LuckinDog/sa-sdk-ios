@@ -1230,12 +1230,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     NSString *libMethod = isAuto ? SALibMethodAuto : SALibMethodCode;
     NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:properties];
-    //第三方插件的全埋点自动采集事件 lib_method 修改为 autoTrack，并移除标记位属性
-    NSNumber *tag = eventProps[@"sensorsdata_auto_track_lib_method"];
-    if ([tag isKindOfClass:NSNumber.class] && [tag boolValue]) {
-        libMethod = SALibMethodAuto;
-        [eventProps removeObjectForKey:@"sensorsdata_auto_track_lib_method"];
-    }
     eventProps[SAEventPresetPropertyLibMethod] = libMethod;
     [self track:event properties:eventProps type:SAEventTypeTrack libMethod:libMethod];
 }
@@ -2657,7 +2651,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     NSNumber *autoTrackMode = [configDict valueForKeyPath:@"configs.autoTrackMode"];
                     //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
                     if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
-                        [weakself trackAutoEvent:@"DisableSensorsDataSDK" properties:@{}];
+                        [weakself trackAutoEvent:@"DisableSensorsDataSDK" properties:@{} isAuto:NO];
                     }
                     //如果有字段缺失，需要设置为默认值
                     if (disableSDK == nil) {
