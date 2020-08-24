@@ -131,22 +131,25 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 }
 
 - (BOOL)deleteRecords:(NSArray<NSString *> *)recordIDs {
-    // 当缓存中的不存在数据时，说明数据库是正确打开，其他情况不会删除数据
-    if (self.recordCaches.count == 0) {
-        return [self.database deleteRecords:recordIDs];
+    // 先尝试在数据库中删除
+    if ([self.database deleteRecords:recordIDs]) {
+        return YES;
     }
-    // 删除缓存数据
+    
+    // 数据库中删除失败，尝试从缓存中删除数据
     // 如果加密失败，会导致 recordIDs 可能不是前 recordIDs.count 条数据，所以此处必须使用两个循环
     // 由于加密失败的可能性较小，所以第二个循环次数不会很多
+    BOOL success = NO;
     for (NSString *recordID in recordIDs) {
         for (NSInteger index = 0; index < self.recordCaches.count; index++) {
             if ([recordID isEqualToString:self.recordCaches[index].recordID]) {
                 [self.recordCaches removeObjectAtIndex:index];
+                success = YES;
                 break;
             }
         }
     }
-    return YES;
+    return success;
 }
 
 - (BOOL)deleteAllRecords {
