@@ -119,7 +119,7 @@
     request.HTTPBody = HTTPBody;
     // 普通事件请求，使用标准 UserAgent
     [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-    if ([SensorsAnalyticsSDK.sharedInstance debugMode] == SensorsAnalyticsDebugOnly) {
+    if ([SensorsAnalyticsSDK.sdkInstance debugMode] == SensorsAnalyticsDebugOnly) {
         [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
     }
 
@@ -153,7 +153,7 @@
                 messageDesc = @"\n【invalid message】\n";
                 if (statusCode >= 300 && self.isDebugMode) {
                     NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-                    [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
+                    [[SensorsAnalyticsSDK sdkInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
             }
 
