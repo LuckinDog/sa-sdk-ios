@@ -131,17 +131,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, readonly, copy) NSString *loginId;
 
 /**
- * @proeprty
- *
- * @abstract
- * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
- *
- * @discussion
- * 默认值为 YES
- */
-@property (atomic) BOOL flushBeforeEnterBackground;
-
-/**
  @abstract
  用于评估是否为服务器信任的安全链接。
 
@@ -932,16 +921,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)clearKeychainData;
 
+@end
 
-#pragma mark - SecretKey
+#pragma mark - Deeplink
+@interface SensorsAnalyticsSDK (Deeplink)
+
 /**
- 加载秘钥
- @param secretKey 秘钥数据
- */
-- (void)loadSecretKey:(SASecretKey *)secretKey;
-
-/// 保存秘钥
-@property (nonatomic, copy) void (^saveSecretKeyCompletion)(SASecretKey * _Nullable secretKey);
+DeepLink 回调函数
+@param callback 请求成功后的回调函数
+  params：创建渠道链接时填写的 App 内参数
+  succes：deeplink 唤起结果
+  appAwakePassedTime：获取渠道信息所用时间
+*/
+- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback;
 
 @end
 
@@ -1167,6 +1159,17 @@ NS_ASSUME_NONNULL_BEGIN
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */
 @property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
+
+/**
+ * @proeprty
+ *
+ * @abstract
+ * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
+ *
+ * @discussion
+ * 默认值为 YES
+ */
+@property (atomic) BOOL flushBeforeEnterBackground __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBeforeEnterBackground")));
 
 /**
  * @abstract

@@ -1,9 +1,9 @@
 //
-// SADataEncryptBuilder.h
+// SAEncryptSecretKeyHandler.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2019/7/23.
-// Copyright © 2019-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by wenquan on 2020/6/18.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,21 +18,18 @@
 // limitations under the License.
 //
 
-
 #import <Foundation/Foundation.h>
-#import "SAConfigOptions.h"
+
+@class SASecretKey;
+@class SAConfigOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SADataEncryptBuilder : NSObject
+@interface SAEncryptSecretKeyHandler : NSObject
 
-/**
- 指定初始化方法，设置 RSA 公钥
-
- @param secretKey 公钥配置
- @return 配置对象
- */
-- (instancetype)initWithRSAPublicKey:(nonnull SASecretKey *)secretKey NS_DESIGNATED_INITIALIZER;
+/// 根据 ConfigOptions 初始化密钥管理类
+/// @param configOptions SDK 初始化的 configOptions
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions NS_DESIGNATED_INITIALIZER;
 
 /// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
@@ -40,11 +37,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// 禁用 new 初始化
 + (instancetype)new NS_UNAVAILABLE;
 
-/// 设置公钥
-- (void)updateRSAPublicSecretKey:(nonnull SASecretKey *)secretKey;
+/// 保存公钥
+/// @param secretKey 需要保存的公钥
+- (void)saveSecretKey:(SASecretKey *)secretKey;
 
-/// 加密数据
-- (nullable NSDictionary *)encryptionJSONObject:(id)obj;
+/// 获取公钥
+- (SASecretKey *)loadSecretKey;
+
+/// 校验加密公钥
+/// @param url 打开本 App 的回调 url
+- (void)checkSecretKeyURL:(NSURL *)url;
 
 @end
 

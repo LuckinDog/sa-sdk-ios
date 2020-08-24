@@ -25,6 +25,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
+#import "SAAutoTrackUtils.h"
 
 @implementation SAVisualizedWebPageInfo
 
@@ -33,7 +34,6 @@
 
 @interface SAVisualizedObjectSerializerManger()
 
-@property (nonatomic, strong) SAJSONUtil *jsonUtil;
 /// 是否包含 webview
 @property (nonatomic, assign, readwrite) BOOL isContainWebView;
 
@@ -84,7 +84,6 @@
     _controllerCountMap = [NSMapTable weakToStrongObjectsMapTable];
     _alertInfos = [NSMutableArray array];
     _webPageInfoCache = [NSMutableDictionary dictionary];
-    _jsonUtil = [[SAJSONUtil alloc] init];
     [self resetObjectSerializer];
 }
 
@@ -113,7 +112,7 @@
       */
     NSData *jsonData = nil;
     @try {
-        jsonData = [self.jsonUtil JSONSerializeObject:obj];
+        jsonData = [SAJSONUtil JSONSerializeObject:obj];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -239,7 +238,10 @@
             mostShowViewController = controller;
         }
     }
-    return mostShowViewController;
+    if (mostShowViewController) {
+        return mostShowViewController;
+    }
+    return [SAAutoTrackUtils currentViewController];
 }
 
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {

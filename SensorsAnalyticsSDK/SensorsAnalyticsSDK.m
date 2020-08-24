@@ -32,7 +32,7 @@
 #import <UIKit/UIScreen.h>
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "MessageQueueBySqlite.h"
+#import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIApplication+AutoTrack.h"
@@ -68,6 +68,10 @@
 #import "SALinkHandler.h"
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
+#import "SAEventStore.h"
+#import "SAHTTPSession.h"
+#import "SANetwork.h"
+#import "SAEventTracker.h"
 #import "SAScriptMessageHandler.h"
 #import "WKWebView+SABridge.h"
 #import "SAIdentifier.h"
@@ -75,8 +79,10 @@
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
+#import "SAVisualizedObjectSerializerManger.h"
+#import "SAEncryptSecretKeyHandler.h"
 
-#define VERSION @"2.0.12-pre"
+#define VERSION @"2.1.3"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -164,9 +170,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SANetwork *network;
 
+@property (nonatomic, strong) SAEventTracker *eventTracker;
+
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
-@property (nonatomic, strong) SAReadWriteLock *remoteConfigLock;
+@property (nonatomic, strong) SAReadWriteLock *readWriteLock;
 @property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
 
 @property (atomic, strong) NSDictionary *superProperties;
@@ -174,8 +182,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSRegularExpression *propertiesRegex;
 @property (nonatomic, copy) NSSet *presetEventNames;
-
-@property (atomic, strong) MessageQueueBySqlite *messageQueue;
 
 @property (nonatomic, strong) NSTimer *timer;
 
@@ -229,6 +235,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAConsoleLogger *consoleLogger;
 
+@property (nonatomic, strong) SAEncryptSecretKeyHandler *secretKeyHandler;
+
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -245,10 +253,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 @synthesize remoteConfig = _remoteConfig;
+@synthesize encryptBuilder = _encryptBuilder;
 
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
+    if (configOptions.enableEncrypt) {
+        NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) ||
+                 (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
+    }
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
     });
@@ -293,9 +306,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
-            
-            _network = [[SANetwork alloc] initWithServerURL:[NSURL URLWithString:_configOptions.serverURL]];
-            
+
+            NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
+            _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
+
+            NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
+            _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+
+            _network = [[SANetwork alloc] init];
+            _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
+
             _appRelaunched = NO;
             _showDebugAlertView = YES;
             _debugAlertViewHasShownNumber = 0;
@@ -304,21 +325,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
-            _flushBeforeEnterBackground = YES;
             
-            NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
-            _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
-            dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
-            
-            NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
-            _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
-            
-            NSString *remoteConfigLockLabel = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
-            _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:remoteConfigLockLabel];
+            NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
+            _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
             
             NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
             _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
-                        
+            
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
             
@@ -340,11 +353,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-
-            _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
-            if (self.messageQueue == nil) {
-                SALogError(@"SqliteException: init Message Queue in Sqlite fail");
-            }
+            // 初始化密钥处理器
+            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -388,6 +398,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // WKWebView 打通
             if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
                 [self swizzleWebViewMethod];
+            }
+            
+            // 加密
+            if (_configOptions.enableEncrypt) {
+                [self updateEncryptBuilder];
             }
         }
         
@@ -490,9 +505,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
-    dispatch_async(self.serialQueue, ^{
-        self.network.serverURL = [NSURL URLWithString:serverUrl];
-    });
+    self.configOptions.serverURL = serverUrl;
 }
 
 - (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode showDebugModeWarning:(BOOL)isShow {
@@ -746,6 +759,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
+    [_linkHandler acquireColdLaunchDeepLinkInfo];
+
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -833,65 +848,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     _showDebugAlertView = show;
 }
 
-- (BOOL)flushByType:(NSString *)type flushSize:(int)flushSize {
-    // 1、获取前 n 条数据
-    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:@"POST"];
-    if (recordArray == nil) {
-        SALogError(@"Failed to get records from SQLite.");
-        return NO;
-    }
-
-    NSInteger recordCount = recordArray.count;
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    recordArray = [self.encryptBuilder buildFlushEncryptionDataWithRecords:recordArray];
-#endif
-    
-    // 2、上传获取到的记录。如果数据上传完成，结束递归
-    if (recordArray.count == 0 || ![self.network flushEvents:recordArray]) {
-        return NO;
-    }
-    // 3、删除已上传的记录。删除失败，结束递归
-    if (![self.messageQueue removeFirstRecords:recordCount withType:@"POST"]) {
-        SALogError(@"Failed to remove records from SQLite.");
-        return NO;
-    }
-    // 4、继续上传剩余数据
-    [self flushByType:type flushSize:flushSize];
-    return YES;
-}
-
-- (void)_flush:(BOOL) vacuumAfterFlushing {
-    if (![self.network isValidServerURL]) {
-        return;
-    }
-    // 判断当前网络类型是否符合同步数据的网络策略
-    NSString *networkType = [SACommonUtility currentNetworkStatus];
-    if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
-        return;
-    }
-
-    BOOL uploadedEvents = [self flushByType:@"Post" flushSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1)];
-
-    if (vacuumAfterFlushing) {
-        if (![self.messageQueue vacuum]) {
-            SALogError(@"failed to VACUUM SQLite.");
-        }
-    }
-    if (uploadedEvents) {
-        SALogDebug(@"events flushed.");
-    }
-}
-
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
-        [self _flush:NO];
+        [self.eventTracker flushAllEventRecords];
     });
 }
 
 - (void)deleteAll {
-    // 新增线程保护
     dispatch_async(self.serialQueue, ^{
-        [self.messageQueue deleteAll];
+        [self.eventTracker.eventStore deleteAllRecords];
     });
 }
 
@@ -930,8 +895,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 return NO;
             }
+        } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
+            // 校验加密公钥
+            [self.secretKeyHandler checkSecretKeyURL:url];
+            return YES;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
+            return YES;
         }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
@@ -1011,9 +981,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         // 开启 WKWebView 的 H5 打通功能
         if (self.configOptions.enableJavaScriptBridge) {
-            if ([self.network.serverURL isKindOfClass:[NSURL class]] && [self.network.serverURL absoluteString]) {
+            if (self.configOptions.serverURL) {
                 [javaScriptSource appendString:@"window.SensorsData_iOS_JS_Bridge = {};"];
-                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", [self.network.serverURL absoluteString]];
+                [javaScriptSource appendFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", self.configOptions.serverURL];
             } else {
                 SALogError(@"%@ get network serverURL is failed!", self);
             }
@@ -1144,7 +1114,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     SALogDebug(@"\n【track event】:\n%@", itemProperties);
 
-    [self enqueueWithType:@"Post" andEvent:itemProperties];
+    [self.eventTracker trackEvent:itemProperties];
 }
 #pragma mark - track event
 
@@ -1183,10 +1153,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return nil;
     }
     return event;
-}
-
-- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    [self.messageQueue addObject:e withType:@"Post"];
 }
 
 - (BOOL)isValidNameForTrackEvent:(NSString *)eventName {
@@ -1468,17 +1434,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:trackEventDic];
         SALogDebug(@"\n【track event】:\n%@", trackEventDic);
 
-        [self enqueueWithType:type andEvent:trackEventDic];
-
-        if (self->_debugMode != SensorsAnalyticsDebugOff) {
-            // 在DEBUG模式下，直接发送事件
-            [self flush];
-        } else {
-            // 否则，在满足发送条件时，发送事件
-            if ([type isEqualToString:SAEventTypeSignup] || [[self messageQueue] count] >= self.configOptions.flushBulkSize) {
-                [self flush];
-            }
-        }
+        [self.eventTracker trackEvent:trackEventDic isSignUp:[type isEqualToString:@"track_signup"]];
     });
 }
 
@@ -2109,19 +2065,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackViewScreen:(UIViewController *)controller {
+    if (!controller) {
+        return;
+    }
     //过滤用户设置的不被AutoTrack的Controllers
     if (![self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
 
     if (self.launchedPassively) {
-        if (controller) {
-            if (!self.launchedPassivelyControllers) {
-                self.launchedPassivelyControllers = [NSMutableArray array];
-            }
-            [self.launchedPassivelyControllers addObject:controller];
+        if (!self.launchedPassivelyControllers) {
+            self.launchedPassivelyControllers = [NSMutableArray array];
         }
+        [self.launchedPassivelyControllers addObject:controller];
         return;
+    }
+
+    // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
+    if (self.configOptions.enableVisualizedAutoTrack) {
+        [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
     }
 
     [self trackViewScreen:controller properties:nil autoTrack:YES];
@@ -2540,21 +2502,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     }
 
-    if (self.flushBeforeEnterBackground) {
-        dispatch_async(self.serialQueue, ^{
-            [self _flush:YES];
-            endBackgroundTask();
-        });
-    } else {
-        dispatch_async(self.serialQueue, ^{
-            endBackgroundTask();
-        });
-    }
+    dispatch_async(self.serialQueue, ^{
+        [self.eventTracker flushAllEventRecords];
+        endBackgroundTask();
+    });
 }
 - (void)applicationWillTerminateNotification:(NSNotification *)notification {
     SALogDebug(@"applicationWillTerminateNotification");
-    dispatch_sync(self.serialQueue, ^{
-    });
+    dispatch_sync(self.serialQueue, ^{});
 }
 
 #pragma mark - SensorsData  Analytics
@@ -2629,7 +2584,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     printLog = YES;
 #endif
     
-    if ( [self debugMode] != SensorsAnalyticsDebugOff) {
+    if ([self debugMode] != SensorsAnalyticsDebugOff) {
         printLog = YES;
     }
     [self enableLog:printLog];
@@ -2646,28 +2601,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-- (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
-    [self.remoteConfigLock writeWithBlock:^{
-        self->_remoteConfig = remoteConfig;
-    }];
-}
-
-- (id)remoteConfig {
-    return [self.remoteConfigLock readWithBlock:^id _Nonnull{
-        return self->_remoteConfig;
-    }];
-}
-
 - (void)shouldRequestRemoteConfig {
-
-#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
-    // 如果开启加密，并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
-    if (!self.encryptBuilder) {
+    // 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），需要及时请求一次远程配置，获取公钥。
+    if (self.configOptions.enableEncrypt && !self.encryptBuilder) {
         [self requestFunctionalManagermentConfig];
         return;
     }
-#endif
-
+    
      //判断是否符合分散 remoteconfig 请求条件
     if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval < self.configOptions.minRequestHourInterval) {
         [self requestFunctionalManagermentConfig];
@@ -2680,22 +2620,19 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     double startDeviceTime = [[requestTimeConfig objectForKey:@"startDeviceTime"] doubleValue];
     //当前时间，以开机时间为准，单位：秒
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
-
-    dispatch_block_t createRandomTimeBlock = ^() {
-        //转换成 秒 再取随机时间
-        NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
-        NSInteger randomDurationTime = arc4random() % durationSecond;
-        double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
-
-        NSDictionary *createRequestTimeConfig = @{@"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
-        [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
-    };
-
     if (currentTime >= startDeviceTime && currentTime < randomTime) {
         return;
     }
+    
     [self requestFunctionalManagermentConfig];
-    createRandomTimeBlock();
+    
+    //转换成 秒 再取随机时间
+    NSInteger durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
+    NSInteger randomDurationTime = arc4random() % durationSecond;
+    double createRandomTime = currentTime + (self.configOptions.minRequestHourInterval * 60 * 60) + randomDurationTime;
+
+    NSDictionary *createRequestTimeConfig = @{@"randomTime": @(createRandomTime), @"startDeviceTime": @(currentTime) };
+    [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:SA_REQUEST_REMOTECONFIG_TIME];
 }
 
 - (void)requestFunctionalManagermentConfig {
@@ -2739,15 +2676,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                         configToBeSet =  [NSMutableDictionary dictionaryWithDictionary:@{@"configs": @{@"disableSDK": disableSDK, @"disableDebugMode": disableDebugMode, @"autoTrackMode": autoTrackMode}}];
                     }
 
-                    NSDictionary *publicKeyDic = [configDict valueForKeyPath:@"configs.key"];
-                    if (publicKeyDic) {
-                        SASecretKey *secreKey = [[SASecretKey alloc] init];
-                        secreKey.version = [publicKeyDic[@"pkv"] integerValue];
-                        secreKey.key = publicKeyDic[@"public_key"];
-
-                        [self loadSecretKey:secreKey];
-                        if (self.saveSecretKeyCompletion) {
-                            self.saveSecretKeyCompletion(secreKey);
+                    if (self.configOptions.enableEncrypt) {
+                        NSDictionary *publicKeyDic = [configDict valueForKeyPath:@"configs.key"];
+                        if (publicKeyDic) {
+                            SASecretKey *secretKey = [[SASecretKey alloc] init];
+                            secretKey.version = [publicKeyDic[@"pkv"] integerValue];
+                            secretKey.key = publicKeyDic[@"public_key"];
+                            
+                            // 存储公钥
+                            [self.secretKeyHandler saveSecretKey:secretKey];
+                            
+                            // 更新加密构造器
+                            [self updateEncryptBuilder];
                         }
                     }
 
@@ -2784,7 +2724,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             return;
         }
         NSURL *url = [NSURL URLWithString:self.configOptions.remoteConfigURL];
-        BOOL shouldAddVersion = [self.remoteConfig.localLibVersion isEqualToString:self.libVersion] && self.encryptBuilder;
+        BOOL shouldAddVersion = [self.remoteConfig.localLibVersion isEqualToString:self.libVersion];
+        if (self.configOptions.enableEncrypt) {
+            shouldAddVersion = shouldAddVersion && self.encryptBuilder;
+        }
         NSString *configVersion = shouldAddVersion ? self.remoteConfig.v : nil;
         [self.network functionalManagermentConfigWithRemoteConfigURL:url version:configVersion completion:completion];
     } @catch (NSException *e) {
@@ -2871,20 +2814,51 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 #pragma mark - SecretKey
-- (void)loadSecretKey:(SASecretKey *)secretKey {
+- (void)updateEncryptBuilder {
+    // 获取公钥
+    SASecretKey *secretKey = [self.secretKeyHandler loadSecretKey];
     if (secretKey.key.length > 0) {
-        dispatch_async(self.serialQueue, ^{
-            if (self.encryptBuilder) {
-                [self.encryptBuilder updateRSAPublicSecretKey:secretKey];
-            } else {
-                self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
-            }
-        });
+        self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
     }
+}
+
+#pragma mark – Getters and Setters
+
+- (void)setRemoteConfig:(SASDKRemoteConfig *)remoteConfig {
+    [self.readWriteLock writeWithBlock:^{
+        self->_remoteConfig = remoteConfig;
+    }];
+}
+
+- (id)remoteConfig {
+    return [self.readWriteLock readWithBlock:^id _Nonnull{
+        return self->_remoteConfig;
+    }];
+}
+
+- (void)setEncryptBuilder:(SADataEncryptBuilder *)encryptBuilder {
+    [self.readWriteLock writeWithBlock:^{
+        self->_encryptBuilder = encryptBuilder;
+    }];
+}
+
+- (SADataEncryptBuilder *)encryptBuilder {
+    return [self.readWriteLock readWithBlock:^id _Nonnull{
+        return self->_encryptBuilder;
+    }];
 }
 
 @end
 
+
+#pragma mark - Deeplink
+@implementation SensorsAnalyticsSDK (Deeplink)
+
+- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback {
+    _linkHandler.linkHandlerCallback = callback;
+}
+
+@end
 
 #pragma mark - JSCall
 
@@ -2958,7 +2932,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
     @try {
         SALogDebug(@"showUpWebView");
-        SAJSONUtil *_jsonUtil = [[SAJSONUtil alloc] init];
         NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         if (bridgeCallbackInfo) {
@@ -2967,7 +2940,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (propertyDict) {
             [properties addEntriesFromDictionary:propertyDict];
         }
-        NSData *jsonData = [_jsonUtil JSONSerializeObject:properties];
+        NSData *jsonData = [SAJSONUtil JSONSerializeObject:properties];
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
@@ -3190,11 +3163,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
                     enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
-                    [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                    [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
                     SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
                 }
             } else {
-                [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                [self.eventTracker trackEvent:enqueueEvent];
                 SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
             }
         } @catch (NSException *exception) {
@@ -3331,6 +3304,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //加上最小值保护，50
         NSInteger newBulkSize = (NSInteger)bulkSize;
         self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
+    }
+}
+
+- (BOOL)flushBeforeEnterBackground {
+    @synchronized(self) {
+        return self.configOptions.flushBeforeEnterBackground;
+    }
+}
+
+- (void)setFlushBeforeEnterBackground:(BOOL)flushBeforeEnterBackground {
+    @synchronized(self) {
+        self.configOptions.flushBeforeEnterBackground = flushBeforeEnterBackground;
     }
 }
 

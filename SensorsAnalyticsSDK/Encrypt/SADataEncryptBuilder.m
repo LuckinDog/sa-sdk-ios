@@ -27,10 +27,11 @@
 #import "SAEncryptUtils.h"
 #import "SAGzipUtility.h"
 #import "SAJSONUtil.h"
+#import "SALog.h"
+#import "SAValidator.h"
 
 @interface SADataEncryptBuilder()
 
-@property(nonatomic,strong) SAJSONUtil *jsonUtil;
 /// RSA 公钥配置
 @property(nonatomic, strong) SASecretKey *rsaSecretKey;
 
@@ -47,7 +48,6 @@
 - (instancetype)initWithRSAPublicKey:(SASecretKey *)secretKey {
     self = [super init];
     if (self) {
-        _jsonUtil = [[SAJSONUtil alloc] init];
         [self updateRSAPublicSecretKey:secretKey];
     }
     return self;
@@ -81,10 +81,11 @@
 
 - (nullable NSDictionary *)encryptionJSONObject:(id)obj {
     if (!self.rsaSecretKey || !self.rsaEncryptAESKey) {
+        SALogDebug(@"Enable encryption but the secret key is nil!");
         return nil;
     }
 
-    NSData *jsonData = [self.jsonUtil JSONSerializeObject:obj];
+    NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
     NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
     //使用 gzip 进行压缩
@@ -100,52 +101,7 @@
     secretObj[@"pkv"] = @(self.rsaSecretKey.version);
     secretObj[@"ekey"] = self.rsaEncryptAESKey;
     secretObj[@"payload"] = encryptString;
-    return secretObj;
-}
-
-- (nullable NSArray *)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray {
-    /***** 构造加密数据结构 *****/
-    // 字典，方便去重
-    NSMutableDictionary <NSString *,NSMutableArray *> *ekeyPayloadsDic = [NSMutableDictionary dictionary];
-    
-    for (NSString *json in recordArray) {
-        NSData *jsonData = [json dataUsingEncoding:NSUTF8StringEncoding];
-        NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-        if (jsonDic && [jsonDic.allKeys containsObject:@"ekey"]) {
-            
-            NSMutableArray *sameEncryptArray = ekeyPayloadsDic[jsonDic[@"ekey"]];
-            if (sameEncryptArray.count == 0) {
-                sameEncryptArray = [NSMutableArray array];
-                [sameEncryptArray addObject:[jsonDic mutableCopy]];
-                [ekeyPayloadsDic setObject:sameEncryptArray forKey:jsonDic[@"ekey"]];
-            } else {
-                [sameEncryptArray addObject:[jsonDic mutableCopy]];
-            }
-        }
-    }
-    
-    NSMutableArray *encryptArray = [NSMutableArray array];
-    for (NSString *ekey in ekeyPayloadsDic.allKeys) {
-        NSMutableArray *sameEncryptArray = ekeyPayloadsDic[ekey];
-        NSMutableDictionary *encryptDic = [NSMutableDictionary dictionaryWithDictionary:sameEncryptArray.firstObject];
-        [encryptDic removeObjectForKey:@"payload"];
-        NSMutableArray *sameEncryptPayloads = [NSMutableArray array];
-        for (NSDictionary *dic in sameEncryptArray) {
-            [sameEncryptPayloads addObject:dic[@"payload"]];
-        }
-        encryptDic[@"payloads"] = sameEncryptPayloads;
-        
-        NSData *encrypData = [self.jsonUtil JSONSerializeObject:encryptDic];
-        NSString *encrypString = [[NSString alloc] initWithData:encrypData encoding:NSUTF8StringEncoding];
-        [encryptArray addObject:encrypString];
-    }
-    
-    if (encryptArray.count > 0) {
-        NSArray *contentArray = [NSArray arrayWithArray:encryptArray];
-        return contentArray;
-    } else {
-        return nil;
-    }
+    return [NSDictionary dictionaryWithDictionary:secretObj];
 }
 
 @end

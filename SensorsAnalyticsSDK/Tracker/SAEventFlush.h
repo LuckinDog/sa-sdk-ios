@@ -1,8 +1,8 @@
 //
-// SAVisualizedUtils.h
+// SAEventFlush.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/3/3.
+// Created by 张敏超🍎 on 2020/6/18.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,23 +18,38 @@
 // limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <WebKit/WebKit.h>
+#import "SAEventRecord.h"
+#import "SAHTTPSession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAVisualizedUtils : NSObject
+@interface SAEventFlush : NSObject
 
-/// 判断一个 view 是否被覆盖
-+ (BOOL) isCoveredForView:(UIView *)view;
+/**
+ * @abstract
+ * 设置 Cookie
+ *
+ * @param cookie NSString cookie
+ * @param encode BOOL 是否 encode
+ */
+- (void)setCookie:(NSString *)cookie isEncoded:(BOOL)encode;
 
-/// 解析构造 web 元素
-+ (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
+/**
+ * @abstract
+ * 返回已设置的 Cookie
+ *
+ * @param decode BOOL 是否 decode
+ * @return NSString cookie
+ */
+- (NSString *)cookieWithDecoded:(BOOL)decode;
 
-///  获取 RN 当前页面信息
-+ (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
+- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END
