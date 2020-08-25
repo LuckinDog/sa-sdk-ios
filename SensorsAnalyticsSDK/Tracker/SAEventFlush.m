@@ -46,20 +46,6 @@
     return _flushSemaphore;
 }
 
-#pragma mark - cookie
-
-- (void)setCookie:(NSString *)cookie isEncoded:(BOOL)encoded {
-    if (encoded) {
-        _cookie = [cookie stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
-    } else {
-        _cookie = cookie;
-    }
-}
-
-- (NSString *)cookieWithDecoded:(BOOL)isDecoded {
-    return isDecoded ? _cookie.stringByRemovingPercentEncoding : _cookie;
-}
-
 #pragma mark - build
 
 // 1. 先完成这一系列 Json 字符串的拼接
