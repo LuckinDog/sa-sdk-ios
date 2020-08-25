@@ -32,7 +32,6 @@
 
 @interface SAEventFlush ()
 
-@property (nonatomic, copy) NSString *cookie;
 @property (nonatomic, strong) dispatch_semaphore_t flushSemaphore;
 
 @end

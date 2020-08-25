@@ -128,7 +128,6 @@
 		CB30C09A22840EC00004061D /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */; };
 		CB30C09B22840EC00004061D /* SAObjectSerializerConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C02F22840EBF0004061D /* SAObjectSerializerConfig.m */; };
 		CB30C09C22840EC00004061D /* SAAlertController.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C03022840EBF0004061D /* SAAlertController.h */; };
-		CB30C09D22840EC00004061D /* SADatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C03122840EBF0004061D /* SADatabase.h */; };
 		CB30C09E22840EC00004061D /* SAKeyChainItemWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C03222840EBF0004061D /* SAKeyChainItemWrapper.h */; };
 		CB30C0A922840EC00004061D /* SAValueTransformers.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C03E22840EBF0004061D /* SAValueTransformers.h */; };
 		CB30C31322843D3A0004061D /* SensorsAnalyticsExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -803,9 +802,7 @@
 				4D650D82242B46CB006B01BF /* SAJSTouchEventView.h in Headers */,
 				CB30C07722840EC00004061D /* SATypeDescription.h in Headers */,
 				CB30C09622840EC00004061D /* SAPropertyDescription.h in Headers */,
-				CB30C09D22840EC00004061D /* SADatabase.h in Headers */,
 				A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */,
-				CB30C09D22840EC00004061D /* SADatabase.h in Headers */,
 				CB30C05E22840EC00004061D /* SAObjectSerializerConfig.h in Headers */,
 				88824F91249B5184003ADC59 /* SAEventStore.h in Headers */,
 				8888473724530F9100EBA7F6 /* SANetwork.h in Headers */,
