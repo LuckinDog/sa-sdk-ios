@@ -222,6 +222,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
+@property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked;
+
 ///是否为被动启动
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
@@ -301,14 +303,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
             
-            dispatch_block_t mainThreadBlock = ^(){
-                //判断被动启动
-                if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
-                    self->_launchedPassively = YES;
-                }
-            };
-            [SACommonUtility performBlockOnMainThread:mainThreadBlock];
-            
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
 
@@ -385,9 +379,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             [self startAppEndTimer];
             [self setUpListeners];
-            
+
+            _launchedAppStartTracked = NO;
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self autoTrackAppStart];
+                self.launchedAppStartTracked = YES;
             });
 
             if (_configOptions.enableTrackAppCrash) {
@@ -778,9 +774,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
+        self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+        NSString *eventName = self.isLaunchedPassively ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
         NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-        properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(self->_appRelaunched);
+        properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
         properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
         //添加 deeplink 相关渠道信息，可能不存在
         [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
@@ -2015,11 +2012,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
     [notificationCenter addObserver:self
-                           selector:@selector(applicationDidFinishLaunching:)
-                               name:UIApplicationDidFinishLaunchingNotification
-                             object:nil];
-
-    [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
                                name:UIApplicationWillEnterForegroundNotification
                              object:nil];
@@ -2330,18 +2322,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)notification {
-    SALogDebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
-    if (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
-        //全埋点
-        [self autoTrackAppStart];
-    }
-}
-
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SALogDebug(@"%@ application will enter foreground", self);
     
-    _appRelaunched = YES;
+    _appRelaunched = self.isLaunchedAppStartTracked;
     self.launchedPassively = NO;
 }
 
@@ -2386,12 +2370,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     
     [self shouldRequestRemoteConfig];
-
-    // 是否首次启动
-    BOOL isFirstStart = NO;
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
-        isFirstStart = YES;
-    }
     
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
@@ -2404,6 +2382,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
             NSMutableDictionary *properties = [NSMutableDictionary dictionary];
             properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(_appRelaunched);
+            BOOL isFirstStart = ![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE];
             properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
             [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
 
