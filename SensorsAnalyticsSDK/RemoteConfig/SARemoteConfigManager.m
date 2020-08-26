@@ -328,8 +328,11 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     }
     if (!urlComponets.host) {
         NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
-        urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-        if (urlComponets == nil) {
+        if (url) {
+            urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+        }
+        
+        if (!urlComponets.host) {
             SALogError(@"URLString is malformed, nil is returned.");
             return nil;
         }
