@@ -153,7 +153,7 @@
                 messageDesc = @"\n【invalid message】\n";
                 if (statusCode >= 300 && self.isDebugMode) {
                     NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-                    [[SensorsAnalyticsSDK sdkInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
+                    [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
             }
 
