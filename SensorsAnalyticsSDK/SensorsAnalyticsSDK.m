@@ -1184,6 +1184,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - track event
 
 - (BOOL)isValidName:(NSString *)name {
+    if (!name) {
+        return NO;
+    }
     @try {
         // 保留字段通过字符串直接比较，效率更高
         NSSet *reservedProperties = sensorsdata_reserved_properties();

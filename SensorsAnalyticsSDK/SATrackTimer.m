@@ -94,9 +94,6 @@ static NSString *const kEventIdSuffix = @"_SATimer";
 }
 
 - (void)trackTimerRemove:(NSString *)eventId {
-    if (!eventId) {
-        return;
-    }
     if (self.eventIds[eventId]) {
         [self.eventIds removeObjectForKey:eventId];
         return;

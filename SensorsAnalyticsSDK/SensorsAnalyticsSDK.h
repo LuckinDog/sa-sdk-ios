@@ -403,7 +403,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
 删除事件计时
 
-@param event 事件名称或事件的 eventId
+ @discussion
+ 多次调用 removeTimer: 时，以首次调用为准。
+
+ @param event 事件名称或事件的 eventId
 */
 - (void)removeTimer:(NSString *)event;
 
