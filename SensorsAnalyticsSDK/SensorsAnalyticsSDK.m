@@ -509,11 +509,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig {
-    if (serverUrl && ![serverUrl isKindOfClass:[NSString class]]) {
-        SALogError(@"%@ serverUrl must be NSString, please check the value!", self);
-        return;
-    }
-    
     dispatch_async(self.serialQueue, ^{
         self.configOptions.serverURL = serverUrl;
         if (isRequestRemoteConfig) {
