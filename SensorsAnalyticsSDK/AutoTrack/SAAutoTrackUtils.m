@@ -172,7 +172,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     if (!object) {
         return NO;
     }
-    NSTimeInterval lastTime = object.timeIntervalForLastAppClick;
+    NSTimeInterval lastTime = object.sensorsdata_timeIntervalForLastAppClick;
     NSTimeInterval currentTime = [[NSProcessInfo processInfo] systemUptime];
     if (lastTime > 0 && currentTime - lastTime < SATrackAppClickMinTimeInterval) {
         return NO;

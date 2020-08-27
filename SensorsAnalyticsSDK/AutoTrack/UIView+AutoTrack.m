@@ -44,11 +44,11 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored;
 }
 
-- (void)setTimeIntervalForLastAppClick:(NSTimeInterval)timeIntervalForLastAppClick {
-    objc_setAssociatedObject(self, kSALastAppClickIntervalPropertyName, [NSNumber numberWithDouble:timeIntervalForLastAppClick], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setSensorsdata_timeIntervalForLastAppClick:(NSTimeInterval)sensorsdata_timeIntervalForLastAppClick {
+    objc_setAssociatedObject(self, kSALastAppClickIntervalPropertyName, [NSNumber numberWithDouble:sensorsdata_timeIntervalForLastAppClick], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSTimeInterval)timeIntervalForLastAppClick {
+- (NSTimeInterval)sensorsdata_timeIntervalForLastAppClick {
     return [objc_getAssociatedObject(self, kSALastAppClickIntervalPropertyName) doubleValue];
 }
 
