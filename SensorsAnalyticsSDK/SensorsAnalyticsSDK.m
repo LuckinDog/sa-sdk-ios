@@ -2346,37 +2346,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SALogDebug(@"%@ application did become active", self);
     if (_appRelaunched) {
-        //下次启动 App 的时候重新初始化
+        // 下次启动 App 的时候重新初始化
         [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
     }
     
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        //停止 SDK 的 flushtimer
-        [self stopFlushTimer];
-        
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        //停止采集设备方向信息
-        [self.deviceOrientationManager stopDeviceMotionUpdates];
-#endif
-        
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-        [self.locationManager stopUpdatingLocation];
-#endif
-        
-        [self flush];//停止采集数据之后 flush 本地数据
-    } else {
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
-            [self.deviceOrientationManager startDeviceMotionUpdates];
-        }
-#endif
-        
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-        if (self.locationConfig.enableGPSLocation) {
-            [self.locationManager startUpdatingLocation];
-        }
-#endif
-    }
+    [self performTaskWithDisableSDKFlag:[SARemoteConfigManager sharedInstance].isDisableSDK];
     
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
@@ -2676,10 +2650,40 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     };
     managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        isDisableSDK ? [strongSelf stopFlushTimer] : [strongSelf startFlushTimer];
+        [strongSelf performTaskWithDisableSDKFlag:isDisableSDK];
     };
     
     [SARemoteConfigManager startWithRemoteConfigManagerOptions:managerOptions];
+}
+
+- (void)performTaskWithDisableSDKFlag:(BOOL)isDisableSDK {
+    if (isDisableSDK) {
+        [self stopFlushTimer];
+        
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+        [self.deviceOrientationManager stopDeviceMotionUpdates];
+#endif
+        
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+        [self.locationManager stopUpdatingLocation];
+#endif
+        // 停止采集数据之后 flush 本地数据
+        [self flush];
+    } else {
+        [self startFlushTimer];
+        
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+        if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
+            [self.deviceOrientationManager startDeviceMotionUpdates];
+        }
+#endif
+        
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+        if (self.locationConfig.enableGPSLocation) {
+            [self.locationManager startUpdatingLocation];
+        }
+#endif
+    }
 }
 
 #pragma mark - SecretKey
