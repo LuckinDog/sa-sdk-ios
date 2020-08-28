@@ -356,9 +356,14 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
+    [self updateLocalLibVersion];
     [self trackAppRemoteConfigChanged:remoteConfig];
     [self saveRemoteConfig:remoteConfig];
     [self triggerRemoteConfigEffect:remoteConfig];
+}
+
+- (void)updateLocalLibVersion {
+    self.remoteConfigModel.localLibVersion = self.managerOptions.currentLibVersion;
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
