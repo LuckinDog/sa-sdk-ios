@@ -28,6 +28,7 @@
 #import "SAReachability.h"
 #import "SAConstants.h"
 #import "SALog.h"
+#import "SAValidator.h"
 
 @implementation SACommonUtility
 
@@ -146,6 +147,20 @@
 + (SensorsAnalyticsNetworkType)currentNetworkType {
     NSString *currentNetworkStatus = [SACommonUtility currentNetworkStatus];
     return [SACommonUtility toNetworkType:currentNetworkStatus];
+}
+
++ (NSString *)currentUserAgent {
+    return [[NSUserDefaults standardUserDefaults] objectForKey:@"UserAgent"];
+}
+
++ (void)saveUserAgent:(NSString *)userAgent {
+    if (![SAValidator isValidString:userAgent]) {
+        return;
+    }
+    
+    NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:userAgent, @"UserAgent", nil];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end

@@ -194,6 +194,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 @property (nonatomic, copy) NSString *userAgent;
+@property (nonatomic, copy) NSString *addWebViewUserAgent;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
@@ -2660,6 +2661,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if (isDisableSDK) {
         [self stopFlushTimer];
         
+        [self removeWebViewUserAgent];
+        
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         [self.deviceOrientationManager stopDeviceMotionUpdates];
 #endif
@@ -2671,6 +2674,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [self flush];
     } else {
         [self startFlushTimer];
+        
+        [self appendWebViewUserAgent];
         
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
@@ -2684,6 +2689,42 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
 #endif
     }
+}
+
+- (void)removeWebViewUserAgent {
+    if (!self.addWebViewUserAgent) {
+        // 没有开启老版打通
+        return;
+    }
+    
+    NSString *currentUserAgent = [SACommonUtility currentUserAgent];
+    if (![currentUserAgent containsString:self.addWebViewUserAgent]) {
+        return;
+    }
+    
+    NSString *newUserAgent = [currentUserAgent stringByReplacingOccurrencesOfString:self.addWebViewUserAgent withString:@""];
+    self.userAgent = newUserAgent;
+    [SACommonUtility saveUserAgent:self.userAgent];
+}
+
+- (void)appendWebViewUserAgent {
+    if (!self.addWebViewUserAgent) {
+        // 没有开启老版打通
+        return;
+    }
+    
+    NSString *currentUserAgent = [SACommonUtility currentUserAgent];
+    if ([currentUserAgent containsString:self.addWebViewUserAgent]) {
+        return;
+    }
+    
+    NSMutableString *newUserAgent = [NSMutableString string];
+    if (currentUserAgent) {
+        [newUserAgent appendString:currentUserAgent];
+    }
+    [newUserAgent appendString:self.addWebViewUserAgent];
+    self.userAgent = newUserAgent;
+    [SACommonUtility saveUserAgent:self.userAgent];
 }
 
 #pragma mark - SecretKey
@@ -2751,20 +2792,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent {
+    __weak typeof(self) weakSelf = self;
     void (^ changeUserAgent)(BOOL verify, NSString *oldUserAgent) = ^void (BOOL verify, NSString *oldUserAgent) {
-        NSString *newAgent = oldUserAgent;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        
+        NSString *newUserAgent = oldUserAgent;
         if ([oldUserAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
-            if (verify) {
-                newAgent = [oldUserAgent stringByAppendingString:[NSString stringWithFormat:@" /sa-sdk-ios/sensors-verify/%@?%@ ", self.network.host, self.network.project]];
-            } else {
-                newAgent = [oldUserAgent stringByAppendingString:@" /sa-sdk-ios"];
-            }
+            strongSelf.addWebViewUserAgent = verify ? [NSString stringWithFormat:@" /sa-sdk-ios/sensors-verify/%@?%@ ", strongSelf.network.host, strongSelf.network.project] : @" /sa-sdk-ios";
+            newUserAgent = [oldUserAgent stringByAppendingString:strongSelf.addWebViewUserAgent];
         }
-        //使 newAgent 生效，并设置 userAgent
-        NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
-        [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-        self.userAgent = newAgent;
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        //使 newUserAgent 生效，并设置 newUserAgent
+        strongSelf.userAgent = newUserAgent;
+        [SACommonUtility saveUserAgent:newUserAgent];
     };
 
     BOOL verify = enableVerify;
