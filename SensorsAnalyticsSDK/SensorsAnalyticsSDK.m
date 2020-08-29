@@ -1552,20 +1552,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
-    hasTrackInstallation = disableCallback ? [SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback] : [SAKeyChainItemWrapper hasTrackInstallation];
-    if (hasTrackInstallation) {
-        return;
-    }
-    if (disableCallback) {
-        [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
-    } else {
-        [SAKeyChainItemWrapper markHasTrackInstallation];
-    }
-#endif
-#endif
-
     if (!hasTrackInstallation) {
 
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
