@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
  删除事件计时
 
  @discussion
- 多次调用 trackTimerRemove: 时，以首次调用为准。
+ 多次调用 trackTimerRemove: 时，只有首次调用有效。
 
  @param eventId trackTimerStart: 返回的 ID 或事件名
 */

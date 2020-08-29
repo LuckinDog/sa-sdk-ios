@@ -404,7 +404,7 @@ NS_ASSUME_NONNULL_BEGIN
 删除事件计时
 
  @discussion
- 多次调用 removeTimer: 时，以首次调用为准。
+ 多次调用 removeTimer: 时，只有首次调用有效。
 
  @param event 事件名称或事件的 eventId
 */
