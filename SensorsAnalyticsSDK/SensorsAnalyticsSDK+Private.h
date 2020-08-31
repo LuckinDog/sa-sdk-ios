@@ -98,8 +98,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 */
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
-
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 

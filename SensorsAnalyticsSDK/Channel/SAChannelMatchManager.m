@@ -27,82 +27,144 @@
 #import "SAIdentifier.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAValidator.h"
+#import "SACommonUtility.h"
+#import "SALog.h"
+
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+#import <WebKit/WebKit.h>
+#endif
 
 @interface SAChannelMatchManager ()
 
 @property (nonatomic, assign) BOOL deviceEmpty;
 @property (nonatomic, assign) BOOL appInstalled;
 
+@property (nonatomic, copy) NSString *userAgent;
+
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+@property (nonatomic, strong) WKWebView *wkWebView;
+@property (nonatomic, strong) dispatch_group_t loadUAGroup;
+#endif
+
+@property (nonatomic, assign) BOOL disableCallback;
+
 @end
 
 @implementation SAChannelMatchManager
 
-- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
++ (instancetype)manager {
+    static dispatch_once_t onceToken;
+    static SAChannelMatchManager *manager;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAChannelMatchManager alloc] init];
+    });
+    return manager;
+}
 
-        NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
-        BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
-        if (hasTrackInstallation) {
-            return;
+- (void)updateUserAgent:(NSString *)userAgent {
+    self.userAgent = userAgent;
+}
+
+- (BOOL)isAppInstalled:(NSString *)disableCallback {
+    NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
+    BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
+    if (hasTrackInstallation) {
+        return;
+    }
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    return YES;
+}
+
+- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback enableMultipleChannelMatch:(BOOL)enableMultipleChannelMatch {
+    if ([self isAppInstalled:disableCallback]) {
+        return;
+    }
+    // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
+    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    NSString *idfa = [SAIdentifier idfa];
+    NSString *appInstallSource = idfa ? [NSString stringWithFormat:@"idfa=%@", idfa] : @"";
+    [properties setValue:appInstallSource forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
+    if (disableCallback) {
+        [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
+    }
+
+    __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
+    dispatch_block_t trackInstallationBlock = ^{
+        if (userAgent) {
+            [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
         }
 
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        NSMutableDictionary *newProperties = [properties mutableCopy];
+        if ([SAValidator isValidDictionary:propertyDict]) {
+            [newProperties addEntriesFromDictionary:propertyDict];
+        }
+        // 先发送 track
+        [[SensorsAnalyticsSDK sharedInstance] track:event withProperties:[newProperties copy] withTrackType:SensorsAnalyticsTrackTypeAuto];
 
-        if (!hasTrackInstallation) {
+        // 再发送 profile_set_once
+        [newProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
+        if (enableMultipleChannelMatch) {
+            [[SensorsAnalyticsSDK sharedInstance] set:newProperties];
+        } else {
+            [[SensorsAnalyticsSDK sharedInstance] setOnce:newProperties];
+        }
+        [[SensorsAnalyticsSDK sharedInstance] flush];
+    };
 
-            // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
-            NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-            NSString *idfa = [SAIdentifier idfa];
-            if (idfa != nil) {
-                [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
-            } else {
-                [properties setValue:@"" forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
-            }
+    if (userAgent.length == 0) {
+        [self loadUserAgentWithCompletion:^(NSString *ua) {
+            userAgent = ua;
+            trackInstallationBlock();
+        }];
+    } else {
+        trackInstallationBlock();
+    }
+}
 
-            if (disableCallback) {
-                [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
-            }
+- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
+    if (self.userAgent) {
+        return completion(self.userAgent);
+    }
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.wkWebView) {
+            dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                completion(self.userAgent);
+            });
+        } else {
+            self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
+            self.loadUAGroup = dispatch_group_create();
+            dispatch_group_enter(self.loadUAGroup);
 
-            __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-            dispatch_block_t trackInstallationBlock = ^{
-                if (userAgent) {
-                    [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-                }
+            __weak typeof(self) weakSelf = self;
+            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
 
-                // 添加 deepLink 来源渠道信息
-                // 来源渠道消息只需要添加到 event 事件中，这里使用一个新的字典来添加 latest_utms 参数
-                NSMutableDictionary *eventProperties = [properties mutableCopy];
-                [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-                if ([SAValidator isValidDictionary:propertyDict]) {
-                    [eventProperties addEntriesFromDictionary:propertyDict];
-                }
-                // 先发送 track
-                [[SensorsAnalyticsSDK sharedInstance] track:event withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
-
-                // 再发送 profile_set_once
-                // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
-                NSMutableDictionary *profileProperties = [properties mutableCopy];
-                if ([SAValidator isValidDictionary:propertyDict]) {
-                    [profileProperties addEntriesFromDictionary:propertyDict];
-                }
-                [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-                if (self.configOptions.enableMultipleChannelMatch) {
-                    [[SensorsAnalyticsSDK sharedInstance] set:profileProperties];
+                if (error || !response) {
+                    SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
+                    completion(nil);
                 } else {
-                    [[SensorsAnalyticsSDK sharedInstance] setOnce:profileProperties];
+                    strongSelf.userAgent = response;
+                    completion(strongSelf.userAgent);
                 }
-                [[SensorsAnalyticsSDK sharedInstance] flush];
-            };
 
-            if (userAgent.length == 0) {
-                [[SensorsAnalyticsSDK sharedInstance] loadUserAgentWithCompletion:^(NSString *ua) {
-                    userAgent = ua;
-                    trackInstallationBlock();
-                }];
-            } else {
-                trackInstallationBlock();
-            }
+                // 通过 wkWebView 控制 dispatch_group_leave 的次数
+                if (strongSelf.wkWebView) {
+                    dispatch_group_leave(strongSelf.loadUAGroup);
+                }
+
+                strongSelf.wkWebView = nil;
+            }];
         }
+    });
+#else
+    [SACommonUtility performBlockOnMainThread:^{
+        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        completion(self.userAgent);
+    }];
+#endif
 }
 
 @end

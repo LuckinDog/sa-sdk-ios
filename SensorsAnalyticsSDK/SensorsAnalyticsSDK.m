@@ -49,10 +49,6 @@
     #import "SAKeyChainItemWrapper.h"
 #endif
 
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-#import <WebKit/WebKit.h>
-#endif
-
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
@@ -81,6 +77,7 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
+#import "SAChannelMatchManager.h"
 
 #define VERSION @"2.1.5"
 
@@ -193,7 +190,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableSet<NSString *> *visualizedAutoTrackViewControllers;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
-@property (nonatomic, copy) NSString *userAgent;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
@@ -209,11 +205,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
 @property (nonatomic, strong) SALocationManager *locationManager;
 @property (nonatomic, strong) SAGPSLocationConfig *locationConfig;
-#endif
-
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-@property (nonatomic, strong) WKWebView *wkWebView;
-@property (nonatomic, strong) dispatch_group_t loadUAGroup;
 #endif
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
@@ -433,51 +424,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 + (UInt64)getSystemUpTime {
     return NSProcessInfo.processInfo.systemUptime * 1000;
-}
-
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
-    if (self.userAgent) {
-        return completion(self.userAgent);
-    }
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.wkWebView) {
-            dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-                completion(self.userAgent);
-            });
-        } else {
-            self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
-            self.loadUAGroup = dispatch_group_create();
-            dispatch_group_enter(self.loadUAGroup);
-
-            __weak typeof(self) weakSelf = self;
-            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
-                __strong typeof(weakSelf) strongSelf = weakSelf;
-                
-                if (error || !response) {
-                    SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
-                    completion(nil);
-                } else {
-                    strongSelf.userAgent = response;
-                    completion(strongSelf.userAgent);
-                }
-                
-                // 通过 wkWebView 控制 dispatch_group_leave 的次数
-                if (strongSelf.wkWebView) {
-                    dispatch_group_leave(strongSelf.loadUAGroup);
-                }
-                
-                strongSelf.wkWebView = nil;
-            }];
-        }
-    });
-#else
-    [SACommonUtility performBlockOnMainThread:^{
-        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        completion(self.userAgent);
-    }];
-#endif
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
@@ -1427,7 +1373,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
 
     if (userAgent.length == 0) {
-        [self loadUserAgentWithCompletion:^(NSString *ua) {
+        [[SAChannelMatchManager manager] loadUserAgentWithCompletion:^(NSString * _Nonnull ua) {
             [properties setValue:ua forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
             trackChannelEventBlock();
         }];
@@ -1543,67 +1489,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
-    BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
-    if (hasTrackInstallation) {
-        return;
-    }
-
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-
-    if (!hasTrackInstallation) {
-
-        // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        NSString *idfa = [SAIdentifier idfa];
-        if (idfa != nil) {
-            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
-        } else {
-            [properties setValue:@"" forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
-        }
-
-        if (disableCallback) {
-            [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
-        }
-
-        __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-        dispatch_block_t trackInstallationBlock = ^{
-            if (userAgent) {
-                [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-            }
-
-            // 添加 deepLink 来源渠道信息
-            // 来源渠道消息只需要添加到 event 事件中，这里使用一个新的字典来添加 latest_utms 参数
-            NSMutableDictionary *eventProperties = [properties mutableCopy];
-            [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-            if ([SAValidator isValidDictionary:propertyDict]) {
-                [eventProperties addEntriesFromDictionary:propertyDict];
-            }
-            // 先发送 track
-            [self track:event withProperties:eventProperties withType:@"track"];
-
-            // 再发送 profile_set_once
-            // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
-            NSMutableDictionary *profileProperties = [properties mutableCopy];
-            if ([SAValidator isValidDictionary:propertyDict]) {
-                [profileProperties addEntriesFromDictionary:propertyDict];
-            }
-            [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-            [self track:nil withProperties:profileProperties withType: self.configOptions.enableMultipleChannelMatch ? SA_PROFILE_SET : SA_PROFILE_SET_ONCE];
-
-            [self flush];
-        };
-
-        if (userAgent.length == 0) {
-            [self loadUserAgentWithCompletion:^(NSString *ua) {
-                userAgent = ua;
-                trackInstallationBlock();
-            }];
-        } else {
-            trackInstallationBlock();
-        }
-    }
+    [[SAChannelMatchManager manager] trackInstallation:event properties:propertyDict disableCallback:disableCallback enableMultipleChannelMatch:self.configOptions.enableMultipleChannelMatch];
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
@@ -2852,7 +2738,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //使 newAgent 生效，并设置 userAgent
         NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
         [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-        self.userAgent = newAgent;
+        [[SAChannelMatchManager manager] updateUserAgent:newAgent];
         [[NSUserDefaults standardUserDefaults] synchronize];
     };
 
@@ -2861,11 +2747,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (![self.network isValidServerURL]) {
             verify = NO;
         }
-        NSString *oldAgent = userAgent.length > 0 ? userAgent : self.userAgent;
+        NSString *oldAgent = userAgent.length > 0 ? userAgent : SAChannelMatchManager.manager.userAgent;
         if (oldAgent) {
             changeUserAgent(verify, oldAgent);
         } else {
-            [self loadUserAgentWithCompletion:^(NSString *ua) {
+            [[SAChannelMatchManager manager] loadUserAgentWithCompletion:^(NSString * _Nonnull ua) {
                 changeUserAgent(verify, ua);
             }];
         }
