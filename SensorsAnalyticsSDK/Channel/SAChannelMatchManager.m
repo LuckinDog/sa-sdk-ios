@@ -34,6 +34,8 @@
 #import <WebKit/WebKit.h>
 #endif
 
+#import "SAChannelWhiteListManager.h"
+
 @interface SAChannelMatchManager ()
 
 @property (nonatomic, assign) BOOL deviceEmpty;
@@ -65,25 +67,34 @@
     self.userAgent = userAgent;
 }
 
-- (BOOL)isAppInstalled:(NSString *)disableCallback {
+- (BOOL)appInstalled {
+    NSNumber *flag = [[NSUserDefaults standardUserDefaults] objectForKey:@"channel_debbug_flag"];
+    return (flag != nil);
+}
+
+- (BOOL)deviceEmpty {
+    NSNumber *flag = [[NSUserDefaults standardUserDefaults] objectForKey:@"channel_debbug_flag"];
+    return flag.boolValue;
+}
+
+- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback enableMultipleChannelMatch:(BOOL)enableMultipleChannelMatch {
+
+    [SAChannelWhiteListManager showAuthorizationAlert];
+    return;
+
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
     BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
     if (hasTrackInstallation) {
         return;
     }
+
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    return YES;
-}
-
-- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback enableMultipleChannelMatch:(BOOL)enableMultipleChannelMatch {
-    if ([self isAppInstalled:disableCallback]) {
-        return;
-    }
     // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     NSString *idfa = [SAIdentifier idfa];
     NSString *appInstallSource = idfa ? [NSString stringWithFormat:@"idfa=%@", idfa] : @"";
+    [[NSUserDefaults standardUserDefaults] setValue:@(idfa != nil) forKey:@"channel_debbug_flag"];
     [properties setValue:appInstallSource forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
     if (disableCallback) {
         [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];

@@ -32,9 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) SALinkHandler *linkHandler;
 @property (nonatomic, weak) SAConfigOptions *configOptions;
 
-@property (class, nonatomic, assign, readonly) BOOL deviceEmpty;
-@property (class, nonatomic, assign, readonly) BOOL appInstalled;
-@property (class, nonatomic, copy, readonly) NSString *userAgent;
+@property (nonatomic, assign, readonly) BOOL deviceEmpty;
+@property (nonatomic, assign, readonly) BOOL appInstalled;
+@property (nonatomic, copy, readonly) NSString *userAgent;
 
 + (instancetype)manager;
 

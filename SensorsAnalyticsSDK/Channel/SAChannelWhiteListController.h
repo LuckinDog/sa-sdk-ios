@@ -1,8 +1,8 @@
 //
-// SAChannelWhiteListManager.h
+// SAChannelWhiteListController.h
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2020/8/29.
+// Created by 彭远洋 on 2020/9/1.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,13 +22,33 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import <Foundation/Foundation.h>
-
+#import <UIKit/UIKit.h>
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAChannelWhiteListManager : NSObject
+typedef void(^ChannelAction)(void);
 
-+ (void)showAuthorizationAlert;
+@interface SAChannelWhiteListTemplateActionModel : NSObject
+
+@property (nonatomic, copy) NSString *text;
+@property (nonatomic, strong) UIColor *textColor;
+@property (nonatomic, strong) UIColor *backgroundColor;
+@property (nonatomic, copy) ChannelAction channelAction;
+
+@end
+
+@interface SAChannelWhiteListTemplateModel : NSObject
+
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy) NSString *content;
+@property (nonatomic, strong) NSArray<SAChannelWhiteListTemplateActionModel *> *actions;
+
+@end
+
+@interface SAChannelWhiteListController : UIViewController
+
+- (instancetype)initWithTemplateModel:(SAChannelWhiteListTemplateModel *)templateModel;
+- (void)show;
+- (void)dismiss;
 
 @end
 

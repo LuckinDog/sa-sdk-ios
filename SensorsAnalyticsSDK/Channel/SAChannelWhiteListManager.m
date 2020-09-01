@@ -18,12 +18,65 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import "SAChannelWhiteListManager.h"
+#import "SAChannelWhiteListController.h"
+#import "SAChannelMatchManager.h"
 
 @implementation SAChannelWhiteListManager
+
++ (void)showAuthorizationAlert {
+
+    SAChannelWhiteListTemplateModel *templateModel = [[SAChannelWhiteListTemplateModel alloc] init];
+    templateModel.title = @"即将开启「渠道白名单」模式";
+
+    SAChannelWhiteListTemplateActionModel *confirmActionModel = [[SAChannelWhiteListTemplateActionModel alloc] init];
+    confirmActionModel.text = @"确定";
+    confirmActionModel.textColor = [UIColor whiteColor];
+    confirmActionModel.backgroundColor = [UIColor cyanColor];
+    confirmActionModel.channelAction = ^{
+        [self checkAppInstallationEventDetails];
+    };
+
+    SAChannelWhiteListTemplateActionModel *cancelActionModel = [[SAChannelWhiteListTemplateActionModel alloc] init];
+    cancelActionModel.text = @"取消";
+    cancelActionModel.textColor = [UIColor lightGrayColor];
+    cancelActionModel.backgroundColor = [UIColor clearColor];
+
+    templateModel.actions = @[confirmActionModel, cancelActionModel];
+    SAChannelWhiteListController *controller = [[SAChannelWhiteListController alloc] initWithTemplateModel:templateModel];
+
+    [controller show];
+}
+
++ (void)checkAppInstallationEventDetails {
+    SAChannelMatchManager *manager = [SAChannelMatchManager manager];
+    if (![manager appInstalled] || ([manager appInstalled] && [manager deviceEmpty])) {
+        [self showAppInstallAlert];
+    } else {
+        [self showErrorMessageAlert];
+    }
+}
+
++ (void)showAppInstallAlert {
+    SAChannelWhiteListTemplateModel *templateModel = [[SAChannelWhiteListTemplateModel alloc] init];
+    templateModel.title = @"成功开启「渠道白名单」模式";
+    templateModel.content = @"此模式下不需要卸载 App，点击下列 “激活” 按钮可以反复触发激活";
+
+    SAChannelWhiteListTemplateActionModel *confirmActionModel = [[SAChannelWhiteListTemplateActionModel alloc] init];
+    confirmActionModel.text = @"激活";
+    confirmActionModel.textColor = [UIColor whiteColor];
+    confirmActionModel.backgroundColor = [UIColor systemBlueColor];
+    templateModel.actions = @[confirmActionModel];
+    SAChannelWhiteListController *controller = [[SAChannelWhiteListController alloc] initWithTemplateModel:templateModel];
+    [controller show];
+}
+
++ (void)showErrorMessageAlert {
+    SAChannelWhiteListTemplateModel *templateModel = [[SAChannelWhiteListTemplateModel alloc] init];
+    templateModel.title = @"检测到 “设备码为空”，可能原因如下：请排查：\n 1.手机系统设置中选择禁用设备码；\n 2. SDK 代码有误，请联系研发人员确认是否关闭“采集设备码”开关 \n 卸载并安装重新集成了修正的 SDK 的 app，再进行";
+    templateModel.content = @"";
+    SAChannelWhiteListController *controller = [[SAChannelWhiteListController alloc] initWithTemplateModel:templateModel];
+    [controller show];
+}
 
 @end
