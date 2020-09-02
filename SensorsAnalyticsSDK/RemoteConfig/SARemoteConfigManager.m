@@ -94,9 +94,10 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 - (void)configLocalRemoteConfigModel {
     NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
     self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
-    if (self.isDisableDebugMode) {
-        self.managerOptions.disableDebugModeBlock();
-    }
+    
+    BOOL isDisableSDK = self.isDisableSDK;
+    BOOL isDisableDebugMode = self.isDisableDebugMode;
+    self.managerOptions.triggerEffectBlock(isDisableSDK, isDisableDebugMode);
 }
 
 - (void)requestRemoteConfig {
@@ -388,9 +389,6 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     NSNumber *effectMode = [remoteConfig valueForKeyPath:@"configs.effect_mode"];
     if ([effectMode integerValue] == SARemoteConfigEffectModeNow) {
         [self configLocalRemoteConfigModel];
-        
-        BOOL isDisableSDK = self.isDisableSDK;
-        self.managerOptions.triggerEffectBlock(isDisableSDK);
     }
 }
 

@@ -337,8 +337,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_configOptions.enableEncrypt) {
                 [self updateEncryptBuilder];
             }
-                        
-            [self initRemoteConfigManager];
             
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
@@ -347,6 +345,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
             _locationConfig = [[SAGPSLocationConfig alloc] init];
 #endif
+            
+            // 初始化远程配置
+            [self initRemoteConfigManager];
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
@@ -358,8 +359,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-            // 初始化密钥处理器
-            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -388,6 +387,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self setUpListeners];
             
             dispatch_async(dispatch_get_main_queue(), ^{
+                [self requestRemoteConfigWhenInitialized];
                 [self autoTrackAppStart];
             });
 
@@ -1945,11 +1945,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)startFlushTimer {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK || (self.timer && [self.timer isValid])) {
-        return;
-    }
     SALogDebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK || (self.timer && [self.timer isValid])) {
+            return;
+        }
+        
         if (self.configOptions.flushInterval > 0) {
             double interval = self.configOptions.flushInterval > 100 ? (double)self.configOptions.flushInterval / 1000.0 : 0.1f;
             self.timer = [NSTimer scheduledTimerWithTimeInterval:interval
@@ -2331,6 +2332,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     SALogDebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
+    [self requestRemoteConfigWhenInitialized];
+    
     if (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
         //全埋点
         [self autoTrackAppStart];
@@ -2346,20 +2349,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SALogDebug(@"%@ application did become active", self);
-    if (_appRelaunched) {
-        // 下次启动 App 的时候重新初始化
-        [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
-    }
-    
-    [self performTaskWithDisableSDKFlag:[SARemoteConfigManager sharedInstance].isDisableSDK];
     
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
         return;
     }
     
-    [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
-
+    if (_appRelaunched) {
+        // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
+        [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
+        [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
+    }
+    
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
@@ -2635,10 +2636,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         __strong typeof(weakSelf) strongSelf = weakSelf;
         return strongSelf.encryptBuilder ? YES : NO;
     };
-    managerOptions.disableDebugModeBlock = ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
-    };
     managerOptions.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf handleEncryptWithConfig:encryptConfig];
@@ -2649,46 +2646,61 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };
-    managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK) {
+    managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf performTaskWithDisableSDKFlag:isDisableSDK];
+        if (isDisableDebugMode) {
+            [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
+        }
+        
+        isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
     };
     
     [SARemoteConfigManager startWithRemoteConfigManagerOptions:managerOptions];
 }
 
-- (void)performTaskWithDisableSDKFlag:(BOOL)isDisableSDK {
-    if (isDisableSDK) {
-        [self stopFlushTimer];
-        
-        [self removeWebViewUserAgent];
-        
+- (void)performDisableSDKTask {
+    [self stopFlushTimer];
+    
+    [self removeWebViewUserAgent];
+    
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        [self.deviceOrientationManager stopDeviceMotionUpdates];
+    [self.deviceOrientationManager stopDeviceMotionUpdates];
 #endif
-        
+    
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-        [self.locationManager stopUpdatingLocation];
+    [self.locationManager stopUpdatingLocation];
 #endif
-        // 停止采集数据之后 flush 本地数据
-        [self flush];
-    } else {
-        [self startFlushTimer];
-        
-        [self appendWebViewUserAgent];
-        
+    // 停止采集数据之后 flush 本地数据
+    [self flush];
+}
+
+- (void)performEnableSDKTask {
+    [self startFlushTimer];
+    
+    [self appendWebViewUserAgent];
+    
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
-            [self.deviceOrientationManager startDeviceMotionUpdates];
-        }
-#endif
-        
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-        if (self.locationConfig.enableGPSLocation) {
-            [self.locationManager startUpdatingLocation];
-        }
-#endif
+    if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
+        [self.deviceOrientationManager startDeviceMotionUpdates];
     }
+#endif
+    
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+    if (self.locationConfig.enableGPSLocation) {
+        [self.locationManager startUpdatingLocation];
+    }
+#endif
+}
+
+- (void)requestRemoteConfigWhenInitialized {
+    if ([self isLaunchedPassively]) {
+        return;
+    }
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
+    });
 }
 
 - (void)removeWebViewUserAgent {
