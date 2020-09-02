@@ -38,8 +38,8 @@ typedef void(^ChannelAction)(void);
 
 @interface SAChannelWhiteListTemplateModel : NSObject
 
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, copy) NSString *content;
+@property (nonatomic, copy) NSAttributedString *title;
+@property (nonatomic, copy) NSAttributedString *content;
 @property (nonatomic, strong) NSArray<SAChannelWhiteListTemplateActionModel *> *actions;
 
 @end

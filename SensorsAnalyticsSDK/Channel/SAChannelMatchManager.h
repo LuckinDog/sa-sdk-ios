@@ -29,18 +29,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAChannelMatchManager : NSObject
 
-@property (nonatomic, weak) SALinkHandler *linkHandler;
 @property (nonatomic, weak) SAConfigOptions *configOptions;
 
-@property (nonatomic, assign, readonly) BOOL deviceEmpty;
+// 标记是否触发过 AppInstall 事件
 @property (nonatomic, assign, readonly) BOOL appInstalled;
+
+// 触发 AppInstall 事件时 deviceId 是否为空
+@property (nonatomic, assign, readonly) BOOL deviceIdEmpty;
+
+//获取当前设备的 UserAgent
 @property (nonatomic, copy, readonly) NSString *userAgent;
 
 + (instancetype)manager;
 
 - (void)updateUserAgent:(NSString *)userAgent;
 
-- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback enableMultipleChannelMatch:(BOOL)enableMultipleChannelMatch;
+- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
+- (void)trackAppInstallEvent;
 
 - (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
 

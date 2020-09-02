@@ -154,19 +154,6 @@
     self.popupWindow = nil;
 }
 
-- (NSAttributedString *)attributedString:(NSString *)text color:(UIColor *)color font:(CGFloat)font alignment:(NSTextAlignment)textAlign {
-    NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithCapacity:4];
-    attributes[NSFontAttributeName] = [UIFont systemFontOfSize:font];
-    attributes[NSForegroundColorAttributeName] = color;
-    attributes[NSKernAttributeName] = @(1);
-    NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    style.lineSpacing = font * 1.2 - font;
-    style.alignment = textAlign;
-    attributes[NSParagraphStyleAttributeName] = style;
-    NSAttributedString *attributedText = [[NSAttributedString alloc] initWithString:text attributes:attributes];
-    return attributedText;
-}
-
 - (void)displayWithTempleteModel:(SAChannelWhiteListTemplateModel *)model {
 
     CGFloat elementX = 20.0;
@@ -176,7 +163,7 @@
 
     UILabel *titleLabel = [[UILabel alloc] init];
     [_contentView addSubview:titleLabel];
-    titleLabel.attributedText = [self attributedString:model.title color:[UIColor blackColor] font:20 alignment:NSTextAlignmentCenter];
+    titleLabel.attributedText = model.title;
     titleLabel.numberOfLines = 0;
     CGSize titleSize = [titleLabel sizeThatFits:CGSizeMake(itemWidth, MAXFLOAT)];
     titleLabel.frame = CGRectMake(elementX, nextElementY, itemWidth, titleSize.height);
@@ -186,7 +173,7 @@
     if (model.content.length) {
         UILabel *contentLabel = [[UILabel alloc] init];
         [_contentView addSubview:contentLabel];
-        contentLabel.attributedText = [self attributedString:model.content color:[UIColor lightGrayColor] font:15 alignment:NSTextAlignmentLeft];
+        contentLabel.attributedText = model.content;
         contentLabel.numberOfLines = 0;
         CGSize contentSize = [contentLabel sizeThatFits:CGSizeMake(itemWidth, MAXFLOAT)];
 

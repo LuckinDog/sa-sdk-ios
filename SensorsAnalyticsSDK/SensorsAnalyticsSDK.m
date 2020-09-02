@@ -1489,7 +1489,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    [[SAChannelMatchManager manager] trackInstallation:event properties:propertyDict disableCallback:disableCallback enableMultipleChannelMatch:self.configOptions.enableMultipleChannelMatch];
+    [[SAChannelMatchManager manager] trackInstallation:event properties:propertyDict disableCallback:disableCallback];
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {

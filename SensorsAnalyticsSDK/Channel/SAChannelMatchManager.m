@@ -38,7 +38,7 @@
 
 @interface SAChannelMatchManager ()
 
-@property (nonatomic, assign) BOOL deviceEmpty;
+@property (nonatomic, assign) BOOL deviceIdEmpty;
 @property (nonatomic, assign) BOOL appInstalled;
 
 @property (nonatomic, copy) NSString *userAgent;
@@ -72,33 +72,42 @@
     return (flag != nil);
 }
 
-- (BOOL)deviceEmpty {
+- (BOOL)deviceIdEmpty {
     NSNumber *flag = [[NSUserDefaults standardUserDefaults] objectForKey:@"channel_debbug_flag"];
     return flag.boolValue;
 }
 
-- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback enableMultipleChannelMatch:(BOOL)enableMultipleChannelMatch {
-
-    [SAChannelWhiteListManager showAuthorizationAlert];
-    return;
+- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
 
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
     BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
     if (hasTrackInstallation) {
         return;
     }
-
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
+
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    [properties addEntriesFromDictionary:propertyDict];
+    if (disableCallback) {
+        [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
+    }
+    [self trackAppInstallEvent:event properties:properties];
+}
+
+- (void)trackAppInstallEvent {
+    [self trackAppInstallEvent:@"AppInstall" properties:nil];
+}
+
+- (void)trackAppInstallEvent:(NSString *)event properties:(NSDictionary *)propertyDict {
     // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     NSString *idfa = [SAIdentifier idfa];
     NSString *appInstallSource = idfa ? [NSString stringWithFormat:@"idfa=%@", idfa] : @"";
+
+    // 保存触发过 AppInstall 事件标志位
     [[NSUserDefaults standardUserDefaults] setValue:@(idfa != nil) forKey:@"channel_debbug_flag"];
     [properties setValue:appInstallSource forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
-    if (disableCallback) {
-        [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
-    }
 
     __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
     dispatch_block_t trackInstallationBlock = ^{
@@ -115,7 +124,7 @@
 
         // 再发送 profile_set_once
         [newProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-        if (enableMultipleChannelMatch) {
+        if (self.configOptions.enableMultipleChannelMatch) {
             [[SensorsAnalyticsSDK sharedInstance] set:newProperties];
         } else {
             [[SensorsAnalyticsSDK sharedInstance] setOnce:newProperties];

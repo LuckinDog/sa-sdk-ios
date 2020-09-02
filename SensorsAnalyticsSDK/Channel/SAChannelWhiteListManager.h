@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAChannelWhiteListManager : NSObject
 
+// 唤起 App 的 URL 是否有效
++ (BOOL)canOpenURL:(NSURL *)url;
+
 + (void)showAuthorizationAlert;
 
 @end
