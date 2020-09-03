@@ -94,16 +94,12 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 
  @param isLaunchedPassively 是否是被动启动
  @param orientationConfig 方向信息
- @param locationConfig 位置信息
 
  @return 当前的预置属性
 */
 - (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
                             orientationConfig:(SADeviceOrientationConfig *)orientationConfig
-#endif
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-                               locationConfig:(SAGPSLocationConfig *)locationConfig
 #endif
 ;
 
