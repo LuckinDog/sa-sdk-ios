@@ -227,7 +227,11 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
         sysctlbyname("hw.machine", NULL, &size, NULL, 0);
         char answer[size];
         sysctlbyname("hw.machine", answer, &size, NULL, 0);
-        results = @(answer);
+        if (size) {
+            results = @(answer);
+        } else {
+            SALogError(@"Failed fetch hw.machine from sysctl.");
+        }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
