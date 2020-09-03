@@ -224,7 +224,6 @@ static NSString* sa_encryptHelper(id input) {
 // 获取内容
 - (NSString *)jjf_varE {
     return sa_encryptHelper([self sa_text]);
-    
 }
 
 @end
