@@ -31,24 +31,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) SAConfigOptions *configOptions;
 
-// 标记是否触发过 AppInstall 事件
-@property (nonatomic, assign, readonly) BOOL appInstalled;
-
-// 触发 AppInstall 事件时 deviceId 是否为空
-@property (nonatomic, assign, readonly) BOOL deviceIdEmpty;
-
 //获取当前设备的 UserAgent
 @property (nonatomic, copy, readonly) NSString *userAgent;
 
-+ (instancetype)manager;
++ (instancetype)sharedInstance;
 
 - (void)updateUserAgent:(NSString *)userAgent;
 
 - (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
-- (void)trackAppInstallEvent;
-
 - (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
 
+- (BOOL)isValidURL:(NSURL *)url;
+- (void)showAuthorizationAlert:(NSURL *)url;
 @end
 
 NS_ASSUME_NONNULL_END

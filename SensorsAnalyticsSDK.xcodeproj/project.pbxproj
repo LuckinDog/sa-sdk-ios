@@ -164,8 +164,6 @@
 		FC1AFF0623C3400E00F1B9E4 /* SAFileStore.m in Sources */ = {isa = PBXBuildFile; fileRef = FC1AFF0423C3400E00F1B9E4 /* SAFileStore.m */; };
 		FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */; };
 		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
-		FC4E82B424FDFAB100B55D7F /* SAChannelWhiteListController.h in Headers */ = {isa = PBXBuildFile; fileRef = FC4E82B224FDFAB100B55D7F /* SAChannelWhiteListController.h */; };
-		FC4E82B524FDFAB100B55D7F /* SAChannelWhiteListController.m in Sources */ = {isa = PBXBuildFile; fileRef = FC4E82B324FDFAB100B55D7F /* SAChannelWhiteListController.m */; };
 		FC5A4BBB244E976F00063624 /* SAURLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = FC5A4BAF244E976F00063624 /* SAURLUtils.h */; };
 		FC5A4BBC244E976F00063624 /* SAURLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = FC5A4BB0244E976F00063624 /* SAURLUtils.m */; };
 		FC5A4BBD244E976F00063624 /* SAJSONUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = FC5A4BB1244E976F00063624 /* SAJSONUtil.m */; };
@@ -201,8 +199,6 @@
 		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
 		FC86E5F024FA5B0D006FDDA8 /* SAChannelMatchManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FC86E5EE24FA5B0D006FDDA8 /* SAChannelMatchManager.h */; };
 		FC86E5F124FA5B0D006FDDA8 /* SAChannelMatchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FC86E5EF24FA5B0D006FDDA8 /* SAChannelMatchManager.m */; };
-		FC86E5F424FA5E6E006FDDA8 /* SAChannelWhiteListManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FC86E5F224FA5E6E006FDDA8 /* SAChannelWhiteListManager.h */; };
-		FC86E5F524FA5E6E006FDDA8 /* SAChannelWhiteListManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FC86E5F324FA5E6E006FDDA8 /* SAChannelWhiteListManager.m */; };
 		FC906D10242DEBD900C6686D /* SAIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = FC906D0C242DEBD800C6686D /* SAIdentifier.m */; };
 		FC906D11242DEBD900C6686D /* SAIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = FC906D0D242DEBD900C6686D /* SAIdentifier.h */; };
 /* End PBXBuildFile section */
@@ -379,8 +375,6 @@
 		FC1AFF0423C3400E00F1B9E4 /* SAFileStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAFileStore.m; sourceTree = "<group>"; };
 		FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandlerTests.m; sourceTree = "<group>"; };
 		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
-		FC4E82B224FDFAB100B55D7F /* SAChannelWhiteListController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAChannelWhiteListController.h; sourceTree = "<group>"; };
-		FC4E82B324FDFAB100B55D7F /* SAChannelWhiteListController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAChannelWhiteListController.m; sourceTree = "<group>"; };
 		FC5A4BAF244E976F00063624 /* SAURLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAURLUtils.h; path = Utils/SAURLUtils.h; sourceTree = "<group>"; };
 		FC5A4BB0244E976F00063624 /* SAURLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAURLUtils.m; path = Utils/SAURLUtils.m; sourceTree = "<group>"; };
 		FC5A4BB1244E976F00063624 /* SAJSONUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAJSONUtil.m; path = Utils/SAJSONUtil.m; sourceTree = "<group>"; };
@@ -415,8 +409,6 @@
 		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
 		FC86E5EE24FA5B0D006FDDA8 /* SAChannelMatchManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAChannelMatchManager.h; sourceTree = "<group>"; };
 		FC86E5EF24FA5B0D006FDDA8 /* SAChannelMatchManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAChannelMatchManager.m; sourceTree = "<group>"; };
-		FC86E5F224FA5E6E006FDDA8 /* SAChannelWhiteListManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAChannelWhiteListManager.h; sourceTree = "<group>"; };
-		FC86E5F324FA5E6E006FDDA8 /* SAChannelWhiteListManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAChannelWhiteListManager.m; sourceTree = "<group>"; };
 		FC906D0C242DEBD800C6686D /* SAIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAIdentifier.m; sourceTree = "<group>"; };
 		FC906D0D242DEBD900C6686D /* SAIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAIdentifier.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -812,10 +804,6 @@
 			children = (
 				FC86E5EE24FA5B0D006FDDA8 /* SAChannelMatchManager.h */,
 				FC86E5EF24FA5B0D006FDDA8 /* SAChannelMatchManager.m */,
-				FC86E5F224FA5E6E006FDDA8 /* SAChannelWhiteListManager.h */,
-				FC86E5F324FA5E6E006FDDA8 /* SAChannelWhiteListManager.m */,
-				FC4E82B224FDFAB100B55D7F /* SAChannelWhiteListController.h */,
-				FC4E82B324FDFAB100B55D7F /* SAChannelWhiteListController.m */,
 			);
 			path = Channel;
 			sourceTree = "<group>";
@@ -861,7 +849,6 @@
 				CB30C08E22840EC00004061D /* SAAppExtensionDataManager.h in Headers */,
 				4DA4CB8D237936BC006892D6 /* SAVisualizedAbstractMessage.h in Headers */,
 				CB30C04622840EC00004061D /* SAObjectIdentityProvider.h in Headers */,
-				FC4E82B424FDFAB100B55D7F /* SAChannelWhiteListController.h in Headers */,
 				4D6118D9242F052100FB02E0 /* SAVisualizedViewPathProperty.h in Headers */,
 				CB30C05122840EC00004061D /* SASwizzle.h in Headers */,
 				4DB14DD92456C107002C224C /* SALogMessage.h in Headers */,
@@ -921,7 +908,6 @@
 				FC5A4BC1244E976F00063624 /* SAWeakPropertyContainer.h in Headers */,
 				4DB14DE62456C107002C224C /* SALog+Private.h in Headers */,
 				4DBE3C1D24519D5000D4AC51 /* SAVisualizedObjectSerializerManger.h in Headers */,
-				FC86E5F424FA5E6E006FDDA8 /* SAChannelWhiteListManager.h in Headers */,
 				880F37D624AB5D84005AC8A0 /* SAObject+SAConfigOptions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1097,9 +1083,7 @@
 				FC5A4BBC244E976F00063624 /* SAURLUtils.m in Sources */,
 				FC5A4BC2244E976F00063624 /* SADateFormatter.m in Sources */,
 				88824F9E249B7CE8003ADC59 /* SAEventRecord.m in Sources */,
-				FC4E82B524FDFAB100B55D7F /* SAChannelWhiteListController.m in Sources */,
 				4D9D5E32240E4ADE00E6A9A5 /* SAVisualizedUtils.m in Sources */,
-				FC86E5F524FA5E6E006FDDA8 /* SAChannelWhiteListManager.m in Sources */,
 				4DB14DE42456C107002C224C /* SALog.m in Sources */,
 				CB30C07E22840EC00004061D /* NSObject+SensorsAnalyticsDelegate.m in Sources */,
 				880F37DF24AC68C5005AC8A0 /* SAObject+SAConfigOptions.m in Sources */,

@@ -826,7 +826,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
-   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] || [_linkHandler canHandleURL:url];
+   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
+          [_linkHandler canHandleURL:url] ||
+          [[SAChannelMatchManager sharedInstance] isValidURL:url];
 }
 
 - (BOOL)handleAutoTrackURL:(NSURL *)URL{
@@ -865,6 +867,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
+            return YES;
+        } else if ([[SAChannelMatchManager sharedInstance] isValidURL:url]) {
+            [[SAChannelMatchManager sharedInstance] showAuthorizationAlert:url];
             return YES;
         }
     } @catch (NSException *exception) {
@@ -1373,7 +1378,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
 
     if (userAgent.length == 0) {
-        [[SAChannelMatchManager manager] loadUserAgentWithCompletion:^(NSString * _Nonnull ua) {
+        [[SAChannelMatchManager sharedInstance] loadUserAgentWithCompletion:^(NSString * _Nonnull ua) {
             [properties setValue:ua forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
             trackChannelEventBlock();
         }];
@@ -1489,7 +1494,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    [[SAChannelMatchManager manager] trackInstallation:event properties:propertyDict disableCallback:disableCallback];
+    [[SAChannelMatchManager sharedInstance] trackInstallation:event properties:propertyDict disableCallback:disableCallback];
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
@@ -2738,7 +2743,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //使 newAgent 生效，并设置 userAgent
         NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
         [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-        [[SAChannelMatchManager manager] updateUserAgent:newAgent];
+        [[SAChannelMatchManager sharedInstance] updateUserAgent:newAgent];
         [[NSUserDefaults standardUserDefaults] synchronize];
     };
 
@@ -2747,11 +2752,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (![self.network isValidServerURL]) {
             verify = NO;
         }
-        NSString *oldAgent = userAgent.length > 0 ? userAgent : SAChannelMatchManager.manager.userAgent;
+        NSString *oldAgent = userAgent.length > 0 ? userAgent : SAChannelMatchManager.sharedInstance.userAgent;
         if (oldAgent) {
             changeUserAgent(verify, oldAgent);
         } else {
-            [[SAChannelMatchManager manager] loadUserAgentWithCompletion:^(NSString * _Nonnull ua) {
+            [[SAChannelMatchManager sharedInstance] loadUserAgentWithCompletion:^(NSString * _Nonnull ua) {
                 changeUserAgent(verify, ua);
             }];
         }
