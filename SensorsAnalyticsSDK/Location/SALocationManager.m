@@ -59,15 +59,6 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 
 #pragma mark - SALocationManagerProtocol
 
-+ (instancetype)sharedInstance {
-    static dispatch_once_t onceToken;
-    static SALocationManager *manager = nil;
-    dispatch_once(&onceToken, ^{
-        manager = [[SALocationManager alloc] init];
-    });
-    return manager;
-}
-
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
 
