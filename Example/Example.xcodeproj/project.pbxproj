@@ -54,6 +54,7 @@
 		CB6EBB2622855F0C003CFBA8 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
 		CB6EBB4E22857075003CFBA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D2228414420004061D /* Main.storyboard */; };
 		CB6EBB4F2285707D003CFBA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D0228414420004061D /* LaunchScreen.storyboard */; };
+		FCA9E9AF2502399600837A31 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24C228422090004061D /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -180,6 +181,7 @@
 				CB30C261228422830004061D /* libsqlite3.tbd in Frameworks */,
 				CB30C25F2284227C0004061D /* libz.tbd in Frameworks */,
 				CB30C25D228422730004061D /* UIKit.framework in Frameworks */,
+				FCA9E9AF2502399600837A31 /* CoreGraphics.framework in Frameworks */,
 				CB30C25B2284226D0004061D /* SystemConfiguration.framework in Frameworks */,
 				CB30C259228422650004061D /* CoreTelephony.framework in Frameworks */,
 				CB30C2572284225E0004061D /* Security.framework in Frameworks */,

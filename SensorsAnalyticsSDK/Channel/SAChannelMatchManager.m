@@ -253,9 +253,12 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
         dispatch_async(dispatch_get_main_queue(), ^{
             [indicator stopAnimating];
             [indicator removeFromSuperview];
-            if (response.statusCode == 200) {
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            BOOL success = [dict[@"code"] boolValue];
+            if (success) {
                 [self showAppInstallAlert];
             } else {
+                // TODO: 这里是否需要以服务端的错误信息为准？
                 [self showRequestFailedAlert];
             }
         });
