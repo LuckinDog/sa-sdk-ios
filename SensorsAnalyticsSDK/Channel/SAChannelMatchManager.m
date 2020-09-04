@@ -225,7 +225,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     components.scheme = serverURL.scheme;
     components.host = serverURL.host;
     components.port = serverURL.port;
-    components.path = @"/api/v2/sa/channel_tool/url";
+    components.path = @"/api/sdk/channel_tool/url";
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:components.URL];
     request.timeoutInterval = 60;
     [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
