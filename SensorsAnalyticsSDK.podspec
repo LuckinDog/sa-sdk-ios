@@ -23,6 +23,7 @@ Pod::Spec.new do |s|
     f.frameworks = 'CoreLocation'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
+    f.private_header_files = 'SensorsAnalyticsSDK/Location/**/*.h'
 #    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
   end
 

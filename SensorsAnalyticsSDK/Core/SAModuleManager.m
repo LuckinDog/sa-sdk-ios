@@ -25,7 +25,7 @@
 #import "SAModuleManager.h"
 #import "SAModuleProtocol.h"
 
-// React Native 模块名
+// Location 模块名
 static NSString * const SALocationModuleName = @"SALocationManager";
 
 @interface SAModuleManager ()
@@ -41,6 +41,7 @@ static NSString * const SALocationModuleName = @"SALocationManager";
     static SAModuleManager *manager = nil;
     dispatch_once(&onceToken, ^{
         manager = [[SAModuleManager alloc] init];
+        manager.modules = [NSMutableDictionary dictionary];
     });
     return manager;
 }
@@ -58,14 +59,22 @@ static NSString * const SALocationModuleName = @"SALocationManager";
     }
 }
 
+- (id<SAModuleProtocol>)modelManagerForModuleType:(SAModuleType)type {
+    NSString *name = [self moduleNameForType:type];
+    return self.modules[name];
+}
+
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
+    NSString *name = [self moduleNameForType:type];
+    [self setEnable:enable forModule:name];
+}
+
+- (NSString *)moduleNameForType:(SAModuleType)type {
     switch (type) {
         case SAModuleTypeLocation:
-            [self setEnable:enable forModule:SALocationModuleName];
-            break;
-
+            return SALocationModuleName;
         default:
-            break;
+            return nil;
     }
 }
 
@@ -77,12 +86,18 @@ static NSString * const SALocationModuleName = @"SALocationManager";
 
 - (NSDictionary *)properties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    for (NSString *key in self.modules) {
-        id<SAPropertyModuleProtocol> object = (id<SAPropertyModuleProtocol>)self.modules[key];
-        if ([object conformsToProtocol:@protocol(SAPropertyModuleProtocol)] && object.isEnable) {
-            [properties addEntriesFromDictionary:object.properties];
+    // 兼容使用宏定义的方式源码集成 SDK
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+        if (![obj conformsToProtocol:@protocol(SAPropertyModuleProtocol)] || !obj.isEnable) {
+            return;
         }
-    }
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+        id<SAPropertyModuleProtocol> manager = (id<SAPropertyModuleProtocol>)obj;
+        if ([key isEqualToString:SALocationModuleName]) {
+            [properties addEntriesFromDictionary:manager.properties];
+        }
+#endif
+    }];
     return properties;
 }
 

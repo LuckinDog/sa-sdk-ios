@@ -19,6 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,6 +30,8 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @interface SAModuleManager : NSObject
 
 + (instancetype)sharedInstance;
+
+- (nullable id<SAModuleProtocol>)modelManagerForModuleType:(SAModuleType)type;
 
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
 

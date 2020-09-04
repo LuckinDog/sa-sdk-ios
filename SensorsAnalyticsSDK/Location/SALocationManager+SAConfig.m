@@ -23,12 +23,19 @@
 #endif
 
 #import "SALocationManager+SAConfig.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "SensorsAnalyticsSDK.h"
 
 @implementation SALocationManager (SAConfig)
 
 - (BOOL)disableSDK {
-    return [SensorsAnalyticsSDK sharedInstance].remoteConfig.disableSDK;
+    SensorsAnalyticsSDK *instance = [SensorsAnalyticsSDK sharedInstance];
+    SEL sel = NSSelectorFromString(@"remoteConfig");
+    id (*func)(id, SEL) = (void *)[instance methodForSelector:sel];
+    @try {
+        return [func(instance, sel) valueForKey:@"disableSDK"];
+    } @catch(NSException *exception) {
+        return NO;
+    }
 }
 
 @end
