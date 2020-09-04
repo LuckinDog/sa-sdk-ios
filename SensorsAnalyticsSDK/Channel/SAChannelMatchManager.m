@@ -224,9 +224,11 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     NSURLComponents *components = [[NSURLComponents alloc] init];
     components.scheme = serverURL.scheme;
     components.host = serverURL.host;
-    components.path = @"/sa/channel_tool/url";
+    components.port = serverURL.port;
+    components.path = @"/api/v2/sa/channel_tool/url";
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:components.URL];
     request.timeoutInterval = 60;
+    [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
     [request setHTTPMethod:@"POST"];
 
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
@@ -251,14 +253,12 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
         dispatch_async(dispatch_get_main_queue(), ^{
             [indicator stopAnimating];
             [indicator removeFromSuperview];
-        });
-        if (response.statusCode == 200) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            if (response.statusCode == 200) {
                 [self showAppInstallAlert];
-            });
-        } else {
-            [self showRequestFailedAlert];
-        }
+            } else {
+                [self showRequestFailedAlert];
+            }
+        });
     }];
     [task resume];
 }
