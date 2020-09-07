@@ -18,29 +18,16 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
-#import <Foundation/Foundation.h>
-#import "SALinkHandler.h"
+#import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAChannelMatchManager : NSObject
 
-@property (nonatomic, weak) SAConfigOptions *configOptions;
-
-//获取当前设备的 UserAgent
-@property (nonatomic, copy, readonly) NSString *userAgent;
+@property (nonatomic, copy) SAConfigOptions *configOptions;
 
 + (instancetype)sharedInstance;
-
-- (void)updateUserAgent:(NSString *)userAgent;
-
 - (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
-
 - (BOOL)isValidURL:(NSURL *)url;
 - (void)showAuthorizationAlert:(NSURL *)url;
 @end

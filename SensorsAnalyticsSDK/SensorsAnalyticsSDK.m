@@ -49,6 +49,10 @@
     #import "SAKeyChainItemWrapper.h"
 #endif
 
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+#import <WebKit/WebKit.h>
+#endif
+
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
@@ -190,6 +194,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableSet<NSString *> *visualizedAutoTrackViewControllers;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
+@property (nonatomic, copy) NSString *userAgent;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
@@ -205,6 +210,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
 @property (nonatomic, strong) SALocationManager *locationManager;
 @property (nonatomic, strong) SAGPSLocationConfig *locationConfig;
+#endif
+
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+@property (nonatomic, strong) WKWebView *wkWebView;
+@property (nonatomic, strong) dispatch_group_t loadUAGroup;
 #endif
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
@@ -424,6 +434,51 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 + (UInt64)getSystemUpTime {
     return NSProcessInfo.processInfo.systemUptime * 1000;
+}
+
+- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
+    if (self.userAgent) {
+        return completion(self.userAgent);
+    }
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.wkWebView) {
+            dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                completion(self.userAgent);
+            });
+        } else {
+            self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
+            self.loadUAGroup = dispatch_group_create();
+            dispatch_group_enter(self.loadUAGroup);
+
+            __weak typeof(self) weakSelf = self;
+            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                
+                if (error || !response) {
+                    SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
+                    completion(nil);
+                } else {
+                    strongSelf.userAgent = response;
+                    completion(strongSelf.userAgent);
+                }
+                
+                // 通过 wkWebView 控制 dispatch_group_leave 的次数
+                if (strongSelf.wkWebView) {
+                    dispatch_group_leave(strongSelf.loadUAGroup);
+                }
+                
+                strongSelf.wkWebView = nil;
+            }];
+        }
+    });
+#else
+    [SACommonUtility performBlockOnMainThread:^{
+        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        completion(self.userAgent);
+    }];
+#endif
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
@@ -1378,7 +1433,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
 
     if (userAgent.length == 0) {
-        [[SAChannelMatchManager sharedInstance] loadUserAgentWithCompletion:^(NSString * _Nonnull ua) {
+        [self loadUserAgentWithCompletion:^(NSString *ua) {
             [properties setValue:ua forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
             trackChannelEventBlock();
         }];
@@ -2743,7 +2798,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //使 newAgent 生效，并设置 userAgent
         NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
         [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-        [[SAChannelMatchManager sharedInstance] updateUserAgent:newAgent];
+        self.userAgent = newAgent;
         [[NSUserDefaults standardUserDefaults] synchronize];
     };
 
@@ -2752,11 +2807,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (![self.network isValidServerURL]) {
             verify = NO;
         }
-        NSString *oldAgent = userAgent.length > 0 ? userAgent : SAChannelMatchManager.sharedInstance.userAgent;
+        NSString *oldAgent = userAgent.length > 0 ? userAgent : self.userAgent;
         if (oldAgent) {
             changeUserAgent(verify, oldAgent);
         } else {
-            [[SAChannelMatchManager sharedInstance] loadUserAgentWithCompletion:^(NSString * _Nonnull ua) {
+            [self loadUserAgentWithCompletion:^(NSString *ua) {
                 changeUserAgent(verify, ua);
             }];
         }

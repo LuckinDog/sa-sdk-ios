@@ -27,30 +27,8 @@
 #import "SAIdentifier.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAValidator.h"
-#import "SACommonUtility.h"
 #import "SAAlertController.h"
-#import "SAIdentifier.h"
-#import "SALog.h"
 #import "SAURLUtils.h"
-
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-#import <WebKit/WebKit.h>
-#endif
-
-@interface SAChannelMatchManager ()
-
-@property (nonatomic, assign) BOOL isValidAppInstall;
-@property (nonatomic, assign) BOOL appInstalled;
-
-@property (nonatomic, copy) NSString *userAgent;
-@property (nonatomic, copy) NSURL *url;
-
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-@property (nonatomic, strong) WKWebView *wkWebView;
-@property (nonatomic, strong) dispatch_group_t loadUAGroup;
-#endif
-
-@end
 
 NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 
@@ -65,20 +43,39 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     return manager;
 }
 
-- (void)updateUserAgent:(NSString *)userAgent {
-    self.userAgent = userAgent;
+- (UIWindow *)currentAlertWindow {
+    if (!NSClassFromString(@"UIAlertController")) {
+        return [UIApplication sharedApplication].keyWindow;
+    }
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
+    if (@available(iOS 13.0, *)) {
+        __block UIWindowScene *scene = nil;
+        [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj isKindOfClass:[UIWindowScene class]]) {
+                scene = (UIWindowScene *)obj;
+                *stop = YES;
+            }
+        }];
+        if (scene) {
+            return [[UIWindow alloc] initWithWindowScene:scene];
+        }
+    }
+#endif
+    return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 }
 
+
 - (BOOL)appInstalled {
-    NSNumber *flag = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
-    return (flag != nil);
+    NSNumber *appInstalled = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
+    return (appInstalled != nil);
 }
 
 - (BOOL)isValidAppInstall {
-    NSNumber *flag = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
-    return flag.boolValue;
+    NSNumber *valid = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
+    return valid.boolValue;
 }
 
+#pragma mark - AppInstall
 - (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
 
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
@@ -86,6 +83,11 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     if (hasTrackInstallation) {
         return;
     }
+    // 渠道联调诊断 - 激活事件中 IDFA 内容是否为空
+    BOOL isNotEmpty = [SAIdentifier idfa] != nil;
+    [[NSUserDefaults standardUserDefaults] setValue:@(isNotEmpty) forKey:kChannelDebugFlagKey];
+
+    // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
@@ -97,7 +99,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     [self trackAppInstallEvent:event properties:properties];
 }
 
-- (void)trackAppInstallEvent {
+- (void)trackChannelDebugInstallEvent {
     [self trackAppInstallEvent:@"$ChannelDebugInstall" properties:nil];
 }
 
@@ -107,9 +109,6 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     NSString *idfa = [SAIdentifier idfa];
     NSString *appInstallSource = idfa ? [NSString stringWithFormat:@"idfa=%@", idfa] : @"";
     [properties setValue:appInstallSource forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
-
-    // 保存触发过 AppInstall 事件标志位
-    [[NSUserDefaults standardUserDefaults] setValue:@(idfa != nil) forKey:kChannelDebugFlagKey];
 
     __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
     dispatch_block_t trackInstallationBlock = ^{
@@ -135,7 +134,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     };
 
     if (userAgent.length == 0) {
-        [self loadUserAgentWithCompletion:^(NSString *ua) {
+        [[SensorsAnalyticsSDK sharedInstance] loadUserAgentWithCompletion:^(NSString *ua) {
             userAgent = ua;
             trackInstallationBlock();
         }];
@@ -144,52 +143,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     }
 }
 
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
-    if (self.userAgent) {
-        return completion(self.userAgent);
-    }
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.wkWebView) {
-            dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-                completion(self.userAgent);
-            });
-        } else {
-            self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
-            self.loadUAGroup = dispatch_group_create();
-            dispatch_group_enter(self.loadUAGroup);
-
-            __weak typeof(self) weakSelf = self;
-            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
-                __strong typeof(weakSelf) strongSelf = weakSelf;
-
-                if (error || !response) {
-                    SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
-                    completion(nil);
-                } else {
-                    strongSelf.userAgent = response;
-                    completion(strongSelf.userAgent);
-                }
-
-                // 通过 wkWebView 控制 dispatch_group_leave 的次数
-                if (strongSelf.wkWebView) {
-                    dispatch_group_leave(strongSelf.loadUAGroup);
-                }
-
-                strongSelf.wkWebView = nil;
-            }];
-        }
-    });
-#else
-    [SACommonUtility performBlockOnMainThread:^{
-        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        completion(self.userAgent);
-    }];
-#endif
-}
-
-#pragma mark - WhiteList Alert
+#pragma mark - Alert
 - (BOOL)isValidURL:(NSURL *)url {
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
     NSString *monitorId = queryItems[@"monitor_id"];
@@ -200,27 +154,36 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     if (![self isValidURL:url]) {
         return;
     }
+
+    SANetwork *network = [SensorsAnalyticsSDK sharedInstance].network;
+    if (!network.serverURL.absoluteString.length) {
+        [self showErrorMessage:@"数据接收地址错误，无法使用联调诊断工具"];
+        return;
+    }
+    NSString *project = [SAURLUtils queryItemsWithURLString:url.absoluteString][@"project"] ?: @"default";
+    BOOL isEqualProject = [network.project isEqualToString:project];
+    if (isEqualProject) {
+        [self showErrorMessage:@"App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具"];
+        return;
+    }
+
     NSString *title = @"即将开启「渠道白名单」模式";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:@"" preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        if (!self.appInstalled || (self.isValidAppInstall && [SAIdentifier idfa])) {
-            NSString *monitorId = [SAURLUtils queryItemsWithURL:url][@"monitor_id"];
-            [self saveUserInfoIntoWhitList:monitorId];
+        if (![self appInstalled] || ([self isValidAppInstall] && [SAIdentifier idfa])) {
+            NSDictionary *qureyItems = [SAURLUtils queryItemsWithURL:url];
+            [self uploadUserInfoIntoWhiteList:qureyItems];
         } else {
-            [self showErrorMessageAlert];
+            [self showChannelDebugErrorMessage];
         }
     }];
-
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
     [alertController show];
 }
 
-- (void)saveUserInfoIntoWhitList:(NSString *)monitorId {
+- (void)uploadUserInfoIntoWhiteList:(NSDictionary *)qureyItems {
     // 请求逻辑地址修改
     NSURL *serverURL = SensorsAnalyticsSDK.sharedInstance.network.serverURL;
-    if (serverURL.absoluteString.length <= 0) {
-        return;
-    }
     NSURLComponents *components = [[NSURLComponents alloc] init];
     components.scheme = serverURL.scheme;
     components.host = serverURL.host;
@@ -233,9 +196,9 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
-    params[@"monitor_id"] = monitorId;
-    params[@"has_active"] = @(self.appInstalled);
+    params[@"has_active"] = @([self appInstalled]);
     params[@"device_code"] = [SAIdentifier idfa];
+    [params addEntriesFromDictionary:qureyItems];
     NSData *HTTPBody= [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
     request.HTTPBody = HTTPBody;
 
@@ -252,65 +215,43 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [indicator stopAnimating];
-            [indicator removeFromSuperview];
-            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data ?: [NSData data] options:NSJSONReadingMutableContainers error:nil];
             BOOL success = [dict[@"code"] boolValue];
             if (success) {
-                [self showAppInstallAlert];
+                [self showChannelDebugInstall];
             } else {
                 // TODO: 这里是否需要以服务端的错误信息为准？
-                [self showRequestFailedAlert];
+                NSString *message = dict[@"message"] ?: @"添加白名单请求失败，请联系神策技术支持人员排查问题";
+                [self showErrorMessage:message];
             }
         });
     }];
     [task resume];
 }
 
-- (void)showRequestFailedAlert {
-    NSString *content = @"添加白名单请求失败，请联系神策技术支持人员排查问题";
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"" message:content preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleCancel handler:nil];
-    [alertController show];
-}
-
-- (void)showAppInstallAlert {
+- (void)showChannelDebugInstall {
     NSString *title = @"成功开启「渠道白名单」模式";
     NSString *content = @"此模式下不需要卸载 App，点击下列 “激活” 按钮可以反复触发激活";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"激活" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        [self showAppInstallAlert];
-        [self trackAppInstallEvent];
+        [self showChannelDebugInstall];
+        [self trackChannelDebugInstallEvent];
     }];
     [alertController show];
 }
 
-- (void)showErrorMessageAlert {
+- (void)showChannelDebugErrorMessage {
     NSString *title = @"检测到 “设备码为空”，可能原因如下，请排查：";
     NSString *content = @"1. 手机系统设置中选择禁用设备码；\n\n2. SDK 代码有误，请联系研发人员确认是否关闭“采集设备码”开关。\n\n 卸载并安装重新集成了修正的 SDK 的 App，再进行联调测试。";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController show];
-
 }
 
-- (UIWindow *)currentAlertWindow {
-    if (!NSClassFromString(@"UIAlertController")) {
-        return [UIApplication sharedApplication].keyWindow;
-    }
-#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
-    if (@available(iOS 13.0, *)) {
-        __block UIWindowScene *scene = nil;
-        [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if ([obj isKindOfClass:[UIWindowScene class]]) {
-                scene = (UIWindowScene *)obj;
-                *stop = YES;
-            }
-        }];
-        if (scene) {
-            return [[UIWindow alloc] initWithWindowScene:scene];
-        }
-    }
-#endif
-    return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+- (void)showErrorMessage:(NSString *)errorMessage {
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:errorMessage preferredStyle:SAAlertControllerStyleAlert];
+    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleCancel handler:nil];
+    [alertController show];
 }
 
 @end
