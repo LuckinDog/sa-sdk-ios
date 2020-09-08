@@ -162,7 +162,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     }
     NSString *project = [SAURLUtils queryItemsWithURLString:url.absoluteString][@"project"] ?: @"default";
     BOOL isEqualProject = [network.project isEqualToString:project];
-    if (isEqualProject) {
+    if (!isEqualProject) {
         [self showErrorMessage:@"App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具"];
         return;
     }
