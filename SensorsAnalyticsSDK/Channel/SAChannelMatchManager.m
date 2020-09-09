@@ -167,7 +167,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
         return;
     }
 
-    NSString *title = @"即将开启「渠道白名单」模式";
+    NSString *title = @"即将开启「渠道管理白名单」模式";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:@"" preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
         if (![self appInstalled] || ([self isValidAppInstall] && [SAIdentifier idfa])) {
@@ -202,26 +202,21 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     NSData *HTTPBody= [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
     request.HTTPBody = HTTPBody;
 
-    if (!request) {
-        return;
-    }
-
     UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    UIWindow *window = [self currentAlertWindow];
     indicator.center = CGPointMake(window.center.x, window.center.y);
     [window addSubview:indicator];
     [indicator startAnimating];
 
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data ?: [NSData data] options:NSJSONReadingMutableContainers error:nil];
+        BOOL code = [dict[@"code"] integerValue];
+        static NSInteger success = 1;
         dispatch_async(dispatch_get_main_queue(), ^{
             [indicator stopAnimating];
-
-            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data ?: [NSData data] options:NSJSONReadingMutableContainers error:nil];
-            BOOL success = [dict[@"code"] boolValue];
-            if (success) {
+            if (code == success) {
                 [self showChannelDebugInstall];
             } else {
-                // TODO: 这里是否需要以服务端的错误信息为准？
                 NSString *message = dict[@"message"] ?: @"添加白名单请求失败，请联系神策技术支持人员排查问题";
                 [self showErrorMessage:message];
             }
@@ -231,7 +226,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 }
 
 - (void)showChannelDebugInstall {
-    NSString *title = @"成功开启「渠道白名单」模式";
+    NSString *title = @"成功开启「渠道管理白名单」模式";
     NSString *content = @"此模式下不需要卸载 App，点击下列 “激活” 按钮可以反复触发激活";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"激活" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
