@@ -1,4 +1,4 @@
-//  SUIView+HeatMap.m
+//  UIView+HeatMap.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
