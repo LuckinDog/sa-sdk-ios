@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAChannelMatchManager : NSObject
 
-@property (nonatomic, copy) SAConfigOptions *configOptions;
+@property (nonatomic, assign) BOOL enableMultipleChannelMatch;
 
 + (instancetype)sharedInstance;
 - (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;

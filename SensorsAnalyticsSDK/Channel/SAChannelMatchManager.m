@@ -29,6 +29,7 @@
 #import "SAValidator.h"
 #import "SAAlertController.h"
 #import "SAURLUtils.h"
+#import "SAReachability.h"
 
 NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 
@@ -43,36 +44,13 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     return manager;
 }
 
-- (UIWindow *)currentAlertWindow {
-    if (!NSClassFromString(@"UIAlertController")) {
-        return [UIApplication sharedApplication].keyWindow;
-    }
-#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
-    if (@available(iOS 13.0, *)) {
-        __block UIWindowScene *scene = nil;
-        [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if ([obj isKindOfClass:[UIWindowScene class]]) {
-                scene = (UIWindowScene *)obj;
-                *stop = YES;
-            }
-        }];
-        if (scene) {
-            return [[UIWindow alloc] initWithWindowScene:scene];
-        }
-    }
-#endif
-    return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-}
-
-
-- (BOOL)appInstalled {
+- (BOOL)isAppInstall {
     NSNumber *appInstalled = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
     return (appInstalled != nil);
 }
 
-- (BOOL)isValidAppInstall {
-    NSNumber *valid = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
-    return valid.boolValue;
+- (BOOL)isIDFAEmptyOfAppInstall {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kChannelDebugFlagKey];
 }
 
 #pragma mark - AppInstall
@@ -121,11 +99,11 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
             [newProperties addEntriesFromDictionary:propertyDict];
         }
         // 先发送 track
-        [[SensorsAnalyticsSDK sharedInstance] track:event withProperties:[newProperties copy] withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:event withProperties:newProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 
         // 再发送 profile_set_once
         [newProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-        if (self.configOptions.enableMultipleChannelMatch) {
+        if (self.enableMultipleChannelMatch) {
             [[SensorsAnalyticsSDK sharedInstance] set:newProperties];
         } else {
             [[SensorsAnalyticsSDK sharedInstance] setOnce:newProperties];
@@ -167,10 +145,17 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
         return;
     }
 
+    SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
+    SANetworkStatus status = [reachability currentReachabilityStatus];
+    if (status == SANotReachable) {
+        [self showErrorMessage:@"当前网络状况不可用，请检查网络状况后重试"];
+        return;
+    }
+
     NSString *title = @"即将开启「渠道管理白名单」模式";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:@"" preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        if (![self appInstalled] || ([self isValidAppInstall] && [SAIdentifier idfa])) {
+        if (![self isAppInstall] || ([self isIDFAEmptyOfAppInstall] && [SAIdentifier idfa])) {
             NSDictionary *qureyItems = [SAURLUtils queryItemsWithURL:url];
             [self uploadUserInfoIntoWhiteList:qureyItems];
         } else {
@@ -196,25 +181,27 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
-    params[@"has_active"] = @([self appInstalled]);
+    params[@"has_active"] = @([self isAppInstall]);
     params[@"device_code"] = [SAIdentifier idfa];
     [params addEntriesFromDictionary:qureyItems];
-    NSData *HTTPBody= [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
-    request.HTTPBody = HTTPBody;
+    request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
 
     UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    UIWindow *window = [self currentAlertWindow];
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
     indicator.center = CGPointMake(window.center.x, window.center.y);
     [window addSubview:indicator];
     [indicator startAnimating];
 
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data ?: [NSData data] options:NSJSONReadingMutableContainers error:nil];
+        NSDictionary *dict = [NSDictionary dictionary];
+        if (data) {
+            dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+        }
         BOOL code = [dict[@"code"] integerValue];
-        static NSInteger success = 1;
         dispatch_async(dispatch_get_main_queue(), ^{
             [indicator stopAnimating];
-            if (code == success) {
+            // 只有当 code 为 1 时表示请求成功
+            if (code == 1) {
                 [self showChannelDebugInstall];
             } else {
                 NSString *message = dict[@"message"] ?: @"添加白名单请求失败，请联系神策技术支持人员排查问题";

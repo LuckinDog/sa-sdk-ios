@@ -361,6 +361,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
             // 初始化密钥处理器
             _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
+
+            [[SAChannelMatchManager sharedInstance] setEnableMultipleChannelMatch:configOptions.enableMultipleChannelMatch];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
