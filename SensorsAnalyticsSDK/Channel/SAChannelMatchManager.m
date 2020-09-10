@@ -51,21 +51,14 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     return manager;
 }
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        [self initIndicatorView];
-    }
-    return self;
-}
-
 #pragma mark - indicator view
-- (void)initIndicatorView {
+- (void)showIndicator {
     if (NSClassFromString(@"UIAlertController")) {
         UIWindow *alertWindow = [self alertWindow];
         alertWindow.windowLevel = UIWindowLevelAlert + 1;
         UIViewController *caller = [[UIViewController alloc] init];
         alertWindow.rootViewController = caller;
+        alertWindow.hidden = NO;
         _window = alertWindow;
     } else {
         _window = [UIApplication sharedApplication].keyWindow;
@@ -73,6 +66,13 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     _indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     _indicator.center = CGPointMake(_window.center.x, _window.center.y);
     [_window.rootViewController.view addSubview:_indicator];
+    [_indicator startAnimating];
+}
+
+- (void)hideIndicator {
+    [_indicator stopAnimating];
+    _indicator = nil;
+    _window = nil;
 }
 
 - (UIWindow *)alertWindow {
@@ -93,7 +93,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 }
 
-#pragma mark -
+#pragma mark - 渠道联调诊断标记
 // 客户是否手动触发过激活事件
 - (BOOL)isAppInstall {
     NSNumber *appInstalled = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
@@ -105,8 +105,8 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     return [[NSUserDefaults standardUserDefaults] boolForKey:kChannelDebugFlagKey];
 }
 
-#pragma mark -  激活事件
-- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
+#pragma mark - 激活事件
+- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
 
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
     BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
@@ -114,63 +114,59 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
         return;
     }
     // 渠道联调诊断功能 - 激活事件中 IDFA 内容是否为空
-    BOOL isNotEmpty = [SAIdentifier idfa] != nil;
+    BOOL isNotEmpty = [SAIdentifier idfa].length > 0;
     [[NSUserDefaults standardUserDefaults] setValue:@(isNotEmpty) forKey:kChannelDebugFlagKey];
 
     // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    [properties addEntriesFromDictionary:propertyDict];
-    if (disableCallback) {
-        [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
+    NSMutableDictionary *eventProps = [NSMutableDictionary dictionary];
+    if ([SAValidator isValidDictionary:properties]) {
+        [eventProps addEntriesFromDictionary:properties];
     }
-    [self trackAppInstallEvent:event properties:properties];
+    if (disableCallback) {
+        eventProps[SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK] = @YES;
+    }
+    [self handleAppInstallEvent:event properties:eventProps];
 }
 
 - (void)trackChannelDebugInstallEvent {
-    [self trackAppInstallEvent:@"$ChannelDebugInstall" properties:nil];
+    [self handleAppInstallEvent:@"$ChannelDebugInstall" properties:nil];
 }
 
-- (void)trackAppInstallEvent:(NSString *)event properties:(NSDictionary *)propertyDict {
-    // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+- (void)handleAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
+    NSMutableDictionary *eventProps = [properties mutableCopy];
     NSString *idfa = [SAIdentifier idfa];
     NSString *appInstallSource = idfa ? [NSString stringWithFormat:@"idfa=%@", idfa] : @"";
-    [properties setValue:appInstallSource forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
+    eventProps[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = appInstallSource;
 
-    __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-    dispatch_block_t trackInstallationBlock = ^{
-        if (userAgent) {
-            [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-        }
-
-        NSMutableDictionary *newProperties = [properties mutableCopy];
-        if ([SAValidator isValidDictionary:propertyDict]) {
-            [newProperties addEntriesFromDictionary:propertyDict];
-        }
-        // 先发送 track
-        [[SensorsAnalyticsSDK sharedInstance] track:event withProperties:newProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
-
-        // 再发送 profile_set_once
-        [newProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-        if (self.enableMultipleChannelMatch) {
-            [[SensorsAnalyticsSDK sharedInstance] set:newProperties];
-        } else {
-            [[SensorsAnalyticsSDK sharedInstance] setOnce:newProperties];
-        }
-        [[SensorsAnalyticsSDK sharedInstance] flush];
-    };
-
+    NSString *userAgent = eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT];
     if (userAgent.length == 0) {
         [[SensorsAnalyticsSDK sharedInstance] loadUserAgentWithCompletion:^(NSString *ua) {
-            userAgent = ua;
-            trackInstallationBlock();
+            eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] = ua;
+            [self trackAppInstallEvent:event properties:eventProps];
         }];
     } else {
-        trackInstallationBlock();
+        [self trackAppInstallEvent:event properties:eventProps];
     }
+}
+
+- (void)trackAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
+    // 先发送 track
+    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
+    [sdk track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+
+    NSMutableDictionary *profileProps = [NSMutableDictionary dictionary];
+    [profileProps addEntriesFromDictionary:properties];
+    // 再发送 profile_set_once
+    [profileProps setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
+    if (self.enableMultipleChannelMatch) {
+        [sdk set:profileProps];
+    } else {
+        [sdk setOnce:profileProps];
+    }
+    [sdk flush];
 }
 
 #pragma mark - Alert
@@ -238,8 +234,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     [params addEntriesFromDictionary:qureyItems];
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
 
-    self.window.hidden = NO;
-    [self.indicator startAnimating];
+    [self showIndicator];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSDictionary *dict = [NSDictionary dictionary];
         if (data) {
@@ -247,8 +242,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
         }
         NSInteger code = [dict[@"code"] integerValue];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.indicator stopAnimating];
-            self.window.hidden = YES;
+            [self hideIndicator];
             // 只有当 code 为 1 时表示请求成功
             if (code == 1) {
                 [self showChannelDebugInstall];
@@ -266,8 +260,8 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     NSString *content = @"此模式下不需要卸载 App，点击下列 “激活” 按钮可以反复触发激活";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"激活" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        [self showChannelDebugInstall];
         [self trackChannelDebugInstallEvent];
+        [self showChannelDebugInstall];
     }];
     [alertController show];
 }
