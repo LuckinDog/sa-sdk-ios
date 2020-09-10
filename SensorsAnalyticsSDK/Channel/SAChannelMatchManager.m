@@ -137,7 +137,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 }
 
 - (void)handleAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
-    NSMutableDictionary *eventProps = [properties mutableCopy];
+    NSMutableDictionary *eventProps = [NSMutableDictionary dictionaryWithDictionary:properties];
     NSString *idfa = [SAIdentifier idfa];
     NSString *appInstallSource = idfa ? [NSString stringWithFormat:@"idfa=%@", idfa] : @"";
     eventProps[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = appInstallSource;
