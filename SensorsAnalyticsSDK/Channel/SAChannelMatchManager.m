@@ -33,6 +33,13 @@
 
 NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 
+@interface SAChannelMatchManager ()
+
+@property (nonatomic, strong) UIWindow *window;
+@property (nonatomic, strong) UIActivityIndicatorView *indicator;
+
+@end
+
 @implementation SAChannelMatchManager
 
 + (instancetype)sharedInstance {
@@ -44,16 +51,61 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     return manager;
 }
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [self initIndicatorView];
+    }
+    return self;
+}
+
+#pragma mark - indicator view
+- (void)initIndicatorView {
+    if (NSClassFromString(@"UIAlertController")) {
+        UIWindow *alertWindow = [self alertWindow];
+        alertWindow.windowLevel = UIWindowLevelAlert + 1;
+        UIViewController *caller = [[UIViewController alloc] init];
+        alertWindow.rootViewController = caller;
+        _window = alertWindow;
+    } else {
+        _window = [UIApplication sharedApplication].keyWindow;
+    }
+    _indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    _indicator.center = CGPointMake(_window.center.x, _window.center.y);
+    [_window.rootViewController.view addSubview:_indicator];
+}
+
+- (UIWindow *)alertWindow {
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
+    if (@available(iOS 13.0, *)) {
+        __block UIWindowScene *scene = nil;
+        [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj isKindOfClass:[UIWindowScene class]]) {
+                scene = (UIWindowScene *)obj;
+                *stop = YES;
+            }
+        }];
+        if (scene) {
+            return [[UIWindow alloc] initWithWindowScene:scene];
+        }
+    }
+#endif
+    return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+}
+
+#pragma mark -
+// 客户是否手动触发过激活事件
 - (BOOL)isAppInstall {
     NSNumber *appInstalled = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
     return (appInstalled != nil);
 }
 
-- (BOOL)isIDFAEmptyOfAppInstall {
+// 客户手动触发过的激活事件中 IDFA 是否为空
+- (BOOL)isNotEmptyIDFAOfAppInstall {
     return [[NSUserDefaults standardUserDefaults] boolForKey:kChannelDebugFlagKey];
 }
 
-#pragma mark - AppInstall
+#pragma mark -  激活事件
 - (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
 
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
@@ -61,7 +113,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     if (hasTrackInstallation) {
         return;
     }
-    // 渠道联调诊断 - 激活事件中 IDFA 内容是否为空
+    // 渠道联调诊断功能 - 激活事件中 IDFA 内容是否为空
     BOOL isNotEmpty = [SAIdentifier idfa] != nil;
     [[NSUserDefaults standardUserDefaults] setValue:@(isNotEmpty) forKey:kChannelDebugFlagKey];
 
@@ -155,7 +207,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     NSString *title = @"即将开启「渠道管理白名单」模式";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:@"" preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        if (![self isAppInstall] || ([self isIDFAEmptyOfAppInstall] && [SAIdentifier idfa])) {
+        if (![self isAppInstall] || ([self isNotEmptyIDFAOfAppInstall] && [SAIdentifier idfa])) {
             NSDictionary *qureyItems = [SAURLUtils queryItemsWithURL:url];
             [self uploadUserInfoIntoWhiteList:qureyItems];
         } else {
@@ -167,7 +219,6 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 }
 
 - (void)uploadUserInfoIntoWhiteList:(NSDictionary *)qureyItems {
-    // 请求逻辑地址修改
     NSURL *serverURL = SensorsAnalyticsSDK.sharedInstance.network.serverURL;
     NSURLComponents *components = [[NSURLComponents alloc] init];
     components.scheme = serverURL.scheme;
@@ -176,6 +227,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     components.path = @"/api/sdk/channel_tool/url";
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:components.URL];
     request.timeoutInterval = 60;
+    // 服务端要求 Content-Type 为 text/plain
     [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
     [request setHTTPMethod:@"POST"];
 
@@ -186,20 +238,17 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
     [params addEntriesFromDictionary:qureyItems];
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
 
-    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    UIWindow *window = [UIApplication sharedApplication].keyWindow;
-    indicator.center = CGPointMake(window.center.x, window.center.y);
-    [window addSubview:indicator];
-    [indicator startAnimating];
-
+    self.window.hidden = NO;
+    [self.indicator startAnimating];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSDictionary *dict = [NSDictionary dictionary];
         if (data) {
             dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
         }
-        BOOL code = [dict[@"code"] integerValue];
+        NSInteger code = [dict[@"code"] integerValue];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [indicator stopAnimating];
+            [self.indicator stopAnimating];
+            self.window.hidden = YES;
             // 只有当 code 为 1 时表示请求成功
             if (code == 1) {
                 [self showChannelDebugInstall];
@@ -224,7 +273,7 @@ NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
 }
 
 - (void)showChannelDebugErrorMessage {
-    NSString *title = @"检测到 “设备码为空”，可能原因如下，请排查：";
+    NSString *title = @"检测到 “设备码为空”，可能原因如下，请排查：\n";
     NSString *content = @"1. 手机系统设置中选择禁用设备码；\n\n2. SDK 代码有误，请联系研发人员确认是否关闭“采集设备码”开关。\n\n 卸载并安装重新集成了修正的 SDK 的 App，再进行联调测试。";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController show];
