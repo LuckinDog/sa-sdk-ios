@@ -314,7 +314,11 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
             SALogError(@"%@ error: %@", self, e);
             success = NO;
         }
-        completion(success, config);
+        
+        // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(success, config);
+        });
     }];
     [task resume];
     return task;
