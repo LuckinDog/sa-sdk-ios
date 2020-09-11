@@ -260,6 +260,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance initRemoteConfigManager];
     });
 }
 
@@ -345,9 +346,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
             _locationConfig = [[SAGPSLocationConfig alloc] init];
 #endif
-            
-            // 初始化远程配置
-            [self initRemoteConfigManager];
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
@@ -3185,6 +3183,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
+        [sharedInstance initRemoteConfigManager];
     });
     return sharedInstance;
 }
@@ -3196,6 +3195,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance initRemoteConfigManager];
     });
     return sharedInstance;
 }
