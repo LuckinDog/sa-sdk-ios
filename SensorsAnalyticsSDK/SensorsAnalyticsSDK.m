@@ -574,15 +574,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
-    if (_debugMode == SensorsAnalyticsDebugOff) {
-        return;
-    }
-
-    if (!_showDebugAlertView) {
-        return;
-    }
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
+            if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+                return;
+            }
+            
+            if (self->_debugMode == SensorsAnalyticsDebugOff) {
+                return;
+            }
+            
+            if (!self->_showDebugAlertView) {
+                return;
+            }
+            
             if (self->_debugAlertViewHasShownNumber >= 3) {
                 return;
             }
