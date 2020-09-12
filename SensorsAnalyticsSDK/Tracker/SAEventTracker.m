@@ -154,9 +154,9 @@
                 return;
             }
             // 5. 删除数据
-            if ([strongSelf.eventStore deleteRecords:recordIDs]) {
-                [strongSelf flushRecordsWithSize:size];
-            }
+            [strongSelf.eventStore deleteRecords:recordIDs];
+
+            [strongSelf flushRecordsWithSize:size];
         };
         if (sensorsdata_is_same_queue(strongSelf.queue)) {
             block();
