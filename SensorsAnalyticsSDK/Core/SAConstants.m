@@ -139,3 +139,5 @@ NSNotificationName const SA_TRACK_LOGOUT_NOTIFICATION = @"SensorsAnalyticsTrackL
 NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION = @"SensorsAnalyticsTrackIdentifyNotification";
 NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION = @"SensorsAnalyticsTrackResetAnonymousIdNotification";
 NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION = @"SensorsAnalyticsTrackEventFromH5Notification";
+
+NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION = @"cn.sensorsdata.SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION";

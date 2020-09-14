@@ -24,8 +24,7 @@
 
 #import <UIKit/UIKit.h>
 #import "SALocationManager.h"
-#import "SALocationManager+SAConfig.h"
-#import "SARemoteConfigManager.h"
+#import "SAConstants+Private.h"
 #import "SALog.h"
 
 static NSString * const SAEventPresetPropertyLatitude = @"$latitude";
@@ -85,25 +84,31 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
     [notificationCenter addObserver:self
-                           selector:@selector(applicationDidBecomeActive:)
-                               name:UIApplicationDidBecomeActiveNotification
-                             object:nil];
-    [notificationCenter addObserver:self
                            selector:@selector(applicationDidEnterBackground:)
                                name:UIApplicationDidEnterBackgroundNotification
                              object:nil];
-}
-
-- (void)applicationDidBecomeActive:(NSNotification *)notification {
-    if (!self.disableSDK && self.isEnable) {
-        [self startUpdatingLocation];
-    } else {
-        [self stopUpdatingLocation];
-    }
+    [notificationCenter addObserver:self
+                           selector:@selector(remoteConfigManagerModelChanged:)
+                               name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION
+                             object:nil];
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     [self stopUpdatingLocation];
+}
+
+- (void)remoteConfigManagerModelChanged:(NSNotification *)sender {
+    BOOL disableSDK = NO;
+    @try {
+        disableSDK = [sender.object valueForKey:@"disableSDK"];
+    } @catch(NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    }
+    if (disableSDK) {
+        [self stopUpdatingLocation];
+    } else if (self.enable) {
+        [self startUpdatingLocation];
+    }
 }
 
 #pragma mark - Public
@@ -122,7 +127,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
             [self.locationManager startUpdatingLocation];
             self.isUpdatingLocation = YES;
         }
-    }@catch (NSException *e) {
+    } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
 }
