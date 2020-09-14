@@ -25,6 +25,7 @@
 #import <UIKit/UIKit.h>
 #import "SALocationManager.h"
 #import "SALocationManager+SAConfig.h"
+#import "SARemoteConfigManager.h"
 #import "SALog.h"
 
 static NSString * const SAEventPresetPropertyLatitude = @"$latitude";

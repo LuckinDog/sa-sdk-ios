@@ -67,6 +67,8 @@ static NSString * const SAEventPresetPropertyOSVersion = @"$os_version";
 NSString * const SAEventPresetPropertyAppVersion = @"$app_version";
 /// 应用 ID
 static NSString * const SAEventPresetPropertyAppID = @"$app_id";
+/// 应用名称
+static NSString * const SAEventPresetPropertyAppName = @"$app_name";
 /// 时区偏移量
 static NSString * const SAEventPresetPropertyTimezoneOffset = @"$timezone_offset";
 
@@ -212,7 +214,11 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
         sysctlbyname("hw.machine", NULL, &size, NULL, 0);
         char answer[size];
         sysctlbyname("hw.machine", answer, &size, NULL, 0);
-        results = @(answer);
+        if (size) {
+            results = @(answer);
+        } else {
+            SALogError(@"Failed fetch hw.machine from sysctl.");
+        }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -285,6 +291,25 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     return carrierName;
 }
 
++ (NSString *)appName {
+    NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+    if (displayName) {
+        return displayName;
+    }
+    
+    NSString *bundleName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+    if (bundleName) {
+        return bundleName;
+    }
+    
+    NSString *executableName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"];
+    if (executableName) {
+        return executableName;
+    }
+    
+    return nil;
+}
+
 #pragma mark – Getters and Setters
 
 - (NSMutableDictionary *)automaticProperties {
@@ -303,6 +328,7 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
             _automaticProperties[SAEventPresetPropertyOS] = @"iOS";
             _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
             _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+            _automaticProperties[SAEventPresetPropertyAppName] = [SAPresetProperty appName];
             _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             _automaticProperties[SAEventPresetPropertyLib] = @"iOS";
             _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;
