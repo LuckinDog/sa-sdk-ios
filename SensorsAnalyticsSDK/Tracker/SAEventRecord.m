@@ -43,6 +43,9 @@ static long recordIndex = 0;
         _type = type;
 
         _encrypted = _event[SAEncryptRecordKeyEKey] != nil;
+
+        // 事件数据插入自定义的 ID 自增，这个 ID 在入库之前有效，入库之后数据库会生成新的 ID
+        recordIndex++;
     }
     return self;
 }

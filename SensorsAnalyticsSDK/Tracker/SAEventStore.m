@@ -78,7 +78,7 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
     if (![keyPath isEqualToString:SAEventStoreObserverKeyPath]) {
         return;
     }
-    if (![change[SAEventStoreObserverKeyPath] boolValue] || self.recordCaches.count == 0) {
+    if (![change[NSKeyValueChangeNewKey] boolValue] || self.recordCaches.count == 0) {
         return;
     }
     // 对于内存中的数据，重试 3 次插入数据库中。
@@ -93,13 +93,12 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 #pragma mark - record
 
 - (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize {
-    NSArray<SAEventRecord *> *records = [self.database selectRecords:recordSize];
-    // 如果能从数据库中，查询到数据，那么 isCreatedTable 一定是 YES，所有内存中的数据也都会正确入库
-    // 如果数据库中查询的数据量为 0 并且缓存中有数据，那么表示只能从缓存中获取数据
-    if (records.count == 0 && self.recordCaches.count != 0) {
+    // 如果内存中存在数据，那么先上传，保证内存数据不丢失
+    if (self.recordCaches.count) {
         return self.recordCaches.count <= recordSize ? [self.recordCaches copy] : [self.recordCaches subarrayWithRange:NSMakeRange(0, recordSize)];
     }
-    return records;
+    // 上传数据库中的数据
+    return [self.database selectRecords:recordSize];
 }
 
 - (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records {
