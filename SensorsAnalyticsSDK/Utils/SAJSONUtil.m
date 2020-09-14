@@ -73,8 +73,8 @@
     //防止 float 精度丢失
     if ([newObj isKindOfClass:[NSNumber class]]) {
         @try {
-            if ([newObj stringValue] && [[obj stringValue] rangeOfString:@"."].location != NSNotFound) {
-                return [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)obj).decimalValue];
+            if ([newObj stringValue] && [[newObj stringValue] rangeOfString:@"."].location != NSNotFound) {
+                return [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)newObj).decimalValue];
             } else {
                 return newObj;
             }
@@ -101,7 +101,7 @@
             } else {
                 stringKey = [NSString stringWithString:key];
             }
-            id v = [self JSONSerializableObjectForObject:obj[key]];
+            id v = [self JSONSerializableObjectForObject:newObj[key]];
             d[stringKey] = v;
         }
         return [NSDictionary dictionaryWithDictionary:d];
