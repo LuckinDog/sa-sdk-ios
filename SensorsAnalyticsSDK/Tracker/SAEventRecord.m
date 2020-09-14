@@ -38,7 +38,7 @@ static long recordIndex = 0;
 
 - (instancetype)initWithEvent:(NSDictionary *)event type:(NSString *)type {
     if (self = [super init]) {
-        _recordID = [NSString stringWithFormat:@"%ld", recordIndex];
+        _recordID = [NSString stringWithFormat:@"SA_%ld", recordIndex];
         _event = [event mutableCopy];
         _type = type;
 
