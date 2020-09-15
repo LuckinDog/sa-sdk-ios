@@ -59,7 +59,7 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 }
 
 - (void)setupDatabase:(NSString *)filePath {
-//    self.database = [[SADatabase alloc] initWithFilePath:filePath];
+    self.database = [[SADatabase alloc] initWithFilePath:filePath];
     [self.database addObserver:self forKeyPath:SAEventStoreObserverKeyPath options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
 }
 
