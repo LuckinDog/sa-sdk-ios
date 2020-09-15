@@ -59,7 +59,7 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 }
 
 - (void)setupDatabase:(NSString *)filePath {
-    self.database = [[SADatabase alloc] initWithFilePath:filePath];
+//    self.database = [[SADatabase alloc] initWithFilePath:filePath];
     [self.database addObserver:self forKeyPath:SAEventStoreObserverKeyPath options:NSKeyValueObservingOptionNew context:SAEventStoreContext];
 }
 
@@ -92,10 +92,25 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 
 #pragma mark - record
 
+- (NSArray<SAEventRecord *> *)selectRecordsInCache:(NSUInteger)recordSize {
+    __block NSInteger location = NSNotFound;
+    [self.recordCaches enumerateObjectsUsingBlock:^(SAEventRecord * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (obj.status != SAEventRecordStatusFlush) {
+            location = idx;
+            *stop = YES;
+        }
+    }];
+    if (location == NSNotFound) {
+        return nil;
+    }
+    NSInteger length = self.recordCaches.count - location <= recordSize ? self.recordCaches.count - location : recordSize;
+    return [self.recordCaches subarrayWithRange:NSMakeRange(location, length)];
+}
+
 - (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize {
     // 如果内存中存在数据，那么先上传，保证内存数据不丢失
     if (self.recordCaches.count) {
-        return self.recordCaches.count <= recordSize ? [self.recordCaches copy] : [self.recordCaches subarrayWithRange:NSMakeRange(0, recordSize)];
+        return [self selectRecordsInCache:recordSize];
     }
     // 上传数据库中的数据
     return [self.database selectRecords:recordSize];
