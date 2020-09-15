@@ -49,7 +49,7 @@ static NSString * const SALocationModuleName = @"SALocationManager";
 - (void)setEnable:(BOOL)enable forModule:(NSString *)moduleName {
     if (self.modules[moduleName]) {
         self.modules[moduleName].enable = enable;
-    } else {
+    } else if (enable) {
         Class<SAModuleProtocol> cla = NSClassFromString(moduleName);
         if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
             id<SAModuleProtocol> object = [[(Class)cla alloc] init];

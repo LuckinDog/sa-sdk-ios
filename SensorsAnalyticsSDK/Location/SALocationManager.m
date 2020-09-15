@@ -31,10 +31,9 @@ static NSString * const SAEventPresetPropertyLatitude = @"$latitude";
 static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 
 @interface SALocationManager() <CLLocationManagerDelegate>
+
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, assign) BOOL isUpdatingLocation;
-
-@property (nonatomic, assign) BOOL isEnable;
 
 @end
 
@@ -100,7 +99,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 - (void)remoteConfigManagerModelChanged:(NSNotification *)sender {
     BOOL disableSDK = NO;
     @try {
-        disableSDK = [sender.object valueForKey:@"disableSDK"];
+        disableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
     } @catch(NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
