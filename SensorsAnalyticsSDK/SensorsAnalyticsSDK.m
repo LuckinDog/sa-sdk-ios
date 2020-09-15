@@ -885,7 +885,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (BOOL)canHandleURL:(NSURL *)url {
    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
           [_linkHandler canHandleURL:url] ||
-          [[SAChannelMatchManager sharedInstance] isValidURL:url];
+          [[SAChannelMatchManager sharedInstance] canHandleURL:url];
 }
 
 - (BOOL)handleAutoTrackURL:(NSURL *)URL{
@@ -925,7 +925,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
             return YES;
-        } else if ([[SAChannelMatchManager sharedInstance] isValidURL:url]) {
+        } else if ([[SAChannelMatchManager sharedInstance] canHandleURL:url]) {
             [[SAChannelMatchManager sharedInstance] showAuthorizationAlert:url];
             return YES;
         }
