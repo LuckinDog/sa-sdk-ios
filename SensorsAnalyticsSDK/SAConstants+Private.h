@@ -59,6 +59,8 @@ extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
 
 extern NSString * const SA_EVENT_NAME_APP_CRASHED;
 
+extern NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED;
+
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
@@ -84,6 +86,8 @@ extern NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
+// 远程控制配置信息
+extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
 
 #pragma mark--common property
 //可选参数
@@ -101,8 +105,6 @@ extern NSString * const SA_PROFILE_APPEND;
 extern NSString * const SA_PROFILE_INCREMENT;
 
 #pragma mark--others
-extern NSString * const SA_SDK_TRACK_CONFIG;
-extern NSString * const SA_REQUEST_REMOTECONFIG_TIME;
 extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
@@ -119,9 +121,10 @@ BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);
 
 
-#pragma mark - SF related
-extern NSString *const SA_TRACK_EVENT_NOTIFICATION;
-extern NSString *const SA_TRACK_LOGIN_NOTIFICATION;
-extern NSString *const SA_TRACK_LOGOUT_NOTIFICATION;
-extern NSString *const SA_TRACK_IDENTIFY_NOTIFICATION;
-extern NSString *const SA_TRACK_RESETANONYMOUSID_NOTIFICATION;
+#pragma mark - SF related notifications
+extern NSNotificationName const SA_TRACK_EVENT_NOTIFICATION;
+extern NSNotificationName const SA_TRACK_LOGIN_NOTIFICATION;
+extern NSNotificationName const SA_TRACK_LOGOUT_NOTIFICATION;
+extern NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION;
+extern NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION;
+extern NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION;
