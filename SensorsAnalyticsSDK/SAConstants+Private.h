@@ -128,3 +128,9 @@ extern NSNotificationName const SA_TRACK_LOGOUT_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION;
+
+
+#pragma mark - ABTest related notifications
+extern NSNotificationName const SA_H5_ABTest_NOTIFICATION;
+extern NSNotificationName const SA_H5_BRIDGE_NOTIFICATION;
+

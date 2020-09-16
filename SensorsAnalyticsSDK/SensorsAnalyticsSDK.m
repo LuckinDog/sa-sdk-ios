@@ -1029,6 +1029,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // forMainFrameOnly:标识脚本是仅应注入主框架（YES）还是注入所有框架（NO）
             WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
             [contentController addUserScript:userScript];
+
+            // 通知其他模块，开启打通 H5
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_H5_BRIDGE_NOTIFICATION object:webView];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
