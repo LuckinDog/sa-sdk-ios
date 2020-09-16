@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance;
 - (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
 - (BOOL)canHandleURL:(NSURL *)url;
-- (void)showAuthorizationAlert:(NSURL *)url;
+- (void)showAuthorizationAlertWithURL:(NSURL *)url;
 @end
 
 NS_ASSUME_NONNULL_END

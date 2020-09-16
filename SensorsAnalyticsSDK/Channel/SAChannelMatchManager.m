@@ -32,8 +32,8 @@
 #import "SAReachability.h"
 #import "SALog.h"
 
-NSString *kChannelDebugFlagKey = @"sensorsdata_channel_debug_flag";
-NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
+NSString * const SAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
+NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 @interface SAChannelMatchManager ()
 
@@ -55,16 +55,11 @@ NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 #pragma mark - indicator view
 - (void)showIndicator {
-    if (NSClassFromString(@"UIAlertController")) {
-        UIWindow *alertWindow = [self alertWindow];
-        alertWindow.windowLevel = UIWindowLevelAlert + 1;
-        UIViewController *caller = [[UIViewController alloc] init];
-        alertWindow.rootViewController = caller;
-        alertWindow.hidden = NO;
-        _window = alertWindow;
-    } else {
-        _window = [UIApplication sharedApplication].keyWindow;
-    }
+    _window = [self alertWindow];
+    _window.windowLevel = UIWindowLevelAlert + 1;
+    UIViewController *controller = [[UIViewController alloc] init];
+    _window.rootViewController = controller;
+    _window.hidden = NO;
     _indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     _indicator.center = CGPointMake(_window.center.x, _window.center.y);
     [_window.rootViewController.view addSubview:_indicator];
@@ -98,13 +93,13 @@ NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
 #pragma mark - 渠道联调诊断标记
 // 客户是否手动触发过激活事件
 - (BOOL)isAppInstall {
-    NSNumber *appInstalled = [[NSUserDefaults standardUserDefaults] objectForKey:kChannelDebugFlagKey];
+    NSNumber *appInstalled = [[NSUserDefaults standardUserDefaults] objectForKey:SAChannelDebugFlagKey];
     return (appInstalled != nil);
 }
 
 // 客户手动触发过的激活事件中 IDFA 是否为空
 - (BOOL)isNotEmptyIDFAOfAppInstall {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:kChannelDebugFlagKey];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:SAChannelDebugFlagKey];
 }
 
 #pragma mark - 激活事件
@@ -117,7 +112,7 @@ NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
     }
     // 渠道联调诊断功能 - 激活事件中 IDFA 内容是否为空
     BOOL isNotEmpty = [SAIdentifier idfa].length > 0;
-    [[NSUserDefaults standardUserDefaults] setValue:@(isNotEmpty) forKey:kChannelDebugFlagKey];
+    [[NSUserDefaults standardUserDefaults] setValue:@(isNotEmpty) forKey:SAChannelDebugFlagKey];
 
     // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
@@ -134,7 +129,7 @@ NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
 }
 
 - (void)trackChannelDebugInstallEvent {
-    [self handleAppInstallEvent:kChannelDebugInstallEventName properties:nil];
+    [self handleAppInstallEvent:SAChannelDebugInstallEventName properties:nil];
 }
 
 - (void)handleAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -178,7 +173,7 @@ NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
     return [url.host isEqualToString:@"channeldebug"] && monitorId.length;
 }
 
-- (void)showAuthorizationAlert:(NSURL *)url {
+- (void)showAuthorizationAlertWithURL:(NSURL *)url {
     if (![self canHandleURL:url]) {
         return;
     }
@@ -216,13 +211,12 @@ NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
         [self showErrorMessage:@"当前网络不可用，请检查网络！"];
         return;
     }
-
-    NSURL *serverURL = SensorsAnalyticsSDK.sharedInstance.network.serverURL;
-    NSURLComponents *components = [[NSURLComponents alloc] init];
-    components.scheme = serverURL.scheme;
-    components.host = serverURL.host;
-    components.port = serverURL.port;
-    components.path = @"/api/sdk/channel_tool/url";
+    NSURLComponents *components = SensorsAnalyticsSDK.sharedInstance.network.baseURLComponents;
+    if (!components) {
+        return;
+    }
+    components.query = nil;
+    components.path = [components.path stringByAppendingPathComponent:@"/api/sdk/channel_tool/url"];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:components.URL];
     request.timeoutInterval = 60;
     // 服务端要求 Content-Type 为 text/plain
@@ -238,7 +232,7 @@ NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
     [self showIndicator];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-        NSDictionary *dict = [NSDictionary dictionary];
+        NSDictionary *dict;
         if (data) {
             dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
         }
@@ -272,7 +266,7 @@ NSString *kChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 - (void)showChannelDebugErrorMessage {
     NSString *title = @"检测到“设备码为空”，可能的原因如下，请排查：";
-    NSString *content = @"\n1. 手机系统设置中选择禁用设备码；\n\n2. 请联系研发人员确认是否关闭“采集设备码”开关。\n\n 排查后，请卸载并安装重新集成了 SDK 的 App，再进行联调。";
+    NSString *content = @"\n1. 手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackInstallation 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleCancel handler:nil];
     [alertController show];

@@ -358,9 +358,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-            // 初始化密钥处理器
-            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
 
+            //
             [[SAChannelMatchManager sharedInstance] setEnableMultipleChannelMatch:configOptions.enableMultipleChannelMatch];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
@@ -925,7 +924,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [_linkHandler handleDeepLink:url];
             return YES;
         } else if ([[SAChannelMatchManager sharedInstance] canHandleURL:url]) {
-            [[SAChannelMatchManager sharedInstance] showAuthorizationAlert:url];
+            [[SAChannelMatchManager sharedInstance] showAuthorizationAlertWithURL:url];
             return YES;
         }
     } @catch (NSException *exception) {
