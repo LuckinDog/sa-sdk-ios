@@ -660,7 +660,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 强制试图把数据传到对应的 SensorsAnalytics 服务器上
  *
  * @discussion
- * 主动调用 flush 接口，则不论 flushInterval 和网络类型的限制条件是否满足，都尝试向服务器上传一次数据
+ * 主动调用 flush 接口，则不论 flushInterval 和 flushBulkSize 限制条件是否满足，都尝试向服务器上传一次数据
  */
 - (void)flush;
 
