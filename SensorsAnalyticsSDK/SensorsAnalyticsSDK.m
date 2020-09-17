@@ -1011,27 +1011,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
             }
         }
-        
+
         if (javaScriptSource.length == 0) {
             return;
         }
-        
+
         NSArray<WKUserScript *> *userScripts = contentController.userScripts;
         __block BOOL isContainJavaScriptBridge = NO;
-        [userScripts enumerateObjectsUsingBlock:^(WKUserScript * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if ([obj.source containsString:@"sensorsdata_app_server_url"] || [obj.source containsString:@"sensorsdata_visualized_mode"]) {
                 isContainJavaScriptBridge = YES;
                 *stop = YES;
             }
         }];
-        
+
         if (!isContainJavaScriptBridge) {
             // forMainFrameOnly:标识脚本是仅应注入主框架（YES）还是注入所有框架（NO）
             WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
             [contentController addUserScript:userScript];
 
             // 通知其他模块，开启打通 H5
-            [[NSNotificationCenter defaultCenter] postNotificationName:SA_H5_BRIDGE_NOTIFICATION object:webView];
+            if ([javaScriptSource containsString:@"sensorsdata_app_server_url"]) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:SA_H5_BRIDGE_NOTIFICATION object:webView];
+            }
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
