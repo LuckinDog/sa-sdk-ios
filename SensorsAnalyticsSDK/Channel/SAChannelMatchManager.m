@@ -219,8 +219,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     components.path = [components.path stringByAppendingPathComponent:@"/api/sdk/channel_tool/url"];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:components.URL];
     request.timeoutInterval = 60;
-    // 服务端要求 Content-Type 为 text/plain
-    [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setHTTPMethod:@"POST"];
 
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
@@ -239,13 +238,17 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
         NSInteger code = [dict[@"code"] integerValue];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self hideIndicator];
-            // 只有当 code 为 1 时表示请求成功
-            if (code == 1) {
-                [self showChannelDebugInstall];
+            if (response.statusCode == 200) {
+                // 只有当 code 为 1 时表示请求成功
+                if (code == 1) {
+                    [self showChannelDebugInstall];
+                } else {
+                    NSString *message = dict[@"message"];
+                    SALogError(@"%@", message);
+                    [self showErrorMessage:@"添加白名单请求失败，请联系神策技术支持人员排查问题！"];
+                }
             } else {
-                NSString *message = dict[@"message"];
-                SALogError(@"%@", message);
-                [self showErrorMessage:@"添加白名单请求失败，请联系神策技术支持人员排查问题！"];
+                [self showErrorMessage:@"网络异常,请求失败！"];
             }
         });
     }];
