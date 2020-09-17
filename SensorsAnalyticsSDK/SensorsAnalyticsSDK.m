@@ -364,10 +364,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                       SA_EVENT_NAME_APP_CRASHED,
                                       SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];
 
-            if (!_launchedPassively) {
-                [self startFlushTimer];
-            }
-
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
             
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
@@ -375,14 +371,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
 
-            [self startAppEndTimer];
             [self setUpListeners];
 
             _finishLaunchedAppStart = NO;
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self requestRemoteConfigWhenInitialized];
                 [self autoTrackAppStart];
                 self.finishLaunchedAppStart = YES;
+
+                [self requestRemoteConfigWhenInitialized];
             });
 
             if (_configOptions.enableTrackAppCrash) {
@@ -399,6 +395,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
                 [self swizzleWebViewMethod];
             }
+
+            [self startFlushTimer];
         }
         
     } @catch(NSException *exception) {
@@ -786,18 +784,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
 
         [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
-    });
-}
 
-- (void)startAppEndTimer {
-    if ([self isLaunchedPassively]) {
-        return;
-    }
-
-    // 启动 AppEnd 事件计时器
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [self trackTimerStart:SA_EVENT_NAME_APP_END];
+        if (!self.isLaunchedPassively) {
+            [self trackTimerStart:SA_EVENT_NAME_APP_END];
+        }
     });
 }
 
@@ -1955,6 +1945,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SALogDebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([SARemoteConfigManager sharedInstance].isDisableSDK || (self.timer && [self.timer isValid])) {
+            return;
+        }
+
+        if (self.isLaunchedPassively) {
             return;
         }
         
