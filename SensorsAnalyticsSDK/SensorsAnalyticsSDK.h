@@ -404,6 +404,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackTimerResume:(NSString *)event;
 
 /**
+删除事件计时
+
+ @discussion
+ 多次调用 removeTimer: 时，只有首次调用有效。
+
+ @param event 事件名称或事件的 eventId
+*/
+- (void)removeTimer:(NSString *)event;
+
+/**
  清除所有事件计时器
  */
 - (void)clearTrackTimer;
