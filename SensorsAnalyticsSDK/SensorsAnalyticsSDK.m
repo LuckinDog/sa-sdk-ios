@@ -759,6 +759,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackAppStart {
+    self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+    
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
@@ -772,23 +774,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
-
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-        NSString *eventName = self.isLaunchedPassively ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
-        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-        properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
-        properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
-        //添加 deeplink 相关渠道信息，可能不存在
-        [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
-
-        [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
-
-        if (!self.isLaunchedPassively) {
-            [self trackTimerStart:SA_EVENT_NAME_APP_END];
-        }
-    });
+    
+    NSString *eventName = self.isLaunchedPassively ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
+    properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
+    //添加 deeplink 相关渠道信息，可能不存在
+    [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
+    
+    [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+    
+    if (!self.isLaunchedPassively) {
+        [self trackTimerStart:SA_EVENT_NAME_APP_END];
+    }
 }
 
 - (BOOL)isAutoTrackEnabled {
