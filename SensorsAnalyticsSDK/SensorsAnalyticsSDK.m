@@ -219,8 +219,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
-@property (nonatomic, assign, getter=isFinishLaunchedAppStart) BOOL finishLaunchedAppStart;
-
 ///是否为被动启动
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
@@ -373,10 +371,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             [self setUpListeners];
 
-            _finishLaunchedAppStart = NO;
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self autoTrackAppStart];
-                self.finishLaunchedAppStart = YES;
+                self->_appRelaunched = YES;
 
                 [self requestRemoteConfigWhenInitialized];
             });
@@ -2327,7 +2324,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SALogDebug(@"%@ application will enter foreground", self);
     
-    _appRelaunched = self.isFinishLaunchedAppStart;
     self.launchedPassively = NO;
 }
 
