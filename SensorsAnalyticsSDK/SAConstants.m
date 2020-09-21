@@ -61,6 +61,8 @@ NSString * const SA_EVENT_NAME_APP_START_PASSIVELY = @"$AppStartPassively";
 NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
 
 NSString * const SA_EVENT_NAME_APP_CRASHED = @"AppCrashed";
+// 远程控制配置变化
+NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED = @"$AppRemoteConfigChanged";
 
 #pragma mark - app install property
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE = @"$ios_install_source";
@@ -87,6 +89,8 @@ NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT = @"$element_content";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE = @"$element_type";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
+// 远程控制配置信息
+NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG = @"$app_remote_config";
 
 #pragma mark - common property
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";
@@ -104,10 +108,6 @@ NSString * const SA_PROFILE_APPEND = @"profile_append";
 NSString * const SA_PROFILE_INCREMENT = @"profile_increment";
 
 #pragma mark - NSUserDefaults
-NSString * const SA_SDK_TRACK_CONFIG = @"SASDKConfig";
-///保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
-NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTime";
-
 NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
@@ -132,9 +132,10 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
 }
 
 
-#pragma mark - SF related
-NSString *const SA_TRACK_EVENT_NOTIFICATION = @"SensorsAnalyticsTrackEventNotification";
-NSString *const SA_TRACK_LOGIN_NOTIFICATION = @"SensorsAnalyticsTrackLoginNotification";
-NSString *const SA_TRACK_LOGOUT_NOTIFICATION = @"SensorsAnalyticsTrackLogoutNotification";
-NSString *const SA_TRACK_IDENTIFY_NOTIFICATION = @"SensorsAnalyticsTrackIdentifyNotification";
-NSString *const SA_TRACK_RESETANONYMOUSID_NOTIFICATION = @"SensorsAnalyticsTrackResetAnonymousIdNotification";
+#pragma mark - SF related notifications
+NSNotificationName const SA_TRACK_EVENT_NOTIFICATION = @"SensorsAnalyticsTrackEventNotification";
+NSNotificationName const SA_TRACK_LOGIN_NOTIFICATION = @"SensorsAnalyticsTrackLoginNotification";
+NSNotificationName const SA_TRACK_LOGOUT_NOTIFICATION = @"SensorsAnalyticsTrackLogoutNotification";
+NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION = @"SensorsAnalyticsTrackIdentifyNotification";
+NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION = @"SensorsAnalyticsTrackResetAnonymousIdNotification";
+NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION = @"SensorsAnalyticsTrackEventFromH5Notification";

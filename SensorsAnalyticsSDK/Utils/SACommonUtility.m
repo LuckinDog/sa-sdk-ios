@@ -26,7 +26,9 @@
 
 #import "SACommonUtility.h"
 #import "SAReachability.h"
+#import "SAConstants.h"
 #import "SALog.h"
+#import "SAValidator.h"
 
 @implementation SACommonUtility
 
@@ -123,6 +125,42 @@
     } else {
         dispatch_sync(dispatch_get_main_queue(), block);
     }
+}
+
++ (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType {
+    if ([@"NULL" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkTypeNONE;
+    } else if ([@"WIFI" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkTypeWIFI;
+    } else if ([@"2G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType2G;
+    }   else if ([@"3G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType3G;
+    }   else if ([@"4G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType4G;
+    } else if ([@"UNKNOWN" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType4G;
+    }
+    return SensorsAnalyticsNetworkTypeNONE;
+}
+
++ (SensorsAnalyticsNetworkType)currentNetworkType {
+    NSString *currentNetworkStatus = [SACommonUtility currentNetworkStatus];
+    return [SACommonUtility toNetworkType:currentNetworkStatus];
+}
+
++ (NSString *)currentUserAgent {
+    return [[NSUserDefaults standardUserDefaults] objectForKey:@"UserAgent"];
+}
+
++ (void)saveUserAgent:(NSString *)userAgent {
+    if (![SAValidator isValidString:userAgent]) {
+        return;
+    }
+    
+    NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:userAgent, @"UserAgent", nil];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end

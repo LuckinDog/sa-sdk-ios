@@ -131,17 +131,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, readonly, copy) NSString *loginId;
 
 /**
- * @proeprty
- *
- * @abstract
- * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
- *
- * @discussion
- * 默认值为 YES
- */
-@property (atomic) BOOL flushBeforeEnterBackground;
-
-/**
  @abstract
  用于评估是否为服务器信任的安全链接。
 
@@ -169,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 返回之前所初始化好的单例
  *
  * @discussion
- * 调用这个方法之前，必须先调用 sharedInstanceWithConfig 这个方法
+ * 调用这个方法之前，必须先调用 startWithConfigOptions: 这个方法
  *
  * @return 返回的单例
  */
@@ -187,8 +176,22 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract
  * 设置当前 serverUrl
  *
+ * @discussion
+ * 默认不请求远程配置
+ *
+ * @param serverUrl 当前的 serverUrl
+ *
  */
 - (void)setServerUrl:(NSString *)serverUrl;
+
+/**
+* @abstract
+* 设置当前 serverUrl，并选择是否请求远程配置
+*
+* @param serverUrl 当前的 serverUrl
+* @param isRequestRemoteConfig 是否请求远程配置
+*/
+- (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig;
 
 #pragma mark--cache and flush
 
@@ -399,6 +402,16 @@ NS_ASSUME_NONNULL_BEGIN
  @param event 事件名称或事件的 eventId
  */
 - (void)trackTimerResume:(NSString *)event;
+
+/**
+删除事件计时
+
+ @discussion
+ 多次调用 removeTimer: 时，只有首次调用有效。
+
+ @param event 事件名称或事件的 eventId
+*/
+- (void)removeTimer:(NSString *)event;
 
 /**
  清除所有事件计时器
@@ -657,7 +670,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 强制试图把数据传到对应的 SensorsAnalytics 服务器上
  *
  * @discussion
- * 主动调用 flush 接口，则不论 flushInterval 和网络类型的限制条件是否满足，都尝试向服务器上传一次数据
+ * 主动调用 flush 接口，则不论 flushInterval 和 flushBulkSize 限制条件是否满足，都尝试向服务器上传一次数据
  */
 - (void)flush;
 
@@ -1170,6 +1183,17 @@ DeepLink 回调函数
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */
 @property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
+
+/**
+ * @proeprty
+ *
+ * @abstract
+ * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
+ *
+ * @discussion
+ * 默认值为 YES
+ */
+@property (atomic) BOOL flushBeforeEnterBackground __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBeforeEnterBackground")));
 
 /**
  * @abstract

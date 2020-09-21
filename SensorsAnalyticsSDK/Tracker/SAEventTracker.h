@@ -1,8 +1,8 @@
 //
-// SAVisualizedUtils.h
+// SAEventTracker.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/3/3.
+// Created by 张敏超🍎 on 2020/6/18.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,23 +18,30 @@
 // limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <WebKit/WebKit.h>
+#import "SAEventRecord.h"
+#import "SAHTTPSession.h"
+#import "SAEventStore.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAVisualizedUtils : NSObject
+extern NSUInteger const SAEventFlushRecordSize;
 
-/// 判断一个 view 是否被覆盖
-+ (BOOL) isCoveredForView:(UIView *)view;
+@interface SAEventTracker : NSObject
 
-/// 解析构造 web 元素
-+ (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
+@property (nonatomic, strong, readonly) SAEventStore *eventStore;
 
-///  获取 RN 当前页面信息
-+ (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
+- (instancetype)initWithQueue:(dispatch_queue_t)queue;
+
+- (void)trackEvent:(NSDictionary *)event;
+- (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp;
+
+- (void)flushAllEventRecords;
+
 @end
 
 NS_ASSUME_NONNULL_END
