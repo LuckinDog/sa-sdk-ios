@@ -758,6 +758,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)autoTrackAppStart {
     self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
     
+    if (!self.isLaunchedPassively) {
+        [self trackTimerStart:SA_EVENT_NAME_APP_END];
+    }
+    
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
@@ -780,10 +784,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
     
     [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
-    
-    if (!self.isLaunchedPassively) {
-        [self trackTimerStart:SA_EVENT_NAME_APP_END];
-    }
 }
 
 - (BOOL)isAutoTrackEnabled {
