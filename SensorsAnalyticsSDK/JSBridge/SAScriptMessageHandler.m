@@ -95,7 +95,7 @@
             [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo: messageDic];
         } else if ([callType isEqualToString:@"abtest"]) {
             // 通知 SensorsABTest，接收到 H5 的请求数据
-            [[NSNotificationCenter defaultCenter] postNotificationName:SA_H5_ABTest_NOTIFICATION object:message];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_H5_MESSAGE_NOTIFICATION object:message];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);

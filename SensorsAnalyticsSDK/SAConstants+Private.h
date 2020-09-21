@@ -131,6 +131,9 @@ extern NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION;
 
 
 #pragma mark - ABTest related notifications
-extern NSNotificationName const SA_H5_ABTest_NOTIFICATION;
+/// 注入打通 bridge
 extern NSNotificationName const SA_H5_BRIDGE_NOTIFICATION;
+
+/// H5 通过 postMessage 发送消息
+extern NSNotificationName const SA_H5_MESSAGE_NOTIFICATION;
 
