@@ -2988,7 +2988,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             NSString *bestId = self.distinctId;
 
             if([type isEqualToString:@"track_signup"]) {
-                NSString *realOriginalId = self.originalId ?: self.distinctId;
+                NSString *realOriginalId = self.originalId ?: self.anonymousId;
                 eventDict[@"original_id"] = realOriginalId;
             } else {
                 eventDict[SA_EVENT_DISTINCT_ID] = bestId;
