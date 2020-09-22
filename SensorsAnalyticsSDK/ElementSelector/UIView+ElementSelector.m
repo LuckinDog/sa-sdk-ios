@@ -1,4 +1,4 @@
-//  SUIView+HeatMap.m
+//  SUIView+ElementSelector.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
@@ -25,13 +25,13 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+HeatMap.h"
+#import "UIView+ElementSelector.h"
 #import "UIView+AutoTrack.h"
 
 // NB If you add any more fingerprint methods, increment this.
 #define SA_FINGERPRINT_VERSION 1
 
-@implementation UIView (HeatMap)
+@implementation UIView (ElementSelector)
 
 - (int)jjf_fingerprintVersion {
     return SA_FINGERPRINT_VERSION;

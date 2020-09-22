@@ -33,7 +33,7 @@
 #import "SAObjectSerializerConfig.h"
 #import "SAObjectSerializerContext.h"
 #import "SAPropertyDescription.h"
-#import "UIView+VisualizedAutoTrack.h"
+#import "UIView+ElementPath.h"
 #import "SAAutoTrackProperty.h"
 #import "SAAutoTrackUtils.h"
 #import "SAJSTouchEventView.h"

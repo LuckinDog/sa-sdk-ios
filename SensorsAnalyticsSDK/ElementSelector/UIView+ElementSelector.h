@@ -1,4 +1,4 @@
-//  UIView+HeatMap.h
+//  UIView+ElementSelector.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface UIView (HeatMap)
+@interface UIView (ElementSelector)
 
 - (NSString *)jjf_varA;
 - (NSString *)jjf_varB;

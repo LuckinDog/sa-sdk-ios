@@ -25,6 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// 可视化相关工具类
 @interface SAVisualizedUtils : NSObject
 
 /// 判断一个 view 是否被覆盖

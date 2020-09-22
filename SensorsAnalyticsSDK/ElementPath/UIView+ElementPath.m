@@ -1,5 +1,5 @@
 //
-// UIView+VisualizedAutoTrack.m
+// UIView+ElementPath.m
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/3/6.
@@ -23,14 +23,14 @@
 #endif
 
 #import <objc/runtime.h>
-#import "UIView+VisualizedAutoTrack.h"
+#import "UIView+ElementPath.h"
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
 
-@implementation UIView (VisualizedAutoTrack)
+@implementation UIView (ElementPath)
 
 // 判断一个 view 是否显示
 - (BOOL)sensorsdata_isDisplayedInScreen {
@@ -345,7 +345,7 @@
 @end
 
 
-@implementation UIScrollView (VisualizedAutoTrack)
+@implementation UIScrollView (ElementPath)
 
 - (CGRect)sensorsdata_validFrame {
     CGRect showRect = [self convertRect:self.bounds toView:nil];
@@ -358,7 +358,7 @@
 
 @end
 
-@implementation UISwitch (VisualizedAutoTrack)
+@implementation UISwitch (ElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -366,7 +366,7 @@
 
 @end
 
-@implementation UIStepper (VisualizedAutoTrack)
+@implementation UIStepper (ElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -374,7 +374,7 @@
 
 @end
 
-@implementation UISlider (VisualizedAutoTrack)
+@implementation UISlider (ElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -382,7 +382,7 @@
 
 @end
 
-@implementation UIPageControl (VisualizedAutoTrack)
+@implementation UIPageControl (ElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -390,7 +390,7 @@
 
 @end
 
-@implementation WKWebView (VisualizedAutoTrack)
+@implementation WKWebView (ElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
@@ -403,7 +403,7 @@
 @end
 
 
-@implementation UIWindow (VisualizedAutoTrack)
+@implementation UIWindow (ElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     if (!self.rootViewController) {
@@ -441,7 +441,7 @@
 
 @end
 
-@implementation UITableView (VisualizedAutoTrack)
+@implementation UITableView (ElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subviews = self.subviews;
@@ -461,7 +461,7 @@
 
 @end
 
-@implementation UICollectionView (VisualizedAutoTrack)
+@implementation UICollectionView (ElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subviews = self.subviews;
@@ -490,7 +490,7 @@
 
 @end
 
-@implementation UITableViewCell (VisualizedAutoTrack)
+@implementation UITableViewCell (ElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
     if (self.sensorsdata_IndexPath) {
@@ -502,7 +502,7 @@
 @end
 
 
-@implementation UICollectionViewCell (VisualizedAutoTrack)
+@implementation UICollectionViewCell (ElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
     if ([SAAutoTrackUtils isAlertClickForView:self]) {
@@ -517,7 +517,7 @@
 
 @end
 
-@implementation SAJSTouchEventView (VisualizedAutoTrack)
+@implementation SAJSTouchEventView (ElementPath)
 
 - (NSString *)sensorsdata_elementSelector {
     return self.elementSelector;
@@ -548,7 +548,7 @@
 
 @end
 
-@implementation UIViewController (VisualizedAutoTrack)
+@implementation UIViewController (ElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     __block NSMutableArray *subElements = [NSMutableArray array];
