@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isDebugModeURL:(NSURL *)url;
 - (BOOL)isSecretKeyURL:(NSURL *)url;
 
-/// 是否正在进行可视化全埋点连接
+/// 是否正在进行 可视化全埋点/点击分析 连接
 - (BOOL)isVisualizedConnecting;
 @end
 

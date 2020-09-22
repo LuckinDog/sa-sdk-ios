@@ -21,7 +21,7 @@
 
 #import <Foundation/Foundation.h>
 
-// 可视化全埋点上传页面信息相关协议
+// 可视化全埋点&点击分析 上传页面信息相关协议
 @protocol SAVisualizedViewPathProperty <NSObject>
 
 @optional
