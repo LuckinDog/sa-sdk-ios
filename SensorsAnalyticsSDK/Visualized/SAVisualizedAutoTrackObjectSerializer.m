@@ -61,7 +61,10 @@
 
 - (NSDictionary *)serializedObjectsWithRootObject:(id)rootObject {
     NSParameterAssert(rootObject != nil);
-    
+    if (!rootObject) {
+        return nil;
+    }
+
     SAObjectSerializerContext *context = [[SAObjectSerializerContext alloc] initWithRootObject:rootObject];
     
     @try {// 遍历 _unvisitedObjects 中所有元素，解析元素信息
@@ -95,7 +98,7 @@
         for (SAPropertyDescription *propertyDescription in [classDescription propertyDescriptions]) {
             //  根据是否符号要求（是否显示等）构建属性，通过 KVC 和 NSInvocation 动态调用获取描述信息
             id propertyValue = [self propertyValueForObject:object withPropertyDescription:propertyDescription context:context];         // $递增作为元素 id
-            propertyValues[propertyDescription.key] = propertyValue ? : [NSNull null];
+            propertyValues[propertyDescription.key] = propertyValue;
         }
     }
 

@@ -33,6 +33,7 @@
 
 - (void)setPayloadObject:(id)object forKey:(NSString *)key;
 - (id)payloadObjectForKey:(NSString *)key;
+- (void)removePayloadObjectForKey:(NSString *)key;
 - (NSDictionary *)payload;
 
 - (NSData *)JSONDataWithFeatureCode:(NSString *)featureCode;

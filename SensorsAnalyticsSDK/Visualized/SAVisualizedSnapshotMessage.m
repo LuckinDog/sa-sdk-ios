@@ -73,25 +73,25 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
         SAVisualizedSnapshotResponseMessage *snapshotMessage = [SAVisualizedSnapshotResponseMessage message];
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            [serializer screenshotImageForAllWindowWithCompletionHandler:^(UIImage *image) {
-                snapshotMessage.screenshot = image;
+           [serializer screenshotImageForAllWindowWithCompletionHandler:^(UIImage *image) {
+               snapshotMessage.screenshot = image;
 
-                // imageHash 不变即截图相同，页面不变，则不再解析页面元素信息
-                if ([[SAVisualizedObjectSerializerManger sharedInstance].lastImageHash isEqualToString:snapshotMessage.imageHash]) {
-                    [conn sendMessage:[SAVisualizedSnapshotResponseMessage message]];
-                } else {
-                    // 重置页面配置信息
-                    [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
+               // imageHash 不变即截图相同，页面不变，则不再解析页面元素信息
+               if ([[SAVisualizedObjectSerializerManger sharedInstance].lastImageHash isEqualToString:snapshotMessage.imageHash]) {
+                   [conn sendMessage:[SAVisualizedSnapshotResponseMessage message]];
+               } else {
+                   // 重置页面配置信息
+                   [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
 
-                    // 解析页面信息
-                    NSDictionary *serializedObjects = [serializer objectHierarchyForRootObject];
-                    snapshotMessage.serializedObjects = serializedObjects;
-                    [conn sendMessage:snapshotMessage];
+                   // 解析页面信息
+                   NSDictionary *serializedObjects = [serializer objectHierarchyForRootObject];
+                   snapshotMessage.serializedObjects = serializedObjects;
+                   [conn sendMessage:snapshotMessage];
 
-                    // 重置截图 hash 信息
-                    [[SAVisualizedObjectSerializerManger sharedInstance] resetLastImageHash:snapshotMessage.imageHash];
-                }
-            }];
+                   // 重置截图 hash 信息
+                   [[SAVisualizedObjectSerializerManger sharedInstance] resetLastImageHash:snapshotMessage.imageHash];
+               }
+           }];
         });
     }];
 
@@ -124,8 +124,8 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
     }
 
     self.imageHash = imageHash;
-    [self setPayloadObject:(payloadObject ?: [NSNull null]) forKey:@"screenshot"];
-    [self setPayloadObject:(imageHash ?: [NSNull null]) forKey:@"image_hash"];
+    [self setPayloadObject:payloadObject forKey:@"screenshot"];
+    [self setPayloadObject:imageHash forKey:@"image_hash"];
 }
 
 - (UIImage *)screenshot {

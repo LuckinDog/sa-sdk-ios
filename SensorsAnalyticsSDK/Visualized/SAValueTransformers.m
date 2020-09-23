@@ -39,14 +39,9 @@
 }
 
 - (id)transformedValue:(id)value {
-    if ([[NSNull null] isEqual:value]) {
+    if (!value) {
         return nil;
     }
-    
-    if (value == nil) {
-        return [NSNull null];
-    }
-    
     return value;
 }
 

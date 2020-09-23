@@ -69,6 +69,7 @@
         [_timer invalidate];
         _timer = nil;
     }
+
     if (_commandQueue) {
         _commandQueue.suspended = YES;
         _commandQueue = nil;

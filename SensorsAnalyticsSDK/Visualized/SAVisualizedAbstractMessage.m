@@ -67,12 +67,19 @@
 }
 
 - (void)setPayloadObject:(id)object forKey:(NSString *)key {
-    _payload[key] = object ?: [NSNull null];
+    _payload[key] = object;
 }
 
 - (id)payloadObjectForKey:(NSString *)key {
     id object = _payload[key];
-    return [object isEqual:[NSNull null]] ? nil : object;
+    return object;
+}
+
+- (void)removePayloadObjectForKey:(NSString *)key {
+    if (!key) {
+        return;
+    }
+    _payload[key] = nil;
 }
 
 - (NSDictionary *)payload {

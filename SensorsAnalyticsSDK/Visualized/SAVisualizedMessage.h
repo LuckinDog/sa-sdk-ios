@@ -30,6 +30,8 @@
 
 - (id)payloadObjectForKey:(NSString *)key;
 
+- (void)removePayloadObjectForKey:(NSString *)key;
+
 - (NSData *)JSONDataWithFeatureCode:(NSString *)featureCode;
 
 @optional
