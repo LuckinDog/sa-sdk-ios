@@ -1,5 +1,5 @@
 //
-// UIView+ElementPath.m
+// UIView+SAElementPath.m
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/3/6.
@@ -23,14 +23,14 @@
 #endif
 
 #import <objc/runtime.h>
-#import "UIView+ElementPath.h"
+#import "UIView+SAElementPath.h"
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
 
-@implementation UIView (ElementPath)
+@implementation UIView (SAElementPath)
 
 // 判断一个 view 是否显示
 - (BOOL)sensorsdata_isDisplayedInScreen {
@@ -345,7 +345,7 @@
 @end
 
 
-@implementation UIScrollView (ElementPath)
+@implementation UIScrollView (SAElementPath)
 
 - (CGRect)sensorsdata_validFrame {
     CGRect showRect = [self convertRect:self.bounds toView:nil];
@@ -358,7 +358,7 @@
 
 @end
 
-@implementation UISwitch (ElementPath)
+@implementation UISwitch (SAElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -366,7 +366,7 @@
 
 @end
 
-@implementation UIStepper (ElementPath)
+@implementation UIStepper (SAElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -374,7 +374,7 @@
 
 @end
 
-@implementation UISlider (ElementPath)
+@implementation UISlider (SAElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -382,7 +382,7 @@
 
 @end
 
-@implementation UIPageControl (ElementPath)
+@implementation UIPageControl (SAElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -390,7 +390,7 @@
 
 @end
 
-@implementation WKWebView (ElementPath)
+@implementation WKWebView (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
@@ -403,7 +403,7 @@
 @end
 
 
-@implementation UIWindow (ElementPath)
+@implementation UIWindow (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     if (!self.rootViewController) {
@@ -441,7 +441,7 @@
 
 @end
 
-@implementation UITableView (ElementPath)
+@implementation UITableView (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subviews = self.subviews;
@@ -461,7 +461,7 @@
 
 @end
 
-@implementation UICollectionView (ElementPath)
+@implementation UICollectionView (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subviews = self.subviews;
@@ -490,7 +490,7 @@
 
 @end
 
-@implementation UITableViewCell (ElementPath)
+@implementation UITableViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
     if (self.sensorsdata_IndexPath) {
@@ -502,7 +502,7 @@
 @end
 
 
-@implementation UICollectionViewCell (ElementPath)
+@implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
     if ([SAAutoTrackUtils isAlertClickForView:self]) {
@@ -517,7 +517,7 @@
 
 @end
 
-@implementation SAJSTouchEventView (ElementPath)
+@implementation SAJSTouchEventView (SAElementPath)
 
 - (NSString *)sensorsdata_elementSelector {
     return self.elementSelector;
@@ -548,7 +548,7 @@
 
 @end
 
-@implementation UIViewController (ElementPath)
+@implementation UIViewController (SAElementPathSAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     __block NSMutableArray *subElements = [NSMutableArray array];

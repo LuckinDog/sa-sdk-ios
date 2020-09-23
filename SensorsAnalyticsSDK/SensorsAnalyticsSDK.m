@@ -936,11 +936,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController {
-    if (!viewController) {
+    if (!viewController || !self.configOptions.enableVisualizedAutoTrack) {
         return NO;
     }
 
-    if (_visualizedAutoTrackViewControllers.count == 0 && self.configOptions.enableVisualizedAutoTrack) {
+    if (_visualizedAutoTrackViewControllers.count == 0) {
         return YES;
     }
 
@@ -1047,11 +1047,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isHeatMapViewController:(UIViewController *)viewController {
-    if (!viewController) {
+    if (!viewController || !self.configOptions.enableHeatMap) {
         return NO;
     }
 
-    if (_heatMapViewControllers.count == 0 && self.configOptions.enableHeatMap) {
+    if (_heatMapViewControllers.count == 0) {
         return YES;
     }
 

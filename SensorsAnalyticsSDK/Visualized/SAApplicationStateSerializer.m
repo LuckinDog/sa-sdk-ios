@@ -37,8 +37,8 @@
 }
 
 - (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
-             objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider {
-    NSParameterAssert(configuration != nil);
+               objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider {
+    NSParameterAssert(configuration);
     if (!configuration) {
         return nil;
     }

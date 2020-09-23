@@ -1,4 +1,4 @@
-//  SUIView+ElementSelector.m
+//  UIView+SAElementSelector.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
@@ -25,13 +25,13 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+ElementSelector.h"
+#import "UIView+SAElementSelector.h"
 #import "UIView+AutoTrack.h"
 
 // NB If you add any more fingerprint methods, increment this.
 #define SA_FINGERPRINT_VERSION 1
 
-@implementation UIView (ElementSelector)
+@implementation UIView (SAElementSelector)
 
 - (int)jjf_fingerprintVersion {
     return SA_FINGERPRINT_VERSION;

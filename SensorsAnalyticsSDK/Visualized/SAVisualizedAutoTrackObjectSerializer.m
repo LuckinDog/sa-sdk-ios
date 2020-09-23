@@ -33,7 +33,7 @@
 #import "SAObjectSerializerConfig.h"
 #import "SAObjectSerializerContext.h"
 #import "SAPropertyDescription.h"
-#import "UIView+ElementPath.h"
+#import "UIView+SAElementPath.h"
 #import "SAAutoTrackProperty.h"
 #import "SAAutoTrackUtils.h"
 #import "SAJSTouchEventView.h"
@@ -164,7 +164,7 @@
 
 - (id)propertyValue:(id)propertyValue
 propertyDescription:(SAPropertyDescription *)propertyDescription
-           context : (SAObjectSerializerContext *)context {
+            context:(SAObjectSerializerContext *)context {
     
     if ([context isVisitedObject:propertyValue]) {
         return [_objectIdentityProvider identifierForObject:propertyValue];
@@ -194,7 +194,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 
 - (id)propertyValueForObject:(NSObject *)object
      withPropertyDescription:(SAPropertyDescription *)propertyDescription
-                    context : (SAObjectSerializerContext *)context {
+                     context:(SAObjectSerializerContext *)context {
     SAPropertySelectorDescription *selectorDescription = propertyDescription.getSelectorDescription;
     
     // 使用 kvc 解析属性
