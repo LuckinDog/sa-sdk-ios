@@ -57,7 +57,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 - (void)showIndicator {
     _window = [self alertWindow];
     _window.windowLevel = UIWindowLevelAlert + 1;
-    UIViewController *controller = [[UIViewController alloc] init];
+    UIViewController *controller = [[SAAlertController alloc] init];
     _window.rootViewController = controller;
     _window.hidden = NO;
     _indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
