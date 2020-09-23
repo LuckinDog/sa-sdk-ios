@@ -58,7 +58,11 @@
     NSString *project = [SAURLUtils queryItemsWithURLString:postURLStr][@"project"] ?: @"default";
     BOOL isEqualProject = [[SensorsAnalyticsSDK sharedInstance].network.project isEqualToString:project];
     if (!isEqualProject) {
-        [self showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点"];
+        if ([self isHeatMapURL:URL]) {
+            [self showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行点击分析"];
+        } else if([self isVisualizedAutoTrackURL:URL]){
+            [self showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点"];
+        }
         return YES;
     // 未开启点击图
     } else if ([self isHeatMapURL:URL] && ![[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled]) {
