@@ -762,6 +762,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self trackTimerStart:SA_EVENT_NAME_APP_END];
     }
     
+    if (self.isLaunchedPassively) {
+        [self stopFlushTimer];
+    }
+    
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
