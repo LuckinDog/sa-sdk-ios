@@ -81,8 +81,9 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
+#import "SAChannelMatchManager.h"
 
-#define VERSION @"2.1.8"
+#define VERSION @"2.1.10"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -349,6 +350,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
+
+            // 渠道联调诊断功能获取多渠道匹配开关
+            [[SAChannelMatchManager sharedInstance] setEnableMultipleChannelMatch:configOptions.enableMultipleChannelMatch];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -863,7 +867,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
-   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] || [_linkHandler canHandleURL:url];
+   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
+          [_linkHandler canHandleURL:url] ||
+          [[SAChannelMatchManager sharedInstance] canHandleURL:url];
 }
 
 - (BOOL)handleAutoTrackURL:(NSURL *)URL{
@@ -902,6 +908,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
+            return YES;
+        } else if ([[SAChannelMatchManager sharedInstance] canHandleURL:url]) {
+            [[SAChannelMatchManager sharedInstance] showAuthorizationAlertWithURL:url];
             return YES;
         }
     } @catch (NSException *exception) {
@@ -1120,6 +1129,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - track event
 
 - (BOOL)isValidName:(NSString *)name {
+    if (!name) {
+        return NO;
+    }
     @try {
         // 保留字段通过字符串直接比较，效率更高
         NSSet *reservedProperties = sensorsdata_reserved_properties();
@@ -1524,6 +1536,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+- (void)removeTimer:(NSString *)event {
+    if (![self checkEventName:event]) {
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerRemove:event];
+    });
+}
+
 - (void)clearTrackTimer {
     dispatch_async(self.serialQueue, ^{
         [self.trackTimer clearAllEventTimers];
@@ -1531,81 +1552,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
-    BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
-    if (hasTrackInstallation) {
-        return;
-    }
-
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
-    hasTrackInstallation = disableCallback ? [SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback] : [SAKeyChainItemWrapper hasTrackInstallation];
-    if (hasTrackInstallation) {
-        return;
-    }
-    if (disableCallback) {
-        [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
-    } else {
-        [SAKeyChainItemWrapper markHasTrackInstallation];
-    }
-#endif
-#endif
-
-    if (!hasTrackInstallation) {
-
-        // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        NSString *idfa = [SAIdentifier idfa];
-        if (idfa != nil) {
-            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
-        } else {
-            [properties setValue:@"" forKey:SA_EVENT_PROPERTY_APP_INSTALL_SOURCE];
-        }
-
-        if (disableCallback) {
-            [properties setValue:@YES forKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
-        }
-
-        __block NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-        dispatch_block_t trackInstallationBlock = ^{
-            if (userAgent) {
-                [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-            }
-
-            // 添加 deepLink 来源渠道信息
-            // 来源渠道消息只需要添加到 event 事件中，这里使用一个新的字典来添加 latest_utms 参数
-            NSMutableDictionary *eventProperties = [properties mutableCopy];
-            [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
-            if ([SAValidator isValidDictionary:propertyDict]) {
-                [eventProperties addEntriesFromDictionary:propertyDict];
-            }
-            // 先发送 track
-            [self track:event withProperties:eventProperties withType:@"track"];
-
-            // 再发送 profile_set_once
-            // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
-            NSMutableDictionary *profileProperties = [properties mutableCopy];
-            if ([SAValidator isValidDictionary:propertyDict]) {
-                [profileProperties addEntriesFromDictionary:propertyDict];
-            }
-            [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-            [self track:nil withProperties:profileProperties withType: self.configOptions.enableMultipleChannelMatch ? SA_PROFILE_SET : SA_PROFILE_SET_ONCE];
-
-            [self flush];
-        };
-
-        if (userAgent.length == 0) {
-            [self loadUserAgentWithCompletion:^(NSString *ua) {
-                userAgent = ua;
-                trackInstallationBlock();
-            }];
-        } else {
-            trackInstallationBlock();
-        }
-    }
+    [[SAChannelMatchManager sharedInstance] trackInstallation:event properties:propertyDict disableCallback:disableCallback];
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
@@ -1869,7 +1816,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }];
         }
         if (unregisterPropertyKeys.count > 0) {
-            [self unregisterSuperPropertys:unregisterPropertyKeys];
+            [self removeDuplicateSuperProperties:unregisterPropertyKeys];
         }
     };
     if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
@@ -1881,27 +1828,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)unregisterSuperProperty:(NSString *)property {
     dispatch_async(self.serialQueue, ^{
-        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
-        if (tmp[property] != nil) {
-            [tmp removeObjectForKey:property];
+        NSMutableDictionary *superProperties = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
+        if (property) {
+            [superProperties removeObjectForKey:property];
         }
-        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
+        self.superProperties = [NSDictionary dictionaryWithDictionary:superProperties];
         [self archiveSuperProperties];
     });
 }
 
-- (void)unregisterSuperPropertys:(NSArray<NSString *> *)propertys {
-    dispatch_block_t block =  ^{
-        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
-        [tmp removeObjectsForKeys:propertys];
-        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
-        [self archiveSuperProperties];
-    };
-    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
-        block();
-    } else {
-        dispatch_async(self.serialQueue, block);
-    }
+//remove duplicate keys, case insensitive
+- (void)removeDuplicateSuperProperties:(NSArray<NSString *> *)properties {
+    NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
+    [tmp removeObjectsForKeys:properties];
+    self.superProperties = [NSDictionary dictionaryWithDictionary:tmp];
 }
 
 - (void)clearSuperProperties {
