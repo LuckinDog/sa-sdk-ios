@@ -19,6 +19,9 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsVisualizedType) {
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAuxiliaryToolManager : NSObject
+
+@property (nonatomic, assign, readonly) SensorsAnalyticsVisualizedType visualizedType;
+
 + (instancetype)sharedInstance;
 
 - (BOOL)canHandleURL:(NSURL *)url;

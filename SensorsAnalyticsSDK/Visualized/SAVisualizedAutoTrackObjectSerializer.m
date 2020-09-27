@@ -39,6 +39,7 @@
 #import "SAJSTouchEventView.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAAuxiliaryToolManager.h"
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
 @end
@@ -266,6 +267,10 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
     alertInfo[@"link_text"] = @"配置文档";
     alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/enable_visualized_autotrack-7548675.html";
+    if ([SAAuxiliaryToolManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+        alertInfo[@"title"] = @"当前页面无法进行点击分析";
+        alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 点击分析，只支持 WKWebView";
+    }
     [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
 }
 #endif
@@ -339,6 +344,9 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
                         alertInfo[@"message"] = @"此页面未集成 Web JS SDK 或者 Web JS SDK 版本过低，请集成最新版 Web JS SDK";
                         alertInfo[@"link_text"] = @"配置文档";
                         alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/tech_sdk_client_web_use-7548173.html";
+                        if ([SAAuxiliaryToolManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+                            alertInfo[@"title"] = @"当前页面无法进行点击分析";
+                        }
                         NSDictionary *alertInfoMessage = @{ @"callType": @"app_alert", @"data": @[alertInfo] };
                         [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
                     }
