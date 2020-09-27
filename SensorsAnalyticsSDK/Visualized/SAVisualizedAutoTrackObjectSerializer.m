@@ -270,6 +270,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     if ([SAAuxiliaryToolManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
         alertInfo[@"title"] = @"当前页面无法进行点击分析";
         alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 点击分析，只支持 WKWebView";
+        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/app-16286049.html";
     }
     [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
 }
