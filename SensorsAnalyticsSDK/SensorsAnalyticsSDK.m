@@ -377,7 +377,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self autoTrackAppStart];
-                self->_appRelaunched = YES;
 
                 [self requestRemoteConfigWhenInitialized];
             });
@@ -2330,6 +2329,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         return;
     }
     _applicationWillResignActive = NO;
+    
+    _appRelaunched = YES;
 
     // 清除本次启动解析的来源渠道信息
     [_linkHandler clearUtmProperties];
