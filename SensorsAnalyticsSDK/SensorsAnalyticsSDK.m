@@ -220,6 +220,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
+@property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked;
+
 ///是否为被动启动
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
@@ -375,12 +377,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             [self setUpListeners];
 
+            _launchedAppStartTracked = NO;
+            
             // 延迟初始化时补发 App 启动事件
             dispatch_async(dispatch_get_main_queue(), ^{
                 // 这里获取 launchedPassively 的原因是为了兼容带有 SceneDelegate 的项目
                 self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+                
                 [self autoTrackAppStart];
                 [self requestRemoteConfigWhenInitialized];
+                
+                self.launchedAppStartTracked = YES;
             });
 
             if (_configOptions.enableTrackAppCrash) {
@@ -2267,6 +2274,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SALogDebug(@"%@ application will enter foreground", self);
     
+    _appRelaunched = self.isLaunchedAppStartTracked;
     self.launchedPassively = NO;
 }
 
@@ -2329,8 +2337,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     _applicationWillResignActive = NO;
     
-    _appRelaunched = YES;
-
     // 清除本次启动解析的来源渠道信息
     [_linkHandler clearUtmProperties];
     
