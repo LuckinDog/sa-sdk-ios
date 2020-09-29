@@ -381,9 +381,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 延迟初始化时补发 App 启动事件
             dispatch_async(dispatch_get_main_queue(), ^{
-                // 这里获取 launchedPassively 的原因是为了兼容带有 SceneDelegate 的项目
-                self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-                
+                [self setupLaunchedPassively];
                 [self autoTrackAppStart];
                 [self requestRemoteConfigWhenInitialized];
                 
@@ -767,15 +765,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)autoTrackAppStart {
+- (void)setupLaunchedPassively {
+    // 这里获取 launchedPassively 的原因是为了兼容带有 SceneDelegate 的项目
+    self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+    
     if (!self.isLaunchedPassively) {
         [self trackTimerStart:SA_EVENT_NAME_APP_END];
     }
     
+    // 之前的操作中获取的 isLaunchedPassively 为默认值 NO，可能会开启计时器
     if (self.isLaunchedPassively) {
         [self stopFlushTimer];
     }
-    
+}
+
+- (void)autoTrackAppStart {
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
