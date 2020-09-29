@@ -375,9 +375,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             [self setUpListeners];
 
+            // 延迟初始化时补发 App 启动事件
             dispatch_async(dispatch_get_main_queue(), ^{
+                // 这里获取 launchedPassively 的原因是为了兼容带有 SceneDelegate 的项目
+                self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
                 [self autoTrackAppStart];
-
                 [self requestRemoteConfigWhenInitialized];
             });
 
@@ -759,8 +761,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)autoTrackAppStart {
-    self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-    
     if (!self.isLaunchedPassively) {
         [self trackTimerStart:SA_EVENT_NAME_APP_END];
     }
@@ -2294,9 +2294,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         // 追踪 AppStart 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
             NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-            properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(_appRelaunched);
-            BOOL isFirstStart = ![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE];
-            properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
+            properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(YES);
+            properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(YES);
             [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
 
             [self track:SA_EVENT_NAME_APP_START withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
