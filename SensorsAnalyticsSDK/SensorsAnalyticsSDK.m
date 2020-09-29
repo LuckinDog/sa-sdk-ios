@@ -737,10 +737,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return self.identifier.distinctId;
 }
 
-- (NSString *)originalId {
-    return self.identifier.originalId;
-}
-
 - (void)resetAnonymousId {
     dispatch_async(self.serialQueue, ^{
         [self.identifier resetAnonymousId];
@@ -1326,7 +1322,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         eventName, SA_EVENT_NAME,
                         eventPropertiesDic, SA_EVENT_PROPERTIES,
                         bestId, SA_EVENT_DISTINCT_ID,
-                        self.originalId, @"original_id",
+                        self.anonymousId, @"original_id",
                         timeStamp, SA_EVENT_TIME,
                         type, SA_EVENT_TYPE,
                         libProperties, SA_EVENT_LIB,
@@ -2988,7 +2984,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             NSString *bestId = self.distinctId;
 
             if([type isEqualToString:@"track_signup"]) {
-                NSString *realOriginalId = self.originalId ?: self.anonymousId;
+                NSString *realOriginalId = self.anonymousId;
                 eventDict[@"original_id"] = realOriginalId;
             } else {
                 eventDict[SA_EVENT_DISTINCT_ID] = bestId;
