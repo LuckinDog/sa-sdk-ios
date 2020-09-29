@@ -122,7 +122,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
         if (@available(iOS 8.0, *)) {
             [self.locationManager requestWhenInUseAuthorization];
         }
-        if (self.isUpdatingLocation == NO) {
+        if (!self.isUpdatingLocation) {
             [self.locationManager startUpdatingLocation];
             self.isUpdatingLocation = YES;
         }
