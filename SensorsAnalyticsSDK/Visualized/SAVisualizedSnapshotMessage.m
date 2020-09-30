@@ -112,7 +112,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
     id payloadObject = nil;
     NSString *imageHash = nil;
     if (screenshot) {
-        NSData *jpegSnapshotImageData = UIImageJPEGRepresentation(screenshot, 0.5);
+        NSData *jpegSnapshotImageData = UIImageJPEGRepresentation(screenshot, 1.0);
         if (jpegSnapshotImageData) {
             payloadObject = [jpegSnapshotImageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
             imageHash = [self imageHashWithData:jpegSnapshotImageData];

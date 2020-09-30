@@ -32,7 +32,7 @@
 
 
 @interface SAVisualizedConnection ()
-
+@property (nonatomic, strong) NSTimer *timer;
 @end
 
 @implementation SAVisualizedConnection {
@@ -41,7 +41,6 @@
     NSURL *_url;
     NSDictionary *_typeToMessageClassMap;
     NSOperationQueue *_commandQueue;
-    NSTimer *_timer;
     id<SAVisualizedMessage> _designerMessage;
     NSString *_featureCode;
     NSString *_postUrl;
@@ -59,11 +58,52 @@
         _commandQueue = [[NSOperationQueue alloc] init];
         _commandQueue.maxConcurrentOperationCount = 1;
         _commandQueue.suspended = YES;
+
+        [self setUpListeners];
     }
 
     return self;
 }
 
+- (void)setUpListeners {
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [notificationCenter addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+}
+
+#pragma mark notification Action
+- (void)applicationDidBecomeActive {
+
+    // 开启上传信息任务定时器
+    [self startSendMessageTimer];
+}
+
+- (void)applicationDidEnterBackground {
+
+    // 关闭上传信息任务定时器
+    [self stopSendMessageTimer];
+}
+
+/// 开始计时
+- (void)startSendMessageTimer {
+    _commandQueue.suspended = NO;
+    if (self.timer && [self.timer isValid]) {
+        // 恢复
+        [self.timer setFireDate:[NSDate date]];
+        return;
+    }
+}
+
+/// 暂停计时
+- (void)stopSendMessageTimer {
+    _commandQueue.suspended = YES;
+    if (self.timer) {
+        // 暂停计时
+        [self.timer setFireDate:[NSDate distantFuture]];
+    }
+}
+
+#pragma mark action
 - (void)close {
     if (_timer) {
         [_timer invalidate];
@@ -86,6 +126,7 @@
 
 - (void)dealloc {
     [self close];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)sendMessage:(id<SAVisualizedMessage>)message {
@@ -151,12 +192,12 @@
     _postUrl = (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)postURL, CFSTR(""),  CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     _designerMessage = [self designerMessageForMessage:message];
 
-    if (_timer) {
-        [_timer invalidate];
-        _timer = nil;
+    if (self.timer) {
+        [self.timer invalidate];
+        self.timer = nil;
     }
 
-    _timer = [NSTimer scheduledTimerWithTimeInterval:1
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1
                                              target:self
                                            selector:@selector(handleMessage)
                                            userInfo:nil
