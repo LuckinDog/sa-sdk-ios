@@ -26,7 +26,7 @@
 #import "SAModuleProtocol.h"
 
 // Location 模块名
-static NSString * const SALocationModuleName = @"SALocationManager";
+static NSString * const SALocationModuleName = @"Location";
 
 @interface SAModuleManager ()
 
@@ -50,7 +50,9 @@ static NSString * const SALocationModuleName = @"SALocationManager";
     if (self.modules[moduleName]) {
         self.modules[moduleName].enable = enable;
     } else if (enable) {
-        Class<SAModuleProtocol> cla = NSClassFromString(moduleName);
+        NSString *className = [NSString stringWithFormat:@"SA%@Manager", moduleName];
+        Class<SAModuleProtocol> cla = NSClassFromString(className);
+        NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
         if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
             id<SAModuleProtocol> object = [[(Class)cla alloc] init];
             object.enable = enable;
