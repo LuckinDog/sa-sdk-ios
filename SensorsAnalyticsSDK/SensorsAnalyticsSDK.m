@@ -2307,7 +2307,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
             NSMutableDictionary *properties = [NSMutableDictionary dictionary];
             properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(YES);
-            properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(YES);
+            properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(NO);
             [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
 
             [self track:SA_EVENT_NAME_APP_START withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
