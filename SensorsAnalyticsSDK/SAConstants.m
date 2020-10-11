@@ -142,6 +142,6 @@ NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION = @"SensorsAnalyticsTrac
 
 
 #pragma mark - ABTest related notifications
-NSNotificationName const SA_H5_BRIDGE_NOTIFICATION = @"SensorsAnalyticsRegistJavaScriptBridgeNotification";
+NSNotificationName const SA_H5_BRIDGE_NOTIFICATION = @"SensorsAnalyticsregisterJavaScriptBridgeNotification";
 
 NSNotificationName const SA_H5_MESSAGE_NOTIFICATION = @"SensorsAnalyticsMessageFromH5Notification";
