@@ -113,7 +113,13 @@
         SALogError(@"serverURL error，Please check the serverURL");
         return nil;
     }
-    NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
+    NSURL *url = nil;
+    if (params[@"sf_push_distinct_id"] && [params[@"sf_push_distinct_id"] isKindOfClass:[NSString class]] && [params[@"info_id"] isKindOfClass:[NSString class]]) {
+        url = [NSURL URLWithString:params[@"sf_push_distinct_id"]];
+        [url URLByAppendingPathComponent:[NSString stringWithFormat:@"project=%@&info_id=%@", self.project, params[@"info_id"]]];
+    } else {
+        url = [self buildDebugModeCallbackURLWithParams:params];
+    }
     NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
 
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
