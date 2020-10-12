@@ -1565,18 +1565,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    [[SAChannelMatchManager sharedInstance] trackInstallation:event properties:propertyDict disableCallback:disableCallback];
-}
-
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
-}
-
-- (void)trackInstallation:(NSString *)event {
-    [self trackInstallation:event withProperties:nil disableCallback:NO];
-}
-
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
     if (controllers == nil || controllers.count == 0) {
         return;
@@ -2717,6 +2705,22 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 @end
 
+#pragma mark - $AppInstall
+@implementation SensorsAnalyticsSDK (AppInstall)
+
+- (void)trackAppInstall {
+    [self trackAppInstall:nil];
+}
+
+- (void)trackAppInstall:(NSDictionary *)properties {
+    [self trackAppInstall:properties disableCallback:NO];
+}
+
+- (void)trackAppInstall:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    [[SAChannelMatchManager sharedInstance] trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+}
+
+@end
 
 #pragma mark - Deeplink
 @implementation SensorsAnalyticsSDK (Deeplink)
@@ -3276,4 +3280,17 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
+
+- (void)trackInstallation:(NSString *)event {
+    [self trackInstallation:event withProperties:nil disableCallback:NO];
+}
+
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
+}
+
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
+    [[SAChannelMatchManager sharedInstance] trackAppInstall:event properties:propertyDict disableCallback:disableCallback];
+}
+
 @end
