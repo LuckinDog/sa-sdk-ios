@@ -376,17 +376,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self unarchive];
 
             [self setUpListeners];
-
-            _launchedAppStartTracked = NO;
             
-            // 延迟初始化时补发 App 启动事件
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self setupLaunchedPassively];
-                [self autoTrackAppStart];
-                [self requestRemoteConfigWhenInitialized];
-                
-                self.launchedAppStartTracked = YES;
-            });
+            [self setUpLaunchedPassively];
 
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
@@ -411,6 +402,44 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     return self;
+}
+
+- (void)setUpLaunchedPassively {
+    if (@available(iOS 13.0, *)) {
+        _launchedAppStartTracked = NO;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // 主队列异步判断被动启动，为了兼容带有 SceneDelegate 的项目
+            self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+            // 开启 $AppEnd 的计时器
+            [self startAppEndTimer];
+            // 如果是被动启动，则关闭数据上报定时器
+            if ([self isLaunchedPassively]) {
+                [self stopFlushTimer];
+            }
+            // 补发启动事件
+            [self autoTrackAppStart];
+            // 请求远程配置
+            [self requestRemoteConfigWhenInitialized];
+            // 设置触发启动事件标记
+            self.launchedAppStartTracked = YES;
+        });
+    } else {
+        // 非 SceneDelegate 项目可以同步判断被动启动
+        dispatch_block_t mainThreadBlock = ^(){
+            if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
+                self->_launchedPassively = YES;
+            }
+        };
+        [SACommonUtility performBlockOnMainThread:mainThreadBlock];
+        // 开启 $AppEnd 的计时器
+        [self startAppEndTimer];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // 补发启动事件
+            [self autoTrackAppStart];
+            // 请求远程配置
+            [self requestRemoteConfigWhenInitialized];
+        });
+    }
 }
 
 - (void)enableLoggers:(BOOL)enableLog {
@@ -761,20 +790,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)setupLaunchedPassively {
-    // 这里获取 launchedPassively 的原因是为了兼容带有 SceneDelegate 的项目
-    self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-    
-    if (!self.isLaunchedPassively) {
-        [self trackTimerStart:SA_EVENT_NAME_APP_END];
-    }
-    
-    // 之前的操作中获取的 isLaunchedPassively 为默认值 NO，可能会开启计时器
-    if (self.isLaunchedPassively) {
-        [self stopFlushTimer];
-    }
-}
-
 - (void)autoTrackAppStart {
     // 是否首次启动
     BOOL isFirstStart = NO;
@@ -790,14 +805,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     
-    NSString *eventName = self.isLaunchedPassively ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
-    properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
-    //添加 deeplink 相关渠道信息，可能不存在
-    [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
-    
-    [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
+        properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
+        //添加 deeplink 相关渠道信息，可能不存在
+        [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
+        
+        [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+    });
+}
+
+- (void)startAppEndTimer {
+    if ([self isLaunchedPassively]) {
+        return;
+    }
+
+    // 启动 AppEnd 事件计时器
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [self trackTimerStart:SA_EVENT_NAME_APP_END];
+    });
 }
 
 - (BOOL)isAutoTrackEnabled {
@@ -1893,7 +1923,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if (self.isLaunchedPassively) {
+        if ([self isLaunchedPassively]) {
             return;
         }
         
@@ -1959,7 +1989,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setUpListeners {
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-
+    
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationDidFinishLaunching:)
+                               name:UIApplicationDidFinishLaunchingNotification
+                             object:nil];
+    
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
                                name:UIApplicationWillEnterForegroundNotification
@@ -2271,10 +2306,32 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
+- (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    SALogDebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
+    
+    // iOS 13 以上的启动事件只依赖于初始化中的补发启动事件逻辑
+    if (@available(iOS 13.0, *)) {
+        return;
+    }
+    
+    // iOS 13 以下需要额外依赖于 UIApplicationDidFinishLaunchingNotification 通知（被动启动时补发启动事件逻辑不会执行）
+    [self requestRemoteConfigWhenInitialized];
+    
+    if (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
+        //全埋点
+        [self autoTrackAppStart];
+    }
+}
+
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SALogDebug(@"%@ application will enter foreground", self);
     
-    _appRelaunched = self.isLaunchedAppStartTracked;
+    if (@available(iOS 13.0, *)) {
+        _appRelaunched = self.isLaunchedAppStartTracked;
+    } else {
+        _appRelaunched = YES;
+    }
+    
     self.launchedPassively = NO;
 }
 
