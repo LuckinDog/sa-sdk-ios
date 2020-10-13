@@ -220,7 +220,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
-@property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked;
+@property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked; // 标记启动事件是否触发过
 
 ///是否为被动启动
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
@@ -403,19 +403,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setupLaunchedState {
+    _launchedAppStartTracked = NO;
+    dispatch_block_t mainThreadBlock = ^(){
+        self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+        self.launchedAppStartTracked = YES;
+    };
+    
+    // 被动启动时 iOS 13 以下的异步主队列的 block 不会执行
     if (@available(iOS 13.0, *)) {
-        // 主队列异步判断被动启动，为了兼容带有 SceneDelegate 的项目
-        _launchedAppStartTracked = NO;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-            // 设置触发启动事件标记
-            self.launchedAppStartTracked = YES;
-        });
+        dispatch_async(dispatch_get_main_queue(), mainThreadBlock);
     } else {
-        // 非 SceneDelegate 项目可以同步判断被动启动
-        dispatch_block_t mainThreadBlock = ^(){
-            self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-        };
         [SACommonUtility performBlockOnMainThread:mainThreadBlock];
     }
     
@@ -1986,10 +1983,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
-    [notificationCenter addObserver:self
-                           selector:@selector(applicationDidFinishLaunching:)
-                               name:UIApplicationDidFinishLaunchingNotification
-                             object:nil];
+    if (@available(iOS 13.0, *)) {
+        // Code that requires iOS 13 or later
+    } else {
+        [notificationCenter addObserver:self
+                               selector:@selector(applicationDidFinishLaunching:)
+                                   name:UIApplicationDidFinishLaunchingNotification
+                                 object:nil];
+    }
 
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
@@ -2305,11 +2306,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     SALogDebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
     
-    // iOS 13 以上的启动事件只依赖于初始化中的补发启动事件逻辑
-    if (@available(iOS 13.0, *)) {
-        return;
-    }
-    
     // iOS 13 以下需要额外依赖于 UIApplicationDidFinishLaunchingNotification 通知（被动启动时补发启动事件逻辑不会执行）
     [self autoTrackAppStart];
 }
@@ -2317,11 +2313,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SALogDebug(@"%@ application will enter foreground", self);
     
-    if (@available(iOS 13.0, *)) {
-        _appRelaunched = self.isLaunchedAppStartTracked;
-    } else {
-        _appRelaunched = YES;
-    }
+    _appRelaunched = self.isLaunchedAppStartTracked;
     
     self.launchedPassively = NO;
 }
