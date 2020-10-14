@@ -407,14 +407,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_block_t mainThreadBlock = ^(){
         self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
         self.launchedAppStartTracked = YES;
-        
-        if ([self isLaunchedPassively]) {
-            [self stopFlushTimer];
-        } else {
-            [self startFlushTimer];
-            [self startAppEndTimer];
-            [self requestRemoteConfigWhenInitialized];
-        }
     };
     
     // 被动启动时 iOS 13 以下异步主队列的 block 不会执行
@@ -426,6 +418,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     // 补发启动事件
     dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self isLaunchedPassively]) {
+            [self stopFlushTimer];
+        } else {
+            [self startFlushTimer];
+            [self startAppEndTimer];
+            [self requestRemoteConfigWhenInitialized];
+        }
+        
         [self autoTrackAppStart];
     });
 }
