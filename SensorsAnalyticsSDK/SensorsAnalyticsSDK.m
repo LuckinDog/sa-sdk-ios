@@ -407,31 +407,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_block_t mainThreadBlock = ^(){
         self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
         self.launchedAppStartTracked = YES;
+        
+        if ([self isLaunchedPassively]) {
+            [self stopFlushTimer];
+        } else {
+            [self startFlushTimer];
+            [self startAppEndTimer];
+            [self requestRemoteConfigWhenInitialized];
+        }
     };
     
-    // 被动启动时 iOS 13 以下的异步主队列的 block 不会执行
+    // 被动启动时 iOS 13 以下异步主队列的 block 不会执行
     if (@available(iOS 13.0, *)) {
         dispatch_async(dispatch_get_main_queue(), mainThreadBlock);
     } else {
         [SACommonUtility performBlockOnMainThread:mainThreadBlock];
     }
     
+    // 补发启动事件
     dispatch_async(dispatch_get_main_queue(), ^{
-        // 开启 $AppEnd 的计时器
-        [self startAppEndTimer];
-        
-        // 如果是被动启动，则关闭数据上报定时器
-        if ([self isLaunchedPassively]) {
-            [self stopFlushTimer];
-        } else {
-            [self startFlushTimer];
-        }
-        
-        // 补发启动事件
         [self autoTrackAppStart];
-        
-        // 请求远程配置
-        [self requestRemoteConfigWhenInitialized];
     });
 }
 
@@ -812,10 +807,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)startAppEndTimer {
-    if ([self isLaunchedPassively]) {
-        return;
-    }
-
     // 启动 AppEnd 事件计时器
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -2646,10 +2637,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)requestRemoteConfigWhenInitialized {
-    if ([self isLaunchedPassively]) {
-        return;
-    }
-    
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
