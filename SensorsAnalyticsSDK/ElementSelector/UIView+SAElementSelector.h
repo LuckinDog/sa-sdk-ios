@@ -23,9 +23,16 @@
 
 @interface UIView (SAElementSelector)
 
+/// viewId 的 sha256 加密
 - (NSString *)jjf_varA;
+
+/// view 在 UIViewController 层的成员变量名称，比如 _textField，_myButton1，再做 sha256 加密
 - (NSString *)jjf_varB;
+
+/// 获取 8 像素图片，并获取 8 * 8 位图的 RGBA 数据 base64 编码的字符串，再做 sha256 加密
 - (NSString *)jjf_varC;
+
+/// 控件内容拼接，再做 sha256 加密
 - (NSString *)jjf_varE;
 
 @end
