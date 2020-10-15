@@ -915,7 +915,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param properties 激活事件的属性
  */
-- (void)trackAppInstall:(nullable NSDictionary *)properties;
+- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties;
 
 /**
  * @abstract
@@ -924,8 +924,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param properties 激活事件的属性
  * @param disableCallback  是否关闭这次渠道匹配的回调请求
  */
-- (void)trackAppInstall:(nullable NSDictionary *)properties disableCallback:(BOOL)disableCallback;
-
+- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties disableCallback:(BOOL)disableCallback;
 
 @end
 
@@ -1400,7 +1399,7 @@ DeepLink 回调函数
  * @param event             event 的名称
  * @param propertyDict     event 的属性
  */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考 trackAppInstall:")));;
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考 trackAppInstallWithProperties:")));;
 
 /**
  * @abstract
@@ -1418,7 +1417,7 @@ DeepLink 回调函数
  * @param propertyDict     event 的属性
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
  */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback __attribute__((deprecated("已过时，请参考 trackAppInstall: properties: disableCallback:")));;
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback __attribute__((deprecated("已过时，请参考 trackAppInstallWithProperties: disableCallback:")));;
 
 @end
 

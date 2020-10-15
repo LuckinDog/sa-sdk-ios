@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 用于检查当前唤起 App 的 URL 是否为有效的渠道联调诊断功能链接
  *
  * @param url 唤起 App 的链接
+ * @return 是否为有效链接
 */
 - (BOOL)canHandleURL:(NSURL *)url;
 

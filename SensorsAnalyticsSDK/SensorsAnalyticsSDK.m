@@ -2709,14 +2709,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 @implementation SensorsAnalyticsSDK (AppInstall)
 
 - (void)trackAppInstall {
-    [self trackAppInstall:nil];
+    [self trackAppInstallWithProperties:nil];
 }
 
-- (void)trackAppInstall:(NSDictionary *)properties {
-    [self trackAppInstall:properties disableCallback:NO];
+- (void)trackAppInstallWithProperties:(NSDictionary *)properties {
+    [self trackAppInstallWithProperties:properties disableCallback:NO];
 }
 
-- (void)trackAppInstall:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+- (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
     [[SAChannelMatchManager sharedInstance] trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
 }
 
