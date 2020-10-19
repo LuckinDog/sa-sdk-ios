@@ -1888,8 +1888,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)unarchiveTrackChannelEvents {
-    NSArray *trackChannelEvents = (NSArray *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    [self.trackChannelEventNames addObjectsFromArray:trackChannelEvents];
+    id trackChannelEvents = [SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    [self.trackChannelEventNames unionSet:(NSSet *)trackChannelEvents];
 }
 
 - (void)archiveSuperProperties {
