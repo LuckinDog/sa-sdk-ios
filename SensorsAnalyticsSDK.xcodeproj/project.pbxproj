@@ -812,9 +812,8 @@
 		CB30C31022843D3A0004061D /* SensorsAnalyticsExtension */ = {
 			isa = PBXGroup;
 			children = (
-				8814BF522500E6DE003623EB /* SALogger */,
-				8814BF632500E6DE003623EB /* SAAppExtensionDataManager.h */,
-				8814BF622500E6DE003623EB /* SAAppExtensionDataManager.m */,
+				CB30C32422843E380004061D /* SAAppExtensionDataManager.h */,
+				CB30C32322843E380004061D /* SAAppExtensionDataManager.m */,
 				CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */,
 			);
 			path = SensorsAnalyticsExtension;
@@ -947,16 +946,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB30C32622843E380004061D /* SAAppExtensionDataManager.h in Headers */,
 				CB30C31322843D3A0004061D /* SensorsAnalyticsExtension.h in Headers */,
-				8814BF712500E6DE003623EB /* SALog+Private.h in Headers */,
-				8814BF6E2500E6DE003623EB /* SAFileLogger.h in Headers */,
-				8814BF682500E6DE003623EB /* SALog.h in Headers */,
-				8814BF652500E6DE003623EB /* SAAbstractLogger.h in Headers */,
-				8814BF672500E6DE003623EB /* SAConsoleLogger.h in Headers */,
-				8814BF642500E6DE003623EB /* SALogMessage.h in Headers */,
-				8814BF6B2500E6DE003623EB /* SALoggerPrePostFixFormatter.h in Headers */,
-				8814BF742500E6DE003623EB /* SAAppExtensionDataManager.h in Headers */,
-				8814BF722500E6DE003623EB /* SALoggerConsoleFormatter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1178,14 +1169,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8814BF6F2500E6DE003623EB /* SALog.m in Sources */,
-				8814BF702500E6DE003623EB /* SAConsoleLogger.m in Sources */,
-				8814BF6A2500E6DE003623EB /* SALoggerConsoleFormatter.m in Sources */,
-				8814BF6C2500E6DE003623EB /* SAAbstractLogger.m in Sources */,
-				8814BF662500E6DE003623EB /* SALoggerPrePostFixFormatter.m in Sources */,
-				8814BF732500E6DE003623EB /* SAAppExtensionDataManager.m in Sources */,
-				8814BF692500E6DE003623EB /* SAFileLogger.m in Sources */,
-				8814BF6D2500E6DE003623EB /* SALogMessage.m in Sources */,
+				CB30C32522843E380004061D /* SAAppExtensionDataManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
