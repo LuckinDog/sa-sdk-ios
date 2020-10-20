@@ -181,7 +181,6 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
 }
 
 - (void)sensorsdata_dealloc {
-    NSLog(@"%@", NSStringFromClass(object_getClass(self)));
     Class class = object_getClass(self);
     [SADelegateProxy deallocSubclass:class];
 }
