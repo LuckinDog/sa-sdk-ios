@@ -93,12 +93,6 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
   end
 
-  # 支持非 UIViewController 实现 UITableView 或 UICollectionView delegate 的点击事件采集
-  s.subspec 'ENABLE_AUTOTRACK_DIDSELECTROW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW=1'}
-  end
-
   # trackInstallation 不保存在 keychain，卸载重装会重新触发激活事件
   s.subspec 'DISABLE_INSTALLATION_MARK_IN_KEYCHAIN' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
