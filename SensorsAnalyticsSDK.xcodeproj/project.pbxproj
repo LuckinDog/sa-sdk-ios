@@ -469,21 +469,21 @@
 		4DB14DC92456C106002C224C /* SALogger */ = {
 			isa = PBXGroup;
 			children = (
-				4DB14DCA2456C106002C224C /* SALogMessage.h */,
 				4DB14DCB2456C106002C224C /* SAAbstractLogger.h */,
-				4DB14DCC2456C106002C224C /* SALoggerPrePostFixFormatter.m */,
-				4DB14DCD2456C106002C224C /* SAConsoleLogger.h */,
-				4DB14DCE2456C106002C224C /* SALog.h */,
-				4DB14DCF2456C106002C224C /* SAFileLogger.m */,
-				4DB14DD02456C106002C224C /* SALoggerConsoleFormatter.m */,
-				4DB14DD12456C106002C224C /* SALoggerPrePostFixFormatter.h */,
 				4DB14DD22456C106002C224C /* SAAbstractLogger.m */,
-				4DB14DD32456C106002C224C /* SALogMessage.m */,
-				4DB14DD42456C106002C224C /* SAFileLogger.h */,
-				4DB14DD52456C106002C224C /* SALog.m */,
+				4DB14DCD2456C106002C224C /* SAConsoleLogger.h */,
 				4DB14DD62456C106002C224C /* SAConsoleLogger.m */,
+				4DB14DD42456C106002C224C /* SAFileLogger.h */,
+				4DB14DCF2456C106002C224C /* SAFileLogger.m */,
+				4DB14DCE2456C106002C224C /* SALog.h */,
+				4DB14DD52456C106002C224C /* SALog.m */,
 				4DB14DD72456C106002C224C /* SALog+Private.h */,
 				4DB14DD82456C106002C224C /* SALoggerConsoleFormatter.h */,
+				4DB14DD02456C106002C224C /* SALoggerConsoleFormatter.m */,
+				4DB14DD12456C106002C224C /* SALoggerPrePostFixFormatter.h */,
+				4DB14DCC2456C106002C224C /* SALoggerPrePostFixFormatter.m */,
+				4DB14DCA2456C106002C224C /* SALogMessage.h */,
+				4DB14DD32456C106002C224C /* SALogMessage.m */,
 			);
 			path = SALogger;
 			sourceTree = "<group>";
@@ -847,7 +847,7 @@
 				4DB14DE72456C107002C224C /* SALoggerConsoleFormatter.h in Headers */,
 				CB30C08822840EC00004061D /* SARemoteConfigModel.h in Headers */,
 				88824FA2249C55A2003ADC59 /* SAHTTPSession.h in Headers */,
-				CB30C08822840EC00004061D /* SASDKRemoteConfig.h in Headers */,
+				CB30C08822840EC00004061D /* SARemoteConfigModel.h in Headers */,
 				CB30C07F22840EC00004061D /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				88824F99249B7C99003ADC59 /* SAEventFlush.h in Headers */,
 				FC86E5F024FA5B0D006FDDA8 /* SAChannelMatchManager.h in Headers */,
