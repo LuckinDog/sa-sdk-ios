@@ -31,7 +31,9 @@
 typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexPath *);
 
 /// Delegate 的类前缀
-static NSString *const kSensorsDelegatePrefix = @"__CN.SENSORSDATA.";
+static NSString *const kSensorsDelegatePrefix = @"__CN.SENSORSDATA";
+static NSString *const kSAClassSeparatedChar = @".";
+static long subClassIndex = 0;
 
 /**
  通过对象获取动态添加的 Delegate 子类
@@ -64,7 +66,7 @@ BOOL sensorsdata_isDynamicSensorsClass(Class _Nullable cla) {
 /// @param class 原始类
 NSString *sensorsdata_generateDynamicClassName(Class class) {
     if (sensorsdata_isDynamicSensorsClass(class)) return NSStringFromClass(class);
-    return [NSString stringWithFormat:@"%@%@.%@", kSensorsDelegatePrefix, NSUUID.UUID.UUIDString, NSStringFromClass(class)];
+    return [@[kSensorsDelegatePrefix, @(subClassIndex++), NSStringFromClass(class)] componentsJoinedByString:kSAClassSeparatedChar];
 }
 
 /// 获取 obj 的原始 Class
@@ -72,9 +74,10 @@ NSString *sensorsdata_generateDynamicClassName(Class class) {
 Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
     Class cla = object_getClass(obj);
     if (!sensorsdata_isDynamicSensorsClass(cla)) return cla;
-    NSString *className = [NSStringFromClass(cla) stringByReplacingOccurrencesOfString:kSensorsDelegatePrefix withString:@""];
-    NSString *dropString = [[className componentsSeparatedByString:@"."].firstObject stringByAppendingString:@"."];
-    className = [className stringByReplacingOccurrencesOfString:dropString withString:@""];
+    NSString *className = NSStringFromClass(cla);
+    NSString *expression = [NSString stringWithFormat:@"^(%1$@%2$@\\d+%2$@)", kSensorsDelegatePrefix, kSAClassSeparatedChar];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:expression  options:NSRegularExpressionCaseInsensitive error:nil];
+    className = [regex stringByReplacingMatchesInString:className options:0 range:NSMakeRange(0, className.length) withTemplate:@""];
     return objc_getClass([className UTF8String]);
 }
 
