@@ -32,10 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)proxyWithDelegate:(id)delegate selector:(SEL)selector;
 
-/// 取消委托代理 (还原 object 的原始类)
-/// @param object 实例对象
-+ (void)cancelProxyWithDelegate:(nullable id)object;
-
 @end
 
 @interface SADelegateProxy (ThirdPart)
@@ -47,8 +43,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SADelegateProxy (SubclassMethod) <UITableViewDelegate, UICollectionViewDelegate>
 
 - (Class)sensorsdata_class;
-- (void)sensorsdata_dealloc;
 
+@end
+
+@interface SADelegateProxy (SubClassDealloc)
+
+- (void)addOperationWhenDealloc:(void(^)(void))block;
 
 @end
 

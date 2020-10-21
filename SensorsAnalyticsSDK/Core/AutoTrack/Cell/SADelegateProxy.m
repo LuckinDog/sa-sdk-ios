@@ -92,14 +92,6 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
     }
 }
 
-+ (void)cancelProxyWithDelegate:(nullable id)object {
-    if (!object) return;
-    Class class = sensorsdata_getClass(object);
-    if (!sensorsdata_isDynamicSensorsClass(class)) return;
-    object_setClass(object, sensorsdata_getOriginalClass(object));
-    [SADelegateProxy deallocSubclass:class];
-}
-
 /**
  isa swizzle
  给 object 创建一个新的子类，并设置其 isa 指针为新的子类。
@@ -128,8 +120,8 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
         // 重写 - (void)class 方法，目的是在获取该类的类型时，隐藏新添加的子类
         [SAMethodHelper addInstanceMethodWithDestinationSelector:@selector(class) sourceSelector:@selector(sensorsdata_class) fromClass:proxyClass toClass:subclass];
         
-        // 重写 - (void)dealloc 方法，目的是在实例释放时, 释放动态添加的子类
-        [SAMethodHelper addInstanceMethodWithDestinationSelector:NSSelectorFromString(@"dealloc") sourceSelector:@selector(sensorsdata_dealloc) fromClass:proxyClass toClass:subclass];
+        // 添加实例方法，目的是在实例释放时, 释放动态添加的子类
+        [SAMethodHelper addInstanceMethodWithSelector:@selector(addOperationWhenDealloc:) fromClass:proxyClass toClass:subclass];
 
         // 子类和原始类的大小必须相同，不能有更多的 ivars 或者属性
         // 如果不同会导致设置新的子类时，会重新设置内存，导致重写了对象的 isa 指针
@@ -144,6 +136,9 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
 
     // 将 object 对象设置成新创建的子类对象
     if (object_setClass(object, subclass)) {
+        [object addOperationWhenDealloc:^{
+            [SADelegateProxy deallocSubclass:subclass];
+        }];
         SALogDebug(@"Successfully created Delegate Proxy automatically.");
     }
     return subclass;
@@ -180,11 +175,6 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
     return sensorsdata_getOriginalClass(self);
 }
 
-- (void)sensorsdata_dealloc {
-    Class class = object_getClass(self);
-    [SADelegateProxy deallocSubclass:class];
-}
-
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
     Class originalClass = sensorsdata_getOriginalClass(scrollView.delegate);
     IMP originalImplementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:originalClass];
@@ -216,3 +206,37 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
 
 @end
 
+#pragma mark - listening dealloc
+@interface SADelegateProxyParasite : NSObject
+
+@property (nonatomic, copy) void(^deallocBlock)(void);
+
+@end
+
+@implementation SADelegateProxyParasite
+
+- (void)dealloc {
+    if (self.deallocBlock) {
+        self.deallocBlock();
+    }
+}
+
+@end
+
+@implementation SADelegateProxy (SubClassDealloc)
+
+- (void)addOperationWhenDealloc:(void(^)(void))block {
+    @synchronized (self) {
+        static NSString *kSAParasiteAssociatedKey = nil;
+        NSMutableArray *parasiteList = objc_getAssociatedObject(self, &kSAParasiteAssociatedKey);
+        if (!parasiteList) {
+            parasiteList = [[NSMutableArray alloc] init];
+            objc_setAssociatedObject(self, &kSAParasiteAssociatedKey, parasiteList, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        SADelegateProxyParasite *parasite = [[SADelegateProxyParasite alloc] init];
+        parasite.deallocBlock = block;
+        [parasiteList addObject: parasite];
+    }
+}
+
+@end
