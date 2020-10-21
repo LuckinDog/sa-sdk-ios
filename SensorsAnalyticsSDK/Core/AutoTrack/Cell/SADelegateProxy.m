@@ -31,7 +31,7 @@
 typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexPath *);
 
 /// Delegate 的类前缀
-static NSString *const kSensorsDelegatePrefix = @"__CN.SENSORSDATA";
+static NSString *const kSADelegatePrefix = @"__CN.SENSORSDATA";
 static NSString *const kSAClassSeparatedChar = @".";
 static long subClassIndex = 0;
 
@@ -44,7 +44,7 @@ static long subClassIndex = 0;
 Class _Nullable sensorsdata_getClass(id _Nullable obj) {
     Class cla = object_getClass(obj);
     while (cla) {
-        if ([NSStringFromClass(cla) hasPrefix:kSensorsDelegatePrefix]) {
+        if ([NSStringFromClass(cla) hasPrefix:kSADelegatePrefix]) {
             return cla;
         }
         cla = class_getSuperclass(cla);
@@ -59,14 +59,14 @@ Class _Nullable sensorsdata_getClass(id _Nullable obj) {
  @return 是否有特殊前缀
  */
 BOOL sensorsdata_isDynamicSensorsClass(Class _Nullable cla) {
-    return [NSStringFromClass(cla) hasPrefix:kSensorsDelegatePrefix];
+    return [NSStringFromClass(cla) hasPrefix:kSADelegatePrefix];
 }
 
 /// 根据原始类生成动态添加的子类的名称
 /// @param class 原始类
 NSString *sensorsdata_generateDynamicClassName(Class class) {
     if (sensorsdata_isDynamicSensorsClass(class)) return NSStringFromClass(class);
-    return [@[kSensorsDelegatePrefix, @(subClassIndex++), NSStringFromClass(class)] componentsJoinedByString:kSAClassSeparatedChar];
+    return [@[kSADelegatePrefix, @(subClassIndex++), NSStringFromClass(class)] componentsJoinedByString:kSAClassSeparatedChar];
 }
 
 /// 获取 obj 的原始 Class
@@ -75,7 +75,7 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
     Class cla = object_getClass(obj);
     if (!sensorsdata_isDynamicSensorsClass(cla)) return cla;
     NSString *className = NSStringFromClass(cla);
-    NSString *expression = [NSString stringWithFormat:@"^(%1$@%2$@\\d+%2$@)", kSensorsDelegatePrefix, kSAClassSeparatedChar];
+    NSString *expression = [NSString stringWithFormat:@"^(%1$@%2$@\\d+%2$@)", kSADelegatePrefix, kSAClassSeparatedChar];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:expression  options:NSRegularExpressionCaseInsensitive error:nil];
     className = [regex stringByReplacingMatchesInString:className options:0 range:NSMakeRange(0, className.length) withTemplate:@""];
     return objc_getClass([className UTF8String]);
