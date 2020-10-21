@@ -31,7 +31,6 @@
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
 
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
-    [SADelegateProxy cancelProxyWithDelegate:self.delegate];
     [self sensorsdata_setDelegate:delegate];
 
     if (delegate == nil) {
@@ -58,7 +57,6 @@
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
-    [SADelegateProxy cancelProxyWithDelegate:self.delegate];
     [self sensorsdata_setDelegate:delegate];
 
     if (delegate == nil) {
