@@ -2305,12 +2305,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SALogDebug(@"%@ application will enter foreground", self);
     
     _appRelaunched = self.isLaunchedAppStartTracked;
-    
-    self.launchedPassively = NO;
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SALogDebug(@"%@ application did become active", self);
+    
+    self.launchedPassively = NO;
     
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
