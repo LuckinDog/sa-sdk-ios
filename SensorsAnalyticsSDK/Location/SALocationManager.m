@@ -114,6 +114,9 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 
 - (void)startUpdatingLocation {
     @try {
+        if (self.isUpdatingLocation) {
+            return;
+        }
         //判断当前设备定位服务是否打开
         if (![CLLocationManager locationServicesEnabled]) {
             SALogWarn(@"设备尚未打开定位服务");
@@ -122,10 +125,8 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
         if (@available(iOS 8.0, *)) {
             [self.locationManager requestWhenInUseAuthorization];
         }
-        if (!self.isUpdatingLocation) {
-            [self.locationManager startUpdatingLocation];
-            self.isUpdatingLocation = YES;
-        }
+        [self.locationManager startUpdatingLocation];
+        self.isUpdatingLocation = YES;
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
