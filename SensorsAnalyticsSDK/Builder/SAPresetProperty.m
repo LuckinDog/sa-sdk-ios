@@ -79,8 +79,6 @@ NSString * const SAEventPresetPropertyNetworkType = @"$network_type";
 NSString * const SAEventPresetPropertyWifi = @"$wifi";
 /// 是否首日
 NSString * const SAEventPresetPropertyIsFirstDay = @"$is_first_day";
-/// 应用程序状态
-static NSString * const SAEventPresetPropertyAppState = @"$app_state";
 
 #pragma mark - lib
 /// SDK 类型
@@ -188,10 +186,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     // 是否首日访问
     presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
-    // 是否被动启动（由于属性 $app_state 使用较少，暂时注释掉）
-//    if (isLaunchedPassively) {
-//        presetPropertiesOfTrackType[SAEventPresetPropertyAppState] = @"background";
-//    }
+    
     // 采集设备方向
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     if (orientationConfig.enableTrackScreenOrientation && [SAValidator isValidString:orientationConfig.deviceOrientation]) {
