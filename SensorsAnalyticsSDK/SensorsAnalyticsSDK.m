@@ -404,7 +404,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             // WKWebView 打通
-            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
+            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
                 [self swizzleWebViewMethod];
             }
         }
@@ -3250,6 +3250,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)enableHeatMap {
     self.configOptions.enableHeatMap = YES;
+
+    // 开启 WKWebView 和 js 的数据交互
+    [self swizzleWebViewMethod];
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
