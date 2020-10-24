@@ -1009,7 +1009,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         // App 内嵌 H5 数据交互
-        if (self.configOptions.enableVisualizedAutoTrack) {
+        if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
             [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
             if ([SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting) {
                 [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
@@ -2010,7 +2010,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
-    if (self.configOptions.enableVisualizedAutoTrack) {
+    if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
         [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
     }
 
