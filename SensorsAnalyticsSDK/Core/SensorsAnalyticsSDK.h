@@ -351,12 +351,12 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - trackTimer
 /**
  开始事件计时
-
+ 
  @discussion
  若需要统计某个事件的持续时间，先在事件开始时调用 trackTimerStart:"Event" 记录事件开始时间，该方法并不会真正发送事件；
  随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，
  SDK 会追踪 "Event" 事件，并自动将事件持续时间记录在事件属性 "event_duration" 中，时间单位为秒。
-
+ 
  @param event 事件名称
  @return 返回计时事件的 eventId，用于交叉计时场景。普通计时可忽略
  */
@@ -367,7 +367,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @discussion
  多次调用 trackTimerEnd: 时，以首次调用为准
-
+ 
  @param event 事件名称或事件的 eventId
  @param propertyDict 自定义属性
  */
@@ -375,10 +375,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  结束事件计时
-
+ 
  @discussion
  多次调用 trackTimerEnd: 时，以首次调用为准
-
+ 
  @param event 事件名称或事件的 eventId
  */
 - (void)trackTimerEnd:(NSString *)event;
@@ -388,7 +388,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @discussion
  多次调用 trackTimerPause: 时，以首次调用为准。
-
+ 
  @param event 事件名称或事件的 eventId
  */
 - (void)trackTimerPause:(NSString *)event;
@@ -398,7 +398,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @discussion
  多次调用 trackTimerResume: 时，以首次调用为准。
-
+ 
  @param event 事件名称或事件的 eventId
  */
 - (void)trackTimerResume:(NSString *)event;
@@ -659,7 +659,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * 判断是否为符合要求的 openURL
-
+ 
  * @param url 打开的 URL
  * @return YES/NO
  */
