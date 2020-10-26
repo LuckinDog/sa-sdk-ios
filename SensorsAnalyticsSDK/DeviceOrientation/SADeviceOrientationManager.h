@@ -25,8 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SADeviceOrientationManager : NSObject <SAPropertyModuleProtocol>
 
-+ (instancetype)sharedInstance;
-
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 @property (nonatomic, copy, readonly, nullable) NSDictionary *properties;

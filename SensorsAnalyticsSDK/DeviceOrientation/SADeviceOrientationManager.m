@@ -24,10 +24,11 @@
 
 #import <UIKit/UIKit.h>
 #import "SADeviceOrientationManager.h"
-#import "SADeviceOrientationManager+SAConfig.h"
+#import "SAConstants+Private.h"
 #import "SALog.h"
 
 static NSTimeInterval const kSADefaultDeviceMotionUpdateInterval = 0.5;
+static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orientation";
 
 @interface SADeviceOrientationManager()
 
@@ -75,7 +76,7 @@ static NSTimeInterval const kSADefaultDeviceMotionUpdateInterval = 0.5;
 }
 
 - (NSDictionary *)properties {
-    return nil;
+    return self.deviceOrientation ? @{kSAEventPresetPropertyScreenOrientation: self.deviceOrientation} : nil;
 }
 
 #pragma mark - Listener
@@ -84,25 +85,31 @@ static NSTimeInterval const kSADefaultDeviceMotionUpdateInterval = 0.5;
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
     [notificationCenter addObserver:self
-                           selector:@selector(applicationDidBecomeActive:)
-                               name:UIApplicationDidBecomeActiveNotification
-                             object:nil];
-    [notificationCenter addObserver:self
                            selector:@selector(applicationDidEnterBackground:)
                                name:UIApplicationDidEnterBackgroundNotification
                              object:nil];
-}
-
-- (void)applicationDidBecomeActive:(NSNotification *)notification {
-    if (!self.disableSDK && self.isEnable) {
-        [self startDeviceMotionUpdates];
-    } else {
-        [self stopDeviceMotionUpdates];
-    }
+    [notificationCenter addObserver:self
+                           selector:@selector(remoteConfigManagerModelChanged:)
+                               name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION
+                             object:nil];
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     [self stopDeviceMotionUpdates];
+}
+
+- (void)remoteConfigManagerModelChanged:(NSNotification *)sender {
+    BOOL disableSDK = NO;
+    @try {
+        disableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
+    } @catch(NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    }
+    if (disableSDK) {
+        [self stopDeviceMotionUpdates];
+    } else if (self.enable) {
+        [self stopDeviceMotionUpdates];
+    }
 }
 
 #pragma mark - Public

@@ -27,6 +27,7 @@
 
 // Location 模块名
 static NSString * const SALocationModuleName = @"Location";
+static NSString * const SADeviceOrientationModuleName = @"DeviceOrientation";
 static NSString * const SAReactNativeModuleName = @"ReactNative";
 
 @interface SAModuleManager ()
@@ -76,6 +77,8 @@ static NSString * const SAReactNativeModuleName = @"ReactNative";
     switch (type) {
         case SAModuleTypeLocation:
             return SALocationModuleName;
+        case SAModuleTypeDeviceOrientation:
+            return SADeviceOrientationModuleName;
         case SAModuleTypeReactNative:
             return SAReactNativeModuleName;
         default:
@@ -96,10 +99,15 @@ static NSString * const SAReactNativeModuleName = @"ReactNative";
         if (![obj conformsToProtocol:@protocol(SAPropertyModuleProtocol)] || !obj.isEnable) {
             return;
         }
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         id<SAPropertyModuleProtocol> manager = (id<SAPropertyModuleProtocol>)obj;
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         if ([key isEqualToString:SALocationModuleName]) {
-            [properties addEntriesFromDictionary:manager.properties];
+            return [properties addEntriesFromDictionary:manager.properties];
+        }
+#endif
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+        if ([key isEqualToString:SADeviceOrientationModuleName]) {
+            return [properties addEntriesFromDictionary:manager.properties];
         }
 #endif
     }];

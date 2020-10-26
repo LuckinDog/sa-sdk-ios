@@ -2355,12 +2355,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableTrackScreenOrientation:(BOOL)enable {
-    Class<SAModuleProtocol> cla = NSClassFromString(@"SADeviceOrientationManager");
-    if (![cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
-        return;
-    }
-    id<SAModuleProtocol> shared = [cla sharedInstance];
-    shared.enable = enable;
+    [SAModuleManager.sharedInstance setEnable:enable forModuleType:SAModuleTypeDeviceOrientation];
 }
 
 - (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {
@@ -2429,10 +2424,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self stopFlushTimer];
     
     [self removeWebViewUserAgent];
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-    [self.deviceOrientationManager stopDeviceMotionUpdates];
-#endif
 
     // 停止采集数据之后 flush 本地数据
     [self flush];
@@ -2442,12 +2433,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self startFlushTimer];
     
     [self appendWebViewUserAgent];
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-    if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
-        [self.deviceOrientationManager startDeviceMotionUpdates];
-    }
-#endif
 }
 
 - (void)requestRemoteConfigWhenInitialized {
