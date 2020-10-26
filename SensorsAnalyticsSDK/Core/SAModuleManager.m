@@ -27,6 +27,7 @@
 
 // Location 模块名
 static NSString * const SALocationModuleName = @"Location";
+static NSString * const SAReactNativeModuleName = @"ReactNative";
 
 @interface SAModuleManager ()
 
@@ -75,6 +76,8 @@ static NSString * const SALocationModuleName = @"Location";
     switch (type) {
         case SAModuleTypeLocation:
             return SALocationModuleName;
+        case SAModuleTypeReactNative:
+            return SAReactNativeModuleName;
         default:
             return nil;
     }
