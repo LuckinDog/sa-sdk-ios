@@ -2179,12 +2179,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                   error:&error];
         
         SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
         [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-#endif
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-#endif
         if (error) {
             SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
             error = NULL;

@@ -28,8 +28,6 @@
 
 @implementation UITableView (SensorsData)
 
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
-
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
 
@@ -47,14 +45,10 @@
     [SADelegateProxy proxyWithDelegate:delegate selector:selector];
 }
 
-#endif
-
 @end
 
 
 @implementation UICollectionView (SensorsData)
-
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
@@ -72,6 +66,5 @@
     // 使用委托类去 hook 点击事件方法
     [SADelegateProxy proxyWithDelegate:delegate selector:selector];
 }
-#endif
 
 @end
