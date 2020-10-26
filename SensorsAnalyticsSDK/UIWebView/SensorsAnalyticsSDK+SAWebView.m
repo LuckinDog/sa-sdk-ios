@@ -37,6 +37,8 @@ static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://tr
 
 @interface SensorsAnalyticsSDK (SAWebViewPrivate)
 
+@property (atomic, copy) NSString *userAgent;
+
 - (BOOL)shouldHandleWebView:(id)webView request:(NSURLRequest *)request;
 
 - (NSMutableDictionary *)webViewJavascriptBridgeCallbackInfo;
@@ -63,7 +65,6 @@ static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://tr
     
     @try {
         SALogDebug(@"showUpWebView");
-        SAJSONUtil *_jsonUtil = [[SAJSONUtil alloc] init];
         NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         if (bridgeCallbackInfo) {
@@ -72,7 +73,7 @@ static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://tr
         if (propertyDict) {
             [properties addEntriesFromDictionary:propertyDict];
         }
-        NSData *jsonData = [_jsonUtil JSONSerializeObject:properties];
+        NSData *jsonData = [SAJSONUtil JSONSerializeObject:properties];
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];

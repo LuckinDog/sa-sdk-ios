@@ -48,9 +48,7 @@
     #import "SAKeyChainItemWrapper.h"
 #endif
 
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 #import <WebKit/WebKit.h>
-#endif
 
 #import "SARemoteConfigManager.h"
 #import "SADeviceOrientationManager.h"
@@ -206,10 +204,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
 #endif
 
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
 @property (nonatomic, strong) dispatch_group_t loadUAGroup;
-#endif
 
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
@@ -441,7 +437,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (self.userAgent) {
         return completion(self.userAgent);
     }
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
             dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
@@ -473,13 +469,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }];
         }
     });
-#else
-    [SACommonUtility performBlockOnMainThread:^{
-        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        completion(self.userAgent);
-    }];
-#endif
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
@@ -2748,9 +2737,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if (![self shouldHandleWebView:webView request:request]) {
         return NO;
     }
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    NSAssert([webView isKindOfClass:WKWebView.class], @"当前集成方式，请使用 WKWebView！❌");
-#endif
 
     @try {
         SALogDebug(@"showUpWebView");
@@ -2778,22 +2764,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         //解析参数
         NSMutableDictionary *paramsDic = [[SAURLUtils queryItemsWithURLString:urlstr] mutableCopy];
 
-#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
-            SALogDebug(@"showUpWebView: UIWebView");
-            if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
-                [webView stringByEvaluatingJavaScriptFromString:js];
-            } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
-                if ([paramsDic count] > 0) {
-                    NSString *eventInfo = [paramsDic objectForKey:SA_EVENT_NAME];
-                    if (eventInfo != nil) {
-                        NSString *encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                        [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
-                    }
-                }
-            }
-        } else
-#endif
         if (wkWebViewClass && [webView isKindOfClass:wkWebViewClass]) {//WKWebView
             SALogDebug(@"showUpWebView: WKWebView");
             if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {

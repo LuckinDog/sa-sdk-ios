@@ -33,6 +33,13 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION=1'}
   end
 
+  # 使用 UIWebView 进行打通
+  s.subspec 'UIWebView' do |w|
+    w.dependency 'SensorsAnalyticsSDK/Core'
+    w.source_files  =  "SensorsAnalyticsSDK/UIWebView/**/*.{h,m}"
+    w.private_header_files = 'SensorsAnalyticsSDK/UIWebView/**/*.h'
+  end
+
   # 禁用 debugMode 下弹框提示
   s.subspec 'DISABLE_DEBUG_WARNING' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
@@ -116,14 +123,6 @@ Pod::Spec.new do |s|
   s.subspec 'ENABLE_CHILD_VIEWSCREEN' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN=1'}
-  end
-
-  # 禁用 UIWebView
-  s.subspec 'DISABLE_UIWEBVIEW' do |f|
-    # 需要使用 WKWebView，支持最低版本为 iOS 8
-    f.platform = :ios, "8.0"
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
   end
 
   # 禁用私有 API，可视化全埋点模块存在私有类名字符串判断
