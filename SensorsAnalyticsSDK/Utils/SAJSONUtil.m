@@ -94,7 +94,7 @@
             NSString *stringKey;
             if (![key isKindOfClass:[NSString class]]) {
                 stringKey = [key description];
-                SALogWarn(@"property keys should be strings. but property: %@, class: %@, key: %@", self, [key class], key);
+                SALogWarn(@"property keys should be strings. but property: %@, type: %@, key: %@", newObj, [key class], key);
             } else {
                 stringKey = [NSString stringWithString:key];
             }
@@ -115,7 +115,7 @@
         return [dateFormatter stringFromDate:newObj];
     }
     // default to sending the object's description
-    SALogWarn(@"property values should be valid json types. but current value: %@, class: %@", self, [newObj class]);
+    SALogWarn(@"property values should be valid json types, but current value: %@, with invalid type: %@", newObj, [newObj class]);
     return [newObj description];
 }
 
