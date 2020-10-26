@@ -29,6 +29,7 @@
 #import "SAPresetProperty.h"
 #import "SAConstants+Private.h"
 #import "SAIdentifier.h"
+#import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SACommonUtility.h"
 #import "SALog.h"
@@ -66,6 +67,8 @@ static NSString * const SAEventPresetPropertyOSVersion = @"$os_version";
 NSString * const SAEventPresetPropertyAppVersion = @"$app_version";
 /// 应用 ID
 static NSString * const SAEventPresetPropertyAppID = @"$app_id";
+/// 应用名称
+static NSString * const SAEventPresetPropertyAppName = @"$app_name";
 /// 时区偏移量
 static NSString * const SAEventPresetPropertyTimezoneOffset = @"$timezone_offset";
 
@@ -76,8 +79,6 @@ NSString * const SAEventPresetPropertyNetworkType = @"$network_type";
 NSString * const SAEventPresetPropertyWifi = @"$wifi";
 /// 是否首日
 NSString * const SAEventPresetPropertyIsFirstDay = @"$is_first_day";
-/// 应用程序状态
-static NSString * const SAEventPresetPropertyAppState = @"$app_state";
 
 #pragma mark - lib
 /// SDK 类型
@@ -177,10 +178,7 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     // 是否首日访问
     presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
-    // 是否被动启动
-    if (isLaunchedPassively) {
-        presetPropertiesOfTrackType[SAEventPresetPropertyAppState] = @"background";
-    }
+    
     // 采集设备方向
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     if (orientationConfig.enableTrackScreenOrientation && [SAValidator isValidString:orientationConfig.deviceOrientation]) {
@@ -188,8 +186,8 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     }
 #endif
     // 采集地理位置信息
-    [presetPropertiesOfTrackType addEntriesFromDictionary:[SAModuleManager sharedInstance].properties];
-    
+    [presetPropertiesOfTrackType addEntriesFromDictionary:SAModuleManager.sharedInstance.properties];
+
     return presetPropertiesOfTrackType;
 }
 
@@ -211,7 +209,11 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
         sysctlbyname("hw.machine", NULL, &size, NULL, 0);
         char answer[size];
         sysctlbyname("hw.machine", answer, &size, NULL, 0);
-        results = @(answer);
+        if (size) {
+            results = @(answer);
+        } else {
+            SALogError(@"Failed fetch hw.machine from sysctl.");
+        }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -284,6 +286,25 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     return carrierName;
 }
 
++ (NSString *)appName {
+    NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+    if (displayName) {
+        return displayName;
+    }
+    
+    NSString *bundleName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+    if (bundleName) {
+        return bundleName;
+    }
+    
+    NSString *executableName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"];
+    if (executableName) {
+        return executableName;
+    }
+    
+    return nil;
+}
+
 #pragma mark – Getters and Setters
 
 - (NSMutableDictionary *)automaticProperties {
@@ -302,6 +323,7 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
             _automaticProperties[SAEventPresetPropertyOS] = @"iOS";
             _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
             _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+            _automaticProperties[SAEventPresetPropertyAppName] = [SAPresetProperty appName];
             _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             _automaticProperties[SAEventPresetPropertyLib] = @"iOS";
             _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;

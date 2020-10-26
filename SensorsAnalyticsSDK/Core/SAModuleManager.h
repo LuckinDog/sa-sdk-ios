@@ -23,11 +23,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, SAModuleType) {
+    SAModuleTypeLocation,
+};
+
 @interface SAModuleManager : NSObject
 
 + (instancetype)sharedInstance;
 
-- (void)setEnable:(BOOL)enable forModule:(NSString *)moduleName;
+- (nullable id<SAModuleProtocol>)modelManagerForModuleType:(SAModuleType)type;
+
+- (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
 
 @end
 

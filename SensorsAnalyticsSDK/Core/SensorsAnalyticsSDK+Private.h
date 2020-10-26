@@ -25,6 +25,7 @@
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 #import "SANetwork.h"
+#import "SAHTTPSession.h"
 #import "SADataEncryptBuilder.h"
 #import "SASDKRemoteConfig.h"
 
@@ -40,6 +41,18 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 };
 
 @interface SensorsAnalyticsSDK(Private)
+
+/**
+ * @abstract
+ * 返回之前所初始化好的单例
+ *
+ * @discussion
+ * 调用这个方法之前，必须先调用 startWithConfigOptions: 。
+ * 这个方法与 sharedInstance 类似，但是当远程配置关闭 SDK 时，sharedInstance 方法会返回 nil，这个方法仍然能获取到 SDK 的单例
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sdkInstance;
 
 #pragma mark - method
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
@@ -86,6 +99,13 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 */
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 
+/**
+获取当前设备的 UserAgent 值
+
+@param completion 获取结果的回调函数
+*/
+- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
+
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SASDKRemoteConfig *remoteConfig;
@@ -107,7 +127,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 @interface SAConfigOptions()
 
 /// 数据接收地址 serverURL
-@property(nonatomic, copy) NSString *serverURL;
+@property(atomic, copy) NSString *serverURL;
 
 /// App 启动的 launchOptions
 @property(nonatomic, copy) NSDictionary *launchOptions;
