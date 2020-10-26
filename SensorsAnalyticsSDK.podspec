@@ -7,10 +7,9 @@ Pod::Spec.new do |s|
   s.license = { :type => "Apache License, Version 2.0" }
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.platform = :ios, "8.0"
-  s.default_subspec = 'Core'
+  s.default_subspec = ['Core', 'ReactNative']
   s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreMotion'
   s.libraries = 'icucore', 'sqlite3', 'z'
-  s.default_subspec = ['Core', 'WebView', 'Location']
 
   s.subspec 'Core' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
