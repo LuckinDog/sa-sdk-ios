@@ -172,28 +172,9 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     // 是否首日访问
     presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
-    
-    // 采集设备方向
-    Class<SAPropertyModuleProtocol> deviceOrientationManagerClass = NSClassFromString(@"SADeviceOrientationManager");
-    if ([deviceOrientationManagerClass conformsToProtocol:@protocol(SAPropertyModuleProtocol)]) {
-        id<SAPropertyModuleProtocol> shared = [deviceOrientationManagerClass sharedInstance];
-        if (shared.enable) {
-            [presetPropertiesOfTrackType addEntriesFromDictionary:shared.properties];
-        }
-    }
 
     // 采集地理位置信息
-<<<<<<< HEAD
-    Class<SAPropertyModuleProtocol> locationManagerClass = NSClassFromString(@"SALocationManager");
-    if ([locationManagerClass conformsToProtocol:@protocol(SAPropertyModuleProtocol)]) {
-        id<SAPropertyModuleProtocol> shared = [locationManagerClass sharedInstance];
-        if (shared.enable) {
-            [presetPropertiesOfTrackType addEntriesFromDictionary:shared.properties];
-        }
-    }
-=======
     [presetPropertiesOfTrackType addEntriesFromDictionary:SAModuleManager.sharedInstance.properties];
->>>>>>> 381da9b9d2e69a16d778ffcb47ec28f9ef4420ae
 
     return presetPropertiesOfTrackType;
 }

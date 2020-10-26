@@ -81,23 +81,7 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 /// 当前的预置属性
 - (NSDictionary *)currentPresetProperties;
 
-<<<<<<< HEAD
 - (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively;
-=======
-/**
- track 类型特有的预置属性
-
- @param isLaunchedPassively 是否是被动启动
- @param orientationConfig 方向信息
-
- @return 当前的预置属性
-*/
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
-#endif
-;
->>>>>>> 381da9b9d2e69a16d778ffcb47ec28f9ef4420ae
 
 @end
 
