@@ -27,7 +27,6 @@
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
 #import "SADataEncryptBuilder.h"
-#import "SASDKRemoteConfig.h"
 
 /**
  埋点方式
@@ -108,7 +107,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
-@property (nonatomic, strong, readonly) SASDKRemoteConfig *remoteConfig;
 
 @property (nonatomic, strong, readonly) SANetwork *network;
 
