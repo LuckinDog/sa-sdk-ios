@@ -1,8 +1,8 @@
 //
-// SALocationManager+SAConfig.h
+// SAEventFlush.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/8/12.
+// Created by 张敏超🍎 on 2020/6/18.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,13 +22,15 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SALocationManager.h"
+#import <Foundation/Foundation.h>
+#import "SAEventRecord.h"
+#import "SAHTTPSession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SALocationManager (SAConfig)
+@interface SAEventFlush : NSObject
 
-@property (nonatomic, readonly) BOOL disableSDK;
+- (void)flushEventRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion;
 
 @end
 

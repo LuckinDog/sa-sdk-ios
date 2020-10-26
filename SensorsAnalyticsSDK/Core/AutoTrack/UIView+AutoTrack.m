@@ -24,7 +24,10 @@
 
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
-#import "SensorsAnalyticsSDK.h"
+#import "SensorsAnalyticsSDK+Private.h"
+#import <objc/runtime.h>
+
+static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
 #pragma mark - UIView
 
@@ -39,6 +42,14 @@
     BOOL isAutoTrackEventTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
     BOOL isViewTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[self class]];
     return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored;
+}
+
+- (void)setSensorsdata_timeIntervalForLastAppClick:(NSTimeInterval)sensorsdata_timeIntervalForLastAppClick {
+    objc_setAssociatedObject(self, kSALastAppClickIntervalPropertyName, [NSNumber numberWithDouble:sensorsdata_timeIntervalForLastAppClick], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSTimeInterval)sensorsdata_timeIntervalForLastAppClick {
+    return [objc_getAssociatedObject(self, kSALastAppClickIntervalPropertyName) doubleValue];
 }
 
 - (NSString *)sensorsdata_elementType {
@@ -283,10 +294,10 @@
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
 - (BOOL)sensorsdata_isIgnored {
     // 忽略 UITabBarItem
-    BOOL ignoredUITabBarItem = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:UITabBarItem.class] && [NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"];
+    BOOL ignoredUITabBarItem = [[SensorsAnalyticsSDK sdkInstance] isViewTypeIgnored:UITabBarItem.class] && [NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"];
 
     // 忽略 UIBarButtonItem
-    BOOL ignoredUIBarButtonItem = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:UIBarButtonItem.class] && ([NSStringFromClass(self.class) isEqualToString:@"UINavigationButton"] || [NSStringFromClass(self.class) isEqualToString:@"_UIButtonBarButton"]);
+    BOOL ignoredUIBarButtonItem = [[SensorsAnalyticsSDK sdkInstance] isViewTypeIgnored:UIBarButtonItem.class] && ([NSStringFromClass(self.class) isEqualToString:@"UINavigationButton"] || [NSStringFromClass(self.class) isEqualToString:@"_UIButtonBarButton"]);
 
     return super.sensorsdata_isIgnored || ignoredUITabBarItem || ignoredUIBarButtonItem;
 }

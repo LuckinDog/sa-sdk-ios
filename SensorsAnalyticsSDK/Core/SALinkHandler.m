@@ -299,14 +299,11 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 - (NSURLRequest *)buildRequestWithURL:(NSURL *)url {
-    NSURL *serverURL = SensorsAnalyticsSDK.sharedInstance.network.serverURL;
-    if (serverURL.absoluteString.length <= 0) {
+    NSURLComponents *components = SensorsAnalyticsSDK.sharedInstance.network.baseURLComponents;
+    if (!components) {
         return nil;
     }
-    NSURLComponents *components = [[NSURLComponents alloc] init];
-    components.scheme = serverURL.scheme;
-    components.host = serverURL.host;
-    components.path = @"/sdk/deeplink/param";
+    components.path = [components.path stringByAppendingPathComponent:@"/sdk/deeplink/param"];
     NSString *key = url.lastPathComponent;
     NSString *project = SensorsAnalyticsSDK.sharedInstance.network.project;
     components.query = [NSString stringWithFormat:@"key=%@&project=%@&system_type=IOS", key, project];
@@ -323,7 +320,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         return;
     }
     NSTimeInterval start = NSDate.date.timeIntervalSince1970;
-    NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSTimeInterval interval = (NSDate.date.timeIntervalSince1970 - start);
         NSDictionary *result;
         NSString *errorMsg;

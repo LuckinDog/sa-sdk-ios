@@ -24,17 +24,16 @@
 
 #import <UIKit/UIKit.h>
 #import "SALocationManager.h"
-#import "SALocationManager+SAConfig.h"
+#import "SAConstants+Private.h"
 #import "SALog.h"
 
 static NSString * const SAEventPresetPropertyLatitude = @"$latitude";
 static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 
 @interface SALocationManager() <CLLocationManagerDelegate>
+
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, assign) BOOL isUpdatingLocation;
-
-@property (nonatomic, assign) BOOL isEnable;
 
 @end
 
@@ -58,15 +57,6 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 }
 
 #pragma mark - SALocationManagerProtocol
-
-+ (instancetype)sharedInstance {
-    static dispatch_once_t onceToken;
-    static SALocationManager *manager = nil;
-    dispatch_once(&onceToken, ^{
-        manager = [[SALocationManager alloc] init];
-    });
-    return manager;
-}
 
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
@@ -93,31 +83,40 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
     [notificationCenter addObserver:self
-                           selector:@selector(applicationDidBecomeActive:)
-                               name:UIApplicationDidBecomeActiveNotification
-                             object:nil];
-    [notificationCenter addObserver:self
                            selector:@selector(applicationDidEnterBackground:)
                                name:UIApplicationDidEnterBackgroundNotification
                              object:nil];
-}
-
-- (void)applicationDidBecomeActive:(NSNotification *)notification {
-    if (!self.disableSDK && self.isEnable) {
-        [self startUpdatingLocation];
-    } else {
-        [self stopUpdatingLocation];
-    }
+    [notificationCenter addObserver:self
+                           selector:@selector(remoteConfigManagerModelChanged:)
+                               name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION
+                             object:nil];
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     [self stopUpdatingLocation];
 }
 
+- (void)remoteConfigManagerModelChanged:(NSNotification *)sender {
+    BOOL disableSDK = NO;
+    @try {
+        disableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
+    } @catch(NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    }
+    if (disableSDK) {
+        [self stopUpdatingLocation];
+    } else if (self.enable) {
+        [self startUpdatingLocation];
+    }
+}
+
 #pragma mark - Public
 
 - (void)startUpdatingLocation {
     @try {
+        if (self.isUpdatingLocation) {
+            return;
+        }
         //判断当前设备定位服务是否打开
         if (![CLLocationManager locationServicesEnabled]) {
             SALogWarn(@"设备尚未打开定位服务");
@@ -126,11 +125,9 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
         if (@available(iOS 8.0, *)) {
             [self.locationManager requestWhenInUseAuthorization];
         }
-        if (self.isUpdatingLocation == NO) {
-            [self.locationManager startUpdatingLocation];
-            self.isUpdatingLocation = YES;
-        }
-    }@catch (NSException *e) {
+        [self.locationManager startUpdatingLocation];
+        self.isUpdatingLocation = YES;
+    } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
 }
