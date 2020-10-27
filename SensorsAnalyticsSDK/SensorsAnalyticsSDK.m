@@ -1433,16 +1433,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
         }
 
-        if ([self.trackChannelEventNames containsObject:event]) {
-            [properties setValue:@(NO) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
-        } else {
-            [properties setValue:@(YES) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
+        BOOL isContains = [self.trackChannelEventNames containsObject:event];
+        properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
+        if (!isContains && event) {
             [self.trackChannelEventNames addObject:event];
             dispatch_async(self.serialQueue, ^{
                 [self archiveTrackChannelEventNames];
             });
         }
-
         [self track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeCode];
     };
 
@@ -1888,7 +1886,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)unarchiveTrackChannelEvents {
-    NSSet* trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
     [self.trackChannelEventNames unionSet:trackChannelEvents];
 }
 
