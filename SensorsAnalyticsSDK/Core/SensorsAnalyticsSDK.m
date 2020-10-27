@@ -2673,6 +2673,18 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[SAChannelMatchManager sharedInstance] trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
 }
 
+- (void)trackInstallation:(NSString *)event {
+    [self trackInstallation:event withProperties:nil disableCallback:NO];
+}
+
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
+}
+
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
+    [[SAChannelMatchManager sharedInstance] trackAppInstall:event properties:propertyDict disableCallback:disableCallback];
+}
+
 @end
 
 #pragma mark - Deeplink
@@ -3231,18 +3243,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         _referrerScreenUrl = url;
     }
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
-}
-
-- (void)trackInstallation:(NSString *)event {
-    [self trackInstallation:event withProperties:nil disableCallback:NO];
-}
-
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
-}
-
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    [[SAChannelMatchManager sharedInstance] trackAppInstall:event properties:propertyDict disableCallback:disableCallback];
 }
 
 @end
