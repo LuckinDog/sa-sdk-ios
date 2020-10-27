@@ -82,7 +82,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
 
-#define VERSION @"2.1.3"
+#define VERSION @"2.1.7"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -275,6 +275,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return sharedInstance;
 }
 
++ (SensorsAnalyticsSDK *)sdkInstance {
+    NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
+    return sharedInstance;
+}
+
 - (instancetype)initWithServerURL:(NSString *)serverURL
                  andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
@@ -435,7 +440,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return completion(self.userAgent);
     }
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
             dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
@@ -446,16 +450,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self.loadUAGroup = dispatch_group_create();
             dispatch_group_enter(self.loadUAGroup);
 
+            __weak typeof(self) weakSelf = self;
             [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                
                 if (error || !response) {
                     SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
                     completion(nil);
                 } else {
-                    weakSelf.userAgent = response;
-                    completion(weakSelf.userAgent);
+                    strongSelf.userAgent = response;
+                    completion(strongSelf.userAgent);
                 }
-                weakSelf.wkWebView = nil;
-                dispatch_group_leave(weakSelf.loadUAGroup);
+                
+                // 通过 wkWebView 控制 dispatch_group_leave 的次数
+                if (strongSelf.wkWebView) {
+                    dispatch_group_leave(strongSelf.loadUAGroup);
+                }
+                
+                strongSelf.wkWebView = nil;
             }];
         }
     });
@@ -2572,18 +2584,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self enableLoggers:enabelLog];
 }
 
-- (void)enableLog {
-    BOOL printLog = NO;
-#if (defined SENSORS_ANALYTICS_ENABLE_LOG)
-    printLog = YES;
-#endif
-    
-    if ([self debugMode] != SensorsAnalyticsDebugOff) {
-        printLog = YES;
-    }
-    [self enableLog:printLog];
-}
-
 - (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
         self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
@@ -3157,10 +3157,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
                     enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
+                    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
                     [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
                     SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
+                    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
                 }
             } else {
+                [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
                 [self.eventTracker trackEvent:enqueueEvent];
                 SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
             }
