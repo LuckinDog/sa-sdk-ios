@@ -1433,9 +1433,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
         }
 
-        BOOL isContains = [self.trackChannelEventNames containsObject:event];
-        properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
-        if (!isContains && event) {
+        BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+        properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
+        if (isNotContains && event) {
             [self.trackChannelEventNames addObject:event];
             dispatch_async(self.serialQueue, ^{
                 [self archiveTrackChannelEventNames];
@@ -1476,9 +1476,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 这里仍然添加此字段是为了解决服务端版本兼容问题
             eventProperties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
 
-            BOOL isContains = [self.trackChannelEventNames containsObject:event];
-            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
-            if (!isContains && event) {
+            BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
+            if (isNotContains && event) {
                 [self.trackChannelEventNames addObject:event];
                 dispatch_async(self.serialQueue, ^{
                     [self archiveTrackChannelEventNames];
