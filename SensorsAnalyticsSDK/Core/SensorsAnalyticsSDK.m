@@ -1204,8 +1204,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackSignupEvent:(NSDictionary *)propertiesDict {
     NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:propertiesDict];
-    eventProps[SAEventPresetPropertyLibMethod] = SALibMethodCode;
-    [self track:SA_EVENT_NAME_APP_SIGN_UP properties:eventProps type:SAEventTypeSignup libMethod:SALibMethodCode];
+    eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
+    [self track:SA_EVENT_NAME_APP_SIGN_UP properties:eventProps type:kSAEventTypeSignup libMethod:kSALibMethodCode];
 }
 
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -1222,17 +1222,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 这里仍然添加此字段是为了解决服务端版本兼容问题
         eventProps[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
 
-        BOOL isContains = [self.trackChannelEventNames containsObject:event];
-        eventProps[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
-        if (!isContains && event) {
+        BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+        eventProps[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
+        if (isNotContains && event) {
             [self.trackChannelEventNames addObject:event];
             dispatch_async(self.serialQueue, ^{
                 [self archiveTrackChannelEventNames];
             });
         }
     }
-    eventProps[SAEventPresetPropertyLibMethod] = SALibMethodCode;
-    [self track:event properties:eventProps type:SAEventTypeTrack libMethod:SALibMethodCode];
+    NSString *libMethod = eventProps[SAEventPresetPropertyLibMethod];
+    if (![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
+        libMethod = kSALibMethodCode;
+    }
+    eventProps[SAEventPresetPropertyLibMethod] = libMethod;
+    [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
 
 /// 自动采集全埋点事件：$AppStart/$AppEnd/$AppViewScreen/$AppClick
@@ -1245,14 +1249,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    NSString *libMethod = isAuto ? SALibMethodAuto : SALibMethodCode;
+    NSString *libMethod = isAuto ? kSALibMethodAuto : kSALibMethodCode;
     NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:properties];
+
+    if (!isAuto && ![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
+        libMethod = kSALibMethodCode;
+    }
     eventProps[SAEventPresetPropertyLibMethod] = libMethod;
-    [self track:event properties:eventProps type:SAEventTypeTrack libMethod:libMethod];
+    [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
-    [self track:nil properties:properties type:type libMethod:SALibMethodCode];
+    [self track:nil properties:properties type:type libMethod:kSALibMethodCode];
 }
 
 /**
@@ -1320,7 +1328,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
         NSMutableDictionary *eventPropertiesDic = [NSMutableDictionary dictionary];
-        if ([type isEqualToString:SAEventTypeTrack] || [type isEqualToString:SAEventTypeSignup]) {
+        if ([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
             [eventPropertiesDic addEntriesFromDictionary:self.presetProperty.automaticProperties];
@@ -1387,7 +1395,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSMutableDictionary *eventDic = nil;
         NSString *bestId = self.distinctId;
 
-        if ([type isEqualToString:SAEventTypeSignup]) {
+        if ([type isEqualToString:kSAEventTypeSignup]) {
             eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                         eventName, SA_EVENT_NAME,
                         eventPropertiesDic, SA_EVENT_PROPERTIES,
@@ -1398,7 +1406,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         libProperties, SA_EVENT_LIB,
                         @(arc4random()), SA_EVENT_TRACK_ID,
                         nil];
-        } else if([type isEqualToString:SAEventTypeTrack]) {
+        } else if([type isEqualToString:kSAEventTypeTrack]) {
             NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
                                                                                        orientationConfig:self.deviceOrientationConfig
@@ -2899,7 +2907,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             NSString *type = eventDict[SA_EVENT_TYPE];
             NSString *bestId = self.distinctId;
 
-            if([type isEqualToString:SAEventTypeSignup]) {
+            if([type isEqualToString:kSAEventTypeSignup]) {
                 eventDict[@"original_id"] = self.anonymousId;
             } else {
                 eventDict[SA_EVENT_DISTINCT_ID] = bestId;
@@ -2918,7 +2926,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLibVersion];
 
             NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
-            if([type isEqualToString:SAEventTypeTrack] || [type isEqualToString:SAEventTypeSignup]) {
+            if([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
@@ -2940,7 +2948,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [propertiesDict addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
 
                 //  是否首日访问
-                if([type isEqualToString:SAEventTypeTrack]) {
+                if([type isEqualToString:kSAEventTypeTrack]) {
                     propertiesDict[SAEventPresetPropertyIsFirstDay] = @([self.presetProperty isFirstDay]);
                 }
                 [propertiesDict removeObjectForKey:@"_nocache"];
@@ -2999,7 +3007,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
             enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
-            if([type isEqualToString:SAEventTypeSignup]) {
+            if([type isEqualToString:kSAEventTypeSignup]) {
                 NSString *newLoginId = eventDict[SA_EVENT_DISTINCT_ID];
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];

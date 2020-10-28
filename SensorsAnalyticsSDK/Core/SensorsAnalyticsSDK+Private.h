@@ -57,9 +57,9 @@
 触发自定义事件
 
 @param event 事件名
-@param propertiesDict 事件的属性
+@param properties 事件的属性
 */
-- (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)propertiesDict;
+- (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties;
 
 /**
 触发全埋点事件

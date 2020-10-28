@@ -103,12 +103,12 @@ NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";
 long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT = 1431656640000;
 
 #pragma mark--lib method
-NSString * const SALibMethodAuto = @"autoTrack";
-NSString * const SALibMethodCode = @"code";
+NSString * const kSALibMethodAuto = @"autoTrack";
+NSString * const kSALibMethodCode = @"code";
 
 #pragma mark--track type
-NSString * const SAEventTypeTrack = @"track";
-NSString * const SAEventTypeSignup = @"track_signup";
+NSString * const kSAEventTypeTrack = @"track";
+NSString * const kSAEventTypeSignup = @"track_signup";
 
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";

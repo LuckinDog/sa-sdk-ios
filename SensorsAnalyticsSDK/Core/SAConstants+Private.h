@@ -100,12 +100,12 @@ extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
 extern long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT;
 
 #pragma mark--lib method
-extern NSString * const SALibMethodAuto;
-extern NSString * const SALibMethodCode;
+extern NSString * const kSALibMethodAuto;
+extern NSString * const kSALibMethodCode;
 
 #pragma mark--track
-extern NSString * const SAEventTypeTrack;
-extern NSString * const SAEventTypeSignup;
+extern NSString * const kSAEventTypeTrack;
+extern NSString * const kSAEventTypeSignup;
 
 #pragma mark--profile
 extern NSString * const SA_PROFILE_SET;
