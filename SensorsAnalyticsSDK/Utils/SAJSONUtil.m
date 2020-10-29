@@ -80,7 +80,7 @@
     }
 
     // recurse on containers
-    if ([newObj isKindOfClass:[NSArray class]]) {
+    if ([newObj isKindOfClass:[NSArray class]] || [newObj isKindOfClass:[NSSet class]]) {
         NSMutableArray *mutableArray = [NSMutableArray array];
         for (id value in newObj) {
             [mutableArray addObject:[self JSONObjectWithObject:value]];
@@ -96,18 +96,11 @@
                 stringKey = [key description];
                 SALogWarn(@"property keys should be strings. but property: %@, type: %@, key: %@", newObj, [key class], key);
             } else {
-                stringKey = [NSString stringWithString:key];
+                stringKey = key;
             }
             mutableDic[stringKey] = [self JSONObjectWithObject:newDic[key]];
         }
         return [NSDictionary dictionaryWithDictionary:mutableDic];
-    }
-    if ([newObj isKindOfClass:[NSSet class]]) {
-        NSMutableArray *mutableArray = [NSMutableArray array];
-        for (id value in newObj) {
-            [mutableArray addObject:[self JSONObjectWithObject:value]];
-        }
-        return [NSArray arrayWithArray:mutableArray];
     }
     // some common cases
     if ([newObj isKindOfClass:[NSDate class]]) {
