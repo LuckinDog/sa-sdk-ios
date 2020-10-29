@@ -97,6 +97,7 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     request.timeoutInterval = 30;
     [request setHTTPMethod:@"POST"];
+    [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
     
     NSDictionary *callData = @{@"distinct_id": distinctId};
     NSData *jsonData = [SAJSONUtil JSONSerializeObject:callData];
@@ -116,9 +117,15 @@
     NSURL *url = nil;
     if (params[@"sf_push_distinct_id"] && [params[@"sf_push_distinct_id"] isKindOfClass:[NSString class]] && [params[@"info_id"] isKindOfClass:[NSString class]]) {
         url = [NSURL URLWithString:params[@"sf_push_distinct_id"]];
-        [url URLByAppendingPathComponent:[NSString stringWithFormat:@"project=%@&info_id=%@", self.project, params[@"info_id"]]];
+        NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+        components.queryItems = @[[[NSURLQueryItem alloc] initWithName:@"project" value:self.project], [[NSURLQueryItem alloc] initWithName:@"info_id" value:params[@"info_id"]]];
+        url = components.URL;
     } else {
         url = [self buildDebugModeCallbackURLWithParams:params];
+    }
+    if (!url) {
+        SALogError(@"callback url in debug mode was nil");
+        return nil;
     }
     NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
 
