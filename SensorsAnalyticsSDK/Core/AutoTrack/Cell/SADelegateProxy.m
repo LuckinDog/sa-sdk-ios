@@ -140,7 +140,9 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
     // 将 object 对象设置成新创建的子类对象
     if (object_setClass(object, subclass)) {
         [object addOperationWhenDealloc:^{
-            [SADelegateProxy deallocSubclass:subclass];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [SADelegateProxy deallocSubclass:subclass];
+            });
         }];
         SALogDebug(@"Successfully created Delegate Proxy automatically.");
     }
