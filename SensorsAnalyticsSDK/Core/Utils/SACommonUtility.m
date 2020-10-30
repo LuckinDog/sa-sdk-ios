@@ -58,6 +58,34 @@
     return txt;
 }
 
++ (NSDictionary<NSString *, NSString *> *)radioAccessTechnologyMap {
+    static dispatch_once_t onceToken;
+    static NSDictionary<NSString *, NSString *> *map;
+    dispatch_once(&onceToken, ^{
+        NSMutableDictionary<NSString *, NSString *> *dic = [NSMutableDictionary dictionaryWithDictionary:@{
+            CTRadioAccessTechnologyGPRS: @"2G",
+            CTRadioAccessTechnologyEdge: @"2G",
+            CTRadioAccessTechnologyWCDMA: @"3G",
+            CTRadioAccessTechnologyHSDPA: @"3G",
+            CTRadioAccessTechnologyHSUPA: @"3G",
+            CTRadioAccessTechnologyCDMA1x: @"3G",
+            CTRadioAccessTechnologyCDMAEVDORev0: @"3G",
+            CTRadioAccessTechnologyCDMAEVDORevA: @"3G",
+            CTRadioAccessTechnologyCDMAEVDORevB: @"3G",
+            CTRadioAccessTechnologyeHRPD: @"3G",
+            CTRadioAccessTechnologyLTE: @"4G",
+        }];
+#ifdef __IPHONE_14_0
+        if (@available(iOS 14.0, *)) {
+            dic[CTRadioAccessTechnologyNRNSA] = @"5G";
+            dic[CTRadioAccessTechnologyNR] = @"5G";
+        }
+#endif
+        map = [dic copy];
+    });
+    return map;
+}
+
 + (NSString *)currentNetworkStatus {
 #ifdef SA_UT
     SALogDebug(@"In unit test, set NetWorkStates to wifi");
@@ -86,32 +114,8 @@
             if (!currentRadioAccessTechnology) {
                 currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
             }
-            
-            if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
-                network = @"2G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge]) {
-                network = @"2G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyWCDMA]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSDPA]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSUPA]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyeHRPD]) {
-                network = @"3G";
-            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
-                network = @"4G";
-            } else {
-                network = @"UNKNOWN";
-            }
+
+            network = [self radioAccessTechnologyMap][currentRadioAccessTechnology] ?: @"UNKNOWN";
         }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
