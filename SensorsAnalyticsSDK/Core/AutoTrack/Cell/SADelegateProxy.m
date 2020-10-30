@@ -36,44 +36,85 @@ static NSString *const kSAClassSeparatedChar = @".";
 static long subClassIndex = 0;
 
 /**
- 通过对象获取动态添加的 Delegate 子类
-
- @param obj 需要获取子类的对象
- @return 如果这个对象有动态添加过子类，返回子类；否则，返回这个对象的真实类型
- */
-Class _Nullable sensorsdata_getClass(id _Nullable obj) {
-    Class cla = object_getClass(obj);
-    while (cla) {
-        if ([NSStringFromClass(cla) hasPrefix:kSADelegatePrefix]) {
-            return cla;
-        }
-        cla = class_getSuperclass(cla);
-    }
-    return object_getClass(obj);
-}
-
-/**
  判断一个类是否有神策动态添加的类型
 
  @param cla 类
  @return 是否有特殊前缀
  */
-BOOL sensorsdata_isDynamicSensorsClass(Class _Nullable cla) {
+BOOL sensorsdata_isDynamicClass(Class _Nullable cla) {
     return [NSStringFromClass(cla) hasPrefix:kSADelegatePrefix];
 }
 
-/// 根据原始类生成动态添加的子类的名称
-/// @param class 原始类
+/**
+ 从对象的 class 继承链中获取动态添加的类
+
+ @param obj 实例对象
+ @return 动态添加的类; 继承链中不存在动态添加的类时, 返回 nil
+ */
+Class _Nullable sensorsdata_dynamicClassInInheritanceChain(id _Nullable obj) {
+    Class cla = object_getClass(obj);
+    while (cla) {
+        if (sensorsdata_isDynamicClass(cla)) {
+            return cla;
+        }
+        cla = class_getSuperclass(cla);
+    }
+    return nil;
+}
+
+/**
+ 对象的 class 继承链中是否包含了动态添加的类
+
+ @param obj 实例对象
+ @return 是否包含动态添加的类
+ */
+BOOL sensorsdata_containsDynamicClassInInheritanceChain(id _Nullable obj) {
+    return sensorsdata_dynamicClassInInheritanceChain(obj);
+}
+
+/**
+ 获取当前继承链中最上层动态添加子类的父类
+
+ @param class 当前类
+ @return 如果继承链中有动态添加过子类，返回最上层动态添加子类的父类；否则，返回当前类
+ */
+Class sensorsdata_dynamicClassSuperclass(Class class) {
+    NSMutableArray <NSString *>*classNames = [NSMutableArray array];
+    while (class) {
+        [classNames addObject:NSStringFromClass(class)];
+        class = class_getSuperclass(class);
+    }
+    Class previousClass = class;
+    for (NSString *className in classNames.reverseObjectEnumerator) {
+        Class currentClass = NSClassFromString(className);
+        if (sensorsdata_isDynamicClass(currentClass)) {
+            return previousClass;
+        }
+        previousClass = currentClass;
+    }
+    return previousClass;
+}
+
+/**
+ 根据原始类生成动态添加的子类的名称
+
+ @param class 原始类
+ @return 待添加的子类类名
+ */
 NSString *sensorsdata_generateDynamicClassName(Class class) {
-    if (sensorsdata_isDynamicSensorsClass(class)) return NSStringFromClass(class);
+    if (sensorsdata_isDynamicClass(class)) return NSStringFromClass(class);
     return [@[kSADelegatePrefix, @(subClassIndex++), NSStringFromClass(class)] componentsJoinedByString:kSAClassSeparatedChar];
 }
 
-/// 获取 obj 的原始 Class
-/// @param obj 实例对象
-Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
+/**
+ 获取 obj 的原始 Class
+
+ @param obj 实例对象
+ @return 原始类
+ */
+Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     Class cla = object_getClass(obj);
-    if (!sensorsdata_isDynamicSensorsClass(cla)) return cla;
+    if (!sensorsdata_isDynamicClass(cla)) return cla;
     NSString *className = NSStringFromClass(cla);
     NSString *expression = [NSString stringWithFormat:@"^(%1$@%2$@\\d+%2$@)", kSADelegatePrefix, kSAClassSeparatedChar];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:expression  options:NSRegularExpressionCaseInsensitive error:nil];
@@ -105,11 +146,12 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
  @return 新的子类
  */
 + (nullable Class)createSubclassWithObject:(id)object selector:(SEL)selector {
-    Class originalClass = sensorsdata_getClass(object);
-    if (sensorsdata_isDynamicSensorsClass(originalClass)) {
-        return originalClass;
+    
+    if (sensorsdata_containsDynamicClassInInheritanceChain(object)) {
+        return nil;
     }
-
+    
+    Class originalClass = object_getClass(object);
     NSString *newClassName = sensorsdata_generateDynamicClassName(originalClass);
     Class subclass = NSClassFromString(newClassName);
     if (!subclass) {
@@ -150,7 +192,7 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
 }
 
 + (void)deallocSubclass:(Class)class {
-    if (!sensorsdata_isDynamicSensorsClass(class)) return;
+    if (!sensorsdata_isDynamicClass(class)) return;
     objc_disposeClassPair(class);
 }
 
@@ -177,16 +219,20 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
 
 /// Overridden instance class method
 - (Class)sensorsdata_class {
-    return sensorsdata_getOriginalClass(self);
+    return sensorsdata_originalClass(self);
 }
 
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
-    Class originalClass = sensorsdata_getOriginalClass(scrollView.delegate);
+    id delegate = scrollView.delegate;
+    Class originalClass = sensorsdata_originalClass(delegate);
+    if (sensorsdata_containsDynamicClassInInheritanceChain(delegate)) {
+        originalClass = sensorsdata_dynamicClassSuperclass(originalClass);
+    }
     IMP originalImplementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:originalClass];
     if (originalImplementation) {
-        ((SensorsDidSelectImplementation)originalImplementation)(scrollView.delegate, selector, scrollView, indexPath);
+        ((SensorsDidSelectImplementation)originalImplementation)(delegate, selector, scrollView, indexPath);
     } else if ([SADelegateProxy isRxDelegateProxyClass:originalClass]) {
-        ((SensorsDidSelectImplementation)_objc_msgForward)(scrollView.delegate, selector, scrollView, indexPath);
+        ((SensorsDidSelectImplementation)_objc_msgForward)(delegate, selector, scrollView, indexPath);
     }
 
     NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)scrollView didSelectedAtIndexPath:indexPath];
@@ -221,9 +267,7 @@ Class _Nullable sensorsdata_getOriginalClass(id _Nullable obj) {
 @implementation SADelegateProxyParasite
 
 - (void)dealloc {
-    if (self.deallocBlock) {
-        self.deallocBlock();
-    }
+    !self.deallocBlock ?: self.deallocBlock();
 }
 
 @end
