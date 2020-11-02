@@ -128,6 +128,18 @@
     // SDK 版本号
     jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;
 
+    NSData * (^ jsonDataBlock)(void) = ^{
+        NSError *error = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
+        if (!jsonData && error) {
+            SALogError(@"Failed to serialize test designer message: %@", error);
+        }
+        return jsonData;
+    };
+
+    if (_payload.count == 0) {
+        return jsonDataBlock();
+    }
     if (useGzip) {
         // 如果使用 GZip 压缩
         NSError *error = nil;
@@ -147,13 +159,7 @@
         jsonObject[@"payload"] = [_payload copy];
     }
 
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
-    if (!jsonData && error) {
-        SALogError(@"Failed to serialize test designer message: %@", error);
-    }
-
-    return jsonData;
+    return jsonDataBlock();
 }
 
 - (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {
