@@ -88,18 +88,15 @@
         return [NSArray arrayWithArray:mutableArray];
     }
     if ([newObj isKindOfClass:[NSDictionary class]]) {
-        NSDictionary *newDic = (NSDictionary *)newObj;
         NSMutableDictionary *mutableDic = [NSMutableDictionary dictionary];
-        for (id key in newDic.allKeys) {
-            NSString *stringKey;
+        [(NSDictionary *)newObj enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            NSString *stringKey = key;
             if (![key isKindOfClass:[NSString class]]) {
                 stringKey = [key description];
                 SALogWarn(@"property keys should be strings. but property: %@, type: %@, key: %@", newObj, [key class], key);
-            } else {
-                stringKey = key;
             }
-            mutableDic[stringKey] = [self JSONObjectWithObject:newDic[key]];
-        }
+            mutableDic[stringKey] = [self JSONObjectWithObject:obj];
+        }];
         return [NSDictionary dictionaryWithDictionary:mutableDic];
     }
     // some common cases
