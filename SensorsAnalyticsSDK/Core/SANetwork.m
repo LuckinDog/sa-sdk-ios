@@ -86,10 +86,11 @@
     NSURLComponents *urlComponents = nil;
     id sfPushCallbackUrl = params[@"sf_push_distinct_id"];
     id infoId = params[@"info_id"];
-    if (sfPushCallbackUrl && [sfPushCallbackUrl isKindOfClass:[NSString class]] && [infoId isKindOfClass:[NSString class]]) {
+    id project = params[@"project"];
+    if ([sfPushCallbackUrl isKindOfClass:[NSString class]] && [infoId isKindOfClass:[NSString class]] && [project isKindOfClass:[NSString class]]) {
         NSURL *url = [NSURL URLWithString:sfPushCallbackUrl];
         urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-        urlComponents.queryItems = @[[[NSURLQueryItem alloc] initWithName:@"project" value:self.project], [[NSURLQueryItem alloc] initWithName:@"info_id" value:infoId]];
+        urlComponents.queryItems = @[[[NSURLQueryItem alloc] initWithName:@"project" value:project], [[NSURLQueryItem alloc] initWithName:@"info_id" value:infoId]];
         return urlComponents.URL;
     }
     urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
