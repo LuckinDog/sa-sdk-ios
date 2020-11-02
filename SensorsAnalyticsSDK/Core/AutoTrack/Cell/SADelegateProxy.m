@@ -103,7 +103,7 @@ Class sensorsdata_dynamicClassSuperclass(Class class) {
  */
 NSString *sensorsdata_generateDynamicClassName(Class class) {
     if (sensorsdata_isDynamicClass(class)) return NSStringFromClass(class);
-    return [@[kSADelegatePrefix, @(subClassIndex++), NSStringFromClass(class)] componentsJoinedByString:kSAClassSeparatedChar];
+    return [NSString stringWithFormat:@"%@%@%@%@", kSADelegatePrefix, @(subClassIndex++), kSAClassSeparatedChar, NSStringFromClass(class)];
 }
 
 /**
@@ -115,10 +115,9 @@ NSString *sensorsdata_generateDynamicClassName(Class class) {
 Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     Class cla = object_getClass(obj);
     if (!sensorsdata_isDynamicClass(cla)) return cla;
-    NSString *className = NSStringFromClass(cla);
-    NSString *expression = [NSString stringWithFormat:@"^(%1$@%2$@\\d+%2$@)", kSADelegatePrefix, kSAClassSeparatedChar];
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:expression  options:NSRegularExpressionCaseInsensitive error:nil];
-    className = [regex stringByReplacingMatchesInString:className options:0 range:NSMakeRange(0, className.length) withTemplate:@""];
+    NSString *className = [NSStringFromClass(cla) substringFromIndex:kSADelegatePrefix.length];
+    NSString *prefix = [[className componentsSeparatedByString:kSAClassSeparatedChar].firstObject stringByAppendingString:kSAClassSeparatedChar];
+    className = [className substringFromIndex:prefix.length];
     return objc_getClass([className UTF8String]);
 }
 
