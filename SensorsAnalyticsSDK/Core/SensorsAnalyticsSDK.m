@@ -1202,10 +1202,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return deepLinkInfo;
 }
 
-- (void)trackSignupEvent:(NSDictionary *)propertiesDict {
-    NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:propertiesDict];
-    eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
-    [self track:SA_EVENT_NAME_APP_SIGN_UP properties:eventProps type:kSAEventTypeSignup libMethod:kSALibMethodCode];
+- (void)trackSignupEvent:(NSDictionary *)properties {
+    NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:properties];
+    NSString *libMethod = eventProps[SAEventPresetPropertyLibMethod];
+    if (![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
+        // 自定义属性中有 $lib_method 属性且为有效值（code 或者 autoTrack），此时以传入的 $lib_method 为准
+        libMethod = kSALibMethodCode;
+        eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
+    }
+    [self track:SA_EVENT_NAME_APP_SIGN_UP properties:eventProps type:kSAEventTypeSignup libMethod:libMethod];
 }
 
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -1234,8 +1239,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *libMethod = eventProps[SAEventPresetPropertyLibMethod];
     if (![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
         libMethod = kSALibMethodCode;
+        eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
     }
-    eventProps[SAEventPresetPropertyLibMethod] = libMethod;
     [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
 
@@ -1250,11 +1255,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     NSString *libMethod = isAuto ? kSALibMethodAuto : kSALibMethodCode;
-    NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:properties];
-
-    if (!isAuto && ![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
-        libMethod = kSALibMethodCode;
+    NSString *customLibMethod = properties[SAEventPresetPropertyLibMethod];
+    if (!isAuto && ([customLibMethod isEqualToString:kSALibMethodCode] || [customLibMethod isEqualToString:kSALibMethodAuto])) {
+        // 如果不是自动采集全埋点事件，并且自定义属性中有 $lib_method 属性，
+        // 且 $lib_method 为有效值（code 或者 autoTrack），此时以传入的 $lib_method 为准
+        libMethod = customLibMethod;
     }
+    NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:properties];
     eventProps[SAEventPresetPropertyLibMethod] = libMethod;
     [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
