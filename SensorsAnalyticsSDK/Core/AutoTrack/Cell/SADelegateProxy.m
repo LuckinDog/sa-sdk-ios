@@ -38,61 +38,28 @@ static long subClassIndex = 0;
 /**
  判断一个类是否有神策动态添加的类型
 
- @param cla 类
+ @param class 当前类
  @return 是否有特殊前缀
  */
-BOOL sensorsdata_isDynamicClass(Class _Nullable cla) {
-    return [NSStringFromClass(cla) hasPrefix:kSADelegatePrefix];
+BOOL sensorsdata_isDynamicClass(Class _Nullable class) {
+    return [NSStringFromClass(class) hasPrefix:kSADelegatePrefix];
 }
 
 /**
  从对象的 class 继承链中获取动态添加的类
 
- @param obj 实例对象
+ @param object 实例对象
  @return 动态添加的类; 继承链中不存在动态添加的类时, 返回 nil
  */
-Class _Nullable sensorsdata_dynamicClassInInheritanceChain(id _Nullable obj) {
-    Class cla = object_getClass(obj);
-    while (cla) {
-        if (sensorsdata_isDynamicClass(cla)) {
-            return cla;
-        }
-        cla = class_getSuperclass(cla);
-    }
-    return nil;
-}
-
-/**
- 对象的 class 继承链中是否包含了动态添加的类
-
- @param obj 实例对象
- @return 是否包含动态添加的类
- */
-BOOL sensorsdata_containsDynamicClassInInheritanceChain(id _Nullable obj) {
-    return sensorsdata_dynamicClassInInheritanceChain(obj);
-}
-
-/**
- 获取当前继承链中最上层动态添加子类的父类
-
- @param class 当前类
- @return 如果继承链中有动态添加过子类，返回最上层动态添加子类的父类；否则，返回当前类
- */
-Class sensorsdata_dynamicClassSuperclass(Class class) {
-    NSMutableArray <NSString *>*classNames = [NSMutableArray array];
+Class _Nullable sensorsdata_dynamicClassInInheritanceChain(id _Nullable object) {
+    Class class = object_getClass(object);
     while (class) {
-        [classNames addObject:NSStringFromClass(class)];
+        if (sensorsdata_isDynamicClass(class)) {
+            return class;
+        }
         class = class_getSuperclass(class);
     }
-    Class previousClass = class;
-    for (NSString *className in classNames.reverseObjectEnumerator) {
-        Class currentClass = NSClassFromString(className);
-        if (sensorsdata_isDynamicClass(currentClass)) {
-            return previousClass;
-        }
-        previousClass = currentClass;
-    }
-    return previousClass;
+    return nil;
 }
 
 /**
@@ -146,7 +113,7 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
  */
 + (nullable Class)createSubclassWithObject:(id)object selector:(SEL)selector {
     
-    if (sensorsdata_containsDynamicClassInInheritanceChain(object)) {
+    if (sensorsdata_dynamicClassInInheritanceChain(object)) {
         return nil;
     }
     
@@ -221,12 +188,17 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     return sensorsdata_originalClass(self);
 }
 
++ (Class)handleClassWithDelegate:(id)delegate {
+    Class dynamicClass = sensorsdata_dynamicClassInInheritanceChain(delegate);
+    if (dynamicClass) {
+        return class_getSuperclass(dynamicClass);
+    }
+    return object_getClass(delegate);
+}
+
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
     id delegate = scrollView.delegate;
-    Class originalClass = sensorsdata_originalClass(delegate);
-    if (sensorsdata_containsDynamicClassInInheritanceChain(delegate)) {
-        originalClass = sensorsdata_dynamicClassSuperclass(originalClass);
-    }
+    Class originalClass = [self handleClassWithDelegate:delegate];
     IMP originalImplementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:originalClass];
     if (originalImplementation) {
         ((SensorsDidSelectImplementation)originalImplementation)(delegate, selector, scrollView, indexPath);
