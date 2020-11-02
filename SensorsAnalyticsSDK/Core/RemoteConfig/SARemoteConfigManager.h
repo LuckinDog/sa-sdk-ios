@@ -2,7 +2,7 @@
 // SARemoteConfigManager.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/7/20.
+// Created by wenquan on 2020/11/1.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,12 +23,33 @@
 #endif
 
 #import <Foundation/Foundation.h>
-#import "SARemoteConfigModel.h"
-#import "SANetwork.h"
 #import "SAConfigOptions.h"
+#import "SANetwork.h"
+#import "SARemoteConfigModel.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+@class SARemoteConfigManagerOptions;
+
+@protocol SARemoteConfigManagerProtocol <NSObject>
+
+// TODO:wq 调用的地方添加对于是否实现协议的判断
+@optional
+
+/// 请求远程配置
+- (void)requestRemoteConfig;
+
+/// 删除远程配置请求
+- (void)cancelRequestRemoteConfig;
+
+/// 重试远程配置请求
+/// @param isForceUpdate 是否强制请求最新的远程配置
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
+
+- (void)handleRemoteConfigURL:(NSURL *)url;
+
+@end
 
 @interface SARemoteConfigManagerOptions : NSObject
 
@@ -42,34 +63,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SARemoteConfigManager : NSObject
+@interface SARemoteConfigManager : NSObject <SARemoteConfigManagerProtocol>
 
+@property (atomic, strong) SARemoteConfigModel *remoteConfigModel;
+@property (nonatomic, strong) SARemoteConfigManagerOptions *managerOptions;
 @property (nonatomic, assign, readonly) BOOL isDisableSDK; // 是否禁用 SDK
 @property (nonatomic, assign, readonly) NSInteger autoTrackMode; // 控制 AutoTrack 采集方式（-1 表示不修改现有的 AutoTrack 方式；0 代表禁用所有的 AutoTrack；其他 1～15 为合法数据）
+@property (nonatomic, copy, readonly) NSString *project;
 
-/// 初始化远程配置管理类
-/// @param managerOptions 管理模型
-+ (void)startWithRemoteConfigManagerOptions:(SARemoteConfigManagerOptions *)managerOptions;
-
-/// 获取远程配置管理类的实例
-+ (instancetype)sharedInstance;
+- (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions;
 
 /// 配置本地远程配置模型
 - (void)configLocalRemoteConfigModel;
 
-/// 请求远程配置
-- (void)requestRemoteConfig;
 
-/// 删除远程配置请求
-- (void)cancelRequestRemoteConfig;
+- (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config;
 
-/// 重试远程配置请求
-/// @param isForceUpdate 是否强制请求最新的远程配置
-- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
+- (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config;
+
+- (nullable NSURLSessionTask *)functionalManagermentConfigWithOriginalVersion:(NSString *)originalVersion
+                                                                latestVersion:(NSString *)latestVersion
+                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
 
 /// 是否在事件黑名单中
 /// @param event 输入的事件名
 - (BOOL)isBlackListContainsEvent:(NSString *)event;
+
+- (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig;
+
+- (void)enableRemoteConfigWithDictionary:(NSDictionary *)configDic;
 
 @end
 

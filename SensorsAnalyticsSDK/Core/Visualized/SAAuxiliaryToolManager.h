@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)canHandleURL:(NSURL *)url;
 - (BOOL)handleURL:(NSURL *)url  isWifi:(BOOL)isWifi;
+- (BOOL)isRemoteConfigURL:(NSURL *)url;
 
 - (BOOL)isHeatMapURL:(NSURL *)url;
 - (BOOL)isVisualizedAutoTrackURL:(NSURL *)url;
