@@ -75,7 +75,7 @@
             CTRadioAccessTechnologyeHRPD: @"3G",
             CTRadioAccessTechnologyLTE: @"4G",
         }];
-#ifdef __IPHONE_14_0
+#ifdef __IPHONE_14_1
         if (@available(iOS 14.0, *)) {
             dic[CTRadioAccessTechnologyNRNSA] = @"5G";
             dic[CTRadioAccessTechnologyNR] = @"5G";
