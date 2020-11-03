@@ -82,12 +82,12 @@
 
 #pragma mark - build
 
-- (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, id> *)params {
+- (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, NSString *> *)params {
     NSURLComponents *urlComponents = nil;
-    id sfPushCallbackUrl = params[@"sf_push_distinct_id"];
-    id infoId = params[@"info_id"];
-    id project = params[@"project"];
-    if ([sfPushCallbackUrl isKindOfClass:[NSString class]] && [infoId isKindOfClass:[NSString class]] && [project isKindOfClass:[NSString class]]) {
+    NSString *sfPushCallbackUrl = params[@"sf_push_distinct_id"];
+    NSString *infoId = params[@"info_id"];
+    NSString *project = params[@"project"];
+    if (sfPushCallbackUrl.length > 0 && infoId.length > 0 && project.length > 0) {
         NSURL *url = [NSURL URLWithString:sfPushCallbackUrl];
         urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
         urlComponents.queryItems = @[[[NSURLQueryItem alloc] initWithName:@"project" value:project], [[NSURLQueryItem alloc] initWithName:@"info_id" value:infoId]];
@@ -119,7 +119,7 @@
 
 #pragma mark - request
 
-- (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
+- (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, NSString *> *)params {
     if (![self isValidServerURL]) {
         SALogError(@"serverURL error，Please check the serverURL");
         return nil;
