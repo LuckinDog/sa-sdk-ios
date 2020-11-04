@@ -43,12 +43,12 @@
     
     NSString *project = components[@"project"] ?: @"default";
     NSString *appID = components[@"app_id"];
-    NSString *os = components[@"os"];
+    NSString *lib = components[@"lib"];
     NSString *lastestVersion = components[@"nv"];
     
     NSString *currentProject = self.project ?: @"default";
     NSString *currentAppID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-    NSString *currentOS = @"iOS";
+    NSString *currentLib = @"iOS";
     
     BOOL isCheckSuccess = YES;
     NSString *message = @"开始获取采集控制信息";
@@ -58,7 +58,7 @@
     } else if (![currentAppID isEqualToString:appID]) {
         isCheckSuccess = NO;
         message = @"App 与二维码对应的 App 不同，无法进行调试";
-    } else if (![currentOS isEqualToString:os]) {
+    } else if (![currentLib isEqualToString:lib]) {
         isCheckSuccess = NO;
         message = @"App 与二维码对应的操作系统不同，无法进行调试";
     }

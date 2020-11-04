@@ -146,7 +146,7 @@
 }
 
 - (BOOL)isRemoteConfigURL:(NSURL *)url {
-    return [url.host isEqualToString:@"remoteconfig"];
+    return [url.host isEqualToString:@"sensorsdataremoteconfig"];
 }
 
 /// 当前类型
