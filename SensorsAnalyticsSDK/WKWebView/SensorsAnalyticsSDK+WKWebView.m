@@ -1,8 +1,8 @@
 //
-// SensorsAnalyticsSDK+SAWebView.h
+// SensorsAnalyticsSDK+WKWebView.m
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/8/12.
+// Created by 张敏超🍎 on 2020/11/4.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,12 @@
 // limitations under the License.
 //
 
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+#import "SensorsAnalyticsSDK+WKWebView.h"
 
-NS_ASSUME_NONNULL_BEGIN
+//#if __has_include("SensorsAnalyticsSDK+UIWebView.h")
+//#error This file cannot exist at the same time with `SensorsAnalyticsSDK+UIWebView.h`. If you usen't `UIWebView`, please delete it.
+//#endif
 
-@interface SensorsAnalyticsSDK (SAWebView)
+@implementation SensorsAnalyticsSDK (WKWebView)
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -37,7 +37,14 @@ Pod::Spec.new do |s|
   s.subspec 'UIWebView' do |w|
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/UIWebView/**/*.{h,m}"
-    w.private_header_files = 'SensorsAnalyticsSDK/UIWebView/**/*.h'
+    w.public_header_files = 'SensorsAnalyticsSDK/UIWebView/SensorsAnalyticsSDK+UIWebView.h'
+  end
+
+  # 使用 UIWebView 进行打通
+  s.subspec 'WKWebView' do |w|
+    w.dependency 'SensorsAnalyticsSDK/Core'
+    w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
+    w.public_header_files = 'SensorsAnalyticsSDK/UIWebView/SensorsAnalyticsSDK+WKWebView.h'
   end
 
   # 禁用 debugMode 下弹框提示
