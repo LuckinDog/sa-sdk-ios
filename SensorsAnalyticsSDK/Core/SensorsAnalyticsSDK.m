@@ -2010,7 +2010,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
     if (self.configOptions.enableVisualizedAutoTrack) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
+        [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:controller];
     }
 
     [self trackViewScreen:controller properties:nil autoTrack:YES];
