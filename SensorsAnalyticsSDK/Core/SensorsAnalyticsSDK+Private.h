@@ -47,28 +47,13 @@
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
 
 /**
-触发 signup 事件
-
-@param propertiesDict event 的属性
-*/
-- (void)trackSignupEvent:(NSDictionary *)propertiesDict;
-
-/**
-触发自定义事件
+触发预置事件
 
 @param event 事件名
 @param properties 事件的属性
+@param isAuto 是否为自动采集全埋点事件
 */
-- (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties;
-
-/**
-触发全埋点事件
-
-@param event 事件名
-@param properties 事件的属性
-@param isAuto 是否为自动触发
-*/
-- (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties isAuto:(BOOL)isAuto;
+- (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties isAuto:(BOOL)isAuto;
 
 /**
 自动触发全埋点事件

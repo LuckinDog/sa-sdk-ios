@@ -180,7 +180,7 @@ static void SAHandleException(NSException *exception) {
                     NSString *exceptionStack = [[NSThread callStackSymbols] componentsJoinedByString:@"\n"];
                     [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], exceptionStack] forKey:@"app_crashed_reason"];
                 }
-                [instance trackAutoEvent:SA_EVENT_NAME_APP_CRASHED properties:properties isAuto:NO];
+                [instance trackPresetEvent:SA_EVENT_NAME_APP_CRASHED properties:properties isAuto:NO];
             }
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
                 [SACommonUtility performBlockOnMainThread:^{

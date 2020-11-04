@@ -74,7 +74,7 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 
 @return lib 相关属性
 */
-- (NSMutableDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod;
+- (NSDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod;
 
 /// 是否为首日
 - (BOOL)isFirstDay;

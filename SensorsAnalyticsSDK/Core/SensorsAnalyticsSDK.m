@@ -1121,7 +1121,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         itemProperties[SA_EVENT_PROPERTIES] = propertyMDict;
     }
     
-    itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithLibMethod:@"code"];
+    itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithLibMethod:kSALibMethodCode];
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     itemProperties[SA_EVENT_TIME] = timeStamp;
@@ -1192,7 +1192,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return YES;
 }
 
-- (NSMutableDictionary *)acquireDeepLinkInfo:(NSDictionary *)properties {
+- (NSMutableDictionary *)mergeDeepLinkInfoIntoProperties:(NSDictionary *)properties {
     NSMutableDictionary *deepLinkInfo = [NSMutableDictionary dictionary];
     // 添加 latest utms 属性。用户传入的属性优先级更高。
     [deepLinkInfo addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
@@ -1203,7 +1203,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackSignupEvent:(NSDictionary *)properties {
-    NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:properties];
+    NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
     NSString *libMethod = eventProps[SAEventPresetPropertyLibMethod];
     if (![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
         // 自定义属性中有 $lib_method 属性且为有效值（code 或者 autoTrack），此时以传入的 $lib_method 为准
@@ -1217,7 +1217,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:properties];
+    NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
     //事件校验，预置事件提醒
     if ([_presetEventNames containsObject:event]) {
         SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
@@ -1244,13 +1244,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
 
-/// 自动采集全埋点事件：$AppStart/$AppEnd/$AppViewScreen/$AppClick
+/// 自动采集全埋点事件：
+/// $AppStart、$AppEnd、$AppViewScreen、$AppClick
 - (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties {
-    [self trackAutoEvent:event properties:properties isAuto:YES];
+    [self trackPresetEvent:event properties:properties isAuto:YES];
 }
 
-/// 采集全埋点事件：$AppStart/$AppEnd/$AppViewScreen/$AppClick
-- (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties isAuto:(BOOL)isAuto {
+/// 采集预置事件
+/// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
+///  AppCrashed、$AppRemoteConfigChanged 等预置事件
+- (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties isAuto:(BOOL)isAuto {
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
@@ -1261,7 +1264,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 且 $lib_method 为有效值（code 或者 autoTrack），此时以传入的 $lib_method 为准
         libMethod = customLibMethod;
     }
-    NSMutableDictionary *eventProps = [self acquireDeepLinkInfo:properties];
+    NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
     eventProps[SAEventPresetPropertyLibMethod] = libMethod;
     [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
@@ -1277,8 +1280,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 * @discussion
 * trackSignupEvent: signup 事件
 * trackCustomEvent: 自定义事件
-* trackAutoEventByCode: 手动触发全埋点事件
-* trackAutoEventByAuto: 自动触发全埋点事件
+* trackAutoEvent: 全埋点事件
+* trackPresetEvent: 预置事件
 * profile: profile 操作
 */
 - (void)track:(NSString *)event properties:(NSDictionary *)properties type:(NSString *)type libMethod:(NSString *)libMethod {
@@ -1289,7 +1292,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
         return;
     }
-    NSMutableDictionary *libProperties = [self.presetProperty libPropertiesWithLibMethod:libMethod];
+    NSDictionary *lib = [self.presetProperty libPropertiesWithLibMethod:libMethod];
+    NSMutableDictionary *libProperties = [NSMutableDictionary dictionaryWithDictionary:lib];
     NSDictionary *propertieDict = [properties copy];
 
     if (propertieDict) {
@@ -1973,7 +1977,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([SAValidator isValidDictionary:p]) {
             [properties addEntriesFromDictionary:p];
         }
-        [self trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties isAuto:NO];
+        [self trackPresetEvent:SA_EVENT_NAME_APP_CLICK properties:properties isAuto:NO];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -2101,7 +2105,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _lastScreenTrackProperties = [tempProperties copy];
     }
 
-    [self trackAutoEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties isAuto:autoTrack];
+    [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties isAuto:autoTrack];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2569,7 +2573,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     };
     managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf trackAutoEvent:event properties:propertieDict isAuto:NO];
+        [strongSelf trackPresetEvent:event properties:propertieDict isAuto:NO];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };
@@ -3265,7 +3269,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
-    [self trackAutoEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:trackProperties isAuto:NO];
+    [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:trackProperties isAuto:NO];
 }
 
 - (void)trackInstallation:(NSString *)event {
