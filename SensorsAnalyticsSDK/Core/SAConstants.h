@@ -88,16 +88,19 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsAutoTrackEventType) {
  *   SensorsAnalyticsNetworkType2G - 2G
  *   SensorsAnalyticsNetworkType3G - 3G
  *   SensorsAnalyticsNetworkType4G - 4G
- *   SensorsAnalyticsNetworkType5G - 5G
  *   SensorsAnalyticsNetworkTypeWIFI - WIFI
  *   SensorsAnalyticsNetworkTypeALL - ALL
+ *   SensorsAnalyticsNetworkType5G - 5G   
  */
 typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
     SensorsAnalyticsNetworkTypeNONE     = 0,
     SensorsAnalyticsNetworkType2G       = 1 << 0,
     SensorsAnalyticsNetworkType3G       = 1 << 1,
     SensorsAnalyticsNetworkType4G       = 1 << 2,
-    SensorsAnalyticsNetworkType5G       = 1 << 4,
     SensorsAnalyticsNetworkTypeWIFI     = 1 << 3,
     SensorsAnalyticsNetworkTypeALL      = 0xFF,
+
+#ifdef __IPHONE_14_1
+    SensorsAnalyticsNetworkType5G = 1 << 4,
+#endif
 };

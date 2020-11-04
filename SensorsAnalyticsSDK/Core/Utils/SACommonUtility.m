@@ -142,8 +142,10 @@
         return SensorsAnalyticsNetworkType3G;
     } else if ([@"4G" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkType4G;
+#ifdef __IPHONE_14_1
     } else if ([@"5G" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkType5G;
+#endif
     } else if ([@"UNKNOWN" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkType4G;
     }
