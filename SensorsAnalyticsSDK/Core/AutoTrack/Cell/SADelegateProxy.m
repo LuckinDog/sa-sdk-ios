@@ -109,12 +109,18 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
 
  @param object 需要创建子类的对象
  @param selector 需要 swizzle 的方法
- @return 新的子类
  */
-+ (nullable Class)createSubclassWithObject:(id)object selector:(SEL)selector {
++ (void)createSubclassWithObject:(id)object selector:(SEL)selector {
     
-    if (sensorsdata_dynamicClassInInheritanceChain(object)) {
-        return nil;
+    Class dynamicClass = sensorsdata_dynamicClassInInheritanceChain(object);
+    Class proxyClass = self.class;
+    if (dynamicClass) {
+        IMP swizzleIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:proxyClass];
+        IMP originalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:dynamicClass];
+        if (swizzleIMP != originalIMP) {
+            [SAMethodHelper addInstanceMethodWithSelector:selector fromClass:proxyClass toClass:dynamicClass];
+        }
+        return;
     }
     
     Class originalClass = object_getClass(object);
@@ -123,8 +129,7 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     if (!subclass) {
         // 注册一个新的子类，其父类为 originalClass
         subclass = objc_allocateClassPair(originalClass, newClassName.UTF8String, 0);
-
-        Class proxyClass = [self class];
+        
         // 向新的子类里添加新的实例方法
         [SAMethodHelper addInstanceMethodWithSelector:selector fromClass:proxyClass toClass:subclass];
 
@@ -139,9 +144,8 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
         if (class_getInstanceSize(originalClass) != class_getInstanceSize(subclass)) {
             SALogError(@"Cannot create subclass of Delegate, because the created subclass is not the same size. %@", NSStringFromClass(originalClass));
             NSAssert(NO, @"Classes must be the same size to swizzle isa");
-            return nil;
+            return;
         }
-
         objc_registerClassPair(subclass);
     }
 
@@ -154,7 +158,6 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
         }];
         SALogDebug(@"Successfully created Delegate Proxy automatically.");
     }
-    return subclass;
 }
 
 + (void)deallocSubclass:(Class)class {
