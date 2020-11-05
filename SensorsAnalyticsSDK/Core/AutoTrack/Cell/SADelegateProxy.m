@@ -102,6 +102,11 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
 }
 
 + (void)hookDidSelectMethodWithDelegate:(id)delegate {
+    // 代理对象的继承链中存在动态添加的类, 则不重复添加类
+    if (sensorsdata_dynamicClassInInheritanceChain(delegate)) {
+        return;
+    }
+    
     SEL tablViewSelector = @selector(tableView:didSelectRowAtIndexPath:);
     SEL collectionViewSelector = @selector(collectionView:didSelectItemAtIndexPath:);
     
@@ -110,11 +115,6 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     
     // 代理对象未实现单元格选中方法, 则不处理
     if (!canResponseTableView && !canResponseCollectionView) {
-        return;
-    }
-    
-    // 代理对象的继承链中存在动态添加的类, 则不重复添加类
-    if (sensorsdata_dynamicClassInInheritanceChain(delegate)) {
         return;
     }
     
