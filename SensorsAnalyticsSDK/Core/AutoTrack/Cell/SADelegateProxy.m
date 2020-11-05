@@ -127,13 +127,21 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     
     Class proxyClass = self.class;
     
+    BOOL swizzleSuccess = NO;
+    
     // hook tableView 的单元格选中方法
     if (canResponseTableView) {
-        [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
+        swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
     }
+    
     // hook collectionView 的单元格选中方法
     if (canResponseCollectionView) {
-        [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass];
+        swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass] || swizzleSuccess;
+    }
+    
+    if (!swizzleSuccess) {
+        [SAClassHelper deallocClass:dynamicClass];
+        return;
     }
     
     // 重写 - (Class)class 方法，隐藏新添加的子类

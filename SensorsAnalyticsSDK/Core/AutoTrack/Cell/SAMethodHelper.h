@@ -42,8 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
  @param methodSelector 需要在 toClass 中添加的方法名
  @param fromClass 原始方法所在的类
  @param toClass 需要添加的方法的类
+ @return 是否添加成功
  */
-+ (void)addInstanceMethodWithSelector:(SEL)methodSelector fromClass:(Class)fromClass toClass:(Class)toClass;
++ (BOOL)addInstanceMethodWithSelector:(SEL)methodSelector fromClass:(Class)fromClass toClass:(Class)toClass;
 
 /**
  添加实例方法
@@ -55,8 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
  @param sourceSelector 原来的 fromClass 中的方法名
  @param fromClass 原始方法所在的类
  @param toClass 需要添加的方法的类
+ @return 是否添加成功
  */
-+ (void)addInstanceMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass;
++ (BOOL)addInstanceMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass;
 
 /**
  添加类方法
@@ -68,8 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
  @param sourceSelector 原来的 fromClass 中的类方法名
  @param fromClass 原始方法所在的类
  @param toClass 需要添加的方法的类
+ @return 是否添加成功
  */
-+ (void)addClassMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass;
++ (BOOL)addClassMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass;
 
 @end
 

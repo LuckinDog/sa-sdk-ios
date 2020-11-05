@@ -31,11 +31,11 @@
     return method_getImplementation(aMethod);
 }
 
-+ (void)addInstanceMethodWithSelector:(SEL)methodSelector fromClass:(Class)fromClass toClass:(Class)toClass {
-    [self addInstanceMethodWithDestinationSelector:methodSelector sourceSelector:methodSelector fromClass:fromClass toClass:toClass];
++ (BOOL)addInstanceMethodWithSelector:(SEL)methodSelector fromClass:(Class)fromClass toClass:(Class)toClass {
+    return [self addInstanceMethodWithDestinationSelector:methodSelector sourceSelector:methodSelector fromClass:fromClass toClass:toClass];
 }
 
-+ (void)addInstanceMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass {
++ (BOOL)addInstanceMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass {
     // 获取一个实例方法的指针
     Method method = class_getInstanceMethod(fromClass, sourceSelector);
     // 返回该方法的实现
@@ -45,16 +45,20 @@
     // 在 toClass 中，添加一个名为 destinationSelector 的方法
     if (!class_addMethod(toClass, destinationSelector, methodIMP, types)) {
         SALogError(@"Cannot copy method to destination selector %@ as it already exists", NSStringFromSelector(destinationSelector));
+        return NO;
     }
+    return YES;
 }
 
-+ (void)addClassMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass {
++ (BOOL)addClassMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass {
     Method method = class_getClassMethod(fromClass, sourceSelector);
     IMP methodIMP = method_getImplementation(method);
     const char *types = method_getTypeEncoding(method);
     if (!class_addMethod(toClass, destinationSelector, methodIMP, types)) {
         SALogError(@"Cannot copy method to destination selector %@ as it already exists", NSStringFromSelector(destinationSelector));
+        return NO;
     }
+    return YES;
 }
 
 @end
