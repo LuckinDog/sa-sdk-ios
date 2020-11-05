@@ -1202,14 +1202,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return deepLinkInfo;
 }
 
+- (NSString *)obtainValidLibMethod:(NSString *)libMethod {
+    //  传入自定义属性中的 $lib_method 属性
+    NSString *newLibMethod = libMethod;
+    if (![newLibMethod isEqualToString:kSALibMethodCode] && ![newLibMethod isEqualToString:kSALibMethodAuto]) {
+        // 自定义属性中的 $lib_method 不为有效值（code 或者 autoTrack），此时使用默认值 code
+        newLibMethod = kSALibMethodCode;
+    }
+    return newLibMethod;
+}
+
 - (void)trackSignupEvent:(NSDictionary *)properties {
     NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
-    NSString *libMethod = eventProps[SAEventPresetPropertyLibMethod];
-    if (![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
-        // 自定义属性中有 $lib_method 属性且为有效值（code 或者 autoTrack），此时以传入的 $lib_method 为准
-        libMethod = kSALibMethodCode;
-        eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
-    }
+    NSString *libMethod = [self obtainValidLibMethod:eventProps[SAEventPresetPropertyLibMethod]];
+    eventProps[SAEventPresetPropertyLibMethod] = libMethod;
     [self track:SA_EVENT_NAME_APP_SIGN_UP properties:eventProps type:kSAEventTypeSignup libMethod:libMethod];
 }
 
@@ -1236,35 +1242,31 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             });
         }
     }
-    NSString *libMethod = eventProps[SAEventPresetPropertyLibMethod];
-    if (![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
-        libMethod = kSALibMethodCode;
-        eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
-    }
+    NSString *libMethod = [self obtainValidLibMethod:eventProps[SAEventPresetPropertyLibMethod]];
+    eventProps[SAEventPresetPropertyLibMethod] = libMethod;
     [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
 
 /// 自动采集全埋点事件：
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick
 - (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties {
-    [self trackPresetEvent:event properties:properties isAuto:YES];
+    if (![self isValidNameForTrackEvent:event]) {
+        return;
+    }
+    NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
+    eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
+    [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:kSALibMethodAuto];
 }
 
 /// 采集预置事件
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
 ///  AppCrashed、$AppRemoteConfigChanged 等预置事件
-- (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties isAuto:(BOOL)isAuto {
+- (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties {
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    NSString *libMethod = isAuto ? kSALibMethodAuto : kSALibMethodCode;
-    NSString *customLibMethod = properties[SAEventPresetPropertyLibMethod];
-    if (!isAuto && ([customLibMethod isEqualToString:kSALibMethodCode] || [customLibMethod isEqualToString:kSALibMethodAuto])) {
-        // 如果不是自动采集全埋点事件，并且自定义属性中有 $lib_method 属性，
-        // 且 $lib_method 为有效值（code 或者 autoTrack），此时以传入的 $lib_method 为准
-        libMethod = customLibMethod;
-    }
     NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
+    NSString *libMethod = [self obtainValidLibMethod:eventProps[SAEventPresetPropertyLibMethod]];
     eventProps[SAEventPresetPropertyLibMethod] = libMethod;
     [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
@@ -1977,7 +1979,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([SAValidator isValidDictionary:p]) {
             [properties addEntriesFromDictionary:p];
         }
-        [self trackPresetEvent:SA_EVENT_NAME_APP_CLICK properties:properties isAuto:NO];
+        [self trackPresetEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -2105,7 +2107,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _lastScreenTrackProperties = [tempProperties copy];
     }
 
-    [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties isAuto:autoTrack];
+    if (autoTrack) {
+        [self trackAutoEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties];
+    } else {
+        [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties];
+    }
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2573,7 +2579,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     };
     managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf trackPresetEvent:event properties:propertieDict isAuto:NO];
+        [strongSelf trackPresetEvent:event properties:propertieDict];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };
@@ -3269,7 +3275,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
-    [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:trackProperties isAuto:NO];
+    [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:trackProperties];
 }
 
 - (void)trackInstallation:(NSString *)event {
