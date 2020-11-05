@@ -26,6 +26,7 @@
 
 @interface SARemoteConfigManager ()
 
+@property (nonatomic, strong) SARemoteConfigProcessOptions *options;
 @property (nonatomic, strong) SARemoteConfigProcess *process;
 
 @end
@@ -35,6 +36,7 @@
 #pragma mark - Life Cycle
 
 + (void)startWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions {
+    [SARemoteConfigManager sharedInstance].options = processOptions;
     [SARemoteConfigManager sharedInstance].process = [[SARemoteConfigCommonProcess alloc] initWithRemoteConfigProcessOptions:processOptions];
 }
 
@@ -78,6 +80,8 @@
 }
 
 - (void)handleRemoteConfigURL:(NSURL *)url {
+    self.process = [[SARemoteConfigCheckProcess alloc] initWithRemoteConfigProcessOptions:self.options];
+    
     if ([self.process respondsToSelector:@selector(handleRemoteConfigURL:)]) {
         [self.process handleRemoteConfigURL:url];
     }
