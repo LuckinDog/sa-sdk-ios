@@ -21,6 +21,7 @@
 #import "SADelegateProxy.h"
 #import "SAClassHelper.h"
 #import "SAMethodHelper.h"
+#import "NSObject+SARelease.h"
 #import "SALog.h"
 #import "SAAutoTrackUtils.h"
 #import "SAAutoTrackProperty.h"
@@ -137,9 +138,6 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     // 重写 - (Class)class 方法，隐藏新添加的子类
     [SAMethodHelper addInstanceMethodWithDestinationSelector:@selector(class) sourceSelector:@selector(sensorsdata_class) fromClass:proxyClass toClass:dynamicClass];
     
-    // 实例释放时, 释放动态添加的子类
-    [SAMethodHelper addInstanceMethodWithSelector:@selector(addOperationWhenDealloc:) fromClass:proxyClass toClass:dynamicClass];
-    
     // 使类生效
     [SAClassHelper effectiveClass:dynamicClass];
     
@@ -218,39 +216,6 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     SEL methodSelector = @selector(collectionView:didSelectItemAtIndexPath:);
     [SADelegateProxy invokeWithScrollView:collectionView selector:methodSelector selectedAtIndexPath:indexPath];
-}
-
-@end
-
-#pragma mark - listening dealloc
-@interface SADelegateProxyParasite : NSObject
-
-@property (nonatomic, copy) void(^deallocBlock)(void);
-
-@end
-
-@implementation SADelegateProxyParasite
-
-- (void)dealloc {
-    !self.deallocBlock ?: self.deallocBlock();
-}
-
-@end
-
-@implementation SADelegateProxy (SubClassDealloc)
-
-- (void)addOperationWhenDealloc:(void(^)(void))block {
-    @synchronized (self) {
-        static NSString *kSAParasiteAssociatedKey = nil;
-        NSMutableArray *parasiteList = objc_getAssociatedObject(self, &kSAParasiteAssociatedKey);
-        if (!parasiteList) {
-            parasiteList = [[NSMutableArray alloc] init];
-            objc_setAssociatedObject(self, &kSAParasiteAssociatedKey, parasiteList, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
-        SADelegateProxyParasite *parasite = [[SADelegateProxyParasite alloc] init];
-        parasite.deallocBlock = block;
-        [parasiteList addObject: parasite];
-    }
 }
 
 @end

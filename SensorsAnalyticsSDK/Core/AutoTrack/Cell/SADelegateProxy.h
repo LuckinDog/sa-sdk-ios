@@ -45,10 +45,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SADelegateProxy (SubClassDealloc)
-
-- (void)addOperationWhenDealloc:(void(^)(void))block;
-
-@end
-
 NS_ASSUME_NONNULL_END
