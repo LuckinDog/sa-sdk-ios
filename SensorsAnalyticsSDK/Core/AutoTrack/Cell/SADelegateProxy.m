@@ -19,6 +19,7 @@
 //
 
 #import "SADelegateProxy.h"
+#import "SAClassHelper.h"
 #import "SAMethodHelper.h"
 #import "SALog.h"
 #import "SAAutoTrackUtils.h"
@@ -63,12 +64,13 @@ Class _Nullable sensorsdata_dynamicClassInInheritanceChain(id _Nullable object) 
 }
 
 /**
- 根据原始类生成动态添加的子类的名称
+ 根据实例对象生成动态添加的子类的名称
 
- @param class 原始类
- @return 待添加的子类类名
+ @param obj 实例对象
+ @return 子类类名
  */
-NSString *sensorsdata_generateDynamicClassName(Class class) {
+NSString *sensorsdata_generateDynamicClassName(id obj) {
+    Class class = object_getClass(obj);
     if (sensorsdata_isDynamicClass(class)) return NSStringFromClass(class);
     return [NSString stringWithFormat:@"%@%@%@%@", kSADelegatePrefix, @(subClassIndex++), kSAClassSeparatedChar, NSStringFromClass(class)];
 }
@@ -90,79 +92,68 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
 
 @implementation SADelegateProxy
 
-+ (void)proxyWithDelegate:(id)delegate selector:(SEL)selector {
-    if (![delegate respondsToSelector:selector]) {
-        return;
-    }
-
++ (void)proxyWithDelegate:(id)delegate {
     @try {
-        [self createSubclassWithObject:delegate selector:selector];
+        [self hookDidSelectMethodWithDelegate:delegate];
     } @catch (NSException *exception) {
         return SALogError(@"%@", exception);
     }
 }
 
-/**
- isa swizzle
- 给 object 创建一个新的子类，并设置其 isa 指针为新的子类。
- 并且将 Delegate 对应的方法复制到新的子类中，这样就拦截了 object 中的 selector 方法
-
- @param object 需要创建子类的对象
- @param selector 需要 swizzle 的方法
- */
-+ (void)createSubclassWithObject:(id)object selector:(SEL)selector {
++ (void)hookDidSelectMethodWithDelegate:(id)delegate {
+    SEL tablViewSelector = @selector(tableView:didSelectRowAtIndexPath:);
+    SEL collectionViewSelector = @selector(collectionView:didSelectItemAtIndexPath:);
     
-    Class dynamicClass = sensorsdata_dynamicClassInInheritanceChain(object);
-    Class proxyClass = self.class;
-    if (dynamicClass) {
-        IMP swizzleIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:proxyClass];
-        IMP originalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:dynamicClass];
-        if (swizzleIMP != originalIMP) {
-            [SAMethodHelper addInstanceMethodWithSelector:selector fromClass:proxyClass toClass:dynamicClass];
-        }
+    BOOL canResponseTableView = [delegate respondsToSelector:tablViewSelector];
+    BOOL canResponseCollectionView = [delegate respondsToSelector:collectionViewSelector];
+    
+    // 代理对象未实现单元格选中方法, 则不处理
+    if (!canResponseTableView && !canResponseCollectionView) {
         return;
     }
     
-    Class originalClass = object_getClass(object);
-    NSString *newClassName = sensorsdata_generateDynamicClassName(originalClass);
-    Class subclass = NSClassFromString(newClassName);
-    if (!subclass) {
-        // 注册一个新的子类，其父类为 originalClass
-        subclass = objc_allocateClassPair(originalClass, newClassName.UTF8String, 0);
-        
-        // 向新的子类里添加新的实例方法
-        [SAMethodHelper addInstanceMethodWithSelector:selector fromClass:proxyClass toClass:subclass];
-
-        // 重写 - (void)class 方法，目的是在获取该类的类型时，隐藏新添加的子类
-        [SAMethodHelper addInstanceMethodWithDestinationSelector:@selector(class) sourceSelector:@selector(sensorsdata_class) fromClass:proxyClass toClass:subclass];
-        
-        // 添加实例方法，目的是在实例释放时, 释放动态添加的子类
-        [SAMethodHelper addInstanceMethodWithSelector:@selector(addOperationWhenDealloc:) fromClass:proxyClass toClass:subclass];
-
-        // 子类和原始类的大小必须相同，不能有更多的 ivars 或者属性
-        // 如果不同会导致设置新的子类时，会重新设置内存，导致重写了对象的 isa 指针
-        if (class_getInstanceSize(originalClass) != class_getInstanceSize(subclass)) {
-            SALogError(@"Cannot create subclass of Delegate, because the created subclass is not the same size. %@", NSStringFromClass(originalClass));
-            NSAssert(NO, @"Classes must be the same size to swizzle isa");
-            return;
-        }
-        objc_registerClassPair(subclass);
+    // 代理对象的继承链中存在动态添加的类, 则不重复添加类
+    if (sensorsdata_dynamicClassInInheritanceChain(delegate)) {
+        return;
     }
-
-    // 将 object 对象设置成新创建的子类对象
-    if (object_setClass(object, subclass)) {
-        [object addOperationWhenDealloc:^{
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                [SADelegateProxy deallocSubclass:subclass];
-            });
+    
+    // 创建类
+    Class dynamicClass = [SAClassHelper createClassWithObject:delegate className:sensorsdata_generateDynamicClassName(delegate)];
+    if (!dynamicClass) {
+        return;
+    }
+    
+    Class proxyClass = self.class;
+    
+    // hook tableView 的单元格选中方法
+    if (canResponseTableView) {
+        [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
+    }
+    // hook collectionView 的单元格选中方法
+    if (canResponseCollectionView) {
+        [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass];
+    }
+    
+    // 重写 - (Class)class 方法，隐藏新添加的子类
+    [SAMethodHelper addInstanceMethodWithDestinationSelector:@selector(class) sourceSelector:@selector(sensorsdata_class) fromClass:proxyClass toClass:dynamicClass];
+    
+    // 实例释放时, 释放动态添加的子类
+    [SAMethodHelper addInstanceMethodWithSelector:@selector(addOperationWhenDealloc:) fromClass:proxyClass toClass:dynamicClass];
+    
+    // 使类生效
+    [SAClassHelper effectiveClass:dynamicClass];
+    
+    // 替换代理对象所归属的类
+    if ([SAClassHelper configObject:delegate toClass:dynamicClass]) {
+        [delegate addOperationWhenDealloc:^{
+            if (sensorsdata_isDynamicClass(dynamicClass)) {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    // 释放类
+                    [SAClassHelper deallocClass:dynamicClass];
+                });
+            }
         }];
-        SALogDebug(@"Successfully created Delegate Proxy automatically.");
     }
-}
-
-+ (void)deallocSubclass:(Class)class {
-    if (!sensorsdata_isDynamicClass(class)) return;
-    objc_disposeClassPair(class);
 }
 
 @end

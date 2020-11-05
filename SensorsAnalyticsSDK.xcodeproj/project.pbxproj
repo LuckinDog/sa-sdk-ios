@@ -13,6 +13,8 @@
 		4588652C253EE0FC00DF208D /* UIScrollView+SensorsData.m in Sources */ = {isa = PBXBuildFile; fileRef = 45886526253EE0FC00DF208D /* UIScrollView+SensorsData.m */; };
 		4588652D253EE0FC00DF208D /* SAMethodHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 45886527253EE0FC00DF208D /* SAMethodHelper.m */; };
 		4588652E253EE0FC00DF208D /* SAMethodHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 45886528253EE0FC00DF208D /* SAMethodHelper.h */; };
+		45922DC32553ECE0003AFEE7 /* SAClassHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 45922DC12553ECE0003AFEE7 /* SAClassHelper.h */; };
+		45922DC42553ECE0003AFEE7 /* SAClassHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 45922DC22553ECE0003AFEE7 /* SAClassHelper.m */; };
 		4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188E22978F5B00F6B218 /* ElementViewController.m */; };
 		4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */; };
 		4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */; };
@@ -210,6 +212,8 @@
 		45886526253EE0FC00DF208D /* UIScrollView+SensorsData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SensorsData.m"; sourceTree = "<group>"; };
 		45886527253EE0FC00DF208D /* SAMethodHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAMethodHelper.m; sourceTree = "<group>"; };
 		45886528253EE0FC00DF208D /* SAMethodHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAMethodHelper.h; sourceTree = "<group>"; };
+		45922DC12553ECE0003AFEE7 /* SAClassHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAClassHelper.h; sourceTree = "<group>"; };
+		45922DC22553ECE0003AFEE7 /* SAClassHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAClassHelper.m; sourceTree = "<group>"; };
 		4D6A188E22978F5B00F6B218 /* ElementViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElementViewController.m; sourceTree = "<group>"; };
 		4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackUtilsTest.m; sourceTree = "<group>"; };
 		4D6A189022978F5B00F6B218 /* ElementViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElementViewController.h; sourceTree = "<group>"; };
@@ -428,6 +432,8 @@
 				45886524253EE0FC00DF208D /* SADelegateProxy.m */,
 				45886528253EE0FC00DF208D /* SAMethodHelper.h */,
 				45886527253EE0FC00DF208D /* SAMethodHelper.m */,
+				45922DC12553ECE0003AFEE7 /* SAClassHelper.h */,
+				45922DC22553ECE0003AFEE7 /* SAClassHelper.m */,
 				45886523253EE0FC00DF208D /* UIScrollView+SensorsData.h */,
 				45886526253EE0FC00DF208D /* UIScrollView+SensorsData.m */,
 			);
@@ -864,6 +870,7 @@
 				881A41D1253D7B5000854F69 /* SAAuxiliaryToolManager.h in Headers */,
 				881A41CE253D7B5000854F69 /* SAVisualizedAbstractMessage.h in Headers */,
 				881A4197253D7B4F00854F69 /* SASwizzle.h in Headers */,
+				45922DC32553ECE0003AFEE7 /* SAClassHelper.h in Headers */,
 				881A41BF253D7B4F00854F69 /* SAEventRecord.h in Headers */,
 				881A41FD253D7B5000854F69 /* SAObject+SAConfigOptions.h in Headers */,
 				881A41C2253D7B4F00854F69 /* SADatabase.h in Headers */,
@@ -1066,6 +1073,7 @@
 				881A41DC253D7B5000854F69 /* SAClassDescription.m in Sources */,
 				881A41AA253D7B4F00854F69 /* SAScriptMessageHandler.m in Sources */,
 				881A4194253D7B4F00854F69 /* SATrackTimer.m in Sources */,
+				45922DC42553ECE0003AFEE7 /* SAClassHelper.m in Sources */,
 				881A4208253D7B5000854F69 /* SAReachability.m in Sources */,
 				881A421B253D7B5000854F69 /* SAVisualizedAutoTrackObjectSerializer.m in Sources */,
 				881A41DA253D7B5000854F69 /* SAApplicationStateSerializer.m in Sources */,

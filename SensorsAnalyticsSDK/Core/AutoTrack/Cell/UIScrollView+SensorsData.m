@@ -38,11 +38,9 @@
     if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
     }
-
-    // 获取相应点击事件的方法
-    SEL selector = @selector(tableView:didSelectRowAtIndexPath:);
+    
     // 使用委托类去 hook 点击事件方法
-    [SADelegateProxy proxyWithDelegate:delegate selector:selector];
+    [SADelegateProxy proxyWithDelegate:delegate];
 }
 
 @end
@@ -60,11 +58,9 @@
     if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
     }
-
-    // 获取相应点击事件的方法
-    SEL selector = @selector(collectionView:didSelectItemAtIndexPath:);
+    
     // 使用委托类去 hook 点击事件方法
-    [SADelegateProxy proxyWithDelegate:delegate selector:selector];
+    [SADelegateProxy proxyWithDelegate:delegate];
 }
 
 @end

@@ -25,12 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SADelegateProxy : NSProxy
 
 /**
- 委托代理中的方法
+ 对 TableView 和 CollectionView 的单元格选中方法进行代理
 
  @param delegate 代理：UITableViewDelegate、UICollectionViewDelegate 等
- @param selector 代理中的方法
  */
-+ (void)proxyWithDelegate:(id)delegate selector:(SEL)selector;
++ (void)proxyWithDelegate:(id)delegate;
 
 @end
 
