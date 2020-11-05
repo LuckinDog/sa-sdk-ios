@@ -231,17 +231,19 @@
     [self.controllersStack addPointer:(__bridge void * _Nullable)(viewController)];
 }
 
+- (UIViewController *)lastViewScreenController {
+    // allObjects 会自动过滤 NULL
+    NSArray *allObjects = [self.controllersStack allObjects];
+    NSUInteger objectCount = allObjects.count;
+    if (objectCount == 0) {
+        return nil;
+    }
+    return [allObjects objectAtIndex:objectCount - 1];
+}
+
 - (void)resetLastImageHash:(NSString *)imageHash {
     self.lastImageHash = imageHash;
     self.imageHashUpdateMessage = nil;
-}
-
-- (UIViewController *)lastViewScreenController {
-    NSUInteger count = self.controllersStack.count;
-    if (count == 0) {
-        return nil;
-    }
-    return (__bridge id)[self.controllersStack pointerAtIndex:count - 1];
 }
 
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {
