@@ -144,12 +144,10 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     // 替换代理对象所归属的类
     if ([SAClassHelper configObject:delegate toClass:dynamicClass]) {
         [delegate addOperationWhenDealloc:^{
-            if (sensorsdata_isDynamicClass(dynamicClass)) {
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    // 释放类
-                    [SAClassHelper deallocClass:dynamicClass];
-                });
-            }
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                // 释放类
+                [SAClassHelper deallocClass:dynamicClass];
+            });
         }];
     }
 }
