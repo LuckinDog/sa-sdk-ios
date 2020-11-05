@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SADelegateProxy : NSProxy
+@interface SADelegateProxy : NSObject
 
 /**
  对 TableView 和 CollectionView 的单元格选中方法进行代理
