@@ -1,8 +1,8 @@
 //
-// SARemoteConfigCommonManager.h
+// SARemoteConfigCheckProcess.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/7/20.
+// Created by wenquan on 2020/11/1.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,16 +22,11 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import <Foundation/Foundation.h>
-#import "SARemoteConfigManager.h"
-#import "SARemoteConfigModel.h"
-#import "SANetwork.h"
-#import "SAConfigOptions.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "SARemoteConfigProcess.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SARemoteConfigCommonManager : SARemoteConfigManager
+@interface SARemoteConfigCheckProcess : SARemoteConfigProcess
 
 @end
 

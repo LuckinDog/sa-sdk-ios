@@ -53,8 +53,6 @@
 #endif
 
 #import "SARemoteConfigManager.h"
-#import "SARemoteConfigCommonManager.h"
-#import "SARemoteConfigCheckManager.h"
 #import "SADeviceOrientationManager.h"
 #import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
@@ -233,8 +231,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAEncryptSecretKeyHandler *secretKeyHandler;
 
-@property (class, nonatomic, strong) SARemoteConfigManager *remoteConfigManager;
-
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -252,8 +248,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @synthesize encryptBuilder = _encryptBuilder;
 
-static SARemoteConfigManager *_remoteConfigManager = nil;
-
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
@@ -263,13 +257,13 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
     }
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance initCommonRemoteConfigManager];
+        [sharedInstance initRemoteConfigManager];
     });
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
     NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
-    if (SensorsAnalyticsSDK.remoteConfigManager.isDisableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return nil;
     }
     return sharedInstance;
@@ -537,7 +531,7 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
     dispatch_async(self.serialQueue, ^{
         self.configOptions.serverURL = serverUrl;
         if (isRequestRemoteConfig) {
-            [SensorsAnalyticsSDK.remoteConfigManager retryRequestRemoteConfigWithForceUpdateFlag:YES];
+            [[SARemoteConfigManager sharedInstance] retryRequestRemoteConfigWithForceUpdateFlag:YES];
         }
     });
 }
@@ -590,7 +584,7 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
-            if (SensorsAnalyticsSDK.remoteConfigManager.isDisableSDK) {
+            if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
                 return;
             }
             
@@ -811,11 +805,11 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
 }
 
 - (BOOL)isAutoTrackEnabled {
-    if (SensorsAnalyticsSDK.remoteConfigManager.isDisableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return NO;
     }
     
-    NSInteger autoTrackMode = SensorsAnalyticsSDK.remoteConfigManager.autoTrackMode;
+    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
     if (autoTrackMode == kSAAutoTrackModeDefault) {
         // 远程配置不修改现有的 autoTrack 方式
         return (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
@@ -826,11 +820,11 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if (SensorsAnalyticsSDK.remoteConfigManager.isDisableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return YES;
     }
     
-    NSInteger autoTrackMode = SensorsAnalyticsSDK.remoteConfigManager.autoTrackMode;
+    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
     if (autoTrackMode == kSAAutoTrackModeDefault) {
         // 远程配置不修改现有的 autoTrack 方式
         return !(self.configOptions.autoTrackEventType & eventType);
@@ -883,9 +877,10 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
 
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
-   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
-          [_linkHandler canHandleURL:url] ||
-          [[SAChannelMatchManager sharedInstance] canHandleURL:url];
+    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
+    [_linkHandler canHandleURL:url] ||
+    [[SAChannelMatchManager sharedInstance] canHandleURL:url] ||
+    [[SARemoteConfigManager sharedInstance] canHandleURL:url];
 }
 
 - (BOOL)handleAutoTrackURL:(NSURL *)URL{
@@ -922,24 +917,14 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
             // 校验加密公钥
             [self.secretKeyHandler checkSecretKeyURL:url];
             return YES;
-        } else if ([[SAAuxiliaryToolManager sharedInstance] isRemoteConfigURL:url]) {
-            // 校验远程配置
-            // TODO:wq 如果是通过 scheme 直接唤起，测试是否有问题
-            // 1. 开启 log
-            [self enableLog:YES];
-            
-            [SensorsAnalyticsSDK.remoteConfigManager cancelRequestRemoteConfig];
-            
-            // 2. 开启校验状态
-            [self initCheckRemoteConfigManager];
-            // 3. 校验远程配置请求
-            [SensorsAnalyticsSDK.remoteConfigManager handleRemoteConfigURL:url];
-            
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
             return YES;
         } else if ([[SAChannelMatchManager sharedInstance] canHandleURL:url]) {
             [[SAChannelMatchManager sharedInstance] showAuthorizationAlertWithURL:url];
+            return YES;
+        } else if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
+            [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
             return YES;
         }
     } @catch (NSException *exception) {
@@ -1203,11 +1188,11 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
-    if (SensorsAnalyticsSDK.remoteConfigManager.isDisableSDK) {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         return;
     }
     
-    if ([SensorsAnalyticsSDK.remoteConfigManager isBlackListContainsEvent:event]) {
+    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
         return;
     }
     
@@ -1902,7 +1887,7 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
 - (void)startFlushTimer {
     SALogDebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (SensorsAnalyticsSDK.remoteConfigManager.isDisableSDK || (self.timer && [self.timer isValid])) {
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK || (self.timer && [self.timer isValid])) {
             return;
         }
 
@@ -2318,8 +2303,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     if (_appRelaunched) {
         // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
-        [SensorsAnalyticsSDK.remoteConfigManager configLocalRemoteConfigModel];
-        [SensorsAnalyticsSDK.remoteConfigManager requestRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
+        [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
     }
     
     // 遍历 trackTimer
@@ -2374,7 +2359,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     self.launchedPassively = NO;
     
-    [SensorsAnalyticsSDK.remoteConfigManager cancelRequestRemoteConfig];
+    [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
     
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
@@ -2541,28 +2526,28 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 #pragma mark - RemoteConfig
 
-- (void)initCommonRemoteConfigManager {
+- (void)initRemoteConfigManager {
     // 初始化远程配置类
-    SARemoteConfigManagerOptions *managerOptions = [[SARemoteConfigManagerOptions alloc] init];
-    managerOptions.configOptions = _configOptions;
-    managerOptions.currentLibVersion = [self libVersion];
+    SARemoteConfigProcessOptions *processOptions = [[SARemoteConfigProcessOptions alloc] init];
+    processOptions.configOptions = _configOptions;
+    processOptions.currentLibVersion = [self libVersion];
     
     __weak typeof(self) weakSelf = self;
-    managerOptions.encryptBuilderCreateResultBlock = ^BOOL{
+    processOptions.encryptBuilderCreateResultBlock = ^BOOL{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         return strongSelf.encryptBuilder ? YES : NO;
     };
-    managerOptions.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
+    processOptions.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf handleEncryptWithConfig:encryptConfig];
     };
-    managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
+    processOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeAuto];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };
-    managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
+    processOptions.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (isDisableDebugMode) {
             [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
@@ -2571,48 +2556,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
     };
     
-    SensorsAnalyticsSDK.remoteConfigManager = [[SARemoteConfigCommonManager alloc] initWithManagerOptions:managerOptions];
-}
-
-- (void)initCheckRemoteConfigManager {
-    // 初始化远程配置类
-    SARemoteConfigManagerOptions *managerOptions = [[SARemoteConfigManagerOptions alloc] init];
-    managerOptions.configOptions = _configOptions;
-    managerOptions.currentLibVersion = [self libVersion];
-    
-    __weak typeof(self) weakSelf = self;
-    managerOptions.encryptBuilderCreateResultBlock = ^BOOL{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        return strongSelf.encryptBuilder ? YES : NO;
-    };
-    managerOptions.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf handleEncryptWithConfig:encryptConfig];
-    };
-    managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeAuto];
-        // 触发 $AppRemoteConfigChanged 时 flush 一次
-        [strongSelf flush];
-    };
-    managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (isDisableDebugMode) {
-            [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
-        }
-        
-        isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
-    };
-    
-    SensorsAnalyticsSDK.remoteConfigManager = [[SARemoteConfigCheckManager alloc] initWithManagerOptions:managerOptions];
-}
-
-+ (SARemoteConfigManager *)remoteConfigManager {
-    return _remoteConfigManager;
-}
-
-+ (void)setRemoteConfigManager:(SARemoteConfigManager *)remoteConfigManager {
-    _remoteConfigManager = remoteConfigManager;
+    [SARemoteConfigManager startWithRemoteConfigProcessOptions:processOptions];
 }
 
 - (void)performDisableSDKTask {
@@ -2643,9 +2587,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)requestRemoteConfigWhenInitialized {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        if ([SensorsAnalyticsSDK.remoteConfigManager respondsToSelector:@selector(requestRemoteConfig)]) {
-            [SensorsAnalyticsSDK.remoteConfigManager requestRemoteConfig];
-        }
+        [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
     });
 }
 
@@ -3163,7 +3105,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
-        [sharedInstance initCommonRemoteConfigManager];
+        [sharedInstance initRemoteConfigManager];
     });
     return sharedInstance;
 }
@@ -3175,7 +3117,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance initCommonRemoteConfigManager];
+        [sharedInstance initRemoteConfigManager];
     });
     return sharedInstance;
 }

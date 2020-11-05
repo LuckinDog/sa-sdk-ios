@@ -1,5 +1,5 @@
 //
-// SARemoteConfigCheckManager.m
+// SARemoteConfigCheckProcess.m
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/11/1.
@@ -22,27 +22,27 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigCheckManager.h"
+#import "SARemoteConfigCheckProcess.h"
 #import "SAConstants+Private.h"
 #import "SAJSONUtil.h"
 #import "SAURLUtils.h"
 #import "SAAlertController.h"
 #import "SACommonUtility.h"
 
-@interface SARemoteConfigCheckManager ()
+@interface SARemoteConfigCheckProcess ()
 
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) UIActivityIndicatorView *indicator;
 
 @end
 
-@implementation SARemoteConfigCheckManager
+@implementation SARemoteConfigCheckProcess
 
 #pragma mark – Life Cycle
-
-- (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
-    self = [super initWithManagerOptions:managerOptions];
+- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions {
+    self = [super initWithRemoteConfigProcessOptions:processOptions];
     if (self) {
+        
     }
     return self;
 }
@@ -131,9 +131,9 @@
             [strongSelf handleRemoteConfig:remoteConfig withLastestVersion:lastestVersion];
             
             // 加密
-            if (strongSelf.managerOptions.configOptions.enableEncrypt) {
+            if (strongSelf.options.configOptions.enableEncrypt) {
                 NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
-                strongSelf.managerOptions.handleEncryptBlock(encryptConfig);
+                strongSelf.options.handleEncryptBlock(encryptConfig);
             }
         } else {
             SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"远程配置获取失败，请稍后再试" preferredStyle:SAAlertControllerStyleAlert];
@@ -156,7 +156,7 @@
     
     if ([self checkRemoteConfig:remoteConfig withLastestVersion:lastestVersion]) {
         NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-        enableMDic[@"localLibVersion"] = self.managerOptions.currentLibVersion;
+        enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
         [self enableRemoteConfigWithDictionary:enableMDic];
     }
 }

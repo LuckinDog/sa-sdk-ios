@@ -1,5 +1,5 @@
 //
-// SARemoteConfigCommonManager.m
+// SARemoteConfigCommonProcess.m
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/7/20.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigCommonManager.h"
+#import "SARemoteConfigCommonProcess.h"
 #import "SAConstants+Private.h"
 #import "SAJSONUtil.h"
 #import "SACommonUtility.h"
@@ -41,18 +41,17 @@ static NSString * const kRequestRemoteConfigRandomTimeKey = @"SARequestRemoteCon
 static NSString * const kRandomTimeKey = @"randomTime";
 static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
-@interface SARemoteConfigCommonManager ()
+@interface SARemoteConfigCommonProcess ()
 
 @property (nonatomic, assign) NSUInteger requestRemoteConfigRetryMaxCount; // SDK 开启关闭功能接口最大重试次数
 
 @end
 
-@implementation SARemoteConfigCommonManager
+@implementation SARemoteConfigCommonProcess
 
 #pragma mark - Life Cycle
-
-- (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
-    self = [super initWithManagerOptions:managerOptions];
+- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions {
+    self = [super initWithRemoteConfigProcessOptions:processOptions];
     if (self) {
         _requestRemoteConfigRetryMaxCount = 3;
         [self configLocalRemoteConfigModel];
@@ -70,7 +69,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 - (void)requestRemoteConfig {
     // 触发远程配置请求的三个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
-    if (self.managerOptions.configOptions.disableRandomTimeRequestRemoteConfig || self.managerOptions.configOptions.maxRequestHourInterval < self.managerOptions.configOptions.minRequestHourInterval) {
+    if (self.options.configOptions.disableRandomTimeRequestRemoteConfig || self.options.configOptions.maxRequestHourInterval < self.options.configOptions.minRequestHourInterval) {
         [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:NO];
         [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeRemove];
         SALogDebug(@"Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
@@ -78,7 +77,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     }
     
     // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
-    if (self.managerOptions.configOptions.enableEncrypt && !self.managerOptions.encryptBuilderCreateResultBlock()) {
+    if (self.options.configOptions.enableEncrypt && !self.options.encryptBuilderCreateResultBlock()) {
         [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:NO];
         [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeCreate];
         SALogDebug(@"Request remote config because encrypt builder is nil");
@@ -145,10 +144,10 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
     
     // 计算实际间隔时间（此时只需要考虑 minRequestHourInterval <= maxRequestHourInterval 的情况）
-    double realIntervalTime = self.managerOptions.configOptions.minRequestHourInterval * 60 * 60;
-    if (self.managerOptions.configOptions.maxRequestHourInterval > self.managerOptions.configOptions.minRequestHourInterval) {
+    double realIntervalTime = self.options.configOptions.minRequestHourInterval * 60 * 60;
+    if (self.options.configOptions.maxRequestHourInterval > self.options.configOptions.minRequestHourInterval) {
         // 转换成 秒 再取随机时间
-        double durationSecond = (self.managerOptions.configOptions.maxRequestHourInterval - self.managerOptions.configOptions.minRequestHourInterval) * 60 * 60;
+        double durationSecond = (self.options.configOptions.maxRequestHourInterval - self.options.configOptions.minRequestHourInterval) * 60 * 60;
         
         // arc4random_uniform 的取值范围，是左闭右开，所以 +1
         realIntervalTime += arc4random_uniform(durationSecond + 1);
@@ -183,9 +182,9 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
                     [strongSelf handleRemoteConfig:remoteConfig];
                     
                     // 加密
-                    if (strongSelf.managerOptions.configOptions.enableEncrypt) {
+                    if (strongSelf.options.configOptions.enableEncrypt) {
                         NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
-                        strongSelf.managerOptions.handleEncryptBlock(encryptConfig);
+                        strongSelf.options.handleEncryptBlock(encryptConfig);
                     }
                 }
             } else {
@@ -234,13 +233,13 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (void)updateLocalLibVersion {
-    self.remoteConfigModel.localLibVersion = self.managerOptions.currentLibVersion;
+    self.model.localLibVersion = self.options.currentLibVersion;
 }
 
 - (void)saveRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
     // 手动添加当前 SDK 版本号
     NSMutableDictionary *localRemoteConfig = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-    localRemoteConfig[@"localLibVersion"] = self.managerOptions.currentLibVersion;
+    localRemoteConfig[@"localLibVersion"] = self.options.currentLibVersion;
     
     [[NSUserDefaults standardUserDefaults] setObject:localRemoteConfig forKey:kSDKConfigKey];
     [[NSUserDefaults standardUserDefaults] synchronize];

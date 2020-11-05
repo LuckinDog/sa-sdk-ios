@@ -2,7 +2,7 @@
 // SARemoteConfigManager.m
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/11/1.
+// Created by wenquan on 2020/11/5.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,27 +23,10 @@
 #endif
 
 #import "SARemoteConfigManager.h"
-#import "SALog.h"
-#import "SAURLUtils.h"
-#import "SAConstants+Private.h"
-#import "SAValidator.h"
-#import "SAJSONUtil.h"
-#import "SACommonUtility.h"
-
-@implementation SARemoteConfigManagerOptions
-
-@end
-
-
 
 @interface SARemoteConfigManager ()
 
-@property (nonatomic, copy, readonly) NSString *latestVersion;
-@property (nonatomic, copy, readonly) NSString *originalVersion;
-@property (nonatomic, strong, readonly) NSURL *remoteConfigURL;
-@property (nonatomic, strong, readonly) NSURL *serverURL;
-@property (nonatomic, assign, readonly) BOOL isDisableDebugMode;
-@property (nonatomic, copy, readonly) NSArray<NSString *> *eventBlackList;
+@property (nonatomic, strong) SARemoteConfigProcess *process;
 
 @end
 
@@ -51,190 +34,71 @@
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
-    self = [super init];
-    if (self) {
-        _managerOptions = managerOptions;
-    }
-    return self;
++ (void)startWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions {
+    [SARemoteConfigManager sharedInstance].process = [[SARemoteConfigCommonProcess alloc] initWithRemoteConfigProcessOptions:processOptions];
+}
+
++ (instancetype)sharedInstance {
+    static SARemoteConfigManager *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[SARemoteConfigManager alloc] init];
+    });
+    return sharedInstance;
 }
 
 #pragma mark - Public
 
+- (void)configLocalRemoteConfigModel {
+    if ([self.process respondsToSelector: @selector(configLocalRemoteConfigModel)]) {
+        [self.process configLocalRemoteConfigModel];
+    }
+}
+
+- (void)requestRemoteConfig {
+    if ([self.process respondsToSelector:@selector(requestRemoteConfig)]) {
+        [self.process requestRemoteConfig];
+    }
+}
+
+- (void)cancelRequestRemoteConfig {
+    if ([self.process respondsToSelector:@selector(cancelRequestRemoteConfig)]) {
+        [self.process cancelRequestRemoteConfig];
+    }
+}
+
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
+    if ([self.process respondsToSelector:@selector(retryRequestRemoteConfigWithForceUpdateFlag:)]) {
+        [self.process retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
+    }
+}
+
 - (BOOL)isBlackListContainsEvent:(NSString *)event {
-    if (![SAValidator isValidString:event]) {
-        return NO;
-    }
-    
-    return [self.eventBlackList containsObject:event];
+    return [self.process isBlackListContainsEvent:event];
 }
 
-- (void)requestRemoteConfigWithForceUpdate:(BOOL)isForceUpdate completion:(void (^)(BOOL success, NSDictionary<NSString *, id> * _Nullable config))completion {
-    @try {
-        BOOL shouldAddVersion = !isForceUpdate && [self isLibVersionUnchanged] && [self shouldAddVersionOnEnableEncrypt];
-        NSString *originalVersion = shouldAddVersion ? self.originalVersion : nil;
-        NSString *latestVersion = shouldAddVersion ? self.latestVersion : nil;
-        [self functionalManagermentConfigWithOriginalVersion:originalVersion latestVersion:latestVersion completion:completion];
-    } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+- (void)handleRemoteConfigURL:(NSURL *)url {
+    if ([self.process respondsToSelector:@selector(handleRemoteConfigURL:)]) {
+        [self.process handleRemoteConfigURL:url];
     }
 }
 
-- (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config {
-    NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionaryWithDictionary:config[@"configs"]];
-    [configs removeObjectForKey:@"key"];
-    
-    NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:config];
-    remoteConfig[@"configs"] = configs;
-    
-    return remoteConfig;
+- (BOOL)isRemoteConfigURL:(NSURL *)url {
+    return [url.host isEqualToString:@"remoteconfig"];
 }
 
-- (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
-    return [config valueForKeyPath:@"configs.key"];
-}
-
-- (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
-    NSString *eventConfigStr = @"";
-    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:remoteConfig];
-    if (eventConfigData) {
-        eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
-    }
-    self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
-}
-
-- (void)enableRemoteConfigWithDictionary:(NSDictionary *)configDic {
-    self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
-    
-    // 发送远程配置模块 Model 变化通知
-    [[NSNotificationCenter defaultCenter] postNotificationName:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:self.remoteConfigModel];
-    
-    BOOL isDisableSDK = self.isDisableSDK;
-    BOOL isDisableDebugMode = self.isDisableDebugMode;
-    self.managerOptions.triggerEffectBlock(isDisableSDK, isDisableDebugMode);
-}
-
-#pragma mark - Private
-
-#pragma mark Network
-
-- (BOOL)isLibVersionUnchanged {
-    return [self.remoteConfigModel.localLibVersion isEqualToString:self.managerOptions.currentLibVersion];
-}
-
-- (BOOL)shouldAddVersionOnEnableEncrypt {
-    if (!self.managerOptions.configOptions.enableEncrypt) {
-        return YES;
-    }
-    
-    return self.managerOptions.encryptBuilderCreateResultBlock();
-}
-
-- (nullable NSURLSessionTask *)functionalManagermentConfigWithOriginalVersion:(NSString *)originalVersion
-                                                                latestVersion:(NSString *)latestVersion
-                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
-    
-    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithOriginalVersion:originalVersion latestVersion:latestVersion];
-    if (!request) {
-        return nil;
-    }
-    
-    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (!completion) {
-            return ;
-        }
-        NSInteger statusCode = response.statusCode;
-        BOOL success = statusCode == 200 || statusCode == 304;
-        NSDictionary<NSString *, id> *config = nil;
-        @try{
-            if (statusCode == 200 && data.length) {
-                config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-            }
-        } @catch (NSException *e) {
-            SALogError(@"%@ error: %@", self, e);
-            success = NO;
-        }
-        
-        // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completion(success, config);
-        });
-    }];
-    [task resume];
-    return task;
-}
-
-- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithOriginalVersion:(NSString *)originalVersion
-                                                               latestVersion:(NSString *)latestVersion  {
-    NSURLComponents *urlComponets = nil;
-    if (self.remoteConfigURL) {
-        urlComponets = [NSURLComponents componentsWithURL:self.remoteConfigURL resolvingAgainstBaseURL:YES];
-    }
-    if (!urlComponets.host) {
-        NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
-        if (url) {
-            urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-        }
-        
-        if (!urlComponets.host) {
-            SALogError(@"URLString is malformed, nil is returned.");
-            return nil;
-        }
-        urlComponets.query = nil;
-        urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
-    }
-    
-    urlComponets.query = [self buildRemoteConfigQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
-    
-    return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
-}
-
-- (NSString *)buildRemoteConfigQueryWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
-    NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionaryWithCapacity:4];
-    params[@"v"] = originalVersion;
-    params[@"nv"] = latestVersion;
-    params[@"app_id"] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-    params[@"project"] = self.project;
-    
-    return [SAURLUtils urlQueryStringWithParams:params];
+- (BOOL)canHandleURL:(NSURL *)url {
+    return [self isRemoteConfigURL:url];
 }
 
 #pragma mark - Getters and Setters
 
 - (BOOL)isDisableSDK {
-    return self.remoteConfigModel.disableSDK;
+    return self.process.isDisableSDK;
 }
 
 - (NSInteger)autoTrackMode {
-    return self.remoteConfigModel.autoTrackMode;
-}
-
-- (NSArray<NSString *> *)eventBlackList {
-    return self.remoteConfigModel.eventBlackList;
-}
-
-- (NSString *)latestVersion {
-    return self.remoteConfigModel.latestVersion;
-}
-
-- (NSString *)originalVersion {
-    return self.remoteConfigModel.originalVersion;
-}
-
-- (BOOL)isDisableDebugMode {
-    return self.remoteConfigModel.disableDebugMode;
-}
-
-- (NSURL *)remoteConfigURL {
-    return [NSURL URLWithString:self.managerOptions.configOptions.remoteConfigURL];
-}
-
-- (NSURL *)serverURL {
-    return [NSURL URLWithString:self.managerOptions.configOptions.serverURL];
-}
-
-- (NSString *)project {
-    return [SAURLUtils queryItemsWithURL:self.serverURL][@"project"];
+    return self.process.autoTrackMode;
 }
 
 @end
