@@ -1,5 +1,5 @@
 //
-//  UIScrollView+SensorsData.m
+//  UIScrollView+AutoTrack.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 张敏超🍎 on 2019/6/19.
@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "UIScrollView+SensorsData.h"
+#import "UIScrollView+AutoTrack.h"
 #import "SADelegateProxy.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
@@ -26,7 +26,7 @@
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
-@implementation UITableView (SensorsData)
+@implementation UITableView (AutoTrack)
 
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
@@ -46,7 +46,7 @@
 @end
 
 
-@implementation UICollectionView (SensorsData)
+@implementation UICollectionView (AutoTrack)
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];

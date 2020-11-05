@@ -9,10 +9,10 @@
 /* Begin PBXBuildFile section */
 		45280CBE2553FAF3006239BB /* NSObject+SARelease.h in Headers */ = {isa = PBXBuildFile; fileRef = 45280CBC2553FAF3006239BB /* NSObject+SARelease.h */; };
 		45280CBF2553FAF3006239BB /* NSObject+SARelease.m in Sources */ = {isa = PBXBuildFile; fileRef = 45280CBD2553FAF3006239BB /* NSObject+SARelease.m */; };
-		45886529253EE0FC00DF208D /* UIScrollView+SensorsData.h in Headers */ = {isa = PBXBuildFile; fileRef = 45886523253EE0FC00DF208D /* UIScrollView+SensorsData.h */; };
+		45886529253EE0FC00DF208D /* UIScrollView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 45886523253EE0FC00DF208D /* UIScrollView+AutoTrack.h */; };
 		4588652A253EE0FC00DF208D /* SADelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 45886524253EE0FC00DF208D /* SADelegateProxy.m */; };
 		4588652B253EE0FC00DF208D /* SADelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 45886525253EE0FC00DF208D /* SADelegateProxy.h */; };
-		4588652C253EE0FC00DF208D /* UIScrollView+SensorsData.m in Sources */ = {isa = PBXBuildFile; fileRef = 45886526253EE0FC00DF208D /* UIScrollView+SensorsData.m */; };
+		4588652C253EE0FC00DF208D /* UIScrollView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 45886526253EE0FC00DF208D /* UIScrollView+AutoTrack.m */; };
 		4588652D253EE0FC00DF208D /* SAMethodHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 45886527253EE0FC00DF208D /* SAMethodHelper.m */; };
 		4588652E253EE0FC00DF208D /* SAMethodHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 45886528253EE0FC00DF208D /* SAMethodHelper.h */; };
 		45922DC32553ECE0003AFEE7 /* SAClassHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 45922DC12553ECE0003AFEE7 /* SAClassHelper.h */; };
@@ -210,10 +210,10 @@
 /* Begin PBXFileReference section */
 		45280CBC2553FAF3006239BB /* NSObject+SARelease.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+SARelease.h"; sourceTree = "<group>"; };
 		45280CBD2553FAF3006239BB /* NSObject+SARelease.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SARelease.m"; sourceTree = "<group>"; };
-		45886523253EE0FC00DF208D /* UIScrollView+SensorsData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SensorsData.h"; sourceTree = "<group>"; };
+		45886523253EE0FC00DF208D /* UIScrollView+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+AutoTrack.h"; sourceTree = "<group>"; };
 		45886524253EE0FC00DF208D /* SADelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADelegateProxy.m; sourceTree = "<group>"; };
 		45886525253EE0FC00DF208D /* SADelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADelegateProxy.h; sourceTree = "<group>"; };
-		45886526253EE0FC00DF208D /* UIScrollView+SensorsData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SensorsData.m"; sourceTree = "<group>"; };
+		45886526253EE0FC00DF208D /* UIScrollView+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+AutoTrack.m"; sourceTree = "<group>"; };
 		45886527253EE0FC00DF208D /* SAMethodHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAMethodHelper.m; sourceTree = "<group>"; };
 		45886528253EE0FC00DF208D /* SAMethodHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAMethodHelper.h; sourceTree = "<group>"; };
 		45922DC12553ECE0003AFEE7 /* SAClassHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAClassHelper.h; sourceTree = "<group>"; };
@@ -438,8 +438,8 @@
 				45886527253EE0FC00DF208D /* SAMethodHelper.m */,
 				45922DC12553ECE0003AFEE7 /* SAClassHelper.h */,
 				45922DC22553ECE0003AFEE7 /* SAClassHelper.m */,
-				45886523253EE0FC00DF208D /* UIScrollView+SensorsData.h */,
-				45886526253EE0FC00DF208D /* UIScrollView+SensorsData.m */,
+				45886523253EE0FC00DF208D /* UIScrollView+AutoTrack.h */,
+				45886526253EE0FC00DF208D /* UIScrollView+AutoTrack.m */,
 				45280CBC2553FAF3006239BB /* NSObject+SARelease.h */,
 				45280CBD2553FAF3006239BB /* NSObject+SARelease.m */,
 			);
@@ -882,7 +882,7 @@
 				881A41FD253D7B5000854F69 /* SAObject+SAConfigOptions.h in Headers */,
 				881A41C2253D7B4F00854F69 /* SADatabase.h in Headers */,
 				881A41FF253D7B5000854F69 /* SATrackTimer.h in Headers */,
-				45886529253EE0FC00DF208D /* UIScrollView+SensorsData.h in Headers */,
+				45886529253EE0FC00DF208D /* UIScrollView+AutoTrack.h in Headers */,
 				881A41D4253D7B5000854F69 /* SAVisualizedMessage.h in Headers */,
 				881A41B8253D7B4F00854F69 /* SADateFormatter.h in Headers */,
 				881A41A8253D7B4F00854F69 /* SAFileStore.h in Headers */,
@@ -1076,7 +1076,7 @@
 				881A41D7253D7B5000854F69 /* NSInvocation+SAHelpers.m in Sources */,
 				881A41E4253D7B5000854F69 /* SAKeyChainItemWrapper.m in Sources */,
 				881A420E253D7B5000854F69 /* SADataEncryptBuilder.m in Sources */,
-				4588652C253EE0FC00DF208D /* UIScrollView+SensorsData.m in Sources */,
+				4588652C253EE0FC00DF208D /* UIScrollView+AutoTrack.m in Sources */,
 				881A41DC253D7B5000854F69 /* SAClassDescription.m in Sources */,
 				881A41AA253D7B4F00854F69 /* SAScriptMessageHandler.m in Sources */,
 				881A4194253D7B4F00854F69 /* SATrackTimer.m in Sources */,

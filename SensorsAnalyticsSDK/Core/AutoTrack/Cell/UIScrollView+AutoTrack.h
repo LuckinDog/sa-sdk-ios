@@ -1,5 +1,5 @@
 //
-//  UIScrollView+SensorsData.h
+//  UIScrollView+AutoTrack.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 张敏超🍎 on 2019/6/19.
@@ -22,13 +22,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UITableView (SensorsData)
+@interface UITableView (AutoTrack)
 
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate;
 
 @end
 
-@interface UICollectionView (SensorsData)
+@interface UICollectionView (AutoTrack)
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate;
 
