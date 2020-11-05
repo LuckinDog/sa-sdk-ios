@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSObject (SARelease)
 
-/// 添加一个操作, 当对象释放时执行
-/// @param block 操作
-- (void)addOperationWhenDealloc:(void(^)(void))block;
+/// 注册一个操作,在对象释放时调用; 重复调用该方法时,只有第一次调用时的 block 生效
+/// @param deallocBlock 操作
+- (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock;
 
 @end
 
