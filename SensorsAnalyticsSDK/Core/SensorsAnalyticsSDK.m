@@ -536,7 +536,7 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
 
     dispatch_async(self.serialQueue, ^{
         self.configOptions.serverURL = serverUrl;
-        if (isRequestRemoteConfig && [SensorsAnalyticsSDK.remoteConfigManager respondsToSelector:@selector(retryRequestRemoteConfigWithForceUpdateFlag:)]) {
+        if (isRequestRemoteConfig) {
             [SensorsAnalyticsSDK.remoteConfigManager retryRequestRemoteConfigWithForceUpdateFlag:YES];
         }
     });
@@ -927,12 +927,14 @@ static SARemoteConfigManager *_remoteConfigManager = nil;
             // TODO:wq 如果是通过 scheme 直接唤起，测试是否有问题
             // 1. 开启 log
             [self enableLog:YES];
+            
+            [SensorsAnalyticsSDK.remoteConfigManager cancelRequestRemoteConfig];
+            
             // 2. 开启校验状态
             [self initCheckRemoteConfigManager];
             // 3. 校验远程配置请求
-            if ([SensorsAnalyticsSDK.remoteConfigManager respondsToSelector:@selector(handleRemoteConfigURL:)]) {
-                [SensorsAnalyticsSDK.remoteConfigManager handleRemoteConfigURL:url];
-            }
+            [SensorsAnalyticsSDK.remoteConfigManager handleRemoteConfigURL:url];
+            
         } else if ([_linkHandler canHandleURL:url]) {
             [_linkHandler handleDeepLink:url];
             return YES;
@@ -2316,13 +2318,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     if (_appRelaunched) {
         // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
-        if ([SensorsAnalyticsSDK.remoteConfigManager respondsToSelector:@selector(configLocalRemoteConfigModel)]) {
-            [SensorsAnalyticsSDK.remoteConfigManager configLocalRemoteConfigModel];
-        }
-        
-        if ([SensorsAnalyticsSDK.remoteConfigManager respondsToSelector:@selector(requestRemoteConfig)]) {
-            [SensorsAnalyticsSDK.remoteConfigManager requestRemoteConfig];
-        }
+        [SensorsAnalyticsSDK.remoteConfigManager configLocalRemoteConfigModel];
+        [SensorsAnalyticsSDK.remoteConfigManager requestRemoteConfig];
     }
     
     // 遍历 trackTimer
@@ -2377,9 +2374,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     self.launchedPassively = NO;
     
-    if ([SensorsAnalyticsSDK.remoteConfigManager respondsToSelector:@selector(cancelRequestRemoteConfig)]) {
-        [SensorsAnalyticsSDK.remoteConfigManager cancelRequestRemoteConfig];
-    }
+    [SensorsAnalyticsSDK.remoteConfigManager cancelRequestRemoteConfig];
     
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];

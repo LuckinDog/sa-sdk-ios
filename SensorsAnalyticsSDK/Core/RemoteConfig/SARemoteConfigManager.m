@@ -28,15 +28,18 @@
 #import "SAConstants+Private.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
+#import "SACommonUtility.h"
 
 @implementation SARemoteConfigManagerOptions
 
 @end
 
-static NSString * const kSDKConfigKey = @"SASDKConfig";
+
 
 @interface SARemoteConfigManager ()
 
+@property (nonatomic, copy, readonly) NSString *latestVersion;
+@property (nonatomic, copy, readonly) NSString *originalVersion;
 @property (nonatomic, strong, readonly) NSURL *remoteConfigURL;
 @property (nonatomic, strong, readonly) NSURL *serverURL;
 @property (nonatomic, assign, readonly) BOOL isDisableDebugMode;
@@ -46,25 +49,17 @@ static NSString * const kSDKConfigKey = @"SASDKConfig";
 
 @implementation SARemoteConfigManager
 
-@synthesize remoteConfigModel = _remoteConfigModel;
-
 #pragma mark - Life Cycle
 
 - (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
     self = [super init];
     if (self) {
         _managerOptions = managerOptions;
-        [self configLocalRemoteConfigModel];
     }
     return self;
 }
 
 #pragma mark - Public
-
-- (void)configLocalRemoteConfigModel {
-    NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
-    [self enableRemoteConfigWithDictionary:configDic];
-}
 
 - (BOOL)isBlackListContainsEvent:(NSString *)event {
     if (![SAValidator isValidString:event]) {
@@ -72,6 +67,67 @@ static NSString * const kSDKConfigKey = @"SASDKConfig";
     }
     
     return [self.eventBlackList containsObject:event];
+}
+
+- (void)requestRemoteConfigWithForceUpdate:(BOOL)isForceUpdate completion:(void (^)(BOOL success, NSDictionary<NSString *, id> * _Nullable config))completion {
+    @try {
+        BOOL shouldAddVersion = !isForceUpdate && [self isLibVersionUnchanged] && [self shouldAddVersionOnEnableEncrypt];
+        NSString *originalVersion = shouldAddVersion ? self.originalVersion : nil;
+        NSString *latestVersion = shouldAddVersion ? self.latestVersion : nil;
+        [self functionalManagermentConfigWithOriginalVersion:originalVersion latestVersion:latestVersion completion:completion];
+    } @catch (NSException *e) {
+        SALogError(@"%@ error: %@", self, e);
+    }
+}
+
+- (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config {
+    NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionaryWithDictionary:config[@"configs"]];
+    [configs removeObjectForKey:@"key"];
+    
+    NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:config];
+    remoteConfig[@"configs"] = configs;
+    
+    return remoteConfig;
+}
+
+- (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
+    return [config valueForKeyPath:@"configs.key"];
+}
+
+- (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
+    NSString *eventConfigStr = @"";
+    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:remoteConfig];
+    if (eventConfigData) {
+        eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
+    }
+    self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
+}
+
+- (void)enableRemoteConfigWithDictionary:(NSDictionary *)configDic {
+    self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
+    
+    // 发送远程配置模块 Model 变化通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:self.remoteConfigModel];
+    
+    BOOL isDisableSDK = self.isDisableSDK;
+    BOOL isDisableDebugMode = self.isDisableDebugMode;
+    self.managerOptions.triggerEffectBlock(isDisableSDK, isDisableDebugMode);
+}
+
+#pragma mark - Private
+
+#pragma mark Network
+
+- (BOOL)isLibVersionUnchanged {
+    return [self.remoteConfigModel.localLibVersion isEqualToString:self.managerOptions.currentLibVersion];
+}
+
+- (BOOL)shouldAddVersionOnEnableEncrypt {
+    if (!self.managerOptions.configOptions.enableEncrypt) {
+        return YES;
+    }
+    
+    return self.managerOptions.encryptBuilderCreateResultBlock();
 }
 
 - (nullable NSURLSessionTask *)functionalManagermentConfigWithOriginalVersion:(NSString *)originalVersion
@@ -108,34 +164,8 @@ static NSString * const kSDKConfigKey = @"SASDKConfig";
     return task;
 }
 
-- (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config {
-    NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionaryWithDictionary:config[@"configs"]];
-    [configs removeObjectForKey:@"key"];
-    
-    NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:config];
-    remoteConfig[@"configs"] = configs;
-    
-    return remoteConfig;
-}
-
-- (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
-    return [config valueForKeyPath:@"configs.key"];
-}
-
-- (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
-    NSString *eventConfigStr = @"";
-    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:remoteConfig];
-    if (eventConfigData) {
-        eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
-    }
-    self.managerOptions.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
-}
-
-#pragma mark - Private
-
 - (NSURLRequest *)buildFunctionalManagermentConfigRequestWithOriginalVersion:(NSString *)originalVersion
                                                                latestVersion:(NSString *)latestVersion  {
-    
     NSURLComponents *urlComponets = nil;
     if (self.remoteConfigURL) {
         urlComponets = [NSURLComponents componentsWithURL:self.remoteConfigURL resolvingAgainstBaseURL:YES];
@@ -153,7 +183,7 @@ static NSString * const kSDKConfigKey = @"SASDKConfig";
         urlComponets.query = nil;
         urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
     }
-
+    
     urlComponets.query = [self buildRemoteConfigQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
     
     return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
@@ -169,18 +199,6 @@ static NSString * const kSDKConfigKey = @"SASDKConfig";
     return [SAURLUtils urlQueryStringWithParams:params];
 }
 
-
-- (void)enableRemoteConfigWithDictionary:(NSDictionary *)configDic {
-    self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
-    
-    // 发送远程配置模块 Model 变化通知
-    [[NSNotificationCenter defaultCenter] postNotificationName:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:self.remoteConfigModel];
-    
-    BOOL isDisableSDK = self.isDisableSDK;
-    BOOL isDisableDebugMode = self.isDisableDebugMode;
-    self.managerOptions.triggerEffectBlock(isDisableSDK, isDisableDebugMode);
-}
-
 #pragma mark - Getters and Setters
 
 - (BOOL)isDisableSDK {
@@ -193,6 +211,14 @@ static NSString * const kSDKConfigKey = @"SASDKConfig";
 
 - (NSArray<NSString *> *)eventBlackList {
     return self.remoteConfigModel.eventBlackList;
+}
+
+- (NSString *)latestVersion {
+    return self.remoteConfigModel.latestVersion;
+}
+
+- (NSString *)originalVersion {
+    return self.remoteConfigModel.originalVersion;
 }
 
 - (BOOL)isDisableDebugMode {

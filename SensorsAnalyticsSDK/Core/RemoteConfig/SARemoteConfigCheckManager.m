@@ -23,8 +23,11 @@
 #endif
 
 #import "SARemoteConfigCheckManager.h"
+#import "SAConstants+Private.h"
+#import "SAJSONUtil.h"
 #import "SAURLUtils.h"
 #import "SAAlertController.h"
+#import "SACommonUtility.h"
 
 @interface SARemoteConfigCheckManager ()
 
@@ -35,6 +38,17 @@
 
 @implementation SARemoteConfigCheckManager
 
+#pragma mark – Life Cycle
+
+- (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions {
+    self = [super initWithManagerOptions:managerOptions];
+    if (self) {
+    }
+    return self;
+}
+
+#pragma mark – Protocol
+
 - (void)handleRemoteConfigURL:(NSURL *)url {
     NSDictionary *components = [SAURLUtils queryItemsWithURL:url];
     if (!components) {
@@ -44,30 +58,29 @@
     NSString *project = components[@"project"] ?: @"default";
     NSString *appID = components[@"app_id"];
     NSString *lib = components[@"lib"];
-    NSString *lastestVersion = components[@"nv"];
     
     NSString *currentProject = self.project ?: @"default";
     NSString *currentAppID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
     NSString *currentLib = @"iOS";
     
-    BOOL isCheckSuccess = YES;
-    NSString *message = @"开始获取采集控制信息";
+    BOOL isCheckPassed = NO;
+    NSString *message = nil;
     if (![currentProject isEqualToString:project]) {
-        isCheckSuccess = NO;
         message = @"App 集成的项目与电脑浏览器打开的项目不同，无法进行调试";
     } else if (![currentAppID isEqualToString:appID]) {
-        isCheckSuccess = NO;
         message = @"App 与二维码对应的 App 不同，无法进行调试";
     } else if (![currentLib isEqualToString:lib]) {
-        isCheckSuccess = NO;
         message = @"App 与二维码对应的操作系统不同，无法进行调试";
+    } else {
+        isCheckPassed = YES;
+        message = @"开始获取采集控制信息";
     }
     
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:message preferredStyle:SAAlertControllerStyleAlert];
-    if (isCheckSuccess) {
+    if (isCheckPassed) {
         [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
         [alertController addActionWithTitle:@"继续" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-            // TODO:wq 立即请求远程配置
+            NSString *lastestVersion = components[@"nv"];
             [self requestRemoteConfigWithLastestVersion:lastestVersion];
         }];
     } else {
@@ -76,45 +89,96 @@
     [alertController show];
 }
 
+- (void)configLocalRemoteConfigModel {
+    
+}
+
+- (void)requestRemoteConfig {
+    
+}
+
+- (void)cancelRequestRemoteConfig {
+    
+}
+
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
+    
+}
+
+#pragma mark - Private
+
+#pragma mark Request
+
 - (void)requestRemoteConfigWithLastestVersion:(NSString *)lastestVersion {
+    SensorsAnalyticsNetworkType networkType = [SACommonUtility currentNetworkType];
+    if (networkType == SensorsAnalyticsNetworkTypeNONE) {
+        [self showNetworkErrorAlert];
+        return;
+    }
+    
     // TODO:wq 首先校验 lastestVersion ？
     [self showIndicator];
     
     __weak typeof(self) weakSelf = self;
-    [self functionalManagermentConfigWithOriginalVersion:nil latestVersion:nil completion:^(BOOL success, NSDictionary<NSString *,id> *config) {
+    [self requestRemoteConfigWithForceUpdate:YES completion:^(BOOL success, NSDictionary<NSString *,id> * _Nullable config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         
         [strongSelf hideIndicator];
         
-        NSString *message = @"远程配置获取失败，请稍后再试";
-        
-        if (success) {
-            // TODO:wq
-            // 1.触发事件
-            NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:[strongSelf extractRemoteConfig:config]];
-            remoteConfig[@"debug"] = @YES;
-            [self trackAppRemoteConfigChanged:remoteConfig];
+        if (success && config) {
+            // 远程配置
+            NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
+            [strongSelf handleRemoteConfig:remoteConfig withLastestVersion:lastestVersion];
             
-            // 2.校验版本
-            NSString *currentLastestVersion = remoteConfig[@"configs"][@"nv"];
-            if (![currentLastestVersion isEqualToString:lastestVersion]) {
-                message = [NSString stringWithFormat:@"远程配置校验不通过，二维码中的版本是：%@，当前的版本是：%@", lastestVersion, currentLastestVersion];
-            } else {
-                message = @"远程配置校验通过";
-                // 3.立即生效
-                [remoteConfig removeObjectForKey:@"debug"];
-                remoteConfig[@"localLibVersion"] = self.managerOptions.currentLibVersion;
-                [strongSelf enableRemoteConfigWithDictionary:remoteConfig];
+            // 加密
+            if (strongSelf.managerOptions.configOptions.enableEncrypt) {
+                NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
+                strongSelf.managerOptions.handleEncryptBlock(encryptConfig);
             }
+        } else {
+            SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"远程配置获取失败，请稍后再试" preferredStyle:SAAlertControllerStyleAlert];
+            [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:nil];
+            [alertController show];
         }
-        
-        SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:message preferredStyle:SAAlertControllerStyleAlert];
-        [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:nil];
-        [alertController show];
     }];
 }
 
-#pragma mark Indicator
+- (void)showNetworkErrorAlert {
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"暂未获取网络权限" preferredStyle:SAAlertControllerStyleAlert];
+    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:nil];
+    [alertController show];
+}
+
+- (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withLastestVersion:(NSString *)lastestVersion {
+    NSMutableDictionary<NSString *, id> *eventMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+    eventMDic[@"debug"] = @YES;
+    [self trackAppRemoteConfigChanged:eventMDic];
+    
+    if ([self checkRemoteConfig:remoteConfig withLastestVersion:lastestVersion]) {
+        NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+        enableMDic[@"localLibVersion"] = self.managerOptions.currentLibVersion;
+        [self enableRemoteConfigWithDictionary:enableMDic];
+    }
+}
+
+- (BOOL)checkRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withLastestVersion:(NSString *)lastestVersion {
+    NSString *message = @"远程配置校验通过";
+    BOOL isCheckPassed = YES;
+    
+    NSString *currentLastestVersion = [remoteConfig valueForKeyPath:@"configs.nv"];
+    if (![currentLastestVersion isEqualToString:lastestVersion]) {
+        message = [NSString stringWithFormat:@"远程配置校验不通过，二维码中的版本是：%@，当前的版本是：%@", lastestVersion, currentLastestVersion];
+        isCheckPassed = NO;
+    }
+    
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:message preferredStyle:SAAlertControllerStyleAlert];
+    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:nil];
+    [alertController show];
+    
+    return isCheckPassed;
+}
+
+#pragma mark UI
 
 - (void)showIndicator {
     _window = [self alertWindow];

@@ -30,12 +30,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+
+
 @class SARemoteConfigManagerOptions;
 
 @protocol SARemoteConfigManagerProtocol <NSObject>
 
 // TODO:wq 调用的地方添加对于是否实现协议的判断
 @optional
+
+/// 配置本地远程配置模型
+- (void)configLocalRemoteConfigModel;
 
 /// 请求远程配置
 - (void)requestRemoteConfig;
@@ -47,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param isForceUpdate 是否强制请求最新的远程配置
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
 
+/// 处理远程配置的 URL
+/// @param url 远程配置的 URL
 - (void)handleRemoteConfigURL:(NSURL *)url;
 
 @end
@@ -73,21 +80,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithManagerOptions:(SARemoteConfigManagerOptions *)managerOptions;
 
-/// 配置本地远程配置模型
-- (void)configLocalRemoteConfigModel;
+/// 是否在事件黑名单中
+/// @param event 输入的事件名
+- (BOOL)isBlackListContainsEvent:(NSString *)event;
 
+/// 请求远程配置
+/// @param isForceUpdate 是否请求最新的配置
+/// @param completion 请求结果的回调
+- (void)requestRemoteConfigWithForceUpdate:(BOOL)isForceUpdate completion:(void (^)(BOOL success, NSDictionary<NSString *, id> * _Nullable config))completion;
+
+- (double)randomTime;
+
+- (double)startDeviceTime;
 
 - (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config;
 
 - (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config;
-
-- (nullable NSURLSessionTask *)functionalManagermentConfigWithOriginalVersion:(NSString *)originalVersion
-                                                                latestVersion:(NSString *)latestVersion
-                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
-
-/// 是否在事件黑名单中
-/// @param event 输入的事件名
-- (BOOL)isBlackListContainsEvent:(NSString *)event;
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig;
 
