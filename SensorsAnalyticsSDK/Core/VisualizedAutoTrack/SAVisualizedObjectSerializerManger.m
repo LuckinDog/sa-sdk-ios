@@ -231,7 +231,7 @@
         return nil;
     }
     UIViewController *lastVC = [allObjects lastObject];
-    while (!lastVC.view.window) {
+    while (lastVC && !lastVC.view.window) {
         // 移除不在屏幕显示的 viewController
         lastVC = [self remoInvisibleViewController];
     }
