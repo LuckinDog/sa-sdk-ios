@@ -48,10 +48,10 @@
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions {
+- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options {
     self = [super init];
     if (self) {
-        _options = processOptions;
+        _options = options;
     }
     return self;
 }

@@ -32,25 +32,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SARemoteConfigProcessProtocol <NSObject>
 
-// TODO:wq 调用的地方添加对于是否实现协议的判断
 @optional
 
-/// 配置本地远程配置模型
-- (void)configLocalRemoteConfigModel;
+/// 生效本地的远程配置
+- (void)remoteConfigProcessEnableLocalRemoteConfig;
 
 /// 请求远程配置
-- (void)requestRemoteConfig;
+- (void)remoteConfigProcessRequestRemoteConfig;
 
 /// 删除远程配置请求
-- (void)cancelRequestRemoteConfig;
+- (void)remoteConfigProcessCancelRequestRemoteConfig;
 
 /// 重试远程配置请求
 /// @param isForceUpdate 是否强制请求最新的远程配置
-- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
+- (void)remoteConfigProcessRetryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
 
 /// 处理远程配置的 URL
 /// @param url 远程配置的 URL
-- (void)handleRemoteConfigURL:(NSURL *)url;
+- (void)remoteConfigProcessHandleRemoteConfigURL:(NSURL *)url;
 
 @end
 
@@ -77,8 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly) NSString *project;
 
 /// 初始化远程配置处理类
-/// @param processOptions 输入的远程配置参数
-- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions;
+/// @param options 输入的远程配置参数
+- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options;
 
 /// 是否在事件黑名单中
 /// @param event 输入的事件名
@@ -101,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param remoteConfig 事件中的属性
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig;
 
-/// 生效远程配置
+/// 根据传入的内容生效远程配置
 /// @param configDic 远程配置的内容
 - (void)enableRemoteConfigWithDictionary:(NSDictionary *)configDic;
 

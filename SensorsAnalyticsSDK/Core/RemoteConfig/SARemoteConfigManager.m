@@ -26,7 +26,6 @@
 
 @interface SARemoteConfigManager ()
 
-@property (nonatomic, strong) SARemoteConfigProcessOptions *options;
 @property (nonatomic, strong) SARemoteConfigProcess *process;
 
 @end
@@ -35,9 +34,8 @@
 
 #pragma mark - Life Cycle
 
-+ (void)startWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions {
-    [SARemoteConfigManager sharedInstance].options = processOptions;
-    [SARemoteConfigManager sharedInstance].process = [[SARemoteConfigCommonProcess alloc] initWithRemoteConfigProcessOptions:processOptions];
++ (void)startWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options {
+    [SARemoteConfigManager sharedInstance].process = [[SARemoteConfigCommonProcess alloc] initWithRemoteConfigProcessOptions:options];
 }
 
 + (instancetype)sharedInstance {
@@ -51,27 +49,27 @@
 
 #pragma mark - Public
 
-- (void)configLocalRemoteConfigModel {
-    if ([self.process respondsToSelector: @selector(configLocalRemoteConfigModel)]) {
-        [self.process configLocalRemoteConfigModel];
+- (void)enableLocalRemoteConfig {
+    if ([self.process respondsToSelector:@selector(remoteConfigProcessEnableLocalRemoteConfig)]) {
+        [self.process remoteConfigProcessEnableLocalRemoteConfig];
     }
 }
 
 - (void)requestRemoteConfig {
-    if ([self.process respondsToSelector:@selector(requestRemoteConfig)]) {
-        [self.process requestRemoteConfig];
+    if ([self.process respondsToSelector:@selector(remoteConfigProcessRequestRemoteConfig)]) {
+        [self.process remoteConfigProcessRequestRemoteConfig];
     }
 }
 
 - (void)cancelRequestRemoteConfig {
-    if ([self.process respondsToSelector:@selector(cancelRequestRemoteConfig)]) {
-        [self.process cancelRequestRemoteConfig];
+    if ([self.process respondsToSelector:@selector(remoteConfigProcessCancelRequestRemoteConfig)]) {
+        [self.process remoteConfigProcessCancelRequestRemoteConfig];
     }
 }
 
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
-    if ([self.process respondsToSelector:@selector(retryRequestRemoteConfigWithForceUpdateFlag:)]) {
-        [self.process retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
+    if ([self.process respondsToSelector:@selector(remoteConfigProcessRetryRequestRemoteConfigWithForceUpdateFlag:)]) {
+        [self.process remoteConfigProcessRetryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
     }
 }
 
@@ -80,15 +78,18 @@
 }
 
 - (void)handleRemoteConfigURL:(NSURL *)url {
-    self.process = [[SARemoteConfigCheckProcess alloc] initWithRemoteConfigProcessOptions:self.options];
+    SARemoteConfigProcessOptions *options = self.process.options;
+    SARemoteConfigModel *model = self.process.model;
     
-    if ([self.process respondsToSelector:@selector(handleRemoteConfigURL:)]) {
-        [self.process handleRemoteConfigURL:url];
+    self.process = [[SARemoteConfigCheckProcess alloc] initWithRemoteConfigProcessOptions:options model:model];
+    
+    if ([self.process respondsToSelector:@selector(remoteConfigProcessHandleRemoteConfigURL:)]) {
+        [self.process remoteConfigProcessHandleRemoteConfigURL:url];
     }
 }
 
 - (BOOL)isRemoteConfigURL:(NSURL *)url {
-    return [url.host isEqualToString:@"remoteconfig"];
+    return [url.host isEqualToString:@"sensorsdataremoteconfig"];
 }
 
 - (BOOL)canHandleURL:(NSURL *)url {

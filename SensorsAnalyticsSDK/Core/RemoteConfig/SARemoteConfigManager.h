@@ -35,13 +35,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 初始化远程配置管理类
 /// @param processOptions 远程配置处理参数
-+ (void)startWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions;
++ (void)startWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options;
 
 /// 获取远程配置管理类的实例
 + (instancetype)sharedInstance;
 
-/// 配置本地远程配置模型
-- (void)configLocalRemoteConfigModel;
+/// 生效本地远程配置
+- (void)enableLocalRemoteConfig;
 
 /// 请求远程配置
 - (void)requestRemoteConfig;

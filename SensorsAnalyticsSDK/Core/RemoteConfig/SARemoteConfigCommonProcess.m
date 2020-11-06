@@ -50,23 +50,23 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 @implementation SARemoteConfigCommonProcess
 
 #pragma mark - Life Cycle
-- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)processOptions {
-    self = [super initWithRemoteConfigProcessOptions:processOptions];
+
+- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options {
+    self = [super initWithRemoteConfigProcessOptions:options];
     if (self) {
         _requestRemoteConfigRetryMaxCount = 3;
-        [self configLocalRemoteConfigModel];
+        [self enableLocalRemoteConfig];
     }
     return self;
 }
 
 #pragma mark - Protocol
 
-- (void)configLocalRemoteConfigModel {
-    NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
-    [self enableRemoteConfigWithDictionary:configDic];
+- (void)remoteConfigProcessEnableLocalRemoteConfig {
+    [self enableLocalRemoteConfig];
 }
 
-- (void)requestRemoteConfig {
+- (void)remoteConfigProcessRequestRemoteConfig {
     // 触发远程配置请求的三个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if (self.options.configOptions.disableRandomTimeRequestRemoteConfig || self.options.configOptions.maxRequestHourInterval < self.options.configOptions.minRequestHourInterval) {
@@ -99,24 +99,29 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     }
 }
 
+- (void)remoteConfigProcessCancelRequestRemoteConfig {
+    [self cancelRequestRemoteConfig];
+}
+
+- (void)remoteConfigProcessRetryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
+    [self cancelRequestRemoteConfig];
+    [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:isForceUpdate];
+    [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeCreate];
+}
+
+#pragma mark - Private Methods
+
+- (void)enableLocalRemoteConfig {
+    NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
+    [self enableRemoteConfigWithDictionary:configDic];
+}
+
 - (void)cancelRequestRemoteConfig {
     dispatch_async(dispatch_get_main_queue(), ^{
         // 还未发出请求
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
     });
 }
-
-- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
-    [self cancelRequestRemoteConfig];
-    [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:isForceUpdate];
-    [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeCreate];
-}
-
-- (void)handleRemoteConfigURL:(NSURL *)url {
-    
-}
-
-#pragma mark - Private Methods
 
 #pragma mark RandomTime
 
@@ -248,7 +253,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 - (void)triggerRemoteConfigEffect:(NSDictionary<NSString *, id> *)remoteConfig {
     NSNumber *effectMode = [remoteConfig valueForKeyPath:@"configs.effect_mode"];
     if ([effectMode integerValue] == SARemoteConfigEffectModeNow) {
-        [self configLocalRemoteConfigModel];
+        [self enableLocalRemoteConfig];
     }
 }
 

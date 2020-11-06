@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SARemoteConfigCheckProcess : SARemoteConfigProcess
 
+- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options model:(SARemoteConfigModel *)model;
+
 @end
 
 NS_ASSUME_NONNULL_END

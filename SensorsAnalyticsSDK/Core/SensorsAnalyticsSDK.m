@@ -2303,7 +2303,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     if (_appRelaunched) {
         // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
-        [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
+        [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
         [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
     }
     
