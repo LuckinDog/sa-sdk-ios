@@ -40,12 +40,8 @@
     return sharedInstance;
 }
 
-- (BOOL)canHandleURL:(NSURL *)url {
-    return [self isHeatMapURL:url] ||
-    [self isVisualizedAutoTrackURL:url] ||
-    [self isDebugModeURL:url] ||
-    [self isSecretKeyURL:url] ||
-    [self isRemoteConfigURL:url];
+- (BOOL)canHandleURL:(NSURL *)URL {
+    return [self isHeatMapURL:URL] || [self isVisualizedAutoTrackURL:URL] || [self isDebugModeURL:URL] || [self isSecretKeyURL:URL];
 }
 
 // 可视化全埋点 & 点击图 参数个接口判断
@@ -143,10 +139,6 @@
 
 - (BOOL)isSecretKeyURL:(NSURL *)url {
      return [url.host isEqualToString:@"encrypt"];
-}
-
-- (BOOL)isRemoteConfigURL:(NSURL *)url {
-    return [url.host isEqualToString:@"sensorsdataremoteconfig"];
 }
 
 /// 当前类型
