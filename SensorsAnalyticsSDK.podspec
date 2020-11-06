@@ -39,18 +39,6 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
   end
 
-  # 不采集 UICollectionView 点击事件
-  s.subspec 'DISABLE_AUTOTRACK_UICOLLECTIONVIEW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW=1'}
-  end
-
-  # 不采集 UITableView 点击事件
-  s.subspec 'DISABLE_AUTOTRACK_UITABLEVIEW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW=1'}
-  end
-
   # 不采集 UIImage 的名称
   s.subspec 'DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
