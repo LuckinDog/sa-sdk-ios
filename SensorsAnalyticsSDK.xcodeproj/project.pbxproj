@@ -178,6 +178,7 @@
 		881A4232253D7B8600854F69 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4230253D7B8600854F69 /* SAAppExtensionDataManager.m */; };
 		884B41CC25528A3F00416DB6 /* SensorsAnalyticsSDK+WKWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 884B41CA25528A3F00416DB6 /* SensorsAnalyticsSDK+WKWebView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		884B41CD25528A3F00416DB6 /* SensorsAnalyticsSDK+WKWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 884B41CB25528A3F00416DB6 /* SensorsAnalyticsSDK+WKWebView.m */; };
+		884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */ = {isa = PBXBuildFile; fileRef = 884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */; };
 		CB30C09A22840EC00004061D /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */; };
 		CB30C31322843D3A0004061D /* SensorsAnalyticsExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -377,6 +378,7 @@
 		881A4230253D7B8600854F69 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAAppExtensionDataManager.m; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.m; sourceTree = SOURCE_ROOT; };
 		884B41CA25528A3F00416DB6 /* SensorsAnalyticsSDK+WKWebView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+WKWebView.h"; sourceTree = "<group>"; };
 		884B41CB25528A3F00416DB6 /* SensorsAnalyticsSDK+WKWebView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SensorsAnalyticsSDK+WKWebView.m"; sourceTree = "<group>"; };
+		884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+Public.h"; sourceTree = "<group>"; };
 		A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTests.m; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SensorsAnalyticsSDK.bundle; sourceTree = "<group>"; };
@@ -507,6 +509,7 @@
 				881A40EC253D7B4F00854F69 /* SensorsAnalyticsExceptionHandler.m */,
 				881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */,
 				881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */,
+				884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */,
 				881A40F4253D7B4F00854F69 /* SensorsAnalyticsSDK+Private.h */,
 			);
 			path = Core;
@@ -835,6 +838,7 @@
 				881A4205253D7B5000854F69 /* UIView+HeatMap.h in Headers */,
 				881A41A6253D7B4F00854F69 /* SARemoteConfigManager.h in Headers */,
 				881A41B9253D7B4F00854F69 /* SACommonUtility.h in Headers */,
+				884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */,
 				881A41F1253D7B5000854F69 /* SensorsAnalyticsSDK.h in Headers */,
 				881A41EF253D7B5000854F69 /* UIApplication+AutoTrack.h in Headers */,
 				881A41A2253D7B4F00854F69 /* SAModuleManager.h in Headers */,

@@ -19,6 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SensorsAnalyticsSDK.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
