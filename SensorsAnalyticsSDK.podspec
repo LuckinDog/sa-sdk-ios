@@ -33,18 +33,18 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION=1'}
   end
 
-  # 使用 UIWebView 进行打通
-  s.subspec 'UIWebView' do |w|
+  # 使用 WebView 进行打通
+  s.subspec 'WebView' do |w|
     w.dependency 'SensorsAnalyticsSDK/Core'
-    w.source_files  =  "SensorsAnalyticsSDK/UIWebView/**/*.{h,m}"
-    w.public_header_files = 'SensorsAnalyticsSDK/UIWebView/SensorsAnalyticsSDK+UIWebView.h'
+    w.source_files  =  "SensorsAnalyticsSDK/WebView/**/*.{h,m}"
+    w.public_header_files = 'SensorsAnalyticsSDK/WebView/SensorsAnalyticsSDK+WebView.h'
   end
 
-  # 使用 UIWebView 进行打通
+  # 使用 WKWebView 进行打通
   s.subspec 'WKWebView' do |w|
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
-    w.public_header_files = 'SensorsAnalyticsSDK/UIWebView/SensorsAnalyticsSDK+WKWebView.h'
+    w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
   end
 
   # 禁用 debugMode 下弹框提示

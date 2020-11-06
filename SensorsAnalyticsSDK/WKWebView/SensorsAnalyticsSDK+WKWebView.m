@@ -22,8 +22,8 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-//#if __has_include("SensorsAnalyticsSDK+UIWebView.h")
-//#error This file cannot exist at the same time with `SensorsAnalyticsSDK+UIWebView.h`. If you usen't `UIWebView`, please delete it.
+//#if __has_include("SensorsAnalyticsSDK+WebView.h")
+//#error This file cannot exist at the same time with `SensorsAnalyticsSDK+WebView.h`. If you usen't `UIWebView`, please delete it.
 //#endif
 
 #import "SensorsAnalyticsSDK+WKWebView.h"

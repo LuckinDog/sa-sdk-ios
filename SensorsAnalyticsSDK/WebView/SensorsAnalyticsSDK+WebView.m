@@ -22,11 +22,11 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-//#if __has_include("SensorsAnalyticsSDK+WKWebView.h")
-//#error This file cannot exist at the same time with `SensorsAnalyticsSDK+WKWebView.h`. If you use `UIWebView`, please delete it.
-//#endif
+#if __has_include("SensorsAnalyticsSDK+WKWebView.h")
+#error This file cannot exist at the same time with `SensorsAnalyticsSDK+WKWebView.h`. If you use `UIWebView`, please delete it.
+#endif
 
-#import "SensorsAnalyticsSDK+UIWebView.h"
+#import "SensorsAnalyticsSDK+WebView.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAConstants+Private.h"
@@ -48,7 +48,7 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
 
 @end
 
-@implementation SensorsAnalyticsSDK (UIWebView)
+@implementation SensorsAnalyticsSDK (WebView)
 
 - (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
     if (self.userAgent) {

@@ -30,8 +30,8 @@
 #import "SensorsAnalyticsSDK+WKWebView.h"
 #endif
 
-#if __has_include("SensorsAnalyticsSDK+UIWebView.h")
-#import "SensorsAnalyticsSDK+UIWebView.h"
+#if __has_include("SensorsAnalyticsSDK+WebView.h")
+#import "SensorsAnalyticsSDK+WebView.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

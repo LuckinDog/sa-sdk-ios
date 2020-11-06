@@ -1,5 +1,5 @@
 //
-// SensorsAnalyticsSDK+UIWebView.h
+// SensorsAnalyticsSDK+WebView.h
 // SensorsAnalyticsSDK
 //
 // Created by 张敏超🍎 on 2020/8/12.
@@ -18,11 +18,11 @@
 // limitations under the License.
 //
 
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+#import "SensorsAnalyticsSDK.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SensorsAnalyticsSDK (UIWebView)
+@interface SensorsAnalyticsSDK (WebView)
 
 /**
  * @abstract
