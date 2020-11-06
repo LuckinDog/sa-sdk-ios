@@ -221,24 +221,36 @@
     [self.controllersStack addPointer:NULL];
     [self.controllersStack compact];
 
-    // 移除可能已经存在的 viewController
-    NSArray *allObjects = self.controllersStack.allObjects;
-    if ([allObjects containsObject:viewController]) {
-        NSInteger index = [allObjects indexOfObject:viewController];
-        [self.controllersStack removePointerAtIndex:index];
-    }
-
     [self.controllersStack addPointer:(__bridge void * _Nullable)(viewController)];
 }
 
 - (UIViewController *)lastViewScreenController {
     // allObjects 会自动过滤 NULL
     NSArray *allObjects = [self.controllersStack allObjects];
-    NSUInteger objectCount = allObjects.count;
-    if (objectCount == 0) {
+    if (allObjects.count == 0) {
         return nil;
     }
-    return [allObjects objectAtIndex:objectCount - 1];
+    UIViewController *lastVC = [allObjects lastObject];
+    while (!lastVC.view.window) {
+        // 移除不在屏幕显示的 viewController
+        lastVC = [self remoInvisibleViewController];
+    }
+    return lastVC;
+}
+
+- (UIViewController *)remoInvisibleViewController {
+    if (self.controllersStack.count > self.controllersStack.allObjects.count) {
+        [self.controllersStack addPointer:NULL];
+        [self.controllersStack compact];
+    }
+
+    [self.controllersStack removePointerAtIndex:self.controllersStack.count - 1];
+    NSArray *allObjects = [self.controllersStack allObjects];
+    if (allObjects.count == 0) {
+        return nil;
+    }
+    UIViewController *lastVC = [allObjects lastObject];
+    return lastVC;
 }
 
 - (void)resetLastImageHash:(NSString *)imageHash {
