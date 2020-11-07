@@ -1,5 +1,5 @@
 //
-// SARemoteConfigCommonMode.m
+// SARemoteConfigCommonOperator.m
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/7/20.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigCommonMode.h"
+#import "SARemoteConfigCommonOperator.h"
 #import "SACommonUtility.h"
 #import "SALog.h"
 
@@ -37,13 +37,13 @@ static NSString * const kRequestRemoteConfigRandomTimeKey = @"SARequestRemoteCon
 static NSString * const kRandomTimeKey = @"randomTime";
 static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
-@interface SARemoteConfigCommonMode ()
+@interface SARemoteConfigCommonOperator ()
 
 @property (nonatomic, assign) NSUInteger requestRemoteConfigRetryMaxCount; // SDK 开启关闭功能接口最大重试次数
 
 @end
 
-@implementation SARemoteConfigCommonMode
+@implementation SARemoteConfigCommonOperator
 
 #pragma mark - Life Cycle
 

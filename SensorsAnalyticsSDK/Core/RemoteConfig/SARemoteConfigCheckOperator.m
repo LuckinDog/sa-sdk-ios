@@ -1,5 +1,5 @@
 //
-// SARemoteConfigCheckMode.m
+// SARemoteConfigCheckOperator.m
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/11/1.
@@ -22,22 +22,22 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigCheckMode.h"
+#import "SARemoteConfigCheckOperator.h"
 #import "SAConstants+Private.h"
 #import "SAURLUtils.h"
 #import "SAAlertController.h"
 #import "SACommonUtility.h"
 
-@interface SARemoteConfigCheckMode ()
+@interface SARemoteConfigCheckOperator ()
 
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) UIActivityIndicatorView *indicator;
 
 @end
 
-@implementation SARemoteConfigCheckMode
+@implementation SARemoteConfigCheckOperator
 
-#pragma mark – Life Cycle
+#pragma mark - Life Cycle
 
 - (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options remoteConfigModel:(SARemoteConfigModel *)model {
     self = [super initWithRemoteConfigOptions:options];
@@ -47,9 +47,9 @@
     return self;
 }
 
-#pragma mark – Protocol
+#pragma mark - Protocol
 
-- (void)RemoteConfigModeHandleRemoteConfigURL:(NSURL *)url {
+- (void)handleRemoteConfigURL:(NSURL *)url {
     NSDictionary *components = [SAURLUtils queryItemsWithURL:url];
     if (!components) {
         return;

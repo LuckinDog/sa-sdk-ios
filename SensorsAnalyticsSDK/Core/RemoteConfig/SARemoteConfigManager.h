@@ -23,8 +23,8 @@
 #endif
 
 #import <Foundation/Foundation.h>
-#import "SARemoteConfigCommonMode.h"
-#import "SARemoteConfigCheckMode.h"
+#import "SARemoteConfigCommonOperator.h"
+#import "SARemoteConfigCheckOperator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

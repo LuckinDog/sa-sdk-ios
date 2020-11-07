@@ -1,8 +1,8 @@
 //
-// SARemoteConfigCheckMode.h
+// SARemoteConfigCommonOperator.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/11/1.
+// Created by wenquan on 2020/7/20.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,13 +22,13 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigMode.h"
+#import "SARemoteConfigOperator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SARemoteConfigCheckMode : SARemoteConfigMode
+@interface SARemoteConfigCommonOperator : SARemoteConfigOperator
 
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options remoteConfigModel:(SARemoteConfigModel *)model;
+- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
 
 @end
 

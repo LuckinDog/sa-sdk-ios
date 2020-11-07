@@ -1,5 +1,5 @@
 //
-// SARemoteConfigMode.h
+// SARemoteConfigOperator.h
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/11/1.
@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SARemoteConfigModeProtocol <NSObject>
+@protocol SARemoteConfigOperatorProtocol <NSObject>
 
 @optional
 
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@interface SARemoteConfigMode : NSObject <SARemoteConfigModeProtocol>
+@interface SARemoteConfigOperator : NSObject <SARemoteConfigOperatorProtocol>
 
 @property (atomic, strong) SARemoteConfigModel *model;
 @property (nonatomic, strong) SARemoteConfigOptions *options;
