@@ -1,5 +1,5 @@
 //
-// SARemoteConfigProcess.h
+// SARemoteConfigMode.h
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/11/1.
@@ -28,30 +28,30 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SARemoteConfigProcessProtocol <NSObject>
+@protocol SARemoteConfigModeProtocol <NSObject>
 
 @optional
 
 /// 生效本地的远程配置
-- (void)remoteConfigProcessEnableLocalRemoteConfig;
+- (void)enableLocalRemoteConfig;
 
-/// 请求远程配置
-- (void)remoteConfigProcessRequestRemoteConfig;
+/// 尝试请求远程配置
+- (void)tryToRequestRemoteConfig;
 
 /// 删除远程配置请求
-- (void)remoteConfigProcessCancelRequestRemoteConfig;
+- (void)cancelRequestRemoteConfig;
 
 /// 重试远程配置请求
 /// @param isForceUpdate 是否强制请求最新的远程配置
-- (void)remoteConfigProcessRetryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
 
 /// 处理远程配置的 URL
 /// @param url 远程配置的 URL
-- (void)remoteConfigProcessHandleRemoteConfigURL:(NSURL *)url;
+- (void)handleRemoteConfigURL:(NSURL *)url;
 
 @end
 
-@interface SARemoteConfigProcessOptions : NSObject
+@interface SARemoteConfigOptions : NSObject
 
 @property (nonatomic, strong) SAConfigOptions *configOptions; // SensorsAnalyticsSDK 初始化配置
 @property (nonatomic, copy) NSString *currentLibVersion; // 当前 SDK 版本
@@ -64,10 +64,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@interface SARemoteConfigProcess : NSObject <SARemoteConfigProcessProtocol>
+@interface SARemoteConfigMode : NSObject <SARemoteConfigModeProtocol>
 
 @property (atomic, strong) SARemoteConfigModel *model;
-@property (nonatomic, strong) SARemoteConfigProcessOptions *options;
+@property (nonatomic, strong) SARemoteConfigOptions *options;
 @property (nonatomic, assign, readonly) BOOL isDisableSDK;
 /// 控制 AutoTrack 采集方式（-1 表示不修改现有的 AutoTrack 方式；0 代表禁用所有的 AutoTrack；其他 1～15 为合法数据）
 @property (nonatomic, assign, readonly) NSInteger autoTrackMode;
@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 初始化远程配置处理类
 /// @param options 输入的远程配置参数
-- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options;
+- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
 
 /// 是否在事件黑名单中
 /// @param event 输入的事件名

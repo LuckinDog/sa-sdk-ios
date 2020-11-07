@@ -26,7 +26,7 @@
 
 @interface SARemoteConfigManager ()
 
-@property (nonatomic, strong) SARemoteConfigProcess *process;
+@property (nonatomic, strong) SARemoteConfigMode *mode;
 
 @end
 
@@ -34,8 +34,8 @@
 
 #pragma mark - Life Cycle
 
-+ (void)startWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options {
-    [SARemoteConfigManager sharedInstance].process = [[SARemoteConfigCommonProcess alloc] initWithRemoteConfigProcessOptions:options];
++ (void)startWithRemoteConfigOptions:(SARemoteConfigOptions *)options {
+    [SARemoteConfigManager sharedInstance].mode = [[SARemoteConfigCommonMode alloc] initWithRemoteConfigOptions:options];
 }
 
 + (instancetype)sharedInstance {
@@ -50,41 +50,41 @@
 #pragma mark - Public
 
 - (void)enableLocalRemoteConfig {
-    if ([self.process respondsToSelector:@selector(remoteConfigProcessEnableLocalRemoteConfig)]) {
-        [self.process remoteConfigProcessEnableLocalRemoteConfig];
+    if ([self.mode respondsToSelector:@selector(enableLocalRemoteConfig)]) {
+        [self.mode enableLocalRemoteConfig];
     }
 }
 
-- (void)requestRemoteConfig {
-    if ([self.process respondsToSelector:@selector(remoteConfigProcessRequestRemoteConfig)]) {
-        [self.process remoteConfigProcessRequestRemoteConfig];
+- (void)tryToRequestRemoteConfig {
+    if ([self.mode respondsToSelector:@selector(tryToRequestRemoteConfig)]) {
+        [self.mode tryToRequestRemoteConfig];
     }
 }
 
 - (void)cancelRequestRemoteConfig {
-    if ([self.process respondsToSelector:@selector(remoteConfigProcessCancelRequestRemoteConfig)]) {
-        [self.process remoteConfigProcessCancelRequestRemoteConfig];
+    if ([self.mode respondsToSelector:@selector(cancelRequestRemoteConfig)]) {
+        [self.mode cancelRequestRemoteConfig];
     }
 }
 
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
-    if ([self.process respondsToSelector:@selector(remoteConfigProcessRetryRequestRemoteConfigWithForceUpdateFlag:)]) {
-        [self.process remoteConfigProcessRetryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
+    if ([self.mode respondsToSelector:@selector(retryRequestRemoteConfigWithForceUpdateFlag:)]) {
+        [self.mode retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
     }
 }
 
 - (BOOL)isBlackListContainsEvent:(NSString *)event {
-    return [self.process isBlackListContainsEvent:event];
+    return [self.mode isBlackListContainsEvent:event];
 }
 
 - (void)handleRemoteConfigURL:(NSURL *)url {
-    SARemoteConfigProcessOptions *options = self.process.options;
-    SARemoteConfigModel *model = self.process.model;
+    SARemoteConfigOptions *options = self.mode.options;
+    SARemoteConfigModel *model = self.mode.model;
     
-    self.process = [[SARemoteConfigCheckProcess alloc] initWithRemoteConfigProcessOptions:options model:model];
+    self.mode = [[SARemoteConfigCheckMode alloc] initWithRemoteConfigOptions:options remoteConfigModel:model];
     
-    if ([self.process respondsToSelector:@selector(remoteConfigProcessHandleRemoteConfigURL:)]) {
-        [self.process remoteConfigProcessHandleRemoteConfigURL:url];
+    if ([self.mode respondsToSelector:@selector(handleRemoteConfigURL:)]) {
+        [self.mode handleRemoteConfigURL:url];
     }
 }
 
@@ -99,11 +99,11 @@
 #pragma mark - Getters and Setters
 
 - (BOOL)isDisableSDK {
-    return self.process.isDisableSDK;
+    return self.mode.isDisableSDK;
 }
 
 - (NSInteger)autoTrackMode {
-    return self.process.autoTrackMode;
+    return self.mode.autoTrackMode;
 }
 
 @end

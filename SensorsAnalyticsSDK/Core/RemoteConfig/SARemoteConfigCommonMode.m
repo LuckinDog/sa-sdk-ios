@@ -1,5 +1,5 @@
 //
-// SARemoteConfigCommonProcess.m
+// SARemoteConfigCommonMode.m
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/7/20.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigCommonProcess.h"
+#import "SARemoteConfigCommonMode.h"
 #import "SACommonUtility.h"
 #import "SALog.h"
 
@@ -37,18 +37,18 @@ static NSString * const kRequestRemoteConfigRandomTimeKey = @"SARequestRemoteCon
 static NSString * const kRandomTimeKey = @"randomTime";
 static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
-@interface SARemoteConfigCommonProcess ()
+@interface SARemoteConfigCommonMode ()
 
 @property (nonatomic, assign) NSUInteger requestRemoteConfigRetryMaxCount; // SDK 开启关闭功能接口最大重试次数
 
 @end
 
-@implementation SARemoteConfigCommonProcess
+@implementation SARemoteConfigCommonMode
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options {
-    self = [super initWithRemoteConfigProcessOptions:options];
+- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options {
+    self = [super initWithRemoteConfigOptions:options];
     if (self) {
         _requestRemoteConfigRetryMaxCount = 3;
         [self enableLocalRemoteConfig];
@@ -58,11 +58,12 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 #pragma mark - Protocol
 
-- (void)remoteConfigProcessEnableLocalRemoteConfig {
-    [self enableLocalRemoteConfig];
+- (void)enableLocalRemoteConfig {
+    NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
+    [self enableRemoteConfigWithDictionary:configDic];
 }
 
-- (void)remoteConfigProcessRequestRemoteConfig {
+- (void)tryToRequestRemoteConfig {
     // 触发远程配置请求的三个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if (self.options.configOptions.disableRandomTimeRequestRemoteConfig || self.options.configOptions.maxRequestHourInterval < self.options.configOptions.minRequestHourInterval) {
@@ -95,29 +96,20 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     }
 }
 
-- (void)remoteConfigProcessCancelRequestRemoteConfig {
-    [self cancelRequestRemoteConfig];
-}
-
-- (void)remoteConfigProcessRetryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
-    [self cancelRequestRemoteConfig];
-    [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:isForceUpdate];
-    [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeCreate];
-}
-
-#pragma mark - Private Methods
-
-- (void)enableLocalRemoteConfig {
-    NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
-    [self enableRemoteConfigWithDictionary:configDic];
-}
-
 - (void)cancelRequestRemoteConfig {
     dispatch_async(dispatch_get_main_queue(), ^{
         // 还未发出请求
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
     });
 }
+
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
+    [self cancelRequestRemoteConfig];
+    [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:isForceUpdate];
+    [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeCreate];
+}
+
+#pragma mark - Private Methods
 
 #pragma mark RandomTime
 

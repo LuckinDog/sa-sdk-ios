@@ -1,5 +1,5 @@
 //
-// SARemoteConfigCommonProcess.h
+// SARemoteConfigCommonMode.h
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/7/20.
@@ -22,13 +22,13 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigProcess.h"
+#import "SARemoteConfigMode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SARemoteConfigCommonProcess : SARemoteConfigProcess
+@interface SARemoteConfigCommonMode : SARemoteConfigMode
 
-- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options;
+- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
 
 @end
 

@@ -413,7 +413,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             [self startFlushTimer];
             [self startAppEndTimer];
-            [self requestRemoteConfigWhenInitialized];
+            [self tryToRequestRemoteConfigWhenInitialized];
         }
         
         [self autoTrackAppStart];
@@ -2304,7 +2304,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if (_appRelaunched) {
         // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
         [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
-        [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
     }
     
     // 遍历 trackTimer
@@ -2528,26 +2528,26 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)initRemoteConfigManager {
     // 初始化远程配置类
-    SARemoteConfigProcessOptions *processOptions = [[SARemoteConfigProcessOptions alloc] init];
-    processOptions.configOptions = _configOptions;
-    processOptions.currentLibVersion = [self libVersion];
+    SARemoteConfigOptions *options = [[SARemoteConfigOptions alloc] init];
+    options.configOptions = _configOptions;
+    options.currentLibVersion = [self libVersion];
     
     __weak typeof(self) weakSelf = self;
-    processOptions.encryptBuilderCreateResultBlock = ^BOOL{
+    options.encryptBuilderCreateResultBlock = ^BOOL{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         return strongSelf.encryptBuilder ? YES : NO;
     };
-    processOptions.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
+    options.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf handleEncryptWithConfig:encryptConfig];
     };
-    processOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
+    options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeAuto];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };
-    processOptions.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
+    options.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (isDisableDebugMode) {
             [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
@@ -2556,7 +2556,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
     };
     
-    [SARemoteConfigManager startWithRemoteConfigProcessOptions:processOptions];
+    [SARemoteConfigManager startWithRemoteConfigOptions:options];
 }
 
 - (void)performDisableSDKTask {
@@ -2584,10 +2584,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 }
 
-- (void)requestRemoteConfigWhenInitialized {
+- (void)tryToRequestRemoteConfigWhenInitialized {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
     });
 }
 

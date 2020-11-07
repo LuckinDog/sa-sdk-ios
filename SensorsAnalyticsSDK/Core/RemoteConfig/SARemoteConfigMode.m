@@ -1,5 +1,5 @@
 //
-// SARemoteConfigProcess.m
+// SARemoteConfigMode.m
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/11/1.
@@ -22,17 +22,17 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigProcess.h"
+#import "SARemoteConfigMode.h"
 #import "SALog.h"
 #import "SAURLUtils.h"
 #import "SAConstants+Private.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
 
-@implementation SARemoteConfigProcessOptions
+@implementation SARemoteConfigOptions
 @end
 
-@interface SARemoteConfigProcess ()
+@interface SARemoteConfigMode ()
 
 @property (nonatomic, copy, readonly) NSString *latestVersion;
 @property (nonatomic, copy, readonly) NSString *originalVersion;
@@ -43,11 +43,11 @@
 
 @end
 
-@implementation SARemoteConfigProcess
+@implementation SARemoteConfigMode
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options {
+- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options {
     self = [super init];
     if (self) {
         _options = options;

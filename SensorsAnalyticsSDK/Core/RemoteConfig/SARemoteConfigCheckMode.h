@@ -1,5 +1,5 @@
 //
-// SARemoteConfigCheckProcess.h
+// SARemoteConfigCheckMode.h
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/11/1.
@@ -22,13 +22,13 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SARemoteConfigProcess.h"
+#import "SARemoteConfigMode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SARemoteConfigCheckProcess : SARemoteConfigProcess
+@interface SARemoteConfigCheckMode : SARemoteConfigMode
 
-- (instancetype)initWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options model:(SARemoteConfigModel *)model;
+- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options remoteConfigModel:(SARemoteConfigModel *)model;
 
 @end
 

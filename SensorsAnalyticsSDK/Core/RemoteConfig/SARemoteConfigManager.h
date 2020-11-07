@@ -23,8 +23,8 @@
 #endif
 
 #import <Foundation/Foundation.h>
-#import "SARemoteConfigCommonProcess.h"
-#import "SARemoteConfigCheckProcess.h"
+#import "SARemoteConfigCommonMode.h"
+#import "SARemoteConfigCheckMode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,8 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readonly) NSInteger autoTrackMode; // 控制 AutoTrack 采集方式（-1 表示不修改现有的 AutoTrack 方式；0 代表禁用所有的 AutoTrack；其他 1～15 为合法数据）
 
 /// 初始化远程配置管理类
-/// @param processOptions 远程配置处理参数
-+ (void)startWithRemoteConfigProcessOptions:(SARemoteConfigProcessOptions *)options;
+/// @param options 远程配置处理参数
++ (void)startWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
 
 /// 获取远程配置管理类的实例
 + (instancetype)sharedInstance;
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)enableLocalRemoteConfig;
 
 /// 请求远程配置
-- (void)requestRemoteConfig;
+- (void)tryToRequestRemoteConfig;
 
 /// 删除远程配置请求
 - (void)cancelRequestRemoteConfig;
