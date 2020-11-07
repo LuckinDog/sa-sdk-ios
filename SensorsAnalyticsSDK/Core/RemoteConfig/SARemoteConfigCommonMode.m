@@ -166,7 +166,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = ^(BOOL success, NSDictionary<NSString *, id> *config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         @try {
-            SALogDebug(@"The request result of remote config: success is %d, config is %@", success, config);
+            SALogDebug(@"【Remote Config】The request result: success is %d, config is %@", success, config);
             
             if (success) {
                 if(config != nil) {

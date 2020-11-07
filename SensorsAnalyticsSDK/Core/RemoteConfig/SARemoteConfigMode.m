@@ -70,7 +70,34 @@
         BOOL shouldAddVersion = !isForceUpdate && [self isLibVersionUnchanged] && [self shouldAddVersionOnEnableEncrypt];
         NSString *originalVersion = shouldAddVersion ? self.originalVersion : nil;
         NSString *latestVersion = shouldAddVersion ? self.latestVersion : nil;
-        [self functionalManagermentConfigWithOriginalVersion:originalVersion latestVersion:latestVersion completion:completion];
+        
+        NSURLRequest *request = [self buildURLRequestWithOriginalVersion:originalVersion latestVersion:latestVersion];
+        if (!request) {
+            return;
+        }
+        
+        NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+            if (!completion) {
+                return;
+            }
+            NSInteger statusCode = response.statusCode;
+            BOOL success = statusCode == 200 || statusCode == 304;
+            NSDictionary<NSString *, id> *config = nil;
+            @try{
+                if (statusCode == 200 && data.length) {
+                    config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+                }
+            } @catch (NSException *e) {
+                SALogError(@"%@ error: %@", self, e);
+                success = NO;
+            }
+            
+            // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(success, config);
+            });
+        }];
+        [task resume];
     } @catch (NSException *e) {
         SALogError(@"%@ error: %@", self, e);
     }
@@ -126,42 +153,7 @@
     return self.options.encryptBuilderCreateResultBlock();
 }
 
-- (nullable NSURLSessionTask *)functionalManagermentConfigWithOriginalVersion:(NSString *)originalVersion
-                                                                latestVersion:(NSString *)latestVersion
-                                                                   completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
-    
-    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithOriginalVersion:originalVersion latestVersion:latestVersion];
-    if (!request) {
-        return nil;
-    }
-    
-    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (!completion) {
-            return ;
-        }
-        NSInteger statusCode = response.statusCode;
-        BOOL success = statusCode == 200 || statusCode == 304;
-        NSDictionary<NSString *, id> *config = nil;
-        @try{
-            if (statusCode == 200 && data.length) {
-                config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-            }
-        } @catch (NSException *e) {
-            SALogError(@"%@ error: %@", self, e);
-            success = NO;
-        }
-        
-        // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completion(success, config);
-        });
-    }];
-    [task resume];
-    return task;
-}
-
-- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithOriginalVersion:(NSString *)originalVersion
-                                                               latestVersion:(NSString *)latestVersion  {
+- (NSURLRequest *)buildURLRequestWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
     NSURLComponents *urlComponets = nil;
     if (self.remoteConfigURL) {
         urlComponets = [NSURLComponents componentsWithURL:self.remoteConfigURL resolvingAgainstBaseURL:YES];
@@ -180,12 +172,12 @@
         urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
     }
     
-    urlComponets.query = [self buildRemoteConfigQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
+    urlComponets.query = [self buildQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
     
     return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
 }
 
-- (NSString *)buildRemoteConfigQueryWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
+- (NSString *)buildQueryWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
     NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionaryWithCapacity:4];
     params[@"v"] = originalVersion;
     params[@"nv"] = latestVersion;

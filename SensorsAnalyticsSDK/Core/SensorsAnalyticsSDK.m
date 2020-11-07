@@ -815,7 +815,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
     } else {
         // 远程配置修改现有的 autoTrack 方式
-        return (autoTrackMode != kSAAutoTrackModeDisabledAll);
+        BOOL isEnabled = (autoTrackMode != kSAAutoTrackModeDisabledAll);
+        if (!isEnabled) {
+            SALogDebug(@"【Remote Config】AutoTrack Event is ignored by remote config");
+        }
+        return isEnabled;
     }
 }
 
@@ -830,7 +834,32 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return !(self.configOptions.autoTrackEventType & eventType);
     } else {
         // 远程配置修改现有的 autoTrack 方式
-        return (autoTrackMode == kSAAutoTrackModeDisabledAll) ? YES : !(autoTrackMode & eventType);
+        BOOL isIgnored = (autoTrackMode == kSAAutoTrackModeDisabledAll) ? YES : !(autoTrackMode & eventType);
+        if (isIgnored) {
+            NSString *ignoredEvent = @"None";
+            switch (eventType) {
+                case SensorsAnalyticsEventTypeAppStart:
+                    ignoredEvent = SA_EVENT_NAME_APP_START;
+                    break;
+                    
+                case SensorsAnalyticsEventTypeAppEnd:
+                    ignoredEvent = SA_EVENT_NAME_APP_END;
+                    break;
+                    
+                case SensorsAnalyticsEventTypeAppClick:
+                    ignoredEvent = SA_EVENT_NAME_APP_CLICK;
+                    break;
+                    
+                case SensorsAnalyticsEventTypeAppViewScreen:
+                    ignoredEvent = SA_EVENT_NAME_APP_VIEW_SCREEN;
+                    break;
+                    
+                default:
+                    break;
+            }
+            SALogDebug(@"【Remote Config】%@ is ignored by remote config", ignoredEvent);
+        }
+        return isIgnored;
     }
 }
 
@@ -1193,6 +1222,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
+        SALogDebug(@"【Remote Config】 %@ is ignored by remote config", event);
         return;
     }
     
