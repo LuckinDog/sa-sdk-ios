@@ -24,8 +24,6 @@
 
 #import <Foundation/Foundation.h>
 #import "SARemoteConfigModel.h"
-#import "SANetwork.h"
-#import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
