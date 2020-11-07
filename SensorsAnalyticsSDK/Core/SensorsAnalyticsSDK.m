@@ -618,7 +618,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
-- (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, id> *)params {
+- (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, NSString *> *)params {
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             
