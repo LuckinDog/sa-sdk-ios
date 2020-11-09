@@ -806,6 +806,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEnabled {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
         return NO;
     }
     
@@ -825,6 +826,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
         return YES;
     }
     
@@ -1219,6 +1221,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
         return;
     }
     

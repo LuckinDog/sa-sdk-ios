@@ -51,8 +51,11 @@
 #pragma mark - Protocol
 
 - (void)handleRemoteConfigURL:(NSURL *)url {
+    SALogDebug(@"【remote config】The input QR url is: %@", url);
+    
     NSDictionary *components = [SAURLUtils queryItemsWithURL:url];
     if (!components) {
+        SALogError(@"【remote config】The QR url format is invalid");
         return;
     }
     
@@ -60,10 +63,12 @@
     NSString *appID = components[@"app_id"];
     NSString *os = components[@"os"];
     NSString *lastestVersion = components[@"nv"];
+    SALogDebug(@"【remote config】The input QR url project is %@, app_id is %@, os is %@", project, appID, os);
     
     NSString *currentProject = self.project ?: @"default";
     NSString *currentAppID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
     NSString *currentOS = @"iOS";
+    SALogDebug(@"【remote config】The current project is %@, app_id is %@, os is %@", currentProject, currentAppID, currentOS);
     
     BOOL isCheckPassed = NO;
     NSString *message = nil;
@@ -114,6 +119,8 @@
         __strong typeof(weakSelf) strongSelf = weakSelf;
         
         @try {
+            SALogDebug(@"【remote config】The request result: success is %d, config is %@", success, config);
+
             [strongSelf hideIndicator];
             
             if (success && config) {
