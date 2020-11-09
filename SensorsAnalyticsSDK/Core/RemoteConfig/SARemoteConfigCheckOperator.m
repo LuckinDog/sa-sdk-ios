@@ -53,6 +53,11 @@
 - (void)handleRemoteConfigURL:(NSURL *)url {
     SALogDebug(@"【remote config】The input QR url is: %@", url);
     
+    if ([SACommonUtility currentNetworkType] == SensorsAnalyticsNetworkTypeNONE) {
+        [self showNetworkErrorAlert];
+        return;
+    }
+    
     NSDictionary *components = [SAURLUtils queryItemsWithURL:url];
     if (!components) {
         SALogError(@"【remote config】The QR url format is invalid");
@@ -86,13 +91,21 @@
     }
     
     [SACommonUtility performBlockOnMainThread:^{
-        [self showCheckResultAlertWithMessage:message isCheckPassed:isCheckPassed];
+        [self showCheckResultAlertWithMessage:message isCheckPassed:isCheckPassed lastestVersion:lastestVersion];
     }];
 }
 
 #pragma mark - Private
 
-- (void)showCheckResultAlertWithMessage:(NSString *)message isCheckPassed:(BOOL)isCheckPassed {
+#pragma mark Alert
+
+- (void)showNetworkErrorAlert {
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"网络连接失败，请检查设备网络" preferredStyle:SAAlertControllerStyleAlert];
+    [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
+    [alertController show];
+}
+
+- (void)showCheckResultAlertWithMessage:(NSString *)message isCheckPassed:(BOOL)isCheckPassed lastestVersion:(NSString *)lastestVersion {
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:message preferredStyle:SAAlertControllerStyleAlert];
     if (isCheckPassed) {
         [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
@@ -112,12 +125,6 @@
 #pragma mark Request
 
 - (void)requestRemoteConfigWithLastestVersion:(NSString *)lastestVersion {
-    SensorsAnalyticsNetworkType networkType = [SACommonUtility currentNetworkType];
-    if (networkType == SensorsAnalyticsNetworkTypeNONE) {
-        [self showNetworkErrorAlert];
-        return;
-    }
-    
     [self showIndicator];
     
     __weak typeof(self) weakSelf = self;
@@ -143,12 +150,6 @@
             SALogError(@"【remote config】%@ error: %@", strongSelf, exception);
         }
     }];
-}
-
-- (void)showNetworkErrorAlert {
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"网络连接失败，请检查设备网络" preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
-    [alertController show];
 }
 
 - (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withLastestVersion:(NSString *)lastestVersion {

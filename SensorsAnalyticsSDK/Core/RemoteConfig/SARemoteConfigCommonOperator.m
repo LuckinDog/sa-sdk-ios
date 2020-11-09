@@ -203,8 +203,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
         BOOL isForceUpdate = [params[@"isForceUpdate"] boolValue];
         void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = params[@"completion"];
         
-        SensorsAnalyticsNetworkType networkType = [SACommonUtility currentNetworkType];
-        if (networkType == SensorsAnalyticsNetworkTypeNONE) {
+        if ([SACommonUtility currentNetworkType] == SensorsAnalyticsNetworkTypeNONE) {
             completion(NO, nil);
             return;
         }
