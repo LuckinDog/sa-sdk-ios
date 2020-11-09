@@ -140,7 +140,7 @@
             }
             
         } @catch (NSException *exception) {
-            SALogError(@"%@ error: %@", strongSelf, exception);
+            SALogError(@"【remote config】%@ error: %@", strongSelf, exception);
         }
     }];
 }

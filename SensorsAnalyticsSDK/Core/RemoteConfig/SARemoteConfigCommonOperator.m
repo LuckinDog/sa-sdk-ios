@@ -68,14 +68,14 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if (self.options.configOptions.disableRandomTimeRequestRemoteConfig || self.options.configOptions.maxRequestHourInterval < self.options.configOptions.minRequestHourInterval) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove isForceUpdate:NO];
-        SALogDebug(@"Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
+        SALogDebug(@"【remote config】Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
         return;
     }
     
     // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
     if (self.options.configOptions.enableEncrypt && !self.options.encryptBuilderCreateResultBlock()) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
-        SALogDebug(@"Request remote config because encrypt builder is nil");
+        SALogDebug(@"【remote config】Request remote config because encrypt builder is nil");
         return;
     }
     
@@ -89,7 +89,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     // 3. 如果设备重启过或满足分散请求的条件，则强制请求远程配置，同时本地生成随机时间
     if ((currentTime < startDeviceTime) || (currentTime >= randomTime)) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
-        SALogDebug(@"Request remote config because the device has been restarted or satisfy the random request condition");
+        SALogDebug(@"【remote config】Request remote config because the device has been restarted or satisfy the random request condition");
     }
 }
 
@@ -158,7 +158,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
         [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:isForceUpdate];
         [self handleRandomTimeWithType:type];
     } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+        SALogError(@"【remote config】%@ error: %@", self, exception);
     }
 }
 
@@ -187,7 +187,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
                 }
             }
         } @catch (NSException *e) {
-            SALogError(@"%@ error: %@", strongSelf, e);
+            SALogError(@"【remote config】%@ error: %@", strongSelf, e);
         }
     };
     
@@ -211,7 +211,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
         
         [self requestRemoteConfigWithForceUpdate:isForceUpdate completion:completion];
     } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+        SALogError(@"【remote config】%@ error: %@", self, e);
     }
 }
 

@@ -88,7 +88,7 @@
                     config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
                 }
             } @catch (NSException *e) {
-                SALogError(@"%@ error: %@", self, e);
+                SALogError(@"【remote config】%@ error: %@", self, e);
                 success = NO;
             }
             
@@ -99,7 +99,7 @@
         }];
         [task resume];
     } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+        SALogError(@"【remote config】%@ error: %@", self, e);
     }
 }
 
@@ -165,7 +165,7 @@
         }
         
         if (!urlComponets.host) {
-            SALogError(@"URLString is malformed, nil is returned.");
+            SALogError(@"【remote config】URLString is malformed, nil is returned.");
             return nil;
         }
         urlComponets.query = nil;
