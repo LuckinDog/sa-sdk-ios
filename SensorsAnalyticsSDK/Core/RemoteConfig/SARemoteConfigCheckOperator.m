@@ -27,6 +27,7 @@
 #import "SAURLUtils.h"
 #import "SAAlertController.h"
 #import "SACommonUtility.h"
+#import "SALog.h"
 
 @interface SARemoteConfigCheckOperator ()
 
@@ -82,8 +83,12 @@
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:message preferredStyle:SAAlertControllerStyleAlert];
     if (isCheckPassed) {
         [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
+        
+        __weak typeof(self) weakSelf = self;
         [alertController addActionWithTitle:@"继续" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-            [self requestRemoteConfigWithLastestVersion:lastestVersion];
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            
+            [strongSelf requestRemoteConfigWithLastestVersion:lastestVersion];
         }];
     } else {
         [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
@@ -108,22 +113,21 @@
     [self requestRemoteConfigWithForceUpdate:YES completion:^(BOOL success, NSDictionary<NSString *,id> * _Nullable config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         
-        [strongSelf hideIndicator];
-        
-        if (success && config) {
-            // 远程配置
-            NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
-            [strongSelf handleRemoteConfig:remoteConfig withLastestVersion:lastestVersion];
+        @try {
+            [strongSelf hideIndicator];
             
-            // 加密
-            if (strongSelf.options.configOptions.enableEncrypt) {
-                NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
-                strongSelf.options.handleEncryptBlock(encryptConfig);
+            if (success && config) {
+                // 远程配置
+                NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
+                [strongSelf handleRemoteConfig:remoteConfig withLastestVersion:lastestVersion];
+            } else {
+                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"远程配置获取失败，请稍后再试" preferredStyle:SAAlertControllerStyleAlert];
+                [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
+                [alertController show];
             }
-        } else {
-            SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"远程配置获取失败，请稍后再试" preferredStyle:SAAlertControllerStyleAlert];
-            [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
-            [alertController show];
+            
+        } @catch (NSException *exception) {
+            SALogError(@"%@ error: %@", strongSelf, exception);
         }
     }];
 }
@@ -135,15 +139,17 @@
 }
 
 - (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withLastestVersion:(NSString *)lastestVersion {
+    if (![self checkRemoteConfig:remoteConfig withLastestVersion:lastestVersion]) {
+        return;
+    }
+    
     NSMutableDictionary<NSString *, id> *eventMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
     eventMDic[@"debug"] = @YES;
     [self trackAppRemoteConfigChanged:eventMDic];
     
-    if ([self checkRemoteConfig:remoteConfig withLastestVersion:lastestVersion]) {
-        NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-        enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
-        [self enableRemoteConfigWithDictionary:enableMDic];
-    }
+    NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+    enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
+    [self enableRemoteConfigWithDictionary:enableMDic];
 }
 
 - (BOOL)checkRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withLastestVersion:(NSString *)lastestVersion {
@@ -151,14 +157,14 @@
     NSString *message = @"远程配置校验通过";
     BOOL isCheckPassed = YES;
     
-    NSString *currentLastestVersion = [remoteConfig valueForKeyPath:@"configs.nv"];
+    NSString *currentLastestVersion = remoteConfig[@"configs"][@"nv"];
     if (![lastestVersion isEqualToString:currentLastestVersion]) {
         title = @"信息版本不一致";
         message = [NSString stringWithFormat:@"获取到采集控制信息的版本：%@，二维码信息的版本：%@，请稍后重新扫描二维码", currentLastestVersion, lastestVersion];
         isCheckPassed = NO;
     }
     
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:message preferredStyle:SAAlertControllerStyleAlert];
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:message preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
     [alertController show];
     

@@ -166,7 +166,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = ^(BOOL success, NSDictionary<NSString *, id> *config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         @try {
-            SALogDebug(@"【Remote Config】The request result: success is %d, config is %@", success, config);
+            SALogDebug(@"【remote config】The request result: success is %d, config is %@", success, config);
             
             if (success) {
                 if(config != nil) {
@@ -230,19 +230,22 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (void)saveRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
-    // 手动添加当前 SDK 版本号
-    NSMutableDictionary *localRemoteConfig = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-    localRemoteConfig[@"localLibVersion"] = self.options.currentLibVersion;
-    
-    [[NSUserDefaults standardUserDefaults] setObject:localRemoteConfig forKey:kSDKConfigKey];
+    [[NSUserDefaults standardUserDefaults] setObject:[self addLibVersionToRemoteConfig:remoteConfig] forKey:kSDKConfigKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (void)triggerRemoteConfigEffect:(NSDictionary<NSString *, id> *)remoteConfig {
-    NSNumber *effectMode = [remoteConfig valueForKeyPath:@"configs.effect_mode"];
+    NSNumber *effectMode = remoteConfig[@"configs"][@"effect_mode"];
     if ([effectMode integerValue] == SARemoteConfigEffectModeNow) {
-        [self enableLocalRemoteConfig];
+        [self enableRemoteConfigWithDictionary:[self addLibVersionToRemoteConfig:remoteConfig]];
     }
+}
+
+- (NSDictionary<NSString *, id> *)addLibVersionToRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
+    // 手动添加当前 SDK 版本号
+    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+    result[@"localLibVersion"] = self.options.currentLibVersion;
+    return result;
 }
 
 @end

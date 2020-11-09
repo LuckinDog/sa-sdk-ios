@@ -817,7 +817,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 远程配置修改现有的 autoTrack 方式
         BOOL isEnabled = (autoTrackMode != kSAAutoTrackModeDisabledAll);
         if (!isEnabled) {
-            SALogDebug(@"【Remote Config】AutoTrack Event is ignored by remote config");
+            SALogDebug(@"【remote config】AutoTrack Event is ignored by remote config");
         }
         return isEnabled;
     }
@@ -857,7 +857,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 default:
                     break;
             }
-            SALogDebug(@"【Remote Config】%@ is ignored by remote config", ignoredEvent);
+            SALogDebug(@"【remote config】%@ is ignored by remote config", ignoredEvent);
         }
         return isIgnored;
     }
@@ -953,6 +953,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [[SAChannelMatchManager sharedInstance] showAuthorizationAlertWithURL:url];
             return YES;
         } else if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
+            [self enableLog:YES];
             [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
             return YES;
         }
@@ -1222,7 +1223,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
-        SALogDebug(@"【Remote Config】 %@ is ignored by remote config", event);
+        SALogDebug(@"【remote config】 %@ is ignored by remote config", event);
         return;
     }
     

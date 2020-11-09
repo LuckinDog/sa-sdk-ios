@@ -114,7 +114,7 @@
 }
 
 - (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
-    return [config valueForKeyPath:@"configs.key"];
+    return config[@"configs"][@"key"];
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
