@@ -23,6 +23,7 @@
 #endif
 
 #import "SARemoteConfigManager.h"
+#import "SAConstants+Private.h"
 
 @interface SARemoteConfigManager ()
 
@@ -89,7 +90,7 @@
 }
 
 - (BOOL)isRemoteConfigURL:(NSURL *)url {
-    return [url.host isEqualToString:@"sensorsdataremoteconfig"];
+    return [url.host isEqualToString:kSASchemeHostRemoteConfig];
 }
 
 - (BOOL)canHandleURL:(NSURL *)url {

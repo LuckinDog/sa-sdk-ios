@@ -806,7 +806,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEnabled {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
+        SALogDebug(@"【remote config】SDK is disable");
         return NO;
     }
     
@@ -826,7 +826,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
+        SALogDebug(@"【remote config】SDK is disable");
         return YES;
     }
     
@@ -1221,7 +1221,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
+        SALogDebug(@"【remote config】SDK is disable");
         return;
     }
     
@@ -2575,9 +2575,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf handleEncryptWithConfig:encryptConfig];
     };
-    options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
+    options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [strongSelf track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };

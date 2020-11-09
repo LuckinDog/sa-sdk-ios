@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SANetwork *network; // 网络相关类
 @property (nonatomic, copy) BOOL (^encryptBuilderCreateResultBlock)(void); // 加密构造器创建结果的回调
 @property (nonatomic, copy) void (^handleEncryptBlock)(NSDictionary *encryptConfig); // 处理加密的回调
-@property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *propertieDict); // 触发事件的回调
+@property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *properties); // 触发事件的回调
 @property (nonatomic, copy) void (^triggerEffectBlock)(BOOL isDisableSDK, BOOL isDisableDebugMode); // 触发远程配置生效的回调
 
 @end
@@ -99,8 +99,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig;
 
 /// 根据传入的内容生效远程配置
-/// @param configDic 远程配置的内容
-- (void)enableRemoteConfigWithDictionary:(NSDictionary *)configDic;
+/// @param config 远程配置的内容
+- (void)enableRemoteConfig:(NSDictionary *)config;
 
 @end
 

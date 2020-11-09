@@ -126,8 +126,8 @@
     self.options.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
 }
 
-- (void)enableRemoteConfigWithDictionary:(NSDictionary *)configDic {
-    self.model = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
+- (void)enableRemoteConfig:(NSDictionary *)config {
+    self.model = [[SARemoteConfigModel alloc] initWithDictionary:config];
     
     // 发送远程配置模块 Model 变化通知
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:self.model];

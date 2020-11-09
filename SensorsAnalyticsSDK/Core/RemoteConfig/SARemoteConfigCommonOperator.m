@@ -59,24 +59,22 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 #pragma mark - Protocol
 
 - (void)enableLocalRemoteConfig {
-    NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
-    [self enableRemoteConfigWithDictionary:configDic];
+    NSDictionary *config = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
+    [self enableRemoteConfig:config];
 }
 
 - (void)tryToRequestRemoteConfig {
     // 触发远程配置请求的三个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if (self.options.configOptions.disableRandomTimeRequestRemoteConfig || self.options.configOptions.maxRequestHourInterval < self.options.configOptions.minRequestHourInterval) {
-        [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:NO];
-        [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeRemove];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove isForceUpdate:NO];
         SALogDebug(@"Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
         return;
     }
     
     // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
     if (self.options.configOptions.enableEncrypt && !self.options.encryptBuilderCreateResultBlock()) {
-        [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:NO];
-        [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeCreate];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
         SALogDebug(@"Request remote config because encrypt builder is nil");
         return;
     }
@@ -90,8 +88,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     
     // 3. 如果设备重启过或满足分散请求的条件，则强制请求远程配置，同时本地生成随机时间
     if ((currentTime < startDeviceTime) || (currentTime >= randomTime)) {
-        [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:NO];
-        [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeCreate];
+        [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
         SALogDebug(@"Request remote config because the device has been restarted or satisfy the random request condition");
     }
 }
@@ -105,8 +102,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
     [self cancelRequestRemoteConfig];
-    [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:isForceUpdate];
-    [self handleRandomTimeWithType:SARemoteConfigHandleRandomTimeTypeCreate];
+    [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:isForceUpdate];
 }
 
 #pragma mark - Private Methods
@@ -114,21 +110,17 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 #pragma mark RandomTime
 
 - (void)handleRandomTimeWithType:(SARemoteConfigHandleRandomTimeType)type {
-    @try {
-        switch (type) {
-            case SARemoteConfigHandleRandomTimeTypeCreate:
-                [self createRandomTime];
-                break;
-                
-            case SARemoteConfigHandleRandomTimeTypeRemove:
-                [self removeRandomTime];
-                break;
-                
-            default:
-                break;
-        }
-    } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
+    switch (type) {
+        case SARemoteConfigHandleRandomTimeTypeCreate:
+            [self createRandomTime];
+            break;
+            
+        case SARemoteConfigHandleRandomTimeTypeRemove:
+            [self removeRandomTime];
+            break;
+            
+        default:
+            break;
     }
 }
 
@@ -161,6 +153,15 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 #pragma mark Request
 
+- (void)requestRemoteConfigWithHandleRandomTimeType:(SARemoteConfigHandleRandomTimeType)type isForceUpdate:(BOOL)isForceUpdate {
+    @try {
+        [self requestRemoteConfigWithDelay:0 index:0 isForceUpdate:isForceUpdate];
+        [self handleRandomTimeWithType:type];
+    } @catch (NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    }
+}
+
 - (void)requestRemoteConfigWithDelay:(NSTimeInterval)delay index:(NSUInteger)index isForceUpdate:(BOOL)isForceUpdate {
     __weak typeof(self) weakSelf = self;
     void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = ^(BOOL success, NSDictionary<NSString *, id> *config) {
@@ -190,15 +191,11 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
         }
     };
     
-    @try {
-        // 子线程不会主动开启 runloop，因此这里切换到主线程执行
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
-            [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
-        });
-    } @catch (NSException *e) {
-        SALogError(@"%@ error: %@", self, e);
-    }
+    // 子线程不会主动开启 runloop，因此这里切换到主线程执行
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSDictionary *params = @{@"isForceUpdate" : @(isForceUpdate), @"completion" : completion};
+        [self performSelector:@selector(requestRemoteConfigWithParams:) withObject:params afterDelay:delay inModes:@[NSRunLoopCommonModes, NSDefaultRunLoopMode]];
+    });
 }
 
 - (void)requestRemoteConfigWithParams:(NSDictionary *)params {
@@ -237,7 +234,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 - (void)triggerRemoteConfigEffect:(NSDictionary<NSString *, id> *)remoteConfig {
     NSNumber *effectMode = remoteConfig[@"configs"][@"effect_mode"];
     if ([effectMode integerValue] == SARemoteConfigEffectModeNow) {
-        [self enableRemoteConfigWithDictionary:[self addLibVersionToRemoteConfig:remoteConfig]];
+        [self enableRemoteConfig:[self addLibVersionToRemoteConfig:remoteConfig]];
     }
 }
 

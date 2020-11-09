@@ -85,6 +85,14 @@
         message = @"开始获取采集控制信息";
     }
     
+    [SACommonUtility performBlockOnMainThread:^{
+        [self showCheckResultAlertWithMessage:message isCheckPassed:isCheckPassed];
+    }];
+}
+
+#pragma mark - Private
+
+- (void)showCheckResultAlertWithMessage:(NSString *)message isCheckPassed:(BOOL)isCheckPassed {
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:message preferredStyle:SAAlertControllerStyleAlert];
     if (isCheckPassed) {
         [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
@@ -100,8 +108,6 @@
     }
     [alertController show];
 }
-
-#pragma mark - Private
 
 #pragma mark Request
 
@@ -156,7 +162,7 @@
     
     NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
     enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
-    [self enableRemoteConfigWithDictionary:enableMDic];
+    [self enableRemoteConfig:enableMDic];
 }
 
 - (BOOL)checkRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withLastestVersion:(NSString *)lastestVersion {
