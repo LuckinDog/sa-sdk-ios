@@ -80,7 +80,7 @@
     if (![currentProject isEqualToString:project]) {
         message = @"App 集成的项目与二维码对应的项目不同，无法进行调试";
     } else if (![currentAppID isEqualToString:appID]) {
-        message = @"App 与二维码对应的 App 不同，无法进行调试";
+        message = @"当前 App 与二维码对应的 App 不同，无法进行调试";
     } else if (![currentOS isEqualToString:os]) {
         message = @"App 与二维码对应的操作系统不同，无法进行调试";
     } else if (!lastestVersion) {
