@@ -29,6 +29,36 @@
 #import "SACommonUtility.h"
 #import "SALog.h"
 
+typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
+
+@interface SARemoteConfigCheckAlertModel : NSObject
+
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy) NSString *message;
+@property (nonatomic, copy) NSString *defaultStyleTitle;
+@property (nonatomic, copy) SARemoteConfigCheckAlertHandler defaultStyleHandler;
+@property (nonatomic, copy) NSString *cancelStyleTitle;
+@property (nonatomic, copy) SARemoteConfigCheckAlertHandler cancelStyleHandler;
+
+@end
+
+@implementation SARemoteConfigCheckAlertModel
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _title = @"提示";
+        _message = nil;
+        _defaultStyleTitle = @"确定";
+        _defaultStyleHandler = nil;
+        _cancelStyleTitle = nil;
+        _cancelStyleHandler = nil;
+    }
+    return self;
+}
+
+@end
+
 @interface SARemoteConfigCheckOperator ()
 
 @property (nonatomic, strong) UIWindow *window;
@@ -90,9 +120,7 @@
         message = @"开始获取采集控制信息";
     }
     
-    [SACommonUtility performBlockOnMainThread:^{
-        [self showCheckResultAlertWithMessage:message isCheckPassed:isCheckPassed lastestVersion:lastestVersion];
-    }];
+    [self showURLCheckResultAlertWithMessage:message isCheckPassed:isCheckPassed lastestVersion:lastestVersion];
 }
 
 #pragma mark - Private
@@ -100,26 +128,49 @@
 #pragma mark Alert
 
 - (void)showNetworkErrorAlert {
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"网络连接失败，请检查设备网络" preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
-    [alertController show];
+    SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
+    model.message = @"网络连接失败，请检查设备网络";
+    [self showAlertWithModel:model];
 }
 
-- (void)showCheckResultAlertWithMessage:(NSString *)message isCheckPassed:(BOOL)isCheckPassed lastestVersion:(NSString *)lastestVersion {
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:message preferredStyle:SAAlertControllerStyleAlert];
+- (void)showURLCheckResultAlertWithMessage:(NSString *)message isCheckPassed:(BOOL)isCheckPassed lastestVersion:(NSString *)lastestVersion {
+    SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
+    model.message = message;
     if (isCheckPassed) {
-        [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
-        
+        model.defaultStyleTitle = @"继续";
         __weak typeof(self) weakSelf = self;
-        [alertController addActionWithTitle:@"继续" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+        model.defaultStyleHandler = ^(SAAlertAction *action) {
             __strong typeof(weakSelf) strongSelf = weakSelf;
-            
+
             [strongSelf requestRemoteConfigWithLastestVersion:lastestVersion];
-        }];
-    } else {
-        [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
+        };
+        model.cancelStyleTitle = @"取消";
     }
-    [alertController show];
+    [self showAlertWithModel:model];
+}
+
+- (void)showRequestRemoteConfigFailedAlert {
+    SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
+    model.message = @"远程配置获取失败，请稍后再试";
+    [self showAlertWithModel:model];
+}
+
+- (void)showCheckRemoteConfigVersionAlertWithTitle:(NSString *)title message:(NSString *)message {
+    SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
+    model.title = title;
+    model.message = message;
+    [self showAlertWithModel:model];
+}
+
+- (void)showAlertWithModel:(SARemoteConfigCheckAlertModel *)model {
+    [SACommonUtility performBlockOnMainThread:^{
+        SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:model.title message:model.message preferredStyle:SAAlertControllerStyleAlert];
+        [alertController addActionWithTitle:model.defaultStyleTitle style:SAAlertActionStyleDefault handler:model.defaultStyleHandler];
+        if (model.cancelStyleTitle) {
+            [alertController addActionWithTitle:model.cancelStyleTitle style:SAAlertActionStyleCancel handler:model.cancelStyleHandler];
+        }
+        [alertController show];
+    }];
 }
 
 #pragma mark Request
@@ -141,11 +192,8 @@
                 NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
                 [strongSelf handleRemoteConfig:remoteConfig withLastestVersion:lastestVersion];
             } else {
-                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"远程配置获取失败，请稍后再试" preferredStyle:SAAlertControllerStyleAlert];
-                [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
-                [alertController show];
+                [strongSelf showRequestRemoteConfigFailedAlert];
             }
-            
         } @catch (NSException *exception) {
             SALogError(@"【remote config】%@ error: %@", strongSelf, exception);
         }
@@ -177,10 +225,8 @@
         message = [NSString stringWithFormat:@"获取到采集控制信息的版本：%@，二维码信息的版本：%@，请稍后重新扫描二维码", currentLastestVersion, lastestVersion];
         isCheckPassed = NO;
     }
-    
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:message preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleDefault handler:nil];
-    [alertController show];
+
+    [self showCheckRemoteConfigVersionAlertWithTitle:title message:message];
     
     return isCheckPassed;
 }
