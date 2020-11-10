@@ -18,16 +18,13 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import <Foundation/Foundation.h>
 #import "SARemoteConfigCommonOperator.h"
 #import "SARemoteConfigCheckOperator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// 远程配置管理类
 @interface SARemoteConfigManager : NSObject
 
 @property (nonatomic, assign, readonly) BOOL isDisableSDK; // 是否禁用 SDK
@@ -38,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)startWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
 
 /// 获取远程配置管理类的实例
+/// @return 远程配置管理类的实例
 + (instancetype)sharedInstance;
 
 /// 生效本地远程配置
@@ -55,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否在事件黑名单中
 /// @param event 输入的事件名
+/// @return 是否在事件黑名单中
 - (BOOL)isBlackListContainsEvent:(NSString *)event;
 
 /// 处理远程配置的 URL
@@ -63,10 +62,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否为远程控制的 URL
 /// @param url 输入的 URL
+/// @return 是否为远程控制的 URL
 - (BOOL)isRemoteConfigURL:(NSURL *)url;
 
 /// 远程控制管理类能否处理该 URL
 /// @param url 输入的 URL
+/// @return 能否处理该 URL
 - (BOOL)canHandleURL:(NSURL *)url;
 
 @end

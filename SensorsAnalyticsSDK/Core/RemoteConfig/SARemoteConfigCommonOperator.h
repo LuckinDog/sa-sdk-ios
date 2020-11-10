@@ -18,16 +18,16 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import "SARemoteConfigOperator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// 远程配置普通模式处理类
 @interface SARemoteConfigCommonOperator : SARemoteConfigOperator
 
+/// 初始化远程配置普通模式处理类
+/// @param options 输入的远程配置参数
+/// @return 远程配置普通模式处理类的实例
 - (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
 
 @end

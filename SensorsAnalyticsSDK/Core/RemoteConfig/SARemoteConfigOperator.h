@@ -18,10 +18,6 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import <Foundation/Foundation.h>
 #import "SARemoteConfigModel.h"
 #import "SensorsAnalyticsSDK+Private.h"
@@ -51,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// 远程配置处理需要的参数
 @interface SARemoteConfigOptions : NSObject
 
 @property (nonatomic, strong) SAConfigOptions *configOptions; // SensorsAnalyticsSDK 初始化配置
@@ -63,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-
+/// 远程配置处理基类
 @interface SARemoteConfigOperator : NSObject <SARemoteConfigOperatorProtocol>
 
 @property (atomic, strong) SARemoteConfigModel *model;
@@ -73,12 +70,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readonly) NSInteger autoTrackMode;
 @property (nonatomic, copy, readonly) NSString *project;
 
-/// 初始化远程配置处理类
+/// 初始化远程配置处理基类
 /// @param options 输入的远程配置参数
+/// @return 远程配置处理基类的实例
 - (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
 
 /// 是否在事件黑名单中
 /// @param event 输入的事件名
+/// @return 是否在事件黑名单中
 - (BOOL)isBlackListContainsEvent:(NSString *)event;
 
 /// 请求远程配置
@@ -88,10 +87,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 从请求远程配置的返回结果中获取远程配置相关内容
 /// @param config 请求远程配置的返回结果
+/// @return 远程配置相关内容
 - (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config;
 
 /// 从请求远程配置的返回结果中获取加密相关内容
 /// @param config 请求远程配置的返回结果
+/// @return 加密相关内容
 - (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config;
 
 /// 触发 $AppRemoteConfigChanged 事件
