@@ -957,6 +957,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         } else if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
             [self enableLog:YES];
+            [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
             [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
             return YES;
         }
