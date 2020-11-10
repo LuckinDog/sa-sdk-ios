@@ -137,11 +137,6 @@
         deflateStatus = deflate(&zlibStreamStruct, Z_FINISH);
     } while (deflateStatus == Z_OK);
 
-    if (deflateStatus == Z_BUF_ERROR && buffer < 32) {
-        deflateEnd(&zlibStreamStruct);
-        return nil;
-    }
-
     // Check for zlib error and convert code to usable error message if appropriate
     if (deflateStatus != Z_STREAM_END) {
         NSString *errorMsg = nil;
@@ -172,7 +167,6 @@
 
         // Free data structures that were dynamically created for the stream.
         deflateEnd(&zlibStreamStruct);
-
         return nil;
     }
 
