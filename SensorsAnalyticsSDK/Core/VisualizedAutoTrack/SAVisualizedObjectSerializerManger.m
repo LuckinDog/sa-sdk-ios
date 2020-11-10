@@ -231,25 +231,22 @@
         return nil;
     }
     UIViewController *lastVC = [allObjects lastObject];
+
+    // 如果 viewController 不在屏幕显示就移除
     while (lastVC && !lastVC.view.window) {
-        // 移除不在屏幕显示的 viewController
-        lastVC = [self remoInvisibleViewController];
-    }
-    return lastVC;
-}
+        // 如果 count 不等，即 controllersStack 存在 NULL
+        if (self.controllersStack.count > allObjects.count) {
+            [self.controllersStack addPointer:NULL];
+            [self.controllersStack compact];
+        }
 
-- (UIViewController *)remoInvisibleViewController {
-    if (self.controllersStack.count > self.controllersStack.allObjects.count) {
-        [self.controllersStack addPointer:NULL];
-        [self.controllersStack compact];
+        [self.controllersStack removePointerAtIndex:self.controllersStack.count - 1];
+        allObjects = [self.controllersStack allObjects];
+        if (allObjects.count == 0) {
+            return nil;
+        }
+        lastVC = [allObjects lastObject];
     }
-
-    [self.controllersStack removePointerAtIndex:self.controllersStack.count - 1];
-    NSArray *allObjects = [self.controllersStack allObjects];
-    if (allObjects.count == 0) {
-        return nil;
-    }
-    UIViewController *lastVC = [allObjects lastObject];
     return lastVC;
 }
 
