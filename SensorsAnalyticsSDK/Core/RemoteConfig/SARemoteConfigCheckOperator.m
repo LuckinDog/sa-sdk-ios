@@ -94,11 +94,11 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
         return;
     }
     
-    NSString *project = components[@"project"] ?: @"default";
-    NSString *appID = components[@"app_id"];
-    NSString *os = components[@"os"];
-    NSString *lastestVersion = components[@"nv"];
-    SALogDebug(@"【remote config】The input QR url project is %@, app_id is %@, os is %@", project, appID, os);
+    NSString *urlProject = components[@"project"] ?: @"default";
+    NSString *urlAppID = components[@"app_id"];
+    NSString *urlOS = components[@"os"];
+    NSString *urlVersion = components[@"nv"];
+    SALogDebug(@"【remote config】The input QR url project is %@, app_id is %@, os is %@", urlProject, urlAppID, urlOS);
     
     NSString *currentProject = self.project ?: @"default";
     NSString *currentAppID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
@@ -107,20 +107,20 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     
     BOOL isCheckPassed = NO;
     NSString *message = nil;
-    if (![currentProject isEqualToString:project]) {
+    if (![currentProject isEqualToString:urlProject]) {
         message = @"App 集成的项目与二维码对应的项目不同，无法进行调试";
-    } else if (![currentAppID isEqualToString:appID]) {
+    } else if (![currentAppID isEqualToString:urlAppID]) {
         message = @"当前 App 与二维码对应的 App 不同，无法进行调试";
-    } else if (![currentOS isEqualToString:os]) {
+    } else if (![currentOS isEqualToString:urlOS]) {
         message = @"App 与二维码对应的操作系统不同，无法进行调试";
-    } else if (!lastestVersion) {
+    } else if (!urlVersion) {
         message = @"二维码信息校验失败，请检查采集控制是否配置正确";
     } else {
         isCheckPassed = YES;
         message = @"开始获取采集控制信息";
     }
     
-    [self showURLCheckResultAlertWithMessage:message isCheckPassed:isCheckPassed lastestVersion:lastestVersion];
+    [self showURLCheckAlertWithMessage:message isCheckPassed:isCheckPassed urlVersion:urlVersion];
 }
 
 #pragma mark - Private
@@ -133,7 +133,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     [self showAlertWithModel:model];
 }
 
-- (void)showURLCheckResultAlertWithMessage:(NSString *)message isCheckPassed:(BOOL)isCheckPassed lastestVersion:(NSString *)lastestVersion {
+- (void)showURLCheckAlertWithMessage:(NSString *)message isCheckPassed:(BOOL)isCheckPassed urlVersion:(NSString *)urlVersion {
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
     model.message = message;
     if (isCheckPassed) {
@@ -142,7 +142,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
         model.defaultStyleHandler = ^(SAAlertAction *action) {
             __strong typeof(weakSelf) strongSelf = weakSelf;
 
-            [strongSelf requestRemoteConfigWithLastestVersion:lastestVersion];
+            [strongSelf requestRemoteConfigWithURLVersion:urlVersion];
         };
         model.cancelStyleTitle = @"取消";
     }
@@ -155,10 +155,12 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     [self showAlertWithModel:model];
 }
 
-- (void)showCheckRemoteConfigVersionAlertWithTitle:(NSString *)title message:(NSString *)message {
+- (void)showVersionCheckAlertWithURLVersion:(NSString *)urlVersion currentVersion:(nullable NSString *)currentVersion {
+    BOOL isEqual = [self urlVersion:urlVersion isEqualToCurrentVersion:currentVersion];
+    
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
-    model.title = title;
-    model.message = message;
+    model.title = isEqual ? @"提示" : @"信息版本不一致";
+    model.message = isEqual ? @"远程配置校验通过" : [NSString stringWithFormat:@"获取到采集控制信息的版本：%@，二维码信息的版本：%@，请稍后重新扫描二维码", currentVersion, urlVersion];
     [self showAlertWithModel:model];
 }
 
@@ -175,22 +177,22 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
 #pragma mark Request
 
-- (void)requestRemoteConfigWithLastestVersion:(NSString *)lastestVersion {
+- (void)requestRemoteConfigWithURLVersion:(NSString *)urlVersion {
     [self showIndicator];
     
     __weak typeof(self) weakSelf = self;
     [self requestRemoteConfigWithForceUpdate:YES completion:^(BOOL success, NSDictionary<NSString *,id> * _Nullable config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        
+
+        [strongSelf hideIndicator];
+
         @try {
             SALogDebug(@"【remote config】The request result: success is %d, config is %@", success, config);
 
-            [strongSelf hideIndicator];
-            
             if (success && config) {
                 // 远程配置
                 NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
-                [strongSelf handleRemoteConfig:remoteConfig withLastestVersion:lastestVersion];
+                [strongSelf handleRemoteConfig:remoteConfig withURLVersion:urlVersion];
             } else {
                 [strongSelf showRequestRemoteConfigFailedAlert];
             }
@@ -200,11 +202,15 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     }];
 }
 
-- (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withLastestVersion:(NSString *)lastestVersion {
-    if (![self checkRemoteConfig:remoteConfig withLastestVersion:lastestVersion]) {
+- (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withURLVersion:(NSString *)urlVersion {
+    NSString *currentVersion = remoteConfig[@"configs"][@"nv"];
+
+    [self showVersionCheckAlertWithURLVersion:urlVersion currentVersion:currentVersion];
+
+    if (![self urlVersion:urlVersion isEqualToCurrentVersion:currentVersion]) {
         return;
     }
-    
+
     NSMutableDictionary<NSString *, id> *eventMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
     eventMDic[@"debug"] = @YES;
     [self trackAppRemoteConfigChanged:eventMDic];
@@ -214,21 +220,8 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     [self enableRemoteConfig:enableMDic];
 }
 
-- (BOOL)checkRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withLastestVersion:(NSString *)lastestVersion {
-    NSString *title = @"提示";
-    NSString *message = @"远程配置校验通过";
-    BOOL isCheckPassed = YES;
-    
-    NSString *currentLastestVersion = remoteConfig[@"configs"][@"nv"];
-    if (![lastestVersion isEqualToString:currentLastestVersion]) {
-        title = @"信息版本不一致";
-        message = [NSString stringWithFormat:@"获取到采集控制信息的版本：%@，二维码信息的版本：%@，请稍后重新扫描二维码", currentLastestVersion, lastestVersion];
-        isCheckPassed = NO;
-    }
-
-    [self showCheckRemoteConfigVersionAlertWithTitle:title message:message];
-    
-    return isCheckPassed;
+- (BOOL)urlVersion:(NSString *)urlVersion isEqualToCurrentVersion:(nullable NSString *)currentVersion {
+    return [urlVersion isEqualToString:currentVersion];
 }
 
 #pragma mark UI
