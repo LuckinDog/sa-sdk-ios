@@ -57,7 +57,7 @@
 
 #pragma mark - Public
 
-- (BOOL)isBlackListContainsEvent:(NSString *)event {
+- (BOOL)isBlackListContainsEvent:(nullable NSString *)event {
     if (![SAValidator isValidString:event]) {
         return NO;
     }
@@ -66,6 +66,10 @@
 }
 
 - (void)requestRemoteConfigWithForceUpdate:(BOOL)isForceUpdate completion:(void (^)(BOOL success, NSDictionary<NSString *, id> * _Nullable config))completion {
+    if (!completion) {
+        return;
+    }
+
     @try {
         BOOL shouldAddVersion = !isForceUpdate && [self isLibVersionUnchanged] && [self shouldAddVersionOnEnableEncrypt];
         NSString *originalVersion = shouldAddVersion ? self.originalVersion : nil;
@@ -73,13 +77,11 @@
         
         NSURLRequest *request = [self buildURLRequestWithOriginalVersion:originalVersion latestVersion:latestVersion];
         if (!request) {
+            completion(NO, nil);
             return;
         }
         
         NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
-            if (!completion) {
-                return;
-            }
             NSInteger statusCode = response.statusCode;
             BOOL success = statusCode == 200 || statusCode == 304;
             NSDictionary<NSString *, id> *config = nil;
@@ -100,6 +102,7 @@
         [task resume];
     } @catch (NSException *e) {
         SALogError(@"【remote config】%@ error: %@", self, e);
+        completion(NO, nil);
     }
 }
 
@@ -153,7 +156,7 @@
     return self.options.encryptBuilderCreateResultBlock();
 }
 
-- (NSURLRequest *)buildURLRequestWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
+- (NSURLRequest *)buildURLRequestWithOriginalVersion:(nullable NSString *)originalVersion latestVersion:(nullable NSString *)latestVersion {
     NSURLComponents *urlComponets = nil;
     if (self.remoteConfigURL) {
         urlComponets = [NSURLComponents componentsWithURL:self.remoteConfigURL resolvingAgainstBaseURL:YES];

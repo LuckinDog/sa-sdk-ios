@@ -74,7 +74,7 @@
     }
 }
 
-- (BOOL)isBlackListContainsEvent:(NSString *)event {
+- (BOOL)isBlackListContainsEvent:(nullable NSString *)event {
     return [self.operator isBlackListContainsEvent:event];
 }
 

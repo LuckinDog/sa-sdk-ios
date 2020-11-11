@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否在事件黑名单中
 /// @param event 输入的事件名
 /// @return 是否在事件黑名单中
-- (BOOL)isBlackListContainsEvent:(NSString *)event;
+- (BOOL)isBlackListContainsEvent:(nullable NSString *)event;
 
 /// 请求远程配置
 /// @param isForceUpdate 是否请求最新的配置

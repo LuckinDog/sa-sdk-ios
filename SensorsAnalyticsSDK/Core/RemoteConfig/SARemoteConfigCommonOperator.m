@@ -39,7 +39,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 @interface SARemoteConfigCommonOperator ()
 
-@property (nonatomic, assign) NSUInteger requestRemoteConfigRetryMaxCount; // SDK 开启关闭功能接口最大重试次数
+@property (nonatomic, assign) NSUInteger requestRemoteConfigRetryMaxCount; // 请求远程配置的最大重试次数
 
 @end
 
@@ -199,19 +199,17 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (void)requestRemoteConfigWithParams:(NSDictionary *)params {
-    @try {
-        BOOL isForceUpdate = [params[@"isForceUpdate"] boolValue];
-        void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = params[@"completion"];
-        
-        if ([SACommonUtility currentNetworkType] == SensorsAnalyticsNetworkTypeNONE) {
+    BOOL isForceUpdate = [params[@"isForceUpdate"] boolValue];
+    void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = params[@"completion"];
+
+    if ([SACommonUtility currentNetworkType] == SensorsAnalyticsNetworkTypeNONE) {
+        if (completion) {
             completion(NO, nil);
-            return;
         }
-        
-        [self requestRemoteConfigWithForceUpdate:isForceUpdate completion:completion];
-    } @catch (NSException *e) {
-        SALogError(@"【remote config】%@ error: %@", self, e);
+        return;
     }
+
+    [self requestRemoteConfigWithForceUpdate:isForceUpdate completion:completion];
 }
 
 - (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
