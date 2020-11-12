@@ -95,24 +95,24 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     }
     
     NSString *urlProject = components[@"project"] ?: @"default";
-    NSString *urlAppID = components[@"app_id"];
     NSString *urlOS = components[@"os"];
+    NSString *urlAppID = components[@"app_id"];
     NSString *urlVersion = components[@"nv"];
-    SALogDebug(@"【remote config】The input QR url project is %@, app_id is %@, os is %@", urlProject, urlAppID, urlOS);
+    SALogDebug(@"【remote config】The input QR url project is %@, os is %@, app_id is %@", urlProject, urlOS, urlAppID);
     
     NSString *currentProject = self.project ?: @"default";
-    NSString *currentAppID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
     NSString *currentOS = @"iOS";
-    SALogDebug(@"【remote config】The current project is %@, app_id is %@, os is %@", currentProject, currentAppID, currentOS);
+    NSString *currentAppID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+    SALogDebug(@"【remote config】The current project is %@, os is %@, app_id is %@", currentProject, currentOS, currentAppID);
     
     BOOL isCheckPassed = NO;
     NSString *message = nil;
-    if (![currentProject isEqualToString:urlProject]) {
+    if (![urlProject isEqualToString:currentProject]) {
         message = @"App 集成的项目与二维码对应的项目不同，无法进行调试";
-    } else if (![currentAppID isEqualToString:urlAppID]) {
-        message = @"当前 App 与二维码对应的 App 不同，无法进行调试";
-    } else if (![currentOS isEqualToString:urlOS]) {
+    } else if (![urlOS isEqualToString:currentOS]) {
         message = @"App 与二维码对应的操作系统不同，无法进行调试";
+    } else if (![urlAppID isEqualToString:currentAppID]) {
+        message = @"当前 App 与二维码对应的 App 不同，无法进行调试";
     } else if (!urlVersion) {
         message = @"二维码信息校验失败，请检查采集控制是否配置正确";
     } else {
