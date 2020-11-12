@@ -26,17 +26,10 @@
 #import "SAJSONUtil.h"
 #import "SALog.h"
 #import "SADateFormatter.h"
+#import "SAValidator.h"
 
 @implementation SAJSONUtil
 
-/**
- *  @abstract
- *  把一个Object转成Json字符串
- *
- *  @param obj 要转化的对象Object
- *
- *  @return 转化后得到的字符串
- */
 + (NSData *)JSONSerializeObject:(id)obj {
     id coercedObj = [self JSONSerializableObjectForObject:obj];
     NSError *error = nil;
@@ -56,14 +49,9 @@
     return data;
 }
 
-/**
- *  @abstract
- *  在Json序列化的过程中，对一些不同的类型做一些相应的转换
- *
- *  @param obj 要处理的对象Object
- *
- *  @return 处理后的对象Object
- */
+/// 在Json序列化的过程中，对一些不同的类型做一些相应的转换
+/// @param obj 要处理的对象 Object
+/// @return 序列化后的 jsonString
 + (id)JSONSerializableObjectForObject:(id)obj {
     id newObj = [obj copy];
     // valid json types
@@ -122,6 +110,38 @@
     NSString *s = [newObj description];
     SALogWarn(@"%@ warning: property values should be valid json types. got: %@. coercing to: %@", self, [newObj class], s);
     return s;
+}
+
++ (id)JSONObjectWithData:(NSData *)data {
+    if (!data) {
+        SALogInfo(@"json data is nil");
+        return nil;
+    }
+    NSError *jsonError = nil;
+    id jsonObject = nil;
+    @try {
+        jsonObject = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingOptions)0 error:&jsonError];
+        if (jsonError) {
+            SALogError(@"json serialization error: %@",jsonError);
+        }
+    } @catch (NSException *exception) {
+        SALogError(@"%@", exception);
+    } @finally {
+        return jsonObject;
+    }
+}
+
++ (id)JSONObjectWithString:(NSString *)string {
+    if (![SAValidator isValidString:string]) {
+        SALogWarn(@"string verify failure: %@", string);
+        return nil;
+    }
+    NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
+    if (!data) {
+        SALogError(@"string dataUsingEncoding failure: %@",string);
+        return nil;
+    }
+    return [self JSONObjectWithData:data];
 }
 
 @end

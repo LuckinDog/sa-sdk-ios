@@ -22,14 +22,20 @@
 
 @interface SAJSONUtil : NSObject
 
-/**
- *  @abstract
- *  把一个Object转成Json字符串
- *
- *  @param obj 要转化的对象Object
- *
- *  @return 转化后得到的字符串
- */
+/// 把一个 Object 序列化成 jsonData
+/// @param obj 要转化的对象 Object
+///  @return 序列化后的 jsonData
 + (NSData *)JSONSerializeObject:(id)obj;
+
+
+/// jsonData 数据解析
+/// @param data 需要解析的 jsonData
+///  @return 解析后的对象 Object
++ (id)JSONObjectWithData:(NSData *)data;
+
+/// jsonString 数据解析
+/// @param string 需要解析的 jsonString
+///  @return 解析后的对象 Object
++ (id)JSONObjectWithString:(NSString *)string;
 
 @end
