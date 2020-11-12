@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION=1'}
   end
 
-  # 使用 WebView 进行打通
+  # 使用 UIWebView 或者 WKWebView 进行打通
   s.subspec 'WebView' do |w|
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WebView/**/*.{h,m}"

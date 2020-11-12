@@ -1,5 +1,5 @@
 //
-//  JSCallOCViewController2.h
+//  JSCallOCViewController.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 16/9/6.
@@ -20,6 +20,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface JSCallOCViewController2 : UIViewController<UIWebViewDelegate>
+@interface JSCallOCViewController : UIViewController<UIWebViewDelegate>
 
 @end

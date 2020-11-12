@@ -1,5 +1,5 @@
 //
-//  JSCallOCViewController2.m
+//  JSCallOCViewController.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 16/9/6.
@@ -18,14 +18,14 @@
 //  limitations under the License.
 //
 
-#import "JSCallOCViewController2.h"
+#import "JSCallOCViewController.h"
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 #import <WebKit/WebKit.h>
 
-@interface JSCallOCViewController2 ()<WKNavigationDelegate, WKUIDelegate>
+@interface JSCallOCViewController ()<WKNavigationDelegate, WKUIDelegate>
 @property WKWebView *webView;
 @end
-@implementation JSCallOCViewController2
+@implementation JSCallOCViewController
 - (void)viewDidLoad
 {
     [super viewDidLoad];

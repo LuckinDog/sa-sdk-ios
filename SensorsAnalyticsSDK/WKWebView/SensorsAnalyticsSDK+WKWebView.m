@@ -126,9 +126,6 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
 
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
 
-        //判断系统是否支持WKWebView
-        Class wkWebViewClass = NSClassFromString(@"WKWebView");
-
         NSString *urlstr = request.URL.absoluteString;
         if (!urlstr) {
             return YES;
@@ -137,17 +134,12 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
         //解析参数
         NSMutableDictionary *paramsDic = [[SAURLUtils queryItemsWithURLString:urlstr] mutableCopy];
 
-        if (wkWebViewClass && [webView isKindOfClass:wkWebViewClass]) {//WKWebView
+        if ([webView isKindOfClass:[WKWebView class]]) {//WKWebView
             SALogDebug(@"showUpWebView: WKWebView");
             if ([urlstr rangeOfString:kSAJSGetAppInfoScheme].location != NSNotFound) {
-                typedef void (^Myblock)(id, NSError *);
-                Myblock myBlock = ^(id _Nullable response, NSError *_Nullable error) {
+                [(WKWebView *)webView evaluateJavaScript:js completionHandler:^(id _Nullable response, NSError * _Nullable error) {
                     SALogDebug(@"response: %@ error: %@", response, error);
-                };
-                SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
-                if (sharedManagerSelector) {
-                    ((void (*)(id, SEL, NSString *, Myblock))[webView methodForSelector:sharedManagerSelector])(webView, sharedManagerSelector, js, myBlock);
-                }
+                }];
             } else if ([urlstr rangeOfString:kSAJSTrackEventNativeScheme].location != NSNotFound) {
                 if ([paramsDic count] > 0) {
                     NSString *eventInfo = [paramsDic objectForKey:SA_EVENT_NAME];
