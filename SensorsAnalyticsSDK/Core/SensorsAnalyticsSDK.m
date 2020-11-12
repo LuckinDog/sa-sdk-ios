@@ -498,11 +498,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //文件路径
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-        @try {
-            allClasses = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
-        } @catch(NSException *exception) {  // json加载和解析可能失败
-            SALogError(@"%@ error: %@", self, exception);
-        }
+        allClasses = [SAJSONUtil JSONObjectWithData:jsonData];
     });
 
     NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[SA_EVENT_NAME_APP_VIEW_SCREEN] : allClasses[SA_EVENT_NAME_APP_CLICK];
@@ -2876,12 +2872,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 return;
             }
 
-            NSData *jsonData = [eventInfo dataUsingEncoding:NSUTF8StringEncoding];
-            NSError *error;
-            NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                                             options:NSJSONReadingMutableContainers
-                                                                               error:&error];
-            if(error || !eventDict) {
+            NSMutableDictionary *eventDict = [[SAJSONUtil JSONObjectWithString:eventInfo] mutableCopy];
+            if(!eventDict) {
                 return;
             }
 

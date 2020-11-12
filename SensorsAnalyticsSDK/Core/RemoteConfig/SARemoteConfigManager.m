@@ -311,7 +311,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
         NSDictionary<NSString *, id> *config = nil;
         @try{
             if (statusCode == 200 && data.length) {
-                config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+                config = [SAJSONUtil JSONObjectWithData:data];
             }
         } @catch (NSException *e) {
             SALogError(@"%@ error: %@", self, e);

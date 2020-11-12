@@ -32,7 +32,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedUtils.h"
-
+#import "SAJSONUtil.h"
 
 @interface SAVisualizedAbstractMessage ()
 
@@ -128,24 +128,13 @@
     // SDK 版本号
     jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;
 
-    NSData * (^ jsonDataBlock)(void) = ^{
-        NSError *error = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
-        if (!jsonData && error) {
-            SALogError(@"Failed to serialize test designer message: %@", error);
-        }
-        return jsonData;
-    };
-
     if (_payload.count == 0) {
-        return jsonDataBlock();
+        return [SAJSONUtil JSONSerializeObject:jsonObject];
     }
     if (useGzip) {
         // 如果使用 GZip 压缩
-        NSError *error = nil;
-
         // 1. 序列化 Payload
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[_payload copy] options:0 error:&error];
+        NSData *jsonData = [SAJSONUtil JSONSerializeObject:_payload];
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         // 2. 使用 GZip 进行压缩
@@ -159,7 +148,7 @@
         jsonObject[@"payload"] = [_payload copy];
     }
 
-    return jsonDataBlock();
+    return [SAJSONUtil JSONSerializeObject:jsonObject];
 }
 
 - (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {

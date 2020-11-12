@@ -29,7 +29,7 @@
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAVisualizedObjectSerializerManger.h"
-
+#import "SAJSONUtil.h"
 
 @interface SAVisualizedConnection ()
 
@@ -102,9 +102,8 @@
         NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             if (response.statusCode == 200) {
-                NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
-                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                int delay = [[dict objectForKey:@"delay"] intValue];
+                NSDictionary *dict = [SAJSONUtil JSONObjectWithString:urlResponseContent];
+                int delay = [dict[@"delay"] intValue];
                 if (delay < 0) {
                     [self close];
                 }
@@ -126,10 +125,8 @@
     id <SAVisualizedMessage> designerMessage = nil;
 
     NSData *jsonData = [message isKindOfClass:[NSString class]] ? [(NSString *)message dataUsingEncoding:NSUTF8StringEncoding] : message;
-   // SADebug(@"%@ VTrack received message: %@", self, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
-    
-    NSError *error = nil;
-    id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
+
+    id jsonObject = [SAJSONUtil JSONObjectWithData:jsonData];
     if ([jsonObject isKindOfClass:[NSDictionary class]]) {
         NSDictionary *messageDictionary = (NSDictionary *)jsonObject;
         //snapshot_request
@@ -138,7 +135,7 @@
 
         designerMessage = [_typeToMessageClassMap[type] messageWithType:type payload:payload];
     } else {
-        SALogError(@"Badly formed socket message expected JSON dictionary: %@", error);
+        SALogError(@"Badly formed socket message expected JSON dictionary");
     }
 
     return designerMessage;

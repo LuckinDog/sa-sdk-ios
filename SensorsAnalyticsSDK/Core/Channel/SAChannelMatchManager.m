@@ -31,6 +31,7 @@
 #import "SAURLUtils.h"
 #import "SAReachability.h"
 #import "SALog.h"
+#import "SAJSONUtil.h"
 
 NSString * const SAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
 NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
@@ -229,13 +230,13 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     params[@"has_active"] = @([self isAppInstall]);
     params[@"device_code"] = [SAIdentifier idfa];
     [params addEntriesFromDictionary:qureyItems];
-    request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
+    request.HTTPBody = [SAJSONUtil JSONSerializeObject:params];
 
     [self showIndicator];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSDictionary *dict;
         if (data) {
-            dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            dict = [SAJSONUtil JSONObjectWithData:data];
         }
         NSInteger code = [dict[@"code"] integerValue];
         dispatch_async(dispatch_get_main_queue(), ^{

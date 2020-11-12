@@ -27,7 +27,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedObjectSerializerManger.h"
-
+#import "SAJSONUtil.h"
 
 @interface SAScriptMessageHandler ()
 
@@ -61,13 +61,7 @@
 
     @try {
         NSString *body = message.body;
-        NSData *messageData = [body dataUsingEncoding:NSUTF8StringEncoding];
-        if (!messageData) {
-            SALogError(@"Message body is invalid from JS SDK");
-            return;
-        }
-
-        NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
+        NSDictionary *messageDic = [SAJSONUtil JSONObjectWithString:body];
         if (![messageDic isKindOfClass:[NSDictionary class]]) {
             SALogError(@"Message body is formatted failure from JS SDK");
             return;
@@ -82,7 +76,7 @@
                 return;
             }
 
-            NSData *trackMessageData = [NSJSONSerialization dataWithJSONObject:trackMessageDic options:0 error:nil];
+            NSData *trackMessageData = [SAJSONUtil JSONSerializeObject:trackMessageDic];
             NSString *trackMessageString = [[NSString alloc] initWithData:trackMessageData encoding:NSUTF8StringEncoding];
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
         } else if ([callType isEqualToString:@"visualized_track"] || [callType isEqualToString:@"app_alert"] || [callType isEqualToString:@"page_info"]) {
