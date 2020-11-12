@@ -217,37 +217,39 @@
 
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController {
-    // 每次 compact 之前需要添加 NULL，规避系统 Bug（compact 函数有个已经报备的 bug，每次 compact 之前需要添加一个 NULL，否则会 compact 失败）
-    [self.controllersStack addPointer:NULL];
-    [self.controllersStack compact];
-
+    [self removeAllNullInControllersStack];
     [self.controllersStack addPointer:(__bridge void * _Nullable)(viewController)];
 }
 
 - (UIViewController *)lastViewScreenController {
     // allObjects 会自动过滤 NULL
-    NSArray *allObjects = [self.controllersStack allObjects];
-    if (allObjects.count == 0) {
+    if (self.controllersStack.allObjects.count == 0) {
         return nil;
     }
-    UIViewController *lastVC = [allObjects lastObject];
+    UIViewController *lastVC = [self.controllersStack.allObjects lastObject];
 
     // 如果 viewController 不在屏幕显示就移除
     while (lastVC && !lastVC.view.window) {
         // 如果 count 不等，即 controllersStack 存在 NULL
-        if (self.controllersStack.count > allObjects.count) {
-            [self.controllersStack addPointer:NULL];
-            [self.controllersStack compact];
+        if (self.controllersStack.count > self.controllersStack.allObjects.count) {
+            [self removeAllNullInControllersStack];
         }
 
+        // 移除最后一个不显示的 viewController
         [self.controllersStack removePointerAtIndex:self.controllersStack.count - 1];
-        allObjects = [self.controllersStack allObjects];
-        if (allObjects.count == 0) {
+        if (self.controllersStack.allObjects.count == 0) {
             return nil;
         }
-        lastVC = [allObjects lastObject];
+        lastVC = [self.controllersStack.allObjects lastObject];
     }
     return lastVC;
+}
+
+/// 移除 controllersStack 中所有 NULL
+- (void)removeAllNullInControllersStack {
+    // 每次 compact 之前需要添加 NULL，规避系统 Bug（compact 函数有个已经报备的 bug，每次 compact 之前需要添加一个 NULL，否则会 compact 失败）
+    [self.controllersStack addPointer:NULL];
+    [self.controllersStack compact];
 }
 
 - (void)resetLastImageHash:(NSString *)imageHash {
