@@ -160,7 +160,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
     model.title = isEqual ? @"提示" : @"信息版本不一致";
-    model.message = isEqual ? @"远程配置校验通过" : [NSString stringWithFormat:@"获取到采集控制信息的版本：%@，二维码信息的版本：%@，请稍后重新扫描二维码", currentVersion, urlVersion];
+    model.message = isEqual ? @"采集控制加载完成，可以通过 Xcode 控制台日志来调试" : [NSString stringWithFormat:@"获取到采集控制信息的版本：%@，二维码信息的版本：%@，请稍后重新扫描二维码", currentVersion, urlVersion];
     [self showAlertWithModel:model];
 }
 
