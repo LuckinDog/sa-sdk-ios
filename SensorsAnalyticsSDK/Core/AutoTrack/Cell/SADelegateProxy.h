@@ -1,9 +1,9 @@
 //
-//  NSObject+SensorsAnalyticsDelegate.h
+//  SADelegateProxy.m
 //  SensorsAnalyticsSDK
 //
-//  Created by 向作为 on 2018/8/8.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Created by 张敏超🍎 on 2019/6/19.
+//  Copyright © 2019 SensorsData. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,13 +18,31 @@
 //  limitations under the License.
 //
 
-#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
-
 #import <UIKit/UIKit.h>
-@interface UITableView (SensorsAnalyticsDelegate)
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SADelegateProxy : NSObject
+
+/**
+ 对 TableView 和 CollectionView 的单元格选中方法进行代理
+
+ @param delegate 代理：UITableViewDelegate、UICollectionViewDelegate 等
+ */
++ (void)proxyWithDelegate:(id)delegate;
+
 @end
 
-@interface UICollectionView (SensorsAnalyticsDelegate)
+@interface SADelegateProxy (ThirdPart)
+
++ (BOOL)isRxDelegateProxyClass:(Class)cla;
+
 @end
 
-#endif
+@interface SADelegateProxy (SubclassMethod) <UITableViewDelegate, UICollectionViewDelegate>
+
+- (Class)sensorsdata_class;
+
+@end
+
+NS_ASSUME_NONNULL_END

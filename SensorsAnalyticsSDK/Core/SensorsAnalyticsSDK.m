@@ -32,7 +32,6 @@
 #import <UIKit/UIScreen.h>
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
@@ -2157,37 +2156,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 #endif
 
-- (void)_enableAutoTrack {
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
-    void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
-        UIViewController *controller = (UIViewController *)obj;
-        if (!controller) {
-            return;
-        }
-        
-        Class klass = [controller class];
-        if (!klass) {
-            return;
-        }
-        
-        NSString *screenName = NSStringFromClass(klass);
-        
-        //UITableView
-    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
-        if ([controller respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
-            [SASwizzler unswizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UITableView_AutoTrack"]];
-        }
-    #endif
-        
-        //UICollectionView
-    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
-        if ([controller respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
-            [SASwizzler unswizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UICollectionView_AutoTrack"]];
-        }
-    #endif
-    };
-#endif
-    
+- (void)_enableAutoTrack {    
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -2199,21 +2168,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
                              withMethod:@selector(sa_sendAction:to:from:forEvent:)
                                   error:&error];
+        
+        SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
+        [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+        [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
         if (error) {
             SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
             error = NULL;
         }
     });
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
-    //$AppClick
-    //UITableView、UICollectionView
-    #if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
-    [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
-                            onClass:[UIViewController class]
-                          withBlock:unswizzleUITableViewAppClickBlock
-                              named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
-    #endif
-#endif
+    
     //UILabel
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
     static dispatch_once_t onceTokenGesture;
