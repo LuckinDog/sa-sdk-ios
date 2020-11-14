@@ -1,9 +1,9 @@
 //
-//  UIScrollView+AutoTrack.h
+//  NSObject+SensorsAnalyticsDelegate.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 张敏超🍎 on 2019/6/19.
-//  Copyright © 2019 SensorsData. All rights reserved.
+//  Created by 向作为 on 2018/8/8.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,20 +18,13 @@
 //  limitations under the License.
 //
 
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
+
 #import <UIKit/UIKit.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface UITableView (AutoTrack)
-
-- (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate;
-
+@interface UITableView (SensorsAnalyticsDelegate)
 @end
 
-@interface UICollectionView (AutoTrack)
-
-- (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate;
-
+@interface UICollectionView (SensorsAnalyticsDelegate)
 @end
 
-NS_ASSUME_NONNULL_END
+#endif
