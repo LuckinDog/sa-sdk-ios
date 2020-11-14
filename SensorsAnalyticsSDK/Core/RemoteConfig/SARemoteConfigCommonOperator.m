@@ -68,7 +68,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if (self.options.configOptions.disableRandomTimeRequestRemoteConfig || self.options.configOptions.maxRequestHourInterval < self.options.configOptions.minRequestHourInterval) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove isForceUpdate:NO];
-        SALogDebug(@"【remote config】Request remote config because disableRandomTimerequestRemoteConfig or minHourInterval and maxHourInterval error，Please check the value");
+        SALogDebug(@"【remote config】Request remote config because disableRandomTimeRequestRemoteConfig or minHourInterval greater than maxHourInterval");
         return;
     }
     
