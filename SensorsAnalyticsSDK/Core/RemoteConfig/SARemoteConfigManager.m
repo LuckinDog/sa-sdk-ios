@@ -27,7 +27,7 @@
 
 @interface SARemoteConfigManager ()
 
-@property (nonatomic, strong) SARemoteConfigOperator *operator;
+@property (atomic, strong) SARemoteConfigOperator *operator;
 
 @end
 
