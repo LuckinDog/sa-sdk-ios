@@ -46,6 +46,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param cla 待释放的类
 + (void)deallocClass:(Class)cla;
 
+/// 获取实例对象的 isa
+/// @param object 实例对象
++ (Class _Nullable)realClassWithObject:(id)object;
+
 @end
 
 NS_ASSUME_NONNULL_END

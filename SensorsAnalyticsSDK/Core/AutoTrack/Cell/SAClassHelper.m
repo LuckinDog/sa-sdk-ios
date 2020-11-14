@@ -62,4 +62,8 @@
     }
 }
 
++ (Class _Nullable)realClassWithObject:(id)object {
+    return object_getClass(object);
+}
+
 @end

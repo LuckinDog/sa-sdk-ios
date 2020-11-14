@@ -32,70 +32,11 @@
 
 typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexPath *);
 
-/// Delegate 的类前缀
-static NSString *const kSADelegatePrefix = @"__CN.SENSORSDATA";
-static NSString *const kSAClassSeparatedChar = @".";
-static long subClassIndex = 0;
-
-/**
- 判断一个类是否有神策动态添加的类型
-
- @param class 当前类
- @return 是否有特殊前缀
- */
-BOOL sensorsdata_isDynamicClass(Class _Nullable class) {
-    return [NSStringFromClass(class) hasPrefix:kSADelegatePrefix];
-}
-
-/**
- 从对象的 class 继承链中获取动态添加的类
-
- @param object 实例对象
- @return 动态添加的类; 继承链中不存在动态添加的类时, 返回 nil
- */
-Class _Nullable sensorsdata_dynamicClassInInheritanceChain(id _Nullable object) {
-    Class class = object_getClass(object);
-    while (class) {
-        if (sensorsdata_isDynamicClass(class)) {
-            return class;
-        }
-        class = class_getSuperclass(class);
-    }
-    return nil;
-}
-
-/**
- 根据实例对象生成动态添加的子类的名称
-
- @param obj 实例对象
- @return 子类类名
- */
-NSString *sensorsdata_generateDynamicClassName(id obj) {
-    Class class = object_getClass(obj);
-    if (sensorsdata_isDynamicClass(class)) return NSStringFromClass(class);
-    return [NSString stringWithFormat:@"%@%@%@%@", kSADelegatePrefix, @(subClassIndex++), kSAClassSeparatedChar, NSStringFromClass(class)];
-}
-
-/**
- 获取 obj 的原始 Class
-
- @param obj 实例对象
- @return 原始类
- */
-Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
-    Class cla = object_getClass(obj);
-    if (!sensorsdata_isDynamicClass(cla)) return cla;
-    NSString *className = [NSStringFromClass(cla) substringFromIndex:kSADelegatePrefix.length];
-    NSString *prefix = [[className componentsSeparatedByString:kSAClassSeparatedChar].firstObject stringByAppendingString:kSAClassSeparatedChar];
-    className = [className substringFromIndex:prefix.length];
-    return objc_getClass([className UTF8String]);
-}
-
 @implementation SADelegateProxy
 
 + (void)proxyWithDelegate:(id)delegate {
     @try {
-        [self hookDidSelectMethodWithDelegate:delegate];
+        [SADelegateProxy hookDidSelectMethodWithDelegate:delegate];
     } @catch (NSException *exception) {
         return SALogError(@"%@", exception);
     }
@@ -103,7 +44,7 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
 
 + (void)hookDidSelectMethodWithDelegate:(id)delegate {
     // 代理对象的继承链中存在动态添加的类, 则不重复添加类
-    if (sensorsdata_dynamicClassInInheritanceChain(delegate)) {
+    if ([SADelegateProxy sensorsClassInInheritanceChain:delegate]) {
         return;
     }
     
@@ -117,28 +58,26 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
     if (!canResponseTableView && !canResponseCollectionView) {
         return;
     }
+    Class proxyClass = self.class;
+    Class realClass = [SAClassHelper realClassWithObject:delegate];
+    if ([SADelegateProxy isKVOClass:realClass]) {
+        [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
+        [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:context:) fromClass:proxyClass toClass:realClass];
+        [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:realClass];
+        [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:realClass];
+        return;
+    }
     
     // 创建类
-    NSString *dynamicClassName = sensorsdata_generateDynamicClassName(delegate);
+    NSString *dynamicClassName = [SADelegateProxy generateSensorsClassName:delegate];
     Class dynamicClass = [SAClassHelper createClassWithObject:delegate className:dynamicClassName];
     if (!dynamicClass) {
         return;
     }
     
-    Class proxyClass = self.class;
-    
     BOOL swizzleSuccess = NO;
-    
-    // hook tableView 的单元格选中方法
-    if (canResponseTableView) {
-        swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
-    }
-    
-    // hook collectionView 的单元格选中方法
-    if (canResponseCollectionView) {
-        swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass] || swizzleSuccess;
-    }
-    
+    swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
+    swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass] || swizzleSuccess;
     if (!swizzleSuccess) {
         [SAClassHelper deallocClass:dynamicClass];
         return;
@@ -184,20 +123,24 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
 
 /// Overridden instance class method
 - (Class)sensorsdata_class {
-    return sensorsdata_originalClass(self);
+    return [SADelegateProxy originalClass:self];
 }
 
 + (Class)handleClassWithDelegate:(id)delegate {
-    Class dynamicClass = sensorsdata_dynamicClassInInheritanceChain(delegate);
+    Class dynamicClass = [SADelegateProxy sensorsClassInInheritanceChain:delegate];
     if (dynamicClass) {
         return class_getSuperclass(dynamicClass);
+    }
+    Class currentClass = [SAClassHelper realClassWithObject:delegate];
+    if ([SADelegateProxy isKVOClass:currentClass]) {
+        return class_getSuperclass(currentClass);
     }
     return object_getClass(delegate);
 }
 
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
     id delegate = scrollView.delegate;
-    Class originalClass = [self handleClassWithDelegate:delegate];
+    Class originalClass = [SADelegateProxy handleClassWithDelegate:delegate];
     IMP originalImplementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:originalClass];
     if (originalImplementation) {
         ((SensorsDidSelectImplementation)originalImplementation)(delegate, selector, scrollView, indexPath);
@@ -223,6 +166,83 @@ Class _Nullable sensorsdata_originalClass(id _Nullable obj) {
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     SEL methodSelector = @selector(collectionView:didSelectItemAtIndexPath:);
     [SADelegateProxy invokeWithScrollView:collectionView selector:methodSelector selectedAtIndexPath:indexPath];
+}
+
+@end
+
+#pragma mark - KVO
+@implementation SADelegateProxy (KVO)
+
+- (void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath {
+    BOOL oldClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
+    [super removeObserver:observer forKeyPath:keyPath];
+    BOOL newClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
+    if (oldClassIsKVO && !newClassIsKVO) {
+        [SADelegateProxy proxyWithDelegate:self];
+    }
+}
+
+- (void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath context:(void *)context {
+    BOOL oldClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
+    [super removeObserver:observer forKeyPath:keyPath context:context];
+    BOOL newClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
+    if (oldClassIsKVO && !newClassIsKVO) {
+        [SADelegateProxy proxyWithDelegate:self];
+    }
+}
+
+@end
+
+#pragma mark - Utils
+/// Delegate 的类前缀
+static NSString *const kSADelegatePrefix = @"__CN.SENSORSDATA";
+static NSString *const kSAClassSeparatedChar = @".";
+static long subClassIndex = 0;
+
+@implementation SADelegateProxy (Utils)
+
+/// 是不是 KVO 创建的类
+/// @param cls 类
++ (BOOL)isKVOClass:(Class _Nullable)cls {
+    return [NSStringFromClass(cls) hasPrefix:@"NSKVONotifying_"];
+}
+
+/// 是不是神策创建的类
+/// @param cls 类
++ (BOOL)isSensorsClass:(Class _Nullable)cls {
+    return [NSStringFromClass(cls) hasPrefix:kSADelegatePrefix];
+}
+
+/// 获取神策创建类的父类
+/// @param obj 实例对象
++ (Class _Nullable)originalClass:(id _Nullable)obj {
+    Class cla = object_getClass(obj);
+    if (![SADelegateProxy isSensorsClass:cla]) return cla;
+    NSString *className = [NSStringFromClass(cla) substringFromIndex:kSADelegatePrefix.length];
+    NSString *prefix = [[className componentsSeparatedByString:kSAClassSeparatedChar].firstObject stringByAppendingString:kSAClassSeparatedChar];
+    className = [className substringFromIndex:prefix.length];
+    return objc_getClass([className UTF8String]);
+}
+
+/// 生成神策要创建类的类名
+/// @param obj 实例对象
++ (NSString *)generateSensorsClassName:(id)obj {
+    Class class = object_getClass(obj);
+    if ([SADelegateProxy isSensorsClass:class]) return NSStringFromClass(class);
+    return [NSString stringWithFormat:@"%@%@%@%@", kSADelegatePrefix, @(subClassIndex++), kSAClassSeparatedChar, NSStringFromClass(class)];
+}
+
+/// 实例对象的 class 继承链中是否包含神策添加的类
+/// @param obj 实例对象
++ (Class _Nullable)sensorsClassInInheritanceChain:(id _Nullable)obj {
+    Class class = object_getClass(obj);
+    while (class) {
+        if ([SADelegateProxy isSensorsClass:class]) {
+            return class;
+        }
+        class = class_getSuperclass(class);
+    }
+    return nil;
 }
 
 @end
