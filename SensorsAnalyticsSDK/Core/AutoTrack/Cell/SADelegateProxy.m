@@ -59,6 +59,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
         return;
     }
     Class proxyClass = self.class;
+    // KVO 创建子类后会重写 - (Class)class 方法, 直接通过 object.class 无法获取真实的类
     Class realClass = [SAClassHelper realClassWithObject:delegate];
     // 如果当前代理对象归属为 KVO 创建的类, 则无需新建子类
     if ([SADelegateProxy isKVOClass:realClass]) {
