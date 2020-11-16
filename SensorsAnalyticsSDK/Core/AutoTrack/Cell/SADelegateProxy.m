@@ -204,7 +204,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 
 #pragma mark - Utils
 /// Delegate 的类前缀
-static NSString *const kSADelegatePrefix = @"__CN.SENSORSDATA";
+static NSString *const kSADelegateSuffix = @"__CN.SENSORSDATA";
 static NSString *const kSAClassSeparatedChar = @".";
 static long subClassIndex = 0;
 
@@ -219,7 +219,7 @@ static long subClassIndex = 0;
 /// 是不是神策创建的类
 /// @param cls 类
 + (BOOL)isSensorsClass:(Class _Nullable)cls {
-    return [NSStringFromClass(cls) hasPrefix:kSADelegatePrefix];
+    return [NSStringFromClass(cls) hasSuffix:kSADelegateSuffix];
 }
 
 /// 获取神策创建类的父类
@@ -227,9 +227,10 @@ static long subClassIndex = 0;
 + (Class _Nullable)originalClass:(id _Nullable)obj {
     Class cla = object_getClass(obj);
     if (![SADelegateProxy isSensorsClass:cla]) return cla;
-    NSString *className = [NSStringFromClass(cla) substringFromIndex:kSADelegatePrefix.length];
-    NSString *prefix = [[className componentsSeparatedByString:kSAClassSeparatedChar].firstObject stringByAppendingString:kSAClassSeparatedChar];
-    className = [className substringFromIndex:prefix.length];
+    NSString *className = NSStringFromClass(cla);
+    className = [className substringToIndex:className.length - kSADelegateSuffix.length];
+    NSString *suffix = [kSAClassSeparatedChar stringByAppendingString:[className componentsSeparatedByString:kSAClassSeparatedChar].lastObject];
+    className = [className substringToIndex:className.length - suffix.length];
     return objc_getClass([className UTF8String]);
 }
 
@@ -238,7 +239,7 @@ static long subClassIndex = 0;
 + (NSString *)generateSensorsClassName:(id)obj {
     Class class = object_getClass(obj);
     if ([SADelegateProxy isSensorsClass:class]) return NSStringFromClass(class);
-    return [NSString stringWithFormat:@"%@%@%@%@", kSADelegatePrefix, @(subClassIndex++), kSAClassSeparatedChar, NSStringFromClass(class)];
+    return [NSString stringWithFormat:@"%@%@%@%@", NSStringFromClass(class), kSAClassSeparatedChar, @(subClassIndex++), kSADelegateSuffix];
 }
 
 /// 实例对象的 class 继承链中是否包含神策添加的类
