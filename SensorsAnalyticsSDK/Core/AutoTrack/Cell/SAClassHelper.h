@@ -31,20 +31,20 @@ NS_ASSUME_NONNULL_BEGIN
 /// 动态创建 Class, 类名为 className, 父类为 delegate 的当前类
 /// @param object 实例对象
 /// @param className 类名
-+ (Class _Nullable)createClassWithObject:(id)object className:(NSString *)className;
++ (Class _Nullable)allocateClassWithObject:(id)object className:(NSString *)className;
 
 /// 动态创建类后, 使类生效
 /// @param cla 待生效的类
-+ (void)effectiveClass:(Class)cla;
++ (void)registerClass:(Class)cla;
 
 /// 把实例对象的类变更为另外的类
 /// @param object 实例对象
 /// @param cla 要变更的目标类
-+ (BOOL)configObject:(id)object toClass:(Class)cla;
++ (BOOL)setObject:(id)object toClass:(Class)cla;
 
 /// 释放类
 /// @param cla 待释放的类
-+ (void)deallocClass:(Class)cla;
++ (void)disposeClass:(Class)cla;
 
 /// 获取实例对象的 isa
 /// @param object 实例对象

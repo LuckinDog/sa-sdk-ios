@@ -27,7 +27,7 @@
 
 @implementation SAClassHelper
 
-+ (Class _Nullable)createClassWithObject:(id)object className:(NSString *)className {
++ (Class _Nullable)allocateClassWithObject:(id)object className:(NSString *)className {
     if (!object || className.length <= 0) {
         return nil;
     }
@@ -43,20 +43,20 @@
     return subclass;
 }
 
-+ (void)effectiveClass:(Class)cla {
++ (void)registerClass:(Class)cla {
     if (cla) {
         objc_registerClassPair(cla);
     }
 }
 
-+ (BOOL)configObject:(id)object toClass:(Class)cla {
++ (BOOL)setObject:(id)object toClass:(Class)cla {
     if (cla && object) {
         return object_setClass(object, cla);
     }
     return NO;
 }
 
-+ (void)deallocClass:(Class)cla {
++ (void)disposeClass:(Class)cla {
     if (cla) {
         objc_disposeClassPair(cla);
     }

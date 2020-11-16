@@ -75,7 +75,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     
     // 创建类
     NSString *dynamicClassName = [SADelegateProxy generateSensorsClassName:delegate];
-    Class dynamicClass = [SAClassHelper createClassWithObject:delegate className:dynamicClassName];
+    Class dynamicClass = [SAClassHelper allocateClassWithObject:delegate className:dynamicClassName];
     if (!dynamicClass) {
         return;
     }
@@ -88,13 +88,13 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     [SAMethodHelper addInstanceMethodWithDestinationSelector:@selector(class) sourceSelector:@selector(sensorsdata_class) fromClass:proxyClass toClass:dynamicClass];
     
     // 使类生效
-    [SAClassHelper effectiveClass:dynamicClass];
+    [SAClassHelper registerClass:dynamicClass];
     
     // 替换代理对象所归属的类
-    if ([SAClassHelper configObject:delegate toClass:dynamicClass]) {
+    if ([SAClassHelper setObject:delegate toClass:dynamicClass]) {
         // 在对象释放时, 释放创建的子类
         [delegate sensorsdata_registerDeallocBlock:^{
-            [SAClassHelper deallocClass:dynamicClass];
+            [SAClassHelper disposeClass:dynamicClass];
         }];
     }
 }
