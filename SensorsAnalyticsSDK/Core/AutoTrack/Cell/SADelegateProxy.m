@@ -64,6 +64,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     if ([SADelegateProxy isKVOClass:realClass]) {
         // 在移除所有的 KVO 属性监听时, 系统会重置对象的 isa 指针为原有的类; 因此需要在移除监听时, 重新为代理对象设置新的子类, 来采集点击事件
         [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
+        // removeObserver:forKeyPath: 和 removeObserver:forKeyPath:context: 两种移除方式, 系统是分开调用的, 因此需要同时监听两种移除方法
         [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:context:) fromClass:proxyClass toClass:realClass];
         
         // 给 KVO 的类添加 cell 点击方法, 采集点击事件
