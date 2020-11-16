@@ -60,9 +60,13 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     }
     Class proxyClass = self.class;
     Class realClass = [SAClassHelper realClassWithObject:delegate];
+    // 如果当前代理对象归属为 KVO 创建的类, 则无需新建子类
     if ([SADelegateProxy isKVOClass:realClass]) {
+        // 在移除所有的 KVO 属性监听时, 系统会重置对象的 isa 指针为原有的类; 因此需要在移除监听时, 重新为代理对象设置新的子类, 来采集点击事件
         [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
         [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:context:) fromClass:proxyClass toClass:realClass];
+        
+        // 给 KVO 的类添加 cell 点击方法, 采集点击事件
         [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:realClass];
         [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:realClass];
         return;
@@ -75,6 +79,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
         return;
     }
     
+    // 如果 tableView 和 collectionView 的点击事件都添加失败了, 则直接释放已创建的子类
     BOOL swizzleSuccess = NO;
     swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
     swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass] || swizzleSuccess;
@@ -127,10 +132,12 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 }
 
 + (Class)handleClassWithDelegate:(id)delegate {
+    // 获取到神策添加子类的父类
     Class dynamicClass = [SADelegateProxy sensorsClassInInheritanceChain:delegate];
     if (dynamicClass) {
         return class_getSuperclass(dynamicClass);
     }
+    // 获取到 KVO 添加子类的父类
     Class currentClass = [SAClassHelper realClassWithObject:delegate];
     if ([SADelegateProxy isKVOClass:currentClass]) {
         return class_getSuperclass(currentClass);
@@ -174,18 +181,26 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 @implementation SADelegateProxy (KVO)
 
 - (void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath {
+    // remove 前代理对象是否归属于 KVO 创建的类
     BOOL oldClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
     [super removeObserver:observer forKeyPath:keyPath];
+    // remove 后代理对象是否归属于 KVO 创建的类
     BOOL newClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
+    
+    // 有多个属性监听时, 在最后一个监听被移除后, 对象的 isa 发生变化, 需要重新为代理对象添加子类
     if (oldClassIsKVO && !newClassIsKVO) {
         [SADelegateProxy proxyWithDelegate:self];
     }
 }
 
 - (void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath context:(void *)context {
+    // remove 前代理对象是否归属于 KVO 创建的类
     BOOL oldClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
     [super removeObserver:observer forKeyPath:keyPath context:context];
+    // remove 后代理对象是否归属于 KVO 创建的类
     BOOL newClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
+    
+    // 有多个属性监听时, 在最后一个监听被移除后, 对象的 isa 发生变化, 需要重新为代理对象添加子类
     if (oldClassIsKVO && !newClassIsKVO) {
         [SADelegateProxy proxyWithDelegate:self];
     }
