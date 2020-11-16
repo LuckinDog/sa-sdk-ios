@@ -79,14 +79,9 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
         return;
     }
     
-    // 如果 tableView 和 collectionView 的点击事件都添加失败了, 则直接释放已创建的子类
-    BOOL swizzleSuccess = NO;
-    swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
-    swizzleSuccess = [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass] || swizzleSuccess;
-    if (!swizzleSuccess) {
-        [SAClassHelper deallocClass:dynamicClass];
-        return;
-    }
+    // 给新创建的类添加 cell 点击方法, 采集点击事件
+    [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
+    [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass];
     
     // 重写 - (Class)class 方法，隐藏新添加的子类
     [SAMethodHelper addInstanceMethodWithDestinationSelector:@selector(class) sourceSelector:@selector(sensorsdata_class) fromClass:proxyClass toClass:dynamicClass];
