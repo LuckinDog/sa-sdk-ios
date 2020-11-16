@@ -27,7 +27,6 @@
 #import "SAAutoTrackProperty.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import <objc/runtime.h>
 #import <objc/message.h>
 
 typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexPath *);
@@ -130,14 +129,14 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     // 获取到神策添加子类的父类
     Class dynamicClass = [SADelegateProxy sensorsClassInInheritanceChain:delegate];
     if (dynamicClass) {
-        return class_getSuperclass(dynamicClass);
+        return [SAClassHelper realSuperClassWithClass:dynamicClass];
     }
     // 获取到 KVO 添加子类的父类
     Class currentClass = [SAClassHelper realClassWithObject:delegate];
     if ([SADelegateProxy isKVOClass:currentClass]) {
-        return class_getSuperclass(currentClass);
+        return [SAClassHelper realSuperClassWithClass:currentClass];
     }
-    return object_getClass(delegate);
+    return [SAClassHelper realClassWithObject:delegate];
 }
 
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
@@ -226,19 +225,17 @@ static long subClassIndex = 0;
 /// 获取神策创建类的父类
 /// @param obj 实例对象
 + (Class _Nullable)originalClass:(id _Nullable)obj {
-    Class cla = object_getClass(obj);
-    if (![SADelegateProxy isSensorsClass:cla]) return cla;
-    NSString *className = NSStringFromClass(cla);
-    className = [className substringToIndex:className.length - kSADelegateSuffix.length];
-    NSString *suffix = [kSAClassSeparatedChar stringByAppendingString:[className componentsSeparatedByString:kSAClassSeparatedChar].lastObject];
-    className = [className substringToIndex:className.length - suffix.length];
-    return objc_getClass([className UTF8String]);
+    Class class = [SAClassHelper realClassWithObject:obj];
+    if ([SADelegateProxy isSensorsClass:class]) {
+        return [SAClassHelper realSuperClassWithClass:class];
+    }
+    return class;
 }
 
 /// 生成神策要创建类的类名
 /// @param obj 实例对象
 + (NSString *)generateSensorsClassName:(id)obj {
-    Class class = object_getClass(obj);
+    Class class = [SAClassHelper realClassWithObject:obj];
     if ([SADelegateProxy isSensorsClass:class]) return NSStringFromClass(class);
     return [NSString stringWithFormat:@"%@%@%@%@", NSStringFromClass(class), kSAClassSeparatedChar, @(subClassIndex++), kSADelegateSuffix];
 }
@@ -246,12 +243,12 @@ static long subClassIndex = 0;
 /// 实例对象的 class 继承链中是否包含神策添加的类
 /// @param obj 实例对象
 + (Class _Nullable)sensorsClassInInheritanceChain:(id _Nullable)obj {
-    Class class = object_getClass(obj);
+    Class class = [SAClassHelper realClassWithObject:obj];
     while (class) {
         if ([SADelegateProxy isSensorsClass:class]) {
             return class;
         }
-        class = class_getSuperclass(class);
+        class = [SAClassHelper realSuperClassWithClass:class];
     }
     return nil;
 }

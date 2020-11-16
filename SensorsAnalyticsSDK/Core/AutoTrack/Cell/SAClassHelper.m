@@ -66,4 +66,8 @@
     return object_getClass(object);
 }
 
++ (Class _Nullable)realSuperClassWithClass:(Class _Nullable)cla {
+    return class_getSuperclass(cla);
+}
+
 @end

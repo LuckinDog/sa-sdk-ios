@@ -51,6 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param object 实例对象
 + (Class _Nullable)realClassWithObject:(id)object;
 
+/// 获取 Class 的父类
+/// @param cla 类
++ (Class _Nullable)realSuperClassWithClass:(Class _Nullable)cla;
+
 @end
 
 NS_ASSUME_NONNULL_END
