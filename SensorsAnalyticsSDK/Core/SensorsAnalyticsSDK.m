@@ -264,7 +264,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
     NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disable");
+        SALogDebug(@"【remote config】SDK is disabled");
         return nil;
     }
     return sharedInstance;
@@ -807,7 +807,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEnabled {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disable");
+        SALogDebug(@"【remote config】SDK is disabled");
         return NO;
     }
     
@@ -827,7 +827,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disable");
+        SALogDebug(@"【remote config】SDK is disabled");
         return YES;
     }
     
@@ -1223,7 +1223,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disable");
+        SALogDebug(@"【remote config】SDK is disabled");
         return;
     }
     

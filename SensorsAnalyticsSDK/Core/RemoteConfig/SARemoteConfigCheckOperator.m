@@ -129,7 +129,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
 - (void)showNetworkErrorAlert {
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
-    model.message = @"网络连接失败，请检查设备网络";
+    model.message = @"网络连接失败，请检查设备网络，确认网络畅通后，请重新扫描二维码进行调试";
     [self showAlertWithModel:model];
 }
 
@@ -151,7 +151,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
 - (void)showRequestRemoteConfigFailedAlert {
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
-    model.message = @"远程配置获取失败，请稍后再试";
+    model.message = @"远程配置获取失败，请稍后重新扫描二维码";
     [self showAlertWithModel:model];
 }
 
