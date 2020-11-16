@@ -177,7 +177,7 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
     return NO;
 }
 
-- (NSMutableDictionary *)webViewJavascriptBridgeCallbackInfo {
+- (NSDictionary *)webViewJavascriptBridgeCallbackInfo {
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     [libProperties setValue:@"iOS" forKey:SA_EVENT_TYPE];
     if (self.loginId != nil) {
