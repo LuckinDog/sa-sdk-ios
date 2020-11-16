@@ -175,17 +175,18 @@
         urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
     }
     
-    urlComponets.query = [self buildQueryWithOriginalVersion:originalVersion latestVersion:latestVersion];
+    urlComponets.query = [self buildQueryWithURL:urlComponets.URL originalVersion:originalVersion latestVersion:latestVersion];
     
     return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
 }
 
-- (NSString *)buildQueryWithOriginalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
+- (NSString *)buildQueryWithURL:(NSURL *)url originalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
     NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionaryWithCapacity:4];
-    params[@"v"] = originalVersion;
-    params[@"nv"] = latestVersion;
-    params[@"app_id"] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-    params[@"project"] = self.project;
+    NSDictionary *originalParams = [SAURLUtils queryItemsWithURL:url];
+    params[@"v"] = originalParams[@"v"] ?: originalVersion;
+    params[@"nv"] = originalParams[@"nv"] ?: latestVersion;
+    params[@"app_id"] = originalParams[@"app_id"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+    params[@"project"] = originalParams[@"project"] ?: self.project;
     
     return [SAURLUtils urlQueryStringWithParams:params];
 }
