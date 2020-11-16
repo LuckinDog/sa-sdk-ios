@@ -47,24 +47,24 @@ static void *const kSADelegateProxyParasiteName = (void *)&kSADelegateProxyParas
 
 @interface NSObject (SARelease)
 
-@property (nonatomic, strong) SADelegateProxyParasite *parasite;
+@property (nonatomic, strong) SADelegateProxyParasite *sensorsdata_parasite;
 
 @end
 
 @implementation NSObject (SARelease)
 
-- (SADelegateProxyParasite *)parasite {
+- (SADelegateProxyParasite *)sensorsdata_parasite {
     return objc_getAssociatedObject(self, kSADelegateProxyParasiteName);
 }
 
-- (void)setParasite:(SADelegateProxyParasite *)parasite {
+- (void)setSensorsdata_parasite:(SADelegateProxyParasite *)parasite {
     objc_setAssociatedObject(self, kSADelegateProxyParasiteName, parasite, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock {
-    if (!self.parasite) {
-        self.parasite = [[SADelegateProxyParasite alloc] init];
-        self.parasite.deallocBlock = deallocBlock;
+    if (!self.sensorsdata_parasite) {
+        self.sensorsdata_parasite = [[SADelegateProxyParasite alloc] init];
+        self.sensorsdata_parasite.deallocBlock = deallocBlock;
     }
 }
 
