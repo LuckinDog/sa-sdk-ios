@@ -181,8 +181,8 @@
 }
 
 - (NSString *)buildQueryWithURL:(NSURL *)url originalVersion:(NSString *)originalVersion latestVersion:(NSString *)latestVersion {
-    NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionaryWithCapacity:4];
     NSDictionary *originalParams = [SAURLUtils queryItemsWithURL:url];
+    NSMutableDictionary<NSString *, NSString *> *params = [NSMutableDictionary dictionaryWithDictionary:originalParams];
     params[@"v"] = originalParams[@"v"] ?: originalVersion;
     params[@"nv"] = originalParams[@"nv"] ?: latestVersion;
     params[@"app_id"] = originalParams[@"app_id"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
