@@ -307,6 +307,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
             _network = [[SANetwork alloc] init];
+            [self setupSecurityPolicyWithConfigOptions:_configOptions];
+
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
             _appRelaunched = NO;
@@ -391,6 +393,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     return self;
+}
+
+- (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
+    SASecurityPolicy *securityPolicy = options.securityPolicy;
+    if (!securityPolicy) {
+        return;
+    }
+    NSURL *serverURL = [NSURL URLWithString:options.serverURL];
+    if (securityPolicy.SSLPinningMode != SASSLPinningModeNone && ![serverURL.scheme isEqualToString:@"https"]) {
+        NSString *pinningMode = @"Unknown Pinning Mode";
+        switch (securityPolicy.SSLPinningMode) {
+            case SASSLPinningModeNone:
+                pinningMode = @"SASSLPinningModeNone";
+                break;
+            case SASSLPinningModeCertificate:
+                pinningMode = @"SASSLPinningModeCertificate";
+                break;
+            case SASSLPinningModePublicKey:
+                pinningMode = @"SASSLPinningModePublicKey";
+                break;
+        }
+        SALogError(@"Invalid Security Policy! A security policy configured with `%@` can only be applied on a manager with a secure base URL (i.e. https)", pinningMode);
+    }
+    SAHTTPSession.sharedInstance.securityPolicy = securityPolicy;
 }
 
 - (void)setupLaunchedState {
@@ -2548,14 +2574,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 #endif
 
-}
-
-- (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
-    self.network.securityPolicy = securityPolicy;
-}
-
-- (SASecurityPolicy *)securityPolicy {
-    return self.network.securityPolicy;
 }
 
 #pragma mark - RemoteConfig
