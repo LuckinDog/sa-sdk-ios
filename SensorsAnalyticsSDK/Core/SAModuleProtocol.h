@@ -36,4 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@protocol SAOpenURLModuleProtocol <SAModuleProtocol>
+
+@property (nonatomic, copy, readonly) NSString *host;
+
+- (BOOL)canHandleURL:(NSURL *)url;
+- (BOOL)handleOpenURL:(NSURL *)url;
+
+@end
+
 NS_ASSUME_NONNULL_END
