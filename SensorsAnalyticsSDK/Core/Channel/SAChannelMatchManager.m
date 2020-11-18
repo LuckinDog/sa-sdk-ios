@@ -249,11 +249,10 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setHTTPMethod:@"POST"];
 
-    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:qureyItems];
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
     params[@"has_active"] = @([self isAppInstall]);
     params[@"device_code"] = [SAIdentifier idfa];
-    [params addEntriesFromDictionary:qureyItems];
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
 
     [self showIndicator];
