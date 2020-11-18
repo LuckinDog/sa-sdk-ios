@@ -168,14 +168,14 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [sdk flush];
 }
 
-#pragma mark - Alert
+#pragma mark - handle URL
 - (BOOL)canHandleURL:(NSURL *)url {
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
     NSString *monitorId = queryItems[@"monitor_id"];
     return [url.host isEqualToString:@"channeldebug"] && monitorId.length;
 }
 
-- (void)showAuthorizationAlertWithURL:(NSURL *)url {
+- (void)handleChannelDebugURL:(NSURL *)url {
     if (![self canHandleURL:url]) {
         return;
     }
@@ -191,7 +191,32 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
         [self showErrorMessage:@"App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具"];
         return;
     }
+    // 如果是续连二维码功能，直接进入续连二维码流程
+    if ([self isRelinkURL:url]) {
+        return;
+    }
+    // 展示渠道联调诊断询问弹窗
+    [self showAuthorizationAlertWithURL:url];
+}
 
+#pragma mark - 续连二维码
+- (BOOL)isRelinkURL:(NSURL *)url {
+    NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
+    BOOL isRelink = [queryItems[@"is_relink"] boolValue];
+    if (!isRelink) {
+        return NO;
+    }
+    NSString *deviceId = queryItems[@"device_code"];
+    if ([deviceId isEqualToString:[SAIdentifier idfa]]) {
+        [self showChannelDebugInstall];
+    } else {
+        [self showErrorMessage:@"无法续连，请检查是否更换了联调手机"];
+    }
+    return YES;
+}
+
+#pragma mark - Auth Alert
+- (void)showAuthorizationAlertWithURL:(NSURL *)url {
     NSString *title = @"即将开启联调模式";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:@"" preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
@@ -257,6 +282,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [task resume];
 }
 
+#pragma mark - ChannelDebugInstall Alert
 - (void)showChannelDebugInstall {
     NSString *title = @"成功开启联调模式";
     NSString *content = @"此模式下不需要卸载 App，点击“激活”按钮可反复触发激活。";
@@ -269,6 +295,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [alertController show];
 }
 
+#pragma mark - Error Message
 - (void)showChannelDebugErrorMessage {
     NSString *title = @"检测到“设备码为空”，可能的原因如下，请排查：";
     NSString *content = @"\n1. 手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackInstallation 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。";

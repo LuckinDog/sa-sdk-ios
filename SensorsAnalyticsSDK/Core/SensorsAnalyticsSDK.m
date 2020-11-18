@@ -925,7 +925,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [_linkHandler handleDeepLink:url];
             return YES;
         } else if ([[SAChannelMatchManager sharedInstance] canHandleURL:url]) {
-            [[SAChannelMatchManager sharedInstance] showAuthorizationAlertWithURL:url];
+            [[SAChannelMatchManager sharedInstance] handleChannelDebugURL:url];
             return YES;
         }
     } @catch (NSException *exception) {

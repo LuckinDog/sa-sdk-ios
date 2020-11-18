@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param url 唤起 App 的链接
 */
-- (void)showAuthorizationAlertWithURL:(NSURL *)url;
+- (void)handleChannelDebugURL:(NSURL *)url;
 
 @end
 
