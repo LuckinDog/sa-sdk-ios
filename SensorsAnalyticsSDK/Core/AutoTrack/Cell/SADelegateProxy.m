@@ -94,7 +94,9 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     if ([SAClassHelper setObject:delegate toClass:dynamicClass]) {
         // 在对象释放时, 释放创建的子类
         [delegate sensorsdata_registerDeallocBlock:^{
-            [SAClassHelper disposeClass:dynamicClass];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [SAClassHelper disposeClass:dynamicClass];
+            });
         }];
     }
 }
