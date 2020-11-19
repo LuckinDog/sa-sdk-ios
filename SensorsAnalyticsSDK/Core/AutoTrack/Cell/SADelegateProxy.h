@@ -39,12 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SADelegateProxy (SubclassMethod) <UITableViewDelegate, UICollectionViewDelegate>
-
-- (Class)sensorsdata_class;
-
-@end
-
 @interface SADelegateProxy (Utils)
 
 + (BOOL)isKVOClass:(Class _Nullable)cls;
