@@ -400,6 +400,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!securityPolicy) {
         return;
     }
+    
+#ifdef DEBUG
     NSURL *serverURL = [NSURL URLWithString:options.serverURL];
     if (securityPolicy.SSLPinningMode != SASSLPinningModeNone && ![serverURL.scheme isEqualToString:@"https"]) {
         NSString *pinningMode = @"Unknown Pinning Mode";
@@ -414,8 +416,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 pinningMode = @"SASSLPinningModePublicKey";
                 break;
         }
-        SALogError(@"Invalid Security Policy! A security policy configured with `%@` can only be applied on a manager with a secure base URL (i.e. https)", pinningMode);
+        NSString *reason = [NSString stringWithFormat:@"A security policy configured with `%@` can only be applied on a manager with a secure base URL (i.e. https)", pinningMode];
+        @throw [NSException exceptionWithName:@"Invalid Security Policy" reason:reason userInfo:nil];
     }
+#endif
+    
     SAHTTPSession.sharedInstance.securityPolicy = securityPolicy;
 }
 
