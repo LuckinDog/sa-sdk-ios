@@ -126,17 +126,16 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 }
 
 + (Class)handleClassWithDelegate:(id)delegate {
-    // 获取到神策添加子类的父类
-    Class dynamicClass = [SADelegateProxy sensorsClassInInheritanceChain:delegate];
-    if (dynamicClass) {
-        return [SAClassHelper realSuperClassWithClass:dynamicClass];
-    }
     // 获取到 KVO 添加子类的父类
     Class currentClass = [SAClassHelper realClassWithObject:delegate];
     if ([SADelegateProxy isKVOClass:currentClass]) {
-        return [SAClassHelper realSuperClassWithClass:currentClass];
+        currentClass = [SAClassHelper realSuperClassWithClass:currentClass];
     }
-    return [SAClassHelper realClassWithObject:delegate];
+    // 获取到神策添加子类的父类
+    if ([SADelegateProxy isSensorsClass:currentClass]) {
+        currentClass = [SAClassHelper realSuperClassWithClass:currentClass];
+    }
+    return currentClass;
 }
 
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
