@@ -207,13 +207,13 @@ static long subClassIndex = 0;
 /// 是不是 KVO 创建的类
 /// @param cls 类
 + (BOOL)isKVOClass:(Class _Nullable)cls {
-    return [NSStringFromClass(cls) hasPrefix:@"NSKVONotifying_"];
+    return [NSStringFromClass(cls) rangeOfString:@"NSKVONotifying_"].location != NSNotFound;
 }
 
 /// 是不是神策创建的类
 /// @param cls 类
 + (BOOL)isSensorsClass:(Class _Nullable)cls {
-    return [NSStringFromClass(cls) hasSuffix:kSADelegateSuffix];
+    return [NSStringFromClass(cls) rangeOfString:kSADelegateSuffix].location != NSNotFound;
 }
 
 /// 生成神策要创建类的类名
