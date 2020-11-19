@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
-  # 禁用 GPS 定位采集，相关代码不参与编译
+  # 开启 GPS 定位采集
   s.subspec 'Location' do |f|
     f.frameworks = 'CoreLocation'
     f.dependency 'SensorsAnalyticsSDK/Core'
