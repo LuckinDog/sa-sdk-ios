@@ -133,9 +133,9 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 }
 
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
-    id delegate = scrollView.delegate;
-    // 直接获取通过当前对象的 class 方法获取原始的类;(因为不管是神策添加的子类还是 KVO 添加的子类都会重写 class 方法, 返回原始类)
-    Class originalClass = [delegate class];
+    NSObject *delegate = (NSObject *)scrollView.delegate;
+    // 优先获取记录的原始父类, 若获取不到则是 KVO 场景, KVO 场景通过 class 接口获取原始类
+    Class originalClass = NSClassFromString(delegate.sensorsdata_className) ?: delegate.class;
     IMP originalImplementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:originalClass];
     if (originalImplementation) {
         ((SensorsDidSelectImplementation)originalImplementation)(delegate, selector, scrollView, indexPath);
