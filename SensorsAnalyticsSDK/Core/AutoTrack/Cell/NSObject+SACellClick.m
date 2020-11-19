@@ -1,5 +1,5 @@
 //
-// NSObject+SARelease.m
+// NSObject+SACellClick.m
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2020/11/5.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "NSObject+SARelease.h"
+#import "NSObject+SACellClick.h"
 #import <objc/runtime.h>
 
 @interface SADelegateProxyParasite : NSObject
@@ -40,14 +40,15 @@
 @end
 
 static void *const kSADelegateProxyParasiteName = (void *)&kSADelegateProxyParasiteName;
+static void *const kSADelegateProxyClassName = (void *)&kSADelegateProxyClassName;
 
-@interface NSObject (SARelease)
+@interface NSObject (SACellClick)
 
 @property (nonatomic, strong) SADelegateProxyParasite *sensorsdata_parasite;
 
 @end
 
-@implementation NSObject (SARelease)
+@implementation NSObject (SACellClick)
 
 - (SADelegateProxyParasite *)sensorsdata_parasite {
     return objc_getAssociatedObject(self, kSADelegateProxyParasiteName);
@@ -55,6 +56,14 @@ static void *const kSADelegateProxyParasiteName = (void *)&kSADelegateProxyParas
 
 - (void)setSensorsdata_parasite:(SADelegateProxyParasite *)parasite {
     objc_setAssociatedObject(self, kSADelegateProxyParasiteName, parasite, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSString *)sensorsdata_className {
+    return objc_getAssociatedObject(self, kSADelegateProxyClassName);
+}
+
+- (void)setSensorsdata_className:(NSString *)sensorsdata_className {
+    objc_setAssociatedObject(self, kSADelegateProxyClassName, sensorsdata_className, OBJC_ASSOCIATION_COPY);
 }
 
 - (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock {

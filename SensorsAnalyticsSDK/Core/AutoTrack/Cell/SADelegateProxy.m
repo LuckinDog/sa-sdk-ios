@@ -21,7 +21,7 @@
 #import "SADelegateProxy.h"
 #import "SAClassHelper.h"
 #import "SAMethodHelper.h"
-#import "NSObject+SARelease.h"
+#import "NSObject+SACellClick.h"
 #import "SALog.h"
 #import "SAAutoTrackUtils.h"
 #import "SAAutoTrackProperty.h"
@@ -84,6 +84,8 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
     [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass];
     
+    // 记录对象的原始类名 (因为 class 方法需要使用, 所以在重写 class 方法前设置)
+    [delegate setSensorsdata_className:NSStringFromClass(realClass)];
     // 重写 - (Class)class 方法，隐藏新添加的子类
     [SAMethodHelper addInstanceMethodWithDestinationSelector:@selector(class) sourceSelector:@selector(sensorsdata_class) fromClass:proxyClass toClass:dynamicClass];
     
@@ -124,25 +126,16 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 
 /// Overridden instance class method
 - (Class)sensorsdata_class {
-    return [SADelegateProxy originalClass:self];
-}
-
-+ (Class)handleClassWithDelegate:(id)delegate {
-    // 获取到 KVO 添加子类的父类
-    Class currentClass = [SAClassHelper realClassWithObject:delegate];
-    if ([SADelegateProxy isKVOClass:currentClass]) {
-        currentClass = [SAClassHelper realSuperClassWithClass:currentClass];
+    if (self.sensorsdata_className) {
+        return NSClassFromString(self.sensorsdata_className);
     }
-    // 获取到神策添加子类的父类
-    if ([SADelegateProxy isSensorsClass:currentClass]) {
-        currentClass = [SAClassHelper realSuperClassWithClass:currentClass];
-    }
-    return currentClass;
+    return [self sensorsdata_class];
 }
 
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
     id delegate = scrollView.delegate;
-    Class originalClass = [SADelegateProxy handleClassWithDelegate:delegate];
+    // 直接获取通过当前对象的 class 方法获取原始的类;(因为不管是神策添加的子类还是 KVO 添加的子类都会重写 class 方法, 返回原始类)
+    Class originalClass = [delegate class];
     IMP originalImplementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:originalClass];
     if (originalImplementation) {
         ((SensorsDidSelectImplementation)originalImplementation)(delegate, selector, scrollView, indexPath);
@@ -221,16 +214,6 @@ static long subClassIndex = 0;
 /// @param cls 类
 + (BOOL)isSensorsClass:(Class _Nullable)cls {
     return [NSStringFromClass(cls) hasSuffix:kSADelegateSuffix];
-}
-
-/// 获取神策创建类的父类
-/// @param obj 实例对象
-+ (Class _Nullable)originalClass:(id _Nullable)obj {
-    Class class = [SAClassHelper realClassWithObject:obj];
-    if ([SADelegateProxy isSensorsClass:class]) {
-        return [SAClassHelper realSuperClassWithClass:class];
-    }
-    return class;
 }
 
 /// 生成神策要创建类的类名
