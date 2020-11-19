@@ -57,7 +57,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     if (!canResponseTableView && !canResponseCollectionView) {
         return;
     }
-    Class proxyClass = self.class;
+    Class proxyClass = [SADelegateProxy class];
     // KVO 创建子类后会重写 - (Class)class 方法, 直接通过 object.class 无法获取真实的类
     Class realClass = [SAClassHelper realClassWithObject:delegate];
     // 如果当前代理对象归属为 KVO 创建的类, 则无需新建子类
@@ -87,7 +87,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     // 记录对象的原始类名 (因为 class 方法需要使用, 所以在重写 class 方法前设置)
     [delegate setSensorsdata_className:NSStringFromClass(realClass)];
     // 重写 - (Class)class 方法，隐藏新添加的子类
-    [SAMethodHelper addInstanceMethodWithDestinationSelector:@selector(class) sourceSelector:@selector(sensorsdata_class) fromClass:proxyClass toClass:dynamicClass];
+    [SAMethodHelper addInstanceMethodWithSelector:@selector(class) fromClass:proxyClass toClass:dynamicClass];
     
     // 使类生效
     [SAClassHelper registerClass:dynamicClass];
@@ -125,11 +125,11 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 @implementation SADelegateProxy (SubclassMethod)
 
 /// Overridden instance class method
-- (Class)sensorsdata_class {
+- (Class)class {
     if (self.sensorsdata_className) {
         return NSClassFromString(self.sensorsdata_className);
     }
-    return [self sensorsdata_class];
+    return [super class];
 }
 
 + (void)invokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
