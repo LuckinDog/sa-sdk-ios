@@ -28,6 +28,8 @@
 #import "SAJSONUtil.h"
 #import "SAVisualizedObjectSerializerManger.h"
 
+/// 遍历查找页面最大层数，用于判断是否被覆盖
+static NSInteger kSAVisualizedFindMaxPageLevel = 6;
 
 @implementation SAVisualizedUtils
 
@@ -36,7 +38,7 @@
     BOOL covered = NO;
     
     // 最多查找 3 层
-    NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:3];
+    NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:kSAVisualizedFindMaxPageLevel];
 
     // 遍历判断是否存在覆盖
     CGRect rect = [view convertRect:view.bounds toView:nil];
@@ -74,13 +76,14 @@
 // 寻找一个 view 同级的后添加的 view
 + (NSArray *)findPossibleCoverAllBrotherViews:(UIView *)view {
     __block NSMutableArray <UIView *> *otherViews = [NSMutableArray array];
-    UIView *superView = view.superview;
-    if (superView) {
+    UIResponder *nextResponder = [view nextResponder];
+    if ([nextResponder isKindOfClass:UIView.class]) {
+        UIView *superView = (UIView *)nextResponder;
         // 逆序遍历
         [superView.subviews enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if (obj == view) {
                 *stop = YES;
-            } else if (obj.alpha > 0 && !obj.hidden && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
+            } else if (obj.alpha > 0.01 && !obj.hidden && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
                 [otherViews addObject:obj];
             }
         }];
