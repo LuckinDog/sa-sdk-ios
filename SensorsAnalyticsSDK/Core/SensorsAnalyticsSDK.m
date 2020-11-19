@@ -882,9 +882,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
-   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
-          [_linkHandler canHandleURL:url] ||
-          [[SAChannelMatchManager sharedInstance] canHandleURL:url];
+    return [SAModuleManager.sharedInstance canHandleURL:url];
 }
 
 - (BOOL)handleAutoTrackURL:(NSURL *)URL{
@@ -898,40 +896,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
-    @try {
-        if (!url) {
-            return NO;
-        }
-        
-        if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
-            //点击图 & 可视化全埋点
-            return [self handleAutoTrackURL:url];
-        } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
-            // url query 解析
-            NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
-
-            //如果没传 info_id，视为伪造二维码，不做处理
-            if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
-                [self showDebugModeAlertWithParams:paramDic];
-                return YES;
-            } else {
-                return NO;
-            }
-        } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
-            // 校验加密公钥
-            [self.secretKeyHandler checkSecretKeyURL:url];
-            return YES;
-        } else if ([_linkHandler canHandleURL:url]) {
-            [_linkHandler handleDeepLink:url];
-            return YES;
-        } else if ([[SAChannelMatchManager sharedInstance] canHandleURL:url]) {
-            [[SAChannelMatchManager sharedInstance] showAuthorizationAlertWithURL:url];
-            return YES;
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
-    return NO;
+    return [SAModuleManager.sharedInstance handleOpenURL:url];
 }
 
 #pragma mark - VisualizedAutoTrack

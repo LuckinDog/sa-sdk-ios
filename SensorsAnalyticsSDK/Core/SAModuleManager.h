@@ -25,9 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
+    SAModuleTypeChannelMatch,
 };
 
-@interface SAModuleManager : NSObject
+@interface SAModuleManager : NSObject <SAChannelMatchModuleProtocol>
 
 + (instancetype)sharedInstance;
 

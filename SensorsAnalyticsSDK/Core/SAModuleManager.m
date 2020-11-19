@@ -27,6 +27,7 @@
 
 // Location 模块名
 static NSString * const SALocationModuleName = @"Location";
+static NSString * const SAChannelMatchModuleName = @"ChannelMatch";
 
 @interface SAModuleManager ()
 
@@ -78,6 +79,35 @@ static NSString * const SALocationModuleName = @"Location";
         default:
             return nil;
     }
+}
+
+#pragma mark - Open URL
+
+- (BOOL)canHandleURL:(NSURL *)url {
+    for (id<SAModuleProtocol> obj in self.modules.allValues) {
+        if (![obj conformsToProtocol:@protocol(SAOpenURLModuleProtocol)] || !obj.isEnable) {
+            continue;
+        }
+        id<SAOpenURLModuleProtocol> manager = (id<SAOpenURLModuleProtocol>)obj;
+        if ([manager canHandleURL:url]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)handleOpenURL:(NSURL *)url {
+    for (id<SAModuleProtocol> obj in self.modules.allValues) {
+        if (![obj conformsToProtocol:@protocol(SAOpenURLModuleProtocol)] || !obj.isEnable) {
+            continue;
+        }
+        id<SAOpenURLModuleProtocol> manager = (id<SAOpenURLModuleProtocol>)obj;
+        if ([manager canHandleURL:url]) {
+            [manager handleOpenURL:url];
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end
