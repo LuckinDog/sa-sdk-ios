@@ -26,8 +26,8 @@
 #import "SAModuleProtocol.h"
 
 // Location 模块名
-static NSString * const SALocationModuleName = @"Location";
-static NSString * const SAChannelMatchModuleName = @"ChannelMatch";
+static NSString * const kSALocationModuleName = @"Location";
+static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
 @interface SAModuleManager ()
 
@@ -75,7 +75,9 @@ static NSString * const SAChannelMatchModuleName = @"ChannelMatch";
 - (NSString *)moduleNameForType:(SAModuleType)type {
     switch (type) {
         case SAModuleTypeLocation:
-            return SALocationModuleName;
+            return kSALocationModuleName;
+        case SAModuleTypeChannelMatch:
+            return kSAChannelMatchModuleName;
         default:
             return nil;
     }
@@ -85,10 +87,10 @@ static NSString * const SAChannelMatchModuleName = @"ChannelMatch";
 
 - (BOOL)canHandleURL:(NSURL *)url {
     for (id<SAModuleProtocol> obj in self.modules.allValues) {
-        if (![obj conformsToProtocol:@protocol(SAOpenURLModuleProtocol)] || !obj.isEnable) {
+        if (![obj conformsToProtocol:@protocol(SAOpenURLProtocol)] || !obj.isEnable) {
             continue;
         }
-        id<SAOpenURLModuleProtocol> manager = (id<SAOpenURLModuleProtocol>)obj;
+        id<SAOpenURLProtocol> manager = (id<SAOpenURLProtocol>)obj;
         if ([manager canHandleURL:url]) {
             return YES;
         }
@@ -96,14 +98,14 @@ static NSString * const SAChannelMatchModuleName = @"ChannelMatch";
     return NO;
 }
 
-- (BOOL)handleOpenURL:(NSURL *)url {
+- (BOOL)handleURL:(NSURL *)url {
     for (id<SAModuleProtocol> obj in self.modules.allValues) {
-        if (![obj conformsToProtocol:@protocol(SAOpenURLModuleProtocol)] || !obj.isEnable) {
+        if (![obj conformsToProtocol:@protocol(SAOpenURLProtocol)] || !obj.isEnable) {
             continue;
         }
-        id<SAOpenURLModuleProtocol> manager = (id<SAOpenURLModuleProtocol>)obj;
+        id<SAOpenURLProtocol> manager = (id<SAOpenURLProtocol>)obj;
         if ([manager canHandleURL:url]) {
-            [manager handleOpenURL:url];
+            [manager handleURL:url];
             return YES;
         }
     }
@@ -125,7 +127,7 @@ static NSString * const SAChannelMatchModuleName = @"ChannelMatch";
         }
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
         id<SAPropertyModuleProtocol> manager = (id<SAPropertyModuleProtocol>)obj;
-        if ([key isEqualToString:SALocationModuleName]) {
+        if ([key isEqualToString:kSALocationModuleName]) {
             [properties addEntriesFromDictionary:manager.properties];
         }
 #endif

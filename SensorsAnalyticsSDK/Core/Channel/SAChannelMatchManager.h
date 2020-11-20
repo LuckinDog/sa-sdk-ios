@@ -23,12 +23,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAChannelMatchManager : NSObject <SAModuleProtocol>
+@interface SAChannelMatchManager : NSObject <SAModuleProtocol, SAOpenURLProtocol>
 
 /// 激活事件是否开启多渠道匹配，开启后调用 profile_set , 不开启则调用 profile_set_once
-@property (nonatomic, assign) BOOL enableMultipleChannelMatch;
-
-+ (instancetype)sharedInstance;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 /**
  * @abstract

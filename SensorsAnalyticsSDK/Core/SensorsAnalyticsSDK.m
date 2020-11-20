@@ -349,7 +349,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
 
             // 渠道联调诊断功能获取多渠道匹配开关
-            [[SAChannelMatchManager sharedInstance] setEnableMultipleChannelMatch:configOptions.enableMultipleChannelMatch];
+            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -896,7 +896,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
-    return [SAModuleManager.sharedInstance handleOpenURL:url];
+    return [SAModuleManager.sharedInstance handleURL:url];
 }
 
 #pragma mark - VisualizedAutoTrack
@@ -2643,9 +2643,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[self modelManagerForModuleType:SAModuleTypeChannelMatch];
-     [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
-//    [[SAChannelMatchManager sharedInstance] trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance modelManagerForModuleType:SAModuleTypeChannelMatch];
+     [manager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
 }
 
 - (void)trackInstallation:(NSString *)event {
@@ -2656,8 +2655,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    [[SAChannelMatchManager sharedInstance] trackAppInstall:event properties:propertyDict disableCallback:disableCallback];
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance modelManagerForModuleType:SAModuleTypeChannelMatch];
+     [manager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
 }
 
 @end

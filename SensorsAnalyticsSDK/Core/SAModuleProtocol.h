@@ -40,16 +40,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
-@protocol SAOpenURLModuleProtocol <NSObject>
+@protocol SAOpenURLProtocol <NSObject>
 
 - (BOOL)canHandleURL:(NSURL *)url;
-- (BOOL)handleOpenURL:(NSURL *)url;
+- (BOOL)handleURL:(NSURL *)url;
 
 @end
 
 #pragma mark -
 
-@protocol SAChannelMatchModuleProtocol <SAModuleProtocol, SAOpenURLModuleProtocol>
+@protocol SAChannelMatchModuleProtocol <SAModuleProtocol, SAOpenURLProtocol>
 
 /**
  * @abstract

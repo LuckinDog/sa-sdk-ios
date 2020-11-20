@@ -44,15 +44,6 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 @implementation SAChannelMatchManager
 
-+ (instancetype)sharedInstance {
-    static dispatch_once_t onceToken;
-    static SAChannelMatchManager *manager;
-    dispatch_once(&onceToken, ^{
-        manager = [[SAChannelMatchManager alloc] init];
-    });
-    return manager;
-}
-
 #pragma mark - indicator view
 - (void)showIndicator {
     _window = [self alertWindow];
@@ -160,7 +151,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [profileProps removeObjectForKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
     // 再发送 profile_set_once
     [profileProps setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-    if (self.enableMultipleChannelMatch) {
+    if (sdk.configOptions.enableMultipleChannelMatch) {
         [sdk set:profileProps];
     } else {
         [sdk setOnce:profileProps];
