@@ -28,7 +28,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeChannelMatch,
 };
 
-@interface SAModuleManager : NSObject <SAChannelMatchModuleProtocol>
+@interface SAModuleManager : NSObject
 
 + (instancetype)sharedInstance;
 
