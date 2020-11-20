@@ -57,4 +57,11 @@
     }
 }
 
++ (IMP _Nullable)replaceInstanceMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass {
+    Method method = class_getInstanceMethod(fromClass, sourceSelector);
+    IMP methodIMP = method_getImplementation(method);
+    const char *types = method_getTypeEncoding(method);
+    return class_replaceMethod(toClass, destinationSelector, methodIMP, types);
+}
+
 @end

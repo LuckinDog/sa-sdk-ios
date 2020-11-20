@@ -71,6 +71,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)addClassMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass;
 
+/// 替换实例方法
+/// 将 toClass 的 destinationSelector 替换为 fromClass 中的 sourceSelector
+///
+/// @param destinationSelector 需要在 toClass 中替换的类方法名
+/// @param sourceSelector 原来的 fromClass 中的方法名
+/// @param fromClass 原始方法所在的类
+/// @param toClass 需要替换的方法的类
++ (IMP _Nullable)replaceInstanceMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass;
+
 @end
 
 NS_ASSUME_NONNULL_END
