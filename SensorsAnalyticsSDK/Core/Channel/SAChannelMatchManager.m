@@ -174,15 +174,15 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     SANetwork *network = [SensorsAnalyticsSDK sharedInstance].network;
     if (!network.serverURL.absoluteString.length) {
         [self showErrorMessage:@"数据接收地址错误，无法使用联调诊断工具"];
-        return YES;
+        return NO;
     }
     NSString *project = [SAURLUtils queryItemsWithURLString:url.absoluteString][@"project_name"] ?: @"default";
     BOOL isEqualProject = [network.project isEqualToString:project];
     if (!isEqualProject) {
         [self showErrorMessage:@"App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具"];
-        return YES;
+        return NO;
     }
-    // 如果是续连二维码功能，直接进入续连二维码流程
+    // 如果是重连二维码功能，直接进入重连二维码流程
     if ([self isRelinkURL:url]) {
         [self showRelinkAlertWithURL:url];
         return YES;
@@ -192,7 +192,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     return YES;
 }
 
-#pragma mark - 续连二维码
+#pragma mark - 重连二维码
 - (BOOL)isRelinkURL:(NSURL *)url {
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
     return [queryItems[@"is_relink"] boolValue];
@@ -204,7 +204,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     if ([deviceId isEqualToString:[SAIdentifier idfa]]) {
         [self showChannelDebugInstall];
     } else {
-        [self showErrorMessage:@"无法续连，请检查是否更换了联调手机"];
+        [self showErrorMessage:@"无法重连，请检查是否更换了联调手机"];
     }
 }
 
