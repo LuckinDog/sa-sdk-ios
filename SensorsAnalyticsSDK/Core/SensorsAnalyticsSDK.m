@@ -2543,8 +2543,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
-    [manager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+    [SAModuleManager.sharedInstance trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
 }
 
 - (void)trackInstallation:(NSString *)event {
@@ -2556,8 +2555,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
-    [manager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+    [SAModuleManager.sharedInstance trackAppInstall:event properties:properties disableCallback:disableCallback];
 }
 
 @end

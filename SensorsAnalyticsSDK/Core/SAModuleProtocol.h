@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
-@protocol SAChannelMatchModuleProtocol <SAModuleProtocol, SAOpenURLProtocol>
+@protocol SAChannelMatchModuleProtocol <SAOpenURLProtocol>
 
 /**
  * @abstract

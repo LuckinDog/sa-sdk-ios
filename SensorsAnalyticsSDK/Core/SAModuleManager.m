@@ -138,3 +138,15 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 }
 
 @end
+
+
+#pragma mark -
+
+@implementation SAModuleManager (ChannelMatch)
+
+- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
+    [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
+}
+
+@end
