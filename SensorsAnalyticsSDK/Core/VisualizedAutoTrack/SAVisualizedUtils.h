@@ -35,6 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 ///  获取 RN 当前页面信息
 + (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
+
+/// 获取当前有效的 keyWindow
++ (UIWindow *)currentValidKeyWindow;
+
 @end
 
 NS_ASSUME_NONNULL_END

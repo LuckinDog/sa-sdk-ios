@@ -150,4 +150,42 @@
     }
     return RNScreenInfo;
 }
+
+/// 获取当前有效的 keyWindow
++ (UIWindow *)currentValidKeyWindow {
+    UIWindow *keyWindow = [self currentKeyWindow];
+    // 判断 keyWindow 是否显示
+    if (!keyWindow.hidden && keyWindow.alpha > 0.01) {
+        return keyWindow;
+    }
+
+    __block UIWindow *validWindow = nil;
+    // 逆序遍历，获取最上层全屏 window
+    [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size) && !obj.hidden) {
+            validWindow = obj;
+            *stop = YES;
+        }
+    }];
+    return validWindow;
+}
+
+// 获取当前 keyWindow
++ (UIWindow *)currentKeyWindow {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    UIWindow *keyWindow = nil;
+    if (@available(iOS 13.0, *)) {
+        for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+            if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                keyWindow = windowScene.windows.firstObject;
+                break;
+            }
+        }
+    }
+    return keyWindow ?: [UIApplication sharedApplication].keyWindow;
+#else
+    return [UIApplication sharedApplication].keyWindow;
+#endif
+}
+
 @end
