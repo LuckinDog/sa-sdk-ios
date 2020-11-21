@@ -19,6 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,6 +61,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
 */
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback;
+
+@end
+
+#pragma mark -
+
+@protocol SADebugModeModuleProtocol <SAModuleProtocol, SAOpenURLProtocol>
+
+- (void)setShowDebugAlertView:(BOOL)isShow;
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow;
 
 @end
 

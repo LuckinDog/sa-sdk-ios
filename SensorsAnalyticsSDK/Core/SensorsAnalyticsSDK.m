@@ -236,8 +236,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @implementation SensorsAnalyticsSDK {
     SensorsAnalyticsDebugMode _debugMode;
     BOOL _appRelaunched;                // App 从后台恢复
-    BOOL _showDebugAlertView;
-    UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
     //进入非活动状态，比如双击 home、系统授权弹框
@@ -314,8 +312,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
             _appRelaunched = NO;
-            _showDebugAlertView = YES;
-            _debugAlertViewHasShownNumber = 0;
             _referrerScreenUrl = nil;
             _lastScreenTrackProperties = nil;
             _applicationWillResignActive = NO;
@@ -378,7 +374,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
-            [self configServerURLWithDebugMode:_debugMode showDebugModeWarning:YES];
+
+            id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[[SAModuleManager sharedInstance] modelManagerForModuleType:SAModuleTypeDebugMode];
+            [manager setDebugMode:_debugMode isShowWarning:YES];
             
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
@@ -537,136 +535,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.configOptions.serverURL = serverUrl;
         if (isRequestRemoteConfig) {
             [[SARemoteConfigManager sharedInstance] retryRequestRemoteConfigWithForceUpdateFlag:YES];
-        }
-    });
-}
-
-- (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode showDebugModeWarning:(BOOL)isShow {
-    _debugMode = debugMode;
-
-    self.network.debugMode = debugMode;
-    [self enableLog:debugMode != SensorsAnalyticsDebugOff];
-    
-    if (isShow) {
-        //SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
-        SALogDebug(@"%@ initialized the instance of Sensors Analytics SDK with debugMode: '%@'", self, [self debugModeToString:_debugMode]);
-
-        //打开debug模式，弹出提示
-#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            NSString *alertMessage = nil;
-            if (_debugMode == SensorsAnalyticsDebugOnly) {
-                alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-            } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-                alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-            }
-            [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
-        }
-#endif
-    }
-}
-
-- (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
-    NSString *modeStr = nil;
-    switch (debugMode) {
-        case SensorsAnalyticsDebugOff:
-            modeStr = @"DebugOff";
-            break;
-        case SensorsAnalyticsDebugAndTrack:
-            modeStr = @"DebugAndTrack";
-            break;
-        case SensorsAnalyticsDebugOnly:
-            modeStr = @"DebugOnly";
-            break;
-        default:
-            modeStr = @"Unknown";
-            break;
-    }
-    return modeStr;
-}
-
-- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
-#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @try {
-            if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-                return;
-            }
-            
-            if (self->_debugMode == SensorsAnalyticsDebugOff) {
-                return;
-            }
-            
-            if (!self->_showDebugAlertView) {
-                return;
-            }
-            
-            if (self->_debugAlertViewHasShownNumber >= 3) {
-                return;
-            }
-            self->_debugAlertViewHasShownNumber += 1;
-            NSString *alertTitle = @"SensorsData 重要提示";
-            SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:message preferredStyle:SAAlertControllerStyleAlert];
-            [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:^(SAAlertAction * _Nonnull action) {
-                self->_debugAlertViewHasShownNumber -= 1;
-            }];
-            if (showNoMore) {
-                [alertController addActionWithTitle:@"不再显示" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-                    self->_showDebugAlertView = NO;
-                }];
-            }
-            [alertController show];
-        } @catch (NSException *exception) {
-        } @finally {
-        }
-    });
-#endif
-}
-
-- (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, NSString *> *)params {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @try {
-            
-            dispatch_block_t alterViewBlock = ^{
-                
-                NSString *alterViewMessage = @"";
-                if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
-                } else if (self -> _debugMode == SensorsAnalyticsDebugOnly) {
-                    alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
-                } else {
-                    alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
-                }
-                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"" message:alterViewMessage preferredStyle:SAAlertControllerStyleAlert];
-                [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:nil];
-                [alertController show];
-            };
-            
-            NSString *alertTitle = @"SDK 调试模式选择";
-            NSString *alertMessage = @"";
-            if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                alertMessage = @"当前为 调试模式（导入数据）";
-            } else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
-                alertMessage = @"当前为 调试模式（不导入数据）";
-            } else {
-                alertMessage = @"调试模式已关闭";
-            }
-            SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
-            void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-                [self configServerURLWithDebugMode:debugMode showDebugModeWarning:NO];
-                alterViewBlock();
-                [self.network debugModeCallbackWithDistinctId:self.distinctId params:params];
-            };
-            [alertController addActionWithTitle:@"开启调试模式（导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-                handler(SensorsAnalyticsDebugAndTrack);
-            }];
-            [alertController addActionWithTitle:@"开启调试模式（不导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-                handler(SensorsAnalyticsDebugOnly);
-            }];
-            [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
-            [alertController show];
-        } @catch (NSException *exception) {
-        } @finally {
         }
     });
 }
@@ -865,7 +733,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)showDebugInfoView:(BOOL)show {
-    _showDebugAlertView = show;
+    id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[[SAModuleManager sharedInstance] modelManagerForModuleType:SAModuleTypeDebugMode];
+    [manager setShowDebugAlertView:show];
 }
 
 - (void)flush {
@@ -2514,7 +2383,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (isDisableDebugMode) {
-            [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
+            id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[[SAModuleManager sharedInstance] modelManagerForModuleType:SAModuleTypeDebugMode];
+            [manager setDebugMode:SensorsAnalyticsDebugOff isShowWarning:NO];
         }
         
         isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
@@ -3133,7 +3003,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    [self configServerURLWithDebugMode:debugMode  showDebugModeWarning:NO];
+    id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[[SAModuleManager sharedInstance] modelManagerForModuleType:SAModuleTypeDebugMode];
+    [manager setDebugMode:_debugMode isShowWarning:NO];
 }
 
 - (void)enableAutoTrack {

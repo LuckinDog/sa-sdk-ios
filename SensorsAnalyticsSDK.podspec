@@ -33,12 +33,6 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION=1'}
   end
 
-  # 禁用 debugMode 下弹框提示
-  s.subspec 'DISABLE_DEBUG_WARNING' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
-  end
-
   # 不采集 UICollectionView 点击事件
   s.subspec 'DISABLE_AUTOTRACK_UICOLLECTIONVIEW' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'

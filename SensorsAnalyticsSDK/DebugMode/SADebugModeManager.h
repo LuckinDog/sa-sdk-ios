@@ -1,8 +1,8 @@
 //
-// SAModuleManager.h
+// SADebugModeManager.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/8/14.
+// Created by 张敏超🍎 on 2020/11/20.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,30 +20,17 @@
 
 #import <Foundation/Foundation.h>
 #import "SAModuleProtocol.h"
+#import "SAConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, SAModuleType) {
-    SAModuleTypeLocation,
-    SAModuleTypeDebugMode,
-    SAModuleTypeChannelMatch,
-};
+@interface SADebugModeManager : NSObject <SADebugModeModuleProtocol>
 
-@interface SAModuleManager : NSObject <SAOpenURLProtocol>
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
-+ (instancetype)sharedInstance;
+@property (nonatomic, readonly) SensorsAnalyticsDebugMode debugMode;
 
-- (nullable id<SAModuleProtocol>)modelManagerForModuleType:(SAModuleType)type;
-
-- (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
-
-@end
-
-#pragma mark -
-
-@interface SAModuleManager (Property)
-
-@property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
+@property (nonatomic) BOOL showDebugAlertView;
 
 @end
 

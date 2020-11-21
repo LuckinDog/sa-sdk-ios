@@ -27,6 +27,7 @@
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
+static NSString * const kSADebugModeModuleName = @"DebugMode";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
 @interface SAModuleManager ()
@@ -78,6 +79,8 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
             return kSALocationModuleName;
         case SAModuleTypeChannelMatch:
             return kSAChannelMatchModuleName;
+        case SAModuleTypeDebugMode:
+            return kSADebugModeModuleName;
         default:
             return nil;
     }
