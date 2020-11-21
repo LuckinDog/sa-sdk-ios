@@ -46,8 +46,9 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @end
 
-@interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
+#pragma mark -
 
+@interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
 @end
 
 NS_ASSUME_NONNULL_END
