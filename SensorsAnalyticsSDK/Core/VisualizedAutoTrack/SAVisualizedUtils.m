@@ -177,7 +177,13 @@
     if (@available(iOS 13.0, *)) {
         for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
             if (windowScene.activationState == UISceneActivationStateForegroundActive) {
-                keyWindow = windowScene.windows.firstObject;
+                for (UIWindow *window in windowScene.windows) {
+                    // 可能创建的 window 被隐藏
+                    if (!window.isHidden && window.alpha > 0.01) {
+                        keyWindow = window;
+                        break;
+                    }
+                }
                 break;
             }
         }
