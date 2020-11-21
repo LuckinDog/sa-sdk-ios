@@ -105,8 +105,7 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
         }
         id<SAOpenURLProtocol> manager = (id<SAOpenURLProtocol>)obj;
         if ([manager canHandleURL:url]) {
-            [manager handleURL:url];
-            return YES;
+            return [manager handleURL:url];
         }
     }
     return NO;
