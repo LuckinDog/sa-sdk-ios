@@ -50,11 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @abstract
- * 展示渠道联调诊断功能的授权弹窗
+ * 展示渠道联调诊断功能的弹窗
  *
- * @param url 唤起 App 的链接
+ * @param url 唤起  App 的链接
 */
-- (void)handleChannelDebugURL:(NSURL *)url;
+- (void)handleURL:(NSURL *)url;
 
 @end
 

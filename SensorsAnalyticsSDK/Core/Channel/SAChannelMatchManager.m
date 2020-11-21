@@ -175,7 +175,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     return [url.host isEqualToString:@"channeldebug"] && monitorId.length;
 }
 
-- (void)handleChannelDebugURL:(NSURL *)url {
+- (void)handleURL:(NSURL *)url {
     if (![self canHandleURL:url]) {
         return;
     }
@@ -193,6 +193,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     }
     // 如果是续连二维码功能，直接进入续连二维码流程
     if ([self isRelinkURL:url]) {
+        [self showRelinkAlertWithURL:url];
         return;
     }
     // 展示渠道联调诊断询问弹窗
@@ -202,29 +203,29 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 #pragma mark - 续连二维码
 - (BOOL)isRelinkURL:(NSURL *)url {
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
-    BOOL isRelink = [queryItems[@"is_relink"] boolValue];
-    if (!isRelink) {
-        return NO;
-    }
+    return [queryItems[@"is_relink"] boolValue];
+}
+
+- (void)showRelinkAlertWithURL:(NSURL *)url {
+    NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
     NSString *deviceId = queryItems[@"device_code"];
     if ([deviceId isEqualToString:[SAIdentifier idfa]]) {
         [self showChannelDebugInstall];
     } else {
         [self showErrorMessage:@"无法续连，请检查是否更换了联调手机"];
     }
-    return YES;
 }
 
 #pragma mark - Auth Alert
 - (void)showAuthorizationAlertWithURL:(NSURL *)url {
-    NSString *title = @"即将开启联调模式";
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:@"" preferredStyle:SAAlertControllerStyleAlert];
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"即将开启联调模式" message:nil preferredStyle:SAAlertControllerStyleAlert];
+    __weak SAChannelMatchManager *weakSelf = self;
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        if (![self isAppInstall] || ([self isNotEmptyIDFAOfAppInstall] && [SAIdentifier idfa])) {
+        if (![weakSelf isAppInstall] || ([weakSelf isNotEmptyIDFAOfAppInstall] && [SAIdentifier idfa])) {
             NSDictionary *qureyItems = [SAURLUtils queryItemsWithURL:url];
-            [self uploadUserInfoIntoWhiteList:qureyItems];
+            [weakSelf uploadUserInfoIntoWhiteList:qureyItems];
         } else {
-            [self showChannelDebugErrorMessage];
+            [weakSelf showChannelDebugErrorMessage];
         }
     }];
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
