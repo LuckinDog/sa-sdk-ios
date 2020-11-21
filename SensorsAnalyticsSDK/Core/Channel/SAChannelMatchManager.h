@@ -38,23 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 */
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback;
 
-/**
- * @abstract
- * 用于检查当前唤起 App 的 URL 是否为有效的渠道联调诊断功能链接
- *
- * @param url 唤起 App 的链接
- * @return 是否为有效链接
-*/
-- (BOOL)canHandleURL:(NSURL *)url;
-
-/**
- * @abstract
- * 展示渠道联调诊断功能的授权弹窗
- *
- * @param url 唤起 App 的链接
-*/
-- (void)showAuthorizationAlertWithURL:(NSURL *)url;
-
 @end
 
 NS_ASSUME_NONNULL_END
