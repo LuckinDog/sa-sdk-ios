@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
-@protocol SADebugModeModuleProtocol <SAModuleProtocol, SAOpenURLProtocol>
+@protocol SADebugModeModuleProtocol <SAOpenURLProtocol>
 
 - (void)setShowDebugAlertView:(BOOL)isShow;
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow;
