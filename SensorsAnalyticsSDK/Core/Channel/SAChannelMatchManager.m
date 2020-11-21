@@ -166,21 +166,21 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     return [url.host isEqualToString:@"channeldebug"] && monitorId.length;
 }
 
-- (void)showAuthorizationAlertWithURL:(NSURL *)url {
+- (BOOL)handleURL:(NSURL *)url {
     if (![self canHandleURL:url]) {
-        return;
+        return NO;
     }
 
     SANetwork *network = [SensorsAnalyticsSDK sharedInstance].network;
     if (!network.serverURL.absoluteString.length) {
         [self showErrorMessage:@"数据接收地址错误，无法使用联调诊断工具"];
-        return;
+        return YES;
     }
     NSString *project = [SAURLUtils queryItemsWithURLString:url.absoluteString][@"project_name"] ?: @"default";
     BOOL isEqualProject = [network.project isEqualToString:project];
     if (!isEqualProject) {
         [self showErrorMessage:@"App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具"];
-        return;
+        return YES;
     }
 
     NSString *title = @"即将开启联调模式";
@@ -195,6 +195,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     }];
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
     [alertController show];
+    return YES;
 }
 
 - (void)uploadUserInfoIntoWhiteList:(NSDictionary *)qureyItems {

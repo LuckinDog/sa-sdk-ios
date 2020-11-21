@@ -751,7 +751,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
-    return [SAModuleManager.sharedInstance canHandleURL:url];
+    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
+           [_linkHandler canHandleURL:url] ||
+           [SAModuleManager.sharedInstance canHandleURL:url];
 }
 
 - (BOOL)handleAutoTrackURL:(NSURL *)URL{
@@ -765,7 +767,35 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
-    return [SAModuleManager.sharedInstance handleURL:url];
+    if (!url) {
+        return NO;
+    }
+
+    if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
+        //点击图 & 可视化全埋点
+        return [self handleAutoTrackURL:url];
+    } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
+        // url query 解析
+        NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
+
+        //如果没传 info_id，视为伪造二维码，不做处理
+        if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
+            [self showDebugModeAlertWithParams:paramDic];
+            return YES;
+        } else {
+            return NO;
+        }
+    } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
+        // 校验加密公钥
+        [self.secretKeyHandler checkSecretKeyURL:url];
+        return YES;
+    } else if ([_linkHandler canHandleURL:url]) {
+        [_linkHandler handleDeepLink:url];
+        return YES;
+    } else {
+        return [SAModuleManager.sharedInstance handleURL:url];
+    }
+    return NO;
 }
 
 #pragma mark - VisualizedAutoTrack
@@ -2513,8 +2543,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance modelManagerForModuleType:SAModuleTypeChannelMatch];
-     [manager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
+    [manager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
 }
 
 - (void)trackInstallation:(NSString *)event {
@@ -2526,8 +2556,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance modelManagerForModuleType:SAModuleTypeChannelMatch];
-     [manager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
+    [manager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
 }
 
 @end
