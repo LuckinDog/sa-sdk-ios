@@ -1,8 +1,8 @@
 //
-// SAModuleManager.h
+// NSObject+SACellClick.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/8/14.
+// Created by yuqiang on 2020/11/5.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,37 +18,23 @@
 // limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 #import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, SAModuleType) {
-    SAModuleTypeLocation,
-    SAModuleTypeChannelMatch,
-};
+@interface NSObject (SACellClick)
 
-@interface SAModuleManager : NSObject <SAOpenURLProtocol>
+/// 用于记录创建子类时的原始父类名称
+@property (nonatomic, copy) NSString *sensorsdata_className;
 
-+ (instancetype)sharedInstance;
+/// 注册一个操作,在对象释放时调用; 重复调用该方法时,只有第一次调用时的 block 生效
+/// @param deallocBlock 操作
+- (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock;
 
-- (nullable id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type;
-
-- (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
-
-@end
-
-#pragma mark -
-
-@interface SAModuleManager (Property)
-
-@property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
-
-@end
-
-#pragma mark -
-
-@interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
 @end
 
 NS_ASSUME_NONNULL_END

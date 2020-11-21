@@ -44,15 +44,6 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 @implementation SAChannelMatchManager
 
-+ (instancetype)sharedInstance {
-    static dispatch_once_t onceToken;
-    static SAChannelMatchManager *manager;
-    dispatch_once(&onceToken, ^{
-        manager = [[SAChannelMatchManager alloc] init];
-    });
-    return manager;
-}
-
 #pragma mark - indicator view
 - (void)showIndicator {
     _window = [self alertWindow];
@@ -160,7 +151,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [profileProps removeObjectForKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
     // 再发送 profile_set_once
     [profileProps setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-    if (self.enableMultipleChannelMatch) {
+    if (sdk.configOptions.enableMultipleChannelMatch) {
         [sdk set:profileProps];
     } else {
         [sdk setOnce:profileProps];
@@ -175,29 +166,30 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     return [url.host isEqualToString:@"channeldebug"] && monitorId.length;
 }
 
-- (void)handleURL:(NSURL *)url {
+- (BOOL)handleURL:(NSURL *)url {
     if (![self canHandleURL:url]) {
-        return;
+        return NO;
     }
 
     SANetwork *network = [SensorsAnalyticsSDK sharedInstance].network;
     if (!network.serverURL.absoluteString.length) {
         [self showErrorMessage:@"数据接收地址错误，无法使用联调诊断工具"];
-        return;
+        return YES;
     }
     NSString *project = [SAURLUtils queryItemsWithURLString:url.absoluteString][@"project_name"] ?: @"default";
     BOOL isEqualProject = [network.project isEqualToString:project];
     if (!isEqualProject) {
         [self showErrorMessage:@"App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具"];
-        return;
+        return YES;
     }
     // 如果是续连二维码功能，直接进入续连二维码流程
     if ([self isRelinkURL:url]) {
         [self showRelinkAlertWithURL:url];
-        return;
+        return YES;
     }
     // 展示渠道联调诊断询问弹窗
     [self showAuthorizationAlertWithURL:url];
+    return YES;
 }
 
 #pragma mark - 续连二维码
