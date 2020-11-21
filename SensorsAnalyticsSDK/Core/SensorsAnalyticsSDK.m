@@ -375,8 +375,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
 
-            id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[[SAModuleManager sharedInstance] modelManagerForModuleType:SAModuleTypeDebugMode];
-            [manager setDebugMode:_debugMode isShowWarning:YES];
+            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDebugMode];
+            [SAModuleManager.sharedInstance setDebugMode:_debugMode isShowWarning:YES];
             
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
@@ -733,8 +733,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)showDebugInfoView:(BOOL)show {
-    id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[[SAModuleManager sharedInstance] modelManagerForModuleType:SAModuleTypeDebugMode];
-    [manager setShowDebugAlertView:show];
+    [SAModuleManager.sharedInstance setShowDebugAlertView:show];
 }
 
 - (void)flush {
@@ -774,17 +773,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
         //点击图 & 可视化全埋点
         return [self handleAutoTrackURL:url];
-    } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
-        // url query 解析
-        NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
-
-        //如果没传 info_id，视为伪造二维码，不做处理
-        if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
-            [self showDebugModeAlertWithParams:paramDic];
-            return YES;
-        } else {
-            return NO;
-        }
     } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
         // 校验加密公钥
         [self.secretKeyHandler checkSecretKeyURL:url];
@@ -2413,8 +2401,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (isDisableDebugMode) {
-            id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[[SAModuleManager sharedInstance] modelManagerForModuleType:SAModuleTypeDebugMode];
-            [manager setDebugMode:SensorsAnalyticsDebugOff isShowWarning:NO];
+            [SAModuleManager.sharedInstance setDebugMode:SensorsAnalyticsDebugOff isShowWarning:NO];
         }
         
         isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
@@ -3031,8 +3018,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[[SAModuleManager sharedInstance] modelManagerForModuleType:SAModuleTypeDebugMode];
-    [manager setDebugMode:_debugMode isShowWarning:NO];
+    [SAModuleManager.sharedInstance setDebugMode:SensorsAnalyticsDebugOff isShowWarning:NO];
 }
 
 - (void)enableAutoTrack {

@@ -52,4 +52,9 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
 @end
 
+#pragma mark -
+
+@interface SAModuleManager (DebugMode) <SADebugModeModuleProtocol>
+@end
+
 NS_ASSUME_NONNULL_END
