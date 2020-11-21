@@ -32,7 +32,6 @@
 #import <UIKit/UIScreen.h>
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
@@ -82,7 +81,7 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.1.16"
+#define VERSION @"2.1.17"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -262,6 +261,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
     NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
         return nil;
     }
     return sharedInstance;
@@ -309,6 +309,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
             _network = [[SANetwork alloc] init];
+            [self setupSecurityPolicyWithConfigOptions:_configOptions];
+
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
             _appRelaunched = NO;
@@ -395,6 +397,35 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return self;
 }
 
+- (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
+    SASecurityPolicy *securityPolicy = options.securityPolicy;
+    if (!securityPolicy) {
+        return;
+    }
+    
+#ifdef DEBUG
+    NSURL *serverURL = [NSURL URLWithString:options.serverURL];
+    if (securityPolicy.SSLPinningMode != SASSLPinningModeNone && ![serverURL.scheme isEqualToString:@"https"]) {
+        NSString *pinningMode = @"Unknown Pinning Mode";
+        switch (securityPolicy.SSLPinningMode) {
+            case SASSLPinningModeNone:
+                pinningMode = @"SASSLPinningModeNone";
+                break;
+            case SASSLPinningModeCertificate:
+                pinningMode = @"SASSLPinningModeCertificate";
+                break;
+            case SASSLPinningModePublicKey:
+                pinningMode = @"SASSLPinningModePublicKey";
+                break;
+        }
+        NSString *reason = [NSString stringWithFormat:@"A security policy configured with `%@` can only be applied on a manager with a secure base URL (i.e. https)", pinningMode];
+        @throw [NSException exceptionWithName:@"Invalid Security Policy" reason:reason userInfo:nil];
+    }
+#endif
+    
+    SAHTTPSession.sharedInstance.securityPolicy = securityPolicy;
+}
+
 - (void)setupLaunchedState {
     _launchedAppStartTracked = NO;
     dispatch_block_t mainThreadBlock = ^(){
@@ -416,7 +447,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             [self startFlushTimer];
             [self startAppEndTimer];
-            [self requestRemoteConfigWhenInitialized];
+            [self tryToRequestRemoteConfigWhenInitialized];
         }
         
         [self autoTrackAppStart];
@@ -679,6 +710,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEnabled {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
         return NO;
     }
     
@@ -688,12 +720,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
     } else {
         // 远程配置修改现有的 autoTrack 方式
-        return (autoTrackMode != kSAAutoTrackModeDisabledAll);
+        BOOL isEnabled = (autoTrackMode != kSAAutoTrackModeDisabledAll);
+        if (!isEnabled) {
+            SALogDebug(@"【remote config】AutoTrack Event is ignored by remote config");
+        }
+        return isEnabled;
     }
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
         return YES;
     }
     
@@ -703,7 +740,32 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return !(self.configOptions.autoTrackEventType & eventType);
     } else {
         // 远程配置修改现有的 autoTrack 方式
-        return (autoTrackMode == kSAAutoTrackModeDisabledAll) ? YES : !(autoTrackMode & eventType);
+        BOOL isIgnored = (autoTrackMode == kSAAutoTrackModeDisabledAll) ? YES : !(autoTrackMode & eventType);
+        if (isIgnored) {
+            NSString *ignoredEvent = @"None";
+            switch (eventType) {
+                case SensorsAnalyticsEventTypeAppStart:
+                    ignoredEvent = SA_EVENT_NAME_APP_START;
+                    break;
+                    
+                case SensorsAnalyticsEventTypeAppEnd:
+                    ignoredEvent = SA_EVENT_NAME_APP_END;
+                    break;
+                    
+                case SensorsAnalyticsEventTypeAppClick:
+                    ignoredEvent = SA_EVENT_NAME_APP_CLICK;
+                    break;
+                    
+                case SensorsAnalyticsEventTypeAppViewScreen:
+                    ignoredEvent = SA_EVENT_NAME_APP_VIEW_SCREEN;
+                    break;
+                    
+                default:
+                    break;
+            }
+            SALogDebug(@"【remote config】%@ is ignored by remote config", ignoredEvent);
+        }
+        return isIgnored;
     }
 }
 
@@ -751,8 +813,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
     return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
-           [_linkHandler canHandleURL:url] ||
-           [SAModuleManager.sharedInstance canHandleURL:url];
+    [_linkHandler canHandleURL:url] ||
+    [SAModuleManager.sharedInstance canHandleURL:url] ||
+    [[SARemoteConfigManager sharedInstance] canHandleURL:url];
 }
 
 - (BOOL)handleAutoTrackURL:(NSURL *)URL{
@@ -773,6 +836,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
         //点击图 & 可视化全埋点
         return [self handleAutoTrackURL:url];
+    } else if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
+        [self enableLog:YES];
+        [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
+        return YES;
     } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
         // 校验加密公钥
         [self.secretKeyHandler checkSecretKeyURL:url];
@@ -1042,10 +1110,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
         return;
     }
     
     if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
+        SALogDebug(@"【remote config】 %@ is ignored by remote config", event);
         return;
     }
     
@@ -1865,7 +1935,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
     if (self.configOptions.enableVisualizedAutoTrack) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
+        [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:controller];
     }
 
     [self trackViewScreen:controller properties:nil autoTrack:YES];
@@ -2014,37 +2084,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 #endif
 
-- (void)_enableAutoTrack {
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
-    void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
-        UIViewController *controller = (UIViewController *)obj;
-        if (!controller) {
-            return;
-        }
-        
-        Class klass = [controller class];
-        if (!klass) {
-            return;
-        }
-        
-        NSString *screenName = NSStringFromClass(klass);
-        
-        //UITableView
-    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
-        if ([controller respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
-            [SASwizzler unswizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UITableView_AutoTrack"]];
-        }
-    #endif
-        
-        //UICollectionView
-    #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
-        if ([controller respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
-            [SASwizzler unswizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:klass named:[NSString stringWithFormat:@"%@_%@", screenName, @"UICollectionView_AutoTrack"]];
-        }
-    #endif
-    };
-#endif
-    
+- (void)_enableAutoTrack {    
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -2056,21 +2096,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
                              withMethod:@selector(sa_sendAction:to:from:forEvent:)
                                   error:&error];
+        
+        SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
+        [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+        [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
         if (error) {
             SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
             error = NULL;
         }
     });
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
-    //$AppClick
-    //UITableView、UICollectionView
-    #if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
-    [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
-                            onClass:[UIViewController class]
-                          withBlock:unswizzleUITableViewAppClickBlock
-                              named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
-    #endif
-#endif
+    
     //UILabel
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
     static dispatch_once_t onceTokenGesture;
@@ -2154,8 +2189,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     if (_appRelaunched) {
         // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
-        [[SARemoteConfigManager sharedInstance] configLocalRemoteConfigModel];
-        [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
     }
     
     // 遍历 trackTimer
@@ -2367,38 +2402,30 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 }
 
-- (void)setSecurityPolicy:(SASecurityPolicy *)securityPolicy {
-    self.network.securityPolicy = securityPolicy;
-}
-
-- (SASecurityPolicy *)securityPolicy {
-    return self.network.securityPolicy;
-}
-
 #pragma mark - RemoteConfig
 
 - (void)initRemoteConfigManager {
     // 初始化远程配置类
-    SARemoteConfigManagerOptions *managerOptions = [[SARemoteConfigManagerOptions alloc] init];
-    managerOptions.configOptions = _configOptions;
-    managerOptions.currentLibVersion = [self libVersion];
+    SARemoteConfigOptions *options = [[SARemoteConfigOptions alloc] init];
+    options.configOptions = _configOptions;
+    options.currentLibVersion = [self libVersion];
     
     __weak typeof(self) weakSelf = self;
-    managerOptions.encryptBuilderCreateResultBlock = ^BOOL{
+    options.encryptBuilderCreateResultBlock = ^BOOL{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         return strongSelf.encryptBuilder ? YES : NO;
     };
-    managerOptions.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
+    options.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf handleEncryptWithConfig:encryptConfig];
     };
-    managerOptions.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull propertieDict) {
+    options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf track:event withProperties:propertieDict withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [strongSelf track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };
-    managerOptions.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
+    options.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (isDisableDebugMode) {
             [SAModuleManager.sharedInstance setDebugMode:SensorsAnalyticsDebugOff isShowWarning:NO];
@@ -2407,7 +2434,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
     };
     
-    [SARemoteConfigManager startWithRemoteConfigManagerOptions:managerOptions];
+    [SARemoteConfigManager startWithRemoteConfigOptions:options];
 }
 
 - (void)performDisableSDKTask {
@@ -2435,10 +2462,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #endif
 }
 
-- (void)requestRemoteConfigWhenInitialized {
+- (void)tryToRequestRemoteConfigWhenInitialized {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
     });
 }
 
