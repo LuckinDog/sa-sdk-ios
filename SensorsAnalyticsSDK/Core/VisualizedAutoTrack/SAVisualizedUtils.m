@@ -197,7 +197,7 @@
             }
         }
     }
-    return keyWindow ? : [UIApplication sharedApplication].keyWindow;
+    return keyWindow ?: [UIApplication sharedApplication].keyWindow;
 #else
     return [UIApplication sharedApplication].keyWindow;
 #endif
