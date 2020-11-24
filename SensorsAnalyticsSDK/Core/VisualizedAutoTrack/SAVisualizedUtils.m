@@ -180,16 +180,24 @@
             if (windowScene.activationState == UISceneActivationStateForegroundActive) {
                 for (UIWindow *window in windowScene.windows) {
                     // 可能创建的 window 被隐藏
-                    if (!window.isHidden && window.alpha > 0.01) {
+                    if (window.isHidden || window.alpha <= 0.01) {
+                        continue;
+                    }
+                    // iOS 13 及以上，可能动态设置其他 window 为 keyWindow，此时直接使用此 keyWindow
+                    if (window.isKeyWindow) {
                         keyWindow = window;
                         break;
+                    }
+                    // 获取 windowScene.windows 中第一个 window
+                    if (!keyWindow) {
+                        keyWindow = window;
                     }
                 }
                 break;
             }
         }
     }
-    return keyWindow ?: [UIApplication sharedApplication].keyWindow;
+    return keyWindow ? : [UIApplication sharedApplication].keyWindow;
 #else
     return [UIApplication sharedApplication].keyWindow;
 #endif
