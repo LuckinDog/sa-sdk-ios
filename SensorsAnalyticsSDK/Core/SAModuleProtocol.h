@@ -68,11 +68,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SADebugModeModuleProtocol <NSObject>
 
-@property (nonatomic, readonly) SensorsAnalyticsDebugMode debugMode;
+/// Debug Mode 属性，设置或获取 Debug 模式
+@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 
+/// 设置在 Debug 模式下，是否弹窗显示错误信息
+/// @param isShow 是否显示
 - (void)setShowDebugAlertView:(BOOL)isShow;
+
+/// 设置 SDK 的 Debug Mode
+/// @param mode Debug 模式：off、debug、debugAndTrack
+/// @param isShow 是否显示开启 Debug 模式弹窗提示信息
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow;
 
+/// Debug 模式下，弹窗显示错误信息
+/// @param message 错误信息
 - (void)showDebugModeWarning:(NSString *)message;
 
 @end

@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
-@property (nonatomic, readonly) SensorsAnalyticsDebugMode debugMode;
+@property (nonatomic, readwrite) SensorsAnalyticsDebugMode debugMode;
 
 @property (nonatomic) BOOL showDebugAlertView;
 

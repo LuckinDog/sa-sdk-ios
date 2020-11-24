@@ -154,23 +154,28 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
 @implementation SAModuleManager (DebugMode)
 
+- (id<SADebugModeModuleProtocol>)debugModeManager {
+    return (id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode];
+}
+
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    self.debugModeManager.debugMode = debugMode;
+}
+
 - (SensorsAnalyticsDebugMode)debugMode {
-    return ((id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode]).debugMode;
+    return self.debugModeManager.debugMode;
 }
 
 - (void)setShowDebugAlertView:(BOOL)isShow {
-    id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode];
-    [manager setShowDebugAlertView:isShow];
+    [self.debugModeManager setShowDebugAlertView:isShow];
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow {
-    id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode];
-    [manager setDebugMode:mode isShowWarning:isShow];
+    [self.debugModeManager setDebugMode:mode isShowWarning:isShow];
 }
 
 - (void)showDebugModeWarning:(NSString *)message {
-    id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode];
-    [manager showDebugModeWarning:message];
+    [self.debugModeManager showDebugModeWarning:message];
 }
 
 @end

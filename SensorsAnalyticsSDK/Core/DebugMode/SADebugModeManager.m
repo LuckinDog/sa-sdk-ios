@@ -32,8 +32,6 @@
 
 @interface SADebugModeManager ()
 
-@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
-
 @property (nonatomic) UInt8 debugAlertViewHasShownNumber;
 
 @end
@@ -92,6 +90,12 @@
         [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
     }
 }
+
+- (void)showDebugModeWarning:(NSString *)message {
+    [self showDebugModeWarning:message withNoMoreButton:YES];
+}
+
+#pragma mark - Private
 
 - (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, NSString *> *)params {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -155,10 +159,6 @@
     return modeStr;
 }
 
-- (void)showDebugModeWarning:(NSString *)message {
-    [self showDebugModeWarning:message withNoMoreButton:YES];
-}
-
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
@@ -189,6 +189,10 @@
         }
         [alertController show];
     });
+}
+
+- (NSURL *)serverURL {
+    return [SensorsAnalyticsSDK sharedInstance].network.serverURL;
 }
 
 #pragma mark - Request
@@ -251,10 +255,6 @@
     }];
     [task resume];
     return task;
-}
-
-- (NSURL *)serverURL {
-    return [SensorsAnalyticsSDK sharedInstance].network.serverURL;
 }
 
 @end
