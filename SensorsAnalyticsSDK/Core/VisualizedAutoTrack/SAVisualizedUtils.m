@@ -28,16 +28,15 @@
 #import "SAJSONUtil.h"
 #import "SAVisualizedObjectSerializerManger.h"
 
-/// 遍历查找页面最大层数，用于判断是否被覆盖
-static NSInteger kSAVisualizedFindMaxPageLevel = 6;
+/// 遍历查找页面最大层数，用于判断元素是否被覆盖
+static NSInteger kSAVisualizedFindMaxPageLevel = 7;
 
 @implementation SAVisualizedUtils
 
 
 + (BOOL)isCoveredForView:(UIView *)view {
     BOOL covered = NO;
-    
-    // 最多查找 3 层
+
     NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:kSAVisualizedFindMaxPageLevel];
 
     // 遍历判断是否存在覆盖
