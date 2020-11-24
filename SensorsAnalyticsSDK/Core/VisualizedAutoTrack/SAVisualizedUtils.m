@@ -162,7 +162,8 @@
     __block UIWindow *validWindow = nil;
     // 逆序遍历，获取最上层全屏 window
     [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size) && !obj.hidden) {
+        CGSize fullScreenSize = [UIScreen mainScreen].bounds.size;
+        if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(fullScreenSize, obj.frame.size) && !obj.hidden && obj.alpha > 0.01) {
             validWindow = obj;
             *stop = YES;
         }
