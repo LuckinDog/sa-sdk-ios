@@ -79,7 +79,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
  */
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType;
 
-- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
+//- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
 
 
 /**

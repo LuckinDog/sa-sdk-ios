@@ -24,7 +24,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SADebugModeManager : NSObject <SAModuleProtocol, SADebugModeModuleProtocol>
+@interface SADebugModeManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SADebugModeModuleProtocol>
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 

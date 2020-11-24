@@ -233,7 +233,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @end
 
 @implementation SensorsAnalyticsSDK {
-    SensorsAnalyticsDebugMode _debugMode;
+//    SensorsAnalyticsDebugMode _debugMode;
     BOOL _appRelaunched;                // App 从后台恢复
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
@@ -299,7 +299,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SensorsAnalyticsNetworkTypeWIFI;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
-            _debugMode = debugMode;
+
+            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDebugMode];
+            [SAModuleManager.sharedInstance setDebugMode:debugMode isShowWarning:YES];
 
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -376,9 +378,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
-
-            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDebugMode];
-            [SAModuleManager.sharedInstance setDebugMode:_debugMode isShowWarning:YES];
             
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
@@ -1023,9 +1022,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (itemType.length == 0 || ![self isValidName:itemType]) {
         NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
         SALogError(@"%@", errMsg);
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-        }
+        [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
         return;
     }
 
@@ -1127,17 +1124,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (event == nil || [event length] == 0) {
             NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
             SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
             return;
         }
         if (![self isValidName:event]) {
             NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
             SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
             return;
         }
 
@@ -1424,9 +1417,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
     SALogError(@"%@", errMsg);
-    if (_debugMode != SensorsAnalyticsDebugOff) {
-        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-    }
+    [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
     return NO;
 }
 
@@ -1527,9 +1518,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![k isKindOfClass: [NSString class]]) {
             NSString *errMsg = @"Property Key should by NSString";
             SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
             return NO;
         }
 
@@ -1537,9 +1526,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![self isValidName: k]) {
             NSString *errMsg = [NSString stringWithFormat:@"property name[%@] is not valid", k];
             SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
             return NO;
         }
 
@@ -1552,9 +1539,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
            ![propertyValue isKindOfClass:[NSDate class]]) {
             NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [propertyValue class], propertyValue];
             SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
 
             if ([propertyValue isKindOfClass:[NSNull class]]) {
                 //NSNull 需要对数据做修复，remove 对应的 key
@@ -1568,15 +1553,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
 
-        BOOL isDebugMode = _debugMode != SensorsAnalyticsDebugOff;
         NSString *(^verifyString)(NSString *, NSMutableDictionary **, id *) = ^NSString *(NSString *string, NSMutableDictionary **dic, id *objects) {
             // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
             if (![string isKindOfClass:[NSString class]]) {
                 NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [string class], string];
                 SALogError(@"%@", errMsg);
-                if (isDebugMode) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                }
+                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
                 return nil;
             }
             NSUInteger length = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
@@ -1650,9 +1632,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (![propertyValue isKindOfClass:[NSNumber class]]) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [properties[k] class], propertyValue];
                 SALogError(@"%@", errMsg);
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                }
+                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
                 return NO;
             }
         }
@@ -1662,9 +1642,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (![propertyValue isKindOfClass:[NSSet class]] && ![propertyValue isKindOfClass:[NSArray class]]) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [propertyValue  class], propertyValue];
                 SALogError(@"%@", errMsg);
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                }
+                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
                 return NO;
             }
         }
@@ -1849,7 +1827,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
-    return _debugMode;
+    return SAModuleManager.sharedInstance.debugMode;
 }
 
 - (void)trackViewAppClick:(UIView *)view {
@@ -3044,7 +3022,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    _debugMode = debugMode;
     [SAModuleManager.sharedInstance setDebugMode:debugMode isShowWarning:NO];
 }
 

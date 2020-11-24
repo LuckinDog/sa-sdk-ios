@@ -154,6 +154,10 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
 @implementation SAModuleManager (DebugMode)
 
+- (SensorsAnalyticsDebugMode)debugMode {
+    return ((id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode]).debugMode;
+}
+
 - (void)setShowDebugAlertView:(BOOL)isShow {
     id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode];
     [manager setShowDebugAlertView:isShow];
@@ -162,6 +166,11 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow {
     id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode];
     [manager setDebugMode:mode isShowWarning:isShow];
+}
+
+- (void)showDebugModeWarning:(NSString *)message {
+    id<SADebugModeModuleProtocol> manager = (id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode];
+    [manager showDebugModeWarning:message];
 }
 
 @end

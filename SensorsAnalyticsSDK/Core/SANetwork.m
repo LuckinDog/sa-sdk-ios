@@ -24,6 +24,7 @@
 
 #import "SANetwork.h"
 #import "SAURLUtils.h"
+#import "SAModuleManager.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "NSString+HashCode.h"
@@ -67,7 +68,7 @@
 
 - (NSURL *)serverURL {
     NSURL *serverURL = [NSURL URLWithString:SensorsAnalyticsSDK.sdkInstance.configOptions.serverURL];
-    if (SensorsAnalyticsSDK.sdkInstance.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
+    if (SAModuleManager.sharedInstance.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
         return serverURL;
     }
     NSURL *url = serverURL;

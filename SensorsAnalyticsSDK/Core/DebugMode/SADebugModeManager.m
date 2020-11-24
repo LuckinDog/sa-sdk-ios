@@ -155,6 +155,10 @@
     return modeStr;
 }
 
+- (void)showDebugModeWarning:(NSString *)message {
+    [self showDebugModeWarning:message withNoMoreButton:YES];
+}
+
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
