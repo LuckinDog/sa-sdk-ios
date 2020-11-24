@@ -851,7 +851,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         return [SAModuleManager.sharedInstance handleURL:url];
     }
-    return NO;
 }
 
 #pragma mark - VisualizedAutoTrack
