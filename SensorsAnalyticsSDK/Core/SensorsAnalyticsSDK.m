@@ -3045,7 +3045,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    [SAModuleManager.sharedInstance setDebugMode:SensorsAnalyticsDebugOff isShowWarning:NO];
+    _debugMode = debugMode;
+    [SAModuleManager.sharedInstance setDebugMode:debugMode isShowWarning:NO];
 }
 
 - (void)enableAutoTrack {
