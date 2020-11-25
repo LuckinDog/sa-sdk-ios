@@ -77,7 +77,6 @@
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
-#import "SAEncryptSecretKeyHandler.h"
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
@@ -161,6 +160,7 @@ static dispatch_once_t sdkInitializeOnceToken;
 
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
+static SAConfigOptions *_configOptions = nil;
 
 @interface SensorsAnalyticsSDK()
 
@@ -197,8 +197,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
-@property (nonatomic, strong) SAConfigOptions *configOptions;
-@property (nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
+//@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -228,8 +227,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAConsoleLogger *consoleLogger;
 
-@property (nonatomic, strong) SAEncryptSecretKeyHandler *secretKeyHandler;
-
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -244,8 +241,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     BOOL _clearReferrerWhenAppEnd;
     SensorsAnalyticsNetworkType _networkTypePolicy;
 }
-
-@synthesize encryptBuilder = _encryptBuilder;
 
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
@@ -330,10 +325,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
             
             // 加密
-            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
-            if (_configOptions.enableEncrypt) {
-                [self updateEncryptBuilder];
-            }
+            [SAModuleManager.sharedInstance setEnable:_configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
             
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
@@ -397,6 +389,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     return self;
+}
+
+- (SAConfigOptions *)configOptions {
+    return SensorsAnalyticsSDK.configOptions;
+}
+
++ (SAConfigOptions *)configOptions {
+    return _configOptions;
 }
 
 - (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
@@ -983,10 +983,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self enableLog:YES];
         [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
         [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
-        return YES;
-    } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
-        // 校验加密公钥
-        [self.secretKeyHandler checkSecretKeyURL:url];
         return YES;
     } else if ([_linkHandler canHandleURL:url]) {
         [_linkHandler handleDeepLink:url];
@@ -2554,12 +2550,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     
     __weak typeof(self) weakSelf = self;
     options.encryptBuilderCreateResultBlock = ^BOOL{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        return strongSelf.encryptBuilder ? YES : NO;
+        return SAModuleManager.sharedInstance.hasSecretKey;
     };
     options.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf handleEncryptWithConfig:encryptConfig];
+        [SAModuleManager.sharedInstance handleEncryptWithConfig:encryptConfig];
     };
     options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -2645,44 +2639,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [newUserAgent appendString:self.addWebViewUserAgent];
     self.userAgent = newUserAgent;
     [SACommonUtility saveUserAgent:self.userAgent];
-}
-
-#pragma mark - SecretKey
-
-- (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
-    if (encryptConfig) {
-        SASecretKey *secretKey = [[SASecretKey alloc] init];
-        secretKey.version = [encryptConfig[@"pkv"] integerValue];
-        secretKey.key = encryptConfig[@"public_key"];
-                                    
-        // 存储公钥
-        [self.secretKeyHandler saveSecretKey:secretKey];
-        
-        // 更新加密构造器
-        [self updateEncryptBuilder];
-    }
-}
-
-- (void)updateEncryptBuilder {
-    // 获取公钥
-    SASecretKey *secretKey = [self.secretKeyHandler loadSecretKey];
-    if (secretKey.key.length > 0) {
-        self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
-    }
-}
-
-#pragma mark – Getters and Setters
-
-- (void)setEncryptBuilder:(SADataEncryptBuilder *)encryptBuilder {
-    [self.readWriteLock writeWithBlock:^{
-        self->_encryptBuilder = encryptBuilder;
-    }];
-}
-
-- (SADataEncryptBuilder *)encryptBuilder {
-    return [self.readWriteLock readWithBlock:^id _Nonnull{
-        return self->_encryptBuilder;
-    }];
 }
 
 @end

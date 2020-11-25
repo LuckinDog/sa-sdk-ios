@@ -28,6 +28,7 @@
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
+static NSString * const kSAEncryptModuleName = @"Encrypt";
 
 @interface SAModuleManager ()
 
@@ -78,6 +79,8 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
             return kSALocationModuleName;
         case SAModuleTypeChannelMatch:
             return kSAChannelMatchModuleName;
+        case SAModuleTypeEncrypt:
+            return kSAEncryptModuleName;
         default:
             return nil;
     }
@@ -136,7 +139,6 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
 @end
 
-
 #pragma mark -
 
 @implementation SAModuleManager (ChannelMatch)
@@ -144,6 +146,37 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
     id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
     [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Encrypt)
+
+- (id<SAEncryptModuleProtocol>)encryptManager {
+    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeEncrypt];
+    return manager.isEnable ? manager : nil;
+}
+
+- (BOOL)hasSecretKey {
+    return self.encryptManager.hasSecretKey;
+}
+
+- (nullable NSDictionary *)encryptionJSONObject:(nonnull id)obj {
+    return [self.encryptManager encryptionJSONObject:obj];
+}
+
+- (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
+    [self.encryptManager handleEncryptWithConfig:encryptConfig];
+}
+
+- (nonnull SASecretKey *)loadCurrentSecretKey {
+    return [self.encryptManager loadCurrentSecretKey];
+}
+
+- (void)saveSecretKey:(nonnull SASecretKey *)secretKey {
+    [self.encryptManager saveSecretKey:secretKey];
 }
 
 @end
