@@ -72,9 +72,10 @@
             }
         }
     }
-#else
-    [allActiveWindows addObjectsFromArray:[UIApplication sharedApplication].windows];
 #endif
+    if (allActiveWindows.count == 0) {
+        [allActiveWindows addObjectsFromArray:[UIApplication sharedApplication].windows];
+    }
 
     NSMutableArray <UIWindow *> *validWindows = [NSMutableArray array];
     for (UIWindow *window in allActiveWindows) {
