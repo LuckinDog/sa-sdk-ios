@@ -301,7 +301,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _people = [[SensorsAnalyticsPeople alloc] init];
 
             [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDebugMode];
-            SAModuleManager.sharedInstance.debugMode = debugMode;
+            [SAModuleManager.sharedInstance setDebugMode:debugMode isShowWarning:YES];
 
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -2406,6 +2406,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (isDisableDebugMode) {
             [SAModuleManager.sharedInstance setDebugMode:SensorsAnalyticsDebugOff isShowWarning:NO];
+            [strongSelf enableLog:NO];
         }
         
         isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];

@@ -71,24 +71,21 @@
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow {
     _debugMode = mode;
 
-    [SensorsAnalyticsSDK.sharedInstance enableLog:_debugMode != SensorsAnalyticsDebugOff];
-    if (!isShow) {
+    if (!isShow || _debugMode == SensorsAnalyticsDebugOff) {
         return;
     }
 
-    //SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
+    // SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
     SALogDebug(@"%@ initialized the instance of Sensors Analytics SDK with debugMode: '%@'", self, [self debugModeToString:_debugMode]);
 
-    //打开debug模式，弹出提示
-    if (_debugMode != SensorsAnalyticsDebugOff) {
-        NSString *alertMessage = nil;
-        if (_debugMode == SensorsAnalyticsDebugOnly) {
-            alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-        } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-            alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-        }
-        [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
+    // 打开debug模式，弹出提示
+    NSString *alertMessage = nil;
+    if (_debugMode == SensorsAnalyticsDebugOnly) {
+        alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+    } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
+        alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
     }
+    [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
 }
 
 - (void)showDebugModeWarning:(NSString *)message {

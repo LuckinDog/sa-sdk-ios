@@ -79,9 +79,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
  */
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType;
 
-//- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
-
-
 /**
  根据 viewController 判断，是否采集事件
 
