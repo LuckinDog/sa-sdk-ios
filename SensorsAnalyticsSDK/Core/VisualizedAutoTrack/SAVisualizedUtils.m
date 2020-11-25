@@ -178,8 +178,8 @@
 
 // 获取当前 keyWindow
 + (UIWindow *)currentKeyWindow {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     UIWindow *keyWindow = nil;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
         for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
             if (windowScene.activationState == UISceneActivationStateForegroundActive) {
@@ -202,10 +202,8 @@
             }
         }
     }
-    return keyWindow ?: [UIApplication sharedApplication].keyWindow;
-#else
-    return [UIApplication sharedApplication].keyWindow;
 #endif
+    return keyWindow ?: [UIApplication sharedApplication].keyWindow;
 }
 
 @end
