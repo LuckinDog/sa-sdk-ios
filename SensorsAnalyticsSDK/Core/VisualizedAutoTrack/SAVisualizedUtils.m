@@ -80,12 +80,17 @@
         [superView.subviews enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if (obj == view) {
                 *stop = YES;
-            } else if (obj.alpha > 0 && !obj.hidden && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
+            } else if ([self isVisibleForView:obj] && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
                 [otherViews addObject:obj];
             }
         }];
     }
     return otherViews;
+}
+
+/// view 是否可见
++ (BOOL)isVisibleForView:(UIView *)view {
+    return view.alpha > 0.01 && !view.isHidden;
 }
 
 + (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
@@ -155,7 +160,7 @@
 + (UIWindow *)currentValidKeyWindow {
     UIWindow *keyWindow = [self currentKeyWindow];
     // 判断 keyWindow 是否显示
-    if (!keyWindow.hidden && keyWindow.alpha > 0.01) {
+    if ([self isVisibleForView:keyWindow]) {
         return keyWindow;
     }
 
@@ -163,7 +168,7 @@
     // 逆序遍历，获取最上层全屏 window
     [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         CGSize fullScreenSize = [UIScreen mainScreen].bounds.size;
-        if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(fullScreenSize, obj.frame.size) && !obj.hidden && obj.alpha > 0.01) {
+        if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(fullScreenSize, obj.frame.size) && [self isVisibleForView:obj]) {
             validWindow = obj;
             *stop = YES;
         }
@@ -180,7 +185,7 @@
             if (windowScene.activationState == UISceneActivationStateForegroundActive) {
                 for (UIWindow *window in windowScene.windows) {
                     // 可能创建的 window 被隐藏
-                    if (window.isHidden || window.alpha <= 0.01) {
+                    if (![self isVisibleForView:window]) {
                         continue;
                     }
                     // iOS 13 及以上，可能动态设置其他 window 为 keyWindow，此时直接使用此 keyWindow

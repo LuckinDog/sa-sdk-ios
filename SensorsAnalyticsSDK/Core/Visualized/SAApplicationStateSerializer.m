@@ -62,9 +62,23 @@
 - (void)screenshotImageForAllWindowWithCompletionHandler:(void (^)(UIImage *))completionHandler {
     CGFloat scale = [UIScreen mainScreen].scale;
 
+    // 获取所有可见的 window 截图
+    NSMutableArray <UIWindow *> *allActiveWindows = [NSMutableArray array];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *)) {
+        for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+            if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                [allActiveWindows addObjectsFromArray:windowScene.windows];
+            }
+        }
+    }
+#else
+    [allActiveWindows addObjectsFromArray:[UIApplication sharedApplication].windows];
+#endif
+
     NSMutableArray <UIWindow *> *validWindows = [NSMutableArray array];
-    for (UIWindow *window in [UIApplication sharedApplication].windows) {
-        if (!window.hidden && window.alpha > 0.01) {
+    for (UIWindow *window in allActiveWindows) {
+        if ([SAVisualizedUtils isVisibleForView:window]) {
             [validWindows addObject:window];
         }
     }
