@@ -114,6 +114,11 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN=1'}
   end
 
+  # 禁用 UIWebView，已废弃，会在后续版本中删除
+  s.subspec 'DISABLE_UIWEBVIEW' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+  end
+
   # 禁用私有 API，可视化全埋点模块存在私有类名字符串判断
   s.subspec 'DISABLE_PRIVATE_APIS' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
