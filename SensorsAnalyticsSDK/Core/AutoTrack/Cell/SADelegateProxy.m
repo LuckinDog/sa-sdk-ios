@@ -143,16 +143,17 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     if (originalIMP) {
         ((SensorsDidSelectImplementation)originalIMP)(delegate, selector, scrollView, indexPath);
     } else if ([SADelegateProxy isRxDelegateProxyClass:originalClass]) {
-        IMP forwardOriginalIMP = NULL;
+        NSObject<UITableViewDelegate> *forwardToDelegate = nil;
         if ([delegate respondsToSelector:NSSelectorFromString(@"_forwardToDelegate")]) {
             // 获取 _forwardToDelegate 属性
-            NSObject<UITableViewDelegate> *forwardToDelegate = [delegate valueForKey:@"_forwardToDelegate"];
-            Class forwardOriginalClass = NSClassFromString(forwardToDelegate.sensorsdata_className) ?: forwardToDelegate.class;
-            forwardOriginalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:forwardOriginalClass];
+            forwardToDelegate = [delegate valueForKey:@"_forwardToDelegate"];
         }
-        
-        if (forwardOriginalIMP) {
-            ((SensorsDidSelectImplementation)forwardOriginalIMP)(delegate, selector, scrollView, indexPath);
+        if (forwardToDelegate) {
+            Class forwardOriginalClass = NSClassFromString(forwardToDelegate.sensorsdata_className) ?: forwardToDelegate.class;
+            IMP forwardOriginalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:forwardOriginalClass];
+            if (forwardOriginalIMP) {
+                ((SensorsDidSelectImplementation)forwardOriginalIMP)(forwardToDelegate, selector, scrollView, indexPath);
+            }
         } else {
             ((SensorsDidSelectImplementation)_objc_msgForward)(delegate, selector, scrollView, indexPath);
         }
