@@ -27,6 +27,17 @@
 #import "SAVisualizedViewPathProperty.h"
 #import "SAJSONUtil.h"
 #import "SAVisualizedObjectSerializerManger.h"
+#import "SALog.h"
+
+/// 判断 RNView 覆盖后对交互的影响类型
+typedef NS_ENUM(NSInteger, SensorsAnalyticsRNViewCoveredType) {
+    /// 不做特殊处理，正常覆盖逻辑判断
+    SensorsAnalyticsRNViewCoveredTypeDefault,
+    /// 不会遮挡下面元素点击，可以跳过
+    SensorsAnalyticsRNViewCoveredTypeNone,
+    /// 阻挡底下元素点击
+    SensorsAnalyticsRNViewCoveredTypeStop,
+};
 
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
 static NSInteger kSAVisualizedFindMaxPageLevel = 7;
@@ -36,16 +47,25 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 7;
 
 + (BOOL)isCoveredForView:(UIView *)view {
     BOOL covered = NO;
-
     NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:kSAVisualizedFindMaxPageLevel];
 
     // 遍历判断是否存在覆盖
-    CGRect rect = [view convertRect:view.bounds toView:nil];
+    CGRect originalRect = [view convertRect:view.bounds toView:nil];
     // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
     CGRect keyWindowFrame = [UIApplication sharedApplication].keyWindow.frame;
-    rect = CGRectIntersection(keyWindowFrame, rect);
+    CGRect rect = CGRectIntersection(keyWindowFrame, originalRect);
 
     for (UIView *otherView in allOtherViews) {
+        BOOL isRNView =  [NSStringFromClass(otherView.class) hasPrefix:@"RCT"] || [NSStringFromClass(otherView.class) hasPrefix:@"RNC"];
+        if (isRNView) {
+            SensorsAnalyticsRNViewCoveredType coveredType = [self isStopClickOfRNView:view fromRNView:otherView];
+            if (coveredType == SensorsAnalyticsRNViewCoveredTypeStop) {
+                return YES;
+            } else if (coveredType == SensorsAnalyticsRNViewCoveredTypeNone) {
+                continue;
+            }
+        }
+
         CGRect otherRect = [otherView convertRect:otherView.bounds toView:nil];
         if (CGRectContainsRect(otherRect, rect)) {
             return YES;
@@ -54,6 +74,42 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 7;
     return covered;
 }
 
+/// 判断 RNView 是否被遮挡元素阻塞点击
+/// @param view 被遮挡的 RNView
+/// @param fromView 遮挡的 RNView
++ (SensorsAnalyticsRNViewCoveredType)isStopClickOfRNView:(UIView *)view fromRNView:(UIView *)fromView {
+    // 遍历判断是否存在覆盖
+    CGRect rect = [view convertRect:view.bounds toView:nil];
+    // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
+    CGRect keyWindowFrame = [UIApplication sharedApplication].keyWindow.frame;
+    rect = CGRectIntersection(keyWindowFrame, rect);
+
+    @try {
+        /*RCTView 默认重写了 hitTest:
+         针对 RN 部分框架或实现方式，设置 pointerEvents 并在 hitTest: 内判断处理，从而实现交互的穿透，不响应当前 view
+         */
+        NSInteger pointerEvents = [[fromView valueForKey:@"pointerEvents"] integerValue];
+        if (pointerEvents == 1) {
+            return SensorsAnalyticsRNViewCoveredTypeNone;
+        }
+        if (pointerEvents == 2) {
+            // 寻找完全遮挡 view 的子视图
+            for (UIView *subView in fromView.subviews) {
+                if (subView.alpha <= 0.01 || subView.hidden || !subView.userInteractionEnabled) {
+                    continue;
+                }
+                CGRect subViewRect = [subView convertRect:subView.bounds toView:nil];
+                if (CGRectContainsRect(subViewRect, rect)) {
+                    return SensorsAnalyticsRNViewCoveredTypeStop;
+                }
+            }
+            return SensorsAnalyticsRNViewCoveredTypeNone;
+        }
+    } @catch (NSException *exception) {
+        SALogDebug(@"%@ error: %@", self, exception);
+    }
+    return SensorsAnalyticsRNViewCoveredTypeDefault;
+}
 
 // 根据层数，查询一个 view 所有可能覆盖的 view
 + (NSArray *)findAllPossibleCoverViews:(UIView *)view hierarchyCount:(NSInteger)count {
