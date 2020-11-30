@@ -123,6 +123,8 @@ BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);
 
+#pragma mark - Scheme Host
+extern NSString * const kSASchemeHostRemoteConfig;
 
 #pragma mark - SF related notifications
 extern NSNotificationName const SA_TRACK_EVENT_NOTIFICATION;
@@ -132,4 +134,12 @@ extern NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION;
 
+#pragma mark - ABTest related notifications
+/// 注入打通 bridge
+extern NSNotificationName const SA_H5_BRIDGE_NOTIFICATION;
+
+/// H5 通过 postMessage 发送消息
+extern NSNotificationName const SA_H5_MESSAGE_NOTIFICATION;
+
+#pragma mark - SA notifications
 extern NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION;

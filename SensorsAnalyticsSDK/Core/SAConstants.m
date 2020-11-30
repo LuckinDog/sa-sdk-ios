@@ -134,6 +134,8 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
     }
 }
 
+#pragma mark - Scheme Host
+NSString * const kSASchemeHostRemoteConfig = @"sensorsdataremoteconfig";
 
 #pragma mark - SF related notifications
 NSNotificationName const SA_TRACK_EVENT_NOTIFICATION = @"SensorsAnalyticsTrackEventNotification";
@@ -142,5 +144,10 @@ NSNotificationName const SA_TRACK_LOGOUT_NOTIFICATION = @"SensorsAnalyticsTrackL
 NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION = @"SensorsAnalyticsTrackIdentifyNotification";
 NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION = @"SensorsAnalyticsTrackResetAnonymousIdNotification";
 NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION = @"SensorsAnalyticsTrackEventFromH5Notification";
+
+#pragma mark - ABTest related notifications
+NSNotificationName const SA_H5_BRIDGE_NOTIFICATION = @"SensorsAnalyticsRegisterJavaScriptBridgeNotification";
+
+NSNotificationName const SA_H5_MESSAGE_NOTIFICATION = @"SensorsAnalyticsMessageFromH5Notification";
 
 NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION = @"cn.sensorsdata.SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION";

@@ -29,8 +29,6 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 @interface SANetwork : NSObject
 
-/// 用于评价请求是否是服务器信任的链接，默认为：defaultPolicy
-@property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 /// debug mode
 @property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 
@@ -59,7 +57,7 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
  @param params 扫码得到的参数
  @return request task
  */
-- (nullable NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params;
+- (nullable NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, NSString *> *)params;
 
 @end
 
