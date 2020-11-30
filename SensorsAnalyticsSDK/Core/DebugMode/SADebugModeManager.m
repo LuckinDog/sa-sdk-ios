@@ -68,10 +68,10 @@
 
 #pragma mark - SADebugModeModuleProtocol
 
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow {
+- (void)warnSettingDebugMode:(SensorsAnalyticsDebugMode)mode {
     _debugMode = mode;
 
-    if (!isShow || _debugMode == SensorsAnalyticsDebugOff) {
+    if (_debugMode == SensorsAnalyticsDebugOff) {
         return;
     }
 
@@ -122,7 +122,7 @@
         }
         SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
         void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-            [self setDebugMode:debugMode isShowWarning:NO];
+            self.debugMode = debugMode;
             alterViewBlock();
             [self debugModeCallbackWithDistinctId:[SensorsAnalyticsSDK sharedInstance].distinctId params:params];
         };

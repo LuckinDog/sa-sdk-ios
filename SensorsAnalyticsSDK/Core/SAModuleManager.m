@@ -170,8 +170,8 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
     [self.debugModeManager setShowDebugAlertView:isShow];
 }
 
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow {
-    [self.debugModeManager setDebugMode:mode isShowWarning:isShow];
+- (void)warnSettingDebugMode:(SensorsAnalyticsDebugMode)mode {
+    [self.debugModeManager warnSettingDebugMode:mode];
 }
 
 - (void)showDebugModeWarning:(NSString *)message {

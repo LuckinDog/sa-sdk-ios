@@ -75,10 +75,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param isShow 是否显示
 - (void)setShowDebugAlertView:(BOOL)isShow;
 
-/// 设置 SDK 的 Debug Mode
-/// @param mode Debug 模式：off、debug、debugAndTrack
-/// @param isShow 是否显示开启 Debug 模式弹窗提示信息
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)mode isShowWarning:(BOOL)isShow;
+/// 设置 SDK 的 Debug Mode 并在非 Debug 模式时弹窗警告窗
+/// @param mode Debug 模式
+- (void)warnSettingDebugMode:(SensorsAnalyticsDebugMode)mode;
 
 /// Debug 模式下，弹窗显示错误信息
 /// @param message 错误信息
