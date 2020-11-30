@@ -56,11 +56,14 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 7;
     CGRect rect = CGRectIntersection(keyWindowFrame, originalRect);
 
     for (UIView *otherView in allOtherViews) {
-        BOOL isRNView =  [NSStringFromClass(otherView.class) hasPrefix:@"RCT"] || [NSStringFromClass(otherView.class) hasPrefix:@"RNC"];
+        Class RNViewClass = NSClassFromString(@"RCTView");
+        BOOL isRNView =  RNViewClass && [otherView isKindOfClass:RNViewClass];
         if (isRNView) {
             SensorsAnalyticsRNViewCoveredType coveredType = [self isStopClickOfRNView:view fromRNView:otherView];
+            // 被覆盖，阻塞底部元素点击，
             if (coveredType == SensorsAnalyticsRNViewCoveredTypeStop) {
                 return YES;
+            // 不会遮挡下面元素点击，可以跳过该 view
             } else if (coveredType == SensorsAnalyticsRNViewCoveredTypeNone) {
                 continue;
             }

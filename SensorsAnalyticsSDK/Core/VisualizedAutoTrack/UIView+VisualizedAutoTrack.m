@@ -66,7 +66,8 @@
     }
 
     // RN 项目，view 覆盖层次比较多，被覆盖元素，可以直接屏蔽，防止被覆盖元素可圈选
-    BOOL isRNView =  [NSStringFromClass(self.class) hasPrefix:@"RCT"] || [NSStringFromClass(self.class) hasPrefix:@"RNC"];
+    Class RNViewClass = NSClassFromString(@"RCTView");
+    BOOL isRNView =  RNViewClass && [self isKindOfClass:RNViewClass];
     if (isRNView && [SAVisualizedUtils isCoveredForView:self]) {
         return NO;
     }
