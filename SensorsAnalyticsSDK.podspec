@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.license = { :type => "Apache License, Version 2.0" }
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.platform = :ios, "8.0"
-  s.default_subspec = ['Core', 'ReactNative']
+  s.default_subspec = 'Core'
   s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreMotion'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
@@ -56,12 +56,6 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_AUTOTRACK_GESTURE' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE=1'}
-  end
-
-  # 开启 React Native 页面控件的自动采集 $AppClick 事件
-  s.subspec 'ENABLE_REACT_NATIVE_APPCLICK' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_REACT_NATIVE=1'}
   end
 
   # 允许使用私有 API，v2.0.0 已废弃，待删除
