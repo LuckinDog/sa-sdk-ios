@@ -178,8 +178,6 @@
 		881A4228253D7B5E00854F69 /* SALocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4226253D7B5E00854F69 /* SALocationManager.m */; };
 		881A4231253D7B8600854F69 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A422F253D7B8600854F69 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881A4232253D7B8600854F69 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4230253D7B8600854F69 /* SAAppExtensionDataManager.m */; };
-		888592F32546A6E300F4DB04 /* SAReactNativeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 888592F12546A6E300F4DB04 /* SAReactNativeManager.m */; };
-		888592F42546A6E300F4DB04 /* SAReactNativeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 888592F22546A6E300F4DB04 /* SAReactNativeManager.h */; };
 		A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */; };
 		A8A87E4C2568EBD500E16895 /* SARemoteConfigCheckOperator.h in Headers */ = {isa = PBXBuildFile; fileRef = A8A87E422568EBD500E16895 /* SARemoteConfigCheckOperator.h */; };
 		A8A87E4D2568EBD500E16895 /* SARemoteConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A87E432568EBD500E16895 /* SARemoteConfigManager.m */; };
@@ -389,8 +387,6 @@
 		881A4226253D7B5E00854F69 /* SALocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALocationManager.m; sourceTree = "<group>"; };
 		881A422F253D7B8600854F69 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAAppExtensionDataManager.h; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.h; sourceTree = SOURCE_ROOT; };
 		881A4230253D7B8600854F69 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAAppExtensionDataManager.m; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.m; sourceTree = SOURCE_ROOT; };
-		888592F12546A6E300F4DB04 /* SAReactNativeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAReactNativeManager.m; sourceTree = "<group>"; };
-		888592F22546A6E300F4DB04 /* SAReactNativeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAReactNativeManager.h; sourceTree = "<group>"; };
 		A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTests.m; sourceTree = "<group>"; };
 		A8A87E422568EBD500E16895 /* SARemoteConfigCheckOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SARemoteConfigCheckOperator.h; sourceTree = "<group>"; };
 		A8A87E432568EBD500E16895 /* SARemoteConfigManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SARemoteConfigManager.m; sourceTree = "<group>"; };
@@ -765,15 +761,6 @@
 			path = Location;
 			sourceTree = "<group>";
 		};
-		888592F02546A6E300F4DB04 /* ReactNative */ = {
-			isa = PBXGroup;
-			children = (
-				888592F12546A6E300F4DB04 /* SAReactNativeManager.m */,
-				888592F22546A6E300F4DB04 /* SAReactNativeManager.h */,
-			);
-			path = ReactNative;
-			sourceTree = "<group>";
-		};
 		CB30BD4A22840CA40004061D = {
 			isa = PBXGroup;
 			children = (
@@ -800,7 +787,6 @@
 			children = (
 				881A40D2253D7B4F00854F69 /* Core */,
 				881A4224253D7B5E00854F69 /* Location */,
-				888592F02546A6E300F4DB04 /* ReactNative */,
 				CB30C0AB22840F1B0004061D /* Resources */,
 			);
 			path = SensorsAnalyticsSDK;
@@ -860,7 +846,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				881A4211253D7B5000854F69 /* SAPresetProperty.h in Headers */,
-				888592F42546A6E300F4DB04 /* SAReactNativeManager.h in Headers */,
 				881A41A9253D7B4F00854F69 /* WKWebView+SABridge.h in Headers */,
 				881A41DB253D7B5000854F69 /* SAVisualizedConnection.h in Headers */,
 				881A4227253D7B5E00854F69 /* SALocationManager.h in Headers */,
@@ -1162,7 +1147,6 @@
 				881A41EA253D7B5000854F69 /* UIApplication+AutoTrack.m in Sources */,
 				881A41D2253D7B5000854F69 /* SAPropertyDescription.m in Sources */,
 				881A41FC253D7B5000854F69 /* SASwizzle.m in Sources */,
-				888592F32546A6E300F4DB04 /* SAReactNativeManager.m in Sources */,
 				881A420D253D7B5000854F69 /* SAEncryptSecretKeyHandler.m in Sources */,
 				881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */,
 				881A41D9253D7B5000854F69 /* SAVisualizedAbstractMessage.m in Sources */,
