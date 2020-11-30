@@ -2192,8 +2192,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 
     //React Native
-    if (NSClassFromString(@"RCTUIManager")) {
-        [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeReactNative];
+    if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
     }
 }
 

@@ -63,6 +63,12 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
     }
 }
 
+- (BOOL)contains:(SAModuleType)type {
+    NSString *moduleName = [self moduleNameForType:type];
+    NSString *className = [NSString stringWithFormat:@"SA%@Manager", moduleName];
+    return [NSClassFromString(className) conformsToProtocol:@protocol(SAModuleProtocol)];
+}
+
 - (id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     return self.modules[name];

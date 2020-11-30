@@ -33,6 +33,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 + (instancetype)sharedInstance;
 
+- (BOOL)contains:(SAModuleType)type;
 - (nullable id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type;
 
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
