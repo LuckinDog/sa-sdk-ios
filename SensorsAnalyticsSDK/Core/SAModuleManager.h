@@ -27,6 +27,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeChannelMatch,
     SAModuleTypeEncrypt,
+    SAModuleTypeDeeplink,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -58,6 +59,11 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @property (nonatomic, strong, readonly) id<SAEncryptModuleProtocol> encryptManager;
 
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
 @end
 
 NS_ASSUME_NONNULL_END

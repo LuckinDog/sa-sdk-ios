@@ -32,50 +32,9 @@ typedef void(^SALinkHandlerCallback)(NSString *_Nullable params, BOOL success, N
 
 @interface SADeeplinkManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SADeeplinkModuleProtocol>
 
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
+
 @property (nonatomic, copy) SALinkHandlerCallback linkHandlerCallback;
-
-/**
-@abstract
- 根据 ConfigOptions 初始化 Handler
-
- @param configOptions SDK 初始化的 configOptions
- @return Handler 对象
-*/
-- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions;
-
-/**
-@abstract
- 判断当前 URL 是否需要解析来源渠道信息
-
- @param url 被解析的 URL 对象
- @return 是否需要被解析
-*/
-- (BOOL)canHandleURL:(NSURL *)url;
-
-- (void)acquireColdLaunchDeepLinkInfo;
-
-/**
- @abstract
- 最新的来源渠道信息
-
- @return latest utms 属性
- */
-- (nullable NSDictionary *)latestUtmProperties;
-
-/**
- @abstract
- 当前 DeepLink 启动时的来源渠道信息
-
- @return utms  属性
- */
-- (NSDictionary *)utmProperties;
-
-/**
-@abstract
-清除本次 DeepLink 解析到的 utm 信息
-
-*/
-- (void)clearUtmProperties;
 
 @end
 

@@ -29,6 +29,7 @@
 static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
+static NSString * const kSADeeplinkModuleName = @"Deeplink";
 
 @interface SAModuleManager ()
 
@@ -81,6 +82,8 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
             return kSAChannelMatchModuleName;
         case SAModuleTypeEncrypt:
             return kSAEncryptModuleName;
+        case SAModuleTypeDeeplink:
+            return kSADeeplinkModuleName;
         default:
             return nil;
     }
@@ -180,3 +183,31 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 }
 
 @end
+
+#pragma mark -
+
+@implementation SAModuleManager (Deeplink)
+
+- (id<SADeeplinkModuleProtocol>)deeplinkManager {
+    id<SADeeplinkModuleProtocol> manager = (id<SADeeplinkModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeDeeplink];
+    return manager;
+}
+
+- (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback {
+    [self.deeplinkManager setLinkHandlerCallback:linkHandlerCallback];
+}
+
+- (NSDictionary *)latestUtmProperties {
+    return self.deeplinkManager.latestUtmProperties;
+}
+
+- (NSDictionary *)utmProperties {
+    return self.deeplinkManager.utmProperties;
+}
+
+- (void)clearUtmProperties { 
+    [self.deeplinkManager clearUtmProperties];
+}
+
+@end
+

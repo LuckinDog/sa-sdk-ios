@@ -38,7 +38,7 @@
 		881A418E253D7B4F00854F69 /* SAConsoleLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E2253D7B4F00854F69 /* SAConsoleLogger.m */; };
 		881A418F253D7B4F00854F69 /* SALog+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40E3253D7B4F00854F69 /* SALog+Private.h */; };
 		881A4190253D7B4F00854F69 /* SALoggerConsoleFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40E4253D7B4F00854F69 /* SALoggerConsoleFormatter.h */; };
-		881A4191253D7B4F00854F69 /* SALinkHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40E5253D7B4F00854F69 /* SALinkHandler.h */; };
+		881A4191253D7B4F00854F69 /* SADeeplinkManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40E5253D7B4F00854F69 /* SADeeplinkManager.h */; };
 		881A4192253D7B4F00854F69 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E6253D7B4F00854F69 /* SANetwork.m */; };
 		881A4193253D7B4F00854F69 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */; };
 		881A4194253D7B4F00854F69 /* SATrackTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E8253D7B4F00854F69 /* SATrackTimer.m */; };
@@ -130,7 +130,7 @@
 		881A41F0253D7B5000854F69 /* SANetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A414A253D7B4F00854F69 /* SANetwork.h */; };
 		881A41F1253D7B5000854F69 /* SensorsAnalyticsSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881A41F2253D7B5000854F69 /* SAModuleProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A414C253D7B4F00854F69 /* SAModuleProtocol.h */; };
-		881A41F3253D7B5000854F69 /* SALinkHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A414D253D7B4F00854F69 /* SALinkHandler.m */; };
+		881A41F3253D7B5000854F69 /* SADeeplinkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A414D253D7B4F00854F69 /* SADeeplinkManager.m */; };
 		881A41F4253D7B5000854F69 /* SAChannelMatchManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A414F253D7B4F00854F69 /* SAChannelMatchManager.h */; };
 		881A41F5253D7B5000854F69 /* SAChannelMatchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4150253D7B4F00854F69 /* SAChannelMatchManager.m */; };
 		881A41F6253D7B5000854F69 /* NSString+HashCode.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A4151253D7B4F00854F69 /* NSString+HashCode.h */; };
@@ -247,7 +247,7 @@
 		881A40E2253D7B4F00854F69 /* SAConsoleLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConsoleLogger.m; sourceTree = "<group>"; };
 		881A40E3253D7B4F00854F69 /* SALog+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SALog+Private.h"; sourceTree = "<group>"; };
 		881A40E4253D7B4F00854F69 /* SALoggerConsoleFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALoggerConsoleFormatter.h; sourceTree = "<group>"; };
-		881A40E5253D7B4F00854F69 /* SALinkHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALinkHandler.h; sourceTree = "<group>"; };
+		881A40E5253D7B4F00854F69 /* SADeeplinkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADeeplinkManager.h; sourceTree = "<group>"; };
 		881A40E6253D7B4F00854F69 /* SANetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDK.m; sourceTree = "<group>"; };
 		881A40E8253D7B4F00854F69 /* SATrackTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATrackTimer.m; sourceTree = "<group>"; };
@@ -339,7 +339,7 @@
 		881A414A253D7B4F00854F69 /* SANetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SANetwork.h; sourceTree = "<group>"; };
 		881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsSDK.h; sourceTree = "<group>"; };
 		881A414C253D7B4F00854F69 /* SAModuleProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAModuleProtocol.h; sourceTree = "<group>"; };
-		881A414D253D7B4F00854F69 /* SALinkHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALinkHandler.m; sourceTree = "<group>"; };
+		881A414D253D7B4F00854F69 /* SADeeplinkManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADeeplinkManager.m; sourceTree = "<group>"; };
 		881A414F253D7B4F00854F69 /* SAChannelMatchManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAChannelMatchManager.h; sourceTree = "<group>"; };
 		881A4150253D7B4F00854F69 /* SAChannelMatchManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAChannelMatchManager.m; sourceTree = "<group>"; };
 		881A4151253D7B4F00854F69 /* NSString+HashCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+HashCode.h"; sourceTree = "<group>"; };
@@ -519,8 +519,8 @@
 				881A4163253D7B4F00854F69 /* SAHTTPSession.m */,
 				881A4172253D7B4F00854F69 /* SAKeyChainItemWrapper.h */,
 				881A413D253D7B4F00854F69 /* SAKeyChainItemWrapper.m */,
-				881A40E5253D7B4F00854F69 /* SALinkHandler.h */,
-				881A414D253D7B4F00854F69 /* SALinkHandler.m */,
+				881A40E5253D7B4F00854F69 /* SADeeplinkManager.h */,
+				881A414D253D7B4F00854F69 /* SADeeplinkManager.m */,
 				881A40F6253D7B4F00854F69 /* SAModuleManager.h */,
 				881A415D253D7B4F00854F69 /* SAModuleManager.m */,
 				881A414C253D7B4F00854F69 /* SAModuleProtocol.h */,
@@ -924,7 +924,7 @@
 				4588652B253EE0FC00DF208D /* SADelegateProxy.h in Headers */,
 				881A4182253D7B4F00854F69 /* SALogMessage.h in Headers */,
 				881A420A253D7B5000854F69 /* SADataEncryptBuilder.h in Headers */,
-				881A4191253D7B4F00854F69 /* SALinkHandler.h in Headers */,
+				881A4191253D7B4F00854F69 /* SADeeplinkManager.h in Headers */,
 				881A41D8253D7B5000854F69 /* SATypeDescription.h in Headers */,
 				881A4186253D7B4F00854F69 /* SALog.h in Headers */,
 				881A41C9253D7B4F00854F69 /* SAObjectIdentityProvider.h in Headers */,
@@ -1112,7 +1112,7 @@
 				881A41F8253D7B5000854F69 /* SADeviceOrientationManager.m in Sources */,
 				881A421C253D7B5000854F69 /* SAJSTouchEventView.m in Sources */,
 				881A41EB253D7B5000854F69 /* UIGestureRecognizer+AutoTrack.m in Sources */,
-				881A41F3253D7B5000854F69 /* SALinkHandler.m in Sources */,
+				881A41F3253D7B5000854F69 /* SADeeplinkManager.m in Sources */,
 				881A41B1253D7B4F00854F69 /* SADateFormatter.m in Sources */,
 				881A41D3253D7B5000854F69 /* SAEnumDescription.m in Sources */,
 				881A41AF253D7B4F00854F69 /* SAJSONUtil.m in Sources */,
