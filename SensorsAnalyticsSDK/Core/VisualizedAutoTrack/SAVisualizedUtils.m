@@ -87,8 +87,9 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 7;
     rect = CGRectIntersection(keyWindowFrame, rect);
 
     @try {
-        /*RCTView 默认重写了 hitTest:
-         针对 RN 部分框架或实现方式，设置 pointerEvents 并在 hitTest: 内判断处理，从而实现交互的穿透，不响应当前 view
+        /* RCTView 默认重写了 hitTest:
+         详情参照：https://github.com/facebook/react-native/blob/master/React/Views/RCTView.m
+         针对 RN 部分框架或实现方式，设置 pointerEvents 并在 hitTest: 内判断处理，从而实现交互的穿透，不响应当前 RNView
          */
         NSInteger pointerEvents = [[fromView valueForKey:@"pointerEvents"] integerValue];
         if (pointerEvents == 1) {
