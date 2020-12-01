@@ -46,7 +46,6 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 7;
 
 
 + (BOOL)isCoveredForView:(UIView *)view {
-    BOOL covered = NO;
     NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:kSAVisualizedFindMaxPageLevel];
 
     // 遍历判断是否存在覆盖
@@ -59,7 +58,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 7;
         Class RNViewClass = NSClassFromString(@"RCTView");
         BOOL isRNView =  RNViewClass && [otherView isKindOfClass:RNViewClass];
         if (isRNView) {
-            SensorsAnalyticsRNViewCoveredType coveredType = [self isStopClickOfRNView:view fromRNView:otherView];
+            SensorsAnalyticsRNViewCoveredType coveredType = [self coveredTypeOfRNView:view fromRNView:otherView];
             // 被覆盖，阻塞底部元素点击，
             if (coveredType == SensorsAnalyticsRNViewCoveredTypeStop) {
                 return YES;
@@ -74,13 +73,13 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 7;
             return YES;
         }
     }
-    return covered;
+    return NO;
 }
 
-/// 判断 RNView 是否被遮挡元素阻塞点击
+/// 判断 RNView 被遮挡元素覆盖的类型
 /// @param view 被遮挡的 RNView
 /// @param fromView 遮挡的 RNView
-+ (SensorsAnalyticsRNViewCoveredType)isStopClickOfRNView:(UIView *)view fromRNView:(UIView *)fromView {
++ (SensorsAnalyticsRNViewCoveredType)coveredTypeOfRNView:(UIView *)view fromRNView:(UIView *)fromView {
     // 遍历判断是否存在覆盖
     CGRect rect = [view convertRect:view.bounds toView:nil];
     // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
