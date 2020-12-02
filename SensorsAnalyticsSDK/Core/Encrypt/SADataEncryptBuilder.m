@@ -22,86 +22,45 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-
 #import "SADataEncryptBuilder.h"
-#import "SAEncryptUtils.h"
-#import "SAGzipUtility.h"
-#import "SAJSONUtil.h"
-#import "SALog.h"
-#import "SAValidator.h"
+#import "SAAbstractEncryptor.h"
+#import "SARSAEncryptor.h"
+#import "SAECCEncryptor.h"
+#import "SAConstants+Private.h"
 
 @interface SADataEncryptBuilder()
 
-/// RSA 公钥配置
-@property(nonatomic, strong) SASecretKey *rsaSecretKey;
+@property (nonatomic, strong) SAAbstractEncryptor *encryptor;
 
-///AES 秘钥
-@property(nonatomic, copy) NSData *aesSecretDataKey;
-/// RSA 加密后 AES 秘钥
-@property(nonatomic, copy) NSString *rsaEncryptAESKey;
 @end
-
 
 @implementation SADataEncryptBuilder
 
-#pragma mark - initializ
-- (instancetype)initWithRSAPublicKey:(SASecretKey *)secretKey {
+#pragma mark - Life Cycle
+
+- (instancetype)initWithSecretKey:(SASecretKey *)secretKey {
     self = [super init];
     if (self) {
-        [self updateRSAPublicSecretKey:secretKey];
+        [self initEncryptorWithSecretKey:secretKey];
     }
     return self;
 }
 
-- (void)updateRSAPublicSecretKey:(nonnull SASecretKey *)secretKey {
-    if (secretKey.key.length > 0 && ![secretKey.key isEqualToString:self.rsaSecretKey.key]) {
-        self.rsaSecretKey = secretKey;
-        
-        //对秘钥 RSA 加密
-        NSData *rsaEncryptData = [SAEncryptUtils RSAEncryptData:self.aesSecretDataKey publicKey:self.rsaSecretKey.key];
-        self.rsaEncryptAESKey = [rsaEncryptData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+- (void)initEncryptorWithSecretKey:(SASecretKey *)secretKey {
+    if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
+        _encryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey];
+    } else {
+        _encryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey];
     }
 }
 
--(NSData *)aesSecretDataKey {
-    if (!_aesSecretDataKey) {
-        _aesSecretDataKey = [SAEncryptUtils random16ByteData];
-    }
-    return _aesSecretDataKey;
-}
-
-- (NSString *)rsaEncryptAESKey {
-    if (!_rsaEncryptAESKey && self.rsaSecretKey.key.length > 0) {
-        //对秘钥 RSA 加密
-        NSData *rsaEncryptData = [SAEncryptUtils RSAEncryptData:self.aesSecretDataKey publicKey:self.rsaSecretKey.key];
-        _rsaEncryptAESKey = [rsaEncryptData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-    }
-    return _rsaEncryptAESKey;
-}
+#pragma mark - Public Methods
 
 - (nullable NSDictionary *)encryptionJSONObject:(id)obj {
-    if (!self.rsaSecretKey || !self.rsaEncryptAESKey) {
-        SALogDebug(@"Enable encryption but the secret key is nil!");
-        return nil;
+    if ([self.encryptor respondsToSelector:@selector(encryptJSONObject:)]) {
+        return [self.encryptor encryptJSONObject:obj];
     }
-
-    NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
-    NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
-    //使用 gzip 进行压缩
-    NSData *zippedData = [SAGzipUtility gzipData:encodingData];
-
-    //AES128 加密
-    NSString *encryptString = [SAEncryptUtils AES128EncryptData:zippedData AESKey:self.aesSecretDataKey];
-    if (!encryptString) {
-        return nil;
-    }
-    //封装加密的数据结构
-    NSMutableDictionary *secretObj = [NSMutableDictionary dictionary];
-    secretObj[@"pkv"] = @(self.rsaSecretKey.version);
-    secretObj[@"ekey"] = self.rsaEncryptAESKey;
-    secretObj[@"payload"] = encryptString;
-    return [NSDictionary dictionaryWithDictionary:secretObj];
+    return nil;
 }
 
 @end

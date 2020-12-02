@@ -27,21 +27,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SADataEncryptBuilder : NSObject
 
 /**
- 指定初始化方法，设置 RSA 公钥
+ 指定初始化方法设置密钥
 
- @param secretKey 公钥配置
+ @param secretKey 密钥配置
  @return 配置对象
  */
-- (instancetype)initWithRSAPublicKey:(nonnull SASecretKey *)secretKey NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSecretKey:(SASecretKey *)secretKey NS_DESIGNATED_INITIALIZER;
 
 /// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
 
 /// 禁用 new 初始化
 + (instancetype)new NS_UNAVAILABLE;
-
-/// 设置公钥
-- (void)updateRSAPublicSecretKey:(nonnull SASecretKey *)secretKey;
 
 /// 加密数据
 - (nullable NSDictionary *)encryptionJSONObject:(id)obj;

@@ -28,6 +28,8 @@
 #import <CommonCrypto/CommonCryptor.h>
 #import <UIKit/UIKit.h>
 #import "SALog.h"
+#import "SAValidator.h"
+#import "SAConstants+Private.h"
 
 @implementation SAEncryptUtils
 
@@ -57,7 +59,7 @@ static NSData *base64_decode(NSString *str) {
 }
 
 + (nullable NSData *)RSAEncryptData:(NSData *)data publicKey:(NSString *)pubKey {
-    if (!data || !pubKey) {
+    if (!data || ![SAValidator isValidString:pubKey]) {
         return nil;
     }
     SecKeyRef keyRef = [SAEncryptUtils addPublicKey:pubKey];
@@ -365,10 +367,7 @@ static NSData *base64_decode(NSString *str) {
 }
 
 #pragma mark - AES
-/**
- 随机生成 16 字节秘钥
- @return 秘钥 Byte 数据
- */
+
 + (NSData *)random16ByteData {
     unsigned char buf[16];
     arc4random_buf(buf, sizeof(buf));
@@ -376,9 +375,16 @@ static NSData *base64_decode(NSString *str) {
     return data;
 }
 
-/**
- AES128加密
- */
++ (NSString *)random16BitString {
+    NSUInteger length = 16;
+    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
+    for (NSUInteger i = 0; i < length; i++) {
+        [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
+    }
+    return randomString;
+}
+
 + (nullable NSString *)AES128EncryptData:(NSData *)data AESKey:(NSData *)keyData {
     
     NSUInteger dataLength = [data length];
@@ -410,6 +416,31 @@ static NSData *base64_decode(NSString *str) {
         free(buffer);
         SALogError(@"AES128EncryptData fail,Error Code: %d",(int)cryptStatus);
     }
+    return nil;
+}
+
+#pragma mark - ECC
+
++ (nullable NSString *)eccEncryptString:(NSString *)string publicKey:(NSString *)publicKey {
+    if (![SAValidator isValidString:string] || ![SAValidator isValidString:publicKey]) {
+        return nil;
+    }
+
+    NSString *newPublicKey = [NSString stringWithString:publicKey];
+    if ([publicKey hasPrefix:kSAEncryptECCPrefix]) {
+        newPublicKey = [publicKey substringFromIndex:[kSAEncryptECCPrefix length]];
+    }
+    
+    Class crypto = NSClassFromString(@"SAECCCrypto");
+    SEL sel = NSSelectorFromString(@"encrypt:withPublicKey:");
+    if ([crypto respondsToSelector:sel]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        NSString *result = [crypto performSelector:sel withObject:string withObject:newPublicKey];
+#pragma clang diagnostic pop
+        return result;
+    }
+    
     return nil;
 }
 

@@ -57,8 +57,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 - (void)updateEncryptBuilder {
     // 获取公钥
     SASecretKey *secretKey = [self loadCurrentSecretKey];
-    if (secretKey.key.length > 0) {
-        self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
+    if ([SAValidator isValidString:secretKey.key]) {
+        self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithSecretKey:secretKey];
     }
 }
 
@@ -103,7 +103,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 #pragma mark - SAEncryptModuleProtocol
 
 - (BOOL)hasSecretKey {
-    return self.encryptBuilder ? YES : NO;
+    return self.encryptBuilder != nil;
 }
 
 - (void)saveSecretKey:(SASecretKey *)secretKey {
@@ -160,9 +160,24 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     if (!encryptConfig) {
         return;
     }
+
+    NSString *ecKey = encryptConfig[@"key_ec"];
     SASecretKey *secretKey = [[SASecretKey alloc] init];
-    secretKey.version = [encryptConfig[@"pkv"] integerValue];
-    secretKey.key = encryptConfig[@"public_key"];
+
+    if ([SAValidator isValidString:ecKey] && NSClassFromString(@"SAECCCrypto")) {
+        NSData *data = [ecKey dataUsingEncoding:NSUTF8StringEncoding];
+        if (data) {
+            NSDictionary *ecKeyDic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            NSString *type = ecKeyDic[@"type"];
+            NSString *key = ecKeyDic[@"public_key"];
+
+            secretKey.version = [ecKeyDic[@"pkv"] integerValue];
+            secretKey.key = [NSString stringWithFormat:@"%@:%@", type, key];
+        }
+    } else {
+        secretKey.version = [encryptConfig[@"pkv"] integerValue];
+        secretKey.key = encryptConfig[@"public_key"];
+    }
 
     // 存储公钥
     [self saveSecretKey:secretKey];

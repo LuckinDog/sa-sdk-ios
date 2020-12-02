@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEncryptUtils : NSObject
 
+#pragma mark - RSA
+
 /**
  RSA 公钥加密
 
@@ -36,19 +38,29 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - AES
 
 /**
- 随机生成 16 字节秘钥
- @return 秘钥 Byte 数据
+ 随机生成 16 字节密钥
+ @return 密钥 Byte 数据
  */
 + (NSData *)random16ByteData;
+
+/**
+ 随机生成 16 位密钥
+ @return 密钥字符串
+ */
++ (NSString *)random16BitString;
 
 /**
  AES 128 加密
 
  @param data 待加密数据
- @param keyData 秘钥
+ @param keyData 密钥
  @return 加密并 base64 字符
  */
 + (nullable NSString *)AES128EncryptData:(NSData *)data AESKey:(NSData *)keyData;
+
+#pragma mark - ECC
+
++ (nullable NSString *)eccEncryptString:(NSString *)string publicKey:(NSString *)publicKey;
 
 @end
 
