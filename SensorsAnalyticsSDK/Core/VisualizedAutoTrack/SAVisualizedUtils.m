@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsRNViewCoveredType) {
 };
 
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
-static NSInteger kSAVisualizedFindMaxPageLevel = 7;
+static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
 @implementation SAVisualizedUtils
 
