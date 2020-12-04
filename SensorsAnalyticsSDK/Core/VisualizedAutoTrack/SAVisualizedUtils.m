@@ -39,9 +39,8 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:kSAVisualizedFindMaxPageLevel];
 
     for (UIView *otherView in allOtherViews) {
-        Class RNViewClass = NSClassFromString(@"RCTView");
-        BOOL isRNView =  RNViewClass && [otherView isKindOfClass:RNViewClass];
-        if (isRNView) {
+        // 是否为 RN 的 View
+        if ([SAVisualizedUtils isKindOfRNView:otherView]) {
             if ([self isCoveredOfRNView:view fromRNView:otherView]) {
                 return YES;
             }
@@ -98,6 +97,11 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
     CGRect otherRect = [fromView convertRect:fromView.bounds toView:nil];
     return CGRectContainsRect(otherRect, rect);
+}
+
++ (BOOL)isKindOfRNView:(UIView *)view {
+    Class RNViewClass = NSClassFromString(@"RCTView");
+    return RNViewClass && [view isKindOfClass:RNViewClass];
 }
 
 // 根据层数，查询一个 view 所有可能覆盖的 view
