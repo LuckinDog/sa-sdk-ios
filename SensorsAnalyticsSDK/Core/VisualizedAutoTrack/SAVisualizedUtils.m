@@ -105,7 +105,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 }
 
 // 根据层数，查询一个 view 所有可能覆盖的 view
-+ (NSArray *)findAllPossibleCoverViews:(UIView *)view hierarchyCount:(NSInteger)count {
++ (NSArray <UIView *> *)findAllPossibleCoverViews:(UIView *)view hierarchyCount:(NSInteger)count {
     NSMutableArray <UIView *> *allOtherViews = [NSMutableArray array];
     NSInteger index = count;
     UIView *currentView = view;
@@ -117,12 +117,12 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
         currentView = currentView.superview;
         index--;
     }
-    return [allOtherViews copy];
+    return allOtherViews;
 }
 
 // 寻找一个 view 同级的后添加的 view
 + (NSArray *)findPossibleCoverAllBrotherViews:(UIView *)view {
-    __block NSMutableArray <UIView *> *otherViews = [NSMutableArray array];
+    NSMutableArray <UIView *> *otherViews = [NSMutableArray array];
     UIView *superView = [view superview];
     if (superView) {
         // 逆序遍历
