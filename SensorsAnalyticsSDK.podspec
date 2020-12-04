@@ -31,7 +31,6 @@ Pod::Spec.new do |s|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = 'SensorsAnalyticsSDK/ReactNative/**/*.{h,m}'
     f.private_header_files = 'SensorsAnalyticsSDK/ReactNative/**/*.h'
-    f.frameworks = 'CoreLocation'
   end
 
   # 禁用设备方向采集
