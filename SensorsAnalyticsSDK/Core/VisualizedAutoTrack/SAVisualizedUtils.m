@@ -29,16 +29,6 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SALog.h"
 
-/// 判断 RNView 覆盖后对交互的影响类型
-typedef NS_ENUM(NSInteger, SensorsAnalyticsRNViewCoveredType) {
-    /// 不做特殊处理，正常覆盖逻辑判断
-    SensorsAnalyticsRNViewCoveredTypeDefault,
-    /// 不会遮挡下面元素点击，可以跳过
-    SensorsAnalyticsRNViewCoveredTypeNone,
-    /// 阻挡底下元素点击
-    SensorsAnalyticsRNViewCoveredTypeStop,
-};
-
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
 static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
@@ -58,14 +48,11 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
         Class RNViewClass = NSClassFromString(@"RCTView");
         BOOL isRNView =  RNViewClass && [otherView isKindOfClass:RNViewClass];
         if (isRNView) {
-            SensorsAnalyticsRNViewCoveredType coveredType = [self coveredTypeOfRNView:view fromRNView:otherView];
-            // 被覆盖，阻塞底部元素点击，
-            if (coveredType == SensorsAnalyticsRNViewCoveredTypeStop) {
+            BOOL isCovered = [self isCoveredOfRNView:view fromRNView:otherView];
+            if (isCovered) {
                 return YES;
-            // 不会遮挡下面元素点击，可以跳过该 view
-            } else if (coveredType == SensorsAnalyticsRNViewCoveredTypeNone) {
-                continue;
             }
+            continue;
         }
 
         CGRect otherRect = [otherView convertRect:otherView.bounds toView:nil];
@@ -76,10 +63,10 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     return NO;
 }
 
-/// 判断 RNView 被遮挡元素覆盖的类型
+/// 判断 RNView 是否遮挡底下的 view
 /// @param view 被遮挡的 RNView
 /// @param fromView 遮挡的 RNView
-+ (SensorsAnalyticsRNViewCoveredType)coveredTypeOfRNView:(UIView *)view fromRNView:(UIView *)fromView {
++ (BOOL)isCoveredOfRNView:(UIView *)view fromRNView:(UIView *)fromView {
     // 遍历判断是否存在覆盖
     CGRect rect = [view convertRect:view.bounds toView:nil];
     // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
@@ -93,7 +80,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
          */
         NSInteger pointerEvents = [[fromView valueForKey:@"pointerEvents"] integerValue];
         if (pointerEvents == 1) {
-            return SensorsAnalyticsRNViewCoveredTypeNone;
+            return NO;
         }
         if (pointerEvents == 2) {
             // 寻找完全遮挡 view 的子视图
@@ -103,15 +90,16 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
                 }
                 CGRect subViewRect = [subView convertRect:subView.bounds toView:nil];
                 if (CGRectContainsRect(subViewRect, rect)) {
-                    return SensorsAnalyticsRNViewCoveredTypeStop;
+                    return YES;
                 }
             }
-            return SensorsAnalyticsRNViewCoveredTypeNone;
+            return NO;
         }
     } @catch (NSException *exception) {
         SALogDebug(@"%@ error: %@", self, exception);
     }
-    return SensorsAnalyticsRNViewCoveredTypeDefault;
+    CGRect otherRect = [fromView convertRect:fromView.bounds toView:nil];
+    return CGRectContainsRect(otherRect, rect);
 }
 
 // 根据层数，查询一个 view 所有可能覆盖的 view
