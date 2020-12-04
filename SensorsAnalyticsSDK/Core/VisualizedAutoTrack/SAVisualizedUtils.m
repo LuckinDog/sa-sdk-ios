@@ -42,8 +42,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
         Class RNViewClass = NSClassFromString(@"RCTView");
         BOOL isRNView =  RNViewClass && [otherView isKindOfClass:RNViewClass];
         if (isRNView) {
-            BOOL isCovered = [self isCoveredOfRNView:view fromRNView:otherView];
-            if (isCovered) {
+            if ([self isCoveredOfRNView:view fromRNView:otherView]) {
                 return YES;
             }
         } else {
@@ -65,9 +64,11 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
          针对 RN 部分框架或实现方式，设置 pointerEvents 并在 hitTest: 内判断处理，从而实现交互的穿透，不响应当前 RNView
          */
         NSInteger pointerEvents = [[fromView valueForKey:@"pointerEvents"] integerValue];
+        // RCTView 重写 hitTest: 并返回 nil，不阻塞底下元素交互
         if (pointerEvents == 1) {
             return NO;
         }
+        // 遍历子视图判断是否存在坐标覆盖阻塞交互
         if (pointerEvents == 2) {
             // 寻找完全遮挡 view 的子视图
             for (UIView *subView in fromView.subviews) {
