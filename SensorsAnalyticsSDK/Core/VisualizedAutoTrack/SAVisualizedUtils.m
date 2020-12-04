@@ -71,10 +71,9 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
         if (pointerEvents == 2) {
             // 寻找完全遮挡 view 的子视图
             for (UIView *subView in fromView.subviews) {
-                if (subView.alpha <= 0.01 || subView.hidden || !subView.userInteractionEnabled) {
-                    continue;
-                }
-                if ([self isCoveredForView:view fromView:subView]) {
+                BOOL enableInteraction = subView.alpha >= 0.01 && !subView.hidden && subView.userInteractionEnabled;
+                BOOL isCovered = [self isCoveredForView:view fromView:subView];
+                if (enableInteraction && isCovered) {
                     return YES;
                 }
             }
