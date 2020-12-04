@@ -38,12 +38,6 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 + (BOOL)isCoveredForView:(UIView *)view {
     NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:kSAVisualizedFindMaxPageLevel];
 
-    // 遍历判断是否存在覆盖
-    CGRect originalRect = [view convertRect:view.bounds toView:nil];
-    // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
-    CGRect keyWindowFrame = [UIApplication sharedApplication].keyWindow.frame;
-    CGRect rect = CGRectIntersection(keyWindowFrame, originalRect);
-
     for (UIView *otherView in allOtherViews) {
         Class RNViewClass = NSClassFromString(@"RCTView");
         BOOL isRNView =  RNViewClass && [otherView isKindOfClass:RNViewClass];
@@ -52,12 +46,10 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
             if (isCovered) {
                 return YES;
             }
-            continue;
-        }
-
-        CGRect otherRect = [otherView convertRect:otherView.bounds toView:nil];
-        if (CGRectContainsRect(otherRect, rect)) {
-            return YES;
+        } else {
+            if ([self isCoveredForView:view fromView:otherView]) {
+                return YES;
+            }
         }
     }
     return NO;
@@ -67,12 +59,6 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 /// @param view 被遮挡的 RNView
 /// @param fromView 遮挡的 RNView
 + (BOOL)isCoveredOfRNView:(UIView *)view fromRNView:(UIView *)fromView {
-    // 遍历判断是否存在覆盖
-    CGRect rect = [view convertRect:view.bounds toView:nil];
-    // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
-    CGRect keyWindowFrame = [UIApplication sharedApplication].keyWindow.frame;
-    rect = CGRectIntersection(keyWindowFrame, rect);
-
     @try {
         /* RCTView 默认重写了 hitTest:
          详情参照：https://github.com/facebook/react-native/blob/master/React/Views/RCTView.m
@@ -88,8 +74,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
                 if (subView.alpha <= 0.01 || subView.hidden || !subView.userInteractionEnabled) {
                     continue;
                 }
-                CGRect subViewRect = [subView convertRect:subView.bounds toView:nil];
-                if (CGRectContainsRect(subViewRect, rect)) {
+                if ([self isCoveredForView:view fromView:subView]) {
                     return YES;
                 }
             }
@@ -98,6 +83,18 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     } @catch (NSException *exception) {
         SALogDebug(@"%@ error: %@", self, exception);
     }
+    return [self isCoveredForView:view fromView:fromView];
+}
+
+/// 判断一个 view 是否被覆盖
+/// @param view 当前 view
+/// @param fromView 遮挡的 view
++ (BOOL)isCoveredForView:(UIView *)view fromView:(UIView *)fromView {
+    CGRect rect = [view convertRect:view.bounds toView:nil];
+    // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
+    CGRect keyWindowFrame = [UIApplication sharedApplication].keyWindow.frame;
+    rect = CGRectIntersection(keyWindowFrame, rect);
+
     CGRect otherRect = [fromView convertRect:fromView.bounds toView:nil];
     return CGRectContainsRect(otherRect, rect);
 }
@@ -109,15 +106,14 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     UIView *currentView = view;
     while (index > 0 && currentView) {
         NSArray *allBrotherViews = [self findPossibleCoverAllBrotherViews:currentView];
-          if (allBrotherViews.count > 0) {
-              [allOtherViews addObjectsFromArray:allBrotherViews];
-          }
+        if (allBrotherViews.count > 0) {
+            [allOtherViews addObjectsFromArray:allBrotherViews];
+        }
         currentView = currentView.superview;
         index--;
     }
     return [allOtherViews copy];
 }
-
 
 // 寻找一个 view 同级的后添加的 view
 + (NSArray *)findPossibleCoverAllBrotherViews:(UIView *)view {
