@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 设置 SDK 的 DebugMode 在 Debug 模式时弹窗警告
 /// @param mode Debug 模式
-- (void)warnSettingDebugMode:(SensorsAnalyticsDebugMode)mode;
+- (void)handleDebugMode:(SensorsAnalyticsDebugMode)mode;
 
 /// Debug 模式下，弹窗显示错误信息
 /// @param message 错误信息

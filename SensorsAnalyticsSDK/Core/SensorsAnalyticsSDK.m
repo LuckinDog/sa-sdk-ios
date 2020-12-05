@@ -301,7 +301,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _people = [[SensorsAnalyticsPeople alloc] init];
 
             [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDebugMode];
-            [SAModuleManager.sharedInstance warnSettingDebugMode:debugMode];
+            [SAModuleManager.sharedInstance handleDebugMode:debugMode];
 
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
