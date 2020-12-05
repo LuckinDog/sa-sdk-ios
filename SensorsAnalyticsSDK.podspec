@@ -18,14 +18,6 @@ Pod::Spec.new do |s|
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
-  s.subspec 'NoIDFA' do |sp|
-    core_dir = "SensorsAnalyticsSDK/Core/"
-    sp.source_files = core_dir + "**/*.{h,m}"
-    sp.exclude_files = core_dir + "Builder/SAIDFAHelper.{h,m}"
-    sp.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
-    sp.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
-  end
-
   # 开启 GPS 定位采集
   s.subspec 'Location' do |f|
     f.frameworks = 'CoreLocation'
