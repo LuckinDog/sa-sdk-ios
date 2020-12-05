@@ -44,10 +44,8 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
             if ([self isCoveredOfRNView:view fromRNView:otherView]) {
                 return YES;
             }
-        } else {
-            if ([self isCoveredForView:view fromView:otherView]) {
-                return YES;
-            }
+        } else if ([self isCoveredForView:view fromView:otherView]) {
+            return YES;
         }
     }
     return NO;
