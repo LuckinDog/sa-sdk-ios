@@ -79,7 +79,8 @@
 
     NSMutableArray <UIWindow *> *validWindows = [NSMutableArray array];
     for (UIWindow *window in allActiveWindows) {
-        if ([SAVisualizedUtils isVisibleForView:window]) {
+        // 如果 window.superview 存在，则 window 最终被添加在 keyWindow 上，不需要再截图
+        if ([SAVisualizedUtils isVisibleForView:window] && !window.superview) {
             [validWindows addObject:window];
         }
     }
