@@ -28,7 +28,6 @@
 
 + (NSString *)idfa {
     NSString *idfa = nil;
-    // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFA
     Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
     if (ASIdentifierManagerClass) {
         SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
