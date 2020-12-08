@@ -58,7 +58,7 @@
     NSDictionary *paramDic = [SAURLUtils queryItemsWithURL:url];
 
     //如果没传 info_id，视为伪造二维码，不做处理
-    if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
+    if (paramDic.allKeys.count && [paramDic.allKeys containsObject:@"info_id"]) {
         [self showDebugModeAlertWithParams:paramDic];
         return YES;
     } else {
@@ -74,9 +74,6 @@
     if (_debugMode == SensorsAnalyticsDebugOff) {
         return;
     }
-
-    // SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
-    SALogDebug(@"%@ initialized the instance of Sensors Analytics SDK with debugMode: '%@'", self, [self debugModeToString:_debugMode]);
 
     // 打开debug模式，弹出提示
     NSString *alertMessage = nil;

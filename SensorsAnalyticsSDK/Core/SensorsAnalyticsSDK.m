@@ -233,7 +233,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @end
 
 @implementation SensorsAnalyticsSDK {
-//    SensorsAnalyticsDebugMode _debugMode;
     BOOL _appRelaunched;                // App 从后台恢复
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
