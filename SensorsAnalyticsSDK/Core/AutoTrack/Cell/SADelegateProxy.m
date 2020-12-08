@@ -42,8 +42,8 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 }
 
 + (void)hookDidSelectMethodWithDelegate:(id)delegate {
-    // 代理对象的继承链中存在动态添加的类, 则不重复添加类
-    if ([SADelegateProxy sensorsClassInInheritanceChain:delegate]) {
+    // 当前代理对象已经处理过
+    if ([delegate sensorsdata_className]) {
         return;
     }
     
@@ -62,6 +62,8 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     Class realClass = [SAClassHelper realClassWithObject:delegate];
     // 如果当前代理对象归属为 KVO 创建的类, 则无需新建子类
     if ([SADelegateProxy isKVOClass:realClass]) {
+        // 记录 KVO 的父类(KVO 会重写 class 方法, 返回父类)
+        [delegate setSensorsdata_className:NSStringFromClass([delegate class])];
         // 在移除所有的 KVO 属性监听时, 系统会重置对象的 isa 指针为原有的类; 因此需要在移除监听时, 重新为代理对象设置新的子类, 来采集点击事件
         [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
         // removeObserver:forKeyPath: 和 removeObserver:forKeyPath:context: 两种移除方式, 系统是分开调用的, 因此需要同时监听两种移除方法
@@ -201,6 +203,8 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     
     // 有多个属性监听时, 在最后一个监听被移除后, 对象的 isa 发生变化, 需要重新为代理对象添加子类
     if (oldClassIsKVO && !newClassIsKVO) {
+        // 清空已经记录的原始类
+        self.sensorsdata_className = nil;
         [SADelegateProxy proxyWithDelegate:self];
     }
 }
@@ -214,6 +218,8 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     
     // 有多个属性监听时, 在最后一个监听被移除后, 对象的 isa 发生变化, 需要重新为代理对象添加子类
     if (oldClassIsKVO && !newClassIsKVO) {
+        // 清空已经记录的原始类
+        self.sensorsdata_className = nil;
         [SADelegateProxy proxyWithDelegate:self];
     }
 }
@@ -246,19 +252,6 @@ static long subClassIndex = 0;
     Class class = [SAClassHelper realClassWithObject:obj];
     if ([SADelegateProxy isSensorsClass:class]) return NSStringFromClass(class);
     return [NSString stringWithFormat:@"%@%@%@%@", NSStringFromClass(class), kSAClassSeparatedChar, @(subClassIndex++), kSADelegateSuffix];
-}
-
-/// 实例对象的 class 继承链中是否包含神策添加的类
-/// @param obj 实例对象
-+ (Class _Nullable)sensorsClassInInheritanceChain:(id _Nullable)obj {
-    Class class = [SAClassHelper realClassWithObject:obj];
-    while (class) {
-        if ([SADelegateProxy isSensorsClass:class]) {
-            return class;
-        }
-        class = [SAClassHelper realSuperClassWithClass:class];
-    }
-    return nil;
 }
 
 @end
