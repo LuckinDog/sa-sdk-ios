@@ -19,7 +19,6 @@
 //
 
 #import "SAMethodHelper.h"
-#import "SALog.h"
 #import <objc/runtime.h>
 
 @implementation SAMethodHelper
