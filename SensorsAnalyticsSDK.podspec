@@ -1,19 +1,14 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.1.13"
+  s.version      = "2.2.2"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
   s.license = { :type => "Apache License, Version 2.0" }
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.platform = :ios, "8.0"
-<<<<<<< HEAD
-  s.default_subspec = 'WebView'
-  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
-=======
-  s.default_subspec = ['Core', 'ReactNative']
+  s.default_subspec = 'Core'
   s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreMotion'
->>>>>>> 381da9b9d2e69a16d778ffcb47ec28f9ef4420ae
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'Core' do |c|
@@ -23,17 +18,7 @@ Pod::Spec.new do |s|
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
-<<<<<<< HEAD
-  s.subspec 'WebView' do |w|
-    w.dependency 'SensorsAnalyticsSDK/Core'
-    w.source_files  =  "SensorsAnalyticsSDK/WebView/**/*.{h,m}"
-    w.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h","SensorsAnalyticsSDK/SASecurityPolicy.h","SensorsAnalyticsSDK/SAConfigOptions.h","SensorsAnalyticsSDK/SAConstants.h"
-    w.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
-  end
-
-=======
-  # 禁用 GPS 定位采集，相关代码不参与编译
->>>>>>> 381da9b9d2e69a16d778ffcb47ec28f9ef4420ae
+  # 开启 GPS 定位采集
   s.subspec 'Location' do |f|
     f.frameworks = 'CoreLocation'
     f.dependency 'SensorsAnalyticsSDK/Core'
@@ -42,44 +27,24 @@ Pod::Spec.new do |s|
 #    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
   end
 
-  s.subspec 'ReactNative' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.source_files = 'SensorsAnalyticsSDK/ReactNative/**/*.{h,m}'
-    f.private_header_files = 'SensorsAnalyticsSDK/ReactNative/**/*.h'
-    f.frameworks = 'CoreLocation'
-  end
-
-<<<<<<< HEAD
+  # 开启设备方向采集
   s.subspec 'DeviceOrientation' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.{h,m}'
     f.private_header_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.h'
     f.frameworks = 'CoreMotion'
   end
-  
-=======
-  # 禁用设备方向采集
-  s.subspec 'DISABLE_TRACK_DEVICE_ORIENTATION' do |f|
+
+  s.subspec 'ReactNative' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION=1'}
+    f.source_files = 'SensorsAnalyticsSDK/ReactNative/**/*.{h,m}'
+    f.private_header_files = 'SensorsAnalyticsSDK/ReactNative/**/*.h'
   end
 
   # 禁用 debugMode 下弹框提示
   s.subspec 'DISABLE_DEBUG_WARNING' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
-  end
-
-  # 不采集 UICollectionView 点击事件
-  s.subspec 'DISABLE_AUTOTRACK_UICOLLECTIONVIEW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW=1'}
-  end
-
-  # 不采集 UITableView 点击事件
-  s.subspec 'DISABLE_AUTOTRACK_UITABLEVIEW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW=1'}
   end
 
   # 不采集 UIImage 的名称
@@ -92,12 +57,6 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_AUTOTRACK_GESTURE' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE=1'}
-  end
-
-  # 开启 React Native 页面控件的自动采集 $AppClick 事件
-  s.subspec 'ENABLE_REACT_NATIVE_APPCLICK' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_REACT_NATIVE=1'}
   end
 
   # 允许使用私有 API，v2.0.0 已废弃，待删除
@@ -122,12 +81,6 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_AUTOTRACK_DEVICEID' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
-  end
-
-  # 支持非 UIViewController 实现 UITableView 或 UICollectionView delegate 的点击事件采集
-  s.subspec 'ENABLE_AUTOTRACK_DIDSELECTROW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW=1'}
   end
 
   # trackInstallation 不保存在 keychain，卸载重装会重新触发激活事件
@@ -163,5 +116,4 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS=1'}
   end 
 
->>>>>>> 381da9b9d2e69a16d778ffcb47ec28f9ef4420ae
 end
