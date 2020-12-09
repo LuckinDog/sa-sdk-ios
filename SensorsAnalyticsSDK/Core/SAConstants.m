@@ -86,6 +86,9 @@ NSString * const SA_EVENT_PROPERTY_SCREEN_NAME = @"$screen_name";
 NSString * const SA_EVENT_PROPERTY_TITLE = @"$title";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_POSITION = @"$element_position";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_SELECTOR = @"$element_selector";
+
+NSString * const kSAEeventPropertyReferrerTitle = @"$referrer_title";
+
 // 模糊路径
 NSString * const SA_EVENT_PROPERTY_ELEMENT_PATH = @"$element_path";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT = @"$element_content";

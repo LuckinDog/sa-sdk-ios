@@ -80,6 +80,7 @@
 #import "SAEncryptSecretKeyHandler.h"
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
+#import "SAReferrerManager.h"
 
 #define VERSION @"2.2.2"
 
@@ -1356,7 +1357,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 eventPropertiesDic[@"event_duration"] = eventDuration;
             }
         }
-        
+        // 给所有埋点事件都添加 $referrer_title 属性。如果公共属性中存在此属性时，会覆盖
+        eventPropertiesDic[kSAEeventPropertyReferrerTitle] = [[SAReferrerManager sharedInstance] referrerTitle];
+
         if ([propertieDict isKindOfClass:[NSDictionary class]]) {
             [eventPropertiesDic addEntriesFromDictionary:propertieDict];
         }
@@ -2136,6 +2139,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         _lastScreenTrackProperties = [tempProperties copy];
     }
+
+    // 通过触发的页面浏览事件获取 $referrer_title 内容
+    [[SAReferrerManager sharedInstance] getReferrerTitle:eventProperties];
 
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
@@ -3271,6 +3277,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
         _referrerScreenUrl = url;
     }
+    // 通过触发的页面浏览事件获取 $referrer_title 内容
+    // 兼容 React Native 全埋点场景
+    [[SAReferrerManager sharedInstance] getReferrerTitle:trackProperties];
+
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
