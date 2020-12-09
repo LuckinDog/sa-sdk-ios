@@ -1,8 +1,8 @@
 //
-// SAReactNativeManager.h
+// NSObject+SACellClick.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/8/13.
+// Created by yuqiang on 2020/11/5.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,22 @@
 // limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 #import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAReactNativeManager : NSObject <SAModuleProtocol>
+@interface NSObject (SACellClick)
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
+/// 用于记录创建子类时的原始父类名称
+@property (nonatomic, copy) NSString *sensorsdata_className;
+
+/// 注册一个操作,在对象释放时调用; 重复调用该方法时,只有第一次调用时的 block 生效
+/// @param deallocBlock 操作
+- (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock;
 
 @end
 

@@ -28,7 +28,8 @@
 // Location 模块名
 static NSString * const SALocationModuleName = @"Location";
 static NSString * const SADeviceOrientationModuleName = @"DeviceOrientation";
-static NSString * const SAReactNativeModuleName = @"ReactNative";
+static NSString * const kSAReactNativeModuleName = @"ReactNative";
+static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
 @interface SAModuleManager ()
 
@@ -63,7 +64,13 @@ static NSString * const SAReactNativeModuleName = @"ReactNative";
     }
 }
 
-- (id<SAModuleProtocol>)modelManagerForModuleType:(SAModuleType)type {
+- (BOOL)contains:(SAModuleType)type {
+    NSString *moduleName = [self moduleNameForType:type];
+    NSString *className = [NSString stringWithFormat:@"SA%@Manager", moduleName];
+    return [NSClassFromString(className) conformsToProtocol:@protocol(SAModuleProtocol)];
+}
+
+- (id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     return self.modules[name];
 }
@@ -80,10 +87,40 @@ static NSString * const SAReactNativeModuleName = @"ReactNative";
         case SAModuleTypeDeviceOrientation:
             return SADeviceOrientationModuleName;
         case SAModuleTypeReactNative:
-            return SAReactNativeModuleName;
+            return kSAReactNativeModuleName;
+        case SAModuleTypeChannelMatch:
+            return kSAChannelMatchModuleName;
         default:
             return nil;
     }
+}
+
+#pragma mark - Open URL
+
+- (BOOL)canHandleURL:(NSURL *)url {
+    for (id<SAModuleProtocol> obj in self.modules.allValues) {
+        if (![obj conformsToProtocol:@protocol(SAOpenURLProtocol)] || !obj.isEnable) {
+            continue;
+        }
+        id<SAOpenURLProtocol> manager = (id<SAOpenURLProtocol>)obj;
+        if ([manager canHandleURL:url]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)handleURL:(NSURL *)url {
+    for (id<SAModuleProtocol> obj in self.modules.allValues) {
+        if (![obj conformsToProtocol:@protocol(SAOpenURLProtocol)] || !obj.isEnable) {
+            continue;
+        }
+        id<SAOpenURLProtocol> manager = (id<SAOpenURLProtocol>)obj;
+        if ([manager canHandleURL:url]) {
+            return [manager handleURL:url];
+        }
+    }
+    return NO;
 }
 
 @end
@@ -112,6 +149,18 @@ static NSString * const SAReactNativeModuleName = @"ReactNative";
 #endif
     }];
     return properties;
+}
+
+@end
+
+
+#pragma mark -
+
+@implementation SAModuleManager (ChannelMatch)
+
+- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
+    [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
 }
 
 @end
