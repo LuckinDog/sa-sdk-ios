@@ -214,6 +214,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 #pragma mark - Utils
 /// Delegate 的类前缀
 static NSString *const kSADelegateSuffix = @"__CN.SENSORSDATA";
+static NSString *const kSAKVODelegatePrefix = @"NSKVONotifying_";
 static NSString *const kSAClassSeparatedChar = @".";
 static long subClassIndex = 0;
 
@@ -222,7 +223,7 @@ static long subClassIndex = 0;
 /// 是不是 KVO 创建的类
 /// @param cls 类
 + (BOOL)isKVOClass:(Class _Nullable)cls {
-    return [NSStringFromClass(cls) rangeOfString:@"NSKVONotifying_"].location != NSNotFound;
+    return [NSStringFromClass(cls) rangeOfString:kSAKVODelegatePrefix].location != NSNotFound;
 }
 
 /// 是不是神策创建的类
