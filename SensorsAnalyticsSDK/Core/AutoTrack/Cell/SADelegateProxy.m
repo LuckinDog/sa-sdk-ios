@@ -42,6 +42,10 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 }
 
 + (void)hookDidSelectMethodWithDelegate:(id)delegate {
+    // 当前对象已经是神策添加的子类
+    if ([SADelegateProxy isSensorsClass:[SAClassHelper realClassWithObject:delegate]]) {
+        return;
+    }
     // 当前代理对象已经处理过
     if ([delegate sensorsdata_className]) {
         return;
