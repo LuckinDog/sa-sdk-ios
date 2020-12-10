@@ -67,6 +67,10 @@
 }
 
 - (void)getReferrerTitle:(NSDictionary *)properties {
+    if (!_enableReferrerTitle) {
+        return;
+    }
+
     NSString *title = properties[SA_EVENT_PROPERTY_TITLE];
     _referrerTitle = _currentTitle;
     _currentTitle = title;

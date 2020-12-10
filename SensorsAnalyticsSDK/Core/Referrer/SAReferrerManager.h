@@ -26,13 +26,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAReferrerManager : NSObject
 
 @property (nonatomic, assign) BOOL clearReferrerWhenAppEnd;
+@property (nonatomic, assign) BOOL enableReferrerTitle;
+
 @property (nonatomic, strong, readonly) NSDictionary *referrerProperties;
 @property (nonatomic, copy, readonly) NSString *referrerURL;
 @property (nonatomic, copy, readonly) NSString *referrerTitle;
 
+
 + (instancetype)sharedInstance;
 
-#pragma mark - $referrer
 - (NSDictionary *)getScreenURLsWithCurrentURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties;
 - (void)clearReferrer;
 

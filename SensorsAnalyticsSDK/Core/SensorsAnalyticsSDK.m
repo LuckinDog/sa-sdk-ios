@@ -317,6 +317,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _showDebugAlertView = YES;
             _debugAlertViewHasShownNumber = 0;
             _applicationWillResignActive = NO;
+            [[SAReferrerManager sharedInstance] setEnableReferrerTitle:configOptions.enableReferrerTitle];
             
             NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
             _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
@@ -1344,8 +1345,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 每次 track 时手机网络状态
             [eventPropertiesDic addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
 
-            // 给 track 和 $sign_up 事件添加 $referrer_title 属性。如果公共属性中存在此属性时，此逻辑优先级更高
-            eventPropertiesDic[kSAEeventPropertyReferrerTitle] = [[SAReferrerManager sharedInstance] referrerTitle];
+            if (self.configOptions.enableReferrerTitle) {
+                // 给 track 和 $sign_up 事件添加 $referrer_title 属性。如果公共属性中存在此属性时会被覆盖，此逻辑优先级更高
+                eventPropertiesDic[kSAEeventPropertyReferrerTitle] = [[SAReferrerManager sharedInstance] referrerTitle];
+            }
 
             //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
             //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
