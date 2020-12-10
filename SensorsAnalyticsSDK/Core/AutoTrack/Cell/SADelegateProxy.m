@@ -125,6 +125,43 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     return NO;
 }
 
++ (void)invokeRXProxyMethodWithTarget:(id)target selector:(SEL)selector argument1:(SEL)arg1 argument2:(id)arg2 {
+    Class cla = NSClassFromString([target sensorsdata_className]) ?: [target class];
+    IMP implementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:cla];
+    if (implementation) {
+        void(*imp)(id, SEL, SEL, id) = (void(*)(id, SEL, SEL, id))implementation;
+        imp(target, selector, arg1, arg2);
+    }
+}
+
+/// 执行 RxCocoa 中，点击事件相关的响应方法
+/// 这个方法中调用的顺序和 _RXDelegateProxy 中的 - forwardInvocation: 方法执行相同
+/// @param scrollView UITableView 或者 UICollectionView 的对象
+/// @param selector 需要执行的方法：tableView:didSelectRowAtIndexPath: 或者 collectionView:didSelectItemAtIndexPath:
+/// @param indexPath 点击的 NSIndexPath 对象
++ (void)rxInvokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
+    // 1. 执行 _sentMessage:withArguments: 方法
+    [SADelegateProxy invokeRXProxyMethodWithTarget:scrollView.delegate selector:NSSelectorFromString(@"_sentMessage:withArguments:") argument1:selector argument2:@[scrollView, indexPath]];
+
+    // 2. 执行 UIKit 的代理方法
+    NSObject<UITableViewDelegate> *forwardToDelegate = nil;
+    SEL forwardDelegateSelector = NSSelectorFromString(@"_forwardToDelegate");
+    IMP forwardDelegateIMP = [(NSObject *)scrollView.delegate methodForSelector:forwardDelegateSelector];
+    if (forwardDelegateIMP) {
+        forwardToDelegate = ((NSObject<UITableViewDelegate> *(*)(id, SEL))forwardDelegateIMP)(scrollView.delegate, forwardDelegateSelector);
+    }
+    if (forwardToDelegate) {
+        Class forwardOriginalClass = NSClassFromString(forwardToDelegate.sensorsdata_className) ?: forwardToDelegate.class;
+        IMP forwardOriginalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:forwardOriginalClass];
+        if (forwardOriginalIMP) {
+            ((SensorsDidSelectImplementation)forwardOriginalIMP)(forwardToDelegate, selector, scrollView, indexPath);
+        }
+    }
+
+    // 3. 执行 _methodInvoked:withArguments: 方法
+    [SADelegateProxy invokeRXProxyMethodWithTarget:scrollView.delegate selector:NSSelectorFromString(@"_methodInvoked:withArguments:") argument1:selector argument2:@[scrollView, indexPath]];
+}
+
 @end
 
 #pragma mark - UITableViewDelegate & UICollectionViewDelegate
@@ -147,22 +184,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     if (originalIMP) {
         ((SensorsDidSelectImplementation)originalIMP)(delegate, selector, scrollView, indexPath);
     } else if ([SADelegateProxy isRxDelegateProxyClass:originalClass]) {
-        NSObject *forwardToDelegate;
-        SEL forwardDelegateSelector = NSSelectorFromString(@"_forwardToDelegate");
-        if ([delegate respondsToSelector:forwardDelegateSelector]) {
-            // 获取 _forwardToDelegate 属性
-            IMP forwardDelegateIMP = [delegate methodForSelector:forwardDelegateSelector];
-            forwardToDelegate = ((NSObject *(*)(id, SEL))forwardDelegateIMP)(delegate, forwardDelegateSelector);
-        }
-        if (forwardToDelegate) {
-            Class forwardOriginalClass = NSClassFromString(forwardToDelegate.sensorsdata_className) ?: forwardToDelegate.class;
-            IMP forwardOriginalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:forwardOriginalClass];
-            if (forwardOriginalIMP) {
-                ((SensorsDidSelectImplementation)forwardOriginalIMP)(forwardToDelegate, selector, scrollView, indexPath);
-            }
-        } else {
-            ((SensorsDidSelectImplementation)_objc_msgForward)(delegate, selector, scrollView, indexPath);
-        }
+        [SADelegateProxy rxInvokeWithScrollView:scrollView selector:selector selectedAtIndexPath:indexPath];
     }
 
     NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)scrollView didSelectedAtIndexPath:indexPath];
