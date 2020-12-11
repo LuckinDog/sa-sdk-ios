@@ -44,7 +44,6 @@
     const char *types = method_getTypeEncoding(method);
     // 在 toClass 中，添加一个名为 destinationSelector 的方法
     if (!class_addMethod(toClass, destinationSelector, methodIMP, types)) {
-        SALogDebug(@"Cannot copy method to destination selector %@ as it already exists", NSStringFromSelector(destinationSelector));
         [self replaceMethodWithClass:toClass name:destinationSelector imp:methodIMP types:types];
     }
 }
@@ -54,7 +53,6 @@
     IMP methodIMP = method_getImplementation(method);
     const char *types = method_getTypeEncoding(method);
     if (!class_addMethod(toClass, destinationSelector, methodIMP, types)) {
-        SALogDebug(@"Cannot copy method to destination selector %@ as it already exists", NSStringFromSelector(destinationSelector));
         [self replaceMethodWithClass:toClass name:destinationSelector imp:methodIMP types:types];
     }
 }
