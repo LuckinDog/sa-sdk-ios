@@ -164,7 +164,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     NSString *ecKey = encryptConfig[@"key_ec"];
     SASecretKey *secretKey = [[SASecretKey alloc] init];
 
-    if ([SAValidator isValidString:ecKey] && NSClassFromString(@"SAECCCrypto")) {
+    if ([SAValidator isValidString:ecKey] && NSClassFromString(@"SAECCEncrypt")) {
         NSData *data = [ecKey dataUsingEncoding:NSUTF8StringEncoding];
         if (data) {
             NSDictionary *ecKeyDic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];

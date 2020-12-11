@@ -431,7 +431,7 @@ static NSData *base64_decode(NSString *str) {
         newPublicKey = [publicKey substringFromIndex:[kSAEncryptECCPrefix length]];
     }
     
-    Class crypto = NSClassFromString(@"SAECCCrypto");
+    Class crypto = NSClassFromString(@"SAECCEncrypt");
     SEL sel = NSSelectorFromString(@"encrypt:withPublicKey:");
     if ([crypto respondsToSelector:sel]) {
 #pragma clang diagnostic push
