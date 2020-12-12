@@ -163,8 +163,8 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
     return self.encryptManager.hasSecretKey;
 }
 
-- (nullable NSDictionary *)encryptionJSONObject:(nonnull id)obj {
-    return [self.encryptManager encryptionJSONObject:obj];
+- (nullable NSDictionary *)encryptJSONObject:(nonnull id)obj {
+    return [self.encryptManager encryptJSONObject:obj];
 }
 
 - (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {

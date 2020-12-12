@@ -1,8 +1,8 @@
 //
-// SAAbstractEncryptor.h
+// SAAESEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/2.
+// Created by wenquan on 2020/12/12.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,35 +19,11 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class SASecretKey;
+#import "SAEncryptorProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAEncryptorProtocol <NSObject>
-
-@required
-
-/// 加密 json 对象
-/// @param obj 需要加密的 json 对象
-/// @return 加密后的字典
-- (nullable NSDictionary *)encryptJSONObject:(id)obj;
-
-@end
-
-@interface SAAbstractEncryptor : NSObject <SAEncryptorProtocol>
-
-@property (nonatomic, strong) SASecretKey *secretKey;
-
-/// 初始化加密器
-/// @param secretKey 密钥
-/// @return 加密器
-- (instancetype)initWithSecretKey:(SASecretKey *)secretKey;
-
-/// 使用 gzip 压缩 json 对象
-/// @param obj json 对象
-/// @return 压缩后的对象
-- (NSData *)gzipJSONObject:(id)obj;
+@interface SAAESEncryptor : NSObject <SAEncryptorProtocol>
 
 @end
 

@@ -2547,7 +2547,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     options.currentLibVersion = [self libVersion];
     
     __weak typeof(self) weakSelf = self;
-    options.encryptBuilderCreateResultBlock = ^BOOL{
+    options.createEncryptorResultBlock = ^BOOL{
         return SAModuleManager.sharedInstance.hasSecretKey;
     };
     options.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {

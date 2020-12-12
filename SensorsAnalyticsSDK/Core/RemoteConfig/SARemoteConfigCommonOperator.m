@@ -73,7 +73,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     }
     
     // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
-    if (self.options.configOptions.enableEncrypt && !self.options.encryptBuilderCreateResultBlock()) {
+    if (self.options.configOptions.enableEncrypt && !self.options.createEncryptorResultBlock()) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
         SALogDebug(@"【remote config】Request remote config because encrypt builder is nil");
         return;

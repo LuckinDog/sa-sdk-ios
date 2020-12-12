@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 加密数据
 /// @param obj 需要加密的 JSON 数据
 /// @return 返回加密后的数据
-- (nullable NSDictionary *)encryptionJSONObject:(id)obj;
+- (nullable NSDictionary *)encryptJSONObject:(id)obj;
 
 @end
 

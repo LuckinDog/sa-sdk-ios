@@ -1,9 +1,9 @@
 //
-// SADataEncryptBuilder.h
+// SAEncryptorProtocol.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2019/7/23.
-// Copyright © 2019-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by wenquan on 2020/12/12.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,30 +18,23 @@
 // limitations under the License.
 //
 
-
 #import <Foundation/Foundation.h>
-#import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SADataEncryptBuilder : NSObject
+@protocol SAEncryptorProtocol <NSObject>
 
-/**
- 指定初始化方法设置密钥
+/// 加密器的公钥
+@property (nullable, nonatomic, copy) id publicKey;
 
- @param secretKey 密钥配置
- @return 配置对象
- */
-- (instancetype)initWithSecretKey:(SASecretKey *)secretKey NS_DESIGNATED_INITIALIZER;
+/// 初始化加密器
+/// @param publicKey 初始化使用的公钥
+/// @return 加密器
+- (instancetype)initWithPublicKey:(id)publicKey;
 
-/// 禁用 init 初始化
-- (instancetype)init NS_UNAVAILABLE;
-
-/// 禁用 new 初始化
-+ (instancetype)new NS_UNAVAILABLE;
-
-/// 加密数据
-- (nullable NSDictionary *)encryptionJSONObject:(id)obj;
+/// 加密对象
+/// @param obj 需要加密的对象
+- (nullable NSString *)encryptObject:(id)obj;
 
 @end
 
