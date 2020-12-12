@@ -42,6 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 获取当前有效的 keyWindow
 + (UIWindow *)currentValidKeyWindow;
 
+/// 是否为 RN 的 View
++ (BOOL)isKindOfRNView:(UIView *)view;
+
 @end
 
 NS_ASSUME_NONNULL_END
