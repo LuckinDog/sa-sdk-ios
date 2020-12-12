@@ -35,6 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 ///  获取 RN 当前页面信息
 + (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
+
+/// 是否为 RN 的 View
++ (BOOL)isKindOfRNView:(UIView *)view;
 @end
 
 NS_ASSUME_NONNULL_END

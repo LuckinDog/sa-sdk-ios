@@ -27,60 +27,106 @@
 #import "SAVisualizedViewPathProperty.h"
 #import "SAJSONUtil.h"
 #import "SAVisualizedObjectSerializerManger.h"
+#import "SALog.h"
 
+/// 遍历查找页面最大层数，用于判断元素是否被覆盖
+static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
 @implementation SAVisualizedUtils
 
 
 + (BOOL)isCoveredForView:(UIView *)view {
-    BOOL covered = NO;
-    
-    // 最多查找 3 层
-    NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:3];
+    NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:kSAVisualizedFindMaxPageLevel];
 
-    // 遍历判断是否存在覆盖
+    for (UIView *otherView in allOtherViews) {
+        // 是否为 RN 的 View
+        if ([SAVisualizedUtils isKindOfRNView:otherView]) {
+            if ([self isCoveredOfRNView:view fromRNView:otherView]) {
+                return YES;
+            }
+        } else if ([self isCoveredForView:view fromView:otherView]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+/// 判断 RNView 是否遮挡底下的 view
+/// @param view 被遮挡的 RNView
+/// @param fromView 遮挡的 RNView
++ (BOOL)isCoveredOfRNView:(UIView *)view fromRNView:(UIView *)fromView {
+    @try {
+        /* RCTView 默认重写了 hitTest:
+         详情参照：https://github.com/facebook/react-native/blob/master/React/Views/RCTView.m
+         针对 RN 部分框架或实现方式，设置 pointerEvents 并在 hitTest: 内判断处理，从而实现交互的穿透，不响应当前 RNView
+         */
+        NSInteger pointerEvents = [[fromView valueForKey:@"pointerEvents"] integerValue];
+        // RCTView 重写 hitTest: 并返回 nil，不阻塞底下元素交互
+        if (pointerEvents == 1) {
+            return NO;
+        }
+        // 遍历子视图判断是否存在坐标覆盖阻塞交互
+        if (pointerEvents == 2) {
+            // 寻找完全遮挡 view 的子视图
+            for (UIView *subView in fromView.subviews) {
+                BOOL enableInteraction = subView.alpha >= 0.01 && !subView.hidden && subView.userInteractionEnabled;
+                BOOL isCovered = [self isCoveredForView:view fromView:subView];
+                if (enableInteraction && isCovered) {
+                    return YES;
+                }
+            }
+            return NO;
+        }
+    } @catch (NSException *exception) {
+        SALogDebug(@"%@ error: %@", self, exception);
+    }
+    return [self isCoveredForView:view fromView:fromView];
+}
+
+/// 判断一个 view 是否被覆盖
+/// @param view 当前 view
+/// @param fromView 遮挡的 view
++ (BOOL)isCoveredForView:(UIView *)view fromView:(UIView *)fromView {
     CGRect rect = [view convertRect:view.bounds toView:nil];
     // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
     CGRect keyWindowFrame = [UIApplication sharedApplication].keyWindow.frame;
     rect = CGRectIntersection(keyWindowFrame, rect);
 
-    for (UIView *otherView in allOtherViews) {
-        CGRect otherRect = [otherView convertRect:otherView.bounds toView:nil];
-        if (CGRectContainsRect(otherRect, rect)) {
-            return YES;
-        }
-    }
-    return covered;
+    CGRect otherRect = [fromView convertRect:fromView.bounds toView:nil];
+    return CGRectContainsRect(otherRect, rect);
 }
 
++ (BOOL)isKindOfRNView:(UIView *)view {
+    Class RNViewClass = NSClassFromString(@"RCTView");
+    return RNViewClass && [view isKindOfClass:RNViewClass];
+}
 
 // 根据层数，查询一个 view 所有可能覆盖的 view
-+ (NSArray *)findAllPossibleCoverViews:(UIView *)view hierarchyCount:(NSInteger)count {
++ (NSArray <UIView *> *)findAllPossibleCoverViews:(UIView *)view hierarchyCount:(NSInteger)count {
     NSMutableArray <UIView *> *allOtherViews = [NSMutableArray array];
     NSInteger index = count;
     UIView *currentView = view;
     while (index > 0 && currentView) {
         NSArray *allBrotherViews = [self findPossibleCoverAllBrotherViews:currentView];
-          if (allBrotherViews.count > 0) {
-              [allOtherViews addObjectsFromArray:allBrotherViews];
-          }
+        if (allBrotherViews.count > 0) {
+            [allOtherViews addObjectsFromArray:allBrotherViews];
+        }
         currentView = currentView.superview;
         index--;
     }
-    return [allOtherViews copy];
+    return allOtherViews;
 }
-
 
 // 寻找一个 view 同级的后添加的 view
 + (NSArray *)findPossibleCoverAllBrotherViews:(UIView *)view {
-    __block NSMutableArray <UIView *> *otherViews = [NSMutableArray array];
-    UIView *superView = view.superview;
+    NSMutableArray <UIView *> *otherViews = [NSMutableArray array];
+    UIView *superView = [view superview];
     if (superView) {
         // 逆序遍历
         [superView.subviews enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if (obj == view) {
                 *stop = YES;
-            } else if (obj.alpha > 0 && !obj.hidden && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
+            } else if (obj.alpha > 0.01 && !obj.hidden && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
                 [otherViews addObject:obj];
             }
         }];
