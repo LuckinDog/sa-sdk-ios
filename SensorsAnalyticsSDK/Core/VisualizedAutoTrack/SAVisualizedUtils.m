@@ -126,12 +126,17 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
         [superView.subviews enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if (obj == view) {
                 *stop = YES;
-            } else if (obj.alpha > 0.01 && !obj.hidden && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
+            } else if ([self isVisibleForView:obj] && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
                 [otherViews addObject:obj];
             }
         }];
     }
     return otherViews;
+}
+
+/// view 是否可见
++ (BOOL)isVisibleForView:(UIView *)view {
+    return view.alpha > 0.01 && !view.isHidden;
 }
 
 + (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
@@ -196,4 +201,55 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     }
     return RNScreenInfo;
 }
+
+/// 获取当前有效的 keyWindow
++ (UIWindow *)currentValidKeyWindow {
+    UIWindow *keyWindow = [self currentKeyWindow];
+    // 判断 keyWindow 是否显示
+    if ([self isVisibleForView:keyWindow]) {
+        return keyWindow;
+    }
+
+    __block UIWindow *validWindow = nil;
+    // 逆序遍历，获取最上层全屏 window
+    [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        CGSize fullScreenSize = [UIScreen mainScreen].bounds.size;
+        if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(fullScreenSize, obj.frame.size) && [self isVisibleForView:obj]) {
+            validWindow = obj;
+            *stop = YES;
+        }
+    }];
+    return validWindow;
+}
+
+// 获取当前 keyWindow
++ (UIWindow *)currentKeyWindow {
+    UIWindow *keyWindow = nil;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *)) {
+        for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+            if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                for (UIWindow *window in windowScene.windows) {
+                    // 可能创建的 window 被隐藏
+                    if (![self isVisibleForView:window]) {
+                        continue;
+                    }
+                    // iOS 13 及以上，可能动态设置其他 window 为 keyWindow，此时直接使用此 keyWindow
+                    if (window.isKeyWindow) {
+                        keyWindow = window;
+                        break;
+                    }
+                    // 获取 windowScene.windows 中第一个 window
+                    if (!keyWindow) {
+                        keyWindow = window;
+                    }
+                }
+                break;
+            }
+        }
+    }
+#endif
+    return keyWindow ?: [UIApplication sharedApplication].keyWindow;
+}
+
 @end

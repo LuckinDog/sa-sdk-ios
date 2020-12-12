@@ -27,8 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAVisualizedUtils : NSObject
 
-/// 判断一个 view 是否被覆盖
-+ (BOOL) isCoveredForView:(UIView *)view;
+/// view 是否被覆盖
++ (BOOL)isCoveredForView:(UIView *)view;
+
+/// view 是否可见
++ (BOOL)isVisibleForView:(UIView *)view;
 
 /// 解析构造 web 元素
 + (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
@@ -36,8 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
 ///  获取 RN 当前页面信息
 + (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
 
+/// 获取当前有效的 keyWindow
++ (UIWindow *)currentValidKeyWindow;
+
 /// 是否为 RN 的 View
 + (BOOL)isKindOfRNView:(UIView *)view;
+
 @end
 
 NS_ASSUME_NONNULL_END
