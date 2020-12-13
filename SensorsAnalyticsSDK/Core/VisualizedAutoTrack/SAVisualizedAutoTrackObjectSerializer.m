@@ -39,7 +39,6 @@
 #import "SAAutoTrackUtils.h"
 #import "SAJSTouchEventView.h"
 #import "SAVisualizedObjectSerializerManger.h"
-#import "SensorsAnalyticsSDK+Private.h"
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
 @end
@@ -107,8 +106,14 @@
         WKWebView *webView = (WKWebView *)object;
         [self checkWKWebViewInfoWithWebView:webView];
     } else {
-        // 暂不支持非 WKWebView，添加弹框
-        [self addNotWKWebViewAlertInfo];
+        SEL isWebViewSEL = NSSelectorFromString(@"isWebViewWithObject:");
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        if ([self respondsToSelector:isWebViewSEL] && [self performSelector:isWebViewSEL withObject:object]) {
+#pragma clang diagnostic pop
+            // 暂不支持非 WKWebView，添加弹框
+            [self addNotWKWebViewAlertInfo];
+        }
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
