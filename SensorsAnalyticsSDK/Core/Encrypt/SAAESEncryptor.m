@@ -85,7 +85,7 @@
         
         free(buffer);
         
-        NSData *base64EncodeData = [data base64EncodedDataWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+        NSData *base64EncodeData = [ivEncryptData base64EncodedDataWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
         NSString *encryptString = [[NSString alloc] initWithData:base64EncodeData encoding:NSUTF8StringEncoding];
         return encryptString;
     } else {
