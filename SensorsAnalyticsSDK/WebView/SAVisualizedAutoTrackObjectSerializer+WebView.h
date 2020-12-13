@@ -1,8 +1,8 @@
 //
-// SAVisualizedAutoTrackObjectSerializer+WebView.m
+// SAVisualizedAutoTrackObjectSerializer+WebView.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/12/12.
+// Created by 储强盛 on 2020/12/13.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,17 +18,15 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
+#import "SAVisualizedAutoTrackObjectSerializer.h"
 
-#import "SAVisualizedAutoTrackObjectSerializer+WebView.h"
-#import <UIKit/UIKit.h>
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation SAVisualizedAutoTrackObjectSerializer (WebView)
+@interface SAVisualizedAutoTrackObjectSerializer (WebView)
 
-- (BOOL)isWebViewWithObject:(NSObject *)obj {
-    return obj && [obj isKindOfClass:UIWebView.class];
-}
+/// 判断当前对象是否为 UIWebView
+- (BOOL)isWebViewWithObject:(NSObject *)obj;
 
 @end
+
+NS_ASSUME_NONNULL_END
