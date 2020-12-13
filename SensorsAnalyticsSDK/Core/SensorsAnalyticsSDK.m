@@ -79,7 +79,7 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.2.2"
+#define VERSION @"2.2.3"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
