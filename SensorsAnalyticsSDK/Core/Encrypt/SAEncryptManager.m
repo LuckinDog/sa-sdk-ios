@@ -42,9 +42,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 @interface SAEncryptManager ()
 
 @property (atomic, strong) SAAESEncryptor *dataEncryptor; // 数据加密器（使用 AES 加密数据）
-@property (atomic, strong) id<SAEncryptorProtocol> keyEncryptor; // 密钥加密器（使用 RSA/ECC 加密 AES 的密钥）
-@property (atomic, assign) NSInteger keyEncryptorVersion; // 密钥加密器的公钥版本（RSA/ECC 的公钥版本）
-@property (atomic, copy) NSString *encryptedKey; // 加密后的密钥（加密后的 AES 密钥）
+@property (atomic, strong) id<SAEncryptorProtocol> secretKeyEncryptor; // 密钥加密器（使用 RSA/ECC 加密 AES 的密钥）
+@property (atomic, assign) NSInteger secretKeyEncryptorVersion; // 密钥加密器的公钥版本（RSA/ECC 的公钥版本）
+@property (atomic, copy) NSString *encryptedSecretKey; // 加密后的密钥（加密后的 AES 密钥）
 
 @end
 
@@ -196,7 +196,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     }
 
     // 加密 AES 密钥
-    if (![self encryptKey]) {
+    if (![self encryptSecretKey]) {
         SALogDebug(@"Enable encryption but the secret key is nil !");
         return nil;
     }
@@ -215,8 +215,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
     // 封装加密的数据结构
     NSMutableDictionary *secretObj = [NSMutableDictionary dictionary];
-    secretObj[@"pkv"] = @(self.keyEncryptorVersion);
-    secretObj[@"ekey"] = self.encryptedKey;
+    secretObj[@"pkv"] = @(self.secretKeyEncryptorVersion);
+    secretObj[@"ekey"] = self.encryptedSecretKey;
     secretObj[@"payload"] = encryptedString;
     return [NSDictionary dictionaryWithDictionary:secretObj];
 }
@@ -230,19 +230,19 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return;
     }
 
-    self.keyEncryptorVersion = secretKey.version;
+    self.secretKeyEncryptorVersion = secretKey.version;
 
     if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
         // ECC 加密
-        self.dataEncryptor = [[SAAESEncryptor alloc] initWithPublicKey:[self random16BitStringData]];
-        self.keyEncryptor = [[SAECCEncryptor alloc] initWithPublicKey:secretKey.key];
+        self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:[self random16BitStringData]];
+        self.secretKeyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey.key];
     } else {
         // RSA 加密
-        self.dataEncryptor = [[SAAESEncryptor alloc] initWithPublicKey:[self random16ByteData]];
-        self.keyEncryptor = [[SARSAEncryptor alloc] initWithPublicKey:secretKey.key];
+        self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:[self random16ByteData]];
+        self.secretKeyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey.key];
     }
 
-    [self encryptKey];
+    [self encryptSecretKey];
 }
 
 - (NSData *)random16ByteData {
@@ -263,11 +263,11 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (BOOL)isEncryptorValid {
-    return self.dataEncryptor && self.keyEncryptor;
+    return self.dataEncryptor && self.secretKeyEncryptor;
 }
 
-- (BOOL)encryptKey {
-    if (self.encryptedKey) {
+- (BOOL)encryptSecretKey {
+    if (self.encryptedSecretKey) {
         return YES;
     }
 
@@ -275,9 +275,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return NO;
     }
 
-    self.encryptedKey = [self.keyEncryptor encryptObject:self.dataEncryptor.publicKey];
+    self.encryptedSecretKey = [self.secretKeyEncryptor encryptObject:self.dataEncryptor.secretKey];
 
-    return self.encryptedKey != nil;
+    return self.encryptedSecretKey != nil;
 }
 
 @end

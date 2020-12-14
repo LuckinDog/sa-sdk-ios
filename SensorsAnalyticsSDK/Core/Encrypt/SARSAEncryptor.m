@@ -32,15 +32,15 @@
 
 @implementation SARSAEncryptor
 
-@synthesize publicKey = _publicKey;
+@synthesize secretKey = _secretKey;
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithPublicKey:(id)publicKey {
+- (instancetype)initWithSecretKey:(id)secretKey {
     self = [super init];
     if (self) {
-        if ([SAValidator isValidString:publicKey]) {
-            _publicKey = [(NSString *)publicKey copy];
+        if ([SAValidator isValidString:secretKey]) {
+            _secretKey = [(NSString *)secretKey copy];
         }
     }
     return self;
@@ -54,7 +54,7 @@
         return nil;
     }
     
-    if (![SAValidator isValidString:self.publicKey]) {
+    if (![SAValidator isValidString:self.secretKey]) {
         SALogDebug(@"Enable RSA encryption but the public key is not NSString!");
         return nil;
     }
@@ -107,7 +107,7 @@
 #pragma mark – Private Methods
 
 - (SecKeyRef)addPublicKey {
-    NSString *key = [self.publicKey copy];
+    NSString *key = [self.secretKey copy];
     key = [key stringByReplacingOccurrencesOfString:@"\r" withString:@""];
     key = [key stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     key = [key stringByReplacingOccurrencesOfString:@"\t" withString:@""];

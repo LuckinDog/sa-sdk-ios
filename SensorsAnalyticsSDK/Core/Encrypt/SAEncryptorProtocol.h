@@ -24,13 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAEncryptorProtocol <NSObject>
 
-/// 加密器的公钥
-@property (nullable, nonatomic, copy) id publicKey;
+/// 加密器的密钥（非对称加密时返回公钥）
+@property (nullable, nonatomic, copy) id secretKey;
 
 /// 初始化加密器
-/// @param publicKey 初始化使用的公钥
+/// @param secretKey 初始化使用的密钥（非对称加密时为公钥）
 /// @return 加密器
-- (instancetype)initWithPublicKey:(id)publicKey;
+- (instancetype)initWithSecretKey:(id)secretKey;
 
 /// 加密对象
 /// @param obj 需要加密的对象

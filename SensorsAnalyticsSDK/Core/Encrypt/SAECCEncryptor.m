@@ -33,15 +33,15 @@
 
 @implementation SAECCEncryptor
 
-@synthesize publicKey = _publicKey;
+@synthesize secretKey = _secretKey;
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithPublicKey:(id)publicKey {
+- (instancetype)initWithSecretKey:(id)secretKey {
     self = [super init];
     if (self) {
-        if ([SAValidator isValidString:publicKey]) {
-            _publicKey = [(NSString *)publicKey copy];
+        if ([SAValidator isValidString:secretKey]) {
+            _secretKey = [(NSString *)secretKey copy];
         }
     }
     return self;
@@ -55,12 +55,12 @@
         return nil;
     }
     
-    if (![SAValidator isValidString:self.publicKey]) {
+    if (![SAValidator isValidString:self.secretKey]) {
         SALogDebug(@"Enable ECC encryption but the public key is not NSString!");
         return nil;
     }
     
-    if (![self.publicKey hasPrefix:kSAEncryptECCPrefix]) {
+    if (![self.secretKey hasPrefix:kSAEncryptECCPrefix]) {
         SALogDebug(@"Enable ECC encryption but the public key is not ECC key!");
         return nil;
     }
@@ -69,7 +69,7 @@
     SEL sel = NSSelectorFromString(@"encrypt:withPublicKey:");
     if ([crypto respondsToSelector:sel]) {
         NSString *string = [[NSString alloc] initWithData:(NSData *)obj encoding:NSUTF8StringEncoding];
-        NSString *publicKey = [self.publicKey substringFromIndex:[kSAEncryptECCPrefix length]];
+        NSString *publicKey = [self.secretKey substringFromIndex:[kSAEncryptECCPrefix length]];
         
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
