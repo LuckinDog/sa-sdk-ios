@@ -58,15 +58,16 @@
     if (referrerURL && !newProperties[SA_EVENT_PROPERTY_SCREEN_REFERRER_URL]) {
         newProperties[SA_EVENT_PROPERTY_SCREEN_REFERRER_URL] = referrerURL;
     }
-    
-    _referrerURL = currentURL;
+
+    // $referrer 内容以最终页面浏览事件中的 $url 为准
+    _referrerURL = newProperties[SA_EVENT_PROPERTY_SCREEN_URL];
     _referrerProperties = [newProperties copy];
-    [self getReferrerTitle:newProperties];
+    [self cacheReferrerTitle:newProperties];
 
     return newProperties;
 }
 
-- (void)getReferrerTitle:(NSDictionary *)properties {
+- (void)cacheReferrerTitle:(NSDictionary *)properties {
     if (!_enableReferrerTitle) {
         return;
     }
@@ -78,6 +79,7 @@
 
 - (void)clearReferrer {
     if (_clearReferrerWhenAppEnd) {
+        // 需求层面只需要清除 $referrer，不需要清除 $referrer_title
         _referrerURL = nil;
     }
 }
