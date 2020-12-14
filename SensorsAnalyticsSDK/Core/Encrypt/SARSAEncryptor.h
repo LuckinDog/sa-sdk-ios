@@ -18,12 +18,11 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import "SAEncryptorProtocol.h"
+#import "SAAbstractEncryptor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SARSAEncryptor : NSObject <SAEncryptorProtocol>
+@interface SARSAEncryptor : SAAbstractEncryptor
 
 
 @end

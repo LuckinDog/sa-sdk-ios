@@ -34,29 +34,16 @@
 
 @implementation SAAESEncryptor
 
-@synthesize secretKey = _secretKey;
-
-#pragma mark - Life Cycle
-
-- (instancetype)initWithSecretKey:(id)secretKey {
-    self = [super init];
-    if (self) {
-        if ([SAValidator isValidData:secretKey]) {
-            _secretKey = [(NSData *)secretKey copy];
-        }
-    }
-    return self;
-}
-
 #pragma mark - Public Methods
 
-- (nullable NSString *)encryptObject:(id)obj {
+- (nullable NSString *)encryptObject:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
         SALogDebug(@"Enable AES encryption but the input obj is nil!");
         return nil;
     }
     
-    if (![SAValidator isValidData:self.secretKey]) {
+    NSData *keyData = [self.secretKey dataUsingEncoding:NSUTF8StringEncoding];
+    if (![SAValidator isValidData:keyData]) {
         SALogDebug(@"Enable AES encryption but the secret key is nil!");
         return nil;
     }
@@ -73,7 +60,7 @@
     size_t numBytesEncrypted = 0;
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
-                                          [self.secretKey bytes], kCCBlockSizeAES128,
+                                          [keyData bytes], kCCBlockSizeAES128,
                                           [ivData bytes],
                                           [data bytes], dataLength,
                                           buffer, bufferSize,

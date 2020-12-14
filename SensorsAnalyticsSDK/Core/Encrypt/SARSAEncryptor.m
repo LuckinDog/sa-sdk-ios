@@ -23,6 +23,7 @@
 #endif
 
 #import "SARSAEncryptor.h"
+#import <Security/Security.h>
 #import "SAValidator.h"
 #import "SALog.h"
 
@@ -32,23 +33,9 @@
 
 @implementation SARSAEncryptor
 
-@synthesize secretKey = _secretKey;
-
-#pragma mark - Life Cycle
-
-- (instancetype)initWithSecretKey:(id)secretKey {
-    self = [super init];
-    if (self) {
-        if ([SAValidator isValidString:secretKey]) {
-            _secretKey = [(NSString *)secretKey copy];
-        }
-    }
-    return self;
-}
-
 #pragma mark - Public Methods
 
-- (nullable NSString *)encryptObject:(id)obj {
+- (nullable NSString *)encryptObject:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
         SALogDebug(@"Enable RSA encryption but the input obj is not NSData!");
         return nil;

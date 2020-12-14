@@ -1,8 +1,8 @@
 //
-// SAEncryptorProtocol.h
+// SAAbstractEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/12.
+// Created by wenquan on 2020/12/14.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,19 +22,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAEncryptorProtocol <NSObject>
+@interface SAAbstractEncryptor : NSObject
 
 /// 加密器的密钥（非对称加密时返回公钥）
-@property (nullable, nonatomic, copy) id secretKey;
+@property (nullable, nonatomic, copy) NSString *secretKey;
 
 /// 初始化加密器
 /// @param secretKey 初始化使用的密钥（非对称加密时为公钥）
 /// @return 加密器
-- (instancetype)initWithSecretKey:(id)secretKey;
+- (instancetype)initWithSecretKey:(NSString *)secretKey;
 
 /// 加密对象
 /// @param obj 需要加密的对象
-- (nullable NSString *)encryptObject:(id)obj;
+- (nullable NSString *)encryptObject:(NSData *)obj;
 
 @end
 
