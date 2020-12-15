@@ -66,7 +66,7 @@
 
 - (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp {
     SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
-    // 加密
+    // 尝试加密
     NSDictionary *obj = [SAModuleManager.sharedInstance encryptJSONObject:record.event];
     [record setSecretObject:obj];
 
@@ -130,7 +130,7 @@
         return NO;
     }
 
-    // 加密
+    // 尝试加密
     NSArray<SAEventRecord *> *encryptRecords = [self encryptEventRecords:records];
 
     // 获取查询到的数据的 id
