@@ -112,9 +112,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return;
     }
 
-    NSString *ecKey = encryptConfig[@"key_ec"];
     SASecretKey *secretKey = [[SASecretKey alloc] init];
 
+    NSString *ecKey = encryptConfig[@"key_ec"];
     if ([SAValidator isValidString:ecKey] && NSClassFromString(kSAEncryptECCClassName)) {
         // ECC
         NSData *data = [ecKey dataUsingEncoding:NSUTF8StringEncoding];
@@ -127,12 +127,25 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
             return;
         }
 
-        secretKey.version = [ecKeyDic[@"pkv"] integerValue];
-        secretKey.key = [NSString stringWithFormat:@"%@:%@", ecKeyDic[@"type"], ecKeyDic[@"public_key"]];
+        NSNumber *pkv = ecKeyDic[@"pkv"];
+        NSString *type = ecKeyDic[@"type"];
+        NSString *publicKey = ecKeyDic[@"public_key"];
+        if (![pkv isKindOfClass:[NSNumber class]] || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
+            return;
+        }
+
+        secretKey.version = [pkv integerValue];
+        secretKey.key = [NSString stringWithFormat:@"%@:%@", type, publicKey];
     } else {
         // RSA
-        secretKey.version = [encryptConfig[@"pkv"] integerValue];
-        secretKey.key = encryptConfig[@"public_key"];
+        NSNumber *pkv = encryptConfig[@"pkv"];
+        NSString *publicKey = encryptConfig[@"public_key"];
+        if (![pkv isKindOfClass:[NSNumber class]] || ![SAValidator isValidString:publicKey]) {
+            return;
+        }
+
+        secretKey.version = [pkv integerValue];
+        secretKey.key = publicKey;
     }
 
     // 存储公钥
