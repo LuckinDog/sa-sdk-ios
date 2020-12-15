@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return idfa
  */
-+ (NSString *)idfa;
++ (nullable NSString *)idfa;
 
 @end
 
