@@ -27,10 +27,6 @@
 #import "SALog.h"
 #import "SAConstants+Private.h"
 
-@interface SAECCEncryptor ()
-
-@end
-
 @implementation SAECCEncryptor
 
 #pragma mark - Public Methods

@@ -23,14 +23,9 @@
 #endif
 
 #import "SAAESEncryptor.h"
-#import <Security/Security.h>
 #import <CommonCrypto/CommonCryptor.h>
 #import "SAValidator.h"
 #import "SALog.h"
-
-@interface SAAESEncryptor ()
-
-@end
 
 @implementation SAAESEncryptor
 

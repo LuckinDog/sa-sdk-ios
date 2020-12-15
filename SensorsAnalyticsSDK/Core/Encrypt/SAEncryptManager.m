@@ -42,12 +42,20 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 @interface SAEncryptManager ()
 
-@property (atomic, strong) SAAbstractEncryptor *dataEncryptor; // 数据加密器（使用 AES 加密数据）
-@property (atomic, copy) NSString *originalAESKey; // 数据加密器的原始密钥（原始的 AES 密钥）
-@property (atomic, copy) NSString *encryptedAESKey; // 数据加密器的加密后密钥（加密后的 AES 密钥）
+/// 数据加密器（使用 AES 加密数据）
+@property (atomic, strong) SAAbstractEncryptor *dataEncryptor;
 
-@property (atomic, strong) SAAbstractEncryptor *aesKeyEncryptor; // 密钥加密器（使用 RSA/ECC 加密 AES 的密钥）
-@property (atomic, assign) NSInteger aesKeyEncryptorVersion; // 密钥加密器的公钥版本（RSA/ECC 的公钥版本）
+/// 数据加密器的原始密钥（原始的 AES 密钥）
+@property (atomic, copy) NSString *originalAESKey;
+
+/// 数据加密器的加密后密钥（加密后的 AES 密钥）
+@property (atomic, copy) NSString *encryptedAESKey;
+
+/// 密钥加密器（使用 RSA/ECC 加密 AES 密钥）
+@property (atomic, strong) SAAbstractEncryptor *aesKeyEncryptor;
+
+/// 密钥加密器的公钥版本（RSA/ECC 的公钥版本）
+@property (atomic, assign) NSInteger aesKeyEncryptorVersion;
 
 @end
 
@@ -113,10 +121,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     }
 
     SASecretKey *secretKey = [[SASecretKey alloc] init];
-
     NSString *ecKey = encryptConfig[@"key_ec"];
     if ([SAValidator isValidString:ecKey] && NSClassFromString(kSAEncryptECCClassName)) {
-        // ECC
+        // 获取 ECC 密钥
         NSData *data = [ecKey dataUsingEncoding:NSUTF8StringEncoding];
         if (!data) {
             return;
@@ -137,7 +144,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         secretKey.version = [pkv integerValue];
         secretKey.key = [NSString stringWithFormat:@"%@:%@", type, publicKey];
     } else {
-        // RSA
+        // 获取 RSA 密钥
         NSNumber *pkv = encryptConfig[@"pkv"];
         NSString *publicKey = encryptConfig[@"public_key"];
         if (![pkv isKindOfClass:[NSNumber class]] || ![SAValidator isValidString:publicKey]) {

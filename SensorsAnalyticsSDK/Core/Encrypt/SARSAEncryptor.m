@@ -27,10 +27,6 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
-@interface SARSAEncryptor ()
-
-@end
-
 @implementation SARSAEncryptor
 
 #pragma mark - Public Methods
