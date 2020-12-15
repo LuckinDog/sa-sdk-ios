@@ -136,7 +136,7 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
 
 #pragma mark - Encrypt
 NSString * const kSAEncryptECCPrefix = @"EC:";
-NSString * const kSAEncryptECCClassName = @"SAECCEncrypt";
+NSString * const kSAEncryptECCClassName = @"SAECryptoppECC";
 
 #pragma mark - Scheme Host
 NSString * const kSASchemeHostRemoteConfig = @"sensorsdataremoteconfig";
