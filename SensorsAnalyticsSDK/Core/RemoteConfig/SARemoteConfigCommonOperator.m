@@ -171,15 +171,15 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
             
             if (success) {
                 if(config != nil) {
-                    // 远程配置
-                    NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
-                    [strongSelf handleRemoteConfig:remoteConfig];
-                    
                     // 加密
                     if (strongSelf.options.configOptions.enableEncrypt) {
                         NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
                         strongSelf.options.handleEncryptBlock(encryptConfig);
                     }
+
+                    // 远程配置
+                    NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
+                    [strongSelf handleRemoteConfig:remoteConfig];
                 }
             } else {
                 if (index < strongSelf.requestRemoteConfigRetryMaxCount - 1) {
