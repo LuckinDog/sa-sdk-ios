@@ -53,12 +53,16 @@
     NSData *ivData = [NSData dataWithBytes:buf length:sizeof(buf)];
     
     size_t numBytesEncrypted = 0;
-    CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128,
+    CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
+                                          kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
-                                          [keyData bytes], kCCBlockSizeAES128,
+                                          [keyData bytes],
+                                          kCCBlockSizeAES128,
                                           [ivData bytes],
-                                          [data bytes], dataLength,
-                                          buffer, bufferSize,
+                                          [data bytes],
+                                          dataLength,
+                                          buffer,
+                                          bufferSize,
                                           &numBytesEncrypted);
     if (cryptStatus == kCCSuccess) {
         NSData *encryptData = [NSData dataWithBytes:buffer length:numBytesEncrypted];

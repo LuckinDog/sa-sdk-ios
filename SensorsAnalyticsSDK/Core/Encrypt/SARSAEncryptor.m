@@ -146,34 +146,49 @@
 
 - (NSData *)stripPublicKeyHeader:(NSData *)d_key {
     // Skip ASN.1 public key header
-    if (d_key == nil) return(nil);
-    
+    if (d_key == nil) {
+        return(nil);
+    }
+
     unsigned long len = [d_key length];
-    if (!len) return(nil);
-    
+    if (!len) {
+        return(nil);
+    }
+
     unsigned char *c_key = (unsigned char *)[d_key bytes];
-    unsigned int  idx     = 0;
+    unsigned int idx = 0;
     
-    if (c_key[idx++] != 0x30) return(nil);
-    
-    if (c_key[idx] > 0x80) idx += c_key[idx] - 0x80 + 1;
-    else idx++;
-    
+    if (c_key[idx++] != 0x30) {
+        return(nil);
+    }
+
+    if (c_key[idx] > 0x80) {
+        idx += c_key[idx] - 0x80 + 1;
+    } else {
+        idx++;
+    }
+
     // PKCS #1 rsaEncryption szOID_RSA_RSA
     static unsigned char seqiod[] =
     { 0x30,   0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
         0x01, 0x05, 0x00 };
-    if (memcmp(&c_key[idx], seqiod, 15)) return(nil);
-    
+    if (memcmp(&c_key[idx], seqiod, 15)) {
+        return(nil);
+    }
     idx += 15;
     
-    if (c_key[idx++] != 0x03) return(nil);
-    
-    if (c_key[idx] > 0x80) idx += c_key[idx] - 0x80 + 1;
-    else idx++;
-    
-    if (c_key[idx++] != '\0') return(nil);
-    
+    if (c_key[idx++] != 0x03) {
+        return(nil);
+    }
+
+    if (c_key[idx] > 0x80) {
+        idx += c_key[idx] - 0x80 + 1;
+    } else {
+        idx++;
+    }
+    if (c_key[idx++] != '\0') {
+        return(nil);
+    }
     // Now make a new NSData from this buffer
     return([NSData dataWithBytes:&c_key[idx] length:len - idx]);
 }
