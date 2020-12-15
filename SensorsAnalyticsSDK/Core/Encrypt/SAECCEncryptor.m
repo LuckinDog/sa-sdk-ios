@@ -51,7 +51,7 @@
         return nil;
     }
     
-    Class crypto = NSClassFromString(@"SAECCEncrypt");
+    Class crypto = NSClassFromString(kSAEncryptECCClassName);
     SEL sel = NSSelectorFromString(@"encrypt:withPublicKey:");
     if ([crypto respondsToSelector:sel]) {
         NSString *string = [[NSString alloc] initWithData:(NSData *)obj encoding:NSUTF8StringEncoding];

@@ -165,7 +165,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     NSString *ecKey = encryptConfig[@"key_ec"];
     SASecretKey *secretKey = [[SASecretKey alloc] init];
 
-    if ([SAValidator isValidString:ecKey] && NSClassFromString(@"SAECCEncrypt")) {
+    if ([SAValidator isValidString:ecKey] && NSClassFromString(kSAEncryptECCClassName)) {
         NSData *data = [ecKey dataUsingEncoding:NSUTF8StringEncoding];
         if (data) {
             NSDictionary *ecKeyDic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -241,6 +241,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
     if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
         // ECC 加密
+        NSAssert(NSClassFromString(kSAEncryptECCClassName), @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt', :subspecs => ['Cryptopp']。\n");
         self.aesKeyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey.key];
     } else {
         // RSA 加密

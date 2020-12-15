@@ -125,6 +125,7 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
 
 #pragma mark - Encrypt
 extern NSString * const kSAEncryptECCPrefix;
+extern NSString * const kSAEncryptECCClassName;
 
 #pragma mark - Scheme Host
 extern NSString * const kSASchemeHostRemoteConfig;
