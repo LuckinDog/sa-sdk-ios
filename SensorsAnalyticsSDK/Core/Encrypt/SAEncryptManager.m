@@ -107,56 +107,6 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     return [self isEncryptorValid];
 }
 
-- (void)saveSecretKey:(SASecretKey *)secretKey {
-    if (!secretKey) {
-        return;
-    }
-
-    void (^saveSecretKey)(SASecretKey *) = SensorsAnalyticsSDK.configOptions.saveSecretKey;
-    if (saveSecretKey) {
-        // 通过用户的回调保存公钥
-        saveSecretKey(secretKey);
-
-        [SAFileStore archiveWithFileName:kSAEncryptSecretKey value:nil];
-
-        SALogDebug(@"Save secret key by saveSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-    } else {
-        // 存储到本地
-        NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
-        [SAFileStore archiveWithFileName:kSAEncryptSecretKey value:secretKeyData];
-
-        SALogDebug(@"Save secret key by localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-    }
-}
-
-- (SASecretKey *)loadCurrentSecretKey {
-    SASecretKey *secretKey = nil;
-
-    SASecretKey *(^loadSecretKey)(void) = SensorsAnalyticsSDK.configOptions.loadSecretKey;
-    if (loadSecretKey) {
-        // 通过用户的回调获取公钥
-        secretKey = loadSecretKey();
-
-        if (secretKey) {
-            SALogDebug(@"Load secret key from loadSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-        } else {
-            SALogDebug(@"Load secret key from loadSecretKey callback failed!");
-        }
-    } else {
-        // 通过本地获取公钥
-        id secretKeyData = [SAFileStore unarchiveWithFileName:kSAEncryptSecretKey];
-        secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
-
-        if (secretKey) {
-            SALogDebug(@"Load secret key from localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
-        } else {
-            SALogDebug(@"Load secret key from localSecretKey failed!");
-        }
-    }
-
-    return secretKey;
-}
-
 - (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
     if (!encryptConfig) {
         return;
@@ -225,6 +175,56 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 #pragma mark - Private Methods
+
+- (void)saveSecretKey:(SASecretKey *)secretKey {
+    if (!secretKey) {
+        return;
+    }
+
+    void (^saveSecretKey)(SASecretKey *) = SensorsAnalyticsSDK.configOptions.saveSecretKey;
+    if (saveSecretKey) {
+        // 通过用户的回调保存公钥
+        saveSecretKey(secretKey);
+
+        [SAFileStore archiveWithFileName:kSAEncryptSecretKey value:nil];
+
+        SALogDebug(@"Save secret key by saveSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+    } else {
+        // 存储到本地
+        NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
+        [SAFileStore archiveWithFileName:kSAEncryptSecretKey value:secretKeyData];
+
+        SALogDebug(@"Save secret key by localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+    }
+}
+
+- (SASecretKey *)loadCurrentSecretKey {
+    SASecretKey *secretKey = nil;
+
+    SASecretKey *(^loadSecretKey)(void) = SensorsAnalyticsSDK.configOptions.loadSecretKey;
+    if (loadSecretKey) {
+        // 通过用户的回调获取公钥
+        secretKey = loadSecretKey();
+
+        if (secretKey) {
+            SALogDebug(@"Load secret key from loadSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+        } else {
+            SALogDebug(@"Load secret key from loadSecretKey callback failed!");
+        }
+    } else {
+        // 通过本地获取公钥
+        id secretKeyData = [SAFileStore unarchiveWithFileName:kSAEncryptSecretKey];
+        secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
+
+        if (secretKey) {
+            SALogDebug(@"Load secret key from localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
+        } else {
+            SALogDebug(@"Load secret key from localSecretKey failed!");
+        }
+    }
+
+    return secretKey;
+}
 
 - (void)updateEncryptor {
     // 更新 AES 密钥加密器

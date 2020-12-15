@@ -71,13 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) BOOL hasSecretKey;
 
-/// 保存公钥
-/// @param secretKey 需要保存的公钥
-- (void)saveSecretKey:(SASecretKey *)secretKey;
-
-/// 获取公钥
-- (SASecretKey *)loadCurrentSecretKey;
-
 /// 用于远程配置回调中处理并保存密钥
 /// @param encryptConfig 返回的
 - (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig;

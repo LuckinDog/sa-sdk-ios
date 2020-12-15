@@ -171,12 +171,4 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
     [self.encryptManager handleEncryptWithConfig:encryptConfig];
 }
 
-- (nonnull SASecretKey *)loadCurrentSecretKey {
-    return [self.encryptManager loadCurrentSecretKey];
-}
-
-- (void)saveSecretKey:(nonnull SASecretKey *)secretKey {
-    [self.encryptManager saveSecretKey:secretKey];
-}
-
 @end
