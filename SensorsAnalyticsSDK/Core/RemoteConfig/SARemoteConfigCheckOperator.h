@@ -1,8 +1,8 @@
 //
-// SAModuleManager.h
+// SARemoteConfigCheckOperator.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/8/14.
+// Created by wenquan on 2020/11/1.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,37 +18,19 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
+#import "SARemoteConfigOperator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, SAModuleType) {
-    SAModuleTypeLocation,
-    SAModuleTypeChannelMatch,
-};
+/// 远程配置校验模式处理类
+@interface SARemoteConfigCheckOperator : SARemoteConfigOperator
 
-@interface SAModuleManager : NSObject <SAOpenURLProtocol>
+/// 初始化远程配置校验模式处理类
+/// @param options 输入的远程配置参数
+/// @param model 输入的远程配置模型
+/// @return 远程配置校验模式处理类的实例
+- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options remoteConfigModel:(SARemoteConfigModel *)model;
 
-+ (instancetype)sharedInstance;
-
-- (nullable id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type;
-
-- (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
-
-@end
-
-#pragma mark -
-
-@interface SAModuleManager (Property)
-
-@property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
-
-@end
-
-#pragma mark -
-
-@interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
 @end
 
 NS_ASSUME_NONNULL_END

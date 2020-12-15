@@ -1,8 +1,8 @@
 //
-// SAModuleManager.h
+// SAVisualizedAutoTrackObjectSerializer+WebView.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/8/14.
+// Created by 储强盛 on 2020/12/13.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,37 +18,15 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
+#import "SAVisualizedAutoTrackObjectSerializer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, SAModuleType) {
-    SAModuleTypeLocation,
-    SAModuleTypeChannelMatch,
-};
+@interface SAVisualizedAutoTrackObjectSerializer (WebView)
 
-@interface SAModuleManager : NSObject <SAOpenURLProtocol>
+/// 判断当前对象是否为 UIWebView
+- (BOOL)isWebViewWithObject:(NSObject *)obj;
 
-+ (instancetype)sharedInstance;
-
-- (nullable id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type;
-
-- (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
-
-@end
-
-#pragma mark -
-
-@interface SAModuleManager (Property)
-
-@property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
-
-@end
-
-#pragma mark -
-
-@interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
 @end
 
 NS_ASSUME_NONNULL_END
