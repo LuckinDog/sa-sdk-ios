@@ -104,7 +104,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 #pragma mark - SAEncryptModuleProtocol
 
 - (BOOL)hasSecretKey {
-    return [self isEncryptorValid];
+    return self.dataEncryptor && self.aesKeyEncryptor;
 }
 
 - (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
@@ -161,7 +161,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return nil;
     }
 
-    if (![self isEncryptorValid]) {
+    if (![self hasSecretKey]) {
         SALogDebug(@"Enable encryption but the secret key is nil !");
         return nil;
     }
@@ -245,9 +245,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (void)updateEncryptor {
-    // 更新 AES 密钥加密器
+    // 先更新 AES 密钥加密器
     [self updateAESKeyEncryptor];
-    // 更新数据加密器
+    // 再更新数据加密器
     [self updateDataEncryptor];
 }
 
@@ -285,10 +285,6 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:self.originalAESKey];
 }
 
-- (BOOL)isEncryptorValid {
-    return self.dataEncryptor && self.aesKeyEncryptor;
-}
-
 - (BOOL)createOriginalAESKey {
     if (self.originalAESKey) {
         return YES;
@@ -310,7 +306,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return YES;
     }
 
-    if (![self isEncryptorValid]) {
+    if (![self hasSecretKey]) {
         return NO;
     }
 
