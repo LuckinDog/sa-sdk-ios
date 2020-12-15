@@ -116,16 +116,21 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     SASecretKey *secretKey = [[SASecretKey alloc] init];
 
     if ([SAValidator isValidString:ecKey] && NSClassFromString(kSAEncryptECCClassName)) {
+        // ECC
         NSData *data = [ecKey dataUsingEncoding:NSUTF8StringEncoding];
-        if (data) {
-            NSDictionary *ecKeyDic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            NSString *type = ecKeyDic[@"type"];
-            NSString *key = ecKeyDic[@"public_key"];
-
-            secretKey.version = [ecKeyDic[@"pkv"] integerValue];
-            secretKey.key = [NSString stringWithFormat:@"%@:%@", type, key];
+        if (!data) {
+            return;
         }
+
+        NSDictionary *ecKeyDic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        if (![SAValidator isValidDictionary:ecKeyDic]) {
+            return;
+        }
+
+        secretKey.version = [ecKeyDic[@"pkv"] integerValue];
+        secretKey.key = [NSString stringWithFormat:@"%@:%@", ecKeyDic[@"type"], ecKeyDic[@"public_key"]];
     } else {
+        // RSA
         secretKey.version = [encryptConfig[@"pkv"] integerValue];
         secretKey.key = encryptConfig[@"public_key"];
     }
@@ -150,7 +155,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
     // 加密 AES 密钥
     if (![self encryptAESKey]) {
-        SALogDebug(@"Enable encryption but the secret key is nil !");
+        SALogDebug(@"Enable encryption but encrypt AES key is fail !");
         return nil;
     }
 
