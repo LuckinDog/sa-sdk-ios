@@ -1248,7 +1248,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSString *)obtainValidLibMethod:(NSString *)libMethod {
-    //  传入自定义属性中的 $lib_method 属性
+    // 如果传入自定义属性中的 $lib_method 不为 String 类型，直接返回不进行修正处理
+    if (![libMethod isKindOfClass:NSString.class]) {
+        return libMethod;
+    }
     NSString *newLibMethod = libMethod;
     if (![newLibMethod isEqualToString:kSALibMethodCode] && ![newLibMethod isEqualToString:kSALibMethodAuto]) {
         // 自定义属性中的 $lib_method 不为有效值（code 或者 autoTrack），此时使用默认值 code
