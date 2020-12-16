@@ -26,8 +26,8 @@
 #import "SAModuleProtocol.h"
 
 // Location 模块名
-static NSString * const SALocationModuleName = @"Location";
-static NSString * const SADeviceOrientationModuleName = @"DeviceOrientation";
+static NSString * const kSALocationModuleName = @"Location";
+static NSString * const kSADeviceOrientationModuleName = @"DeviceOrientation";
 static NSString * const kSAReactNativeModuleName = @"ReactNative";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
@@ -54,9 +54,9 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 - (NSString *)moduleNameForType:(SAModuleType)type {
     switch (type) {
         case SAModuleTypeLocation:
-            return SALocationModuleName;
+            return kSALocationModuleName;
         case SAModuleTypeDeviceOrientation:
-            return SADeviceOrientationModuleName;
+            return kSADeviceOrientationModuleName;
         case SAModuleTypeReactNative:
             return kSAReactNativeModuleName;
         case SAModuleTypeChannelMatch:
@@ -146,12 +146,12 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
         }
         id<SAPropertyModuleProtocol> manager = (id<SAPropertyModuleProtocol>)obj;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-        if ([key isEqualToString:SALocationModuleName]) {
+        if ([key isEqualToString:kSALocationModuleName]) {
             return [properties addEntriesFromDictionary:manager.properties];
         }
 #endif
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        if ([key isEqualToString:SADeviceOrientationModuleName]) {
+        if ([key isEqualToString:kSADeviceOrientationModuleName]) {
             return [properties addEntriesFromDictionary:manager.properties];
         }
 #endif
