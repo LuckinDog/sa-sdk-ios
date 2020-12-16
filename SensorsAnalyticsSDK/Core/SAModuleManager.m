@@ -48,36 +48,7 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
     return manager;
 }
 
-- (void)setEnable:(BOOL)enable forModule:(NSString *)moduleName {
-    if (self.modules[moduleName]) {
-        self.modules[moduleName].enable = enable;
-    } else if (enable) {
-        NSString *className = [NSString stringWithFormat:@"SA%@Manager", moduleName];
-        Class<SAModuleProtocol> cla = NSClassFromString(className);
-        NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
-        if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
-            id<SAModuleProtocol> object = [[(Class)cla alloc] init];
-            object.enable = enable;
-            self.modules[moduleName] = object;
-        }
-    }
-}
-
-- (BOOL)contains:(SAModuleType)type {
-    NSString *moduleName = [self moduleNameForType:type];
-    NSString *className = [NSString stringWithFormat:@"SA%@Manager", moduleName];
-    return [NSClassFromString(className) conformsToProtocol:@protocol(SAModuleProtocol)];
-}
-
-- (id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type {
-    NSString *name = [self moduleNameForType:type];
-    return self.modules[name];
-}
-
-- (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
-    NSString *name = [self moduleNameForType:type];
-    [self setEnable:enable forModule:name];
-}
+#pragma mark - Private
 
 - (NSString *)moduleNameForType:(SAModuleType)type {
     switch (type) {
@@ -90,6 +61,43 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
         default:
             return nil;
     }
+}
+
+- (NSString *)classNameForModule:(NSString *)moduleName {
+    return [NSString stringWithFormat:@"SA%@Manager", moduleName];
+}
+
+- (void)setEnable:(BOOL)enable forModule:(NSString *)moduleName {
+    if (self.modules[moduleName]) {
+        self.modules[moduleName].enable = enable;
+    } else if (enable) {
+        NSString *className = [self classNameForModule:moduleName];
+        Class<SAModuleProtocol> cla = NSClassFromString(className);
+        NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
+        if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
+            id<SAModuleProtocol> object = [[(Class)cla alloc] init];
+            object.enable = enable;
+            self.modules[moduleName] = object;
+        }
+    }
+}
+
+#pragma mark - Public
+
+- (BOOL)contains:(SAModuleType)type {
+    NSString *moduleName = [self moduleNameForType:type];
+    NSString *className = [self classNameForModule:moduleName];
+    return [NSClassFromString(className) conformsToProtocol:@protocol(SAModuleProtocol)];
+}
+
+- (id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type {
+    NSString *name = [self moduleNameForType:type];
+    return self.modules[name];
+}
+
+- (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
+    NSString *name = [self moduleNameForType:type];
+    [self setEnable:enable forModule:name];
 }
 
 #pragma mark - Open URL
