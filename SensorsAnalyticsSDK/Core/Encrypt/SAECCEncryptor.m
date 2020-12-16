@@ -23,9 +23,12 @@
 #endif
 
 #import "SAECCEncryptor.h"
+#import "SAMethodHelper.h"
 #import "SAValidator.h"
 #import "SALog.h"
 #import "SAConstants+Private.h"
+
+typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
 
 @interface SAECCEncryptor ()
 
@@ -73,17 +76,12 @@
         return nil;
     }
     
-    Class crypto = NSClassFromString(kSAEncryptECCClassName);
-    SEL sel = NSSelectorFromString(@"encrypt:withPublicKey:");
-    if ([crypto respondsToSelector:sel]) {
+    Class class = NSClassFromString(kSAEncryptECCClassName);
+    SEL selector = NSSelectorFromString(@"encrypt:withPublicKey:");
+    IMP methodIMP = [SAMethodHelper implementationOfClassMethodSelector:selector fromClass:class];
+    if (methodIMP) {
         NSString *string = [[NSString alloc] initWithData:(NSData *)obj encoding:NSUTF8StringEncoding];
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        NSString *result = [crypto performSelector:sel withObject:string withObject:self.publicKey];
-#pragma clang diagnostic pop
-        
-        return result;
+        return ((SAEEncryptImplementation)methodIMP)(class, selector, string, self.publicKey);
     }
     
     return nil;
