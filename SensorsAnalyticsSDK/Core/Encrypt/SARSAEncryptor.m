@@ -27,25 +27,57 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
+@interface SARSAEncryptor ()
+
+/// 异常字符处理后的公钥
+@property (nonatomic, copy) NSString *modifiedSecretKey;
+
+@end
+
 @implementation SARSAEncryptor
+
+#pragma mark - Life Cycle
+
+- (instancetype)initWithSecretKey:(NSString *)secretKey {
+    self = [super initWithSecretKey:secretKey];
+    if (self) {
+        [self setupModifiedSecretKey];
+    }
+    return self;
+}
+
+- (void)setupModifiedSecretKey {
+    if (![SAValidator isValidString:self.secretKey]) {
+        SALogDebug(@"Enable RSA encryption but the secret key is invalid!");
+        return;
+    }
+
+    NSString *secretKeyCopy = [self.secretKey copy];
+    secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\r" withString:@""];
+    secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\t" withString:@""];
+    secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@" "  withString:@""];
+
+    self.modifiedSecretKey = secretKeyCopy;
+}
 
 #pragma mark - Public Methods
 
 - (nullable NSString *)encryptObject:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
-        SALogDebug(@"Enable RSA encryption but the input obj is not NSData!");
+        SALogDebug(@"Enable RSA encryption but the input obj is invalid!");
         return nil;
     }
     
-    if (![SAValidator isValidString:self.secretKey]) {
-        SALogDebug(@"Enable RSA encryption but the public key is not NSString!");
+    if (![SAValidator isValidString:self.modifiedSecretKey]) {
+        SALogDebug(@"Enable RSA encryption but the modified secret key is invalid!");
         return nil;
     }
     
     NSData *data = obj;
     SecKeyRef keyRef = [self addPublicKey];
     if (!keyRef) {
-        SALogError(@"initialize Public SecKeyRef Fail");
+        SALogError(@"Enable RSA encryption but init public SecKeyRef failed!");
         return nil;
     }
     
@@ -90,11 +122,7 @@
 #pragma mark – Private Methods
 
 - (SecKeyRef)addPublicKey {
-    NSString *key = [self.secretKey copy];
-    key = [key stringByReplacingOccurrencesOfString:@"\r" withString:@""];
-    key = [key stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-    key = [key stringByReplacingOccurrencesOfString:@"\t" withString:@""];
-    key = [key stringByReplacingOccurrencesOfString:@" "  withString:@""];
+    NSString *key = [self.modifiedSecretKey copy];
     
     // This will be base64 encoded, decode it.
     NSData *data = [[NSData alloc] initWithBase64EncodedString:key options:NSDataBase64DecodingIgnoreUnknownCharacters];
