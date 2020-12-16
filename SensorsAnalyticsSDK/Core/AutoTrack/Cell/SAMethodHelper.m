@@ -44,7 +44,7 @@
     const char *types = method_getTypeEncoding(method);
     // 在 toClass 中，添加一个名为 destinationSelector 的方法
     if (!class_addMethod(toClass, destinationSelector, methodIMP, types)) {
-        [self replaceMethodWithClass:toClass name:destinationSelector imp:methodIMP types:types];
+        class_replaceMethod(toClass, destinationSelector, methodIMP, types);
     }
 }
 
@@ -53,7 +53,7 @@
     IMP methodIMP = method_getImplementation(method);
     const char *types = method_getTypeEncoding(method);
     if (!class_addMethod(toClass, destinationSelector, methodIMP, types)) {
-        [self replaceMethodWithClass:toClass name:destinationSelector imp:methodIMP types:types];
+        class_replaceMethod(toClass, destinationSelector, methodIMP, types);
     }
 }
 
@@ -61,11 +61,7 @@
     Method method = class_getInstanceMethod(fromClass, sourceSelector);
     IMP methodIMP = method_getImplementation(method);
     const char *types = method_getTypeEncoding(method);
-    return [self replaceMethodWithClass:toClass name:destinationSelector imp:methodIMP types:types];
-}
-
-+(IMP _Nullable)replaceMethodWithClass:(Class _Nullable)cls name:(SEL _Nonnull)name imp:(IMP _Nonnull)imp types:(const char * _Nullable)types {
-    return class_replaceMethod(cls, name, imp, types);
+    return class_replaceMethod(toClass, destinationSelector, methodIMP, types);
 }
 
 @end
