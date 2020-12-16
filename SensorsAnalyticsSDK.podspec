@@ -27,12 +27,6 @@ Pod::Spec.new do |s|
 #    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
   end
 
-  s.subspec 'ReactNative' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.source_files = 'SensorsAnalyticsSDK/ReactNative/**/*.{h,m}'
-    f.private_header_files = 'SensorsAnalyticsSDK/ReactNative/**/*.h'
-  end
-
   # 禁用设备方向采集
   s.subspec 'DISABLE_TRACK_DEVICE_ORIENTATION' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
