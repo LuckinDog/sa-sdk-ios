@@ -27,19 +27,44 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
+@interface SAAESEncryptor ()
+
+/// 转化为 NSData 格式的密钥
+@property (nonatomic, copy) NSData *secretKeyData;
+
+@end
+
 @implementation SAAESEncryptor
+
+#pragma mark - Life Cycle
+
+- (instancetype)initWithSecretKey:(NSString *)secretKey {
+    self = [super initWithSecretKey:secretKey];
+    if (self) {
+        [self setupSecretKeyData];
+    }
+    return self;
+}
+
+- (void)setupSecretKeyData {
+    if (![SAValidator isValidString:self.secretKey]) {
+        SALogDebug(@"Enable AES encryption but the secret key is invalid!");
+        return;
+    }
+
+    self.secretKeyData = [self.secretKey dataUsingEncoding:NSUTF8StringEncoding];
+}
 
 #pragma mark - Public Methods
 
 - (nullable NSString *)encryptObject:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
-        SALogDebug(@"Enable AES encryption but the input obj is nil!");
+        SALogDebug(@"Enable AES encryption but the input obj is invalid!");
         return nil;
     }
     
-    NSData *keyData = [self.secretKey dataUsingEncoding:NSUTF8StringEncoding];
-    if (![SAValidator isValidData:keyData]) {
-        SALogDebug(@"Enable AES encryption but the secret key is nil!");
+    if (![SAValidator isValidData:self.secretKeyData]) {
+        SALogDebug(@"Enable AES encryption but the secret key data is invalid!");
         return nil;
     }
     
@@ -56,7 +81,7 @@
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
                                           kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
-                                          [keyData bytes],
+                                          [self.secretKeyData bytes],
                                           kCCBlockSizeAES128,
                                           [ivData bytes],
                                           [data bytes],
