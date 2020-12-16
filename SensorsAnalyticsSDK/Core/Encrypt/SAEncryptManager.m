@@ -155,8 +155,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         secretKey.key = publicKey;
     }
 
-    // 存储公钥
-    [self saveSecretKey:secretKey];
+    // 存储请求的公钥
+    [self saveRequestSecretKey:secretKey];
 
     // 更新加密构造器
     [self updateEncryptor];
@@ -201,7 +201,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 #pragma mark - Private Methods
 
-- (void)saveSecretKey:(SASecretKey *)secretKey {
+- (void)saveRequestSecretKey:(SASecretKey *)secretKey {
     if (!secretKey) {
         return;
     }
