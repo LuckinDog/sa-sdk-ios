@@ -51,12 +51,12 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 
 - (void)setupPublicKey {
     if (![SAValidator isValidString:self.secretKey]) {
-        SALogDebug(@"Enable ECC encryption but the secret key is invalid!");
+        SALogError(@"Enable ECC encryption but the secret key is invalid!");
         return;
     }
 
     if (![self.secretKey hasPrefix:kSAEncryptECCPrefix]) {
-        SALogDebug(@"Enable ECC encryption but the secret key is not ECC key!");
+        SALogError(@"Enable ECC encryption but the secret key is not ECC key!");
         return;
     }
 
@@ -67,12 +67,12 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 
 - (nullable NSString *)encryptObject:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
-        SALogDebug(@"Enable ECC encryption but the input obj is invalid!");
+        SALogError(@"Enable ECC encryption but the input obj is invalid!");
         return nil;
     }
     
     if (![SAValidator isValidString:self.publicKey]) {
-        SALogDebug(@"Enable ECC encryption but the public key is invalid!");
+        SALogError(@"Enable ECC encryption but the public key is invalid!");
         return nil;
     }
     

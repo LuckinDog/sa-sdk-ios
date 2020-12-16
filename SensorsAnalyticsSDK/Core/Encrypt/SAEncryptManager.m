@@ -164,18 +164,17 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 - (NSDictionary *)encryptJSONObject:(id)obj {
     if (!obj) {
-        SALogDebug(@"Enable encryption but the input obj is nil !");
+        SALogError(@"Enable encryption but the input obj is invalid!");
         return nil;
     }
 
     if (![self hasSecretKey]) {
-        SALogDebug(@"Enable encryption but the secret key is nil !");
+        SALogError(@"Enable encryption but the secret key is invalid!");
         return nil;
     }
 
-    // 加密 AES 密钥
     if (![self encryptAESKey]) {
-        SALogDebug(@"Enable encryption but encrypt AES key is fail !");
+        SALogError(@"Enable encryption but encrypt AES key is failed!");
         return nil;
     }
 
@@ -187,7 +186,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
     // AES128 加密数据
     NSString *encryptedString = [self.dataEncryptor encryptObject:zippedData];
-    if (!encryptedString) {
+    if (![SAValidator isValidString:encryptedString]) {
         return nil;
     }
 

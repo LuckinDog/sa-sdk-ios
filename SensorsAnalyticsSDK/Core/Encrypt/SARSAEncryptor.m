@@ -48,7 +48,7 @@
 
 - (void)setupModifiedSecretKey {
     if (![SAValidator isValidString:self.secretKey]) {
-        SALogDebug(@"Enable RSA encryption but the secret key is invalid!");
+        SALogError(@"Enable RSA encryption but the secret key is invalid!");
         return;
     }
 
@@ -65,12 +65,12 @@
 
 - (nullable NSString *)encryptObject:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
-        SALogDebug(@"Enable RSA encryption but the input obj is invalid!");
+        SALogError(@"Enable RSA encryption but the input obj is invalid!");
         return nil;
     }
     
     if (![SAValidator isValidString:self.modifiedSecretKey]) {
-        SALogDebug(@"Enable RSA encryption but the modified secret key is invalid!");
+        SALogError(@"Enable RSA encryption but the modified secret key is invalid!");
         return nil;
     }
     

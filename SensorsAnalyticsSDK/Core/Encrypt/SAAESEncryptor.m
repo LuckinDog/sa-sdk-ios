@@ -48,7 +48,7 @@
 
 - (void)setupSecretKeyData {
     if (![SAValidator isValidString:self.secretKey]) {
-        SALogDebug(@"Enable AES encryption but the secret key is invalid!");
+        SALogError(@"Enable AES encryption but the secret key is invalid!");
         return;
     }
 
@@ -59,12 +59,12 @@
 
 - (nullable NSString *)encryptObject:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
-        SALogDebug(@"Enable AES encryption but the input obj is invalid!");
+        SALogError(@"Enable AES encryption but the input obj is invalid!");
         return nil;
     }
     
     if (![SAValidator isValidData:self.secretKeyData]) {
-        SALogDebug(@"Enable AES encryption but the secret key data is invalid!");
+        SALogError(@"Enable AES encryption but the secret key data is invalid!");
         return nil;
     }
     
