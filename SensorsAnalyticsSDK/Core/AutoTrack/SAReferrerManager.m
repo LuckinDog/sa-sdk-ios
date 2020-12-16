@@ -36,15 +36,6 @@
 
 @implementation SAReferrerManager
 
-+ (instancetype)sharedInstance {
-    static dispatch_once_t onceToken;
-    static SAReferrerManager *manager;
-    dispatch_once(&onceToken, ^{
-        manager = [[SAReferrerManager alloc] init];
-    });
-    return manager;
-}
-
 - (NSDictionary *)getScreenURLsWithCurrentURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties {
     NSString *referrerURL = _referrerURL;
     NSMutableDictionary *newProperties = [NSMutableDictionary dictionaryWithDictionary:eventProperties];

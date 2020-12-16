@@ -231,6 +231,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAEncryptSecretKeyHandler *secretKeyHandler;
 
+@property (nonatomic, strong) SAReferrerManager *referrerManager;
+
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -317,7 +319,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _showDebugAlertView = YES;
             _debugAlertViewHasShownNumber = 0;
             _applicationWillResignActive = NO;
-            [[SAReferrerManager sharedInstance] setEnableReferrerTitle:configOptions.enableReferrerTitle];
+
+            _referrerManager =[[SAReferrerManager alloc] init];
+            _referrerManager.enableReferrerTitle = configOptions.enableReferrerTitle;
             
             NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
             _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
@@ -1347,7 +1351,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             if (self.configOptions.enableReferrerTitle) {
                 // 给 track 和 $sign_up 事件添加 $referrer_title 属性。如果公共属性中存在此属性时会被覆盖，此逻辑优先级更高
-                eventPropertiesDic[kSAEeventPropertyReferrerTitle] = [[SAReferrerManager sharedInstance] referrerTitle];
+                eventPropertiesDic[kSAEeventPropertyReferrerTitle] = _referrerManager.referrerTitle;
             }
 
             //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
@@ -1981,15 +1985,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSString *)getLastScreenUrl {
-    return [[SAReferrerManager sharedInstance] referrerURL];
+    return _referrerManager.referrerURL;
 }
 
 - (void)clearReferrerWhenAppEnd {
-    [[SAReferrerManager sharedInstance] setClearReferrerWhenAppEnd:YES];
+    _referrerManager.clearReferrerWhenAppEnd = YES;
 }
 
 - (NSDictionary *)getLastScreenTrackProperties {
-    return [[SAReferrerManager sharedInstance] referrerProperties];
+    return _referrerManager.referrerProperties;
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
@@ -2125,7 +2129,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(controller.class);
 
     // 添加 $url 和 $referrer 页面浏览相关属性
-    NSDictionary *newProperties = [[SAReferrerManager sharedInstance] getScreenURLsWithCurrentURL:currentURL eventProperties:eventProperties];
+    NSDictionary *newProperties = [_referrerManager getScreenURLsWithCurrentURL:currentURL eventProperties:eventProperties];
 
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:newProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
@@ -2404,7 +2408,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if ([self isAutoTrackEnabled]) {
         // 追踪 AppEnd 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-            [[SAReferrerManager sharedInstance] clearReferrer];
+            [_referrerManager clearReferrer];
             [self track:SA_EVENT_NAME_APP_END withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     }
@@ -3244,7 +3248,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
-    NSDictionary *eventProperties = [[SAReferrerManager sharedInstance] getScreenURLsWithCurrentURL:url eventProperties:properties];
+    NSDictionary *eventProperties = [_referrerManager getScreenURLsWithCurrentURL:url eventProperties:properties];
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 

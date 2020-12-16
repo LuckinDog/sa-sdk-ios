@@ -32,9 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly) NSString *referrerURL;
 @property (nonatomic, copy, readonly) NSString *referrerTitle;
 
-
-+ (instancetype)sharedInstance;
-
 - (NSDictionary *)getScreenURLsWithCurrentURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties;
 - (void)clearReferrer;
 

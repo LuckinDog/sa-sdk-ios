@@ -492,7 +492,6 @@
 		881A40D2253D7B4F00854F69 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				FC6871452580D332003A2841 /* Referrer */,
 				881A413E253D7B4F00854F69 /* AutoTrack */,
 				881A416D253D7B4F00854F69 /* Builder */,
 				881A414E253D7B4F00854F69 /* Channel */,
@@ -680,6 +679,8 @@
 			isa = PBXGroup;
 			children = (
 				45886522253EE0E600DF208D /* Cell */,
+				FC6871462580D34F003A2841 /* SAReferrerManager.h */,
+				FC6871472580D34F003A2841 /* SAReferrerManager.m */,
 				881A413F253D7B4F00854F69 /* UIGestureRecognizer+AutoTrack.h */,
 				881A4140253D7B4F00854F69 /* SAAutoTrackUtils.h */,
 				881A4141253D7B4F00854F69 /* UIView+AutoTrack.h */,
@@ -841,15 +842,6 @@
 				CB6EBAF122855222003CFBA8 /* ca.der.cer */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		FC6871452580D332003A2841 /* Referrer */ = {
-			isa = PBXGroup;
-			children = (
-				FC6871462580D34F003A2841 /* SAReferrerManager.h */,
-				FC6871472580D34F003A2841 /* SAReferrerManager.m */,
-			);
-			path = Referrer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
