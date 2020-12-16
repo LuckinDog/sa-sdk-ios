@@ -27,10 +27,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// 加密器的密钥（非对称加密时返回公钥）
 @property (nullable, nonatomic, copy) NSString *secretKey;
 
-/// 初始化加密器
+/// 指定初始化方法，初始化加密器
 /// @param secretKey 初始化使用的密钥（非对称加密时为公钥）
 /// @return 加密器
-- (instancetype)initWithSecretKey:(NSString *)secretKey;
+- (instancetype)initWithSecretKey:(NSString *)secretKey NS_DESIGNATED_INITIALIZER;
+
+/// 禁用 init 初始化
+- (instancetype)init NS_UNAVAILABLE;
+
+/// 禁用 new 初始化
++ (instancetype)new NS_UNAVAILABLE;
 
 /// 加密对象
 /// @param obj 需要加密的对象
