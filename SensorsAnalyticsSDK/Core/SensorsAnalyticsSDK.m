@@ -1249,7 +1249,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (NSString *)obtainValidLibMethod:(NSString *)libMethod {
     // 如果传入自定义属性中的 $lib_method 不为 String 类型，直接返回不进行修正处理
-    if (![libMethod isKindOfClass:NSString.class]) {
+    if (libMethod && ![libMethod isKindOfClass:NSString.class]) {
         return libMethod;
     }
     NSString *newLibMethod = libMethod;
