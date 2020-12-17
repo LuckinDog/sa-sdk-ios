@@ -106,7 +106,7 @@
                                &outlen
                                );
         if (status != 0) {
-            SALogError(@"SecKeyEncrypt fail. Error Code: %d", status);
+            SALogError(@"SecKeyEncrypt fail. Error Code: %d", (int)status);
             ret = nil;
             break;
         }else{
