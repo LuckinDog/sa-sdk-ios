@@ -2222,7 +2222,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     });
     
     //UILabel
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
     static dispatch_once_t onceTokenGesture;
     dispatch_once(&onceTokenGesture, ^{
 
@@ -2248,7 +2247,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             error = NULL;
         }
     });
-#endif
     
     //React Native
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
