@@ -148,6 +148,8 @@ static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orie
     [self.updateQueue waitUntilAllOperationsAreFinished];
     self.updateQueue = nil;
     self.cmmotionManager = nil;
+
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

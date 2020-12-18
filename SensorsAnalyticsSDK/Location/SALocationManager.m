@@ -56,6 +56,10 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 #pragma mark - SALocationManagerProtocol
 
 - (void)setEnable:(BOOL)enable {
