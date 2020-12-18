@@ -1351,7 +1351,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             if (self.configOptions.enableReferrerTitle) {
                 // 给 track 和 $sign_up 事件添加 $referrer_title 属性。如果公共属性中存在此属性时会被覆盖，此逻辑优先级更高
-                eventPropertiesDic[kSAEeventPropertyReferrerTitle] = _referrerManager.referrerTitle;
+                eventPropertiesDic[kSAEeventPropertyReferrerTitle] = self.referrerManager.referrerTitle;
             }
 
             //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
@@ -1989,7 +1989,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)clearReferrerWhenAppEnd {
-    _referrerManager.clearReferrerWhenAppEnd = YES;
+    _referrerManager.isClearReferrer = YES;
 }
 
 - (NSDictionary *)getLastScreenTrackProperties {
