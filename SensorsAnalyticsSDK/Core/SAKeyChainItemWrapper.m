@@ -42,32 +42,6 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
     return sucess ? udid : nil;
 }
 
-#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
-+ (BOOL)hasTrackInstallation {
-    NSDictionary *result = [self fetchPasswordWithAccount:kSAAppInstallationAccount service:kSAService];
-    NSString *value =  [result objectForKey:(__bridge id)kSecValueData];
-    return value ? [value boolValue] : NO;
-}
-
-+ (BOOL)hasTrackInstallationWithDisableCallback {
-    NSDictionary *result = [self fetchPasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
-    NSString *value =  [result objectForKey:(__bridge id)kSecValueData];
-    return value ? [value boolValue] : NO;
-}
-
-+ (BOOL)markHasTrackInstallation {
-    NSString *str = [NSString stringWithFormat:@"%@", @YES];
-    BOOL sucess = [self saveOrUpdatePassword:str account:kSAAppInstallationAccount service:kSAService];
-    return sucess;
-}
-
-+ (BOOL)markHasTrackInstallationWithDisableCallback {
-    NSString *str = [NSString stringWithFormat:@"%@", @YES];
-    BOOL sucess = [self saveOrUpdatePassword:str account:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
-    return sucess;
-}
-#endif
-
 + (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service {
     return [self saveOrUpdatePassword:password account:account service:service accessGroup:nil];
 }
