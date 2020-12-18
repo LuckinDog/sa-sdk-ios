@@ -251,44 +251,57 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (void)updateEncryptor {
-    // 先更新 AES 密钥加密器
-    [self updateAESKeyEncryptor];
-    // 再更新数据加密器
+    // 更新 AES 密钥加密器
+    if (![self updateAESKeyEncryptor]) {
+        return;
+    }
+
+    // 更新加密的 AES 密钥
+    if (![self updateEncryptedAESKey]) {
+        return;
+    }
+
+    // 更新数据加密器
     [self updateDataEncryptor];
 }
 
-- (void)updateAESKeyEncryptor {
+- (BOOL)updateAESKeyEncryptor {
     SASecretKey *secretKey = [self loadCurrentSecretKey];
     if (![SAValidator isValidString:secretKey.key]) {
-        return;
+        return NO;
+    }
+
+    // 返回的密钥与已有的密钥一样则不需要更新
+    if ([self.aesKeyEncryptor.secretKey isEqualToString:secretKey.key]) {
+        return NO;
     }
 
     if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
         // ECC 加密
-        NSAssert(NSClassFromString(kSAEncryptECCClassName), @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt', :subspecs => ['Cryptopp']。\n");
+        NSAssert(NSClassFromString(kSAEncryptECCClassName), @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
         self.aesKeyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey.key];
     } else {
         // RSA 加密
         self.aesKeyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey.key];
     }
-
     self.aesKeyEncryptorVersion = secretKey.version;
+
+    return YES;
 }
 
-- (void)updateDataEncryptor {
-    if (!self.aesKeyEncryptor) {
-        return;
-    }
-    // 构造原始的 AES 密钥
-    if (![self createOriginalAESKey]) {
-        return;
-    }
+- (BOOL)updateEncryptedAESKey {
+    self.encryptedAESKey = nil;
+    return [self encryptAESKey];
+}
 
-    // 加密 AES 密钥
-    NSData *obj = [self.originalAESKey dataUsingEncoding:NSUTF8StringEncoding];
-    self.encryptedAESKey = [self.aesKeyEncryptor encryptObject:obj];
+- (BOOL)updateDataEncryptor {
+    if (![self createOriginalAESKey]) {
+        return NO;
+    }
 
     self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:self.originalAESKey];
+
+    return YES;
 }
 
 - (BOOL)createOriginalAESKey {
@@ -312,15 +325,18 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return YES;
     }
 
-    if (![self hasSecretKey]) {
+    if (!self.aesKeyEncryptor) {
         return NO;
     }
 
-    NSData *obj = [self.dataEncryptor.secretKey dataUsingEncoding:NSUTF8StringEncoding];
+    if (![self createOriginalAESKey]) {
+        return NO;
+    }
+
+    NSData *obj = [self.originalAESKey dataUsingEncoding:NSUTF8StringEncoding];
     self.encryptedAESKey = [self.aesKeyEncryptor encryptObject:obj];
 
     return self.encryptedAESKey != nil;
 }
-
 
 @end
