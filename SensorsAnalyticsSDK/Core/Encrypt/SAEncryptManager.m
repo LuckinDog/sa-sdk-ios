@@ -254,7 +254,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return;
     }
 
-    if (![self updatekeyEncryptor]) {
+    if (![self updateKeyEncryptor]) {
         return;
     }
 
@@ -285,7 +285,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     return YES;
 }
 
-- (BOOL)updatekeyEncryptor {
+- (BOOL)updateKeyEncryptor {
     if ([self.secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
         if (!NSClassFromString(kSAEncryptECCClassName)) {
             NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
