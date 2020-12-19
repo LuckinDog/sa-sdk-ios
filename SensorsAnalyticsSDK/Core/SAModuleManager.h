@@ -31,6 +31,8 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
 
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions;
+
 + (instancetype)sharedInstance;
 
 - (nullable id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type;

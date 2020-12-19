@@ -204,7 +204,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return;
     }
 
-    void (^saveSecretKey)(SASecretKey *) = SensorsAnalyticsSDK.configOptions.saveSecretKey;
+    void (^saveSecretKey)(SASecretKey *) = self.configOptions.saveSecretKey;
     if (saveSecretKey) {
         // 通过用户的回调保存公钥
         saveSecretKey(secretKey);
@@ -224,7 +224,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 - (SASecretKey *)loadCurrentSecretKey {
     SASecretKey *secretKey = nil;
 
-    SASecretKey *(^loadSecretKey)(void) = SensorsAnalyticsSDK.configOptions.loadSecretKey;
+    SASecretKey *(^loadSecretKey)(void) = self.configOptions.loadSecretKey;
     if (loadSecretKey) {
         // 通过用户的回调获取公钥
         secretKey = loadSecretKey();

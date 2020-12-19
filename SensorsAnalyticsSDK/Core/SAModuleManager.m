@@ -24,6 +24,7 @@
 
 #import "SAModuleManager.h"
 #import "SAModuleProtocol.h"
+#import "SAConfigOptions.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
@@ -33,10 +34,18 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 @interface SAModuleManager ()
 
 @property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
+@property (nonatomic, copy) SAConfigOptions *configOptions;
 
 @end
 
 @implementation SAModuleManager
+
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
+    SAModuleManager.sharedInstance.configOptions = configOptions;
+
+    // 加密
+    [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
+}
 
 + (instancetype)sharedInstance {
     static dispatch_once_t onceToken;
@@ -57,6 +66,9 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
         NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
         if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
             id<SAModuleProtocol> object = [[(Class)cla alloc] init];
+            if ([object respondsToSelector:@selector(setConfigOptions:)]) {
+                object.configOptions = self.configOptions;
+            }
             object.enable = enable;
             self.modules[moduleName] = object;
         }
