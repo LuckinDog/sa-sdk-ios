@@ -43,8 +43,6 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 @property (nonatomic, copy) NSSet *presetUtms;
 /// 过滤后的用户自定义属性
 @property (nonatomic, copy) NSSet *sourceChannels;
-/// SDK初始化时的 ConfigOptions
-@property (nonatomic, copy) SAConfigOptions *configOptions;
 
 @property (nonatomic, strong) NSURL *deeplinkURL;
 
@@ -55,7 +53,6 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _configOptions = SensorsAnalyticsSDK.configOptions;
         // 设置需要解析的预置属性名
         _presetUtms = [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
         _utms = [NSMutableDictionary dictionary];
