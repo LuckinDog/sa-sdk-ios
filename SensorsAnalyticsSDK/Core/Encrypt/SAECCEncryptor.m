@@ -87,4 +87,14 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
     return nil;
 }
 
+- (NSData *)random16ByteData {
+    NSUInteger length = 16;
+    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
+    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
+    for (NSUInteger i = 0; i < length; i++) {
+        [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
+    }
+    return [randomString dataUsingEncoding:NSUTF8StringEncoding];
+}
+
 @end

@@ -32,7 +32,6 @@
 #import "SAConstants+Private.h"
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "SAAbstractEncryptor.h"
 #import "SAAESEncryptor.h"
 #import "SARSAEncryptor.h"
 #import "SAECCEncryptor.h"
@@ -287,7 +286,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (BOOL)updatekeyEncryptor {
-    if ([self isECCEncryption]) {
+    if ([self.secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
         if (!NSClassFromString(kSAEncryptECCClassName)) {
             NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
             return NO;
@@ -326,7 +325,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return YES;
     }
 
-    self.originalAESKey = [self isECCEncryption] ? [self random16BitStringData] : [self random16ByteData];
+    self.originalAESKey = self.keyEncryptor.random16ByteData;
 
     return self.originalAESKey != nil;
 }
@@ -347,27 +346,6 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
 
     return self.encryptedAESKey != nil;
-}
-
-- (NSData *)random16ByteData {
-    unsigned char buf[16];
-    arc4random_buf(buf, sizeof(buf));
-    NSData *data = [NSData dataWithBytes:buf length:sizeof(buf)];
-    return data;
-}
-
-- (NSData *)random16BitStringData {
-    NSUInteger length = 16;
-    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
-    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
-    for (NSUInteger i = 0; i < length; i++) {
-        [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
-    }
-    return [randomString dataUsingEncoding:NSUTF8StringEncoding];
-}
-
-- (BOOL)isECCEncryption {
-    return [self.secretKey.key hasPrefix:kSAEncryptECCPrefix];
 }
 
 @end

@@ -39,6 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param obj 需要加密的对象
 - (nullable NSString *)encryptObject:(NSData *)obj;
 
+/// 生成 16 位随机数
+- (NSData *)random16ByteData;
+
 @end
 
 NS_ASSUME_NONNULL_END
