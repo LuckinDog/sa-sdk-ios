@@ -26,7 +26,9 @@
 #import "SAMethodHelper.h"
 #import "SAValidator.h"
 #import "SALog.h"
-#import "SAConstants+Private.h"
+
+NSString * const kSAEncryptECCPrefix = @"EC:";
+NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
 

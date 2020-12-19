@@ -20,6 +20,9 @@
 
 #import "SAAbstractEncryptor.h"
 
+extern NSString * const kSAEncryptECCPrefix;
+extern NSString * const kSAEncryptECCClassName;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAECCEncryptor : SAAbstractEncryptor
