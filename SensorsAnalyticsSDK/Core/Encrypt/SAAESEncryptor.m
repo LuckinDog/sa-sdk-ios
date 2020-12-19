@@ -29,8 +29,7 @@
 
 @interface SAAESEncryptor ()
 
-/// 转化为 NSData 格式的密钥
-@property (nonatomic, copy) NSData *secretKeyData;
+@property (nonatomic, copy) NSData *secretKey;
 
 @end
 
@@ -38,21 +37,19 @@
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithSecretKey:(NSString *)secretKey {
+- (instancetype)initWithSecretKey:(id)secretKey {
     self = [super initWithSecretKey:secretKey];
     if (self) {
-        [self setupSecretKeyData];
+        [self configWithSecretKey:secretKey];
     }
     return self;
 }
 
-- (void)setupSecretKeyData {
-    if (![SAValidator isValidString:self.secretKey]) {
-        SALogError(@"Enable AES encryption but the secret key is invalid!");
+- (void)configWithSecretKey:(id)secretKey {
+    if (![SAValidator isValidData:secretKey]) {
         return;
     }
-
-    self.secretKeyData = [self.secretKey dataUsingEncoding:NSUTF8StringEncoding];
+    self.secretKey = secretKey;
 }
 
 #pragma mark - Public Methods
@@ -63,7 +60,7 @@
         return nil;
     }
     
-    if (![SAValidator isValidData:self.secretKeyData]) {
+    if (![SAValidator isValidData:self.secretKey]) {
         SALogError(@"Enable AES encryption but the secret key data is invalid!");
         return nil;
     }
@@ -81,7 +78,7 @@
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
                                           kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
-                                          [self.secretKeyData bytes],
+                                          [self.secretKey bytes],
                                           kCCBlockSizeAES128,
                                           [ivData bytes],
                                           [data bytes],

@@ -30,7 +30,7 @@
 @interface SARSAEncryptor ()
 
 /// 异常字符处理后的公钥
-@property (nonatomic, copy) NSString *modifiedSecretKey;
+@property (nonatomic, copy) NSString *publicKey;
 
 @end
 
@@ -38,27 +38,26 @@
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithSecretKey:(NSString *)secretKey {
+- (instancetype)initWithSecretKey:(id)secretKey {
     self = [super initWithSecretKey:secretKey];
     if (self) {
-        [self setupModifiedSecretKey];
+        [self configWithSecretKey:secretKey];
     }
     return self;
 }
 
-- (void)setupModifiedSecretKey {
-    if (![SAValidator isValidString:self.secretKey]) {
-        SALogError(@"Enable RSA encryption but the secret key is invalid!");
+- (void)configWithSecretKey:(id)secretKey {
+    if (![SAValidator isValidString:secretKey]) {
         return;
     }
 
-    NSString *secretKeyCopy = [self.secretKey copy];
+    NSString *secretKeyCopy = [secretKey copy];
     secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\r" withString:@""];
     secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\t" withString:@""];
     secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@" "  withString:@""];
 
-    self.modifiedSecretKey = secretKeyCopy;
+    self.publicKey = secretKeyCopy;
 }
 
 #pragma mark - Public Methods
@@ -69,8 +68,8 @@
         return nil;
     }
     
-    if (![SAValidator isValidString:self.modifiedSecretKey]) {
-        SALogError(@"Enable RSA encryption but the modified secret key is invalid!");
+    if (![SAValidator isValidString:self.publicKey]) {
+        SALogError(@"Enable RSA encryption but the public key is invalid!");
         return nil;
     }
     
@@ -122,7 +121,7 @@
 #pragma mark – Private Methods
 
 - (SecKeyRef)addPublicKey {
-    NSString *key = [self.modifiedSecretKey copy];
+    NSString *key = [self.publicKey copy];
     
     // This will be base64 encoded, decode it.
     NSData *data = [[NSData alloc] initWithBase64EncodedString:key options:NSDataBase64DecodingIgnoreUnknownCharacters];

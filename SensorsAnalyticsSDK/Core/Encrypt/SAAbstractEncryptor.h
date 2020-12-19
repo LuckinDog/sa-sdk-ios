@@ -24,13 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAbstractEncryptor : NSObject
 
-/// 加密器的密钥（非对称加密时返回公钥）
-@property (nullable, nonatomic, copy) NSString *secretKey;
-
 /// 指定初始化方法，初始化加密器
 /// @param secretKey 初始化使用的密钥（非对称加密时为公钥）
 /// @return 加密器
-- (instancetype)initWithSecretKey:(NSString *)secretKey NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSecretKey:(id)secretKey NS_DESIGNATED_INITIALIZER;
 
 /// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;

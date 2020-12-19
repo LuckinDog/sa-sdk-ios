@@ -44,23 +44,23 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 - (instancetype)initWithSecretKey:(NSString *)secretKey {
     self = [super initWithSecretKey:secretKey];
     if (self) {
-        [self setupPublicKey];
+        [self configWithSecretKey:secretKey];
     }
     return self;
 }
 
-- (void)setupPublicKey {
-    if (![SAValidator isValidString:self.secretKey]) {
+- (void)configWithSecretKey:(id)secretKey {
+    if (![SAValidator isValidString:secretKey]) {
         SALogError(@"Enable ECC encryption but the secret key is invalid!");
         return;
     }
 
-    if (![self.secretKey hasPrefix:kSAEncryptECCPrefix]) {
+    if (![secretKey hasPrefix:kSAEncryptECCPrefix]) {
         SALogError(@"Enable ECC encryption but the secret key is not ECC key!");
         return;
     }
 
-    self.publicKey = [self.secretKey substringFromIndex:[kSAEncryptECCPrefix length]];
+    self.publicKey = [secretKey substringFromIndex:[kSAEncryptECCPrefix length]];
 }
 
 #pragma mark - Public Methods

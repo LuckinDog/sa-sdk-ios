@@ -26,10 +26,10 @@
 
 @implementation SAAbstractEncryptor
 
-- (instancetype)initWithSecretKey:(NSString *)secretKey {
+- (instancetype)initWithSecretKey:(id)secretKey {
     self = [super init];
     if (self) {
-        _secretKey = [secretKey copy];
+
     }
     return self;
 }
