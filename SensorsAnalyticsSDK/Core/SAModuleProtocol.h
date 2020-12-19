@@ -71,13 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) BOOL hasSecretKey;
 
-/// 保存公钥
-/// @param secretKey 需要保存的公钥
-- (void)saveSecretKey:(SASecretKey *)secretKey;
-
-/// 获取公钥
-- (SASecretKey *)loadCurrentSecretKey;
-
 /// 用于远程配置回调中处理并保存密钥
 /// @param encryptConfig 返回的
 - (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig;
@@ -85,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 加密数据
 /// @param obj 需要加密的 JSON 数据
 /// @return 返回加密后的数据
-- (nullable NSDictionary *)encryptionJSONObject:(id)obj;
+- (nullable NSDictionary *)encryptJSONObject:(id)obj;
 
 @end
 

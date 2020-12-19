@@ -31,6 +31,13 @@
     return method_getImplementation(aMethod);
 }
 
++ (IMP)implementationOfClassMethodSelector:(SEL)selector fromClass:(Class)aClass {
+    // 获取一个类方法的指针
+    Method aMethod = class_getClassMethod(aClass, selector);
+    // 返回该方法的实现
+    return method_getImplementation(aMethod);
+}
+
 + (void)addInstanceMethodWithSelector:(SEL)methodSelector fromClass:(Class)fromClass toClass:(Class)toClass {
     [self addInstanceMethodWithDestinationSelector:methodSelector sourceSelector:methodSelector fromClass:fromClass toClass:toClass];
 }

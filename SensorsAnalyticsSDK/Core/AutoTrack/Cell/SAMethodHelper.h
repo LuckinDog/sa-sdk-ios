@@ -34,6 +34,15 @@ NS_ASSUME_NONNULL_BEGIN
 + (IMP)implementationOfMethodSelector:(SEL)selector fromClass:(Class)aClass;
 
 /**
+ 获取一个类方法的实现
+
+ @param selector 方法名
+ @param aClass 方法所在的类
+ @return 方法的实现
+ */
++ (IMP)implementationOfClassMethodSelector:(SEL)selector fromClass:(Class)aClass;
+
+/**
  添加实例方法
  将 fromClass 中的 methodSelector 方法复制一个相同的方法到 toClass 中
  在这个方法调用之后，[toClass methodSelector] 和 [fromClass methodSelector] 两个方法运行时是一样的

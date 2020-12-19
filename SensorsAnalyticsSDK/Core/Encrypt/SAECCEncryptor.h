@@ -1,8 +1,8 @@
 //
-// SAValidator.h
+// SAECCEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/2/19.
+// Created by wenquan on 2020/12/2.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,19 +18,11 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "SAAbstractEncryptor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAValidator : NSObject
-
-+ (BOOL)isValidString:(NSString *)string;
-
-+ (BOOL)isValidDictionary:(NSDictionary *)dictionary;
-
-+ (BOOL)isValidArray:(NSArray *)array;
-
-+ (BOOL)isValidData:(NSData *)data;
+@interface SAECCEncryptor : SAAbstractEncryptor
 
 @end
 

@@ -166,20 +166,12 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
     return self.encryptManager.hasSecretKey;
 }
 
-- (nullable NSDictionary *)encryptionJSONObject:(nonnull id)obj {
-    return [self.encryptManager encryptionJSONObject:obj];
+- (nullable NSDictionary *)encryptJSONObject:(nonnull id)obj {
+    return [self.encryptManager encryptJSONObject:obj];
 }
 
 - (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
     [self.encryptManager handleEncryptWithConfig:encryptConfig];
-}
-
-- (nonnull SASecretKey *)loadCurrentSecretKey {
-    return [self.encryptManager loadCurrentSecretKey];
-}
-
-- (void)saveSecretKey:(nonnull SASecretKey *)secretKey {
-    [self.encryptManager saveSecretKey:secretKey];
 }
 
 @end
