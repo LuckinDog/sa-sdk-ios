@@ -135,7 +135,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         NSNumber *pkv = ecKeyDic[@"pkv"];
         NSString *type = ecKeyDic[@"type"];
         NSString *publicKey = ecKeyDic[@"public_key"];
-        if (![pkv isKindOfClass:[NSNumber class]] || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
+        if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
             return;
         }
 
@@ -145,7 +145,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         // 获取 RSA 密钥
         NSNumber *pkv = encryptConfig[@"pkv"];
         NSString *publicKey = encryptConfig[@"public_key"];
-        if (![pkv isKindOfClass:[NSNumber class]] || ![SAValidator isValidString:publicKey]) {
+        if (!pkv || ![SAValidator isValidString:publicKey]) {
             return;
         }
 
