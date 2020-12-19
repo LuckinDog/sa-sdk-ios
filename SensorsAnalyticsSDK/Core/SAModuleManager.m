@@ -45,7 +45,9 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
     // 加密
-    [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
+    if (configOptions.enableEncrypt) {
+        [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
+    }
 }
 
 + (instancetype)sharedInstance {
