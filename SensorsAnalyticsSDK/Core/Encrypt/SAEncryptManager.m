@@ -164,17 +164,17 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 - (NSDictionary *)encryptJSONObject:(id)obj {
     if (!obj) {
-        SALogError(@"Enable encryption but the input obj is invalid!");
+        SALogDebug(@"Enable encryption but the input obj is invalid!");
         return nil;
     }
 
     if (![self hasSecretKey]) {
-        SALogError(@"Enable encryption but the secret key is invalid!");
+        SALogDebug(@"Enable encryption but the secret key is invalid!");
         return nil;
     }
 
     if (![self encryptAESKey]) {
-        SALogError(@"Enable encryption but encrypt AES key is failed!");
+        SALogDebug(@"Enable encryption but encrypt AES key is failed!");
         return nil;
     }
 
