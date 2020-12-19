@@ -35,7 +35,6 @@
 #import "SALog.h"
 #import "SAFileStore.h"
 #import "SADateFormatter.h"
-#import "SADeviceOrientationManager.h"
 #import "SAValidator.h"
 #import "SAModuleManager.h"
 
@@ -89,8 +88,6 @@ NSString * const SAEventPresetPropertyLibMethod = @"$lib_method";
 NSString * const SAEventPresetPropertyLibVersion = @"$lib_version";
 /// SDK 版本
 NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
-
-static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orientation";
 
 #pragma mark -
 

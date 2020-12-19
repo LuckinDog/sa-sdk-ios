@@ -155,6 +155,9 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
             return [properties addEntriesFromDictionary:manager.properties];
         }
 #endif
+        if (manager.properties.count > 0) {
+            [properties addEntriesFromDictionary:manager.properties];
+        }
     }];
     return properties;
 }

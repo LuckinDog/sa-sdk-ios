@@ -108,7 +108,7 @@ static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orie
     if (disableSDK) {
         [self stopDeviceMotionUpdates];
     } else if (self.enable) {
-        [self stopDeviceMotionUpdates];
+        [self startDeviceMotionUpdates];
     }
 }
 
@@ -116,8 +116,9 @@ static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orie
 
 - (void)startDeviceMotionUpdates {
     if (self.cmmotionManager.isDeviceMotionAvailable && !self.cmmotionManager.isDeviceMotionActive) {
+        __weak SADeviceOrientationManager *weakSelf = self;
         [self.cmmotionManager startDeviceMotionUpdatesToQueue:self.updateQueue withHandler:^(CMDeviceMotion * _Nullable motion, NSError * _Nullable error) {
-            [self handleDeviceMotion:motion];
+            [weakSelf handleDeviceMotion:motion];
         }];
     }
 }

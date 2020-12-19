@@ -50,7 +50,6 @@
 #import <WebKit/WebKit.h>
 
 #import "SARemoteConfigManager.h"
-#import "SADeviceOrientationManager.h"
 #import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
