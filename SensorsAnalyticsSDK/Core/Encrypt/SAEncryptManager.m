@@ -43,7 +43,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 @interface SAEncryptManager ()
 
 /// 数据加密器（使用 AES 加密数据）
-@property (atomic, strong) SAAbstractEncryptor *dataEncryptor;
+@property (nonatomic, strong) SAAbstractEncryptor *dataEncryptor;
 
 /// 数据加密器的原始密钥（原始的 AES 密钥）
 @property (atomic, copy) NSData *originalAESKey;
@@ -52,10 +52,10 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 @property (atomic, copy) NSString *encryptedAESKey;
 
 /// 密钥加密器（使用 RSA/ECC 加密 AES 密钥）
-@property (atomic, strong) SAAbstractEncryptor *aesKeyEncryptor;
+@property (nonatomic, strong) SAAbstractEncryptor *keyEncryptor;
 
 /// 密钥加密器的公钥（RSA/ECC 的公钥）
-@property (atomic, strong) SASecretKey *secretKey;
+@property (nonatomic, strong) SASecretKey *secretKey;
 
 @end
 
@@ -112,7 +112,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 #pragma mark - SAEncryptModuleProtocol
 
 - (BOOL)hasSecretKey {
-    return self.dataEncryptor && self.aesKeyEncryptor;
+    return self.dataEncryptor && self.keyEncryptor;
 }
 
 - (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
@@ -255,7 +255,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return;
     }
 
-    if (![self updateAESKeyEncryptor]) {
+    if (![self updatekeyEncryptor]) {
         return;
     }
 
@@ -286,16 +286,16 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     return YES;
 }
 
-- (BOOL)updateAESKeyEncryptor {
+- (BOOL)updatekeyEncryptor {
     if ([self isECCEncryption]) {
         if (!NSClassFromString(kSAEncryptECCClassName)) {
             NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
             return NO;
         }
 
-        self.aesKeyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:self.secretKey.key];
+        self.keyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:self.secretKey.key];
     } else {
-        self.aesKeyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:self.secretKey.key];
+        self.keyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:self.secretKey.key];
     }
 
     return YES;
@@ -336,7 +336,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return YES;
     }
 
-    if (!self.aesKeyEncryptor) {
+    if (!self.keyEncryptor) {
         return NO;
     }
 
@@ -344,7 +344,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return NO;
     }
 
-    self.encryptedAESKey = [self.aesKeyEncryptor encryptObject:self.originalAESKey];
+    self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
 
     return self.encryptedAESKey != nil;
 }
