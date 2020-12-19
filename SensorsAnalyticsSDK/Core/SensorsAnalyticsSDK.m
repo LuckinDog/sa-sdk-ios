@@ -324,13 +324,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _trackChannelEventNames = [[NSMutableSet alloc] init];
 
              _trackTimer = [[SATrackTimer alloc] init];
-            
-            // 初始化 LinkHandler 处理 deepLink 相关操作
-            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDeeplink];
 
-            // 渠道联调诊断功能获取多渠道匹配开关
-            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
-            
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
             _presetEventNames = [NSSet setWithObjects:
