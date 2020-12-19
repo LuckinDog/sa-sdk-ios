@@ -23,12 +23,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SASecretKey;
+@class SAConfigOptions;
 
 @protocol SAModuleProtocol <NSObject>
 
 - (instancetype)init;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@optional
+
+@property (nonatomic, copy) SAConfigOptions *configOptions;
 
 @end
 

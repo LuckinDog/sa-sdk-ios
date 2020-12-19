@@ -29,7 +29,7 @@
 - (instancetype)initWithSecretKey:(id)secretKey {
     self = [super init];
     if (self) {
-
+        // base implementation
     }
     return self;
 }
@@ -39,5 +39,9 @@
     return nil;
 }
 
+- (NSData *)random16ByteData {
+    // base implementation
+    return nil;
+}
 
 @end

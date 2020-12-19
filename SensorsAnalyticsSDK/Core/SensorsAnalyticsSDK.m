@@ -153,7 +153,6 @@ static dispatch_once_t sdkInitializeOnceToken;
 
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
-static SAConfigOptions *sharedConfigOptions = nil;
 
 @interface SensorsAnalyticsSDK()
 
@@ -190,7 +189,7 @@ static SAConfigOptions *sharedConfigOptions = nil;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
-//@property (nonatomic, strong) SAConfigOptions *configOptions;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -238,8 +237,7 @@ static SAConfigOptions *sharedConfigOptions = nil;
                  (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
     }
     dispatch_once(&sdkInitializeOnceToken, ^{
-        sharedConfigOptions = [configOptions copy];
-        sharedInstance = [[SensorsAnalyticsSDK alloc] initWithDebugMode:SensorsAnalyticsDebugOff];
+        sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
     });
 }
@@ -262,18 +260,23 @@ static SAConfigOptions *sharedConfigOptions = nil;
                  andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     @try {
-        sharedConfigOptions = [[SAConfigOptions alloc]initWithServerURL:serverURL launchOptions:launchOptions];
-        self = [self initWithDebugMode:debugMode];
+
+        SAConfigOptions * options = [[SAConfigOptions alloc]initWithServerURL:serverURL launchOptions:launchOptions];
+        self = [self initWithConfigOptions:options debugMode:debugMode];
     } @catch(NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
     return self;
 }
 
-- (instancetype)initWithDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+- (instancetype)initWithConfigOptions:(nonnull SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     @try {
         self = [super init];
         if (self) {
+            _configOptions = [configOptions copy];
+
+            [SAModuleManager startWithConfigOptions:_configOptions];
+
             _networkTypePolicy = SensorsAnalyticsNetworkType3G |
                 SensorsAnalyticsNetworkType4G |
 #ifdef __IPHONE_14_1
@@ -292,7 +295,7 @@ static SAConfigOptions *sharedConfigOptions = nil;
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
             _network = [[SANetwork alloc] init];
-            [self setupSecurityPolicyWithConfigOptions:sharedConfigOptions];
+            [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
@@ -309,9 +312,6 @@ static SAConfigOptions *sharedConfigOptions = nil;
             
             NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
             _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
-            
-            // 加密
-            [SAModuleManager.sharedInstance setEnable:sharedConfigOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
             
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
@@ -354,18 +354,18 @@ static SAConfigOptions *sharedConfigOptions = nil;
             
             [self setupLaunchedState];
 
-            if (sharedConfigOptions.enableTrackAppCrash) {
+            if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
             [self configServerURLWithDebugMode:_debugMode showDebugModeWarning:YES];
             
-            if (sharedConfigOptions.enableLog) {
+            if (_configOptions.enableLog) {
                 [self enableLog:YES];
             }
             
             // WKWebView 打通
-            if (sharedConfigOptions.enableJavaScriptBridge || sharedConfigOptions.enableVisualizedAutoTrack) {
+            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
                 [self swizzleWebViewMethod];
             }
         }
@@ -375,14 +375,6 @@ static SAConfigOptions *sharedConfigOptions = nil;
     }
     
     return self;
-}
-
-- (SAConfigOptions *)configOptions {
-    return sharedConfigOptions;
-}
-
-+ (SAConfigOptions *)configOptions {
-    return sharedConfigOptions;
 }
 
 - (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
@@ -757,7 +749,7 @@ static SAConfigOptions *sharedConfigOptions = nil;
 }
 
 - (void)trackAppCrash {
-    sharedConfigOptions.enableTrackAppCrash = YES;
+    _configOptions.enableTrackAppCrash = YES;
     // Install uncaught exception handlers first
     [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
@@ -1434,7 +1426,7 @@ static SAConfigOptions *sharedConfigOptions = nil;
 
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
 
-    if (sharedConfigOptions.enableAutoAddChannelCallbackEvent) {
+    if (_configOptions.enableAutoAddChannelCallbackEvent) {
         [self track:event withProperties:propertyDict withTrackType:SensorsAnalyticsTrackTypeCode];
         return;
     }
@@ -1490,7 +1482,7 @@ static SAConfigOptions *sharedConfigOptions = nil;
             SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
 
-        if (sharedConfigOptions.enableAutoAddChannelCallbackEvent) {
+        if (_configOptions.enableAutoAddChannelCallbackEvent) {
             // 后端匹配逻辑已经不需要 $channel_device_info 信息
             // 这里仍然添加此字段是为了解决服务端版本兼容问题
             eventProperties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
@@ -2507,7 +2499,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)initRemoteConfigManager {
     // 初始化远程配置类
     SARemoteConfigOptions *options = [[SARemoteConfigOptions alloc] init];
-    options.configOptions = sharedConfigOptions;
+    options.configOptions = _configOptions;
     options.currentLibVersion = [self libVersion];
     
     __weak typeof(self) weakSelf = self;

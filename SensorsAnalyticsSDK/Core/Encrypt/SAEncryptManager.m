@@ -29,10 +29,8 @@
 #import "SAAlertController.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAFileStore.h"
-#import "SAConstants+Private.h"
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "SAAbstractEncryptor.h"
 #import "SAAESEncryptor.h"
 #import "SARSAEncryptor.h"
 #import "SAECCEncryptor.h"
@@ -43,7 +41,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 @interface SAEncryptManager ()
 
 /// 数据加密器（使用 AES 加密数据）
-@property (atomic, strong) SAAbstractEncryptor *dataEncryptor;
+@property (nonatomic, strong) SAAbstractEncryptor *dataEncryptor;
 
 /// 数据加密器的原始密钥（原始的 AES 密钥）
 @property (atomic, copy) NSData *originalAESKey;
@@ -52,10 +50,10 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 @property (atomic, copy) NSString *encryptedAESKey;
 
 /// 密钥加密器（使用 RSA/ECC 加密 AES 密钥）
-@property (atomic, strong) SAAbstractEncryptor *aesKeyEncryptor;
+@property (nonatomic, strong) SAAbstractEncryptor *keyEncryptor;
 
 /// 密钥加密器的公钥（RSA/ECC 的公钥）
-@property (atomic, strong) SASecretKey *secretKey;
+@property (nonatomic, strong) SASecretKey *secretKey;
 
 @end
 
@@ -112,7 +110,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 #pragma mark - SAEncryptModuleProtocol
 
 - (BOOL)hasSecretKey {
-    return self.dataEncryptor && self.aesKeyEncryptor;
+    return self.dataEncryptor && self.keyEncryptor;
 }
 
 - (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
@@ -205,7 +203,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return;
     }
 
-    void (^saveSecretKey)(SASecretKey *) = SensorsAnalyticsSDK.configOptions.saveSecretKey;
+    void (^saveSecretKey)(SASecretKey *) = self.configOptions.saveSecretKey;
     if (saveSecretKey) {
         // 通过用户的回调保存公钥
         saveSecretKey(secretKey);
@@ -225,7 +223,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 - (SASecretKey *)loadCurrentSecretKey {
     SASecretKey *secretKey = nil;
 
-    SASecretKey *(^loadSecretKey)(void) = SensorsAnalyticsSDK.configOptions.loadSecretKey;
+    SASecretKey *(^loadSecretKey)(void) = self.configOptions.loadSecretKey;
     if (loadSecretKey) {
         // 通过用户的回调获取公钥
         secretKey = loadSecretKey();
@@ -251,84 +249,39 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (void)updateEncryptor {
-    if (![self updateSecretKey]) {
-        return;
-    }
-
-    if (![self updateAESKeyEncryptor]) {
-        return;
-    }
-
-    if (![self updateOriginalAESKey]) {
-        return;
-    }
-
-    if (![self updateEncryptedAESKey]) {
-        return;
-    }
-
-    [self updateDataEncryptor];
-}
-
-- (BOOL)updateSecretKey {
     SASecretKey *secretKey = [self loadCurrentSecretKey];
     if (![SAValidator isValidString:secretKey.key]) {
-        return NO;
+        return;
     }
 
-    // 返回的密钥与已有的密钥一样则不需要更新
+    // 更新密钥（返回的密钥与已有的密钥一样则不需要更新）
     if ([self.secretKey.key isEqualToString:secretKey.key]) {
-        return NO;
+        return;
     }
-
     self.secretKey = secretKey;
 
-    return YES;
-}
-
-- (BOOL)updateAESKeyEncryptor {
-    if ([self isECCEncryption]) {
+    // 更新 AES 密钥加密器
+    if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
         if (!NSClassFromString(kSAEncryptECCClassName)) {
             NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
-            return NO;
+            return;
         }
 
-        self.aesKeyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:self.secretKey.key];
+        self.keyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey.key];
     } else {
-        self.aesKeyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:self.secretKey.key];
+        self.keyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey.key];
     }
 
-    return YES;
-}
-
-- (BOOL)updateOriginalAESKey {
-    self.originalAESKey = nil;
-    return [self createOriginalAESKey];
-}
-
-- (BOOL)updateEncryptedAESKey {
-    self.encryptedAESKey = nil;
-    return [self encryptAESKey];
-}
-
-- (BOOL)updateDataEncryptor {
-    if (![self createOriginalAESKey]) {
-        return NO;
+    // 更新原始的 AES 密钥
+    if (!self.originalAESKey) {
+        self.originalAESKey = self.keyEncryptor.random16ByteData;
     }
 
+    // 更新加密后的 AES 密钥
+    self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
+
+    // 更新数据加密器
     self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:self.originalAESKey];
-
-    return YES;
-}
-
-- (BOOL)createOriginalAESKey {
-    if (self.originalAESKey) {
-        return YES;
-    }
-
-    self.originalAESKey = [self isECCEncryption] ? [self random16BitStringData] : [self random16ByteData];
-
-    return self.originalAESKey != nil;
 }
 
 - (BOOL)encryptAESKey {
@@ -336,38 +289,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return YES;
     }
 
-    if (!self.aesKeyEncryptor) {
-        return NO;
-    }
-
-    if (![self createOriginalAESKey]) {
-        return NO;
-    }
-
-    self.encryptedAESKey = [self.aesKeyEncryptor encryptObject:self.originalAESKey];
+    self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
 
     return self.encryptedAESKey != nil;
-}
-
-- (NSData *)random16ByteData {
-    unsigned char buf[16];
-    arc4random_buf(buf, sizeof(buf));
-    NSData *data = [NSData dataWithBytes:buf length:sizeof(buf)];
-    return data;
-}
-
-- (NSData *)random16BitStringData {
-    NSUInteger length = 16;
-    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
-    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
-    for (NSUInteger i = 0; i < length; i++) {
-        [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
-    }
-    return [randomString dataUsingEncoding:NSUTF8StringEncoding];
-}
-
-- (BOOL)isECCEncryption {
-    return [self.secretKey.key hasPrefix:kSAEncryptECCPrefix];
 }
 
 @end

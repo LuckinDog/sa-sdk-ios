@@ -26,7 +26,9 @@
 #import "SAMethodHelper.h"
 #import "SAValidator.h"
 #import "SALog.h"
-#import "SAConstants+Private.h"
+
+NSString * const kSAEncryptECCPrefix = @"EC:";
+NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
 
@@ -78,13 +80,23 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
     
     Class class = NSClassFromString(kSAEncryptECCClassName);
     SEL selector = NSSelectorFromString(@"encrypt:withPublicKey:");
-    IMP methodIMP = [SAMethodHelper implementationOfClassMethodSelector:selector fromClass:class];
+    IMP methodIMP = [class methodForSelector:selector];
     if (methodIMP) {
         NSString *string = [[NSString alloc] initWithData:(NSData *)obj encoding:NSUTF8StringEncoding];
         return ((SAEEncryptImplementation)methodIMP)(class, selector, string, self.publicKey);
     }
     
     return nil;
+}
+
+- (NSData *)random16ByteData {
+    NSUInteger length = 16;
+    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
+    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
+    for (NSUInteger i = 0; i < length; i++) {
+        [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
+    }
+    return [randomString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 @end
