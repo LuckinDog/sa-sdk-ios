@@ -250,97 +250,44 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (void)updateEncryptor {
-    if (![self updateSecretKey]) {
-        return;
-    }
-
-    if (![self updateKeyEncryptor]) {
-        return;
-    }
-
-    if (![self updateOriginalAESKey]) {
-        return;
-    }
-
-    if (![self updateEncryptedAESKey]) {
-        return;
-    }
-
-    [self updateDataEncryptor];
-}
-
-- (BOOL)updateSecretKey {
     SASecretKey *secretKey = [self loadCurrentSecretKey];
     if (![SAValidator isValidString:secretKey.key]) {
-        return NO;
+        return;
     }
 
-    // 返回的密钥与已有的密钥一样则不需要更新
+    // 更新密钥（返回的密钥与已有的密钥一样则不需要更新）
     if ([self.secretKey.key isEqualToString:secretKey.key]) {
-        return NO;
+        return;
     }
-
     self.secretKey = secretKey;
 
-    return YES;
-}
-
-- (BOOL)updateKeyEncryptor {
-    if ([self.secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
+    // 更新 AES 密钥加密器
+    if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
         if (!NSClassFromString(kSAEncryptECCClassName)) {
             NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
-            return NO;
+            return;
         }
 
-        self.keyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:self.secretKey.key];
+        self.keyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey.key];
     } else {
-        self.keyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:self.secretKey.key];
+        self.keyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey.key];
     }
 
-    return YES;
-}
-
-- (BOOL)updateOriginalAESKey {
-    self.originalAESKey = nil;
-    return [self createOriginalAESKey];
-}
-
-- (BOOL)updateEncryptedAESKey {
-    self.encryptedAESKey = nil;
-    return [self encryptAESKey];
-}
-
-- (BOOL)updateDataEncryptor {
-    if (![self createOriginalAESKey]) {
-        return NO;
+    // 更新原始的 AES 密钥
+    if (!self.originalAESKey) {
+        self.originalAESKey = self.keyEncryptor.random16ByteData;
     }
 
+    // 更新加密后的 AES 密钥
+    self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
+
+    // 更新数据加密器
     self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:self.originalAESKey];
-
-    return YES;
-}
-
-- (BOOL)createOriginalAESKey {
-    if (self.originalAESKey) {
-        return YES;
-    }
-
-    self.originalAESKey = self.keyEncryptor.random16ByteData;
-
-    return self.originalAESKey != nil;
 }
 
 - (BOOL)encryptAESKey {
     if (self.encryptedAESKey) {
         return YES;
-    }
-
-    if (!self.keyEncryptor) {
-        return NO;
-    }
-
-    if (![self createOriginalAESKey]) {
-        return NO;
     }
 
     self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
