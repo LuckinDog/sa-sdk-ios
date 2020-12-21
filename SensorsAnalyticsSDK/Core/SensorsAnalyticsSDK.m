@@ -239,6 +239,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
+        
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
     });
 }
 
@@ -274,8 +276,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self = [super init];
         if (self) {
             _configOptions = [configOptions copy];
-
-            [SAModuleManager startWithConfigOptions:_configOptions];
 
             _networkTypePolicy = SensorsAnalyticsNetworkType3G |
                 SensorsAnalyticsNetworkType4G |
@@ -764,8 +764,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-
-//    [_linkHandler acquireColdLaunchDeepLinkInfo];
 
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
