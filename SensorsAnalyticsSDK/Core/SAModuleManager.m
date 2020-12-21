@@ -46,16 +46,13 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
 
     // 渠道联调诊断功能获取多渠道匹配开关
     [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
+    // 初始化 LinkHandler 处理 deepLink 相关操作
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDeeplink];
     
     // 加密
     if (configOptions.enableEncrypt) {
         [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
     }
-
-    // 初始化 LinkHandler 处理 deepLink 相关操作
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDeeplink];
-    // 渠道联调诊断功能获取多渠道匹配开关
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
 }
 
 + (instancetype)sharedInstance {

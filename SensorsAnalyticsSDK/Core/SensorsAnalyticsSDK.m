@@ -239,7 +239,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
-
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
     });
 }
@@ -324,7 +323,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _trackChannelEventNames = [[NSMutableSet alloc] init];
 
              _trackTimer = [[SATrackTimer alloc] init];
-            
+
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
             _presetEventNames = [NSSet setWithObjects:
