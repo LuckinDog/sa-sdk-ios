@@ -59,10 +59,15 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
         [self filterInvalidSourceChannnels];
         [self unarchiveSavedDeepLinkInfo];
-        [self handleLaunchOptions:_configOptions.launchOptions];
-        [self acquireColdLaunchDeepLinkInfo];
     }
     return self;
+}
+
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
+
+    [self handleLaunchOptions:_configOptions.launchOptions];
+    [self acquireColdLaunchDeepLinkInfo];
 }
 
 - (void)filterInvalidSourceChannnels {
