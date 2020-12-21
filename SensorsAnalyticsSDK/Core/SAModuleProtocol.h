@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 
-@property (nonatomic, copy) SAConfigOptions *configOptions;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 

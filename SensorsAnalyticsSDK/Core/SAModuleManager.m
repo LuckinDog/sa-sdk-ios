@@ -34,7 +34,7 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 @interface SAModuleManager ()
 
 @property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
-@property (nonatomic, copy) SAConfigOptions *configOptions;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 

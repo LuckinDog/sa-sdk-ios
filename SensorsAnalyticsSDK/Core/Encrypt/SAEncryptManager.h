@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
-@property (nonatomic, copy) SAConfigOptions *configOptions;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 
