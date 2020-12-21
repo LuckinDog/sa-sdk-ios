@@ -35,7 +35,7 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
 @interface SAModuleManager ()
 
 @property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
-@property (nonatomic, copy) SAConfigOptions *configOptions;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 
