@@ -244,6 +244,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
     });
 }
 
@@ -279,8 +280,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self = [super init];
         if (self) {
             _configOptions = [configOptions copy];
-
-            [SAModuleManager startWithConfigOptions:_configOptions];
 
             _networkTypePolicy = SensorsAnalyticsNetworkType3G |
                 SensorsAnalyticsNetworkType4G |
@@ -332,9 +331,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-
-            // 渠道联调诊断功能获取多渠道匹配开关
-            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -2888,6 +2884,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
         [sharedInstance initRemoteConfigManager];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
     });
     return sharedInstance;
 }
@@ -2900,6 +2897,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
     });
     return sharedInstance;
 }

@@ -43,6 +43,9 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
+    // 渠道联调诊断功能获取多渠道匹配开关
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
+    
     // 加密
     if (configOptions.enableEncrypt) {
         [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
