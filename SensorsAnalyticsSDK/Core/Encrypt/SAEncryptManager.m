@@ -135,7 +135,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         NSNumber *pkv = ecKeyDic[@"pkv"];
         NSString *type = ecKeyDic[@"type"];
         NSString *publicKey = ecKeyDic[@"public_key"];
-        if (![pkv isKindOfClass:[NSNumber class]] || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
+        if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
             return;
         }
 
@@ -145,7 +145,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         // 获取 RSA 密钥
         NSNumber *pkv = encryptConfig[@"pkv"];
         NSString *publicKey = encryptConfig[@"public_key"];
-        if (![pkv isKindOfClass:[NSNumber class]] || ![SAValidator isValidString:publicKey]) {
+        if (!pkv || ![SAValidator isValidString:publicKey]) {
             return;
         }
 
@@ -263,7 +263,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     // 更新 AES 密钥加密器
     if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
         if (!NSClassFromString(kSAEncryptECCClassName)) {
-            NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
+            NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件并增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
             return;
         }
 
