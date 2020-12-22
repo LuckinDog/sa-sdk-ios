@@ -161,39 +161,44 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (NSDictionary *)encryptJSONObject:(id)obj {
-    if (!obj) {
-        SALogDebug(@"Enable encryption but the input obj is invalid!");
+    @try {
+        if (!obj) {
+            SALogDebug(@"Enable encryption but the input obj is invalid!");
+            return nil;
+        }
+
+        if (![self hasSecretKey]) {
+            SALogDebug(@"Enable encryption but the secret key is invalid!");
+            return nil;
+        }
+
+        if (![self encryptAESKey]) {
+            SALogDebug(@"Enable encryption but encrypt AES key is failed!");
+            return nil;
+        }
+
+        // 使用 gzip 进行压缩
+        NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
+        NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *zippedData = [SAGzipUtility gzipData:encodingData];
+
+        // AES128 加密数据
+        NSString *encryptedString = [self.dataEncryptor encryptObject:zippedData];
+        if (![SAValidator isValidString:encryptedString]) {
+            return nil;
+        }
+
+        // 封装加密的数据结构
+        NSMutableDictionary *secretObj = [NSMutableDictionary dictionary];
+        secretObj[@"pkv"] = @(self.secretKey.version);
+        secretObj[@"ekey"] = self.encryptedAESKey;
+        secretObj[@"payload"] = encryptedString;
+        return [NSDictionary dictionaryWithDictionary:secretObj];
+    } @catch (NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
         return nil;
     }
-
-    if (![self hasSecretKey]) {
-        SALogDebug(@"Enable encryption but the secret key is invalid!");
-        return nil;
-    }
-
-    if (![self encryptAESKey]) {
-        SALogDebug(@"Enable encryption but encrypt AES key is failed!");
-        return nil;
-    }
-
-    // 使用 gzip 进行压缩
-    NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
-    NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *zippedData = [SAGzipUtility gzipData:encodingData];
-
-    // AES128 加密数据
-    NSString *encryptedString = [self.dataEncryptor encryptObject:zippedData];
-    if (![SAValidator isValidString:encryptedString]) {
-        return nil;
-    }
-
-    // 封装加密的数据结构
-    NSMutableDictionary *secretObj = [NSMutableDictionary dictionary];
-    secretObj[@"pkv"] = @(self.secretKey.version);
-    secretObj[@"ekey"] = self.encryptedAESKey;
-    secretObj[@"payload"] = encryptedString;
-    return [NSDictionary dictionaryWithDictionary:secretObj];
 }
 
 #pragma mark - Private Methods
@@ -236,7 +241,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     } else {
         // 通过本地获取公钥
         id secretKeyData = [SAFileStore unarchiveWithFileName:kSAEncryptSecretKey];
-        secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
+        if ([SAValidator isValidData:secretKeyData]) {
+            secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
+        }
 
         if (secretKey) {
             SALogDebug(@"Load secret key from localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
@@ -249,39 +256,43 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (void)updateEncryptor {
-    SASecretKey *secretKey = [self loadCurrentSecretKey];
-    if (![SAValidator isValidString:secretKey.key]) {
-        return;
-    }
-
-    // 更新密钥（返回的密钥与已有的密钥一样则不需要更新）
-    if ([self.secretKey.key isEqualToString:secretKey.key]) {
-        return;
-    }
-    self.secretKey = secretKey;
-
-    // 更新 AES 密钥加密器
-    if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
-        if (!NSClassFromString(kSAEncryptECCClassName)) {
-            NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件并增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
+    @try {
+        SASecretKey *secretKey = [self loadCurrentSecretKey];
+        if (![SAValidator isValidString:secretKey.key]) {
             return;
         }
 
-        self.keyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey.key];
-    } else {
-        self.keyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey.key];
+        // 更新密钥（返回的密钥与已有的密钥一样则不需要更新）
+        if ([self.secretKey.key isEqualToString:secretKey.key]) {
+            return;
+        }
+        self.secretKey = secretKey;
+
+        // 更新 AES 密钥加密器
+        if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
+            if (!NSClassFromString(kSAEncryptECCClassName)) {
+                NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件并增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
+                return;
+            }
+
+            self.keyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey.key];
+        } else {
+            self.keyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey.key];
+        }
+
+        // 更新原始的 AES 密钥
+        if (!self.originalAESKey) {
+            self.originalAESKey = self.keyEncryptor.random16ByteData;
+        }
+
+        // 更新加密后的 AES 密钥
+        self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
+
+        // 更新数据加密器
+        self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:self.originalAESKey];
+    } @catch (NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
     }
-
-    // 更新原始的 AES 密钥
-    if (!self.originalAESKey) {
-        self.originalAESKey = self.keyEncryptor.random16ByteData;
-    }
-
-    // 更新加密后的 AES 密钥
-    self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
-
-    // 更新数据加密器
-    self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:self.originalAESKey];
 }
 
 - (BOOL)encryptAESKey {
