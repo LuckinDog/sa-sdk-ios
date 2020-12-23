@@ -34,7 +34,7 @@ typedef void(^SALinkHandlerCallback)(NSString *_Nullable params, BOOL success, N
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
-@property (nonatomic, copy) SAConfigOptions *configOptions;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @property (nonatomic, copy) SALinkHandlerCallback linkHandlerCallback;
 
