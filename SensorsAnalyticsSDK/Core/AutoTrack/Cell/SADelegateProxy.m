@@ -135,15 +135,15 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     return [super class];
 }
 
-+ (void)invokeWithTarget:(NSObject *)target scrollView:(UIScrollView *)scrollView selector:(SEL)selector indexPath:(NSIndexPath *)indexPath {
++ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector scrollView:(UIScrollView *)scrollView indexPath:(NSIndexPath *)indexPath {
     Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
-    struct objc_super target_super_info = {
+    struct objc_super targetSuper = {
         .receiver = target,
         .super_class = originalClass
     };
     // 消息转发给原始类
-    void (*target_super_msg_send)(struct objc_super *, SEL, id, id) = (void *)&objc_msgSendSuper;
-    target_super_msg_send(&target_super_info, selector, scrollView, indexPath);
+    void (*func)(struct objc_super *, SEL, id, id) = (void *)&objc_msgSendSuper;
+    func(&targetSuper, selector, scrollView, indexPath);
     
     // 当 target 和 delegate 不相等时为消息转发, 此时无需重复采集事件
     if (target != scrollView.delegate) {
@@ -162,12 +162,12 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     SEL methodSelector = @selector(tableView:didSelectRowAtIndexPath:);
-    [SADelegateProxy invokeWithTarget:self scrollView:tableView selector:methodSelector indexPath:indexPath];
+    [SADelegateProxy invokeWithTarget:self selector:methodSelector scrollView:tableView indexPath:indexPath];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     SEL methodSelector = @selector(collectionView:didSelectItemAtIndexPath:);
-    [SADelegateProxy invokeWithTarget:self scrollView:collectionView selector:methodSelector indexPath:indexPath];
+    [SADelegateProxy invokeWithTarget:self selector:methodSelector scrollView:collectionView indexPath:indexPath];
 }
 
 @end
