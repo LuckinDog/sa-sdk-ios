@@ -1,8 +1,8 @@
 //
-//  JSCallOCViewController.h
+//  SATypeDescription.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 16/9/6.
+//  Created by 雨晗 on 1/18/16.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,12 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-@interface JSCallOCViewController : UIViewController
+@interface SATypeDescription : NSObject
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+
+@property (nonatomic, readonly) NSString *name;
 
 @end

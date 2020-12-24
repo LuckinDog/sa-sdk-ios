@@ -1,9 +1,9 @@
 //
-//  JSCallOCViewController.h
+//  UIScrollView+AutoTrack.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 16/9/6.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Created by 张敏超🍎 on 2019/6/19.
+//  Copyright © 2019 SensorsData. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,6 +20,18 @@
 
 #import <UIKit/UIKit.h>
 
-@interface JSCallOCViewController : UIViewController
+NS_ASSUME_NONNULL_BEGIN
+
+@interface UITableView (AutoTrack)
+
+- (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate;
 
 @end
+
+@interface UICollectionView (AutoTrack)
+
+- (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate;
+
+@end
+
+NS_ASSUME_NONNULL_END

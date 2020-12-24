@@ -1,8 +1,8 @@
 //
-//  JSCallOCViewController.h
+//  SAEnumDescription.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 16/9/6.
+//  Created by 雨晗 on 1/18/16.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,14 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import "SATypeDescription.h"
 
-@interface JSCallOCViewController : UIViewController
+@interface SAEnumDescription : SATypeDescription
+
+@property (nonatomic, assign, getter=isFlagsSet, readonly) BOOL flagSet;
+@property (nonatomic, copy, readonly) NSString *baseType;
+
+- (NSArray *)allValues; // array of NSNumber instances
 
 @end

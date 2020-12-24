@@ -1,8 +1,8 @@
 //
-//  JSCallOCViewController.h
+//  SATypeDescription.m
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 16/9/6.
+//  Created by 雨晗 on 1/18/16.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,22 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
 
-@interface JSCallOCViewController : UIViewController
+
+#import "SATypeDescription.h"
+
+@implementation SATypeDescription
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+    self = [super init];
+    if (self) {
+        _name = [dictionary[@"name"] copy];
+    }
+
+    return self;
+}
 
 @end

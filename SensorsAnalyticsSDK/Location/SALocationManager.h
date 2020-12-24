@@ -1,8 +1,8 @@
 //
-//  JSCallOCViewController.h
+//  SALocationManager.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 16/9/6.
+//  Created by 向作为 on 2018/5/7.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,22 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
+#import "SAModuleProtocol.h"
 
-@interface JSCallOCViewController : UIViewController
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SALocationManager : NSObject <SAPropertyModuleProtocol>
+
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
+
+@property (nonatomic, assign) CLLocationCoordinate2D coordinate;
+
+- (void)startUpdatingLocation;
+- (void)stopUpdatingLocation;
 
 @end
+
+NS_ASSUME_NONNULL_END
