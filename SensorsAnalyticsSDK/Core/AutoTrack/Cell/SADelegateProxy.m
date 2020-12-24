@@ -64,8 +64,10 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     if ([SADelegateProxy isKVOClass:realClass]) {
         // 记录 KVO 的父类(KVO 会重写 class 方法, 返回父类)
         [delegate setSensorsdata_className:NSStringFromClass([delegate class])];
-        // 在移除所有的 KVO 属性监听时, 系统会重置对象的 isa 指针为原有的类; 因此需要在移除监听时, 重新为代理对象设置新的子类, 来采集点击事件
-        [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
+        if ([realClass isKindOfClass:[NSObject class]]) {
+            // 在移除所有的 KVO 属性监听时, 系统会重置对象的 isa 指针为原有的类; 因此需要在移除监听时, 重新为代理对象设置新的子类, 来采集点击事件
+            [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
+        }
         
         // 给 KVO 的类添加 cell 点击方法, 采集点击事件
         [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:realClass];
@@ -83,9 +85,11 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     // 给新创建的类添加 cell 点击方法, 采集点击事件
     [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
     [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass];
-    
-    // 新建子类后,需要监听是否添加了 KVO, 因为添加 KVO 属性监听后, KVO 会重写 Class 方法, 导致获取的 Class 为神策添加的子类
-    [SAMethodHelper addInstanceMethodWithSelector:@selector(addObserver:forKeyPath:options:context:) fromClass:proxyClass toClass:dynamicClass];
+
+    if ([realClass isKindOfClass:[NSObject class]]) {
+        // 新建子类后,需要监听是否添加了 KVO, 因为添加 KVO 属性监听后, KVO 会重写 Class 方法, 导致获取的 Class 为神策添加的子类
+        [SAMethodHelper addInstanceMethodWithSelector:@selector(addObserver:forKeyPath:options:context:) fromClass:proxyClass toClass:dynamicClass];
+    }
     
     // 记录对象的原始类名 (因为 class 方法需要使用, 所以在重写 class 方法前设置)
     [delegate setSensorsdata_className:NSStringFromClass(realClass)];
@@ -203,7 +207,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 #pragma mark - Utils
 /// Delegate 的类前缀
 static NSString *const kSADelegateSuffix = @"__CN.SENSORSDATA";
-static NSString *const kSAKVODelegatePrefix = @"NSKVONotifying_";
+static NSString *const kSAKVODelegatePrefix = @"KVONotifying_";
 static NSString *const kSAClassSeparatedChar = @".";
 static long subClassIndex = 0;
 
