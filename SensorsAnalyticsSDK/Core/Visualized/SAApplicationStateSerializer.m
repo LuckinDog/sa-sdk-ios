@@ -93,18 +93,16 @@
     CGSize newSize = CGSizeMake(keyWindowSize.width * scale, keyWindowSize.height * scale);
     // 将上面得到的多张图片合并绘制为一张图片，最终得到 screenshotImage
     UIImage *screenshotImage = nil;
-    @autoreleasepool {
-        UIGraphicsBeginImageContext(newSize);
-        for (UIWindow *window in validWindows) {
-            UIImage *image = [self screenshotWithView:window afterScreenUpdates:NO];
-            if (image) {
-                CGPoint windowPoint = window.frame.origin;
-                [image drawInRect:CGRectMake(windowPoint.x * scale, windowPoint.y * scale, image.size.width * scale, image.size.height * scale)];
-            }
+    UIGraphicsBeginImageContext(newSize);
+    for (UIWindow *window in validWindows) {
+        UIImage *image = [self screenshotWithView:window afterScreenUpdates:NO];
+        if (image) {
+            CGPoint windowPoint = window.frame.origin;
+            [image drawInRect:CGRectMake(windowPoint.x * scale, windowPoint.y * scale, image.size.width * scale, image.size.height * scale)];
         }
-        screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
     }
+    screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
 
     // 绘制操作完成
     completionHandler(screenshotImage);
@@ -118,14 +116,12 @@
     UIImage *screenshotImage = nil;
     @try {
         CGSize size = currentView.bounds.size;
-        @autoreleasepool {
-            UIGraphicsBeginImageContextWithOptions(size, NO, 0);
-            CGRect rect = currentView.bounds;
-            //  drawViewHierarchyInRect:afterScreenUpdates: 截取一个UIView或者其子类中的内容，并且以位图的形式（bitmap）保存到UIImage中
-            [currentView drawViewHierarchyInRect:rect afterScreenUpdates:afterUpdates];
-            screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-        }
+        UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+        CGRect rect = currentView.bounds;
+        //  drawViewHierarchyInRect:afterScreenUpdates: 截取一个UIView或者其子类中的内容，并且以位图的形式（bitmap）保存到UIImage中
+        [currentView drawViewHierarchyInRect:rect afterScreenUpdates:afterUpdates];
+        screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
     } @catch (NSException *exception) {
         SALogError(@"screenshot fail，error %@: %@", self, exception);
     }
