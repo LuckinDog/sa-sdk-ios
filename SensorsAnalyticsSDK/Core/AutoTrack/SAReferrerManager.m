@@ -36,7 +36,7 @@
 
 @implementation SAReferrerManager
 
-- (NSDictionary *)getScreenURLsWithCurrentURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties {
+- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties serialQueue:(dispatch_queue_t)serialQueue {
     NSString *referrerURL = self.referrerURL;
     NSMutableDictionary *newProperties = [NSMutableDictionary dictionaryWithDictionary:eventProperties];
 
@@ -51,8 +51,10 @@
     // $referrer 内容以最终页面浏览事件中的 $url 为准
     self.referrerURL = newProperties[SA_EVENT_PROPERTY_SCREEN_URL];
     self.referrerProperties = newProperties;
-    [self cacheReferrerTitle:newProperties];
 
+    dispatch_async(serialQueue, ^{
+        [self cacheReferrerTitle:newProperties];
+    });
     return newProperties;
 }
 

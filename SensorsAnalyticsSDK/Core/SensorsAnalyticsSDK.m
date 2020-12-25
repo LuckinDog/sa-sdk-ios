@@ -2129,7 +2129,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(controller.class);
 
     // 添加 $url 和 $referrer 页面浏览相关属性
-    NSDictionary *newProperties = [_referrerManager getScreenURLsWithCurrentURL:currentURL eventProperties:eventProperties];
+    NSDictionary *newProperties = [_referrerManager propertiesWithURL:currentURL eventProperties:eventProperties serialQueue:self.serialQueue];
 
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:newProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
@@ -3248,7 +3248,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
-    NSDictionary *eventProperties = [_referrerManager getScreenURLsWithCurrentURL:url eventProperties:properties];
+    NSDictionary *eventProperties = [_referrerManager propertiesWithURL:url eventProperties:properties serialQueue:self.serialQueue];
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
