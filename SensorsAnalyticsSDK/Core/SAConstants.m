@@ -102,6 +102,14 @@ NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";
 //神策成立时间，2015-05-15 10:24:00.000，某些时间戳判断（毫秒）
 long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT = 1431656640000;
 
+#pragma mark--lib method
+NSString * const kSALibMethodAuto = @"autoTrack";
+NSString * const kSALibMethodCode = @"code";
+
+#pragma mark--track type
+NSString * const kSAEventTypeTrack = @"track";
+NSString * const kSAEventTypeSignup = @"track_signup";
+
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";
 NSString * const SA_PROFILE_SET_ONCE = @"profile_set_once";
