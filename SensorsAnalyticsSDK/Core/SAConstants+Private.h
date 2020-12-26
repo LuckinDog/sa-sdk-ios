@@ -89,6 +89,9 @@ extern NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
+
+extern NSString * const kSAEeventPropertyReferrerTitle;
+
 // 远程控制配置信息
 extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
 

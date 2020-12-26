@@ -78,6 +78,7 @@
 #import "SAEncryptSecretKeyHandler.h"
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
+#import "SAReferrerManager.h"
 
 #define VERSION @"2.2.4"
 
@@ -223,6 +224,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAEncryptSecretKeyHandler *secretKeyHandler;
 
+@property (nonatomic, strong) SAReferrerManager *referrerManager;
+
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -230,11 +233,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
     UInt8 _debugAlertViewHasShownNumber;
-    NSString *_referrerScreenUrl;
-    NSDictionary *_lastScreenTrackProperties;
     //进入非活动状态，比如双击 home、系统授权弹框
     BOOL _applicationWillResignActive;
-    BOOL _clearReferrerWhenAppEnd;
     SensorsAnalyticsNetworkType _networkTypePolicy;
 }
 
@@ -311,10 +311,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _appRelaunched = NO;
             _showDebugAlertView = YES;
             _debugAlertViewHasShownNumber = 0;
-            _referrerScreenUrl = nil;
-            _lastScreenTrackProperties = nil;
             _applicationWillResignActive = NO;
-            _clearReferrerWhenAppEnd = NO;
+
+            _referrerManager =[[SAReferrerManager alloc] init];
+            _referrerManager.enableReferrerTitle = configOptions.enableReferrerTitle;
             
             NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
             _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
@@ -1407,6 +1407,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 每次 track 时手机网络状态
             [eventPropertiesDic addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
 
+            if (self.configOptions.enableReferrerTitle) {
+                // 给 track 和 $sign_up 事件添加 $referrer_title 属性。如果公共属性中存在此属性时会被覆盖，此逻辑优先级更高
+                eventPropertiesDic[kSAEeventPropertyReferrerTitle] = self.referrerManager.referrerTitle;
+            }
+
             //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
             //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
             NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:event currentSysUpTime:currentSystemUpTime];
@@ -1414,7 +1419,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 eventPropertiesDic[@"event_duration"] = eventDuration;
             }
         }
-        
+
         if ([propertieDict isKindOfClass:[NSDictionary class]]) {
             [eventPropertiesDic addEntriesFromDictionary:propertieDict];
         }
@@ -1999,15 +2004,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSString *)getLastScreenUrl {
-    return _referrerScreenUrl;
+    return _referrerManager.referrerURL;
 }
 
 - (void)clearReferrerWhenAppEnd {
-    _clearReferrerWhenAppEnd = YES;
+    _referrerManager.isClearReferrer = YES;
 }
 
 - (NSDictionary *)getLastScreenTrackProperties {
-    return _lastScreenTrackProperties;
+    return _referrerManager.referrerProperties;
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
@@ -2131,35 +2136,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [_linkHandler clearUtmProperties];
     }
 
-    _lastScreenTrackProperties = [eventProperties copy];
+    if ([SAValidator isValidDictionary:properties]) {
+        [eventProperties addEntriesFromDictionary:properties];
+    }
 
-    NSString *currentScreenUrl;
+    NSString *currentURL;
     if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
         UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
-        currentScreenUrl = [screenAutoTrackerController getScreenUrl];
+        currentURL = [screenAutoTrackerController getScreenUrl];
     }
-    currentScreenUrl = [currentScreenUrl isKindOfClass:NSString.class] ? currentScreenUrl : NSStringFromClass(controller.class);
-    [eventProperties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
-    @synchronized(_referrerScreenUrl) {
-        if (_referrerScreenUrl) {
-            [eventProperties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
-        }
-        _referrerScreenUrl = currentScreenUrl;
-    }
+    currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(controller.class);
 
-    if (properties) {
-        NSMutableDictionary *tempProperties = [NSMutableDictionary dictionaryWithDictionary: _lastScreenTrackProperties];
-        if ([SAValidator isValidDictionary:properties]) {
-            [eventProperties addEntriesFromDictionary:properties];
-            [tempProperties addEntriesFromDictionary:properties];
-        }
-        _lastScreenTrackProperties = [tempProperties copy];
-    }
+    // 添加 $url 和 $referrer 页面浏览相关属性
+    NSDictionary *newProperties = [_referrerManager propertiesWithURL:currentURL eventProperties:eventProperties serialQueue:self.serialQueue];
 
     if (autoTrack) {
-        [self trackAutoEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties];
+        [self trackAutoEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:newProperties];
     } else {
-        [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties];
+        [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:newProperties];
     }
 }
 
@@ -2436,9 +2430,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if ([self isAutoTrackEnabled]) {
         // 追踪 AppEnd 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-            if (_clearReferrerWhenAppEnd) {
-                _referrerScreenUrl = nil;
-            }
+            [_referrerManager clearReferrer];
             [self trackAutoEvent:SA_EVENT_NAME_APP_END properties:nil];
         }
     }
@@ -3121,22 +3113,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
-    NSMutableDictionary *trackProperties = [[NSMutableDictionary alloc] init];
-    if (properties) {
-        [trackProperties addEntriesFromDictionary:properties];
-    }
-    @synchronized(_lastScreenTrackProperties) {
-        _lastScreenTrackProperties = properties;
-    }
-    
-    [trackProperties setValue:url forKey:SA_EVENT_PROPERTY_SCREEN_URL];
-    @synchronized(_referrerScreenUrl) {
-        if (_referrerScreenUrl) {
-            [trackProperties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
-        }
-        _referrerScreenUrl = url;
-    }
-    [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:trackProperties];
+    NSDictionary *eventProperties = [_referrerManager propertiesWithURL:url eventProperties:properties serialQueue:self.serialQueue];
+    [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties];
 }
 
 @end
