@@ -112,21 +112,6 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 
 @end
 
-#pragma mark - RxSwift
-
-@implementation SADelegateProxy (ThirdPart)
-
-+ (BOOL)isRxDelegateProxyClass:(Class)cla {
-    NSString *className = NSStringFromClass(cla);
-    // 判断类名是否为 RxCocoa 中的代理类名
-    if ([className hasSuffix:@"RxCollectionViewDelegateProxy"] || [className hasSuffix:@"RxTableViewDelegateProxy"]) {
-        return YES;
-    }
-    return NO;
-}
-
-@end
-
 #pragma mark - UITableViewDelegate & UICollectionViewDelegate
 
 @implementation SADelegateProxy (SubclassMethod)
