@@ -2509,8 +2509,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)clearKeychainData {
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
-    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationAccount service:kSAService];
-    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 #endif
 
 }

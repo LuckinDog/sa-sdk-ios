@@ -26,10 +26,10 @@
 
 #import "SALog.h"
 #import "SAKeyChainItemWrapper.h"
+
 NSString * const kSAService = @"com.sensorsdata.analytics.udid";
 NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
-NSString * const kSAAppInstallationAccount = @"com.sensorsdata.analytics.install";
-NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdata.analytics.install.disablecallback";
+
 @implementation SAKeyChainItemWrapper
 + (NSString *)saUdid {
     NSDictionary *result = [self fetchPasswordWithAccount:kSAUdidAccount service:kSAService];

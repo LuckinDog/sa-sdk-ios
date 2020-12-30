@@ -19,10 +19,10 @@
 //
 
 #import <Foundation/Foundation.h>
+
 extern  NSString * const kSAService;
 extern  NSString * const kSAUdidAccount;
-extern  NSString * const kSAAppInstallationAccount;
-extern  NSString * const kSAAppInstallationWithDisableCallbackAccount;
+
 @interface SAKeyChainItemWrapper : NSObject
 
 + (NSString *)saUdid;
