@@ -281,9 +281,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         }
 
         // 更新原始的 AES 密钥
-        if (!self.originalAESKey) {
-            self.originalAESKey = self.keyEncryptor.random16ByteData;
-        }
+        self.originalAESKey = self.keyEncryptor.random16ByteData;
 
         // 更新加密后的 AES 密钥
         self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
