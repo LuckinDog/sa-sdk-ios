@@ -1,8 +1,8 @@
 //
-// SAReactNativeManager.h
+// SAReferrerManager.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/8/13.
+// Created by 彭远洋 on 2020/12/9.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,13 +19,21 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAReactNativeManager : NSObject <SAModuleProtocol>
+@interface SAReferrerManager : NSObject
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
+@property (nonatomic, assign) BOOL isClearReferrer;
+@property (nonatomic, assign) BOOL enableReferrerTitle;
+
+@property (nonatomic, copy, readonly) NSDictionary *referrerProperties;
+@property (nonatomic, copy, readonly) NSString *referrerURL;
+@property (nonatomic, copy, readonly) NSString *referrerTitle;
+
+- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties serialQueue:(dispatch_queue_t)serialQueue;
+- (void)clearReferrer;
 
 @end
 
