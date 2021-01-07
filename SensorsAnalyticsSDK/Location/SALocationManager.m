@@ -35,6 +35,8 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, assign) BOOL isUpdatingLocation;
 
+@property (nonatomic, assign) CLLocationCoordinate2D coordinate;
+
 @end
 
 @implementation SALocationManager

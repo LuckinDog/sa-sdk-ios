@@ -53,16 +53,7 @@ static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orie
     return self;
 }
 
-#pragma mark - SALocationManagerProtocol
-
-+ (instancetype)sharedInstance {
-    static dispatch_once_t onceToken;
-    static SADeviceOrientationManager *manager = nil;
-    dispatch_once(&onceToken, ^{
-        manager = [[SADeviceOrientationManager alloc] init];
-    });
-    return manager;
-}
+#pragma mark - SAModuleProtocol
 
 - (void)setEnable:(BOOL)enable {
     _enable = enable;

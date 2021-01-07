@@ -29,9 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
 
-- (void)startDeviceMotionUpdates;
-- (void)stopDeviceMotionUpdates;
-
 @end
 
 NS_ASSUME_NONNULL_END
