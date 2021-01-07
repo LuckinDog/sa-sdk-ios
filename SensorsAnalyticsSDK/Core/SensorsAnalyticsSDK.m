@@ -1464,7 +1464,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         libProperties, SA_EVENT_LIB,
                         @(arc4random()), SA_EVENT_TRACK_ID,
                         nil];
-        } else if([type isEqualToString:@"track"]) {
+        } else if([type isEqualToString:kSAEventTypeTrack]) {
             NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]];
             [eventPropertiesDic addEntriesFromDictionary:presetPropertiesOfTrackType];
             
