@@ -81,7 +81,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (_dbStmtCache) CFRelease(_dbStmtCache);
     _dbStmtCache = NULL;
     sqlite3_close(_database);
-    sqlite3_shutdown();
     _isCreatedTable = NO;
     _isOpen = NO;
     SALogDebug(@"%@ close database", self);
