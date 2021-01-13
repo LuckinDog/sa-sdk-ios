@@ -34,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// view 是否可见
 + (BOOL)isVisibleForView:(UIView *)view;
 
+/// 是否为 RCTView，RCTView 默认重写了 hitTest: ，覆盖判断需要单独处理
++ (BOOL)isKindOfRCTView:(UIView *)view;
+
 /// 解析构造 web 元素
 + (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
 

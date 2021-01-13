@@ -41,7 +41,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
     for (UIView *otherView in allOtherViews) {
         // 是否为 RN 的 View
-        if ([SAAutoTrackUtils isKindOfRNView:otherView]) {
+        if ([self isKindOfRCTView:otherView]) {
             if ([self isCoveredOfRNView:view fromRNView:otherView]) {
                 return YES;
             }
@@ -133,6 +133,11 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 /// view 是否可见
 + (BOOL)isVisibleForView:(UIView *)view {
     return view.alpha > 0.01 && !view.isHidden;
+}
+
++ (BOOL)isKindOfRCTView:(UIView *)view {
+    Class RCTView = NSClassFromString(@"RCTView");
+    return RCTView && [view isKindOfClass:RCTView];
 }
 
 + (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
