@@ -92,13 +92,10 @@
     return @"WIFI";
 #endif
     NSString *network = @"NULL";
-    @try {
-        SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
-        SANetworkStatus status = [reachability currentReachabilityStatus];
-        
-        if (status == SAReachableViaWiFi) {
+    @try {        
+        if ([SAReachability sharedInstance].isReachableViaWiFi) {
             network = @"WIFI";
-        } else if (status == SAReachableViaWWAN) {
+        } else if ([SAReachability sharedInstance].isReachableViaWWAN) {
             static CTTelephonyNetworkInfo *netinfo = nil;
             NSString *currentRadioAccessTechnology = nil;
             

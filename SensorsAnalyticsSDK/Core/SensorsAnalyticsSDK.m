@@ -66,6 +66,7 @@
 #import "SAEventStore.h"
 #import "SAHTTPSession.h"
 #import "SANetwork.h"
+#import "SAReachability.h"
 #import "SAEventTracker.h"
 #import "SAScriptMessageHandler.h"
 #import "WKWebView+SABridge.h"
@@ -305,6 +306,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _network = [[SANetwork alloc] init];
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
+
+            [[SAReachability sharedInstance] startMonitoring];
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 

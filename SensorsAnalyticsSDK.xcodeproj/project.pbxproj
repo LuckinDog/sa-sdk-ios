@@ -533,8 +533,6 @@
 				881A414C253D7B4F00854F69 /* SAModuleProtocol.h */,
 				881A4158253D7B4F00854F69 /* SAObject+SAConfigOptions.h */,
 				881A40E9253D7B4F00854F69 /* SAObject+SAConfigOptions.m */,
-				881A40F2253D7B4F00854F69 /* SAReachability.h */,
-				881A4164253D7B4F00854F69 /* SAReachability.m */,
 				881A4152253D7B4F00854F69 /* SASecurityPolicy.h */,
 				881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */,
 				881A40EB253D7B4F00854F69 /* SASwizzle.h */,
@@ -774,6 +772,8 @@
 			children = (
 				881A414A253D7B4F00854F69 /* SANetwork.h */,
 				881A40E6253D7B4F00854F69 /* SANetwork.m */,
+				881A40F2253D7B4F00854F69 /* SAReachability.h */,
+				881A4164253D7B4F00854F69 /* SAReachability.m */,
 			);
 			path = Network;
 			sourceTree = "<group>";
