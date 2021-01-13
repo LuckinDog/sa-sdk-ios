@@ -58,14 +58,6 @@ static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFl
     return status;
 }
 
-/**
- * Queue a status change notification for the main thread.
- *
- * This is done to ensure that the notifications are received in the same order
- * as they are sent. If notifications are sent directly, it is possible that
- * a queued notification (for an earlier status condition) is processed after
- * the later update, resulting in the listener being left in the wrong state.
- */
 static void SAPostReachabilityStatusChange(SCNetworkReachabilityFlags flags, SAReachabilityStatusCallback block) {
     SAReachabilityStatus status = SAReachabilityStatusForFlags(flags);
     if (block) {
@@ -126,11 +118,11 @@ static void SAReachabilityReleaseCallback(const void *info) {
 
 + (instancetype)reachabilityInstanceForAddress:(const void *)address {
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr *)address);
-    SAReachability *manager = [[self alloc] initWithReachability:reachability];
+    SAReachability *reachabilityInstance = [[self alloc] initWithReachability:reachability];
 
     CFRelease(reachability);
 
-    return manager;
+    return reachabilityInstance;
 }
 
 - (instancetype)initWithReachability:(SCNetworkReachabilityRef)reachability {
@@ -138,7 +130,6 @@ static void SAReachabilityReleaseCallback(const void *info) {
     if (self) {
         _networkReachability = CFRetain(reachability);
         self.reachabilityStatus = SAReachabilityStatusUnknown;
-        [self startMonitoring];
     }
     return self;
 }
