@@ -58,32 +58,34 @@
     return txt;
 }
 
-+ (NSDictionary<NSString *, NSString *> *)radioAccessTechnologyMap {
-    static dispatch_once_t onceToken;
-    static NSDictionary<NSString *, NSString *> *map;
-    dispatch_once(&onceToken, ^{
-        NSMutableDictionary<NSString *, NSString *> *dic = [NSMutableDictionary dictionaryWithDictionary:@{
-            CTRadioAccessTechnologyGPRS: @"2G",
-            CTRadioAccessTechnologyEdge: @"2G",
-            CTRadioAccessTechnologyWCDMA: @"3G",
-            CTRadioAccessTechnologyHSDPA: @"3G",
-            CTRadioAccessTechnologyHSUPA: @"3G",
-            CTRadioAccessTechnologyCDMA1x: @"3G",
-            CTRadioAccessTechnologyCDMAEVDORev0: @"3G",
-            CTRadioAccessTechnologyCDMAEVDORevA: @"3G",
-            CTRadioAccessTechnologyCDMAEVDORevB: @"3G",
-            CTRadioAccessTechnologyeHRPD: @"3G",
-            CTRadioAccessTechnologyLTE: @"4G",
-        }];
++ (NSString *)networkStatusWithRadioAccessTechnology:(NSString *)value {
+    if ([value isEqualToString:CTRadioAccessTechnologyGPRS] ||
+        [value isEqualToString:CTRadioAccessTechnologyEdge]
+        ) {
+        return @"2G";
+    } else if ([value isEqualToString:CTRadioAccessTechnologyWCDMA] ||
+               [value isEqualToString:CTRadioAccessTechnologyHSDPA] ||
+               [value isEqualToString:CTRadioAccessTechnologyHSUPA] ||
+               [value isEqualToString:CTRadioAccessTechnologyCDMA1x] ||
+               [value isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0] ||
+               [value isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA] ||
+               [value isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB] ||
+               [value isEqualToString:CTRadioAccessTechnologyeHRPD]
+               ) {
+        return @"3G";
+    } else if ([value isEqualToString:CTRadioAccessTechnologyLTE]) {
+        return @"4G";
+    }
 #ifdef __IPHONE_14_1
-        if (@available(iOS 14.1, *)) {
-            dic[CTRadioAccessTechnologyNRNSA] = @"5G";
-            dic[CTRadioAccessTechnologyNR] = @"5G";
+    else if (@available(iOS 14.1, *)) {
+        if ([value isEqualToString:CTRadioAccessTechnologyNRNSA] ||
+            [value isEqualToString:CTRadioAccessTechnologyNR]
+            ) {
+            return @"5G";
         }
+    }
 #endif
-        map = [dic copy];
-    });
-    return map;
+    return @"UNKNOWN";
 }
 
 + (NSString *)currentNetworkStatus {
@@ -115,7 +117,7 @@
                 currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
             }
 
-            network = [self radioAccessTechnologyMap][currentRadioAccessTechnology] ?: @"UNKNOWN";
+            network = [self networkStatusWithRadioAccessTechnology:currentRadioAccessTechnology];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
