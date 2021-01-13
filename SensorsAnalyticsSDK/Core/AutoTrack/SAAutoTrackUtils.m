@@ -185,6 +185,18 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return YES;
 }
 
+// 判断是否为 RN 元素
++ (BOOL)isKindOfRNView:(UIView *)view {
+    NSArray <NSString *> *classNames = @[@"RCTSurfaceView", @"RCTSurfaceHostingView", @"RCTFPSGraph", @"RCTModalHostView", @"RCTView", @"RCTTextView", @"RCTInputAccessoryView", @"RCTInputAccessoryViewContent", @"RNSScreenContainerView", @"RNSScreen", @"RCTVideo"];
+    for (NSString *className in classNames) {
+        Class class = NSClassFromString(className);
+        if (class && [view isKindOfClass:class]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end
 
 #pragma mark -

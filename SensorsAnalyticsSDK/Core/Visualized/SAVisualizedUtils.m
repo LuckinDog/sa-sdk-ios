@@ -24,6 +24,7 @@
 
 #import "SAVisualizedUtils.h"
 #import "SAJSTouchEventView.h"
+#import "SAAutoTrackUtils.h"
 #import "SAVisualizedViewPathProperty.h"
 #import "SAJSONUtil.h"
 #import "SAVisualizedObjectSerializerManger.h"
@@ -40,7 +41,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
     for (UIView *otherView in allOtherViews) {
         // 是否为 RN 的 View
-        if ([SAVisualizedUtils isKindOfRNView:otherView]) {
+        if ([SAAutoTrackUtils isKindOfRNView:otherView]) {
             if ([self isCoveredOfRNView:view fromRNView:otherView]) {
                 return YES;
             }
@@ -94,11 +95,6 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
     CGRect otherRect = [fromView convertRect:fromView.bounds toView:nil];
     return CGRectContainsRect(otherRect, rect);
-}
-
-+ (BOOL)isKindOfRNView:(UIView *)view {
-    Class RNViewClass = NSClassFromString(@"RCTView");
-    return RNViewClass && [view isKindOfClass:RNViewClass];
 }
 
 // 根据层数，查询一个 view 所有可能覆盖的 view
