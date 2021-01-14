@@ -23,15 +23,25 @@
 
 #import "SAReachability.h"
 
+#import <SystemConfiguration/SystemConfiguration.h>
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <netinet/in.h>
 #import <netinet6/in6.h>
 #import <arpa/inet.h>
 #import <ifaddrs.h>
 #import <netdb.h>
-#import <SystemConfiguration/SystemConfiguration.h>
+
+#import "SALog.h"
 
 #pragma mark IPv6 Support
 //Reachability fully support IPv6.  For full details, see ReadMe.md.
+
+typedef NS_ENUM(NSInteger, SAReachabilityStatus) {
+    SAReachabilityStatusUnknown = -1,
+    SAReachabilityStatusNotReachable = 0,
+    SAReachabilityStatusViaWiFi = 1,
+    SAReachabilityStatusViaWWAN = 2,
+};
 
 typedef SAReachability * (^SAReachabilityStatusCallback)(SAReachabilityStatus status);
 
@@ -82,7 +92,9 @@ static void SAReachabilityReleaseCallback(const void *info) {
 @interface SAReachability ()
 
 @property (readonly, nonatomic, assign) SCNetworkReachabilityRef networkReachability;
-@property (readwrite, nonatomic, assign) SAReachabilityStatus reachabilityStatus;
+@property (nonatomic, strong) CTTelephonyNetworkInfo *networkInfo;
+@property (nonatomic, assign) SAReachabilityStatus reachabilityStatus;
+@property (nonatomic, copy) NSDictionary<NSString *, NSString *> *radioAccessTechnologyDic;
 
 @end
 
@@ -129,9 +141,37 @@ static void SAReachabilityReleaseCallback(const void *info) {
     self = [super init];
     if (self) {
         _networkReachability = CFRetain(reachability);
-        self.reachabilityStatus = SAReachabilityStatusUnknown;
+        _networkInfo = [[CTTelephonyNetworkInfo alloc] init];
+        _reachabilityStatus = SAReachabilityStatusUnknown;
+        
+        [self initRadioAccessTechnology];
     }
     return self;
+}
+
+- (void)initRadioAccessTechnology {
+    NSMutableDictionary<NSString *, NSString *> *dic = [NSMutableDictionary dictionaryWithDictionary:@{
+        CTRadioAccessTechnologyGPRS: @"2G",
+        CTRadioAccessTechnologyEdge: @"2G",
+        CTRadioAccessTechnologyWCDMA: @"3G",
+        CTRadioAccessTechnologyHSDPA: @"3G",
+        CTRadioAccessTechnologyHSUPA: @"3G",
+        CTRadioAccessTechnologyCDMA1x: @"3G",
+        CTRadioAccessTechnologyCDMAEVDORev0: @"3G",
+        CTRadioAccessTechnologyCDMAEVDORevA: @"3G",
+        CTRadioAccessTechnologyCDMAEVDORevB: @"3G",
+        CTRadioAccessTechnologyeHRPD: @"3G",
+        CTRadioAccessTechnologyLTE: @"4G",
+    }];
+    
+#ifdef __IPHONE_14_1
+    if (@available(iOS 14.1, *)) {
+        dic[CTRadioAccessTechnologyNRNSA] = @"5G";
+        dic[CTRadioAccessTechnologyNR] = @"5G";
+    }
+#endif
+    
+    _radioAccessTechnologyDic = [dic copy];
 }
 
 - (void)dealloc {
@@ -177,6 +217,61 @@ static void SAReachabilityReleaseCallback(const void *info) {
     }
     
     SCNetworkReachabilityUnscheduleFromRunLoop(self.networkReachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+}
+
+- (SensorsAnalyticsNetworkType)networkTypeOptions {
+    NSString *networkTypeString = self.networkTypeString;
+    
+    if ([@"NULL" isEqualToString:networkTypeString]) {
+        return SensorsAnalyticsNetworkTypeNONE;
+    } else if ([@"WIFI" isEqualToString:networkTypeString]) {
+        return SensorsAnalyticsNetworkTypeWIFI;
+    } else if ([@"2G" isEqualToString:networkTypeString]) {
+        return SensorsAnalyticsNetworkType2G;
+    } else if ([@"3G" isEqualToString:networkTypeString]) {
+        return SensorsAnalyticsNetworkType3G;
+    } else if ([@"4G" isEqualToString:networkTypeString]) {
+        return SensorsAnalyticsNetworkType4G;
+#ifdef __IPHONE_14_1
+    } else if ([@"5G" isEqualToString:networkTypeString]) {
+        return SensorsAnalyticsNetworkType5G;
+#endif
+    } else if ([@"UNKNOWN" isEqualToString:networkTypeString]) {
+        return SensorsAnalyticsNetworkType4G;
+    }
+    return SensorsAnalyticsNetworkTypeNONE;
+}
+
+- (NSString *)networkTypeString {
+#ifdef SA_UT
+    SALogDebug(@"In unit test, set NetWorkStates to wifi");
+    return @"WIFI";
+#endif
+    
+    @try {
+        if (self.isReachableViaWiFi) {
+            return @"WIFI";
+        }
+        
+        if (self.isReachableViaWWAN) {
+            NSString *currentRadioAccessTechnology = nil;
+#ifdef __IPHONE_12_0
+            if (@available(iOS 12.1, *)) {
+                currentRadioAccessTechnology = self.networkInfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
+            }
+#endif
+            // 测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
+            if (!currentRadioAccessTechnology) {
+                currentRadioAccessTechnology = self.networkInfo.currentRadioAccessTechnology;
+            }
+            
+            return self.radioAccessTechnologyDic[currentRadioAccessTechnology] ?: @"UNKNOWN";
+        }
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
+    
+    return @"NULL";
 }
 
 - (BOOL)isReachable {

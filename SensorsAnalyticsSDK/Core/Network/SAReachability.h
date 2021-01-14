@@ -18,13 +18,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSInteger, SAReachabilityStatus) {
-    SAReachabilityStatusUnknown = -1,
-    SAReachabilityStatusNotReachable = 0,
-    SAReachabilityStatusViaWiFi = 1,
-    SAReachabilityStatusViaWWAN = 2,
-};
+#import "SAConstants.h"
 
 #pragma mark IPv6 Support
 //Reachability fully support IPv6.  For full details, see ReadMe.md.
@@ -33,8 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAReachability : NSObject
 
-/// 网络触达状态
-@property (readonly, nonatomic, assign) SAReachabilityStatus reachabilityStatus;
+/// 当前网络类型（NS_OPTIONS 形式）
+@property (readonly, nonatomic, assign) SensorsAnalyticsNetworkType networkTypeOptions;
+
+/// 当前网络类型（NSString形式）
+@property (readonly, nonatomic, copy) NSString *networkTypeString;
 
 /// 是否有网络连接
 @property (readonly, nonatomic, assign, getter = isReachable) BOOL reachable;

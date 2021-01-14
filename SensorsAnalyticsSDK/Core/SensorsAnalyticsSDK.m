@@ -925,7 +925,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
     
-    BOOL isWifi = [[SACommonUtility currentNetworkStatus] isEqualToString:@"WIFI"];
+    BOOL isWifi = [SAReachability sharedInstance].isReachableViaWiFi;
     return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
 }
 
