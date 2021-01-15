@@ -33,9 +33,6 @@
 
 #import "SALog.h"
 
-#pragma mark IPv6 Support
-//Reachability fully support IPv6.  For full details, see ReadMe.md.
-
 typedef NS_ENUM(NSInteger, SAReachabilityStatus) {
     SAReachabilityStatusUnknown = -1,
     SAReachabilityStatusNotReachable = 0,
@@ -112,8 +109,7 @@ static void SAReachabilityReleaseCallback(const void *info) {
     return sharedInstance;
 }
 
-+ (instancetype)reachabilityInstance
-{
++ (instancetype)reachabilityInstance {
 #if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 90000)
     struct sockaddr_in6 address;
     bzero(&address, sizeof(address));

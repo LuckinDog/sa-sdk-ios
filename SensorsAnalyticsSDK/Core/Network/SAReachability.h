@@ -20,9 +20,6 @@
 #import <Foundation/Foundation.h>
 #import "SAConstants.h"
 
-#pragma mark IPv6 Support
-//Reachability fully support IPv6.  For full details, see ReadMe.md.
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAReachability : NSObject
