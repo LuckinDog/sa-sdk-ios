@@ -47,22 +47,22 @@ static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFl
         // The target host is not reachable.
         return SAReachabilityStatusNotReachable;
     }
-    
+
     SAReachabilityStatus returnValue = SAReachabilityStatusNotReachable;
-    
+
     if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
         /*
          If the target host is reachable and no connection is required then we'll assume (for now) that you're on Wi-Fi...
          */
         returnValue = SAReachabilityStatusViaWiFi;
     }
-    
+
     if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand) != 0) ||
          (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0)) {
         /*
          ... and the connection is on-demand (or on-traffic) if the calling application is using the CFSocketStream or higher APIs...
          */
-        
+
         if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0) {
             /*
              ... and no [user] intervention is needed...
@@ -70,14 +70,14 @@ static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFl
             returnValue = SAReachabilityStatusViaWiFi;
         }
     }
-    
+
     if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN) {
         /*
          ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
          */
         returnValue = SAReachabilityStatusViaWWAN;
     }
-    
+
     return returnValue;
 }
 
