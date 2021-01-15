@@ -43,26 +43,42 @@ typedef NS_ENUM(NSInteger, SAReachabilityStatus) {
 typedef SAReachability * (^SAReachabilityStatusCallback)(SAReachabilityStatus status);
 
 static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFlags flags) {
-    BOOL isReachable = ((flags & kSCNetworkReachabilityFlagsReachable) != 0);
-    BOOL needsConnection = ((flags & kSCNetworkReachabilityFlagsConnectionRequired) != 0);
-    BOOL canConnectionAutomatically = (((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) || ((flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0));
-    BOOL canConnectWithoutUserInteraction = (canConnectionAutomatically && (flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0);
-    BOOL isNetworkReachable = (isReachable && (!needsConnection || canConnectWithoutUserInteraction));
-
-    SAReachabilityStatus status = SAReachabilityStatusUnknown;
-    if (isNetworkReachable == NO) {
-        status = SAReachabilityStatusNotReachable;
+    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0) {
+        // The target host is not reachable.
+        return SAReachabilityStatusNotReachable;
     }
-#if    TARGET_OS_IPHONE
-    else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
-        status = SAReachabilityStatusViaWWAN;
+    
+    SAReachabilityStatus returnValue = SAReachabilityStatusNotReachable;
+    
+    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
+        /*
+         If the target host is reachable and no connection is required then we'll assume (for now) that you're on Wi-Fi...
+         */
+        returnValue = SAReachabilityStatusViaWiFi;
     }
-#endif
-    else {
-        status = SAReachabilityStatusViaWiFi;
+    
+    if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand) != 0) ||
+         (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0)) {
+        /*
+         ... and the connection is on-demand (or on-traffic) if the calling application is using the CFSocketStream or higher APIs...
+         */
+        
+        if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0) {
+            /*
+             ... and no [user] intervention is needed...
+             */
+            returnValue = SAReachabilityStatusViaWiFi;
+        }
     }
-
-    return status;
+    
+    if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN) {
+        /*
+         ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
+         */
+        returnValue = SAReachabilityStatusViaWWAN;
+    }
+    
+    return returnValue;
 }
 
 static void SAPostReachabilityStatusChange(SCNetworkReachabilityFlags flags, SAReachabilityStatusCallback block) {
