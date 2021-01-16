@@ -107,7 +107,6 @@ static void SAReachabilityReleaseCallback(const void *info) {
 @property (readonly, nonatomic, assign) SCNetworkReachabilityRef networkReachability;
 @property (readonly, nonatomic, strong) CTTelephonyNetworkInfo *networkInfo;
 @property (atomic, assign) SAReachabilityStatus reachabilityStatus;
-@property (readonly, nonatomic, copy) NSDictionary<NSString *, NSString *> *radioAccessTechnologyDic;
 
 @end
 
@@ -156,34 +155,8 @@ static void SAReachabilityReleaseCallback(const void *info) {
         _networkReachability = CFRetain(reachability);
         _networkInfo = [[CTTelephonyNetworkInfo alloc] init];
         self.reachabilityStatus = SAReachabilityStatusUnknown;
-        [self initRadioAccessTechnology];
     }
     return self;
-}
-
-- (void)initRadioAccessTechnology {
-    NSMutableDictionary<NSString *, NSString *> *dic = [NSMutableDictionary dictionaryWithDictionary:@{
-        CTRadioAccessTechnologyGPRS: @"2G",
-        CTRadioAccessTechnologyEdge: @"2G",
-        CTRadioAccessTechnologyWCDMA: @"3G",
-        CTRadioAccessTechnologyHSDPA: @"3G",
-        CTRadioAccessTechnologyHSUPA: @"3G",
-        CTRadioAccessTechnologyCDMA1x: @"3G",
-        CTRadioAccessTechnologyCDMAEVDORev0: @"3G",
-        CTRadioAccessTechnologyCDMAEVDORevA: @"3G",
-        CTRadioAccessTechnologyCDMAEVDORevB: @"3G",
-        CTRadioAccessTechnologyeHRPD: @"3G",
-        CTRadioAccessTechnologyLTE: @"4G",
-    }];
-    
-#ifdef __IPHONE_14_1
-    if (@available(iOS 14.1, *)) {
-        dic[CTRadioAccessTechnologyNRNSA] = @"5G";
-        dic[CTRadioAccessTechnologyNR] = @"5G";
-    }
-#endif
-    
-    _radioAccessTechnologyDic = [dic copy];
 }
 
 - (void)dealloc {
@@ -277,7 +250,7 @@ static void SAReachabilityReleaseCallback(const void *info) {
                 currentRadioAccessTechnology = self.networkInfo.currentRadioAccessTechnology;
             }
             
-            return self.radioAccessTechnologyDic[currentRadioAccessTechnology] ?: @"UNKNOWN";
+            return [self networkStatusWithRadioAccessTechnology:currentRadioAccessTechnology];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
@@ -296,6 +269,38 @@ static void SAReachabilityReleaseCallback(const void *info) {
 
 - (BOOL)isReachableViaWiFi {
     return self.reachabilityStatus == SAReachabilityStatusViaWiFi;
+}
+
+#pragma mark – Private Methods
+
+- (NSString *)networkStatusWithRadioAccessTechnology:(NSString *)value {
+    if ([value isEqualToString:CTRadioAccessTechnologyGPRS] ||
+        [value isEqualToString:CTRadioAccessTechnologyEdge]
+        ) {
+        return @"2G";
+    } else if ([value isEqualToString:CTRadioAccessTechnologyWCDMA] ||
+               [value isEqualToString:CTRadioAccessTechnologyHSDPA] ||
+               [value isEqualToString:CTRadioAccessTechnologyHSUPA] ||
+               [value isEqualToString:CTRadioAccessTechnologyCDMA1x] ||
+               [value isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0] ||
+               [value isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA] ||
+               [value isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB] ||
+               [value isEqualToString:CTRadioAccessTechnologyeHRPD]
+               ) {
+        return @"3G";
+    } else if ([value isEqualToString:CTRadioAccessTechnologyLTE]) {
+        return @"4G";
+    }
+#ifdef __IPHONE_14_1
+    else if (@available(iOS 14.1, *)) {
+        if ([value isEqualToString:CTRadioAccessTechnologyNRNSA] ||
+            [value isEqualToString:CTRadioAccessTechnologyNR]
+            ) {
+            return @"5G";
+        }
+    }
+#endif
+    return @"UNKNOWN";
 }
 
 @end
