@@ -48,7 +48,7 @@ static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFl
         return SAReachabilityStatusNotReachable;
     }
 
-    SAReachabilityStatus returnValue = SAReachabilityStatusNotReachable;
+    SAReachabilityStatus returnValue = SAReachabilityStatusUnknown;
 
     if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
         /*
@@ -137,11 +137,7 @@ static void SAReachabilityReleaseCallback(const void *info) {
     address.sin_family = AF_INET;
 #endif
 
-    return [self reachabilityInstanceForAddress:&address];
-}
-
-+ (instancetype)reachabilityInstanceForAddress:(const void *)address {
-    SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr *)address);
+    SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr *)&address);
     SAReachability *reachabilityInstance = [[self alloc] initWithReachability:reachability];
 
     CFRelease(reachability);
@@ -152,7 +148,9 @@ static void SAReachabilityReleaseCallback(const void *info) {
 - (instancetype)initWithReachability:(SCNetworkReachabilityRef)reachability {
     self = [super init];
     if (self) {
-        _networkReachability = CFRetain(reachability);
+        if (reachability != NULL) {
+            _networkReachability = CFRetain(reachability);
+        }
         _networkInfo = [[CTTelephonyNetworkInfo alloc] init];
         self.reachabilityStatus = SAReachabilityStatusUnknown;
     }
@@ -221,18 +219,12 @@ static void SAReachabilityReleaseCallback(const void *info) {
     } else if ([@"5G" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkType5G;
 #endif
-    } else if ([@"UNKNOWN" isEqualToString:networkTypeString]) {
-        return SensorsAnalyticsNetworkType4G;
     }
-    return SensorsAnalyticsNetworkTypeNONE;
+    
+    return SensorsAnalyticsNetworkTypeUnknown;
 }
 
 - (NSString *)networkTypeString {
-#ifdef SA_UT
-    SALogDebug(@"In unit test, set NetWorkStates to wifi");
-    return @"WIFI";
-#endif
-    
     @try {
         if (self.isReachableViaWiFi) {
             return @"WIFI";
