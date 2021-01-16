@@ -105,9 +105,9 @@ static void SAReachabilityReleaseCallback(const void *info) {
 @interface SAReachability ()
 
 @property (readonly, nonatomic, assign) SCNetworkReachabilityRef networkReachability;
-@property (nonatomic, strong) CTTelephonyNetworkInfo *networkInfo;
+@property (readonly, nonatomic, strong) CTTelephonyNetworkInfo *networkInfo;
 @property (nonatomic, assign) SAReachabilityStatus reachabilityStatus;
-@property (nonatomic, copy) NSDictionary<NSString *, NSString *> *radioAccessTechnologyDic;
+@property (readonly, nonatomic, copy) NSDictionary<NSString *, NSString *> *radioAccessTechnologyDic;
 
 @end
 
@@ -148,8 +148,7 @@ static void SAReachabilityReleaseCallback(const void *info) {
     if (self) {
         _networkReachability = CFRetain(reachability);
         _networkInfo = [[CTTelephonyNetworkInfo alloc] init];
-        _reachabilityStatus = SAReachabilityStatusUnknown;
-        
+        self.reachabilityStatus = SAReachabilityStatusUnknown;
         [self initRadioAccessTechnology];
     }
     return self;
