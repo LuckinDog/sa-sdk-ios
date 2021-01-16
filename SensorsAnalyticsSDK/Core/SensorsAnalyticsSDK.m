@@ -935,6 +935,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
 
+    // handleSchemeUrl 在网络变化之前，这里重新获取一次
+    [[SAReachability sharedInstance] startMonitoring];
+
     if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
         //点击图 & 可视化全埋点
         return [self handleAutoTrackURL:url];
