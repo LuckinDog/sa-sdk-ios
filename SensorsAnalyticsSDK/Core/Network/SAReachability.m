@@ -106,7 +106,7 @@ static void SAReachabilityReleaseCallback(const void *info) {
 
 @property (readonly, nonatomic, assign) SCNetworkReachabilityRef networkReachability;
 @property (readonly, nonatomic, strong) CTTelephonyNetworkInfo *networkInfo;
-@property (nonatomic, assign) SAReachabilityStatus reachabilityStatus;
+@property (atomic, assign) SAReachabilityStatus reachabilityStatus;
 @property (readonly, nonatomic, copy) NSDictionary<NSString *, NSString *> *radioAccessTechnologyDic;
 
 @end
