@@ -24,17 +24,16 @@
 
 #import "SAReachability.h"
 
-#import <SystemConfiguration/SystemConfiguration.h>
-#import <netinet/in.h>
-
 #if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 90000)
 #import <netinet6/in6.h>
+#else
+#import <netinet/in.h>
 #endif
 
 #import <arpa/inet.h>
 #import <ifaddrs.h>
 #import <netdb.h>
-
+#import <SystemConfiguration/SystemConfiguration.h>
 #import "SALog.h"
 
 typedef NS_ENUM(NSInteger, SAReachabilityStatus) {
