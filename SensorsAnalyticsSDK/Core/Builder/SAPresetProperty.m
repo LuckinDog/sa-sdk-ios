@@ -145,7 +145,7 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
 }
 
 - (NSDictionary *)currentNetworkProperties {
-    NSString *networkType = [SAReachability sharedInstance].networkTypeString;
+    NSString *networkType = [SANetwork networkTypeString];
 
     NSMutableDictionary *networkProperties = [NSMutableDictionary dictionary];
     networkProperties[SAEventPresetPropertyNetworkType] = networkType;

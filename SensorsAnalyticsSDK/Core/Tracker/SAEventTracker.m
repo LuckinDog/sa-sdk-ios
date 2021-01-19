@@ -89,7 +89,7 @@
         return NO;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
-    if (!([SAReachability sharedInstance].networkTypeOptions & self.networkTypePolicy)) {
+    if (!([SANetwork networkTypeOptions] & self.networkTypePolicy)) {
         return NO;
     }
     return YES;

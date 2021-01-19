@@ -25,12 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAReachability : NSObject
 
-/// 当前网络类型（NS_OPTIONS 形式）
-@property (readonly, nonatomic, assign) SensorsAnalyticsNetworkType networkTypeOptions;
-
-/// 当前网络类型（NSString 形式）
-@property (readonly, nonatomic, copy) NSString *networkTypeString;
-
 /// 是否有网络连接
 @property (readonly, nonatomic, assign, getter = isReachable) BOOL reachable;
 

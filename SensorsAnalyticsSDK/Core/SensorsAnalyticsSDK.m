@@ -304,10 +304,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
+            [[SAReachability sharedInstance] startMonitoring];
+            
             _network = [[SANetwork alloc] init];
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
-
-            [[SAReachability sharedInstance] startMonitoring];
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
