@@ -935,7 +935,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
 
-    // handleSchemeUrl 在网络变化之前，这里重新获取一次
+    // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
     [[SAReachability sharedInstance] startMonitoring];
 
     if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {

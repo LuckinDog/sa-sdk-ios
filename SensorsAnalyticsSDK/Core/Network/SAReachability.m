@@ -1,20 +1,21 @@
-//  SASwizzler.h
-//  SensorsAnalyticsSDK
 //
-//  Created by 雨晗 on 1/20/16
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+// SAReachability.m
+// SensorsAnalyticsSDK
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Created by wenquan on 2021/1/19.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -40,7 +41,7 @@ typedef NS_ENUM(NSInteger, SAReachabilityStatus) {
     SAReachabilityStatusViaWWAN = 2,
 };
 
-typedef SAReachability * (^SAReachabilityStatusCallback)(SAReachabilityStatus status);
+typedef void (^SAReachabilityStatusCallback)(SAReachabilityStatus status);
 
 static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFlags flags) {
     if ((flags & kSCNetworkReachabilityFlagsReachable) == 0) {
@@ -57,8 +58,8 @@ static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFl
         returnValue = SAReachabilityStatusViaWiFi;
     }
 
-    if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand) != 0) ||
-         (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0)) {
+    if (((flags & kSCNetworkReachabilityFlagsConnectionOnDemand) != 0) ||
+        ((flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0)) {
         /*
          ... and the connection is on-demand (or on-traffic) if the calling application is using the CFSocketStream or higher APIs...
          */
@@ -179,7 +180,6 @@ static void SAReachabilityReleaseCallback(const void *info) {
         __strong __typeof(weakSelf) strongSelf = weakSelf;
 
         strongSelf.reachabilityStatus = status;
-        return strongSelf;
     };
 
     // 设置网络状态变化的回调
