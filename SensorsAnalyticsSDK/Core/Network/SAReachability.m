@@ -34,7 +34,6 @@
 #import "SALog.h"
 
 typedef NS_ENUM(NSInteger, SAReachabilityStatus) {
-    SAReachabilityStatusUnknown = -1,
     SAReachabilityStatusNotReachable = 0,
     SAReachabilityStatusViaWiFi = 1,
     SAReachabilityStatusViaWWAN = 2,
@@ -48,7 +47,7 @@ static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFl
         return SAReachabilityStatusNotReachable;
     }
 
-    SAReachabilityStatus returnValue = SAReachabilityStatusUnknown;
+    SAReachabilityStatus returnValue = SAReachabilityStatusNotReachable;
 
     if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
         /*
@@ -153,7 +152,7 @@ static void SAReachabilityReleaseCallback(const void *info) {
             _networkReachability = CFRetain(reachability);
         }
 
-        self.reachabilityStatus = SAReachabilityStatusUnknown;
+        self.reachabilityStatus = SAReachabilityStatusNotReachable;
     }
     return self;
 }

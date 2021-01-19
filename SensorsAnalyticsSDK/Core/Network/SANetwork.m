@@ -225,7 +225,6 @@
                 networkInfo = [[CTTelephonyNetworkInfo alloc] init];
             });
 
-
             NSString *currentRadioAccessTechnology = nil;
 #ifdef __IPHONE_12_0
             if (@available(iOS 12.1, *)) {
