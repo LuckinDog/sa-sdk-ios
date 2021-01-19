@@ -141,7 +141,9 @@ static void SAReachabilityReleaseCallback(const void *info) {
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr *)&address);
     SAReachability *reachabilityInstance = [[self alloc] initWithReachability:reachability];
 
-    CFRelease(reachability);
+    if (reachability != NULL) {
+        CFRelease(reachability);
+    }
 
     return reachabilityInstance;
 }
