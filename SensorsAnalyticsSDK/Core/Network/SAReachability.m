@@ -206,7 +206,7 @@ static void SAReachabilityReleaseCallback(const void *info) {
 
 - (SensorsAnalyticsNetworkType)networkTypeOptions {
     NSString *networkTypeString = self.networkTypeString;
-    
+
     if ([@"NULL" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkTypeNONE;
     } else if ([@"WIFI" isEqualToString:networkTypeString]) {
@@ -221,9 +221,10 @@ static void SAReachabilityReleaseCallback(const void *info) {
     } else if ([@"5G" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkType5G;
 #endif
+    } else if ([@"UNKNOWN" isEqualToString:networkTypeString]) {
+        return SensorsAnalyticsNetworkType4G;
     }
-    
-    return SensorsAnalyticsNetworkTypeUnknown;
+    return SensorsAnalyticsNetworkTypeNONE;
 }
 
 - (NSString *)networkTypeString {
