@@ -26,7 +26,11 @@
 
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <netinet/in.h>
+
+#if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 90000)
 #import <netinet6/in6.h>
+#endif
+
 #import <arpa/inet.h>
 #import <ifaddrs.h>
 #import <netdb.h>
