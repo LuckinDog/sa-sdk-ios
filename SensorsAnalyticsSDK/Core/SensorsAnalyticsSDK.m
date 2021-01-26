@@ -81,7 +81,7 @@
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.2.7"
+#define VERSION @"2.2.8"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
