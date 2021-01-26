@@ -2895,7 +2895,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
             eventDict[SA_EVENT_TRACK_ID] = @(arc4random());
 
-            NSMutableDictionary *libMDic = eventDict[SA_EVENT_LIB];
+            NSMutableDictionary *libMDic = [eventDict[SA_EVENT_LIB] mutableCopy];
             //update lib $app_version from super properties
             id appVersion = self->_superProperties[SAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
             if (appVersion) {
@@ -2906,7 +2906,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLib];
             [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLibVersion];
 
-            NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
+            NSMutableDictionary *propertiesDict = [eventDict[SA_EVENT_PROPERTIES] mutableCopy];
             if([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
