@@ -89,6 +89,9 @@ extern NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
+
+extern NSString * const kSAEeventPropertyReferrerTitle;
+
 // 远程控制配置信息
 extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
 
@@ -98,6 +101,14 @@ extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
 extern long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT;
+
+#pragma mark--lib method
+extern NSString * const kSALibMethodAuto;
+extern NSString * const kSALibMethodCode;
+
+#pragma mark--track
+extern NSString * const kSAEventTypeTrack;
+extern NSString * const kSAEventTypeSignup;
 
 #pragma mark--profile
 extern NSString * const SA_PROFILE_SET;
@@ -123,6 +134,8 @@ BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);
 
+#pragma mark - Scheme Host
+extern NSString * const kSASchemeHostRemoteConfig;
 
 #pragma mark - SF related notifications
 extern NSNotificationName const SA_TRACK_EVENT_NOTIFICATION;

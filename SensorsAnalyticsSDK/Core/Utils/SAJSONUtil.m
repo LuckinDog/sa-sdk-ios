@@ -60,46 +60,32 @@
     }
     //防止 float 精度丢失
     if ([newObj isKindOfClass:[NSNumber class]]) {
-        @try {
-            if ([newObj stringValue] && [[obj stringValue] rangeOfString:@"."].location != NSNotFound) {
-                return [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)obj).decimalValue];
-            } else {
-                return newObj;
-            }
-        } @catch (NSException *exception) {
+        if ([newObj stringValue] && [[newObj stringValue] rangeOfString:@"."].location != NSNotFound) {
+            return [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)newObj).decimalValue];
+        } else {
             return newObj;
         }
     }
-    
+
     // recurse on containers
-    if ([newObj isKindOfClass:[NSArray class]]) {
-        NSMutableArray *a = [NSMutableArray array];
-        for (id i in newObj) {
-            [a addObject:[self JSONSerializableObjectForObject:i]];
+    if ([newObj isKindOfClass:[NSArray class]] || [newObj isKindOfClass:[NSSet class]]) {
+        NSMutableArray *mutableArray = [NSMutableArray array];
+        for (id value in newObj) {
+            [mutableArray addObject:[self JSONSerializableObjectForObject:value]];
         }
-        return [NSArray arrayWithArray:a];
+        return [NSArray arrayWithArray:mutableArray];
     }
     if ([newObj isKindOfClass:[NSDictionary class]]) {
-        NSMutableDictionary *d = [NSMutableDictionary dictionary];
-        for (id key in newObj) {
-            NSString *stringKey;
+        NSMutableDictionary *mutableDic = [NSMutableDictionary dictionary];
+        [(NSDictionary *)newObj enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            NSString *stringKey = key;
             if (![key isKindOfClass:[NSString class]]) {
                 stringKey = [key description];
-                SALogWarn(@"%@ warning: property keys should be strings. got: %@. coercing to: %@", self, [key class], stringKey);
-            } else {
-                stringKey = [NSString stringWithString:key];
+                SALogWarn(@"property keys should be strings. but property: %@, type: %@, key: %@", newObj, [key class], key);
             }
-            id v = [self JSONSerializableObjectForObject:obj[key]];
-            d[stringKey] = v;
-        }
-        return [NSDictionary dictionaryWithDictionary:d];
-    }
-    if ([newObj isKindOfClass:[NSSet class]]) {
-        NSMutableArray *a = [NSMutableArray array];
-        for (id i in newObj) {
-            [a addObject:[self JSONSerializableObjectForObject:i]];
-        }
-        return [NSArray arrayWithArray:a];
+            mutableDic[stringKey] = [self JSONSerializableObjectForObject:obj];
+        }];
+        return [NSDictionary dictionaryWithDictionary:mutableDic];
     }
     // some common cases
     if ([newObj isKindOfClass:[NSDate class]]) {
@@ -107,9 +93,8 @@
         return [dateFormatter stringFromDate:newObj];
     }
     // default to sending the object's description
-    NSString *s = [newObj description];
-    SALogWarn(@"%@ warning: property values should be valid json types. got: %@. coercing to: %@", self, [newObj class], s);
-    return s;
+    SALogWarn(@"property values should be valid json types, but current value: %@, with invalid type: %@", newObj, [newObj class]);
+    return [newObj description];
 }
 
 + (id)JSONObjectWithData:(NSData *)data {

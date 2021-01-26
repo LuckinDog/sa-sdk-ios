@@ -54,7 +54,7 @@
     }
 #endif
 
-    if (!(self.window && self.superview && self.alpha > 0) || self.hidden) {
+    if (!(self.window && self.superview) || ![SAVisualizedUtils isVisibleForView:self]) {
         return NO;
     }
     // 计算 view 在 keyWindow 上的坐标
@@ -66,7 +66,7 @@
     }
 
     // RN 项目，view 覆盖层次比较多，被覆盖元素，可以直接屏蔽，防止被覆盖元素可圈选
-    BOOL isRNView =  [NSStringFromClass(self.class) hasPrefix:@"RCT"] || [NSStringFromClass(self.class) hasPrefix:@"RNC"];
+    BOOL isRNView = [SAVisualizedUtils isKindOfRNView:self];
     if (isRNView && [SAVisualizedUtils isCoveredForView:self]) {
         return NO;
     }
@@ -396,7 +396,7 @@
 
             CGRect rect = [view convertRect:view.bounds toView:nil];
             // 是否全屏
-            BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, self.bounds.size);
+            BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointZero) && CGSizeEqualToSize(rect.size, self.bounds.size);
             // keyWindow 上存在全屏显示可交互的 view，此时 rootViewController 内元素不可交互
             if (isFullScreenShow && view.userInteractionEnabled) {
                 [subElements removeObject:self.rootViewController];
@@ -567,7 +567,7 @@
                 }
                 CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
                // 是否全屏
-                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
+                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointZero) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
                // 正在全屏显示
                 if (isFullScreenShow && obj.view.sensorsdata_isDisplayedInScreen) {
                     isContainFullScreen = YES;

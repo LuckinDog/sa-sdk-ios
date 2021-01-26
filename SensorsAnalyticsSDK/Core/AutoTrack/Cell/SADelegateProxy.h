@@ -1,9 +1,9 @@
 //
-//  JSCallOCViewController2.h
+//  SADelegateProxy.m
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 16/9/6.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Created by 张敏超🍎 on 2019/6/19.
+//  Copyright © 2019 SensorsData. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,6 +20,27 @@
 
 #import <UIKit/UIKit.h>
 
-@interface JSCallOCViewController2 : UIViewController<UIWebViewDelegate>
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SADelegateProxy : NSObject
+
+/**
+ 对 TableView 和 CollectionView 的单元格选中方法进行代理
+
+ @param delegate 代理：UITableViewDelegate、UICollectionViewDelegate 等
+ */
++ (void)proxyWithDelegate:(id)delegate;
 
 @end
+
+@interface SADelegateProxy (Utils)
+
++ (BOOL)isKVOClass:(Class _Nullable)cls;
+
++ (BOOL)isSensorsClass:(Class _Nullable)cls;
+
++ (NSString *)generateSensorsClassName:(id)obj;
+
+@end
+
+NS_ASSUME_NONNULL_END

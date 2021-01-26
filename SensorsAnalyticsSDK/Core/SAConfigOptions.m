@@ -77,12 +77,15 @@
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
 
     options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
+    options.securityPolicy = [self.securityPolicy copy];
     
     options.enableEncrypt = self.enableEncrypt;
     options.saveSecretKey = self.saveSecretKey;
     options.loadSecretKey = self.loadSecretKey;
     
     options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
+
+    options.enableReferrerTitle = self.enableReferrerTitle;
     
     return options;
 }
