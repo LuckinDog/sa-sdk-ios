@@ -25,23 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIGestureRecognizer (AutoTrack)
 
-@end
+@property (nonatomic, assign) BOOL sensorsdata_canTrack;
 
-
-@interface UITapGestureRecognizer (AutoTrack)
-
-- (instancetype)sa_initWithTarget:(id)target action:(SEL)action;
-
-- (void)sa_addTarget:(id)target action:(SEL)action;
-
-@end
-
-
-@interface UILongPressGestureRecognizer (AutoTrack)
-
-- (instancetype)sa_initWithTarget:(id)target action:(SEL)action;
-
-- (void)sa_addTarget:(id)target action:(SEL)action;
++ (void)sensorsdata_enableGestureTrack;
 
 @end
 

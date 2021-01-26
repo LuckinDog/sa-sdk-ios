@@ -1,0 +1,38 @@
+//
+// UIView+SAGesture.h
+// SensorsAnalyticsSDK
+//
+// Created by yuqiang on 2020/12/4.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface UIView (SAGesture)
+
+/// 当前的 View 类型是否可以采集手势
+@property (nonatomic, assign, readonly) BOOL sensorsdata_canTrack;
+
+/// 当前的 View 是否可以圈选
+@property (nonatomic, assign, readonly) BOOL sensorsdata_isVisualView;
+
+/// 当前的 View 子视图中可以圈选的 View 类型
+@property (nonatomic, strong, readonly) NSArray <NSString *>*sensorsdata_systemVisualViewClasses;
+
+@end
+
+NS_ASSUME_NONNULL_END

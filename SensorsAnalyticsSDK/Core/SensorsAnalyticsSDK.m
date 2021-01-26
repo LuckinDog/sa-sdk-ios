@@ -79,6 +79,7 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
+#import "UIGestureRecognizer+AutoTrack.h"
 
 #define VERSION @"2.2.7"
 
@@ -2265,34 +2266,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     });
     
-    //UILabel
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
-    static dispatch_once_t onceTokenGesture;
-    dispatch_once(&onceTokenGesture, ^{
-
-        NSError *error = NULL;
-        //$AppClick
-        [UITapGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                             withMethod:@selector(sa_addTarget:action:)
-                                  error:&error];
-        
-        [UITapGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                                      withMethod:@selector(sa_initWithTarget:action:)
-                                           error:&error];
-        
-        [UILongPressGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                                      withMethod:@selector(sa_addTarget:action:)
-                                           error:&error];
-        
-        [UILongPressGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                                      withMethod:@selector(sa_initWithTarget:action:)
-                                           error:&error];
-        if (error) {
-            SALogError(@"Failed to swizzle Target on UITapGestureRecognizer. Details: %@", error);
-            error = NULL;
-        }
-    });
-#endif
+    // 手势采集
+    [UIGestureRecognizer sensorsdata_enableGestureTrack];
     
     //React Native
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
