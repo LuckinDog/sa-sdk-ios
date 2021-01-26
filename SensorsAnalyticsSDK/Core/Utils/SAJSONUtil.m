@@ -53,6 +53,10 @@
 /// @param obj 要处理的对象 Object
 /// @return 序列化后的 jsonString
 + (id)JSONSerializableObjectForObject:(id)obj {
+    // 剔除 null 非法数据
+    if ([obj isKindOfClass:[NSNull class]]) {
+        return nil;
+    }
     id newObj = [obj copy];
     // valid json types
     if ([newObj isKindOfClass:[NSString class]]) {
@@ -71,7 +75,10 @@
     if ([newObj isKindOfClass:[NSArray class]] || [newObj isKindOfClass:[NSSet class]]) {
         NSMutableArray *mutableArray = [NSMutableArray array];
         for (id value in newObj) {
-            [mutableArray addObject:[self JSONSerializableObjectForObject:value]];
+            id newValue = [self JSONSerializableObjectForObject:value];
+            if (newValue) {
+                [mutableArray addObject:newValue];
+            }
         }
         return [NSArray arrayWithArray:mutableArray];
     }
