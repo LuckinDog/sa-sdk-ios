@@ -1,0 +1,29 @@
+{
+    "support": {
+        "UITapGestureRecognizer": {},
+        "UILongPressGestureRecognizer": {
+            "_UIAlertControllerInterfaceActionGroupView": [
+                "_UIInterfaceActionCustomViewRepresentationView",
+                "_UIAlertControllerCollectionViewCell"
+            ]
+        },
+        "_UIContextMenuSelectionGestureRecognizer": {
+            "_UIContextMenuActionsListView": [
+                "_UIContextMenuActionsListCell"
+            ]
+        }
+    },
+    "forbidden": {
+        "view": [
+            "_UIContextMenuContainerView",
+            "WKContentView",
+            "UIListContentView",
+            "_UIDatePickerCalendarTimeLabel",
+            "UICollectionView",
+            "UISwitchModernVisualElement",
+            "UIPageControl",
+            "UITextView",
+            "UITabBar"
+        ]
+    }
+}

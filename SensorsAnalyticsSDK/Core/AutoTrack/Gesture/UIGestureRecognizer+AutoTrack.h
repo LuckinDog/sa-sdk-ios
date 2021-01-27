@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIGestureRecognizer (AutoTrack)
 
-@property (nonatomic, assign) BOOL sensorsdata_canTrack;
+@property (nonatomic, assign, readonly) BOOL sensorsdata_canTrack;
 
 + (void)sensorsdata_enableGestureTrack;
 

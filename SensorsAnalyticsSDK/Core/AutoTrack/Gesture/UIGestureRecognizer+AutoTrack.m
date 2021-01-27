@@ -24,11 +24,11 @@
 
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SAGestureRecognizerTarget.h"
+#import "SAAutoTrackGestureInfo.h"
 #import <objc/runtime.h>
 #import "SASwizzle.h"
 #import "SALog.h"
 
-static void *const kSAGestureCanTrackKey = (void *)&kSAGestureCanTrackKey;
 static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 
 @interface UIGestureRecognizer (AutoTrack)
@@ -38,14 +38,6 @@ static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 @end
 
 @implementation UIGestureRecognizer (AutoTrack)
-
-+ (NSArray <NSString *>*)sensorsdata_canTrackGestureClasses {
-    return @[
-                NSStringFromClass(UITapGestureRecognizer.class),
-                NSStringFromClass(UILongPressGestureRecognizer.class),
-                @"_UIContextMenuSelectionGestureRecognizer",
-            ];
-}
 
 + (void)sensorsdata_enableGestureTrack {
     static dispatch_once_t onceTokenGesture;
@@ -64,18 +56,7 @@ static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 }
 
 - (BOOL)sensorsdata_canTrack {
-    // 指定的手势可以采集(不包含其子类)
-    if ([self.class.sensorsdata_canTrackGestureClasses containsObject:NSStringFromClass(self.class)]) {
-        return YES;
-    }
-    // 用户配置的手势可以采集
-    NSNumber *number = objc_getAssociatedObject(self, kSAGestureCanTrackKey);
-    return  [number boolValue];
-}
-
-- (void)setSensorsdata_canTrack:(BOOL)sensorsdata_canTrack {
-    NSNumber *number = [NSNumber numberWithBool:sensorsdata_canTrack];
-    objc_setAssociatedObject(self, kSAGestureCanTrackKey, number, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    return [SAAutoTrackGestureInfo.supportGestures containsObject:NSStringFromClass(self.class)];
 }
 
 - (SAGestureRecognizerTarget *)sensorsdata_trackTarget {
