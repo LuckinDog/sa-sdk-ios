@@ -24,12 +24,12 @@
 
 #import "UIView+SAGesture.h"
 #import "UIGestureRecognizer+AutoTrack.h"
-#import "SAAutoTrackGestureInfo.h"
+#import "SAAutoTrackGestureConfig.h"
 
 @implementation UIView (SAGesture)
 
 - (BOOL)sensorsdata_canTrack {
-    return ![SAAutoTrackGestureInfo.forbiddenViews containsObject:NSStringFromClass(self.class)];
+    return ![SAAutoTrackGestureConfig.forbiddenViews containsObject:NSStringFromClass(self.class)];
 }
 
 - (BOOL)sensorsdata_isVisualView {
@@ -47,7 +47,7 @@
 }
 
 - (BOOL)sensorsdata_isSystemVisualView {
-    for (NSDictionary *visualViewInfo in SAAutoTrackGestureInfo.gestureSystemViewInfo) {
+    for (NSDictionary *visualViewInfo in SAAutoTrackGestureConfig.gestureSystemViewInfo) {
         for (NSArray <NSString *>*value in visualViewInfo.allValues) {
             if ([value containsObject:NSStringFromClass(self.class)]) {
                 return YES;
@@ -59,7 +59,7 @@
 
 - (BOOL)sensorsdata_containsTrackGesture {
     // 如果手势所在 View, 需要查询子视图, 那么当前视图虽包含手势但应当不可圈选, 而是子视图可圈选
-    for (NSDictionary *gestureViewInfo in SAAutoTrackGestureInfo.gestureSystemViewInfo) {
+    for (NSDictionary *gestureViewInfo in SAAutoTrackGestureConfig.gestureSystemViewInfo) {
         if (gestureViewInfo[NSStringFromClass(self.class)]) {
             return NO;
         }
@@ -74,7 +74,7 @@
 
 - (NSArray <NSString *>*)sensorsdata_systemVisualViewClasses {
     NSString *className = NSStringFromClass(self.class);
-    NSArray <NSDictionary <NSString *, NSDictionary *>*>*array = SAAutoTrackGestureInfo.gestureSystemViewInfo;
+    NSArray <NSDictionary <NSString *, NSDictionary *>*>*array = SAAutoTrackGestureConfig.gestureSystemViewInfo;
     for (NSDictionary *gestureViewInfo in array) {
         if ([gestureViewInfo.allKeys containsObject:className]) {
             return gestureViewInfo[className];

@@ -24,7 +24,7 @@
 
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SAGestureRecognizerTarget.h"
-#import "SAAutoTrackGestureInfo.h"
+#import "SAAutoTrackGestureConfig.h"
 #import <objc/runtime.h>
 #import "SASwizzle.h"
 #import "SALog.h"
@@ -56,7 +56,7 @@ static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 }
 
 - (BOOL)sensorsdata_canTrack {
-    return [SAAutoTrackGestureInfo.supportGestures containsObject:NSStringFromClass(self.class)];
+    return [SAAutoTrackGestureConfig.supportGestures containsObject:NSStringFromClass(self.class)];
 }
 
 - (SAGestureRecognizerTarget *)sensorsdata_trackTarget {
