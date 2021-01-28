@@ -65,6 +65,7 @@
 #import "SAEventStore.h"
 #import "SAHTTPSession.h"
 #import "SANetwork.h"
+#import "SAReachability.h"
 #import "SAEventTracker.h"
 #import "SAScriptMessageHandler.h"
 #import "WKWebView+SABridge.h"
@@ -79,7 +80,7 @@
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.2.6"
+#define VERSION @"2.2.8"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -297,6 +298,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
+            [[SAReachability sharedInstance] startMonitoring];
+            
             _network = [[SANetwork alloc] init];
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
@@ -370,7 +373,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             // WKWebView 打通
-            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
+            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
                 [self swizzleWebViewMethod];
             }
         }
@@ -912,15 +915,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
     
-    BOOL isWifi = [[SACommonUtility currentNetworkStatus] isEqualToString:@"WIFI"];
+    BOOL isWifi = [SAReachability sharedInstance].isReachableViaWiFi;
     return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
 }
-
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
     if (!url) {
         return NO;
     }
+
+    // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
+    [[SAReachability sharedInstance] startMonitoring];
 
     if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
         //点击图 & 可视化全埋点
@@ -966,11 +971,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController {
-    if (!viewController) {
+    if (!viewController || !self.configOptions.enableVisualizedAutoTrack) {
         return NO;
     }
 
-    if (_visualizedAutoTrackViewControllers.count == 0 && self.configOptions.enableVisualizedAutoTrack) {
+    if (_visualizedAutoTrackViewControllers.count == 0) {
         return YES;
     }
 
@@ -1034,7 +1039,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         // App 内嵌 H5 数据交互
-        if (self.configOptions.enableVisualizedAutoTrack) {
+        if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
             [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
             if ([SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting) {
                 [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
@@ -1082,11 +1087,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isHeatMapViewController:(UIViewController *)viewController {
-    if (!viewController) {
+    if (!viewController || !self.configOptions.enableHeatMap) {
         return NO;
     }
 
-    if (_heatMapViewControllers.count == 0 && self.configOptions.enableHeatMap) {
+    if (_heatMapViewControllers.count == 0) {
         return YES;
     }
 
@@ -2086,7 +2091,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
-    if (self.configOptions.enableVisualizedAutoTrack) {
+    if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
         [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:controller];
     }
 
@@ -2969,6 +2974,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)enableHeatMap {
     self.configOptions.enableHeatMap = YES;
+
+    // 开启 WKWebView 和 js 的数据交互
+    [self swizzleWebViewMethod];
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {

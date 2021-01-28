@@ -95,7 +95,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
             }
         }
 #pragma clang diagnostic pop
-    } else if ([self isKindOfClass:NSClassFromString(@"RCTView")]) { // RCTView RN 元素，https://reactnative.dev
+    } else if ([SAAutoTrackUtils isKindOfRNView:self]) { // RN 元素，https://reactnative.dev
         NSString *content = [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (content.length > 0) {
             [elementContent appendString:content];
@@ -136,7 +136,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self];
 
     // 获取当前 controller 作为 screen_name
-    if ([viewController isKindOfClass:UINavigationController.class] || [viewController isKindOfClass:UIAlertController.class]) {
+    if (!viewController || [viewController isKindOfClass:UINavigationController.class] || [viewController isKindOfClass:UIAlertController.class]) {
         viewController = [SAAutoTrackUtils currentViewController];
     }
     return viewController;

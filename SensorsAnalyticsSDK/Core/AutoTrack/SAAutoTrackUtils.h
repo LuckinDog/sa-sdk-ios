@@ -41,14 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
 
-/**
- 找到 view 所在的直接 ViewController
-
- @param view 需要寻找的 View
- @return SuperViewController
- */
-+ (UIViewController *)findSuperViewControllerByView:(UIView *)view;
-
 /// 是否为弹框
 + (BOOL)isAlertForResponder:(UIResponder *)responder;
 
@@ -57,6 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 ///  在间隔时间内是否采集 $AppClick 全埋点
 + (BOOL)isValidAppClickForObject:(id<SAAutoTrackViewProperty>)object;
+
+/// 判断是否为 RN 元素
++ (BOOL)isKindOfRNView:(UIView *)view;
 @end
 
 #pragma mark -
