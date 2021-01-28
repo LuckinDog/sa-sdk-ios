@@ -27,6 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign, readonly) BOOL sensorsdata_canTrack;
 
+- (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action;
+- (void)sensorsdata_addTarget:(id)target action:(SEL)action;
+
 + (void)sensorsdata_enableGestureTrack;
 
 @end

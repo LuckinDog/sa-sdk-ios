@@ -39,22 +39,6 @@ static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 
 @implementation UIGestureRecognizer (AutoTrack)
 
-+ (void)sensorsdata_enableGestureTrack {
-    static dispatch_once_t onceTokenGesture;
-    dispatch_once(&onceTokenGesture, ^{
-        NSError *error = NULL;
-        [UIGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                                   withMethod:@selector(sensorsdata_addTarget:action:)
-                                        error:&error];
-        [UIGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                                   withMethod:@selector(sensorsdata_initWithTarget:action:)
-                                        error:&error];
-        if (error) {
-            SALogError(@"Failed to swizzle Target on UIGestureRecognizer. Details: %@", error);
-        }
-    });
-}
-
 - (BOOL)sensorsdata_canTrack {
     return [SAAutoTrackGestureConfig.supportGestures containsObject:NSStringFromClass(self.class)];
 }

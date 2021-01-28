@@ -2262,18 +2262,22 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
                              withMethod:@selector(sa_sendAction:to:from:forEvent:)
                                   error:&error];
-        
-        SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
-        [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-        [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
         if (error) {
             SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
             error = NULL;
         }
+        
+        SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
+        [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+        [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+        
+        [UIGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
+                                   withMethod:@selector(sensorsdata_initWithTarget:action:)
+                                        error:NULL];
+        [UIGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
+                                   withMethod:@selector(sensorsdata_addTarget:action:)
+                                        error:NULL];
     });
-    
-    // 手势采集
-    [UIGestureRecognizer sensorsdata_enableGestureTrack];
     
     //React Native
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
