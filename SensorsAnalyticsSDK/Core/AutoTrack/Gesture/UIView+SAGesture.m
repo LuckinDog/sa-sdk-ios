@@ -35,52 +35,22 @@
 - (BOOL)sensorsdata_isVisualView {
     if (self.userInteractionEnabled) {
         if (self.sensorsdata_canTrack) {
-            if (self.sensorsdata_containsTrackGesture) {
-                return YES;
-            }
-            if (self.sensorsdata_isSystemVisualView) {
-                return YES;
-            }
-        }
-    }
-    return NO;
-}
-
-- (BOOL)sensorsdata_isSystemVisualView {
-    for (NSDictionary *visualViewInfo in SAAutoTrackGestureConfig.gestureSystemViewInfo) {
-        for (NSArray <NSString *>*value in visualViewInfo.allValues) {
-            if ([value containsObject:NSStringFromClass(self.class)]) {
-                return YES;
+            __block BOOL isHost = NO;
+            __block BOOL isVisual = NO;
+            [SAAutoTrackGestureConfig viewTypeWithName:NSStringFromClass(self.class) completion:^(bool isHostView, bool isVisualView) {
+                isHost = isHostView;
+                isVisual = isVisual;
+            }];
+            if (isHost) return NO;
+            if (isVisual) return YES;
+            for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
+                if (gesture.sensorsdata_canTrack) {
+                    return YES;
+                }
             }
         }
     }
     return NO;
-}
-
-- (BOOL)sensorsdata_containsTrackGesture {
-    // 如果手势所在 View, 需要查询子视图, 那么当前视图虽包含手势但应当不可圈选, 而是子视图可圈选
-    for (NSDictionary *gestureViewInfo in SAAutoTrackGestureConfig.gestureSystemViewInfo) {
-        if (gestureViewInfo[NSStringFromClass(self.class)]) {
-            return NO;
-        }
-    }
-    for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
-        if (gesture.sensorsdata_canTrack) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
-- (NSArray <NSString *>*)sensorsdata_systemVisualViewClasses {
-    NSString *className = NSStringFromClass(self.class);
-    NSArray <NSDictionary <NSString *, NSDictionary *>*>*array = SAAutoTrackGestureConfig.gestureSystemViewInfo;
-    for (NSDictionary *gestureViewInfo in array) {
-        if ([gestureViewInfo.allKeys containsObject:className]) {
-            return gestureViewInfo[className];
-        }
-    }
-    return @[];
 }
 
 @end

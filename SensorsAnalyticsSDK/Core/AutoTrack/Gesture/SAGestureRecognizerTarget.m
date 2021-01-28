@@ -24,6 +24,7 @@
 
 #import "SAGestureRecognizerTarget.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAAutoTrackGestureConfig.h"
 #import "SAConstants+Private.h"
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
@@ -62,7 +63,7 @@
     if (gestureView.sensorsdata_isIgnored) return;
     
     // 查找私有系统 View 手势的所在的圈选 View
-    NSArray <UIView *>*visualViews = [self searchVisualSubViewFromView:gestureView classes:gestureView.sensorsdata_systemVisualViewClasses];
+    NSArray <UIView *>*visualViews = [self searchVisualSubViewFromView:gestureView classes:[SAAutoTrackGestureConfig visualViewsWithHostView:NSStringFromClass(gestureView.class)]];
     CGPoint currentPoint = [gestureRecognizer locationInView:gestureView];
     for (UIView *visualView in visualViews) {
         CGRect rect = [visualView convertRect:visualView.bounds toView:gestureView];

@@ -26,7 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray <NSString *>*)supportGestures;
 
-+ (NSArray <NSDictionary <NSString *, NSDictionary *>*>*)gestureSystemViewInfo;
++ (void)viewTypeWithName:(NSString *)name completion:(void (^)(bool isHostView, bool isVisualView))completion;
+
++ (NSArray <NSString *>*)visualViewsWithHostView:(NSString *)hostView;
 
 + (NSArray <NSString *>*)forbiddenViews;
 

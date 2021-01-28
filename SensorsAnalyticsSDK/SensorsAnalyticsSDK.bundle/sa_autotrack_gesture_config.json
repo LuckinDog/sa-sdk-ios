@@ -1,29 +1,38 @@
 {
     "support": {
-        "UITapGestureRecognizer": {},
-        "UILongPressGestureRecognizer": {
-            "_UIAlertControllerInterfaceActionGroupView": [
-                "_UIInterfaceActionCustomViewRepresentationView",
-                "_UIAlertControllerCollectionViewCell"
-            ]
-        },
-        "_UIContextMenuSelectionGestureRecognizer": {
-            "_UIContextMenuActionsListView": [
-                "_UIContextMenuActionsListCell"
-            ]
-        }
+        "gesture": [
+            {
+                "type": "UITapGestureRecognizer",
+                "hostView": "",
+                "visualViews": []
+            }, {
+                "type": "UILongPressGestureRecognizer",
+                "hostView": "_UIAlertControllerInterfaceActionGroupView",
+                "visualViews": [
+                    "_UIInterfaceActionCustomViewRepresentationView",
+                    "_UIAlertControllerCollectionViewCell"
+                ]
+            }, {
+                "type": "_UIContextMenuSelectionGestureRecognizer",
+                "hostView": "_UIContextMenuActionsListView",
+                "visualViews": [
+                    "_UIContextMenuActionsListCell"
+                ]
+            }
+        ]
     },
     "forbidden": {
-        "view": [
-            "_UIContextMenuContainerView",
-            "WKContentView",
-            "UIListContentView",
-            "_UIDatePickerCalendarTimeLabel",
-            "UICollectionView",
-            "UISwitchModernVisualElement",
-            "UIPageControl",
-            "UITextView",
-            "UITabBar"
+        "gesture": [
+            {
+                "type": "UITapGestureRecognizer",
+                "hostView": "_UIContextMenuContainerView"
+            }, {
+                "type": "UITapGestureRecognizer",
+                "hostView": "UISwitchModernVisualElement"
+            }, {
+                "type": "UITapGestureRecognizer",
+                "hostView": "UIPageControl"
+            }
         ]
     }
 }

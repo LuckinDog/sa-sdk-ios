@@ -30,9 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 当前的 View 是否可以圈选
 @property (nonatomic, assign, readonly) BOOL sensorsdata_isVisualView;
 
-/// 当前的 View 子视图中可以圈选的 View 类型
-@property (nonatomic, strong, readonly) NSArray <NSString *>*sensorsdata_systemVisualViewClasses;
-
 @end
 
 NS_ASSUME_NONNULL_END

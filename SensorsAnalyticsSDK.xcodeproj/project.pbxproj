@@ -23,6 +23,8 @@
 		4588652E253EE0FC00DF208D /* SAMethodHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 45886528253EE0FC00DF208D /* SAMethodHelper.h */; };
 		45922DC32553ECE0003AFEE7 /* SAClassHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 45922DC12553ECE0003AFEE7 /* SAClassHelper.h */; };
 		45922DC42553ECE0003AFEE7 /* SAClassHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 45922DC22553ECE0003AFEE7 /* SAClassHelper.m */; };
+		4599E08925C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4599E08725C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.h */; };
+		4599E08A25C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4599E08825C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.m */; };
 		459E6D93256659BB007F0A51 /* NSObject+SACellClick.m in Sources */ = {isa = PBXBuildFile; fileRef = 459E6D91256659BB007F0A51 /* NSObject+SACellClick.m */; };
 		459E6D94256659BB007F0A51 /* NSObject+SACellClick.h in Headers */ = {isa = PBXBuildFile; fileRef = 459E6D92256659BB007F0A51 /* NSObject+SACellClick.h */; };
 		4D2D534C2591E8F900805141 /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2D53412591E8F900805141 /* UIApplication+AutoTrack.h */; };
@@ -239,6 +241,8 @@
 		45886528253EE0FC00DF208D /* SAMethodHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAMethodHelper.h; sourceTree = "<group>"; };
 		45922DC12553ECE0003AFEE7 /* SAClassHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAClassHelper.h; sourceTree = "<group>"; };
 		45922DC22553ECE0003AFEE7 /* SAClassHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAClassHelper.m; sourceTree = "<group>"; };
+		4599E08725C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackGestureItemInfo.h; sourceTree = "<group>"; };
+		4599E08825C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackGestureItemInfo.m; sourceTree = "<group>"; };
 		459E6D91256659BB007F0A51 /* NSObject+SACellClick.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SACellClick.m"; sourceTree = "<group>"; };
 		459E6D92256659BB007F0A51 /* NSObject+SACellClick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SACellClick.h"; sourceTree = "<group>"; };
 		4D2D53412591E8F900805141 /* UIApplication+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+AutoTrack.h"; sourceTree = "<group>"; };
@@ -470,6 +474,8 @@
 				456B30C425BFF8DF00003B64 /* SAGestureRecognizerTarget.m */,
 				4547B33325C1571300E5E745 /* SAAutoTrackGestureConfig.h */,
 				4547B33425C1571300E5E745 /* SAAutoTrackGestureConfig.m */,
+				4599E08725C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.h */,
+				4599E08825C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.m */,
 			);
 			path = Gesture;
 			sourceTree = "<group>";
@@ -955,6 +961,7 @@
 				4D2D541E2591EBBD00805141 /* SAJSTouchEventView.h in Headers */,
 				4D2D53C72591EB3A00805141 /* SAValidator.h in Headers */,
 				881A4196253D7B4F00854F69 /* SAConstants.h in Headers */,
+				4599E08925C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.h in Headers */,
 				881A419C253D7B4F00854F69 /* SAConstants+Private.h in Headers */,
 				881A419F253D7B4F00854F69 /* SAHTTPSession.h in Headers */,
 				4D2D54212591EBBD00805141 /* SAVisualizedUtils.h in Headers */,
@@ -1141,6 +1148,7 @@
 				4588652D253EE0FC00DF208D /* SAMethodHelper.m in Sources */,
 				4D2D53FD2591EB5B00805141 /* SAClassDescription.m in Sources */,
 				4D2D53FF2591EB5B00805141 /* SAApplicationStateSerializer.m in Sources */,
+				4599E08A25C2C82C008ABA24 /* SAAutoTrackGestureItemInfo.m in Sources */,
 				881A4192253D7B4F00854F69 /* SANetwork.m in Sources */,
 				4D2D53842591EB0600805141 /* SAFileLogger.m in Sources */,
 				456B30C825BFF8DF00003B64 /* UIView+SAGesture.m in Sources */,

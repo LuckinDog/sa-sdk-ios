@@ -23,59 +23,77 @@
 #endif
 
 #import "SAAutoTrackGestureConfig.h"
+#import "SAAutoTrackGestureItemInfo.h"
 #import "SALog.h"
 
-static NSDictionary *_gestureConfig = nil;
+static NSArray <SAAutoTrackGestureItemInfo *>*_supportInfo = nil;
+static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
 
 @implementation SAAutoTrackGestureConfig
 
 /// 加载配置文件
-+ (void)loadFileData {
++ (void)loadConfigData {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK.bundle" ofType:nil]];
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gesture_config.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
         @try {
-            _gestureConfig = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
+            NSDictionary *config = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
+            _supportInfo = [SAAutoTrackGestureItemInfo itemsFromInfo:config[@"support"][@"gesture"]];
+            _forbiddenInfo = [SAAutoTrackGestureItemInfo itemsFromInfo:config[@"forbidden"][@"gesture"]];
         } @catch(NSException *exception) {
             SALogError(@"%@ error: %@", self, exception);
         }
     });
 }
 
-/// 获取 support 节点信息
-+ (NSDictionary <NSString *, NSDictionary *>*)supportInfo {
-    [self loadFileData];
-    return _gestureConfig[@"support"];
++ (NSArray <SAAutoTrackGestureItemInfo *>*)supportInfo {
+    [self loadConfigData];
+    return _supportInfo;
 }
 
-/// 获取 forbidden 节点信息
-+ (NSDictionary <NSString *, NSArray *>*)forbiddenInfo {
-    [self loadFileData];
-    return _gestureConfig[@"forbidden"];
++ (NSArray <SAAutoTrackGestureItemInfo *>*)forbiddenInfo {
+    [self loadConfigData];
+    return _forbiddenInfo;
 }
 
 /// 获取支持采集的手势集合
 + (NSArray <NSString *>*)supportGestures {
-    return [self supportInfo].allKeys;
+    return [SAAutoTrackGestureItemInfo typesFromItems:self.supportInfo];
 }
 
-/// 获取手势所在 View 需要特殊处理的私有 View 信息
-+ (NSArray <NSDictionary <NSString *, NSDictionary *>*>*)gestureSystemViewInfo {
-    NSMutableArray *resutl = [NSMutableArray array];
-    for (NSString *key in self.supportInfo.allKeys) {
-        NSDictionary *dic = self.supportInfo[key];
-        if (dic.allKeys.count) {
-            [resutl addObject:dic];
+/// 获取当前的 View 是不是配置文件中宿主 View 或 圈选 View
+/// @param name View 类型
+/// @param completion 回调结果
++ (void)viewTypeWithName:(NSString *)name completion:(void (^)(bool isHostView, bool isVisualView))completion {
+    for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
+        if ([item.hostView isEqualToString:name]) {
+            completion(YES, NO);
+            return;
+        }
+        if ([item.visualViews containsObject:name]) {
+            completion(NO, YES);
+            return;
         }
     }
-    return resutl;
+    completion(NO, NO);
+}
+
+/// 通过宿主 View 获取圈选 View 类型集合
+/// @param hostView 宿主 View
++ (NSArray <NSString *>*)visualViewsWithHostView:(NSString *)hostView {
+    for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
+        if ([item.hostView isEqualToString:hostView]) {
+            return [item.visualViews copy];
+        }
+    }
+    return @[];
 }
 
 /// 获取禁止采集手势的 View 集合
 + (NSArray <NSString *>*)forbiddenViews {
-    return [self forbiddenInfo][@"view"];
+    return [SAAutoTrackGestureItemInfo hostViewsFromItems:self.forbiddenInfo];
 }
 
 @end
