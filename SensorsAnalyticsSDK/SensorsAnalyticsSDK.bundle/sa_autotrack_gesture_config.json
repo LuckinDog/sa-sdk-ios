@@ -24,14 +24,17 @@
     "forbidden": {
         "gesture": [
             {
-                "type": "UITapGestureRecognizer",
                 "hostView": "_UIContextMenuContainerView"
             }, {
-                "type": "UITapGestureRecognizer",
                 "hostView": "UISwitchModernVisualElement"
             }, {
-                "type": "UITapGestureRecognizer",
                 "hostView": "UIPageControl"
+            }, {
+                "hostView": "UITabBar"
+            }, {
+                "hostView": "UITextView"
+            }, {
+                "hostView": "WKContentView"
             }
         ]
     }
