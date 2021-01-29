@@ -39,7 +39,7 @@
             __block BOOL isVisual = NO;
             [SAAutoTrackGestureConfig viewTypeWithName:NSStringFromClass(self.class) completion:^(bool isHostView, bool isVisualView) {
                 isHost = isHostView;
-                isVisual = isVisual;
+                isVisual = isVisualView;
             }];
             if (isHost) return NO;
             if (isVisual) return YES;
