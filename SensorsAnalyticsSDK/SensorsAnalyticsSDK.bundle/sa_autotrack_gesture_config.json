@@ -35,6 +35,8 @@
                 "hostView": "UITextView"
             }, {
                 "hostView": "WKContentView"
+            }, {
+                "hostView": "UIWebBrowserView"
             }
         ]
     }
