@@ -71,6 +71,9 @@
             gestureView = visualView;
             break;
         }
+        if (visualView == visualViews.lastObject) {
+            return;
+        }
     }
     
     // SDK 是否启用, 全埋点点击事件采集是否开启等
