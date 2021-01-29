@@ -126,7 +126,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 @property(atomic, copy) NSString *serverURL;
 
 /// App 启动的 launchOptions
-@property(nonatomic, copy) NSDictionary *launchOptions;
+@property(nonatomic, strong) id launchOptions;
 
 @end
 

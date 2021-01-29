@@ -112,14 +112,26 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 // 记录冷启动的 DeepLink URL
-- (void)handleLaunchOptions:(NSDictionary *)launchOptions {
-    if (![launchOptions isKindOfClass:NSDictionary.class]) {
+- (void)handleLaunchOptions:(id)options {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_13_0
+    if (@available(iOS 13.0, *)) {
+        // 兼容 SceneDelegate 场景
+        if ([options isKindOfClass:UISceneConnectionOptions.class]) {
+            UISceneConnectionOptions *sceneOptions = (UISceneConnectionOptions *)options;
+            NSUserActivity *userActivity = sceneOptions.userActivities.allObjects.firstObject;
+            UIOpenURLContext *urlContext = sceneOptions.URLContexts.allObjects.firstObject;
+            _deeplinkURL = urlContext.URL ? urlContext.URL : userActivity.webpageURL;
+            return;
+        }
+    }
+#endif
+    if (![options isKindOfClass:NSDictionary.class]) {
         return;
     }
-    NSURL *url;
+    NSDictionary *launchOptions = (NSDictionary *)options;
     if ([launchOptions.allKeys containsObject:UIApplicationLaunchOptionsURLKey]) {
         //通过 SchemeLink 唤起 App
-        url = launchOptions[UIApplicationLaunchOptionsURLKey];
+        _deeplinkURL = launchOptions[UIApplicationLaunchOptionsURLKey];
     }
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
     else if (@available(iOS 8.0, *)) {
@@ -128,11 +140,10 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         if ([type isEqualToString:NSUserActivityTypeBrowsingWeb]) {
             //通过 UniversalLink 唤起 App
             NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
-            url = userActivity.webpageURL;
+            _deeplinkURL = userActivity.webpageURL;
         }
     }
 #endif
-    _deeplinkURL = url;
 }
 
 - (void)acquireColdLaunchDeepLinkInfo {
@@ -247,7 +258,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     if (![dictionary isKindOfClass:NSDictionary.class]) {
         return;
     }
-    _utms = [self acquireUtmProperties:dictionary];
+    [_utms addEntriesFromDictionary:[self acquireUtmProperties:dictionary]];
     _latestUtms = [self acquireLatestUtmProperties:dictionary];
 }
 
