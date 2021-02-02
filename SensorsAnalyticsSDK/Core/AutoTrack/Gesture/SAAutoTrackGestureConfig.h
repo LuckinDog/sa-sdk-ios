@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isIgnoreViewController:(UIViewController *)controller;
 
++ (NSString *_Nullable)elementTypeWithVisualView:(UIView *)view;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -41,9 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
 
-/// 是否为弹框
-+ (BOOL)isAlertForResponder:(UIResponder *)responder;
-
 /// 是否为弹框点击
 + (BOOL)isAlertClickForView:(UIView *)view;
 

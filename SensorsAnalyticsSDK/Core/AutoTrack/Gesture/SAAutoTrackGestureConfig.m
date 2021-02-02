@@ -107,4 +107,16 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
     return NO;
 }
 
+/// 获取圈选 View 的 $element_type
+/// @param view 圈选 View
++ (NSString *_Nullable)elementTypeWithVisualView:(UIView *)view {
+    for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
+        NSString *type = [item elementTypeWithVisualView:view];
+        if (type.length) {
+            return type;
+        }
+    }
+    return nil;
+}
+
 @end

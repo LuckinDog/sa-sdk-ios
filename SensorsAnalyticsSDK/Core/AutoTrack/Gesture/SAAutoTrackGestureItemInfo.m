@@ -29,11 +29,19 @@
 - (instancetype)initWithConfig:(NSDictionary *)config {
     if (self = [super init]) {
         self.type = config[@"type"];
+        self.elementType = config[@"elementType"];
         self.hostView = config[@"hostView"];
         self.visualViews = config[@"visualViews"];
         self.ignoreViewController = config[@"ignoreViewController"];
     }
     return self;
+}
+
+- (NSString *_Nullable)elementTypeWithVisualView:(UIView *)visualView {
+    if ([self.visualViews containsObject:NSStringFromClass(visualView.class)]) {
+        return self.elementType;
+    }
+    return nil;
 }
 
 - (BOOL)isIgnoreViewControllerWithController:(UIViewController *)controller {

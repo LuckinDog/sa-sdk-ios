@@ -128,26 +128,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return viewController;
 }
 
-+ (BOOL)isAlertForResponder:(UIResponder *)responder {
-    do {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        BOOL isUIAlertView = [responder isKindOfClass:UIAlertView.class];
-        BOOL isUIActionSheet = [responder isKindOfClass:UIActionSheet.class];
-#pragma clang diagnostic pop
-
-        BOOL isUIAlertController = [responder isKindOfClass:UIAlertController.class];
-
-        if ([[responder nextResponder] isKindOfClass:SAAlertController.class]) {
-            return NO;
-        }
-        if (isUIAlertController || isUIAlertView || isUIActionSheet) {
-            return YES;
-        }
-    } while ((responder = [responder nextResponder]));
-    return NO;
-}
-
 /// 是否为弹框点击
 + (BOOL)isAlertClickForView:(UIView *)view {
  #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS

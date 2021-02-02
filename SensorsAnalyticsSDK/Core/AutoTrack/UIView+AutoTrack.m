@@ -26,6 +26,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
+#import "SAAutoTrackGestureConfig.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
@@ -53,9 +54,8 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementType {
-
-    // 采集弹框类型（UIAlertController、UIActionSheet、UIAlertView）
-    if ([SAAutoTrackUtils isAlertForResponder:self]) {
+    NSString *elementType = [SAAutoTrackGestureConfig elementTypeWithVisualView:self];
+    if (elementType.length) {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         UIWindow *window = self.window;
         if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
@@ -66,10 +66,10 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
                 return NSStringFromClass(UIAlertView.class);
             }
         } else {
-            return NSStringFromClass(UIAlertController.class);
+            return elementType;
         }
 #else
-        return NSStringFromClass(UIAlertController.class);
+        return elementType;
 #endif
     }
     return NSStringFromClass(self.class);
