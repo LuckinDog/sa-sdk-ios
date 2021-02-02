@@ -19,6 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,12 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
 /// 采集私有手势时, 手势所在的宿主 View 类型
 @property (nonatomic, copy) NSString *hostView;
 
+/// 忽略的页面; 弹框, 菜单等不能作为单独的页面
+@property (nonatomic, strong) NSDictionary *ignoreViewController;
+
 /// 采集私有手势时, 通过宿主 View 查询可圈选的 View 类型集合
 @property (nonatomic, strong) NSArray <NSString *>*visualViews;
 
 /// 构造方法
 /// @param config 通过 NSDictionary 构造一个 item
 - (instancetype)initWithConfig:(NSDictionary *)config;
+
+- (BOOL)isIgnoreViewControllerWithController:(UIViewController *)controllr;
 
 /// 通过将数组中的 NSDictionary 解析为 items 数组
 /// @param info 带解析的字典

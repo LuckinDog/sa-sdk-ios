@@ -31,8 +31,19 @@
         self.type = config[@"type"];
         self.hostView = config[@"hostView"];
         self.visualViews = config[@"visualViews"];
+        self.ignoreViewController = config[@"ignoreViewController"];
     }
     return self;
+}
+
+- (BOOL)isIgnoreViewControllerWithController:(UIViewController *)controller {
+    if ([controller isKindOfClass:NSClassFromString(self.ignoreViewController[@"public"])]) {
+        return YES;
+    }
+    if ([self.ignoreViewController[@"private"] isEqualToString:NSStringFromClass(controller.class)]) {
+        return YES;
+    }
+    return NO;
 }
 
 + (NSArray <SAAutoTrackGestureItemInfo *>*)itemsFromInfo:(NSArray <NSDictionary *>*)info {

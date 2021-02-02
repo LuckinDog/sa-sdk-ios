@@ -8,6 +8,9 @@
             }, {
                 "type": "UILongPressGestureRecognizer",
                 "hostView": "_UIAlertControllerInterfaceActionGroupView",
+                "ignoreViewController": {
+                    "public": "UIAlertController"
+                },
                 "visualViews": [
                     "_UIInterfaceActionCustomViewRepresentationView",
                     "_UIAlertControllerCollectionViewCell"
@@ -15,6 +18,9 @@
             }, {
                 "type": "_UIContextMenuSelectionGestureRecognizer",
                 "hostView": "_UIContextMenuActionsListView",
+                "ignoreViewController": {
+                    "private": "_UIContextMenuActionsOnlyViewController"
+                },
                 "visualViews": [
                     "_UIContextMenuActionsListCell"
                 ]

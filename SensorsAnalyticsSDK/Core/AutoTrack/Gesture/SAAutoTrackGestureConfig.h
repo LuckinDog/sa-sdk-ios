@@ -19,6 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray <NSString *>*)visualViewsWithHostView:(NSString *)hostView;
 
 + (NSArray <NSString *>*)forbiddenViews;
+
++ (BOOL)isIgnoreViewController:(UIViewController *)controller;
 
 @end
 

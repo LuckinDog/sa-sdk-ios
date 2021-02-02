@@ -96,4 +96,15 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
     return [SAAutoTrackGestureItemInfo hostViewsFromItems:self.forbiddenInfo];
 }
 
+/// 校验是否是忽略页面浏览的控制器
+/// @param controller 视图控制器
++ (BOOL)isIgnoreViewController:(UIViewController *)controller {
+    for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
+        if ([item isIgnoreViewControllerWithController:controller]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end
