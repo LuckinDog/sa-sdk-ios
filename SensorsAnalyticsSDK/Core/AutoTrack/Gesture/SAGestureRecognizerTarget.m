@@ -25,6 +25,7 @@
 #import "SAGestureRecognizerTarget.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAutoTrackGestureConfig.h"
+#import "SAAlertController.h"
 #import "SAConstants+Private.h"
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
@@ -54,6 +55,12 @@
     if (gestureRecognizer.state != UIGestureRecognizerStateEnded) return;
     
     UIView *gestureView = gestureRecognizer.view;
+    
+    // 屏蔽 SAAlertController 的点击事件
+    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:gestureView];
+    if ([viewController isKindOfClass:UIAlertController.class] && [viewController.nextResponder isKindOfClass:SAAlertController.class]) {
+        return;
+    }
     
     // 指定的 View 不采集手势事件
     if (!gestureView.sensorsdata_canTrack) return;
