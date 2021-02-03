@@ -30,6 +30,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
 #import "UIView+SAGesture.h"
+#import "SAAutoTrackGestureConfig.h"
 
 @implementation UIView (SAElementPath)
 
@@ -487,7 +488,7 @@
 @implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
-    if ([SAAutoTrackUtils isAlertClickForView:self]) {
+    if (SAGestureViewTypeVisual == [SAAutoTrackGestureConfig gestureViewTypeWithView:NSStringFromClass(self.class)]) {
         return nil;
     }
 

@@ -23,11 +23,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, SAGestureViewType) {
+    SAGestureViewTypeNormal = 0,
+    SAGestureViewTypeHost,
+    SAGestureViewTypeVisual,
+};
+
 @interface SAAutoTrackGestureConfig : NSObject
 
 + (NSArray <NSString *>*)supportGestures;
 
-+ (void)viewTypeWithName:(NSString *)name completion:(void (^)(bool isHostView, bool isVisualView))completion;
++ (SAGestureViewType)gestureViewTypeWithView:(NSString *)name;
 
 + (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView;
 

@@ -64,20 +64,17 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
 }
 
 /// 获取当前的 View 是不是配置文件中宿主 View 或 圈选 View
-/// @param name View 类型
-/// @param completion 回调结果
-+ (void)viewTypeWithName:(NSString *)name completion:(void (^)(bool isHostView, bool isVisualView))completion {
+/// @param name View
++ (SAGestureViewType)gestureViewTypeWithView:(NSString *)name {
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
         if ([item.hostView isEqualToString:name]) {
-            completion(YES, NO);
-            return;
+            return SAGestureViewTypeHost;
         }
         if ([item.visualView isEqualToString:name]) {
-            completion(NO, YES);
-            return;
+            return SAGestureViewTypeVisual;
         }
     }
-    completion(NO, NO);
+    return SAGestureViewTypeNormal;
 }
 
 /// 通过宿主 View 获取圈选 View 类型集合

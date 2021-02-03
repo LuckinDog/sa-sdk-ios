@@ -35,14 +35,9 @@
 - (BOOL)sensorsdata_isVisualView {
     if (self.userInteractionEnabled) {
         if (self.sensorsdata_canTrack) {
-            __block BOOL isHost = NO;
-            __block BOOL isVisual = NO;
-            [SAAutoTrackGestureConfig viewTypeWithName:NSStringFromClass(self.class) completion:^(bool isHostView, bool isVisualView) {
-                isHost = isHostView;
-                isVisual = isVisualView;
-            }];
-            if (isHost) return NO;
-            if (isVisual) return YES;
+            SAGestureViewType type = [SAAutoTrackGestureConfig gestureViewTypeWithView:NSStringFromClass(self.class)];
+            if (type == SAGestureViewTypeHost) return NO;
+            if (type == SAGestureViewTypeVisual) return YES;
             for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
                 if (gesture.sensorsdata_canTrack) {
                     return YES;

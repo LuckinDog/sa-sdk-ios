@@ -27,6 +27,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
 #import "SAAutoTrackGestureConfig.h"
+#import "SAAutoTrackGestureConfig.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
@@ -504,7 +505,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    if ([SAAutoTrackUtils isAlertClickForView:self]) {
+    if (SAGestureViewTypeVisual == [SAAutoTrackGestureConfig gestureViewTypeWithView:NSStringFromClass(self.class)]) {
         return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];

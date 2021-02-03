@@ -128,16 +128,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return viewController;
 }
 
-/// 是否为弹框点击
-+ (BOOL)isAlertClickForView:(UIView *)view {
- #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        if ([NSStringFromClass(view.class) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] || [NSStringFromClass(view.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) { // 标记弹框
-            return YES;
-        }
-#endif
-     return NO;
-}
-
 ///  在间隔时间内是否采集 $AppClick 全埋点
 + (BOOL)isValidAppClickForObject:(id<SAAutoTrackViewProperty>)object {
     if (!object) {
