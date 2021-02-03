@@ -35,9 +35,11 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
 + (void)loadConfigData {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK.bundle" ofType:nil]];
-        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gesture_config.json" ofType:nil];
-        NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+        NSData *jsonData = [self loadConfigDataFromeBundle:[NSBundle mainBundle]];
+        if (!jsonData) {
+            NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK.bundle" ofType:nil]];
+            jsonData = [self loadConfigDataFromeBundle:sensorsBundle];
+        }
         @try {
             NSDictionary *config = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
             _supportInfo = [SAAutoTrackGestureItemInfo itemsFromInfo:config[@"support"][@"gesture"]];
@@ -46,6 +48,11 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
             SALogError(@"%@ error: %@", self, exception);
         }
     });
+}
+
++ (NSData * _Nullable)loadConfigDataFromeBundle:(NSBundle *)bundle {
+    NSString *jsonPath = [bundle pathForResource:@"sa_autotrack_gesture_config.json" ofType:nil];
+    return [NSData dataWithContentsOfFile:jsonPath];
 }
 
 + (NSArray <SAAutoTrackGestureItemInfo *>*)supportInfo {
