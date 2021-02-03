@@ -2512,8 +2512,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] deleteUser];
 }
 
-- (void)enableLog:(BOOL)enabelLog{
-    [self enableLoggers:enabelLog];
+- (void)enableLog:(BOOL)enableLog {
+    [SALog sharedLog].enableLog = enableLog;
+    if (!enableLog) {
+        return;
+    }
+    [self enableLoggers:enableLog];
 }
 
 - (void)enableTrackScreenOrientation:(BOOL)enable {
