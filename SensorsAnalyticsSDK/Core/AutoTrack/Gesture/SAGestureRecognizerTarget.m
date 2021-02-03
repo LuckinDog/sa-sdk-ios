@@ -32,15 +32,15 @@
 
 @implementation SAGestureRecognizerTarget
 
-- (NSArray <UIView *>*)searchVisualSubViewFromView:(UIView *)view classes:(NSArray <NSString *>*)classes {
-    if (!classes.count) return @[];
+- (NSArray <UIView *>*)searchVisualSubViewWithTypes:(NSArray <NSString *>*)types fromView:(UIView *)view {
+    if (!types.count) return @[];
     
     NSMutableArray *subViews = [NSMutableArray array];
     for (UIView *subView in view.subviews) {
-        if ([classes containsObject:NSStringFromClass(subView.class)]) {
+        if ([types containsObject:NSStringFromClass(subView.class)]) {
             [subViews addObject:subView];
         } else {
-            NSArray *array = [self searchVisualSubViewFromView:subView classes: classes];
+            NSArray *array = [self searchVisualSubViewWithTypes:types fromView:subView];
             if (array.count) {
                 [subViews addObjectsFromArray:array];
             }
@@ -63,7 +63,7 @@
     if (gestureView.sensorsdata_isIgnored) return;
     
     // 查找私有系统 View 手势的所在的圈选 View
-    NSArray <UIView *>*visualViews = [self searchVisualSubViewFromView:gestureView classes:[SAAutoTrackGestureConfig visualViewsWithHostView:NSStringFromClass(gestureView.class)]];
+    NSArray <UIView *>*visualViews = [self searchVisualSubViewWithTypes:[SAAutoTrackGestureConfig visualViewTypesWithHostView:NSStringFromClass(gestureView.class)] fromView:gestureView];
     CGPoint currentPoint = [gestureRecognizer locationInView:gestureView];
     for (UIView *visualView in visualViews) {
         CGRect rect = [visualView convertRect:visualView.bounds toView:gestureView];

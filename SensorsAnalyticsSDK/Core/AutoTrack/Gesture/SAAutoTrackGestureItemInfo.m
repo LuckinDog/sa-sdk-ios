@@ -31,14 +31,14 @@
         self.type = config[@"type"];
         self.elementType = config[@"elementType"];
         self.hostView = config[@"hostView"];
-        self.visualViews = config[@"visualViews"];
+        self.visualView = config[@"visualView"];
         self.ignoreViewController = config[@"ignoreViewController"];
     }
     return self;
 }
 
 - (NSString *_Nullable)elementTypeWithVisualView:(UIView *)visualView {
-    if ([self.visualViews containsObject:NSStringFromClass(visualView.class)]) {
+    if ([self.visualView isEqualToString:NSStringFromClass(visualView.class)]) {
         return self.elementType;
     }
     return nil;
@@ -66,7 +66,9 @@
 + (NSArray <NSString *>*)typesFromItems:(NSArray <SAAutoTrackGestureItemInfo *>*)items {
     NSMutableArray *result = [NSMutableArray array];
     for (SAAutoTrackGestureItemInfo *item in items) {
-        [result addObject:item.type];
+        if (![result containsObject:item.type]) {
+            [result addObject:item.type];
+        }
     }
     return [result copy];
 }

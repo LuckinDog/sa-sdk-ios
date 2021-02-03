@@ -72,7 +72,7 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
             completion(YES, NO);
             return;
         }
-        if ([item.visualViews containsObject:name]) {
+        if ([item.visualView isEqualToString:name]) {
             completion(NO, YES);
             return;
         }
@@ -82,13 +82,15 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
 
 /// 通过宿主 View 获取圈选 View 类型集合
 /// @param hostView 宿主 View
-+ (NSArray <NSString *>*)visualViewsWithHostView:(NSString *)hostView {
++ (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView {
+    NSMutableArray *result = [NSMutableArray array];
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
-        if ([item.hostView isEqualToString:hostView]) {
-            return [item.visualViews copy];
-        }
+        if (![item.hostView isEqualToString:hostView]) continue;
+        if (!item.visualView.length) continue;
+        if ([result containsObject:item.visualView]) continue;
+        [result addObject:item.visualView];
     }
-    return @[];
+    return [result copy];
 }
 
 /// 获取禁止采集手势的 View 集合

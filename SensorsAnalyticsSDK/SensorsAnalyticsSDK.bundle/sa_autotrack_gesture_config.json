@@ -3,29 +3,30 @@
         "gesture": [
             {
                 "type": "UITapGestureRecognizer",
-                "hostView": "",
-                "visualViews": []
             }, {
                 "type": "UILongPressGestureRecognizer",
-                "elementType": "UIAlertController",
                 "hostView": "_UIAlertControllerInterfaceActionGroupView",
+                "visualView": "_UIInterfaceActionCustomViewRepresentationView",
+                "elementType": "UIAlertController",
                 "ignoreViewController": {
                     "public": "UIAlertController"
-                },
-                "visualViews": [
-                    "_UIInterfaceActionCustomViewRepresentationView",
-                    "_UIAlertControllerCollectionViewCell"
-                ]
+                }
+            }, {
+                "type": "UILongPressGestureRecognizer",
+                "hostView": "_UIAlertControllerView",
+                "visualView": "_UIAlertControllerCollectionViewCell",
+                "elementType": "UIAlertController",
+                "ignoreViewController": {
+                    "public": "UIAlertController"
+                }
             }, {
                 "type": "_UIContextMenuSelectionGestureRecognizer",
-                "elementType": "UIMenu",
                 "hostView": "_UIContextMenuActionsListView",
+                "visualView": "_UIContextMenuActionsListCell",
+                "elementType": "UIMenu",
                 "ignoreViewController": {
                     "private": "_UIContextMenuActionsOnlyViewController"
-                },
-                "visualViews": [
-                    "_UIContextMenuActionsListCell"
-                ]
+                }
             }
         ]
     },

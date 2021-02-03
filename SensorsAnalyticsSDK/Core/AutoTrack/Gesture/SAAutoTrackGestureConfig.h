@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)viewTypeWithName:(NSString *)name completion:(void (^)(bool isHostView, bool isVisualView))completion;
 
-+ (NSArray <NSString *>*)visualViewsWithHostView:(NSString *)hostView;
++ (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView;
 
 + (NSArray <NSString *>*)forbiddenViews;
 
