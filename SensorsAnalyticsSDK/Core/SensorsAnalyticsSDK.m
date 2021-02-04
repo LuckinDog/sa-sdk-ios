@@ -221,7 +221,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAPresetProperty *presetProperty;
 
-@property (nonatomic, strong) SAConsoleLogger *consoleLogger;
+@property (atomic, strong) SAConsoleLogger *consoleLogger;
 
 @property (nonatomic, strong) SAEncryptSecretKeyHandler *secretKeyHandler;
 
