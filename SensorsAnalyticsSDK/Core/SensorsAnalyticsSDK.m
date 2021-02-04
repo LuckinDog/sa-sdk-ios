@@ -452,7 +452,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)enableLoggers:(BOOL)enableLog {
+- (void)enableLoggers {
     if (!self.consoleLogger) {
         SAConsoleLogger *consoleLogger = [[SAConsoleLogger alloc] init];
         [SALog addLogger:consoleLogger];
@@ -2516,7 +2516,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if (!enableLog) {
         return;
     }
-    [self enableLoggers:enableLog];
+    [self enableLoggers];
 }
 
 - (void)enableTrackScreenOrientation:(BOOL)enable {
