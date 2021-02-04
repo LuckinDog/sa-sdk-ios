@@ -458,7 +458,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [SALog addLogger:consoleLogger];
         self.consoleLogger = consoleLogger;
     }
-    self.consoleLogger.enableLog = enableLog;
 }
 
 + (UInt64)getCurrentTime {
