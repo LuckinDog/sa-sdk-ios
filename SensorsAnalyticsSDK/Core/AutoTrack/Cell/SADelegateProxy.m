@@ -18,6 +18,10 @@
 //  limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 #import "SADelegateProxy.h"
 #import "SAClassHelper.h"
 #import "SAMethodHelper.h"
@@ -41,8 +45,7 @@
     }
     
     Class proxyClass = [self class];
-    NSArray<NSString *> *tempSelectors = [self selectorsFor:delegate withSelectors:selectors];
-    NSArray<NSValue *> *selectorValues = [self selectorValuesFor:delegate withSelectors:selectors];
+    NSArray<NSString *> *delegateSelectors = [self selectorsFor:delegate withSelectors:selectors];
     
     // 当前代理对象已经处理过
     if ([delegate sensorsdata_className]) {
@@ -51,28 +54,27 @@
 
         if (currentSelectors.count > 0) {
             NSMutableSet *currentSelectorsSet = [NSMutableSet setWithArray:currentSelectors];
-            NSMutableSet *tempSelectorsSet = [NSMutableSet setWithArray:tempSelectors];
-            [tempSelectorsSet minusSet:currentSelectorsSet];
-            NSArray<NSString *> *selectorsToAdd = [tempSelectorsSet allObjects];
-            selectorValues = [self selectorValuesFor:delegate withSelectors:selectorsToAdd];
+            NSMutableSet *delegateSelectorsSet = [NSMutableSet setWithArray:delegateSelectors];
+            [delegateSelectorsSet minusSet:currentSelectorsSet];
+            delegateSelectors = [delegateSelectorsSet allObjects];
             [totalSelectors addObjectsFromArray:currentSelectors];
-            [totalSelectors addObjectsFromArray:selectorsToAdd];
+            [totalSelectors addObjectsFromArray:delegateSelectors];
         } else {
-            selectorValues = [self selectorValuesFor:delegate withSelectors:tempSelectors];
-            [totalSelectors addObjectsFromArray:tempSelectors];
+            [totalSelectors addObjectsFromArray:delegateSelectors];
         }
-        if (selectorValues.count < 1) {
+        
+        if (delegateSelectors.count < 1) {
             return;
         }
         
-        [self addInstanceMethodWithSelectorValues:selectorValues fromClass:proxyClass toClass:[SAClassHelper realClassWithObject:delegate]];
+        [self addInstanceMethodWithSelectors:delegateSelectors fromClass:proxyClass toClass:[SAClassHelper realClassWithObject:delegate]];
         ((NSObject *)delegate).sensorsdata_selectors = totalSelectors;
         ((NSObject *)delegate).sensorsdata_delegateProxy = self;
         return;
     }
     
     
-    ((NSObject *)delegate).sensorsdata_selectors = tempSelectors;
+    ((NSObject *)delegate).sensorsdata_selectors = delegateSelectors;
     ((NSObject *)delegate).sensorsdata_delegateProxy = self;
     // KVO 创建子类后会重写 - (Class)class 方法, 直接通过 object.class 无法获取真实的类
     Class realClass = [SAClassHelper realClassWithObject:delegate];
@@ -86,7 +88,7 @@
         }
         
         // 给 KVO 的类添加需要 hook 的方法
-        [self addInstanceMethodWithSelectorValues:selectorValues fromClass:proxyClass toClass:realClass];
+        [self addInstanceMethodWithSelectors:delegateSelectors fromClass:proxyClass toClass:realClass];
         return;
     }
     
@@ -98,7 +100,7 @@
     }
     
     // 给新创建的类添加需要 hook 的方法
-    [self addInstanceMethodWithSelectorValues:selectorValues fromClass:proxyClass toClass:dynamicClass];
+    [self addInstanceMethodWithSelectors:delegateSelectors fromClass:proxyClass toClass:dynamicClass];
 
     if ([realClass isKindOfClass:[NSObject class]]) {
         // 新建子类后,需要监听是否添加了 KVO, 因为添加 KVO 属性监听后, KVO 会重写 Class 方法, 导致获取的 Class 为神策添加的子类
@@ -124,9 +126,10 @@
     }
 }
 
-+ (void)addInstanceMethodWithSelectorValues:(NSArray<NSValue *> *)selectorValues fromClass:(Class)fromClass toClass:(Class)toClass {
-    for (NSValue *selectorValue in selectorValues) {
-        [SAMethodHelper addInstanceMethodWithSelector:selectorValue.pointerValue fromClass:fromClass toClass:toClass];
++ (void)addInstanceMethodWithSelectors:(NSArray<NSString *> *)selectors fromClass:(Class)fromClass toClass:(Class)toClass {
+    for (NSString *selector in selectors) {
+        SEL sel = NSSelectorFromString(selector);
+        [SAMethodHelper addInstanceMethodWithSelector:sel fromClass:fromClass toClass:toClass];
     }
 }
 
@@ -139,18 +142,6 @@
         }
     }
     return [validSelectors copy];
-}
-
-+ (NSArray<NSValue *> *)selectorValuesFor:(id)object withSelectors:(NSArray<NSString *> *)selectors {
-    NSMutableArray<NSValue *> *selectorValues = [[NSMutableArray alloc] init];
-    for (NSString *selector in selectors) {
-        SEL aSelector = NSSelectorFromString(selector);
-        if (aSelector && [object respondsToSelector:aSelector]) {
-            NSValue *selectorValue = [NSValue valueWithPointer:aSelector];
-            [selectorValues addObject:selectorValue];
-        }
-    }
-    return [selectorValues copy];
 }
 
 @end
@@ -179,7 +170,9 @@
         // 清空已经记录的原始类
         self.sensorsdata_className = nil;
         Class delegateProxy = [self.sensorsdata_delegateProxy class];
-        [delegateProxy proxyDelegate:self selectors:self.sensorsdata_selectors];
+        if ([delegateProxy respondsToSelector:NSSelectorFromString(@"proxyDelegate:selectors:")]) {
+            [delegateProxy proxyDelegate:self selectors:self.sensorsdata_selectors];
+        }
     }
 }
 
