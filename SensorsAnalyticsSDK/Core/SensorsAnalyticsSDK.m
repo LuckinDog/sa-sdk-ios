@@ -372,6 +372,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
                 [self swizzleWebViewMethod];
             }
+            
+            if (_configOptions.enableTrackPush) {
+                [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeNotification];
+                [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
+            }
         }
         
     } @catch(NSException *exception) {

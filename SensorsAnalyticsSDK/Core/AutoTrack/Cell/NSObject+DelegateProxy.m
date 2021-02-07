@@ -18,11 +18,7 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
-#import "NSObject+SACellClick.h"
+#import "NSObject+DelegateProxy.h"
 #import <objc/runtime.h>
 
 @interface SADelegateProxyParasite : NSObject
@@ -41,6 +37,8 @@
 
 static void *const kSADelegateProxyParasiteName = (void *)&kSADelegateProxyParasiteName;
 static void *const kSADelegateProxyClassName = (void *)&kSADelegateProxyClassName;
+static void *const kSADelegateSelectors = (void *)&kSADelegateSelectors;
+static void *const kSADelegateProxy = (void *)&kSADelegateProxy;
 
 @interface NSObject (SACellClick)
 
@@ -48,7 +46,7 @@ static void *const kSADelegateProxyClassName = (void *)&kSADelegateProxyClassNam
 
 @end
 
-@implementation NSObject (SACellClick)
+@implementation NSObject (DelegateProxy)
 
 - (SADelegateProxyParasite *)sensorsdata_parasite {
     return objc_getAssociatedObject(self, kSADelegateProxyParasiteName);
@@ -64,6 +62,22 @@ static void *const kSADelegateProxyClassName = (void *)&kSADelegateProxyClassNam
 
 - (void)setSensorsdata_className:(NSString *)sensorsdata_className {
     objc_setAssociatedObject(self, kSADelegateProxyClassName, sensorsdata_className, OBJC_ASSOCIATION_COPY);
+}
+
+- (NSArray<NSString *> *)sensorsdata_selectors {
+    return objc_getAssociatedObject(self, kSADelegateSelectors);
+}
+
+- (void)setSensorsdata_selectors:(NSArray<NSString *> *)sensorsdata_selectors {
+    objc_setAssociatedObject(self, kSADelegateSelectors, sensorsdata_selectors, OBJC_ASSOCIATION_COPY);
+}
+
+- (id)sensorsdata_delegateProxy {
+    return objc_getAssociatedObject(self, kSADelegateProxy);
+}
+
+- (void)setSensorsdata_delegateProxy:(id)sensorsdata_delegateProxy {
+    objc_setAssociatedObject(self, kSADelegateProxy, sensorsdata_delegateProxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock {

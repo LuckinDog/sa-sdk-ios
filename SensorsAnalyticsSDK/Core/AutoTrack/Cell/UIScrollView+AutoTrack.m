@@ -19,7 +19,7 @@
 //
 
 #import "UIScrollView+AutoTrack.h"
-#import "SADelegateProxy.h"
+#import "SAScrollViewDelegateProxy.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import "SensorsAnalyticsSDK.h"
@@ -40,7 +40,7 @@
     }
     
     // 使用委托类去 hook 点击事件方法
-    [SADelegateProxy proxyWithDelegate:self.delegate];
+    [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:@[@"tableView:didSelectRowAtIndexPath:", @"collectionView:didSelectItemAtIndexPath:"]];
 }
 
 @end
@@ -60,7 +60,7 @@
     }
     
     // 使用委托类去 hook 点击事件方法
-    [SADelegateProxy proxyWithDelegate:self.delegate];
+    [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:@[@"tableView:didSelectRowAtIndexPath:", @"collectionView:didSelectItemAtIndexPath:"]];
 }
 
 @end

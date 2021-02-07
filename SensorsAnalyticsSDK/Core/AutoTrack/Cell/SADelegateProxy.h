@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param delegate 代理：UITableViewDelegate、UICollectionViewDelegate 等
  */
-+ (void)proxyWithDelegate:(id)delegate;
++ (void)proxyDelegate:(id)delegate selectors:(NSArray<NSString *>*)selectors;
 
 @end
 
