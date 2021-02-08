@@ -59,16 +59,20 @@
     }
     
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    properties[SA_EVENT_PROPERTY_NOTIFICATION_CHANNEL] = SA_EVENT_PROPERTY_NOTIFICATION_CHANNEL_APPLE;
+    properties[kSAEventPropertyNotificationChannel] = kSAEventPropertyNotificationChannelApple;
     
     if (userInfo) {
         [properties addEntriesFromDictionary:[SANotificationUtil propertiesFromUserInfo:userInfo]];
+        id alert = userInfo[kSAPushAppleUserInfoKeyAps][kSAPushAppleUserInfoKeyAlert];
+        if ([alert isKindOfClass:[NSDictionary class]]) {
+            properties[kSAEventPropertyNotificationTitle] = alert[kSAPushAppleUserInfoKeyTitle];
+            properties[kSAEventPropertyNotificationContent] = alert[kSAPushAppleUserInfoKeyBody];
+        } else if ([alert isKindOfClass:[NSString class]]) {
+            properties[kSAEventPropertyNotificationContent] = alert;
+        }
     }
     
-    properties[SA_EVENT_PROPERTY_NOTIFICATION_TITLE] = userInfo[SA_PUSH_APPLE_USER_INFO_KEY_APS][SA_PUSH_APPLE_USER_INFO_KEY_ALERT][SA_PUSH_APPLE_USER_INFO_KEY_TITLE];
-    properties[SA_EVENT_PROPERTY_NOTIFICATION_CONTENT] = userInfo[SA_PUSH_APPLE_USER_INFO_KEY_APS][SA_PUSH_APPLE_USER_INFO_KEY_ALERT][SA_PUSH_APPLE_USER_INFO_KEY_BODY];
-    
-    [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_NOTIFICATION_CLICK withProperties:properties];
+    [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
 }
 
 + (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector application:(UIApplication *)application localNotification:(UILocalNotification *)notification  {
@@ -100,14 +104,14 @@
     }
     
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    properties[SA_EVENT_PROPERTY_NOTIFICATION_CONTENT] = notification.alertBody;
-    properties[SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME] = SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_LOCAL;
+    properties[kSAEventPropertyNotificationContent] = notification.alertBody;
+    properties[kSAEventPropertyNotificationServiceName] = kSAEventPropertyNotificationServiceNameLocal;
     
     if (@available(iOS 8.2, *)) {
-        properties[SA_EVENT_PROPERTY_NOTIFICATION_TITLE] = notification.alertTitle;
+        properties[kSAEventPropertyNotificationTitle] = notification.alertTitle;
     }
     
-    [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_NOTIFICATION_CLICK withProperties:properties];
+    [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {

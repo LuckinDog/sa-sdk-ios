@@ -21,38 +21,38 @@
 #import <Foundation/Foundation.h>
 
 //AppPush Notification related
-extern NSString * const SA_EVENT_NAME_APP_NOTIFICATION_CLICK;
-extern NSString * const SA_EVENT_PROPERTY_NOTIFICATION_TITLE;
-extern NSString * const SA_EVENT_PROPERTY_NOTIFICATION_CONTENT;
-extern NSString * const SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME;
-extern NSString * const SA_EVENT_PROPERTY_NOTIFICATION_CHANNEL;
-extern NSString * const SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_LOCAL;
-extern NSString * const SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_JPUSH;
-extern NSString * const SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_GETUI;
-extern NSString * const SA_EVENT_PROPERTY_NOTIFICATION_CHANNEL_APPLE;
+extern NSString * const kSAEventNameNotificationClick;
+extern NSString * const kSAEventPropertyNotificationTitle;
+extern NSString * const kSAEventPropertyNotificationContent;
+extern NSString * const kSAEventPropertyNotificationServiceName;
+extern NSString * const kSAEventPropertyNotificationChannel;
+extern NSString * const kSAEventPropertyNotificationServiceNameLocal;
+extern NSString * const kSAEventPropertyNotificationServiceNameJPUSH;
+extern NSString * const kSAEventPropertyNotificationServiceNameGeTui;
+extern NSString * const kSAEventPropertyNotificationChannelApple;
 
 //identifier for third part push service
-extern NSString * const SA_PUSH_SERVICE_KEY_JPUSH;
-extern NSString * const SA_PUSH_SERVICE_KEY_GETUI;
-extern NSString * const SA_PUSH_SERVICE_KEY_SF;
+extern NSString * const kSAPushServiceKeyJPUSH;
+extern NSString * const kSAPushServiceKeyGeTui;
+extern NSString * const kSAPushServiceKeySF;
 
 //APNS related key
-extern NSString * const SA_PUSH_APPLE_USER_INFO_KEY_APS;
-extern NSString * const SA_PUSH_APPLE_USER_INFO_KEY_ALERT;
-extern NSString * const SA_PUSH_APPLE_USER_INFO_KEY_TITLE;
-extern NSString * const SA_PUSH_APPLE_USER_INFO_KEY_BODY;
+extern NSString * const kSAPushAppleUserInfoKeyAps;
+extern NSString * const kSAPushAppleUserInfoKeyAlert;
+extern NSString * const kSAPushAppleUserInfoKeyTitle;
+extern NSString * const kSAPushAppleUserInfoKeyBody;
 
 //sf_data related properties
-extern NSString * const SF_MSG_TITLE;
-extern NSString * const SF_PLAN_STRATEGY_ID;
-extern NSString * const SF_CHANNEL_CATEGORY;
-extern NSString * const SF_AUDIENCE_ID;
-extern NSString * const SF_CHANNEL_ID;
-extern NSString * const SF_LINK_URL;
-extern NSString * const SF_PLAN_TYPE;
-extern NSString * const SF_CHANNEL_SERVICE_NAME;
-extern NSString * const SF_MSG_ID;
-extern NSString * const SF_PLAN_ID;
-extern NSString * const SF_STRATEGY_UNIT_ID;
-extern NSString * const SF_ENTER_PLAN_TIME;
-extern NSString * const SF_MSG_CONTENT;
+extern NSString * const kSFMessageTitle;
+extern NSString * const kSFPlanStrategyID;
+extern NSString * const kSFChannelCategory;
+extern NSString * const kSFAudienceID;
+extern NSString * const kSFChannelID;
+extern NSString * const kSFLinkUrl;
+extern NSString * const kSFPlanType;
+extern NSString * const kSFChannelServiceName;
+extern NSString * const kSFMessageID;
+extern NSString * const kSFPlanID;
+extern NSString * const kSFStrategyUnitID;
+extern NSString * const kSFEnterPlanTime;
+extern NSString * const kSFMessageContent;

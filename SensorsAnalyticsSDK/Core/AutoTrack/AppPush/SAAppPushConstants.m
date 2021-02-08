@@ -25,38 +25,38 @@
 #import "SAAppPushConstants.h"
 
 //AppPush Notification related
-NSString * const SA_EVENT_NAME_APP_NOTIFICATION_CLICK = @"$AppPushClick";
-NSString * const SA_EVENT_PROPERTY_NOTIFICATION_TITLE = @"$app_push_msg_title";
-NSString * const SA_EVENT_PROPERTY_NOTIFICATION_CONTENT = @"$app_push_msg_content";
-NSString * const SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME = @"$app_push_service_name";
-NSString * const SA_EVENT_PROPERTY_NOTIFICATION_CHANNEL = @"$app_push_channel";
-NSString * const SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_LOCAL = @"Local";
-NSString * const SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_JPUSH = @"JPush";
-NSString * const SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_GETUI = @"GeTui";
-NSString * const SA_EVENT_PROPERTY_NOTIFICATION_CHANNEL_APPLE = @"Apple";
+NSString * const kSAEventNameNotificationClick = @"$AppPushClick";
+NSString * const kSAEventPropertyNotificationTitle = @"$app_push_msg_title";
+NSString * const kSAEventPropertyNotificationContent = @"$app_push_msg_content";
+NSString * const kSAEventPropertyNotificationServiceName = @"$app_push_service_name";
+NSString * const kSAEventPropertyNotificationChannel = @"$app_push_channel";
+NSString * const kSAEventPropertyNotificationServiceNameLocal = @"Local";
+NSString * const kSAEventPropertyNotificationServiceNameJPUSH = @"JPush";
+NSString * const kSAEventPropertyNotificationServiceNameGeTui = @"GeTui";
+NSString * const kSAEventPropertyNotificationChannelApple = @"Apple";
 
 //identifier for third part push service
-NSString * const SA_PUSH_SERVICE_KEY_JPUSH = @"_j_business";
-NSString * const SA_PUSH_SERVICE_KEY_GETUI = @"_ge_";
-NSString * const SA_PUSH_SERVICE_KEY_SF = @"sf_data";
+NSString * const kSAPushServiceKeyJPUSH = @"_j_business";
+NSString * const kSAPushServiceKeyGeTui = @"_ge_";
+NSString * const kSAPushServiceKeySF = @"sf_data";
 
 //APNS related key
-NSString * const SA_PUSH_APPLE_USER_INFO_KEY_APS = @"aps";
-NSString * const SA_PUSH_APPLE_USER_INFO_KEY_ALERT = @"alert";
-NSString * const SA_PUSH_APPLE_USER_INFO_KEY_TITLE = @"title";
-NSString * const SA_PUSH_APPLE_USER_INFO_KEY_BODY = @"body";
+NSString * const kSAPushAppleUserInfoKeyAps = @"aps";
+NSString * const kSAPushAppleUserInfoKeyAlert = @"alert";
+NSString * const kSAPushAppleUserInfoKeyTitle = @"title";
+NSString * const kSAPushAppleUserInfoKeyBody = @"body";
 
 //sf_data related properties
-NSString * const SF_MSG_TITLE = @"$sf_msg_title";
-NSString * const SF_PLAN_STRATEGY_ID = @"$sf_plan_strategy_id";
-NSString * const SF_CHANNEL_CATEGORY = @"$sf_channel_category";
-NSString * const SF_AUDIENCE_ID = @"$sf_audience_id";
-NSString * const SF_CHANNEL_ID = @"$sf_channel_id";
-NSString * const SF_LINK_URL = @"$sf_link_url";
-NSString * const SF_PLAN_TYPE = @"$sf_plan_type";
-NSString * const SF_CHANNEL_SERVICE_NAME = @"$sf_channel_service_name";
-NSString * const SF_MSG_ID = @"$sf_msg_id";
-NSString * const SF_PLAN_ID = @"$sf_plan_id";
-NSString * const SF_STRATEGY_UNIT_ID = @"$sf_strategy_unit_id";
-NSString * const SF_ENTER_PLAN_TIME = @"$sf_enter_plan_time";
-NSString * const SF_MSG_CONTENT = @"$sf_msg_content";
+NSString * const kSFMessageTitle = @"$sf_msg_title";
+NSString * const kSFPlanStrategyID = @"$sf_plan_strategy_id";
+NSString * const kSFChannelCategory = @"$sf_channel_category";
+NSString * const kSFAudienceID = @"$sf_audience_id";
+NSString * const kSFChannelID = @"$sf_channel_id";
+NSString * const kSFLinkUrl = @"$sf_link_url";
+NSString * const kSFPlanType = @"$sf_plan_type";
+NSString * const kSFChannelServiceName = @"$sf_channel_service_name";
+NSString * const kSFMessageID = @"$sf_msg_id";
+NSString * const kSFPlanID = @"$sf_plan_id";
+NSString * const kSFStrategyUnitID = @"$sf_strategy_unit_id";
+NSString * const kSFEnterPlanTime = @"$sf_enter_plan_time";
+NSString * const kSFMessageContent = @"$sf_msg_content";

@@ -52,20 +52,20 @@
     UNNotificationRequest *request = response.notification.request;
     BOOL isRemoteNotification = [request.trigger isKindOfClass:[UNPushNotificationTrigger class]];
     if (isRemoteNotification) {
-        properties[SA_EVENT_PROPERTY_NOTIFICATION_CHANNEL] = SA_EVENT_PROPERTY_NOTIFICATION_CHANNEL_APPLE;
+        properties[kSAEventPropertyNotificationChannel] = kSAEventPropertyNotificationChannelApple;
     } else {
-        properties[SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME] = SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_LOCAL;
+        properties[kSAEventPropertyNotificationServiceName] = kSAEventPropertyNotificationServiceNameLocal;
     }
     
-    properties[SA_EVENT_PROPERTY_NOTIFICATION_TITLE] = request.content.title;
-    properties[SA_EVENT_PROPERTY_NOTIFICATION_CONTENT] = request.content.body;
+    properties[kSAEventPropertyNotificationTitle] = request.content.title;
+    properties[kSAEventPropertyNotificationContent] = request.content.body;
     
     NSDictionary *userInfo = request.content.userInfo;
     if (userInfo) {
         [properties addEntriesFromDictionary:[SANotificationUtil propertiesFromUserInfo:userInfo]];
     }
     
-    [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_NOTIFICATION_CLICK withProperties:properties];
+    [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){

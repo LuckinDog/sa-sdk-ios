@@ -32,18 +32,18 @@
     
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     
-    if (userInfo[SA_PUSH_SERVICE_KEY_JPUSH]) {
-        properties[SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME] = SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_JPUSH;
+    if (userInfo[kSAPushServiceKeyJPUSH]) {
+        properties[kSAEventPropertyNotificationServiceName] = kSAEventPropertyNotificationServiceNameJPUSH;
     }
     
-    if (userInfo[SA_PUSH_SERVICE_KEY_GETUI]) {
-        properties[SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME] = SA_EVENT_PROPERTY_NOTIFICATION_SERVICE_NAME_GETUI;
+    if (userInfo[kSAPushServiceKeyGeTui]) {
+        properties[kSAEventPropertyNotificationServiceName] = kSAEventPropertyNotificationServiceNameGeTui;
     }
     
     //SF related properties
-    NSString *sfDataString = userInfo[SA_PUSH_SERVICE_KEY_SF];
+    NSString *sfDataString = userInfo[kSAPushServiceKeySF];
     if (sfDataString && [sfDataString isKindOfClass:[NSString class]]) {
-        NSData *sfData = [userInfo[SA_PUSH_SERVICE_KEY_SF] dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *sfData = [userInfo[kSAPushServiceKeySF] dataUsingEncoding:NSUTF8StringEncoding];
         NSError *error;
         NSDictionary *sfProperties;
         if (sfData) {
@@ -65,19 +65,19 @@
 
 + (NSDictionary *)propertiesFromSFData:(NSDictionary *)sfData {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    properties[SF_MSG_TITLE] = sfData[SF_MSG_TITLE.sensorsdata_sfPushKey];
-    properties[SF_PLAN_STRATEGY_ID] = sfData[SF_PLAN_STRATEGY_ID.sensorsdata_sfPushKey];
-    properties[SF_CHANNEL_CATEGORY] = sfData[SF_CHANNEL_CATEGORY.sensorsdata_sfPushKey];
-    properties[SF_AUDIENCE_ID] = sfData[SF_AUDIENCE_ID.sensorsdata_sfPushKey];
-    properties[SF_CHANNEL_ID] = sfData[SF_CHANNEL_ID.sensorsdata_sfPushKey];
-    properties[SF_LINK_URL] = sfData[SF_LINK_URL.sensorsdata_sfPushKey];
-    properties[SF_PLAN_TYPE] = sfData[SF_PLAN_TYPE.sensorsdata_sfPushKey];
-    properties[SF_CHANNEL_SERVICE_NAME] = sfData[SF_CHANNEL_SERVICE_NAME.sensorsdata_sfPushKey];
-    properties[SF_MSG_ID] = sfData[SF_MSG_ID.sensorsdata_sfPushKey];
-    properties[SF_PLAN_ID] = sfData[SF_PLAN_ID.sensorsdata_sfPushKey];
-    properties[SF_STRATEGY_UNIT_ID] = sfData[SF_STRATEGY_UNIT_ID.sensorsdata_sfPushKey];
-    properties[SF_ENTER_PLAN_TIME] = sfData[SF_ENTER_PLAN_TIME.sensorsdata_sfPushKey];
-    properties[SF_MSG_CONTENT] = sfData[SF_MSG_CONTENT.sensorsdata_sfPushKey];
+    properties[kSFMessageTitle] = sfData[kSFMessageTitle.sensorsdata_sfPushKey];
+    properties[kSFPlanStrategyID] = sfData[kSFPlanStrategyID.sensorsdata_sfPushKey];
+    properties[kSFChannelCategory] = sfData[kSFChannelCategory.sensorsdata_sfPushKey];
+    properties[kSFAudienceID] = sfData[kSFAudienceID.sensorsdata_sfPushKey];
+    properties[kSFChannelID] = sfData[kSFChannelID.sensorsdata_sfPushKey];
+    properties[kSFLinkUrl] = sfData[kSFLinkUrl.sensorsdata_sfPushKey];
+    properties[kSFPlanType] = sfData[kSFPlanType.sensorsdata_sfPushKey];
+    properties[kSFChannelServiceName] = sfData[kSFChannelServiceName.sensorsdata_sfPushKey];
+    properties[kSFMessageID] = sfData[kSFMessageID.sensorsdata_sfPushKey];
+    properties[kSFPlanID] = sfData[kSFPlanID.sensorsdata_sfPushKey];
+    properties[kSFStrategyUnitID] = sfData[kSFStrategyUnitID.sensorsdata_sfPushKey];
+    properties[kSFEnterPlanTime] = sfData[kSFEnterPlanTime.sensorsdata_sfPushKey];
+    properties[kSFMessageContent] = sfData[kSFMessageContent.sensorsdata_sfPushKey];
     return [properties copy];
 }
 
