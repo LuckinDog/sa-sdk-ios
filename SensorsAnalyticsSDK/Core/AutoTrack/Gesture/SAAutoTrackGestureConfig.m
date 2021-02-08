@@ -67,7 +67,7 @@
     return [SAAutoTrackGestureItemInfo typesFromItems:self.supportInfo];
 }
 
-/// 获取当前的 View 是不是配置文件中宿主 View 或 圈选 View
+/// 获取当前的 View 是不是配置文件中宿主 View 或 可视化全埋点 View
 /// @param name View
 - (SAGestureViewType)gestureViewTypeWithView:(NSString *)name {
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
@@ -81,7 +81,7 @@
     return SAGestureViewTypeNormal;
 }
 
-/// 通过宿主 View 获取圈选 View 类型集合
+/// 通过宿主 View 获取可视化全埋点 View 类型集合
 /// @param hostView 宿主 View
 - (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView {
     NSMutableArray *result = [NSMutableArray array];
@@ -110,8 +110,8 @@
     return NO;
 }
 
-/// 获取圈选 View 的 $element_type
-/// @param view 圈选 View
+/// 获取可视化全埋点 View 的 $element_type
+/// @param view 可视化全埋点 View
 - (NSString *_Nullable)elementTypeWithVisualView:(UIView *)view {
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
         NSString *type = [item elementTypeWithVisualView:view];

@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 当前的 View 类型是否可以采集手势
 @property (nonatomic, assign, readonly) BOOL sensorsdata_canTrack;
 
-/// 当前的 View 是否可以圈选
+/// 当前的 View 是否是可视化全埋点 View
 @property (nonatomic, assign, readonly) BOOL sensorsdata_isVisualView;
 
 @end

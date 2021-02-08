@@ -37,15 +37,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// 忽略的页面; 弹框, 菜单等不能作为单独的页面
 @property (nonatomic, strong) NSDictionary *ignoreViewController;
 
-/// 采集私有手势时, 通过宿主 View 查询可圈选的 View 类型
+/// 采集私有手势时, 通过宿主 View 查询可视化全埋点的 View 类型
 @property (nonatomic, copy) NSString *visualView;
 
 /// 构造方法
 /// @param config 通过 NSDictionary 构造一个 item
 - (instancetype)initWithConfig:(NSDictionary *)config;
 
-/// 根据圈选 View 获取 $element_type 类型
-/// @param visualView 圈选 View
+/// 根据可视化全埋点 View 获取 $element_type 类型
+/// @param visualView 可视化全埋点 View
 - (NSString *_Nullable)elementTypeWithVisualView:(UIView *)visualView;
 
 /// 采集 screen_name 时, 是不是需要忽略的视图控制器

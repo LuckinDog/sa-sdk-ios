@@ -69,7 +69,7 @@
     if (![gestureView conformsToProtocol:@protocol(SAAutoTrackViewProperty)]) return;
     if (gestureView.sensorsdata_isIgnored) return;
     
-    // 查找私有系统 View 手势的所在的圈选 View
+    // 查找私有系统 View 手势的所在的可视化全埋点 View
     NSArray <UIView *>*visualViews = [self searchVisualSubViewWithTypes:[SAAutoTrackGestureConfig.sharedInstance visualViewTypesWithHostView:NSStringFromClass(gestureView.class)] fromView:gestureView];
     CGPoint currentPoint = [gestureRecognizer locationInView:gestureView];
     for (UIView *visualView in visualViews) {
