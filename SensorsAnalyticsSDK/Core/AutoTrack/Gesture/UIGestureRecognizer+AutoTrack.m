@@ -79,6 +79,7 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
     // Track 事件需要在原有事件之前触发(原有事件中更改页面内容,会导致部分内容获取不准确)
     [self sensorsdata_addTrackAction];
     [self sensorsdata_addTarget:target action:action];
+    // SAGestureTargetActionPair 重写了 - isEqual: 方法, 可以使用数组的 containsObject 和 addObject 方法
     SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
     if (![self.sensorsdata_targetActionPairs containsObject:resulatPair]) {
         [self.sensorsdata_targetActionPairs addObject:resulatPair];
@@ -87,6 +88,7 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 
 - (void)sensorsdata_removeTarget:(id)target action:(SEL)action {
     [self sensorsdata_removeTarget:target action:action];
+    // SAGestureTargetActionPair 重写了 - isEqual: 方法, 可以使用数组的 containsObject 和 removeObject 方法
     SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
     if ([self.sensorsdata_targetActionPairs containsObject:resulatPair]) {
         [self.sensorsdata_targetActionPairs removeObject:resulatPair];
