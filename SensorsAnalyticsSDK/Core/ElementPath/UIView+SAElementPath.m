@@ -488,7 +488,7 @@
 @implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
-    if (SAGestureViewTypeVisual == [SAAutoTrackGestureConfig gestureViewTypeWithView:NSStringFromClass(self.class)]) {
+    if (SAGestureViewTypeVisual == [SAAutoTrackGestureConfig.sharedInstance gestureViewTypeWithView:NSStringFromClass(self.class)]) {
         return nil;
     }
 

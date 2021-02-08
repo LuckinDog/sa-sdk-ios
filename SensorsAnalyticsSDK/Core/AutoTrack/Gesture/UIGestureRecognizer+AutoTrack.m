@@ -40,7 +40,7 @@ static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 @implementation UIGestureRecognizer (AutoTrack)
 
 - (BOOL)sensorsdata_canTrack {
-    return [SAAutoTrackGestureConfig.supportGestures containsObject:NSStringFromClass(self.class)];
+    return [SAAutoTrackGestureConfig.sharedInstance.supportGestures containsObject:NSStringFromClass(self.class)];
 }
 
 - (SAGestureRecognizerTarget *)sensorsdata_trackTarget {

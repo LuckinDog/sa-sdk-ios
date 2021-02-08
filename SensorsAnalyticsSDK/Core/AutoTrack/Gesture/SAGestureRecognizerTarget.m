@@ -70,7 +70,7 @@
     if (gestureView.sensorsdata_isIgnored) return;
     
     // 查找私有系统 View 手势的所在的圈选 View
-    NSArray <UIView *>*visualViews = [self searchVisualSubViewWithTypes:[SAAutoTrackGestureConfig visualViewTypesWithHostView:NSStringFromClass(gestureView.class)] fromView:gestureView];
+    NSArray <UIView *>*visualViews = [self searchVisualSubViewWithTypes:[SAAutoTrackGestureConfig.sharedInstance visualViewTypesWithHostView:NSStringFromClass(gestureView.class)] fromView:gestureView];
     CGPoint currentPoint = [gestureRecognizer locationInView:gestureView];
     for (UIView *visualView in visualViews) {
         CGRect rect = [visualView convertRect:visualView.bounds toView:gestureView];

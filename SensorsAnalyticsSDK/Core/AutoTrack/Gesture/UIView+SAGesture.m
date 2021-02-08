@@ -29,13 +29,13 @@
 @implementation UIView (SAGesture)
 
 - (BOOL)sensorsdata_canTrack {
-    return ![SAAutoTrackGestureConfig.forbiddenViews containsObject:NSStringFromClass(self.class)];
+    return ![SAAutoTrackGestureConfig.sharedInstance.forbiddenViews containsObject:NSStringFromClass(self.class)];
 }
 
 - (BOOL)sensorsdata_isVisualView {
     if (self.userInteractionEnabled) {
         if (self.sensorsdata_canTrack) {
-            SAGestureViewType type = [SAAutoTrackGestureConfig gestureViewTypeWithView:NSStringFromClass(self.class)];
+            SAGestureViewType type = [SAAutoTrackGestureConfig.sharedInstance gestureViewTypeWithView:NSStringFromClass(self.class)];
             if (type == SAGestureViewTypeHost) return NO;
             if (type == SAGestureViewTypeVisual) return YES;
             for (UIGestureRecognizer *gesture in self.gestureRecognizers) {

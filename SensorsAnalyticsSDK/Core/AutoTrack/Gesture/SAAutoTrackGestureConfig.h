@@ -31,17 +31,19 @@ typedef NS_ENUM(NSUInteger, SAGestureViewType) {
 
 @interface SAAutoTrackGestureConfig : NSObject
 
-+ (NSArray <NSString *>*)supportGestures;
++ (instancetype)sharedInstance;
 
-+ (SAGestureViewType)gestureViewTypeWithView:(NSString *)name;
+- (NSArray <NSString *>*)supportGestures;
 
-+ (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView;
+- (SAGestureViewType)gestureViewTypeWithView:(NSString *)name;
 
-+ (NSArray <NSString *>*)forbiddenViews;
+- (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView;
 
-+ (BOOL)isIgnoreViewController:(UIViewController *)controller;
+- (NSArray <NSString *>*)forbiddenViews;
 
-+ (NSString *_Nullable)elementTypeWithVisualView:(UIView *)view;
+- (BOOL)isIgnoreViewController:(UIViewController *)controller;
+
+- (NSString *_Nullable)elementTypeWithVisualView:(UIView *)view;
 
 @end
 

@@ -24,30 +24,36 @@
 
 #import "SAAutoTrackGestureConfig.h"
 #import "SAAutoTrackGestureItemInfo.h"
-#import "SALog.h"
 
-static NSArray <SAAutoTrackGestureItemInfo *>*_supportInfo = nil;
-static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
+@interface SAAutoTrackGestureConfig ()
+
+@property (nonatomic, strong) NSArray <SAAutoTrackGestureItemInfo *>*supportInfo;
+@property (nonatomic, strong) NSArray <SAAutoTrackGestureItemInfo *>*forbiddenInfo;
+
+@end
 
 @implementation SAAutoTrackGestureConfig
-
-/// 加载配置文件
-+ (void)loadConfigData {
+#pragma mark - Life Cycle & Load Config
++ (instancetype)sharedInstance {
+    static SAAutoTrackGestureConfig *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        // 从 mainBundle 加载配置文件, 允许用户重载配置文件
+        sharedInstance = [[SAAutoTrackGestureConfig alloc] init];
         NSData *jsonData = [self loadConfigDataFromeBundle:[NSBundle mainBundle]];
         if (!jsonData) {
+            // 从 SDK 中加载配置文件
             NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK.bundle" ofType:nil]];
             jsonData = [self loadConfigDataFromeBundle:sensorsBundle];
         }
-        @try {
-            NSDictionary *config = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
-            _supportInfo = [SAAutoTrackGestureItemInfo itemsFromInfo:config[@"support"][@"gesture"]];
-            _forbiddenInfo = [SAAutoTrackGestureItemInfo itemsFromInfo:config[@"forbidden"][@"gesture"]];
-        } @catch(NSException *exception) {
-            SALogError(@"%@ error: %@", self, exception);
+        if (!jsonData) {
+            return;
         }
+        NSDictionary *config = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+        sharedInstance.supportInfo = [SAAutoTrackGestureItemInfo itemsFromInfo:config[@"support"][@"gesture"]];
+        sharedInstance.forbiddenInfo = [SAAutoTrackGestureItemInfo itemsFromInfo:config[@"forbidden"][@"gesture"]];
     });
+    return sharedInstance;
 }
 
 + (NSData * _Nullable)loadConfigDataFromeBundle:(NSBundle *)bundle {
@@ -55,24 +61,15 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
     return [NSData dataWithContentsOfFile:jsonPath];
 }
 
-+ (NSArray <SAAutoTrackGestureItemInfo *>*)supportInfo {
-    [self loadConfigData];
-    return _supportInfo;
-}
-
-+ (NSArray <SAAutoTrackGestureItemInfo *>*)forbiddenInfo {
-    [self loadConfigData];
-    return _forbiddenInfo;
-}
-
+#pragma mark - Public
 /// 获取支持采集的手势集合
-+ (NSArray <NSString *>*)supportGestures {
+- (NSArray <NSString *>*)supportGestures {
     return [SAAutoTrackGestureItemInfo typesFromItems:self.supportInfo];
 }
 
 /// 获取当前的 View 是不是配置文件中宿主 View 或 圈选 View
 /// @param name View
-+ (SAGestureViewType)gestureViewTypeWithView:(NSString *)name {
+- (SAGestureViewType)gestureViewTypeWithView:(NSString *)name {
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
         if ([item.hostView isEqualToString:name]) {
             return SAGestureViewTypeHost;
@@ -86,7 +83,7 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
 
 /// 通过宿主 View 获取圈选 View 类型集合
 /// @param hostView 宿主 View
-+ (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView {
+- (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView {
     NSMutableArray *result = [NSMutableArray array];
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
         if (![item.hostView isEqualToString:hostView]) continue;
@@ -98,13 +95,13 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
 }
 
 /// 获取禁止采集手势的 View 集合
-+ (NSArray <NSString *>*)forbiddenViews {
+- (NSArray <NSString *>*)forbiddenViews {
     return [SAAutoTrackGestureItemInfo hostViewsFromItems:self.forbiddenInfo];
 }
 
 /// 校验是否是忽略页面浏览的控制器
 /// @param controller 视图控制器
-+ (BOOL)isIgnoreViewController:(UIViewController *)controller {
+- (BOOL)isIgnoreViewController:(UIViewController *)controller {
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
         if ([item isIgnoreViewControllerWithController:controller]) {
             return YES;
@@ -115,7 +112,7 @@ static NSArray <SAAutoTrackGestureItemInfo *>*_forbiddenInfo = nil;
 
 /// 获取圈选 View 的 $element_type
 /// @param view 圈选 View
-+ (NSString *_Nullable)elementTypeWithVisualView:(UIView *)view {
+- (NSString *_Nullable)elementTypeWithVisualView:(UIView *)view {
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
         NSString *type = [item elementTypeWithVisualView:view];
         if (type.length) {

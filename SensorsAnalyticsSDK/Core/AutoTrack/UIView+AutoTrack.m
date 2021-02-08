@@ -55,7 +55,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementType {
-    NSString *elementType = [SAAutoTrackGestureConfig elementTypeWithVisualView:self];
+    NSString *elementType = [SAAutoTrackGestureConfig.sharedInstance elementTypeWithVisualView:self];
     if (elementType.length) {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         UIWindow *window = self.window;
@@ -505,7 +505,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    if (SAGestureViewTypeVisual == [SAAutoTrackGestureConfig gestureViewTypeWithView:NSStringFromClass(self.class)]) {
+    if (SAGestureViewTypeVisual == [SAAutoTrackGestureConfig.sharedInstance gestureViewTypeWithView:NSStringFromClass(self.class)]) {
         return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];
