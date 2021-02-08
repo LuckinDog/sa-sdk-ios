@@ -30,6 +30,7 @@
 #import "SALog.h"
 
 static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
+static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetActionPairsKey;
 
 @interface UIGestureRecognizer (AutoTrack)
 
@@ -55,6 +56,18 @@ static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
     objc_setAssociatedObject(self, kSAGestureTargetKey, sensorsdata_trackTarget, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+- (NSMutableArray<SAGestureTargetActionPair *> *)sensorsdata_targetActionPairs {
+    NSMutableArray <SAGestureTargetActionPair *>*targetActionPairs = objc_getAssociatedObject(self, kSAGestureTargetActionPairsKey);
+    if (!targetActionPairs) {
+        self.sensorsdata_targetActionPairs = [NSMutableArray array];
+    }
+    return objc_getAssociatedObject(self, kSAGestureTargetActionPairsKey);
+}
+
+- (void)setSensorsdata_targetActionPairs:(NSMutableArray<SAGestureTargetActionPair *> *)sensorsdata_targetActionPairs {
+    objc_setAssociatedObject(self, kSAGestureTargetActionPairsKey, sensorsdata_targetActionPairs, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action {
     [self sensorsdata_initWithTarget:target action:action];
     [self removeTarget:target action:action];
@@ -66,6 +79,18 @@ static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
     // Track 事件需要在原有事件之前触发(原有事件中更改页面内容,会导致部分内容获取不准确)
     [self sensorsdata_addTrackAction];
     [self sensorsdata_addTarget:target action:action];
+    SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
+    if (![self.sensorsdata_targetActionPairs containsObject:resulatPair]) {
+        [self.sensorsdata_targetActionPairs addObject:resulatPair];
+    }
+}
+
+- (void)sensorsdata_removeTarget:(id)target action:(SEL)action {
+    [self sensorsdata_removeTarget:target action:action];
+    SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
+    if ([self.sensorsdata_targetActionPairs containsObject:resulatPair]) {
+        [self.sensorsdata_targetActionPairs removeObject:resulatPair];
+    }
 }
 
 - (void)sensorsdata_addTrackAction {

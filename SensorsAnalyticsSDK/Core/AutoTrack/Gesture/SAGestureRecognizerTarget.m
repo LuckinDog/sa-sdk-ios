@@ -23,6 +23,7 @@
 #endif
 
 #import "SAGestureRecognizerTarget.h"
+#import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAutoTrackGestureConfig.h"
 #import "SAAlertController.h"
@@ -55,6 +56,10 @@
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gestureRecognizer {
     // 手势结束时才采集事件
     if (gestureRecognizer.state != UIGestureRecognizerStateEnded) {
+        return;
+    }
+    
+    if (gestureRecognizer.sensorsdata_targetActionPairs.count == 0) {
         return;
     }
     

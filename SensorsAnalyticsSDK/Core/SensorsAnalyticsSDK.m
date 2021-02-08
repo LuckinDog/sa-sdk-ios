@@ -2276,6 +2276,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [UIGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
                                    withMethod:@selector(sensorsdata_addTarget:action:)
                                         error:NULL];
+        [UIGestureRecognizer sa_swizzleMethod:@selector(removeTarget:action:)
+                                   withMethod:@selector(sensorsdata_removeTarget:action:)
+                                        error:NULL];
     });
     
     //React Native

@@ -17,6 +17,8 @@
 		45053BAF25C8EC74008D6FD1 /* SAGestureRecognizerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 45053BA525C8EC74008D6FD1 /* SAGestureRecognizerTarget.m */; };
 		45053BB025C8EC74008D6FD1 /* SAAutoTrackGestureConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 45053BA625C8EC74008D6FD1 /* SAAutoTrackGestureConfig.m */; };
 		45053BB125C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 45053BA725C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.h */; };
+		4541243F25D15D57008857FD /* SAGestureTargetActionPair.h in Headers */ = {isa = PBXBuildFile; fileRef = 4541243D25D15D57008857FD /* SAGestureTargetActionPair.h */; };
+		4541244025D15D57008857FD /* SAGestureTargetActionPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */; };
 		4D2D537A2591EB0600805141 /* SAConsoleLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2D536B2591EB0500805141 /* SAConsoleLogger.m */; };
 		4D2D537B2591EB0600805141 /* SALogMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2D536C2591EB0500805141 /* SALogMessage.m */; };
 		4D2D537E2591EB0600805141 /* SALoggerPrePostFixFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2D536F2591EB0500805141 /* SALoggerPrePostFixFormatter.h */; };
@@ -215,6 +217,8 @@
 		45053BA525C8EC74008D6FD1 /* SAGestureRecognizerTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGestureRecognizerTarget.m; sourceTree = "<group>"; };
 		45053BA625C8EC74008D6FD1 /* SAAutoTrackGestureConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackGestureConfig.m; sourceTree = "<group>"; };
 		45053BA725C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackGestureItemInfo.h; sourceTree = "<group>"; };
+		4541243D25D15D57008857FD /* SAGestureTargetActionPair.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureTargetActionPair.h; sourceTree = "<group>"; };
+		4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetActionPair.m; sourceTree = "<group>"; };
 		4D2D536B2591EB0500805141 /* SAConsoleLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConsoleLogger.m; sourceTree = "<group>"; };
 		4D2D536C2591EB0500805141 /* SALogMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALogMessage.m; sourceTree = "<group>"; };
 		4D2D536D2591EB0500805141 /* SAConsoleLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAConsoleLogger.h; sourceTree = "<group>"; };
@@ -451,6 +455,8 @@
 				45053BA225C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.m */,
 				45053BA325C8EC74008D6FD1 /* UIView+SAGesture.m */,
 				45053BA425C8EC74008D6FD1 /* UIGestureRecognizer+AutoTrack.m */,
+				4541243D25D15D57008857FD /* SAGestureTargetActionPair.h */,
+				4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */,
 				45053BA525C8EC74008D6FD1 /* SAGestureRecognizerTarget.m */,
 				45053BA625C8EC74008D6FD1 /* SAAutoTrackGestureConfig.m */,
 				45053BA725C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.h */,
@@ -939,6 +945,7 @@
 				4D9E5DBB25943BCE0095A0D0 /* SAObjectIdentityProvider.h in Headers */,
 				4D9E5DC025943BCE0095A0D0 /* SAVisualizedConnection.h in Headers */,
 				4D4DB2C925B7D19C00938842 /* UIScrollView+AutoTrack.h in Headers */,
+				4541243F25D15D57008857FD /* SAGestureTargetActionPair.h in Headers */,
 				4D9E5DAC25943BCD0095A0D0 /* SAValueTransformers.h in Headers */,
 				4D2D53992591EB2100805141 /* SADatabase.h in Headers */,
 				45053BB125C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.h in Headers */,
@@ -1160,6 +1167,7 @@
 				881A4202253D7B5000854F69 /* SAModuleManager.m in Sources */,
 				881A41FC253D7B5000854F69 /* SASwizzle.m in Sources */,
 				4D9E5DB725943BCD0095A0D0 /* SAAuxiliaryToolManager.m in Sources */,
+				4541244025D15D57008857FD /* SAGestureTargetActionPair.m in Sources */,
 				881A420D253D7B5000854F69 /* SAEncryptSecretKeyHandler.m in Sources */,
 				881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */,
 				45053BAE25C8EC74008D6FD1 /* UIGestureRecognizer+AutoTrack.m in Sources */,
