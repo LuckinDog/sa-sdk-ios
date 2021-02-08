@@ -86,9 +86,15 @@
 - (NSArray <NSString *>*)visualViewTypesWithHostView:(NSString *)hostView {
     NSMutableArray *result = [NSMutableArray array];
     for (SAAutoTrackGestureItemInfo *item in self.supportInfo) {
-        if (![item.hostView isEqualToString:hostView]) continue;
-        if (!item.visualView.length) continue;
-        if ([result containsObject:item.visualView]) continue;
+        if (![item.hostView isEqualToString:hostView]) {
+            continue;
+        }
+        if (!item.visualView.length) {
+            continue;
+        }
+        if ([result containsObject:item.visualView]) {
+            continue;
+        }
         [result addObject:item.visualView];
     }
     return [result copy];

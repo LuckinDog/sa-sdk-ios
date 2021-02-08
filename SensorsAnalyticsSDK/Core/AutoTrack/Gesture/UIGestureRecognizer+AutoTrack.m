@@ -70,7 +70,9 @@ static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 
 - (void)sensorsdata_addTrackAction {
     // 校验是否是允许采集的手势
-    if (!self.sensorsdata_canTrack) return;
+    if (!self.sensorsdata_canTrack) {
+        return;
+    }
     [self sensorsdata_addTarget:self.sensorsdata_trackTarget action:@selector(trackGestureRecognizerAppClick:)];
 }
 

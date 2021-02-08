@@ -34,7 +34,9 @@
 @implementation SAGestureRecognizerTarget
 
 - (NSArray <UIView *>*)searchVisualSubViewWithTypes:(NSArray <NSString *>*)types fromView:(UIView *)view {
-    if (!types.count) return @[];
+    if (!types.count) {
+        return @[];
+    }
     
     NSMutableArray *subViews = [NSMutableArray array];
     for (UIView *subView in view.subviews) {
@@ -52,7 +54,9 @@
 
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gestureRecognizer {
     // 手势结束时才采集事件
-    if (gestureRecognizer.state != UIGestureRecognizerStateEnded) return;
+    if (gestureRecognizer.state != UIGestureRecognizerStateEnded) {
+        return;
+    }
     
     UIView *gestureView = gestureRecognizer.view;
     
@@ -63,11 +67,17 @@
     }
     
     // 指定的 View 不采集手势事件
-    if (!gestureView.sensorsdata_canTrack) return;
+    if (!gestureView.sensorsdata_canTrack) {
+        return;
+    }
     
     // 控件是否忽略事件采集
-    if (![gestureView conformsToProtocol:@protocol(SAAutoTrackViewProperty)]) return;
-    if (gestureView.sensorsdata_isIgnored) return;
+    if (![gestureView conformsToProtocol:@protocol(SAAutoTrackViewProperty)]) {
+        return;
+    }
+    if (gestureView.sensorsdata_isIgnored) {
+        return;
+    }
     
     // 查找私有系统 View 手势的所在的可视化全埋点 View
     NSArray <UIView *>*visualViews = [self searchVisualSubViewWithTypes:[SAAutoTrackGestureConfig.sharedInstance visualViewTypesWithHostView:NSStringFromClass(gestureView.class)] fromView:gestureView];
@@ -85,7 +95,9 @@
     
     // SDK 是否启用, 全埋点点击事件采集是否开启等
     NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:gestureView];
-    if (!properties) return;
+    if (!properties) {
+        return;
+    }
     
     // 采集手势事件
     [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
