@@ -34,14 +34,37 @@
     return self;
 }
 
-- (BOOL)isEqual:(SAGestureTargetActionPair *)object {
-    BOOL isEqual = self.target == object.target;
-    isEqual = isEqual && [NSStringFromSelector(self.action) isEqualToString:NSStringFromSelector(object.action)];
+- (BOOL)isEqualToTarget:(id)target andAction:(SEL)action {
+    BOOL isEqual = self.target == target;
+    isEqual = isEqual && [NSStringFromSelector(self.action) isEqualToString:NSStringFromSelector(action)];
     return isEqual;
 }
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"target = %@; action = %@; description = %@", self.target, NSStringFromSelector(self.action), [super description]];
+}
+
+- (BOOL)isValid {
+    return self.target && self.action;
+}
+
++ (SAGestureTargetActionPair * _Nullable)containsObjectWithTarget:(id)target andAction:(SEL)action fromPairs:(NSArray <SAGestureTargetActionPair *>*)pairs {
+    for (SAGestureTargetActionPair *pair in pairs) {
+        if ([pair isEqualToTarget:target andAction:action]) {
+            return pair;
+        }
+    }
+    return nil;
+}
+
++ (NSArray <SAGestureTargetActionPair *>*)filterValidPairFrom:(NSArray <SAGestureTargetActionPair *>*)pairs {
+    NSMutableArray *result = [NSMutableArray array];
+    for (SAGestureTargetActionPair *pair in pairs) {
+        if (pair.isValid) {
+            [result addObject:pair];
+        }
+    }
+    return result;
 }
 
 @end

@@ -35,7 +35,7 @@
 @implementation SAGestureRecognizerTarget
 
 - (NSArray <UIView *>*)searchVisualSubViewWithTypes:(NSArray <NSString *>*)types fromView:(UIView *)view {
-    if (!types.count) {
+    if (types.count == 0) {
         return @[];
     }
     
@@ -45,7 +45,7 @@
             [subViews addObject:subView];
         } else {
             NSArray *array = [self searchVisualSubViewWithTypes:types fromView:subView];
-            if (array.count) {
+            if (array.count > 0) {
                 [subViews addObjectsFromArray:array];
             }
         }
@@ -59,7 +59,7 @@
         return;
     }
     
-    if (gestureRecognizer.sensorsdata_targetActionPairs.count == 0) {
+    if ([SAGestureTargetActionPair filterValidPairFrom:gestureRecognizer.sensorsdata_targetActionPairs].count == 0) {
         return;
     }
     

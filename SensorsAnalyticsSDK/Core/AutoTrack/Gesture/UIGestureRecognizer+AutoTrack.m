@@ -44,6 +44,37 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
     return [SAAutoTrackGestureConfig.sharedInstance.supportGestures containsObject:NSStringFromClass(self.class)];
 }
 
+#pragma mark - Hook Method
+- (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action {
+    [self sensorsdata_initWithTarget:target action:action];
+    [self removeTarget:target action:action];
+    [self addTarget:target action:action];
+    return self;
+}
+
+- (void)sensorsdata_addTarget:(id)target action:(SEL)action {
+    // Track 事件需要在原有事件之前触发(原有事件中更改页面内容,会导致部分内容获取不准确)
+    if (self.sensorsdata_canTrack) {
+        if (![SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs]) {
+            SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
+            [self.sensorsdata_targetActionPairs addObject:resulatPair];
+            [self sensorsdata_addTarget:self.sensorsdata_trackTarget action:@selector(trackGestureRecognizerAppClick:)];
+        }
+    }
+    [self sensorsdata_addTarget:target action:action];
+}
+
+- (void)sensorsdata_removeTarget:(id)target action:(SEL)action {
+    if (self.sensorsdata_canTrack) {
+        SAGestureTargetActionPair *existPair = [SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs];
+        if (existPair) {
+            [self.sensorsdata_targetActionPairs removeObject:existPair];
+        }
+    }
+    [self sensorsdata_removeTarget:target action:action];
+}
+
+#pragma mark - Associated Object
 - (SAGestureRecognizerTarget *)sensorsdata_trackTarget {
     SAGestureRecognizerTarget *trackTarget = objc_getAssociatedObject(self, kSAGestureTargetKey);
     if (!trackTarget) {
@@ -56,7 +87,7 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
     objc_setAssociatedObject(self, kSAGestureTargetKey, sensorsdata_trackTarget, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSMutableArray<SAGestureTargetActionPair *> *)sensorsdata_targetActionPairs {
+- (NSMutableArray <SAGestureTargetActionPair *>*)sensorsdata_targetActionPairs {
     NSMutableArray <SAGestureTargetActionPair *>*targetActionPairs = objc_getAssociatedObject(self, kSAGestureTargetActionPairsKey);
     if (!targetActionPairs) {
         self.sensorsdata_targetActionPairs = [NSMutableArray array];
@@ -64,43 +95,8 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
     return objc_getAssociatedObject(self, kSAGestureTargetActionPairsKey);
 }
 
-- (void)setSensorsdata_targetActionPairs:(NSMutableArray<SAGestureTargetActionPair *> *)sensorsdata_targetActionPairs {
+- (void)setSensorsdata_targetActionPairs:(NSMutableArray <SAGestureTargetActionPair *>*)sensorsdata_targetActionPairs {
     objc_setAssociatedObject(self, kSAGestureTargetActionPairsKey, sensorsdata_targetActionPairs, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action {
-    [self sensorsdata_initWithTarget:target action:action];
-    [self removeTarget:target action:action];
-    [self addTarget:target action:action];
-    return self;
-}
-
-- (void)sensorsdata_addTarget:(id)target action:(SEL)action {
-    // Track 事件需要在原有事件之前触发(原有事件中更改页面内容,会导致部分内容获取不准确)
-    [self sensorsdata_addTrackAction];
-    [self sensorsdata_addTarget:target action:action];
-    // SAGestureTargetActionPair 重写了 - isEqual: 方法, 可以使用数组的 containsObject 和 addObject 方法
-    SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
-    if (![self.sensorsdata_targetActionPairs containsObject:resulatPair]) {
-        [self.sensorsdata_targetActionPairs addObject:resulatPair];
-    }
-}
-
-- (void)sensorsdata_removeTarget:(id)target action:(SEL)action {
-    [self sensorsdata_removeTarget:target action:action];
-    // SAGestureTargetActionPair 重写了 - isEqual: 方法, 可以使用数组的 containsObject 和 removeObject 方法
-    SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
-    if ([self.sensorsdata_targetActionPairs containsObject:resulatPair]) {
-        [self.sensorsdata_targetActionPairs removeObject:resulatPair];
-    }
-}
-
-- (void)sensorsdata_addTrackAction {
-    // 校验是否是允许采集的手势
-    if (!self.sensorsdata_canTrack) {
-        return;
-    }
-    [self sensorsdata_addTarget:self.sensorsdata_trackTarget action:@selector(trackGestureRecognizerAppClick:)];
 }
 
 @end
