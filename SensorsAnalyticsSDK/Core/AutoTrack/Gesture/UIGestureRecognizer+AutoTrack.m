@@ -23,7 +23,7 @@
 #endif
 
 #import "UIGestureRecognizer+AutoTrack.h"
-#import "SAGestureRecognizerTarget.h"
+#import "SAGestureTarget.h"
 #import "SAAutoTrackGestureConfig.h"
 #import <objc/runtime.h>
 #import "SASwizzle.h"
@@ -34,7 +34,7 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 
 @interface UIGestureRecognizer (AutoTrack)
 
-@property (nonatomic, strong) SAGestureRecognizerTarget *sensorsdata_trackTarget;
+@property (nonatomic, strong) SAGestureTarget *sensorsdata_trackTarget;
 
 @end
 
@@ -75,15 +75,15 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 }
 
 #pragma mark - Associated Object
-- (SAGestureRecognizerTarget *)sensorsdata_trackTarget {
-    SAGestureRecognizerTarget *trackTarget = objc_getAssociatedObject(self, kSAGestureTargetKey);
+- (SAGestureTarget *)sensorsdata_trackTarget {
+    SAGestureTarget *trackTarget = objc_getAssociatedObject(self, kSAGestureTargetKey);
     if (!trackTarget) {
-        self.sensorsdata_trackTarget = [[SAGestureRecognizerTarget alloc] init];
+        self.sensorsdata_trackTarget = [[SAGestureTarget alloc] init];
     }
     return objc_getAssociatedObject(self, kSAGestureTargetKey);
 }
 
-- (void)setSensorsdata_trackTarget:(SAGestureRecognizerTarget *)sensorsdata_trackTarget {
+- (void)setSensorsdata_trackTarget:(SAGestureTarget *)sensorsdata_trackTarget {
     objc_setAssociatedObject(self, kSAGestureTargetKey, sensorsdata_trackTarget, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
