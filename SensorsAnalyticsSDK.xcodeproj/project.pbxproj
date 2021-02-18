@@ -484,7 +484,9 @@
 		45053B9D25C8EC74008D6FD1 /* Gesture */ = {
 			isa = PBXGroup;
 			children = (
-				45CC194325D38A0800D149D4 /* Refactor */,
+				457080B925DE0CAC00A31076 /* View */,
+				45CC195225D38A3E00D149D4 /* Processor */,
+				45CC194B25D38A2B00D149D4 /* Target */,
 				4541243D25D15D57008857FD /* SAGestureTargetActionPair.h */,
 				4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */,
 				45053B9E25C8EC74008D6FD1 /* UIGestureRecognizer+AutoTrack.h */,
@@ -517,16 +519,6 @@
 				457080BB25DE0CE800A31076 /* SAGestureViewIgnore.m */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		45CC194325D38A0800D149D4 /* Refactor */ = {
-			isa = PBXGroup;
-			children = (
-				457080B925DE0CAC00A31076 /* View */,
-				45CC195225D38A3E00D149D4 /* Processor */,
-				45CC194B25D38A2B00D149D4 /* Target */,
-			);
-			path = Refactor;
 			sourceTree = "<group>";
 		};
 		45CC194B25D38A2B00D149D4 /* Target */ = {
