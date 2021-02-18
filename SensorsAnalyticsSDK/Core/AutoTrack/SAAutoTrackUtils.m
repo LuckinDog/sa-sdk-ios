@@ -31,7 +31,6 @@
 #import "SALog.h"
 #import "SAAlertController.h"
 #import "SAValidator.h"
-#import "SAAutoTrackGestureConfig.h"
 
 /// 一个元素 $AppClick 全埋点最小时间间隔，100 毫秒
 static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
@@ -77,8 +76,18 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return currentViewController;
 }
 
++ (BOOL)isIgnorePresentedViewController:(UIViewController *)viewController {
+    if ([viewController isKindOfClass:UIAlertController.class]) {
+        return YES;
+    }
+    if ([@"_UIContextMenuActionsOnlyViewController" isEqualToString:NSStringFromClass(viewController.class)]) {
+        return YES;
+    }
+    return NO;
+}
+
 + (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    if (viewController.presentedViewController && ![SAAutoTrackGestureConfig.sharedInstance isIgnoreViewController:viewController.presentedViewController]) {
+    if (viewController.presentedViewController && ![self isIgnorePresentedViewController:viewController.presentedViewController]) {
          return [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
      }
 
