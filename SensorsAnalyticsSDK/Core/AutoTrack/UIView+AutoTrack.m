@@ -26,7 +26,6 @@
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
-#import "SAAutoTrackGestureConfig.h"
 #import "SAViewElementTypeContext.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
@@ -487,10 +486,22 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    if (SAGestureViewTypeVisual == [SAAutoTrackGestureConfig.sharedInstance gestureViewTypeWithView:NSStringFromClass(self.class)]) {
+    if (![self isSupportElementPosition]) {
         return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];
+}
+
+@end
+
+@implementation UICollectionViewCell (SAElementPositionUtil)
+
+- (BOOL)isSupportElementPosition {
+    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"] ||
+        [NSStringFromClass(self.class) isEqualToString:@"_UIContextMenuActionsListCell"]) {
+        return NO;
+    }
+    return YES;
 }
 
 @end
