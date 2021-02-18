@@ -27,7 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIGestureRecognizer (AutoTrack)
 
-@property (nonatomic, assign, readonly) BOOL sensorsdata_canTrack;
 @property (nonatomic, strong, readonly) NSMutableArray <SAGestureTargetActionPair *>*sensorsdata_targetActionPairs;
 @property (nonatomic, strong, readonly) SAGestureTargetContext *sensorsdata_targetContext;
 
