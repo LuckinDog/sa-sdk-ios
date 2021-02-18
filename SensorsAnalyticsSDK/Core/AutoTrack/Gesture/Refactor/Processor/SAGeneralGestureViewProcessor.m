@@ -23,14 +23,22 @@
 #endif
 
 #import "SAGeneralGestureViewProcessor.h"
+#import "UIGestureRecognizer+AutoTrack.h"
 #import "SAGestureViewIgnore.h"
 
 @implementation SAGeneralGestureViewProcessor
 
 - (BOOL)trackableWithGesture:(UIGestureRecognizer *)gesture {
-    BOOL trackable = gesture.state == UIGestureRecognizerStateEnded;
-    BOOL isIgnore = [[SAGestureViewIgnore alloc] initWithView:gesture.view].isIgnore;
-    return trackable && !isIgnore;
+    if (gesture.state != UIGestureRecognizerStateEnded) {
+        return NO;
+    }
+    if ([[SAGestureViewIgnore alloc] initWithView:gesture.view].isIgnore) {
+        return NO;
+    }
+    if ([SAGestureTargetActionPair filterValidPairFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
+        return NO;
+    }
+    return YES;
 }
 
 - (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture {
