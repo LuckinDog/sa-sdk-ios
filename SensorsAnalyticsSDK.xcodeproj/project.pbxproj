@@ -473,18 +473,18 @@
 			isa = PBXGroup;
 			children = (
 				45CC194325D38A0800D149D4 /* Refactor */,
-				45053B9E25C8EC74008D6FD1 /* UIGestureRecognizer+AutoTrack.h */,
-				45053B9F25C8EC74008D6FD1 /* UIView+SAGesture.h */,
-				45053BA025C8EC74008D6FD1 /* SAGestureRecognizerTarget.h */,
 				45053BA125C8EC74008D6FD1 /* SAAutoTrackGestureConfig.h */,
-				45053BA225C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.m */,
-				45053BA325C8EC74008D6FD1 /* UIView+SAGesture.m */,
-				45053BA425C8EC74008D6FD1 /* UIGestureRecognizer+AutoTrack.m */,
-				4541243D25D15D57008857FD /* SAGestureTargetActionPair.h */,
-				4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */,
-				45053BA525C8EC74008D6FD1 /* SAGestureRecognizerTarget.m */,
 				45053BA625C8EC74008D6FD1 /* SAAutoTrackGestureConfig.m */,
 				45053BA725C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.h */,
+				45053BA225C8EC74008D6FD1 /* SAAutoTrackGestureItemInfo.m */,
+				45053BA025C8EC74008D6FD1 /* SAGestureRecognizerTarget.h */,
+				45053BA525C8EC74008D6FD1 /* SAGestureRecognizerTarget.m */,
+				4541243D25D15D57008857FD /* SAGestureTargetActionPair.h */,
+				4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */,
+				45053B9E25C8EC74008D6FD1 /* UIGestureRecognizer+AutoTrack.h */,
+				45053BA425C8EC74008D6FD1 /* UIGestureRecognizer+AutoTrack.m */,
+				45053B9F25C8EC74008D6FD1 /* UIView+SAGesture.h */,
+				45053BA325C8EC74008D6FD1 /* UIView+SAGesture.m */,
 			);
 			path = Gesture;
 			sourceTree = "<group>";
