@@ -27,7 +27,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
 #import "SAAutoTrackGestureConfig.h"
-#import "SAAutoTrackGestureConfig.h"
+#import "SAViewElementTypeContext.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
@@ -55,25 +55,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementType {
-    NSString *elementType = [SAAutoTrackGestureConfig.sharedInstance elementTypeWithVisualView:self];
-    if (elementType.length) {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        UIWindow *window = self.window;
-        if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
-            CGFloat actionHeight = self.bounds.size.height;
-            if (actionHeight > 50) {
-                return NSStringFromClass(UIActionSheet.class);
-            } else {
-                return NSStringFromClass(UIAlertView.class);
-            }
-        } else {
-            return elementType;
-        }
-#else
-        return elementType;
-#endif
-    }
-    return NSStringFromClass(self.class);
+    return [[SAViewElementTypeContext alloc] initWithView:self].elementType;
 }
 
 - (NSString *)sensorsdata_elementContent {
