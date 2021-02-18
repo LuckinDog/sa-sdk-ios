@@ -20,6 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "SAAutoTrackProperty.h"
+#import "SAGestureTargetContext.h"
 #import "SAGestureTargetActionPair.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign, readonly) BOOL sensorsdata_canTrack;
 @property (nonatomic, strong, readonly) NSMutableArray <SAGestureTargetActionPair *>*sensorsdata_targetActionPairs;
+@property (nonatomic, strong, readonly) SAGestureTargetContext *sensorsdata_targetContext;
 
 - (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action;
 - (void)sensorsdata_addTarget:(id)target action:(SEL)action;

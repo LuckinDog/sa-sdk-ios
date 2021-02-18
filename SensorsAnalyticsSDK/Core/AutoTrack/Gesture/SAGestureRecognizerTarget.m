@@ -71,11 +71,6 @@
         return;
     }
     
-    // 指定的 View 不采集手势事件
-    if (!gestureView.sensorsdata_canTrack) {
-        return;
-    }
-    
     // 控件是否忽略事件采集
     if (![gestureView conformsToProtocol:@protocol(SAAutoTrackViewProperty)]) {
         return;

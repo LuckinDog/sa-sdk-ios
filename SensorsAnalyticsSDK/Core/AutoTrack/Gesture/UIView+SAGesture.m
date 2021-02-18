@@ -24,26 +24,33 @@
 
 #import "UIView+SAGesture.h"
 #import "UIGestureRecognizer+AutoTrack.h"
-#import "SAAutoTrackGestureConfig.h"
+#import "SAGestureViewIgnore.h"
+#import "SAGestureViewProcessorContext.h"
+#import "SAViewElementTypeContext.h"
+#import "SAVisualizedUtils.h"
 
 @implementation UIView (SAGesture)
 
-- (BOOL)sensorsdata_canTrack {
-    return ![SAAutoTrackGestureConfig.sharedInstance.forbiddenViews containsObject:NSStringFromClass(self.class)];
-}
-
 - (BOOL)sensorsdata_isVisualView {
-    if (self.userInteractionEnabled) {
-        if (self.sensorsdata_canTrack) {
-            SAGestureViewType type = [SAAutoTrackGestureConfig.sharedInstance gestureViewTypeWithView:NSStringFromClass(self.class)];
-            if (type == SAGestureViewTypeHost) {
-                return NO;
-            }
-            if (type == SAGestureViewTypeVisual) {
-                return YES;
-            }
-            for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
-                if (gesture.sensorsdata_canTrack) {
+    if (!self.userInteractionEnabled) {
+        return NO;
+    }
+    if (![SAVisualizedUtils isVisibleForView:self]) {
+        return NO;
+    }
+    SAGestureViewIgnore *viewIgnore = [[SAGestureViewIgnore alloc] initWithView:self];
+    if (viewIgnore.isIgnore) {
+        return NO;
+    }
+    SAViewElementTypeContext *viewElement = [[SAViewElementTypeContext alloc] initWithView:self];
+    if (![viewElement.elementType isEqualToString:NSStringFromClass(self.class)]) {
+        return YES;
+    }
+    for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
+        if (gesture.sensorsdata_targetContext.target) {
+            if ([SAGestureTargetActionPair filterValidPairFrom:gesture.sensorsdata_targetActionPairs].count > 0) {
+                SAGestureViewProcessorContext *context = [[SAGestureViewProcessorContext alloc] initWithGesture:gesture];
+                if (context.trackableView == gesture.view) {
                     return YES;
                 }
             }

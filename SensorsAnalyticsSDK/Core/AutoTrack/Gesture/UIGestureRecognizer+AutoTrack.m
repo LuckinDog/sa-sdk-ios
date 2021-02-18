@@ -23,19 +23,12 @@
 #endif
 
 #import "UIGestureRecognizer+AutoTrack.h"
-#import "SAGestureTargetContext.h"
 #import <objc/runtime.h>
 #import "SASwizzle.h"
 #import "SALog.h"
 
 static void *const kSAGestureTargetContextKey = (void *)&kSAGestureTargetContextKey;
 static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetActionPairsKey;
-
-@interface UIGestureRecognizer (AutoTrack)
-
-@property (nonatomic, strong) SAGestureTargetContext *sensorsdata_targetContext;
-
-@end
 
 @implementation UIGestureRecognizer (AutoTrack)
 
