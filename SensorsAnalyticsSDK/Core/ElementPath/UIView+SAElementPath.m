@@ -561,6 +561,25 @@
     }
 
     if ([self isKindOfClass:UINavigationController.class]) {
+        /* 兼容场景
+         可能存在元素，直接添加在 UINavigationController.view 上（即 UILayoutContainerView）
+         UINavigationController 页面层级大致如下
+         - UINavigationController
+            - UILayoutContainerView
+                - UINavigationTransitionView
+                - UINavigationBar
+         */
+        NSArray<UIView *> *subViews = self.view.subviews;
+        for (UIView *view in subViews) {
+            BOOL isIncluded = [view isKindOfClass:UINavigationBar.class];
+    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+            isIncluded = isIncluded || [NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"];
+    #endif
+            if (!isIncluded && view.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:view];
+            }
+        }
+        
         UINavigationController *nav = (UINavigationController *)self;
         [subElements addObject:nav.topViewController];
         if (self.isViewLoaded && nav.navigationBar.sensorsdata_isDisplayedInScreen) {
@@ -570,6 +589,25 @@
     }
 
     if ([self isKindOfClass:UITabBarController.class]) {
+        /* 兼容场景
+         可能存在元素，直接添加在 UITabBarController.view 上（即 UILayoutContainerView）
+         UITabBarController 页面层级大致如下
+         - UITabBarController
+            - UILayoutContainerView
+                - UITransitionView
+                - UITabBar
+         */
+        NSArray<UIView *> *subViews = self.view.subviews;
+        for (UIView *view in subViews) {
+            BOOL isIncluded = [view isKindOfClass:UITabBar.class];
+        #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+            isIncluded = isIncluded || [NSStringFromClass(view.class) isEqualToString:@"UITransitionView"];
+        #endif
+            if (!isIncluded && view.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:view];
+            }
+        }
+
         UITabBarController *tabBarVC = (UITabBarController *)self;
         [subElements addObject:tabBarVC.selectedViewController];
         // UITabBar 元素
