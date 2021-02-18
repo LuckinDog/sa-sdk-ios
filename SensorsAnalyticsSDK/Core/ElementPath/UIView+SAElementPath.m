@@ -561,6 +561,8 @@
     }
 
     if ([self isKindOfClass:UINavigationController.class]) {
+        UINavigationController *navigationVC = (UINavigationController *)self;
+
         /* 兼容场景
          可能存在元素，直接添加在 UINavigationController.view 上（即 UILayoutContainerView）
          UINavigationController 页面层级大致如下
@@ -571,24 +573,30 @@
          */
         NSArray<UIView *> *subViews = self.view.subviews;
         for (UIView *view in subViews) {
-            BOOL isIncluded = [view isKindOfClass:UINavigationBar.class];
-    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-            isIncluded = isIncluded || [NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"];
-    #endif
-            if (!isIncluded && view.sensorsdata_isDisplayedInScreen) {
+            if ([view isKindOfClass:UINavigationBar.class]) {
+                // UINavigationBar 元素
+                if (self.isViewLoaded && navigationVC.navigationBar.sensorsdata_isDisplayedInScreen) {
+                    [subElements addObject:navigationVC.navigationBar];
+                }
+            }
+
+        #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+            else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
+                [subElements addObject:navigationVC.topViewController];
+            }
+        #endif
+
+            else if (view.sensorsdata_isDisplayedInScreen) {
                 [subElements addObject:view];
             }
         }
-        
-        UINavigationController *nav = (UINavigationController *)self;
-        [subElements addObject:nav.topViewController];
-        if (self.isViewLoaded && nav.navigationBar.sensorsdata_isDisplayedInScreen) {
-            [subElements addObject:nav.navigationBar];
-        }
+
         return subElements;
     }
 
     if ([self isKindOfClass:UITabBarController.class]) {
+        UITabBarController *tabBarVC = (UITabBarController *)self;
+
         /* 兼容场景
          可能存在元素，直接添加在 UITabBarController.view 上（即 UILayoutContainerView）
          UITabBarController 页面层级大致如下
@@ -599,21 +607,22 @@
          */
         NSArray<UIView *> *subViews = self.view.subviews;
         for (UIView *view in subViews) {
-            BOOL isIncluded = [view isKindOfClass:UITabBar.class];
+            if ([view isKindOfClass:UITabBar.class]) {
+                // UITabBar 元素
+                if (self.isViewLoaded && tabBarVC.tabBar.sensorsdata_isDisplayedInScreen) {
+                    [subElements addObject:tabBarVC.tabBar];
+                }
+            }
         #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-            isIncluded = isIncluded || [NSStringFromClass(view.class) isEqualToString:@"UITransitionView"];
+            else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
+                [subElements addObject:tabBarVC.selectedViewController];
+            }
         #endif
-            if (!isIncluded && view.sensorsdata_isDisplayedInScreen) {
+            else if (view.sensorsdata_isDisplayedInScreen) {
                 [subElements addObject:view];
             }
         }
 
-        UITabBarController *tabBarVC = (UITabBarController *)self;
-        [subElements addObject:tabBarVC.selectedViewController];
-        // UITabBar 元素
-        if (self.isViewLoaded && tabBarVC.tabBar.sensorsdata_isDisplayedInScreen) {
-            [subElements addObject:tabBarVC.tabBar];
-        }
         return subElements;
     }
 
