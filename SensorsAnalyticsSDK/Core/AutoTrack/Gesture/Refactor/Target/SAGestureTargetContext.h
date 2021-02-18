@@ -1,8 +1,8 @@
 //
-// SAGestureTarget.h
+// SAGestureTargetContext.h
 // SensorsAnalyticsSDK
 //
-// Created by yuqiang on 2021/2/10.
+// Created by yuqiang on 2021/2/18.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,18 +18,16 @@
 // limitations under the License.
 //
 
-#import <UIkit/UIkit.h>
+#import <UIKit/UIKit.h>
+#import "SAGestureTarget.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAGestureTargetProtocol <NSObject>
+@interface SAGestureTargetContext : NSObject
 
-@required
-- (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture;
+@property (nonatomic, strong, readonly) id<SAGestureTargetProtocol> target;
 
-@end
-
-@interface SAGestureTarget : NSObject<SAGestureTargetProtocol>
+- (instancetype)initWithGesture:(UIGestureRecognizer *)gesture;
 
 @end
 

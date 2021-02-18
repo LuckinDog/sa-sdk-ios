@@ -29,7 +29,7 @@
 
 @interface SAGestureViewProcessorContext ()
 
-@property (nonatomic, strong) SAGeneralGestureViewProcessor *processor;
+@property (nonatomic, strong) id<SAGestureViewProcessor> processor;
 @property (nonatomic, strong) UIGestureRecognizer *gesture;
 
 @end
@@ -46,6 +46,8 @@
             self.processor = [[SANewAlertGestureViewProcessor alloc] init];
         } else if ([viewType isEqualToString:@"_UIContextMenuActionsListView"]) {
             self.processor = [[SAMenuGestureViewProcessor alloc] init];
+        } else {
+            self.processor = [[SAGeneralGestureViewProcessor alloc] init];
         }
     }
     return self;
