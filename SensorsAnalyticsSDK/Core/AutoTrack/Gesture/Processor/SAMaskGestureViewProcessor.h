@@ -1,8 +1,8 @@
 //
-// SAMenuGestureViewProcessor.h
+// SAMaskGestureViewProcessor.h
 // SensorsAnalyticsSDK
 //
-// Created by yuqiang on 2021/2/10.
+// Created by yuqiang on 2021/2/19.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +22,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAMenuGestureViewProcessor : SAGeneralGestureViewProcessor
-
+@interface SAMaskGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
+
+@interface SALegacyAlertGestureViewProcessor : SAMaskGestureViewProcessor
+@end
+
+@interface SANewAlertGestureViewProcessor : SAMaskGestureViewProcessor
+@end
+
+@interface SAMenuGestureViewProcessor : SAMaskGestureViewProcessor
+@end
+
 
 NS_ASSUME_NONNULL_END
