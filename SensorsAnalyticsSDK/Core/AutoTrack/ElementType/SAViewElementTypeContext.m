@@ -24,8 +24,6 @@
 
 #import "SAViewElementTypeContext.h"
 #import "SAViewElementType.h"
-#import "SAAlertElementType.h"
-#import "SAMenuElementType.h"
 
 @interface SAViewElementTypeContext ()
 

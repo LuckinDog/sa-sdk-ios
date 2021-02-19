@@ -24,10 +24,46 @@
 
 #import "SAViewElementType.h"
 
+#pragma mark - View Element Type
 @implementation SAViewElementType
 
 - (NSString *)elementTypeWithView:(UIView *)view {
     return NSStringFromClass(view.class);
+}
+
+@end
+
+#pragma mark - Alert Element Type
+@implementation SAAlertElementType
+
+- (NSString *)elementTypeWithView:(UIView *)view {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    UIWindow *window = view.window;
+    if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
+        CGFloat actionHeight = view.bounds.size.height;
+        if (actionHeight > 50) {
+            return NSStringFromClass(UIActionSheet.class);
+        } else {
+            return NSStringFromClass(UIAlertView.class);
+        }
+    } else {
+        return NSStringFromClass(UIAlertController.class);
+    }
+#else
+    return NSStringFromClass(UIAlertController.class);
+#endif
+}
+
+@end
+
+#pragma mark - Menu Element Type
+@implementation SAMenuElementType
+
+- (NSString *)elementTypeWithView:(UIView *)view {
+    if (@available(iOS 13.0, *)) {
+        return NSStringFromClass(UIMenu.class);
+    }
+    return @"UIMenu";
 }
 
 @end

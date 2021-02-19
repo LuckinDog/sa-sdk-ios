@@ -30,7 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SAViewElementType : NSObject<SAViewElementTypeProtocol>
+@end
 
+@interface SAAlertElementType : NSObject<SAViewElementTypeProtocol>
+@end
+
+@interface SAMenuElementType : NSObject<SAViewElementTypeProtocol>
 @end
 
 NS_ASSUME_NONNULL_END
