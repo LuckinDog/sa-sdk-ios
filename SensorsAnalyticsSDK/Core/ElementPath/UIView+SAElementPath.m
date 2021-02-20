@@ -538,72 +538,6 @@
         return subElements;
     }
 
-    if ([self isKindOfClass:UINavigationController.class]) {
-        UINavigationController *navigationVC = (UINavigationController *)self;
-
-        /* 兼容场景
-         可能存在元素，直接添加在 UINavigationController.view 上（即 UILayoutContainerView）
-         UINavigationController 页面层级大致如下
-         - UINavigationController
-            - UILayoutContainerView
-                - UINavigationTransitionView
-                - UINavigationBar
-         */
-        NSArray<UIView *> *subViews = self.view.subviews;
-        for (UIView *view in subViews) {
-            if ([view isKindOfClass:UINavigationBar.class]) {
-                // UINavigationBar 元素
-                if (self.isViewLoaded && navigationVC.navigationBar.sensorsdata_isDisplayedInScreen) {
-                    [subElements addObject:navigationVC.navigationBar];
-                }
-            }
-
-        #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-            else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
-                [subElements addObject:navigationVC.topViewController];
-            }
-        #endif
-
-            else if (view.sensorsdata_isDisplayedInScreen) {
-                [subElements addObject:view];
-            }
-        }
-
-        return subElements;
-    }
-
-    if ([self isKindOfClass:UITabBarController.class]) {
-        UITabBarController *tabBarVC = (UITabBarController *)self;
-
-        /* 兼容场景
-         可能存在元素，直接添加在 UITabBarController.view 上（即 UILayoutContainerView）
-         UITabBarController 页面层级大致如下
-         - UITabBarController
-            - UILayoutContainerView
-                - UITransitionView
-                - UITabBar
-         */
-        NSArray<UIView *> *subViews = self.view.subviews;
-        for (UIView *view in subViews) {
-            if ([view isKindOfClass:UITabBar.class]) {
-                // UITabBar 元素
-                if (self.isViewLoaded && tabBarVC.tabBar.sensorsdata_isDisplayedInScreen) {
-                    [subElements addObject:tabBarVC.tabBar];
-                }
-            }
-        #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-            else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
-                [subElements addObject:tabBarVC.selectedViewController];
-            }
-        #endif
-            else if (view.sensorsdata_isDisplayedInScreen) {
-                [subElements addObject:view];
-            }
-        }
-
-        return subElements;
-    }
-
     if (childViewControllers.count > 0 && ![self isKindOfClass:UIAlertController.class]) {
         // UIAlertController 如果添加 TextField 也会嵌套 childViewController，直接返回 .view 即可
 
@@ -647,4 +581,73 @@
     return subElements;
 }
 
+@end
+
+@implementation UITabBarController (SAElementPathSAElementPath)
+- (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+    /* 兼容场景
+     可能存在元素，直接添加在 UITabBarController.view 上（即 UILayoutContainerView）
+     UITabBarController 页面层级大致如下
+     - UITabBarController
+        - UILayoutContainerView
+            - UITransitionView
+            - UITabBar
+     */
+    NSArray<UIView *> *subViews = self.view.subviews;
+    for (UIView *view in subViews) {
+        if ([view isKindOfClass:UITabBar.class]) {
+            // UITabBar 元素
+            if (self.isViewLoaded && self.tabBar.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:self.tabBar];
+            }
+        }
+    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
+            [subElements addObject:self.selectedViewController];
+        }
+    #endif
+        else if (view.sensorsdata_isDisplayedInScreen) {
+            [subElements addObject:view];
+        }
+    }
+
+    return subElements;
+}
+@end
+
+
+@implementation UINavigationController (SAElementPathSAElementPath)
+- (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+
+    /* 兼容场景
+     可能存在元素，直接添加在 UINavigationController.view 上（即 UILayoutContainerView）
+     UINavigationController 页面层级大致如下
+     - UINavigationController
+        - UILayoutContainerView
+            - UINavigationTransitionView
+            - UINavigationBar
+     */
+    NSArray<UIView *> *subViews = self.view.subviews;
+    for (UIView *view in subViews) {
+        if ([view isKindOfClass:UINavigationBar.class]) {
+            // UINavigationBar 元素
+            if (self.isViewLoaded && self.navigationBar.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:self.navigationBar];
+            }
+        }
+
+    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
+            [subElements addObject:self.topViewController];
+        }
+    #endif
+
+        else if (view.sensorsdata_isDisplayedInScreen) {
+            [subElements addObject:view];
+        }
+    }
+    return subElements;
+}
 @end
