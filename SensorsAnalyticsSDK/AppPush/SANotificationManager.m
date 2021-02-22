@@ -47,12 +47,12 @@
 
 - (void)proxyNotifications {
     //UIApplicationDelegate proxy
-    [SAApplicationDelegateProxy proxyDelegate:[UIApplication sharedApplication].delegate selectors:@[@"application:didReceiveLocalNotification:", @"application:didReceiveRemoteNotification:fetchCompletionHandler:"]];
+    [SAApplicationDelegateProxy proxyDelegate:[UIApplication sharedApplication].delegate selectors:[NSSet setWithArray:@[@"application:didReceiveLocalNotification:", @"application:didReceiveRemoteNotification:fetchCompletionHandler:"]]];
     
     //UNUserNotificationCenterDelegate proxy
     if (@available(iOS 10.0, *)) {
         if ([UNUserNotificationCenter currentNotificationCenter].delegate) {
-            [SAUNUserNotificationCenterDelegateProxy proxyDelegate:[UNUserNotificationCenter currentNotificationCenter].delegate selectors:@[@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"]];
+            [SAUNUserNotificationCenterDelegateProxy proxyDelegate:[UNUserNotificationCenter currentNotificationCenter].delegate selectors:[NSSet setWithArray:@[@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"]]];
         }
         NSError *error = NULL;
         [UNUserNotificationCenter sa_swizzleMethod:@selector(setDelegate:) withMethod:@selector(sensorsdata_setDelegate:) error:&error];

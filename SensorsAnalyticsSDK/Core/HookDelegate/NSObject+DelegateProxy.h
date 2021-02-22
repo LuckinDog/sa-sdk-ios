@@ -1,5 +1,5 @@
 //
-// NSObject+SACellClick.h
+// NSObject+DelegateProxy.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2020/11/5.
@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 用于记录创建子类时的原始父类名称
 @property (nonatomic, copy, nullable) NSString *sensorsdata_className;
-@property (nonatomic, copy, nullable) NSArray<NSString *> *sensorsdata_selectors;
+@property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_selectors;
 @property (nonatomic, strong, nullable) id sensorsdata_delegateProxy;
 
 /// 注册一个操作,在对象释放时调用; 重复调用该方法时,只有第一次调用时的 block 生效

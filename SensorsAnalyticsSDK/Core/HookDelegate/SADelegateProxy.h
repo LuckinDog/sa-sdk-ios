@@ -24,12 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SADelegateProxy : NSObject
 
-/**
- 对 TableView 和 CollectionView 的单元格选中方法进行代理
+/// proxy delegate with selectors
+/// @param delegate delegate object, such as UITableViewDelegate、UICollectionViewDelegate, etc.
+/// @param selectors delegate proxy methods, such as "tableView:didSelectRowAtIndexPath:"、"collectionView:didSelectItemAtIndexPath:", etc.
++ (void)proxyDelegate:(id)delegate selectors:(NSSet<NSString *>*)selectors;
 
- @param delegate 代理：UITableViewDelegate、UICollectionViewDelegate 等
- */
-+ (void)proxyDelegate:(id)delegate selectors:(NSArray<NSString *>*)selectors;
++ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
 

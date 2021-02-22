@@ -44,7 +44,7 @@
     }
     
     // 使用委托类去 hook 点击事件方法
-    [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:@[@"tableView:didSelectRowAtIndexPath:", @"collectionView:didSelectItemAtIndexPath:"]];
+    [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:[NSSet setWithArray:@[@"tableView:didSelectRowAtIndexPath:"]]];
 }
 
 @end
@@ -64,7 +64,7 @@
     }
     
     // 使用委托类去 hook 点击事件方法
-    [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:@[@"tableView:didSelectRowAtIndexPath:", @"collectionView:didSelectItemAtIndexPath:"]];
+    [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:[NSSet setWithArray:@[@"collectionView:didSelectItemAtIndexPath:"]]];
 }
 
 @end

@@ -1,5 +1,5 @@
 //
-// UNUserNotificationCenter+AutoTrack.m
+// UIApplication+AutoTrack.m
 // SensorsAnalyticsSDK
 //
 // Created by 陈玉国 on 2021/1/7.
@@ -22,17 +22,29 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "UNUserNotificationCenter+PushClick.h"
-#import "SAUNUserNotificationCenterDelegateProxy.h"
+#import "UIApplication+AutoTrack.h"
+#import "SAApplicationDelegateProxy.h"
+#import <objc/runtime.h>
 
-@implementation UNUserNotificationCenter (PushClick)
+static void *const kSALaunchOptions = (void *)&kSALaunchOptions;
 
-- (void)sensorsdata_setDelegate:(id<UNUserNotificationCenterDelegate>)delegate {
+@implementation UIApplication (PushClick)
+
+- (void)sensorsdata_setDelegate:(id<UIApplicationDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
+    
     if (!self.delegate) {
         return;
     }
-    [SAUNUserNotificationCenterDelegateProxy proxyDelegate:self.delegate selectors:@[@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"]];
+    [SAApplicationDelegateProxy proxyDelegate:self.delegate selectors:[NSSet setWithArray:@[@"application:didReceiveLocalNotification:", @"application:didReceiveRemoteNotification:fetchCompletionHandler:"]]];
+}
+
+- (NSDictionary *)sensorsdata_launchOptions {
+    return objc_getAssociatedObject(self, kSALaunchOptions);
+}
+
+- (void)setSensorsdata_launchOptions:(NSDictionary *)sensorsdata_launchOptions {
+    objc_setAssociatedObject(self, kSALaunchOptions, sensorsdata_launchOptions, OBJC_ASSOCIATION_COPY);
 }
 
 @end

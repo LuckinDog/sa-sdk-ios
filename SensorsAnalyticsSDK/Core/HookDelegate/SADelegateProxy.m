@@ -28,6 +28,7 @@
 #import "NSObject+DelegateProxy.h"
 #import "SALog.h"
 #import "SAAutoTrackProperty.h"
+#import <objc/message.h>
 
 @implementation SADelegateProxy
 
@@ -39,28 +40,19 @@
     return [super class];
 }
 
-+ (void)proxyDelegate:(id)delegate selectors:(NSArray<NSString *> *)selectors {
++ (void)proxyDelegate:(id)delegate selectors:(NSSet<NSString *> *)selectors {
     if (selectors.count < 1) {
         return;
     }
     
     Class proxyClass = [self class];
-    NSArray<NSString *> *delegateSelectors = [self selectorsFor:delegate withSelectors:selectors];
+    NSMutableSet *delegateSelectors = [NSMutableSet setWithSet:[self selectorsFor:delegate withSelectors:selectors]];
     
     // 当前代理对象已经处理过
     if ([delegate sensorsdata_className]) {
-        NSMutableArray<NSString *> *totalSelectors = [[NSMutableArray alloc] init];
-        NSArray<NSString *> *currentSelectors = ((NSObject *)delegate).sensorsdata_selectors;
-
+        NSMutableSet *currentSelectors = [NSMutableSet setWithSet:((NSObject *)delegate).sensorsdata_selectors];
         if (currentSelectors.count > 0) {
-            NSMutableSet *currentSelectorsSet = [NSMutableSet setWithArray:currentSelectors];
-            NSMutableSet *delegateSelectorsSet = [NSMutableSet setWithArray:delegateSelectors];
-            [delegateSelectorsSet minusSet:currentSelectorsSet];
-            delegateSelectors = [delegateSelectorsSet allObjects];
-            [totalSelectors addObjectsFromArray:currentSelectors];
-            [totalSelectors addObjectsFromArray:delegateSelectors];
-        } else {
-            [totalSelectors addObjectsFromArray:delegateSelectors];
+            [delegateSelectors minusSet:currentSelectors];
         }
         
         if (delegateSelectors.count < 1) {
@@ -68,13 +60,13 @@
         }
         
         [self addInstanceMethodWithSelectors:delegateSelectors fromClass:proxyClass toClass:[SAClassHelper realClassWithObject:delegate]];
-        ((NSObject *)delegate).sensorsdata_selectors = totalSelectors;
+        [delegateSelectors unionSet:currentSelectors];
+        ((NSObject *)delegate).sensorsdata_selectors = [delegateSelectors copy];
         ((NSObject *)delegate).sensorsdata_delegateProxy = self;
         return;
     }
     
-    
-    ((NSObject *)delegate).sensorsdata_selectors = delegateSelectors;
+    ((NSObject *)delegate).sensorsdata_selectors = [delegateSelectors copy];
     ((NSObject *)delegate).sensorsdata_delegateProxy = self;
     // KVO 创建子类后会重写 - (Class)class 方法, 直接通过 object.class 无法获取真实的类
     Class realClass = [SAClassHelper realClassWithObject:delegate];
@@ -126,15 +118,15 @@
     }
 }
 
-+ (void)addInstanceMethodWithSelectors:(NSArray<NSString *> *)selectors fromClass:(Class)fromClass toClass:(Class)toClass {
++ (void)addInstanceMethodWithSelectors:(NSSet<NSString *> *)selectors fromClass:(Class)fromClass toClass:(Class)toClass {
     for (NSString *selector in selectors) {
         SEL sel = NSSelectorFromString(selector);
         [SAMethodHelper addInstanceMethodWithSelector:sel fromClass:fromClass toClass:toClass];
     }
 }
 
-+ (NSArray<NSString *> *)selectorsFor:(id)object withSelectors:(NSArray<NSString *> *)selectors {
-    NSMutableArray<NSString *> *validSelectors = [[NSMutableArray alloc] init];
++ (NSSet<NSString *> *)selectorsFor:(id)object withSelectors:(NSSet<NSString *> *)selectors {
+    NSMutableSet<NSString *> *validSelectors = [[NSMutableSet alloc] init];
     for (NSString *selector in selectors) {
         SEL aSelector = NSSelectorFromString(selector);
         if (aSelector && [object respondsToSelector:aSelector]) {
@@ -142,6 +134,29 @@
         }
     }
     return [validSelectors copy];
+}
+
++ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector, ... {
+    va_list args;
+    va_start(args, selector);
+    id arg1 = nil, arg2 = nil, arg3 = nil, arg4 = nil;
+    NSInteger count = [NSStringFromSelector(selector) componentsSeparatedByString:@":"].count - 1;
+    for (NSInteger i = 0; i < count; i++) {
+        i == 0 ? (arg1 = va_arg(args, id)) : nil;
+        i == 1 ? (arg2 = va_arg(args, id)) : nil;
+        i == 2 ? (arg3 = va_arg(args, id)) : nil;
+        i == 3 ? (arg4 = va_arg(args, id)) : nil;
+    }
+    
+    Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
+    struct objc_super targetSuper = {
+        .receiver = target,
+        .super_class = originalClass
+    };
+    // 消息转发给原始类
+    void (*func)(struct objc_super *, SEL, id, id, id, id) = (void *)&objc_msgSendSuper;
+    func(&targetSuper, selector, arg1, arg2, arg3, arg4);
+    va_end(args);
 }
 
 @end

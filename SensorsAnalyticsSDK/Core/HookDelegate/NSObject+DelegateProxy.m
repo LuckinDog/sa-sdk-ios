@@ -68,11 +68,11 @@ static void *const kSADelegateProxy = (void *)&kSADelegateProxy;
     objc_setAssociatedObject(self, kSADelegateProxyClassName, sensorsdata_className, OBJC_ASSOCIATION_COPY);
 }
 
-- (NSArray<NSString *> *)sensorsdata_selectors {
+- (NSSet<NSString *> *)sensorsdata_selectors {
     return objc_getAssociatedObject(self, kSADelegateSelectors);
 }
 
-- (void)setSensorsdata_selectors:(NSArray<NSString *> *)sensorsdata_selectors {
+- (void)setSensorsdata_selectors:(NSSet<NSString *> *)sensorsdata_selectors {
     objc_setAssociatedObject(self, kSADelegateSelectors, sensorsdata_selectors, OBJC_ASSOCIATION_COPY);
 }
 

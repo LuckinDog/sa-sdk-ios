@@ -33,16 +33,13 @@
 
 @implementation SAUNUserNotificationCenterDelegateProxy
 
-+ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector notificationCenter:(UNUserNotificationCenter *)center notificationResponse:(UNNotificationResponse *)response completionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){
-    Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
-    struct objc_super targetSuper = {
-        .receiver = target,
-        .super_class = originalClass
-    };
-    // 消息转发给原始类
-    void (*func)(struct objc_super *, SEL, id, id, id) = (void *)&objc_msgSendSuper;
-    func(&targetSuper, selector, center, response, completionHandler);
-    
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){
+    SEL selector = @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:);
+    [SAUNUserNotificationCenterDelegateProxy invokeWithTarget:self selector:selector, center, response, completionHandler, nil];
+    [SAUNUserNotificationCenterDelegateProxy trackEventWithTarget:self notificationCenter:center notificationResponse:response];
+}
+
++ (void)trackEventWithTarget:(NSObject *)target notificationCenter:(UNUserNotificationCenter *)center notificationResponse:(UNNotificationResponse *)response  API_AVAILABLE(ios(10.0)){
     // 当 target 和 delegate 不相等时为消息转发, 此时无需重复采集事件
     if (target != center.delegate) {
         return;
@@ -66,11 +63,6 @@
     }
     
     [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
-}
-
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){
-    SEL selector = @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:);
-    [SAUNUserNotificationCenterDelegateProxy invokeWithTarget:self selector:selector notificationCenter:center notificationResponse:response completionHandler:completionHandler];
 }
 
 @end

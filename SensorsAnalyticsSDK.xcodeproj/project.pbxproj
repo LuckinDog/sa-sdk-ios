@@ -472,7 +472,6 @@
 		4D4DB28425B7D17E00938842 /* AutoTrack */ = {
 			isa = PBXGroup;
 			children = (
-				F277F5B025CF9A43009B5CE6 /* AppPush */,
 				4D4DB28C25B7D17E00938842 /* Cell */,
 				4D4DB2E125B7D1F300938842 /* SAAutoTrackProperty.h */,
 				4D4DB2D825B7D1F200938842 /* SAAutoTrackUtils.h */,
@@ -494,14 +493,6 @@
 		4D4DB28C25B7D17E00938842 /* Cell */ = {
 			isa = PBXGroup;
 			children = (
-				F277F5E225CFCE56009B5CE6 /* NSObject+DelegateProxy.h */,
-				F277F5E125CFCE56009B5CE6 /* NSObject+DelegateProxy.m */,
-				4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */,
-				4D4DB2C425B7D19B00938842 /* SAClassHelper.m */,
-				4D4DB2BE25B7D19B00938842 /* SADelegateProxy.h */,
-				4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */,
-				4D4DB2C125B7D19B00938842 /* SAMethodHelper.h */,
-				4D4DB2C325B7D19B00938842 /* SAMethodHelper.m */,
 				F277F5D325CFBF38009B5CE6 /* SAScrollViewDelegateProxy.h */,
 				F277F5D425CFBF38009B5CE6 /* SAScrollViewDelegateProxy.m */,
 				4D4DB2BF25B7D19B00938842 /* UIScrollView+AutoTrack.h */,
@@ -574,6 +565,7 @@
 				881A416D253D7B4F00854F69 /* Builder */,
 				881A414E253D7B4F00854F69 /* Channel */,
 				881A4165253D7B4F00854F69 /* Encrypt */,
+				F2346B7D25E0AE5600AA3684 /* HookDelegate */,
 				881A40FE253D7B4F00854F69 /* JSBridge */,
 				4DA89BBC25C2BC1E003ABA43 /* Network */,
 				881A40F8253D7B4F00854F69 /* RemoteConfig */,
@@ -831,6 +823,7 @@
 		CB30BFD122840EBF0004061D /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				F277F5B025CF9A43009B5CE6 /* AppPush */,
 				881A40D2253D7B4F00854F69 /* Core */,
 				881A4224253D7B5E00854F69 /* Location */,
 				CB30C0AB22840F1B0004061D /* Resources */,
@@ -882,6 +875,21 @@
 				CB6EBAF122855222003CFBA8 /* ca.der.cer */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		F2346B7D25E0AE5600AA3684 /* HookDelegate */ = {
+			isa = PBXGroup;
+			children = (
+				F277F5E225CFCE56009B5CE6 /* NSObject+DelegateProxy.h */,
+				F277F5E125CFCE56009B5CE6 /* NSObject+DelegateProxy.m */,
+				4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */,
+				4D4DB2C425B7D19B00938842 /* SAClassHelper.m */,
+				4D4DB2BE25B7D19B00938842 /* SADelegateProxy.h */,
+				4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */,
+				4D4DB2C125B7D19B00938842 /* SAMethodHelper.h */,
+				4D4DB2C325B7D19B00938842 /* SAMethodHelper.m */,
+			);
+			path = HookDelegate;
 			sourceTree = "<group>";
 		};
 		F277F5B025CF9A43009B5CE6 /* AppPush */ = {

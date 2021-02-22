@@ -42,6 +42,9 @@
 + (void)addInstanceMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass {
     // 获取一个实例方法的指针
     Method method = class_getInstanceMethod(fromClass, sourceSelector);
+    if (!method) {
+        return;
+    }
     // 返回该方法的实现
     IMP methodIMP = method_getImplementation(method);
     // 获取该方法的返回类型

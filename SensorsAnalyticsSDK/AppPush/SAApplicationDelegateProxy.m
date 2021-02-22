@@ -34,16 +34,19 @@
 
 @implementation SAApplicationDelegateProxy
 
-+ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector application:(UIApplication *)application userInfo:(NSDictionary *)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
-    struct objc_super targetSuper = {
-        .receiver = target,
-        .super_class = originalClass
-    };
-    // 消息转发给原始类
-    void (*func)(struct objc_super *, SEL, id, id, id) = (void *)&objc_msgSendSuper;
-    func(&targetSuper, selector, application, userInfo, completionHandler);
-    
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    SEL selector = @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
+    [SAApplicationDelegateProxy invokeWithTarget:self selector:selector, application, userInfo, completionHandler, nil];
+    [SAApplicationDelegateProxy trackEventWithTarget:self application:application remoteNotification:userInfo];
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    SEL selector = @selector(application:didReceiveLocalNotification:);
+    [SAApplicationDelegateProxy invokeWithTarget:self selector:selector, application, notification, nil];
+    [SAApplicationDelegateProxy trackEventWithTarget:self application:application localNotification:notification];
+}
+
++ (void)trackEventWithTarget:(NSObject *)target application:(UIApplication *)application remoteNotification:(NSDictionary *)userInfo {
     // 当 target 和 delegate 不相等时为消息转发, 此时无需重复采集事件
     if (target != application.delegate) {
         return;
@@ -75,16 +78,7 @@
     [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
 }
 
-+ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector application:(UIApplication *)application localNotification:(UILocalNotification *)notification  {
-    Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
-    struct objc_super targetSuper = {
-        .receiver = target,
-        .super_class = originalClass
-    };
-    // 消息转发给原始类
-    void (*func)(struct objc_super *, SEL, id, id) = (void *)&objc_msgSendSuper;
-    func(&targetSuper, selector, application, notification);
-    
++ (void)trackEventWithTarget:(NSObject *)target application:(UIApplication *)application localNotification:(UILocalNotification *)notification {
     // 当 target 和 delegate 不相等时为消息转发, 此时无需重复采集事件
     if (target != application.delegate) {
         return;
@@ -112,16 +106,6 @@
     }
     
     [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
-}
-
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    SEL selector = @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
-    [SAApplicationDelegateProxy invokeWithTarget:self selector:selector application:application userInfo:userInfo completionHandler:completionHandler];
-}
-
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    SEL selector = @selector(application:didReceiveLocalNotification:);
-    [SAApplicationDelegateProxy invokeWithTarget:self selector:selector application:application localNotification:notification];
 }
 
 @end
