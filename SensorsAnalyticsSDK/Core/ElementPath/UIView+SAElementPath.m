@@ -569,11 +569,6 @@
         return subElements;
     }
 
-    if ([self isKindOfClass:UIPageViewController.class]) {
-        UIPageViewController *pageViewController = (UIPageViewController *)self;
-        [subElements addObject:pageViewController.viewControllers];
-    }
-
     UIView *currentView = self.view;
     if (currentView && self.isViewLoaded && currentView.sensorsdata_isDisplayedInScreen) {
         [subElements addObject:currentView];
@@ -649,5 +644,12 @@
         }
     }
     return subElements;
+}
+@end
+
+@implementation UIPageViewController (SAElementPathSAElementPath)
+
+- (NSArray *)sensorsdata_subElements {
+    return self.viewControllers;
 }
 @end

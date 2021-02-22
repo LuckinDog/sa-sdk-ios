@@ -81,4 +81,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UINavigationController (SAElementPath)<SAVisualizedViewPathProperty>
 
 @end
+
+@interface UIPageViewController (SAElementPath)<SAVisualizedViewPathProperty>
+
+@end
+
 NS_ASSUME_NONNULL_END
