@@ -526,7 +526,7 @@
 
 @end
 
-@implementation UIViewController (SAElementPathSAElementPath)
+@implementation UIViewController (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     __block NSMutableArray *subElements = [NSMutableArray array];
@@ -578,7 +578,7 @@
 
 @end
 
-@implementation UITabBarController (SAElementPathSAElementPath)
+@implementation UITabBarController (SAElementPath)
 - (NSArray *)sensorsdata_subElements {
     NSMutableArray *subElements = [NSMutableArray array];
     /* 兼容场景
@@ -612,7 +612,7 @@
 @end
 
 
-@implementation UINavigationController (SAElementPathSAElementPath)
+@implementation UINavigationController (SAElementPath)
 - (NSArray *)sensorsdata_subElements {
     NSMutableArray *subElements = [NSMutableArray array];
 
@@ -647,7 +647,7 @@
 }
 @end
 
-@implementation UIPageViewController (SAElementPathSAElementPath)
+@implementation UIPageViewController (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     return self.viewControllers;
