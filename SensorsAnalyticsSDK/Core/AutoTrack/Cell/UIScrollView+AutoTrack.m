@@ -47,6 +47,16 @@
     [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:[NSSet setWithArray:@[@"tableView:didSelectRowAtIndexPath:"]]];
 }
 
+- (BOOL)sensorsdata_respondsToSelector:(SEL)aSelector {
+    if ([self sensorsdata_respondsToSelector:aSelector]) {
+        return YES;
+    }
+    if ([NSStringFromSelector(aSelector) isEqualToString:@"tableView:didSelectRowAtIndexPath:"]) {
+        return YES;
+    }
+    return NO;
+}
+
 @end
 
 

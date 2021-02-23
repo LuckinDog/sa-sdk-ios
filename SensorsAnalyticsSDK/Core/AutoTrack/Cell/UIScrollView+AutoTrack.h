@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate;
 
+- (BOOL)sensorsdata_respondsToSelector:(SEL)aSelector;
+
 @end
 
 @interface UICollectionView (AutoTrack)

@@ -129,7 +129,7 @@
     NSMutableSet<NSString *> *validSelectors = [[NSMutableSet alloc] init];
     for (NSString *selector in selectors) {
         SEL aSelector = NSSelectorFromString(selector);
-        if (aSelector && [object respondsToSelector:aSelector]) {
+        if (aSelector) {
             [validSelectors addObject:selector];
         }
     }
@@ -137,6 +137,10 @@
 }
 
 + (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector, ... {
+    Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
+    if (![target forwardingTargetForSelector:selector] && ![originalClass instancesRespondToSelector:selector]) {
+        return;
+    }
     va_list args;
     va_start(args, selector);
     id arg1 = nil, arg2 = nil, arg3 = nil, arg4 = nil;
@@ -147,8 +151,6 @@
         i == 2 ? (arg3 = va_arg(args, id)) : nil;
         i == 3 ? (arg4 = va_arg(args, id)) : nil;
     }
-    
-    Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
     struct objc_super targetSuper = {
         .receiver = target,
         .super_class = originalClass

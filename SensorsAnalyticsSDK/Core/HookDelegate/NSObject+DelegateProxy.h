@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param deallocBlock 操作
 - (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock;
 
+
 @end
 
 NS_ASSUME_NONNULL_END
