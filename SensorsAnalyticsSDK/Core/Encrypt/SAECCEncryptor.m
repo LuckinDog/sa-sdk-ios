@@ -81,7 +81,7 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
     SEL selector = NSSelectorFromString(@"encrypt:withPublicKey:");
     IMP methodIMP = [class methodForSelector:selector];
     if (methodIMP) {
-        NSString *string = [[NSString alloc] initWithData:(NSData *)obj encoding:NSUTF8StringEncoding];
+        NSString *string = [[NSString alloc] initWithData:obj encoding:NSUTF8StringEncoding];
         return ((SAEEncryptImplementation)methodIMP)(class, selector, string, self.publicKey);
     }
     
