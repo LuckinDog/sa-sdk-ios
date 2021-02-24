@@ -599,7 +599,9 @@
         }
     #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
-            [subElements addObject:self.selectedViewController];
+            if (self.selectedViewController) {
+                [subElements addObject:self.selectedViewController];
+            }
         }
     #endif
         else if (view.sensorsdata_isDisplayedInScreen) {
@@ -635,7 +637,9 @@
 
     #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
-            [subElements addObject:self.topViewController];
+            if (self.topViewController) {
+                [subElements addObject:self.topViewController];
+            }
         }
     #endif
 
@@ -650,6 +654,28 @@
 @implementation UIPageViewController (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
-    return self.viewControllers;
+    /* 兼容场景
+     可能存在元素，直接添加在 UIPageViewController.view 上（即 _UIPageViewControllerContentView）
+     UIPageViewController 页面层级大致如下
+     - UIPageViewController
+        - _UIPageViewControllerContentView
+            - _UIQueuingScrollView
+            - Others
+     */
+    NSMutableArray *subElements = [NSMutableArray array];
+    for (UIView *view in self.view.subviews) {
+    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        if ([NSStringFromClass(view.class) isEqualToString:@"_UIQueuingScrollView"]) {
+            if (self.viewControllers.count > 0) {
+                [subElements addObjectsFromArray:self.viewControllers];
+            }
+        }
+    #endif
+        else if (view.sensorsdata_isDisplayedInScreen) {
+            [subElements addObject:view];
+        }
+    }
+    return subElements;
 }
+
 @end
