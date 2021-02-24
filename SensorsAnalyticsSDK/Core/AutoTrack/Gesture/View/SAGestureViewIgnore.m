@@ -35,19 +35,13 @@
 - (instancetype)initWithView:(UIView *)view {
     if (self = [super init]) {
         NSString *viewType = NSStringFromClass(view.class);
-        if ([viewType isEqualToString:@"_UIContextMenuContainerView"]) {
-            self.ignore = YES;
-        } else if ([viewType isEqualToString:@"UISwitchModernVisualElement"]) {
-            self.ignore = YES;
-        } else if ([viewType isEqualToString:@"UIPageControl"]) {
-            self.ignore = YES;
-        } else if ([viewType isEqualToString:@"UITabBar"]) {
-            self.ignore = YES;
-        } else if ([viewType isEqualToString:@"UITextView"]) {
-            self.ignore = YES;
-        } else if ([viewType isEqualToString:@"WKContentView"]) {
-            self.ignore = YES;
-        } else if ([viewType isEqualToString:@"UIWebBrowserView"]) {
+        if ([view isKindOfClass:UIPageControl.class] ||
+            [view isKindOfClass:UITextView.class] ||
+            [view isKindOfClass:UITabBar.class] ||
+            [viewType isEqualToString:@"_UIContextMenuContainerView"] ||
+            [viewType isEqualToString:@"UISwitchModernVisualElement"] ||
+            [viewType isEqualToString:@"WKContentView"] ||
+            [viewType isEqualToString:@"UIWebBrowserView"]) {
             self.ignore = YES;
         }
     }
