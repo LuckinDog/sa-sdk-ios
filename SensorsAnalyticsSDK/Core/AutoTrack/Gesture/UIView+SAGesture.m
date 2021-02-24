@@ -26,7 +26,7 @@
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SAGestureViewIgnore.h"
 #import "SAGestureViewProcessorContext.h"
-#import "SAViewElementTypeContext.h"
+#import "SAViewElementInfoFactory.h"
 #import "SAVisualizedUtils.h"
 
 @implementation UIView (SAGesture)
@@ -42,8 +42,8 @@
     if (viewIgnore.isIgnore) {
         return NO;
     }
-    SAViewElementTypeContext *viewElement = [[SAViewElementTypeContext alloc] initWithView:self];
-    if (![viewElement.elementType isEqualToString:NSStringFromClass(self.class)]) {
+    id <SAViewElementInfoProtocol> elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    if (![[elementInfo elementType] isEqualToString:NSStringFromClass(self.class)]) {
         return YES;
     }
     for (UIGestureRecognizer *gesture in self.gestureRecognizers) {

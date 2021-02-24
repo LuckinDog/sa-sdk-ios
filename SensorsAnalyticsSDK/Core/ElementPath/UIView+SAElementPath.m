@@ -30,6 +30,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
 #import "UIView+SAGesture.h"
+#import "SAViewElementInfoFactory.h"
 
 @implementation UIView (SAElementPath)
 
@@ -487,14 +488,8 @@
 @implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
-    if (![self isSupportElementPosition]) {
-        return nil;
-    }
-
-    if (self.sensorsdata_IndexPath) {
-        return [[NSString alloc] initWithFormat:@"%ld:%ld", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.item];
-    }
-    return nil;
+    id<SAViewElementInfoProtocol> elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    return [elementInfo elementPosition];
 }
 
 @end

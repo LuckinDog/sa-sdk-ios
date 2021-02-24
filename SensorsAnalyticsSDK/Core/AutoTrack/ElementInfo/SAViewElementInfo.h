@@ -1,5 +1,5 @@
 //
-// SAViewElementType.h
+// SAViewElementInfo.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/18.
@@ -19,23 +19,31 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SAAutoTrackProperty.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAViewElementTypeProtocol <NSObject>
+@protocol SAViewElementInfoProtocol <NSObject>
 
 @required
-- (NSString *)elementTypeWithView:(UIView *)view;
+@property (nonatomic, weak) UIView *view;
+- (instancetype)initWithView:(UIView *)view;
+- (NSString *)elementType;
+- (NSString *)elementPosition;
+- (NSString *)elementSimilarPathWithIndexPath:(NSIndexPath *)indexPath;
 
 @end
 
-@interface SAViewElementType : NSObject<SAViewElementTypeProtocol>
+@interface SAViewElementInfo : NSObject<SAViewElementInfoProtocol>
+@property (nonatomic, weak) UIView *view;
 @end
 
-@interface SAAlertElementType : NSObject<SAViewElementTypeProtocol>
+@interface SAAlertElementInfo : NSObject<SAViewElementInfoProtocol>
+@property (nonatomic, weak) UIView *view;
 @end
 
-@interface SAMenuElementType : NSObject<SAViewElementTypeProtocol>
+@interface SAMenuElementInfo : NSObject<SAViewElementInfoProtocol>
+@property (nonatomic, weak) UIView *view;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -68,9 +68,3 @@
 
 @interface UICollectionViewCell (AutoTrack) <SAAutoTrackCellProperty, SAAutoTrackViewPathProperty>
 @end
-
-@interface UICollectionViewCell (SAElementPositionUtil)
-
-- (BOOL)isSupportElementPosition;
-
-@end

@@ -1,5 +1,5 @@
 //
-// SAViewElementTypeContext.h
+// SAViewElementInfoFactory.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/18.
@@ -19,14 +19,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SAViewElementInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAViewElementTypeContext : NSObject
+@interface SAViewElementInfoFactory : NSObject
 
-@property (nonatomic, copy, readonly) NSString *elementType;
-
-- (instancetype)initWithView:(UIView *)view;
++ (id<SAViewElementInfoProtocol>)elementInfoWithView:(UIView *)view;
 
 @end
 
