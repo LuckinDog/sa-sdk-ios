@@ -1,8 +1,8 @@
 //
-// SAVisualizedUtils.h
+// SAReferrerManager.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/3/3.
+// Created by 彭远洋 on 2020/12/9.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,32 +18,22 @@
 // limitations under the License.
 //
 
-
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAVisualizedUtils : NSObject
+@interface SAReferrerManager : NSObject
 
-/// view 是否被覆盖
-+ (BOOL)isCoveredForView:(UIView *)view;
+@property (nonatomic, assign) BOOL isClearReferrer;
+@property (nonatomic, assign) BOOL enableReferrerTitle;
 
-/// view 是否可见
-+ (BOOL)isVisibleForView:(UIView *)view;
+@property (nonatomic, copy, readonly) NSDictionary *referrerProperties;
+@property (nonatomic, copy, readonly) NSString *referrerURL;
+@property (nonatomic, copy, readonly) NSString *referrerTitle;
 
-/// 解析构造 web 元素
-+ (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
-
-///  获取 RN 当前页面信息
-+ (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
-
-/// 获取当前有效的 keyWindow
-+ (UIWindow *)currentValidKeyWindow;
-
-/// 是否为 RN 的 View
-+ (BOOL)isKindOfRNView:(UIView *)view;
+- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties serialQueue:(dispatch_queue_t)serialQueue;
+- (void)clearReferrer;
 
 @end
 
