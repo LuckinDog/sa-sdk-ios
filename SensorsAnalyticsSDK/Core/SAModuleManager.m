@@ -30,7 +30,7 @@
 static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
-static NSString * const kSANotificationModuleName = @"Notification";
+static NSString * const kSANotificationModuleName = @"AppPush";
 
 @interface SAModuleManager ()
 
@@ -99,7 +99,7 @@ static NSString * const kSANotificationModuleName = @"Notification";
             return kSAChannelMatchModuleName;
         case SAModuleTypeEncrypt:
             return kSAEncryptModuleName;
-        case SAModuleTypeNotification:
+        case SAModuleTypeAppPush:
             return kSANotificationModuleName;
         default:
             return nil;
@@ -196,7 +196,7 @@ static NSString * const kSANotificationModuleName = @"Notification";
 @implementation SAModuleManager (PushClick)
 
 - (void)setLaunchOptions:(NSDictionary *)launchOptions {
-    id<SANotificationModuleProtocol> manager = (id<SANotificationModuleProtocol>)[[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeNotification];
+    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)[[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeAppPush];
     [manager setLaunchOptions:launchOptions];
 }
 

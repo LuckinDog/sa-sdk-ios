@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@protocol SANotificationModuleProtocol <NSObject>
+@protocol SAAppPushModuleProtocol <NSObject>
 
 - (void)setLaunchOptions:(NSDictionary *)launchOptions;
 

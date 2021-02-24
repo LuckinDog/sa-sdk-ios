@@ -27,7 +27,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeChannelMatch,
     SAModuleTypeEncrypt,
-    SAModuleTypeNotification,
+    SAModuleTypeAppPush,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -63,7 +63,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @end
 
-@interface SAModuleManager (PushClick) <SANotificationModuleProtocol>
+@interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
 
 @end
 

@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SANotificationManager.h"
+#import "SAAppPushManager.h"
 #import "SAApplicationDelegateProxy.h"
 #import "SASwizzle.h"
 #import "SALog.h"
@@ -32,7 +32,7 @@
 #import "SAUNUserNotificationCenterDelegateProxy.h"
 #endif
 
-@implementation SANotificationManager
+@implementation SAAppPushManager
 
 - (void)setEnable:(BOOL)enable {
     _enable = enable;

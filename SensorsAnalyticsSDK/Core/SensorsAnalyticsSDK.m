@@ -374,7 +374,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             if (_configOptions.enableTrackPush) {
-                [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeNotification];
+                [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeAppPush];
                 [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
             }
         }

@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
   end
 
   # 推送点击
-  s.subspec 'Notification' do |f|
+  s.subspec 'AppPush' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/AppPush/**/*.{h,m}"
   end

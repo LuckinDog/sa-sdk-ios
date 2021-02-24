@@ -23,7 +23,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SANotificationManager : NSObject <SANotificationModuleProtocol, SAModuleProtocol>
+@interface SAAppPushManager : NSObject <SAAppPushModuleProtocol, SAModuleProtocol>
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
