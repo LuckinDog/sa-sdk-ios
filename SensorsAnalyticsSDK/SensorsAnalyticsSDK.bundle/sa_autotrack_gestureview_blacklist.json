@@ -1,0 +1,15 @@
+{
+    "gestureView": {
+        "public": [
+            "UIPageControl",
+            "UITextView",
+            "UITabBar"
+        ],
+        "private": [
+            "_UIContextMenuContainerView",
+            "UISwitchModernVisualElement",
+            "WKContentView",
+            "UIWebBrowserView"
+        ]
+    }
+}

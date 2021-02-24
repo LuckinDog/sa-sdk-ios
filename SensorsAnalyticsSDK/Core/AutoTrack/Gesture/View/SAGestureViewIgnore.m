@@ -34,15 +34,35 @@
 
 - (instancetype)initWithView:(UIView *)view {
     if (self = [super init]) {
-        NSString *viewType = NSStringFromClass(view.class);
-        if ([view isKindOfClass:UIPageControl.class] ||
-            [view isKindOfClass:UITextView.class] ||
-            [view isKindOfClass:UITabBar.class] ||
-            [viewType isEqualToString:@"_UIContextMenuContainerView"] ||
-            [viewType isEqualToString:@"UISwitchModernVisualElement"] ||
-            [viewType isEqualToString:@"WKContentView"] ||
-            [viewType isEqualToString:@"UIWebBrowserView"]) {
-            self.ignore = YES;
+        static dispatch_once_t onceToken;
+        static id info = nil;
+        dispatch_once(&onceToken, ^{
+            NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+            NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gestureview_blacklist.json" ofType:nil];
+            NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+            if (jsonData) {
+                info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+            }
+        });
+        if ([info isKindOfClass:NSDictionary.class]) {
+            id gestureView = info[@"gestureView"];
+            if ([gestureView isKindOfClass:NSDictionary.class]) {
+                id publicClasses = gestureView[@"public"];
+                if ([publicClasses isKindOfClass:NSArray.class]) {
+                    for (NSString *publicClass in (NSArray *)publicClasses) {
+                        if ([view isKindOfClass:NSClassFromString(publicClass)]) {
+                            self.ignore = YES;
+                            break;
+                        }
+                    }
+                }
+                id privateClasses = gestureView[@"private"];
+                if ([privateClasses isKindOfClass:NSArray.class]) {
+                    if ([(NSArray *)privateClasses containsObject:NSStringFromClass(view.class)]) {
+                        self.ignore = YES;
+                    }
+                }
+            }
         }
     }
     return self;
