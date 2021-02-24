@@ -46,7 +46,7 @@
 - (NSArray <UIView *>*)searchVisualSubViewFromView:(UIView *)view {
     NSMutableArray *subViews = [NSMutableArray array];
     for (UIView *subView in view.subviews) {
-        if ([[self subVisualViewType] isEqualToString:NSStringFromClass(subView.class)]) {
+        if ([self isTrackableViewTypeWithView:subView]) {
             [subViews addObject:subView];
         } else {
             NSArray *array = [self searchVisualSubViewFromView:subView];
@@ -59,8 +59,8 @@
 }
 
 #pragma mark - Subclasses to overwrite
-- (NSString *)subVisualViewType {
-    return @"";
+- (BOOL)isTrackableViewTypeWithView:(UIView *)view {
+    return NO;
 }
 
 @end
@@ -82,8 +82,8 @@
 }
 
 #pragma mark - Overwrite
-- (NSString *)subVisualViewType {
-    return @"_UIAlertControllerCollectionViewCell";
+- (BOOL)isTrackableViewTypeWithView:(UIView *)view {
+    return [@"_UIAlertControllerCollectionViewCell" isEqualToString:NSStringFromClass(view.class)];
 }
 
 @end
@@ -105,8 +105,8 @@
 }
 
 #pragma mark - Overwrite
-- (NSString *)subVisualViewType {
-    return @"_UIInterfaceActionCustomViewRepresentationView";
+- (BOOL)isTrackableViewTypeWithView:(UIView *)view {
+    return [@"_UIInterfaceActionCustomViewRepresentationView" isEqualToString:NSStringFromClass(view.class)];
 }
 
 @end
@@ -115,8 +115,8 @@
 @implementation SAMenuGestureViewProcessor
 
 #pragma mark - Overwrite
-- (NSString *)subVisualViewType {
-    return @"_UIContextMenuActionsListCell";
+- (BOOL)isTrackableViewTypeWithView:(UIView *)view {
+    return [@"_UIContextMenuActionsListCell" isEqualToString:NSStringFromClass(view.class)];
 }
 
 @end
