@@ -64,11 +64,12 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 
 #pragma mark - Associated Object
 - (SAGestureTargetContext *)sensorsdata_targetContext {
-    SAGestureTargetContext *trackTarget = objc_getAssociatedObject(self, kSAGestureTargetContextKey);
-    if (!trackTarget) {
-        self.sensorsdata_targetContext = [[SAGestureTargetContext alloc] initWithGesture:self];
+    SAGestureTargetContext *targetContext = objc_getAssociatedObject(self, kSAGestureTargetContextKey);
+    if (!targetContext) {
+        targetContext = [[SAGestureTargetContext alloc] initWithGesture:self];
+        self.sensorsdata_targetContext = targetContext;
     }
-    return objc_getAssociatedObject(self, kSAGestureTargetContextKey);
+    return targetContext;
 }
 
 - (void)setSensorsdata_targetContext:(SAGestureTargetContext *)sensorsdata_targetContext {
@@ -78,9 +79,10 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 - (NSMutableArray <SAGestureTargetActionPair *>*)sensorsdata_targetActionPairs {
     NSMutableArray <SAGestureTargetActionPair *>*targetActionPairs = objc_getAssociatedObject(self, kSAGestureTargetActionPairsKey);
     if (!targetActionPairs) {
-        self.sensorsdata_targetActionPairs = [NSMutableArray array];
+        targetActionPairs = [NSMutableArray array];
+        self.sensorsdata_targetActionPairs = targetActionPairs;
     }
-    return objc_getAssociatedObject(self, kSAGestureTargetActionPairsKey);
+    return targetActionPairs;
 }
 
 - (void)setSensorsdata_targetActionPairs:(NSMutableArray <SAGestureTargetActionPair *>*)sensorsdata_targetActionPairs {
