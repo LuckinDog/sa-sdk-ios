@@ -26,7 +26,7 @@
 
 @interface SAGestureTargetContext ()
 
-@property (nonatomic, strong) UIGestureRecognizer *gesture;
+@property (nonatomic, weak) UIGestureRecognizer *gesture;
 @property (nonatomic, strong) id<SAGestureTargetProtocol> target;
 
 @end
