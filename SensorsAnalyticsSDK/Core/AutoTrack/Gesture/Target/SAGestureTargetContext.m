@@ -37,11 +37,9 @@
     if (self = [super init]) {
         self.gesture = gesture;
         NSString *gestureType = NSStringFromClass(gesture.class);
-        if ([gestureType isEqualToString:@"UITapGestureRecognizer"]) {
-            self.target = [[SAGestureTarget alloc] init];
-        } else if ([gestureType isEqualToString:@"UILongPressGestureRecognizer"]) {
-            self.target = [[SAGestureTarget alloc] init];
-        } else if ([gestureType isEqualToString:@"_UIContextMenuSelectionGestureRecognizer"]) {
+        if ([gesture isMemberOfClass:UITapGestureRecognizer.class] ||
+            [gesture isMemberOfClass:UILongPressGestureRecognizer.class] ||
+            [gestureType isEqualToString:@"_UIContextMenuSelectionGestureRecognizer"]) {
             self.target = [[SAGestureTarget alloc] init];
         }
     }
