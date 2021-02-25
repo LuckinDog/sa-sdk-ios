@@ -597,13 +597,13 @@
                 [subElements addObject:self.tabBar];
             }
         }
-    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
             if (self.selectedViewController) {
                 [subElements addObject:self.selectedViewController];
             }
         }
-    #endif
+#endif
         else if (view.sensorsdata_isDisplayedInScreen) {
             [subElements addObject:view];
         }
@@ -634,14 +634,13 @@
                 [subElements addObject:self.navigationBar];
             }
         }
-
-    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
             if (self.topViewController) {
                 [subElements addObject:self.topViewController];
             }
         }
-    #endif
+#endif
 
         else if (view.sensorsdata_isDisplayedInScreen) {
             [subElements addObject:view];
@@ -664,16 +663,16 @@
      */
     NSMutableArray *subElements = [NSMutableArray array];
     for (UIView *view in self.view.subviews) {
-    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         if ([NSStringFromClass(view.class) isEqualToString:@"_UIQueuingScrollView"]) {
             if (self.viewControllers.count > 0) {
                 [subElements addObjectsFromArray:self.viewControllers];
             }
-        }
-    #endif
-        else if (view.sensorsdata_isDisplayedInScreen) {
-            [subElements addObject:view];
-        }
+        } else
+#endif
+            if (view.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:view];
+            }
     }
     return subElements;
 }
