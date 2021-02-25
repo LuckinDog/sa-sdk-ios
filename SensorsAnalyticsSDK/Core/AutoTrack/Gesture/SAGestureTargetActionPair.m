@@ -35,9 +35,7 @@
 }
 
 - (BOOL)isEqualToTarget:(id)target andAction:(SEL)action {
-    BOOL isEqual = self.target == target;
-    isEqual = isEqual && [NSStringFromSelector(self.action) isEqualToString:NSStringFromSelector(action)];
-    return isEqual;
+    return (self.target == target) && [NSStringFromSelector(self.action) isEqualToString:NSStringFromSelector(action)];
 }
 
 - (NSString *)description {
