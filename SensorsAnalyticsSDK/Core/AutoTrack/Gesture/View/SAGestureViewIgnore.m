@@ -24,48 +24,43 @@
 
 #import "SAGestureViewIgnore.h"
 
-@interface SAGestureViewIgnore ()
-
-@property (nonatomic, assign) BOOL ignore;
-
-@end
-
 @implementation SAGestureViewIgnore
 
-- (instancetype)initWithView:(UIView *)view {
-    if (self = [super init]) {
-        static dispatch_once_t onceToken;
-        static id info = nil;
-        dispatch_once(&onceToken, ^{
-            NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-            NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gestureview_blacklist.json" ofType:nil];
-            NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-            if (jsonData) {
-                info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-            }
-        });
-        if ([info isKindOfClass:NSDictionary.class]) {
-            id gestureView = info[@"gestureView"];
-            if ([gestureView isKindOfClass:NSDictionary.class]) {
-                id publicClasses = gestureView[@"public"];
-                if ([publicClasses isKindOfClass:NSArray.class]) {
-                    for (NSString *publicClass in (NSArray *)publicClasses) {
-                        if ([view isKindOfClass:NSClassFromString(publicClass)]) {
-                            self.ignore = YES;
-                            break;
-                        }
-                    }
-                }
-                id privateClasses = gestureView[@"private"];
-                if ([privateClasses isKindOfClass:NSArray.class]) {
-                    if ([(NSArray *)privateClasses containsObject:NSStringFromClass(view.class)]) {
-                        self.ignore = YES;
-                    }
-                }
++ (BOOL)ignoreWithView:(UIView *)view {
+    static dispatch_once_t onceToken;
+    static id info = nil;
+    dispatch_once(&onceToken, ^{
+        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gestureview_blacklist.json" ofType:nil];
+        NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+        if (jsonData) {
+            info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+        }
+    });
+    if (![info isKindOfClass:NSDictionary.class]) {
+        return NO;
+    }
+    id gestureView = info[@"gestureView"];
+    if (![gestureView isKindOfClass:NSDictionary.class]) {
+        return NO;
+    }
+    // 公开类名使用 - isKindOfClass: 判断
+    id publicClasses = gestureView[@"public"];
+    if ([publicClasses isKindOfClass:NSArray.class]) {
+        for (NSString *publicClass in (NSArray *)publicClasses) {
+            if ([view isKindOfClass:NSClassFromString(publicClass)]) {
+                return YES;
             }
         }
     }
-    return self;
+    // 私有类名使用字符串匹配判断
+    id privateClasses = gestureView[@"private"];
+    if ([privateClasses isKindOfClass:NSArray.class]) {
+        if ([(NSArray *)privateClasses containsObject:NSStringFromClass(view.class)]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end

@@ -38,8 +38,7 @@
     if (![SAVisualizedUtils isVisibleForView:self]) {
         return NO;
     }
-    SAGestureViewIgnore *viewIgnore = [[SAGestureViewIgnore alloc] initWithView:self];
-    if (viewIgnore.isIgnore) {
+    if ([SAGestureViewIgnore ignoreWithView:self]) {
         return NO;
     }
     id <SAViewElementInfoProtocol> elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];

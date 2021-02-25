@@ -32,7 +32,7 @@
     if (gesture.state != UIGestureRecognizerStateEnded) {
         return NO;
     }
-    if ([[SAGestureViewIgnore alloc] initWithView:gesture.view].isIgnore) {
+    if ([SAGestureViewIgnore ignoreWithView:gesture.view]) {
         return NO;
     }
     if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {

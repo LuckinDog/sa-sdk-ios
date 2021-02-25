@@ -24,9 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAGestureViewIgnore : NSObject
 
-@property (nonatomic, assign, readonly, getter=isIgnore) BOOL ignore;
-
-- (instancetype)initWithView:(UIView *)view;
++ (BOOL)ignoreWithView:(UIView *)view;
 
 @end
 
