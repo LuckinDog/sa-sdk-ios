@@ -35,7 +35,7 @@
     if ([[SAGestureViewIgnore alloc] initWithView:gesture.view].isIgnore) {
         return NO;
     }
-    if ([SAGestureTargetActionPair filterValidPairFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
+    if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
         return NO;
     }
     return YES;

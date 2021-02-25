@@ -48,7 +48,7 @@
     }
     for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
         if (gesture.sensorsdata_targetContext.target) {
-            if ([SAGestureTargetActionPair filterValidPairFrom:gesture.sensorsdata_targetActionPairs].count > 0) {
+            if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count > 0) {
                 SAGestureViewProcessorContext *context = [[SAGestureViewProcessorContext alloc] initWithGesture:gesture];
                 if (context.trackableView == gesture.view) {
                     return YES;

@@ -57,14 +57,14 @@
     return nil;
 }
 
-+ (NSArray <SAGestureTargetActionPair *>*)filterValidPairFrom:(NSArray <SAGestureTargetActionPair *>*)pairs {
++ (NSArray <SAGestureTargetActionPair *>*)filterValidPairsFrom:(NSArray <SAGestureTargetActionPair *>*)pairs {
     NSMutableArray *result = [NSMutableArray array];
     for (SAGestureTargetActionPair *pair in pairs) {
         if (pair.isValid) {
             [result addObject:pair];
         }
     }
-    return result;
+    return [result copy];
 }
 
 @end

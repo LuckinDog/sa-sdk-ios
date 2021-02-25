@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 从数组中过滤出有效的 target-action pair 对象
 /// @param pairs 有效的对象数组
-+ (NSArray <SAGestureTargetActionPair *>*)filterValidPairFrom:(NSArray <SAGestureTargetActionPair *>*)pairs;
++ (NSArray <SAGestureTargetActionPair *>*)filterValidPairsFrom:(NSArray <SAGestureTargetActionPair *>*)pairs;
 
 @end
 
