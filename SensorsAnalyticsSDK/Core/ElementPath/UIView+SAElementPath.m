@@ -605,13 +605,18 @@
 @implementation UITabBarController (SAElementPath)
 - (NSArray *)sensorsdata_subElements {
     NSMutableArray *subElements = [NSMutableArray array];
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
+
     /* 兼容场景
      可能存在元素，直接添加在 UITabBarController.view 上（即 UILayoutContainerView）
      UITabBarController 页面层级大致如下
      - UITabBarController
-        - UILayoutContainerView
-            - UITransitionView
-            - UITabBar
+     - UILayoutContainerView
+     - UITransitionView
+     - UITabBar
      */
     NSArray<UIView *> *subViews = self.view.subviews;
     for (UIView *view in subViews) {
@@ -641,14 +646,17 @@
 @implementation UINavigationController (SAElementPath)
 - (NSArray *)sensorsdata_subElements {
     NSMutableArray *subElements = [NSMutableArray array];
-
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
     /* 兼容场景
      可能存在元素，直接添加在 UINavigationController.view 上（即 UILayoutContainerView）
      UINavigationController 页面层级大致如下
      - UINavigationController
-        - UILayoutContainerView
-            - UINavigationTransitionView
-            - UINavigationBar
+     - UILayoutContainerView
+     - UINavigationTransitionView
+     - UINavigationBar
      */
     NSArray<UIView *> *subViews = self.view.subviews;
     for (UIView *view in subViews) {
@@ -677,15 +685,20 @@
 @implementation UIPageViewController (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
+
     /* 兼容场景
      可能存在元素，直接添加在 UIPageViewController.view 上（即 _UIPageViewControllerContentView）
      UIPageViewController 页面层级大致如下
      - UIPageViewController
-        - _UIPageViewControllerContentView
-            - _UIQueuingScrollView
-            - Others
+     - _UIPageViewControllerContentView
+     - _UIQueuingScrollView
+     - Others
      */
-    NSMutableArray *subElements = [NSMutableArray array];
     for (UIView *view in self.view.subviews) {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         if ([NSStringFromClass(view.class) isEqualToString:@"_UIQueuingScrollView"]) {
