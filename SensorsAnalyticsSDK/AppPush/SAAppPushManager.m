@@ -47,6 +47,7 @@
 
 - (void)proxyNotifications {
     //UIApplicationDelegate proxy
+    [SAApplicationDelegateProxy resolveOptionalSelectorsForDelegate:[UIApplication sharedApplication].delegate];
     [SAApplicationDelegateProxy proxyDelegate:[UIApplication sharedApplication].delegate selectors:[NSSet setWithArray:@[@"application:didReceiveLocalNotification:", @"application:didReceiveRemoteNotification:fetchCompletionHandler:"]]];
     
     //UNUserNotificationCenterDelegate proxy

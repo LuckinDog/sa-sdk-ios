@@ -30,9 +30,13 @@
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
+
 @implementation UITableView (AutoTrack)
 
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
+    //resolve optional selectors
+    [SAScrollViewDelegateProxy resolveOptionalSelectorsForDelegate:delegate];
+    
     [self sensorsdata_setDelegate:delegate];
 
     if (self.delegate == nil) {
@@ -53,6 +57,9 @@
 @implementation UICollectionView (AutoTrack)
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
+    //resolve optional selectors
+    [SAScrollViewDelegateProxy resolveOptionalSelectorsForDelegate:delegate];
+    
     [self sensorsdata_setDelegate:delegate];
 
     if (self.delegate == nil) {

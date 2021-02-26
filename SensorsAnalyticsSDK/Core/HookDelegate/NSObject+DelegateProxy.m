@@ -42,6 +42,7 @@
 static void *const kSADelegateProxyParasiteName = (void *)&kSADelegateProxyParasiteName;
 static void *const kSADelegateProxyClassName = (void *)&kSADelegateProxyClassName;
 static void *const kSADelegateSelectors = (void *)&kSADelegateSelectors;
+static void *const kSADelegateOptionalSelectors = (void *)&kSADelegateOptionalSelectors;
 static void *const kSADelegateProxy = (void *)&kSADelegateProxy;
 
 @interface NSObject (SACellClick)
@@ -76,6 +77,14 @@ static void *const kSADelegateProxy = (void *)&kSADelegateProxy;
     objc_setAssociatedObject(self, kSADelegateSelectors, sensorsdata_selectors, OBJC_ASSOCIATION_COPY);
 }
 
+- (NSSet<NSString *> *)sensorsdata_optionalSelectors {
+    return objc_getAssociatedObject(self, kSADelegateOptionalSelectors);
+}
+
+- (void)setSensorsdata_optionalSelectors:(NSSet<NSString *> *)sensorsdata_optionalSelectors {
+    objc_setAssociatedObject(self, kSADelegateOptionalSelectors, sensorsdata_optionalSelectors, OBJC_ASSOCIATION_COPY);
+}
+
 - (id)sensorsdata_delegateProxy {
     return objc_getAssociatedObject(self, kSADelegateProxy);
 }
@@ -95,7 +104,7 @@ static void *const kSADelegateProxy = (void *)&kSADelegateProxy;
     if ([self sensorsdata_respondsToSelector:aSelector]) {
         return YES;
     }
-    if ([NSStringFromSelector(aSelector) isEqualToString:@"tableView:didSelectRowAtIndexPath:"]) {
+    if ([self.sensorsdata_optionalSelectors containsObject:NSStringFromSelector(aSelector)]) {
         return YES;
     }
     return NO;

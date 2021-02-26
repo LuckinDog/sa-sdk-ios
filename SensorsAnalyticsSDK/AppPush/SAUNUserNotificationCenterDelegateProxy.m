@@ -35,7 +35,7 @@
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler  API_AVAILABLE(ios(10.0)){
     SEL selector = @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:);
-    [SAUNUserNotificationCenterDelegateProxy invokeWithTarget:self selector:selector, center, response, completionHandler, nil];
+    [SAUNUserNotificationCenterDelegateProxy invokeWithTarget:self selector:selector, center, response, completionHandler];
     [SAUNUserNotificationCenterDelegateProxy trackEventWithTarget:self notificationCenter:center notificationResponse:response];
 }
 
@@ -63,6 +63,10 @@
     }
     
     [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
+}
+
++ (NSSet<NSString *> *)optionalSelectors {
+    return [NSSet setWithArray:@[@"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"]];
 }
 
 @end

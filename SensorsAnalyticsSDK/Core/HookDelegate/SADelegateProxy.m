@@ -25,9 +25,9 @@
 #import "SADelegateProxy.h"
 #import "SAClassHelper.h"
 #import "SAMethodHelper.h"
-#import "NSObject+DelegateProxy.h"
 #import "SALog.h"
 #import "SAAutoTrackProperty.h"
+#import "NSObject+DelegateProxy.h"
 #import <objc/message.h>
 
 @implementation SADelegateProxy
@@ -129,7 +129,7 @@
     NSMutableSet<NSString *> *validSelectors = [[NSMutableSet alloc] init];
     for (NSString *selector in selectors) {
         SEL aSelector = NSSelectorFromString(selector);
-        if (aSelector) {
+        if (aSelector && [object respondsToSelector:aSelector]) {
             [validSelectors addObject:selector];
         }
     }
@@ -159,6 +159,18 @@
     void (*func)(struct objc_super *, SEL, id, id, id, id) = (void *)&objc_msgSendSuper;
     func(&targetSuper, selector, arg1, arg2, arg3, arg4);
     va_end(args);
+}
+
++ (void)resolveOptionalSelectorsForDelegate:(id)delegate {
+    NSSet *currentOptionalSelectors = ((NSObject *)delegate).sensorsdata_optionalSelectors;
+    NSMutableSet *optionalSelectors = [[NSMutableSet alloc] init];
+    if (currentOptionalSelectors) {
+        [optionalSelectors unionSet:currentOptionalSelectors];
+    }
+    if ([self optionalSelectors]) {
+        [optionalSelectors unionSet:[self optionalSelectors]];
+    }
+    ((NSObject *)delegate).sensorsdata_optionalSelectors = [optionalSelectors copy];
 }
 
 @end

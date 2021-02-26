@@ -22,14 +22,30 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SADelegateProxy : NSObject
+@protocol SAHookDelegateProtocol <NSObject>
+@optional
++ (NSSet<NSString *> *)optionalSelectors;
+- (NSSet<NSString *> *)optionalSelectors;
+
+@end
+
+@interface SADelegateProxy : NSObject <SAHookDelegateProtocol>
 
 /// proxy delegate with selectors
 /// @param delegate delegate object, such as UITableViewDelegate、UICollectionViewDelegate, etc.
 /// @param selectors delegate proxy methods, such as "tableView:didSelectRowAtIndexPath:"、"collectionView:didSelectItemAtIndexPath:", etc.
 + (void)proxyDelegate:(id)delegate selectors:(NSSet<NSString *>*)selectors;
 
-+ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector, ... NS_REQUIRES_NIL_TERMINATION;
+
+/// forward selector with arguments
+/// @param target target
+/// @param selector selector
++ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector, ...;
+
+
+/// actions for optional selectors
+/// @param delegate delegate object
++ (void)resolveOptionalSelectorsForDelegate:(id)delegate;
 
 @end
 

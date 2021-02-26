@@ -36,13 +36,13 @@
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     SEL selector = @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
-    [SAApplicationDelegateProxy invokeWithTarget:self selector:selector, application, userInfo, completionHandler, nil];
+    [SAApplicationDelegateProxy invokeWithTarget:self selector:selector, application, userInfo, completionHandler];
     [SAApplicationDelegateProxy trackEventWithTarget:self application:application remoteNotification:userInfo];
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
     SEL selector = @selector(application:didReceiveLocalNotification:);
-    [SAApplicationDelegateProxy invokeWithTarget:self selector:selector, application, notification, nil];
+    [SAApplicationDelegateProxy invokeWithTarget:self selector:selector, application, notification];
     [SAApplicationDelegateProxy trackEventWithTarget:self application:application localNotification:notification];
 }
 
@@ -106,6 +106,10 @@
     }
     
     [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
+}
+
++ (NSSet<NSString *> *)optionalSelectors {
+    return [NSSet setWithArray:@[@"application:didReceiveLocalNotification:", @"application:didReceiveRemoteNotification:fetchCompletionHandler:"]];
 }
 
 @end

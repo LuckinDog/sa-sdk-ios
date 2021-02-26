@@ -31,6 +31,9 @@ static void *const kSALaunchOptions = (void *)&kSALaunchOptions;
 @implementation UIApplication (PushClick)
 
 - (void)sensorsdata_setDelegate:(id<UIApplicationDelegate>)delegate {
+    //resolve optional selectors
+    [SAApplicationDelegateProxy resolveOptionalSelectorsForDelegate:delegate];
+    
     [self sensorsdata_setDelegate:delegate];
     
     if (!self.delegate) {

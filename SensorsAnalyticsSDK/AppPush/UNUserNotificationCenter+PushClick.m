@@ -28,6 +28,9 @@
 @implementation UNUserNotificationCenter (PushClick)
 
 - (void)sensorsdata_setDelegate:(id<UNUserNotificationCenterDelegate>)delegate {
+    //resolve optional selectors
+    [SAUNUserNotificationCenterDelegateProxy resolveOptionalSelectorsForDelegate:delegate];
+    
     [self sensorsdata_setDelegate:delegate];
     if (!self.delegate) {
         return;
