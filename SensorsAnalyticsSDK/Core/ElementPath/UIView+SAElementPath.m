@@ -41,6 +41,16 @@
     if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
         return NO;
     }
+    /* 特殊场景兼容
+     controller1.vew 上直接添加 controller2.view，在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController；
+     此时如果 UITabBarController 或 UINavigationController 使用 presentViewController 弹出页面，则 UITabBarController.view (即为 UILayoutContainerView) 可能未 hidden，为了可以通过 UILayoutContainerView 找到 UITabBarController 的子元素，则这里特殊处理。
+     */
+    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"] && [self.nextResponder isKindOfClass:UIViewController.class]) {
+        UIViewController *controller = (UIViewController *)[self nextResponder];
+        if (controller.presentedViewController) {
+            return YES;
+        }
+    }
 
 #endif
 
@@ -202,6 +212,20 @@
 
 /// 元素子视图
 - (NSArray *)sensorsdata_subElements {
+
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    /* 特殊场景兼容
+     controller1.vew 上直接添加 controller2.view，
+     在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController 场景兼容
+     */
+    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"]) {
+        if ([[self nextResponder] isKindOfClass:UIViewController.class]) {
+            UIViewController *controller = (UIViewController *)[self nextResponder];
+            return controller.sensorsdata_subElements;
+        }
+    }
+#endif
+
     NSMutableArray *newSubViews = [NSMutableArray array];
     for (UIView *view in self.subviews) {
         if (view.sensorsdata_isDisplayedInScreen) {
@@ -399,7 +423,7 @@
              keyWindow 设置 rootViewController 后，视图层级为 UIWindow -> UITransitionView -> UIDropShadowView -> rootViewController.view
              */
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-            if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"] && view == self.rootViewController.view.superview.superview) {
+            if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
                 continue;
             }
 #endif
