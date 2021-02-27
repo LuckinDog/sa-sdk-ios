@@ -219,7 +219,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAPresetProperty *presetProperty;
 
-@property (nonatomic, strong) SAConsoleLogger *consoleLogger;
+@property (atomic, strong) SAConsoleLogger *consoleLogger;
 
 @property (nonatomic, strong) SAReferrerManager *referrerManager;
 
@@ -438,13 +438,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)enableLoggers:(BOOL)enableLog {
+- (void)enableLoggers {
     if (!self.consoleLogger) {
         SAConsoleLogger *consoleLogger = [[SAConsoleLogger alloc] init];
         [SALog addLogger:consoleLogger];
         self.consoleLogger = consoleLogger;
     }
-    self.consoleLogger.enableLog = enableLog;
 }
 
 + (UInt64)getCurrentTime {
@@ -2492,8 +2491,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] deleteUser];
 }
 
-- (void)enableLog:(BOOL)enabelLog{
-    [self enableLoggers:enabelLog];
+- (void)enableLog:(BOOL)enableLog {
+    [SALog sharedLog].enableLog = enableLog;
+    if (!enableLog) {
+        return;
+    }
+    [self enableLoggers];
 }
 
 - (void)enableTrackScreenOrientation:(BOOL)enable {
