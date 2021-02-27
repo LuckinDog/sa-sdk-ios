@@ -143,7 +143,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 - (void)trackAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
     // 先发送 track
     SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    [sdk track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+    [sdk trackPresetEvent:event properties:properties];
 
     NSMutableDictionary *profileProps = [NSMutableDictionary dictionary];
     [profileProps addEntriesFromDictionary:properties];
@@ -225,9 +225,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 }
 
 - (void)uploadUserInfoIntoWhiteList:(NSDictionary *)qureyItems {
-    SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
-    SANetworkStatus status = [reachability currentReachabilityStatus];
-    if (status == SANotReachable) {
+    if (![SAReachability sharedInstance].isReachable) {
         [self showErrorMessage:@"当前网络不可用，请检查网络！"];
         return;
     }

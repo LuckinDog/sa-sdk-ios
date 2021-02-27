@@ -38,4 +38,8 @@
     return ([dictionary isKindOfClass:[NSDictionary class]] && ([dictionary count] > 0));
 }
 
++ (BOOL)isValidData:(NSData *)data {
+    return ([data isKindOfClass:[NSData class]] && ([data length] > 0));
+}
+
 @end

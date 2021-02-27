@@ -156,16 +156,19 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once
 @property (nonatomic, assign) BOOL enableMultipleChannelMatch;
 
+/// 开启前向页面标题采集功能，默认不开启
+@property (nonatomic, assign) BOOL enableReferrerTitle;
+
 @end
 
 
-/// RSA 公钥秘钥信息
+/// 密钥信息
 @interface SASecretKey : NSObject <NSCoding>
 
-/// 秘钥版本
+/// 密钥版本
 @property(nonatomic, assign) NSInteger version;
 
-/// 秘钥值
+/// 密钥值
 @property(nonatomic, copy) NSString *key;
 
 @end
