@@ -1,9 +1,9 @@
 //
-// SADataEncryptBuilder.h
+// SAAbstractEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2019/7/23.
-// Copyright © 2019-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by wenquan on 2020/12/14.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,21 +18,16 @@
 // limitations under the License.
 //
 
-
 #import <Foundation/Foundation.h>
-#import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SADataEncryptBuilder : NSObject
+@interface SAAbstractEncryptor : NSObject
 
-/**
- 指定初始化方法，设置 RSA 公钥
-
- @param secretKey 公钥配置
- @return 配置对象
- */
-- (instancetype)initWithRSAPublicKey:(nonnull SASecretKey *)secretKey NS_DESIGNATED_INITIALIZER;
+/// 指定初始化方法，初始化加密器
+/// @param secretKey 初始化使用的密钥（非对称加密时为公钥）
+/// @return 加密器
+- (instancetype)initWithSecretKey:(id)secretKey NS_DESIGNATED_INITIALIZER;
 
 /// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
@@ -40,11 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// 禁用 new 初始化
 + (instancetype)new NS_UNAVAILABLE;
 
-/// 设置公钥
-- (void)updateRSAPublicSecretKey:(nonnull SASecretKey *)secretKey;
+/// 加密对象
+/// @param obj 需要加密的对象
+- (nullable NSString *)encryptObject:(NSData *)obj;
 
-/// 加密数据
-- (nullable NSDictionary *)encryptionJSONObject:(id)obj;
+/// 生成 16 位随机数
+- (NSData *)random16ByteData;
 
 @end
 

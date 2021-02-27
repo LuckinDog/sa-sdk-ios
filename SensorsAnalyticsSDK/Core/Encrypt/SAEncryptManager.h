@@ -1,8 +1,8 @@
 //
-// SAValidator.h
+// SAEncryptManager.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/2/19.
+// Created by 张敏超🍎 on 2020/11/25.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,18 +19,15 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAValidator : NSObject
+@interface SAEncryptManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SAEncryptModuleProtocol>
 
-+ (BOOL)isValidString:(NSString *)string;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
-+ (BOOL)isValidDictionary:(NSDictionary *)dictionary;
-
-+ (BOOL)isValidArray:(NSArray *)array;
-
-+ (BOOL)isValidData:(NSData *)data;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 
