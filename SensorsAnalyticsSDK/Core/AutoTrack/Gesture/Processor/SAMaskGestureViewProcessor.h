@@ -22,16 +22,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAMaskGestureViewProcessor : SAGeneralGestureViewProcessor
+@interface SALegacyAlertGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
-@interface SALegacyAlertGestureViewProcessor : SAMaskGestureViewProcessor
+@interface SANewAlertGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
-@interface SANewAlertGestureViewProcessor : SAMaskGestureViewProcessor
-@end
-
-@interface SAMenuGestureViewProcessor : SAMaskGestureViewProcessor
+@interface SAMenuGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
 
