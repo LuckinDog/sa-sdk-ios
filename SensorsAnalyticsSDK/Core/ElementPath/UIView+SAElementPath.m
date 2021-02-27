@@ -148,7 +148,7 @@
         if (@available(iOS 9.0, *)) {
             appClickEvents = appClickEvents | UIControlEventPrimaryActionTriggered;
         }
-        BOOL containEvents = appClickEvents & control.allControlEvents;
+        BOOL containEvents = (appClickEvents & control.allControlEvents) != 0;
         if (containEvents && userInteractionEnabled && enabled) { // 可点击
             return YES;
         }
