@@ -31,11 +31,11 @@
     if ([viewType isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] ||
         [viewType isEqualToString:@"_UIAlertControllerCollectionViewCell"]) {
         return [[SAAlertElementInfo alloc] initWithView:view];
-    } else if ([viewType isEqualToString:@"_UIContextMenuActionsListCell"]) {
-        return [[SAMenuElementInfo alloc] initWithView:view];
-    } else {
-        return [[SAViewElementInfo alloc] initWithView:view];
     }
+    if ([viewType isEqualToString:@"_UIContextMenuActionsListCell"]) {
+        return [[SAMenuElementInfo alloc] initWithView:view];
+    }
+    return [[SAViewElementInfo alloc] initWithView:view];
 }
 
 @end
