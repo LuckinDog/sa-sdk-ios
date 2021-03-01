@@ -76,18 +76,21 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return currentViewController;
 }
 
-+ (BOOL)isIgnorePresentedViewController:(UIViewController *)viewController {
++ (BOOL)canFindPresentedViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return NO;
+    }
     if ([viewController isKindOfClass:UIAlertController.class]) {
-        return YES;
+        return NO;
     }
     if ([@"_UIContextMenuActionsOnlyViewController" isEqualToString:NSStringFromClass(viewController.class)]) {
-        return YES;
+        return NO;
     }
-    return NO;
+    return YES;
 }
 
 + (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    if (![self isIgnorePresentedViewController:viewController.presentedViewController]) {
+    if ([self canFindPresentedViewController:viewController.presentedViewController]) {
          return [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
      }
 
