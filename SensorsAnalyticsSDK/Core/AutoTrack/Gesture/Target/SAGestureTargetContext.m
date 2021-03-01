@@ -26,7 +26,6 @@
 
 @interface SAGestureTargetContext ()
 
-@property (nonatomic, weak) UIGestureRecognizer *gesture;
 @property (nonatomic, strong) id<SAGestureTargetProtocol> target;
 
 @end
@@ -35,7 +34,6 @@
 
 - (instancetype)initWithGesture:(UIGestureRecognizer *)gesture {
     if (self = [super init]) {
-        self.gesture = gesture;
         NSString *gestureType = NSStringFromClass(gesture.class);
         if ([gesture isMemberOfClass:UITapGestureRecognizer.class] ||
             [gesture isMemberOfClass:UILongPressGestureRecognizer.class] ||
