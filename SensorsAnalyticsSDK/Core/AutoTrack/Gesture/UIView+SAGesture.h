@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SAGesture)
 
 /// 当前的 View 是否是可视化全埋点 View
-@property (nonatomic, assign, readonly) BOOL sensorsdata_isVisualView;
+@property (nonatomic, assign, readonly) BOOL sensorsdata_isGestureVisualView;
 
 @end
 

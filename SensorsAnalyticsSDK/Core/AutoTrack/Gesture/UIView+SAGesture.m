@@ -31,7 +31,7 @@
 
 @implementation UIView (SAGesture)
 
-- (BOOL)sensorsdata_isVisualView {
+- (BOOL)sensorsdata_isGestureVisualView {
     if (!self.userInteractionEnabled) {
         return NO;
     }

@@ -175,7 +175,7 @@
             }
         }
     }
-    return self.sensorsdata_isVisualView;
+    return self.sensorsdata_isGestureVisualView;
 }
 
 #pragma mark SAVisualizedViewPathProperty
