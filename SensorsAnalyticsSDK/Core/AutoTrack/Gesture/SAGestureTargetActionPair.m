@@ -43,7 +43,7 @@
 }
 
 - (BOOL)isValid {
-    return self.target && self.action;
+    return [self.target respondsToSelector:self.action];
 }
 
 + (SAGestureTargetActionPair * _Nullable)containsObjectWithTarget:(id)target andAction:(SEL)action fromPairs:(NSArray <SAGestureTargetActionPair *>*)pairs {
