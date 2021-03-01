@@ -23,7 +23,7 @@
 #endif
 
 #import "SAGestureViewProcessorContext.h"
-#import "SAMaskGestureViewProcessor.h"
+#import "SAAlertGestureViewProcessor.h"
 
 @interface SAGestureViewProcessorContext ()
 

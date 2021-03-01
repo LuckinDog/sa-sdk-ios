@@ -1,5 +1,5 @@
 //
-// SAMaskGestureViewProcessor.h
+// SAAlertGestureViewProcessor.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/19.
@@ -22,13 +22,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SALegacyAlertGestureViewProcessor : SAGeneralGestureViewProcessor
+@interface SALegacyAlertGestureViewProcessor : NSObject<SAGestureViewProcessor>
 @end
 
-@interface SANewAlertGestureViewProcessor : SAGeneralGestureViewProcessor
+@interface SANewAlertGestureViewProcessor : NSObject<SAGestureViewProcessor>
 @end
 
-@interface SAMenuGestureViewProcessor : SAGeneralGestureViewProcessor
+@interface SAMenuGestureViewProcessor : NSObject<SAGestureViewProcessor>
 @end
 
 

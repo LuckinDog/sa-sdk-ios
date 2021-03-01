@@ -1,5 +1,5 @@
 //
-// SAMaskGestureViewProcessor.m
+// SAAlertGestureViewProcessor.m
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/19.
@@ -22,9 +22,11 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAMaskGestureViewProcessor.h"
+#import "SAAlertGestureViewProcessor.h"
 #import "SAAlertController.h"
 #import "SAAutoTrackUtils.h"
+#import "UIGestureRecognizer+AutoTrack.h"
+#import "SAGestureViewIgnore.h"
 
 static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIView *view) {
     NSMutableArray *subViews = [NSMutableArray array];
@@ -45,7 +47,13 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 @implementation SALegacyAlertGestureViewProcessor
 
 - (BOOL)trackableWithGesture:(UIGestureRecognizer *)gesture {
-    if (![super trackableWithGesture:gesture]) {
+    if (gesture.state != UIGestureRecognizerStateEnded) {
+        return NO;
+    }
+    if ([SAGestureViewIgnore ignoreWithView:gesture.view]) {
+        return NO;
+    }
+    if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
@@ -74,7 +82,13 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 @implementation SANewAlertGestureViewProcessor
 
 - (BOOL)trackableWithGesture:(UIGestureRecognizer *)gesture {
-    if (![super trackableWithGesture:gesture]) {
+    if (gesture.state != UIGestureRecognizerStateEnded) {
+        return NO;
+    }
+    if ([SAGestureViewIgnore ignoreWithView:gesture.view]) {
+        return NO;
+    }
+    if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
@@ -101,6 +115,19 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 
 #pragma mark - Menu
 @implementation SAMenuGestureViewProcessor
+
+- (BOOL)trackableWithGesture:(UIGestureRecognizer *)gesture {
+    if (gesture.state != UIGestureRecognizerStateEnded) {
+        return NO;
+    }
+    if ([SAGestureViewIgnore ignoreWithView:gesture.view]) {
+        return NO;
+    }
+    if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
+        return NO;
+    }
+    return YES;
+}
 
 - (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture {
     NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIContextMenuActionsListCell", gesture.view);
