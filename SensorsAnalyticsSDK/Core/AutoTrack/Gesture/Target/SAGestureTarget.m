@@ -33,7 +33,7 @@
 
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
     SAGestureViewProcessorContext *context = [[SAGestureViewProcessorContext alloc] initWithGesture:gesture];
-    if (!context.trackable) {
+    if (!context.isTrackable) {
         return;
     }
     

@@ -51,8 +51,8 @@
     return self;
 }
 
-- (BOOL)trackable {
-    return [self.processor trackableWithGesture:self.gesture];
+- (BOOL)isTrackable {
+    return [self.processor isTrackableWithGesture:self.gesture];
 }
 
 - (UIView *)trackableView {

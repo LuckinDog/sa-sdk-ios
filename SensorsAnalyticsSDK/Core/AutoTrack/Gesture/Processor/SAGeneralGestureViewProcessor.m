@@ -28,7 +28,7 @@
 
 @implementation SAGeneralGestureViewProcessor
 
-- (BOOL)trackableWithGesture:(UIGestureRecognizer *)gesture {
+- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateEnded) {
         return NO;
     }

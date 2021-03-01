@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAGestureViewProcessorContext : NSObject
 
-@property (nonatomic, assign, readonly) BOOL trackable;
+@property (nonatomic, assign, readonly) BOOL isTrackable;
 @property (nonatomic, strong, readonly) UIView *trackableView;
 
 - (instancetype)initWithGesture:(UIGestureRecognizer *)gesture;

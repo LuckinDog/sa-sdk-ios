@@ -46,7 +46,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 #pragma mark - Legacy Alert
 @implementation SALegacyAlertGestureViewProcessor
 
-- (BOOL)trackableWithGesture:(UIGestureRecognizer *)gesture {
+- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateEnded) {
         return NO;
     }
@@ -81,7 +81,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 #pragma mark - New Alert
 @implementation SANewAlertGestureViewProcessor
 
-- (BOOL)trackableWithGesture:(UIGestureRecognizer *)gesture {
+- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateEnded) {
         return NO;
     }
@@ -116,7 +116,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 #pragma mark - Menu
 @implementation SAMenuGestureViewProcessor
 
-- (BOOL)trackableWithGesture:(UIGestureRecognizer *)gesture {
+- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateEnded) {
         return NO;
     }
