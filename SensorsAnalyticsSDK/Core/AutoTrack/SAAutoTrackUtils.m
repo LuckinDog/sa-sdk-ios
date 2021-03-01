@@ -87,7 +87,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 }
 
 + (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    if (viewController.presentedViewController && ![self isIgnorePresentedViewController:viewController.presentedViewController]) {
+    if (![self isIgnorePresentedViewController:viewController.presentedViewController]) {
          return [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
      }
 
