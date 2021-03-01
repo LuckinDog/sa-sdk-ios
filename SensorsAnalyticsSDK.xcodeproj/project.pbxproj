@@ -19,8 +19,6 @@
 		453ECA2C25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 453ECA2A25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.m */; };
 		4541243F25D15D57008857FD /* SAGestureTargetActionPair.h in Headers */ = {isa = PBXBuildFile; fileRef = 4541243D25D15D57008857FD /* SAGestureTargetActionPair.h */; };
 		4541244025D15D57008857FD /* SAGestureTargetActionPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */; };
-		4548D20C25DE02B90060841D /* SAGestureTargetContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 4548D20A25DE02B90060841D /* SAGestureTargetContext.h */; };
-		4548D20D25DE02B90060841D /* SAGestureTargetContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 4548D20B25DE02B90060841D /* SAGestureTargetContext.m */; };
 		454A037025D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 454A036E25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.h */; };
 		454A037125D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A036F25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.m */; };
 		457080BC25DE0CE800A31076 /* SAGestureViewIgnore.h in Headers */ = {isa = PBXBuildFile; fileRef = 457080BA25DE0CE800A31076 /* SAGestureViewIgnore.h */; };
@@ -229,8 +227,6 @@
 		453ECA2A25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAViewElementInfoFactory.m; sourceTree = "<group>"; };
 		4541243D25D15D57008857FD /* SAGestureTargetActionPair.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureTargetActionPair.h; sourceTree = "<group>"; };
 		4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetActionPair.m; sourceTree = "<group>"; };
-		4548D20A25DE02B90060841D /* SAGestureTargetContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureTargetContext.h; sourceTree = "<group>"; };
-		4548D20B25DE02B90060841D /* SAGestureTargetContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetContext.m; sourceTree = "<group>"; };
 		454A036E25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureViewProcessorHandler.h; sourceTree = "<group>"; };
 		454A036F25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureViewProcessorHandler.m; sourceTree = "<group>"; };
 		457080BA25DE0CE800A31076 /* SAGestureViewIgnore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureViewIgnore.h; sourceTree = "<group>"; };
@@ -504,8 +500,6 @@
 		45CC194B25D38A2B00D149D4 /* Target */ = {
 			isa = PBXGroup;
 			children = (
-				4548D20A25DE02B90060841D /* SAGestureTargetContext.h */,
-				4548D20B25DE02B90060841D /* SAGestureTargetContext.m */,
 				45CC194425D38A2000D149D4 /* SAGestureTarget.h */,
 				45CC194525D38A2000D149D4 /* SAGestureTarget.m */,
 			);
@@ -943,7 +937,6 @@
 				881A4211253D7B5000854F69 /* SAPresetProperty.h in Headers */,
 				881A41A9253D7B4F00854F69 /* WKWebView+SABridge.h in Headers */,
 				881A4227253D7B5E00854F69 /* SALocationManager.h in Headers */,
-				4548D20C25DE02B90060841D /* SAGestureTargetContext.h in Headers */,
 				881A41F7253D7B5000854F69 /* SASecurityPolicy.h in Headers */,
 				881A41AC253D7B4F00854F69 /* SAScriptMessageHandler.h in Headers */,
 				881A41FB253D7B5000854F69 /* SensorsAnalyticsExceptionHandler.h in Headers */,
@@ -1177,7 +1170,6 @@
 				4D4DB30325B7D52000938842 /* SAAbstractLogger.m in Sources */,
 				4D4DB2FF25B7D51600938842 /* SALoggerConsoleFormatter.m in Sources */,
 				4D4DB2FB25B7D4D800938842 /* SAURLUtils.m in Sources */,
-				4548D20D25DE02B90060841D /* SAGestureTargetContext.m in Sources */,
 				881A4228253D7B5E00854F69 /* SALocationManager.m in Sources */,
 				4D2D53BD2591EB3A00805141 /* SAReadWriteLock.m in Sources */,
 				4D2D539D2591EB2100805141 /* SAEventFlush.m in Sources */,

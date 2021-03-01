@@ -22,14 +22,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAGestureTargetProtocol <NSObject>
+@interface SAGestureTarget : NSObject
 
-@required
++ (SAGestureTarget * _Nullable)targetWithGesture:(UIGestureRecognizer *)gesture;
+
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture;
-
-@end
-
-@interface SAGestureTarget : NSObject<SAGestureTargetProtocol>
 
 @end
 

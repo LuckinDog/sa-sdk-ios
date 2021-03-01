@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "SAAutoTrackProperty.h"
-#import "SAGestureTargetContext.h"
+#import "SAGestureTarget.h"
 #import "SAGestureTargetActionPair.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIGestureRecognizer (SAAutoTrack)
 
 @property (nonatomic, strong, readonly) NSMutableArray <SAGestureTargetActionPair *>*sensorsdata_targetActionPairs;
-@property (nonatomic, strong, readonly) SAGestureTargetContext *sensorsdata_targetContext;
+@property (nonatomic, strong, readonly) SAGestureTarget *sensorsdata_gestureTarget;
 
 - (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action;
 - (void)sensorsdata_addTarget:(id)target action:(SEL)action;

@@ -27,7 +27,7 @@
 #import "SASwizzle.h"
 #import "SALog.h"
 
-static void *const kSAGestureTargetHandlerKey = (void *)&kSAGestureTargetHandlerKey;
+static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetActionPairsKey;
 
 @implementation UIGestureRecognizer (SAAutoTrack)
@@ -35,7 +35,7 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 #pragma mark - Hook Method
 - (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action {
     [self sensorsdata_initWithTarget:target action:action];
-    self.sensorsdata_targetContext = [[SAGestureTargetContext alloc] initWithGesture:self];
+    self.sensorsdata_gestureTarget = [SAGestureTarget targetWithGesture:self];
     self.sensorsdata_targetActionPairs = [NSMutableArray array];
     [self removeTarget:target action:action];
     [self addTarget:target action:action];
@@ -44,18 +44,18 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 
 - (void)sensorsdata_addTarget:(id)target action:(SEL)action {
     // Track 事件需要在原有事件之前触发(原有事件中更改页面内容,会导致部分内容获取不准确)
-    if (self.sensorsdata_targetContext.target) {
+    if (self.sensorsdata_gestureTarget) {
         if (![SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs]) {
             SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
             [self.sensorsdata_targetActionPairs addObject:resulatPair];
-            [self sensorsdata_addTarget:self.sensorsdata_targetContext.target action:@selector(trackGestureRecognizerAppClick:)];
+            [self sensorsdata_addTarget:self.sensorsdata_gestureTarget action:@selector(trackGestureRecognizerAppClick:)];
         }
     }
     [self sensorsdata_addTarget:target action:action];
 }
 
 - (void)sensorsdata_removeTarget:(id)target action:(SEL)action {
-    if (self.sensorsdata_targetContext.target) {
+    if (self.sensorsdata_gestureTarget) {
         SAGestureTargetActionPair *existPair = [SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs];
         if (existPair) {
             [self.sensorsdata_targetActionPairs removeObject:existPair];
@@ -65,12 +65,12 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 }
 
 #pragma mark - Associated Object
-- (SAGestureTargetContext *)sensorsdata_targetContext {
-    return objc_getAssociatedObject(self, kSAGestureTargetHandlerKey);;
+- (SAGestureTarget *)sensorsdata_gestureTarget {
+    return objc_getAssociatedObject(self, kSAGestureTargetKey);
 }
 
-- (void)setSensorsdata_targetContext:(SAGestureTargetContext *)sensorsdata_targetContext {
-    objc_setAssociatedObject(self, kSAGestureTargetHandlerKey, sensorsdata_targetContext, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setSensorsdata_gestureTarget:(SAGestureTarget *)sensorsdata_gestureTarget {
+    objc_setAssociatedObject(self, kSAGestureTargetKey, sensorsdata_gestureTarget, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (NSMutableArray <SAGestureTargetActionPair *>*)sensorsdata_targetActionPairs {

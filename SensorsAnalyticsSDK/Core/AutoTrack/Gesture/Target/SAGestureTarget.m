@@ -31,6 +31,16 @@
 
 @implementation SAGestureTarget
 
++ (SAGestureTarget * _Nullable)targetWithGesture:(UIGestureRecognizer *)gesture {
+    NSString *gestureType = NSStringFromClass(gesture.class);
+    if ([gesture isMemberOfClass:UITapGestureRecognizer.class] ||
+        [gesture isMemberOfClass:UILongPressGestureRecognizer.class] ||
+        [gestureType isEqualToString:@"_UIContextMenuSelectionGestureRecognizer"]) {
+        return [[SAGestureTarget alloc] init];
+    }
+    return nil;
+}
+
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
     SAGestureViewProcessorHandler *handler = [[SAGestureViewProcessorHandler alloc] initWithGesture:gesture];
     if (!handler.isTrackable) {
