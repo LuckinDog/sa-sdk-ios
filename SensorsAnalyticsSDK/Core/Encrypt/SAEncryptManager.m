@@ -262,11 +262,10 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
             return;
         }
 
-        // 更新密钥（返回的密钥与已有的密钥一样则不需要更新）
+        // 返回的密钥与已有的密钥一样则不需要更新
         if ([self.secretKey.key isEqualToString:secretKey.key]) {
             return;
         }
-        self.secretKey = secretKey;
 
         // 更新 AES 密钥加密器
         if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
@@ -279,6 +278,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         } else {
             self.keyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey.key];
         }
+
+        // 更新密钥
+        self.secretKey = secretKey;
 
         // 更新原始的 AES 密钥
         self.originalAESKey = self.keyEncryptor.random16ByteData;

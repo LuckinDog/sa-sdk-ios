@@ -1,5 +1,5 @@
 //
-// UIView+VisualizedAutoTrack.m
+// UIView+SAElementPath.m
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/3/6.
@@ -23,14 +23,14 @@
 #endif
 
 #import <objc/runtime.h>
-#import "UIView+VisualizedAutoTrack.h"
+#import "UIView+SAElementPath.h"
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
 
-@implementation UIView (VisualizedAutoTrack)
+@implementation UIView (SAElementPath)
 
 // 判断一个 view 是否显示
 - (BOOL)sensorsdata_isDisplayedInScreen {
@@ -41,17 +41,17 @@
     if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
         return NO;
     }
-
     /* 特殊场景兼容
      controller1.vew 上直接添加 controller2.view，在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController；
      此时如果 UITabBarController 或 UINavigationController 使用 presentViewController 弹出页面，则 UITabBarController.view (即为 UILayoutContainerView) 可能未 hidden，为了可以通过 UILayoutContainerView 找到 UITabBarController 的子元素，则这里特殊处理。
-       */
+     */
     if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"] && [self.nextResponder isKindOfClass:UIViewController.class]) {
         UIViewController *controller = (UIViewController *)[self nextResponder];
         if (controller.presentedViewController) {
             return YES;
         }
     }
+
 #endif
 
     if (!(self.window && self.superview) || ![SAVisualizedUtils isVisibleForView:self]) {
@@ -66,7 +66,7 @@
     }
 
     // RN 项目，view 覆盖层次比较多，被覆盖元素，可以直接屏蔽，防止被覆盖元素可圈选
-    BOOL isRNView = [SAVisualizedUtils isKindOfRNView:self];
+    BOOL isRNView = [SAVisualizedUtils isKindOfRCTView:self];
     if (isRNView && [SAVisualizedUtils isCoveredForView:self]) {
         return NO;
     }
@@ -148,7 +148,7 @@
         if (@available(iOS 9.0, *)) {
             appClickEvents = appClickEvents | UIControlEventPrimaryActionTriggered;
         }
-        BOOL containEvents = appClickEvents & control.allControlEvents;
+        BOOL containEvents = (appClickEvents & control.allControlEvents) != 0;
         if (containEvents && userInteractionEnabled && enabled) { // 可点击
             return YES;
         }
@@ -212,6 +212,7 @@
 
 /// 元素子视图
 - (NSArray *)sensorsdata_subElements {
+
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     /* 特殊场景兼容
      controller1.vew 上直接添加 controller2.view，
@@ -224,6 +225,7 @@
         }
     }
 #endif
+
     NSMutableArray *newSubViews = [NSMutableArray array];
     for (UIView *view in self.subviews) {
         if (view.sensorsdata_isDisplayedInScreen) {
@@ -246,6 +248,39 @@
 #endif
     if (self.sensorsdata_enableAppClick) {
         return [SAAutoTrackUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController shouldSimilarPath:YES];
+    } else {
+        return nil;
+    }
+}
+
+- (NSString *)sensorsdata_elementSelector {
+    // 处理特殊控件
+    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
+    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
+        UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
+        if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
+            /* 原始路径，都是类似以下结构：
+             UINavigationController/AutoTrackViewController/UIView/UISegmentedControl[(jjf_varB='fac459bd36d8326d9140192c7900decaf3744f5e')]/UISegment[0]
+             UISegment[0] 无法标识当前单元格当前显示的序号 index
+             */
+            NSString *elementSelector = [SAAutoTrackUtils viewPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController];
+            // 解析 UISegment 的显示序号 index
+            NSString *postion = [self sensorsdata_elementPosition];
+            // 原始路径分割后的集合
+            NSMutableArray <NSString *> *viewPaths = [[elementSelector componentsSeparatedByString:@"/"] mutableCopy];
+            // 删除最后一个原始 UISegment 路径
+            [viewPaths removeLastObject];
+            // 添加使用位置拼接的正确路径
+            [viewPaths addObject:[NSString stringWithFormat:@"UISegment[%@]", postion]];
+            // 拼接完整路径信息
+            NSString *newElementSelector = [viewPaths componentsJoinedByString:@"/"];
+            return newElementSelector;
+        }
+    }
+    #endif
+    if (self.sensorsdata_enableAppClick) {
+        return [SAAutoTrackUtils viewPathForView:self atViewController:self.sensorsdata_viewController];
     } else {
         return nil;
     }
@@ -312,7 +347,7 @@
 @end
 
 
-@implementation UIScrollView (VisualizedAutoTrack)
+@implementation UIScrollView (SAElementPath)
 
 - (CGRect)sensorsdata_validFrame {
     CGRect showRect = [self convertRect:self.bounds toView:nil];
@@ -325,7 +360,7 @@
 
 @end
 
-@implementation UISwitch (VisualizedAutoTrack)
+@implementation UISwitch (SAElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -333,7 +368,7 @@
 
 @end
 
-@implementation UIStepper (VisualizedAutoTrack)
+@implementation UIStepper (SAElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -341,7 +376,7 @@
 
 @end
 
-@implementation UISlider (VisualizedAutoTrack)
+@implementation UISlider (SAElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -349,7 +384,7 @@
 
 @end
 
-@implementation UIPageControl (VisualizedAutoTrack)
+@implementation UIPageControl (SAElementPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -357,7 +392,7 @@
 
 @end
 
-@implementation WKWebView (VisualizedAutoTrack)
+@implementation WKWebView (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
@@ -370,7 +405,7 @@
 @end
 
 
-@implementation UIWindow (VisualizedAutoTrack)
+@implementation UIWindow (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     if (!self.rootViewController) {
@@ -396,7 +431,7 @@
 
             CGRect rect = [view convertRect:view.bounds toView:nil];
             // 是否全屏
-            BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, self.bounds.size);
+            BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointZero) && CGSizeEqualToSize(rect.size, self.bounds.size);
             // keyWindow 上存在全屏显示可交互的 view，此时 rootViewController 内元素不可交互
             if (isFullScreenShow && view.userInteractionEnabled) {
                 [subElements removeObject:self.rootViewController];
@@ -408,7 +443,7 @@
 
 @end
 
-@implementation UITableView (VisualizedAutoTrack)
+@implementation UITableView (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subviews = self.subviews;
@@ -428,7 +463,7 @@
 
 @end
 
-@implementation UICollectionView (VisualizedAutoTrack)
+@implementation UICollectionView (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subviews = self.subviews;
@@ -457,7 +492,7 @@
 
 @end
 
-@implementation UITableViewCell (VisualizedAutoTrack)
+@implementation UITableViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
     if (self.sensorsdata_IndexPath) {
@@ -469,7 +504,7 @@
 @end
 
 
-@implementation UICollectionViewCell (VisualizedAutoTrack)
+@implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
     if ([SAAutoTrackUtils isAlertClickForView:self]) {
@@ -484,9 +519,9 @@
 
 @end
 
-@implementation SAJSTouchEventView (VisualizedAutoTrack)
+@implementation SAJSTouchEventView (SAElementPath)
 
-- (NSString *)sensorsdata_elementPath {
+- (NSString *)sensorsdata_elementSelector {
     return self.elementSelector;
 }
 
@@ -515,7 +550,7 @@
 
 @end
 
-@implementation UIViewController (VisualizedAutoTrack)
+@implementation UIViewController (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     __block NSMutableArray *subElements = [NSMutableArray array];
@@ -524,25 +559,6 @@
 
     if (presentedViewController) {
         [subElements addObject:presentedViewController];
-        return subElements;
-    }
-
-    if ([self isKindOfClass:UINavigationController.class]) {
-        UINavigationController *nav = (UINavigationController *)self;
-        [subElements addObject:nav.topViewController];
-        if (self.isViewLoaded && nav.navigationBar.sensorsdata_isDisplayedInScreen) {
-            [subElements addObject:nav.navigationBar];
-        }
-        return subElements;
-    }
-
-    if ([self isKindOfClass:UITabBarController.class]) {
-        UITabBarController *tabBarVC = (UITabBarController *)self;
-        [subElements addObject:tabBarVC.selectedViewController];
-        // UITabBar 元素
-        if (self.isViewLoaded && tabBarVC.tabBar.sensorsdata_isDisplayedInScreen) {
-            [subElements addObject:tabBarVC.tabBar];
-        }
         return subElements;
     }
 
@@ -567,7 +583,7 @@
                 }
                 CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
                // 是否全屏
-                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
+                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointZero) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
                // 正在全屏显示
                 if (isFullScreenShow && obj.view.sensorsdata_isDisplayedInScreen) {
                     isContainFullScreen = YES;
@@ -577,14 +593,123 @@
         return subElements;
     }
 
-    if ([self isKindOfClass:UIPageViewController.class]) {
-        UIPageViewController *pageViewController = (UIPageViewController *)self;
-        [subElements addObject:pageViewController.viewControllers];
-    }
-
     UIView *currentView = self.view;
     if (currentView && self.isViewLoaded && currentView.sensorsdata_isDisplayedInScreen) {
         [subElements addObject:currentView];
+    }
+    return subElements;
+}
+
+@end
+
+@implementation UITabBarController (SAElementPath)
+- (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
+
+    /* 兼容场景
+     可能存在元素，直接添加在 UITabBarController.view 上（即 UILayoutContainerView）
+     UITabBarController 页面层级大致如下
+     - UITabBarController
+     - UILayoutContainerView
+     - UITransitionView
+     - UITabBar
+     */
+    NSArray<UIView *> *subViews = self.view.subviews;
+    for (UIView *view in subViews) {
+        if ([view isKindOfClass:UITabBar.class]) {
+            // UITabBar 元素
+            if (self.isViewLoaded && self.tabBar.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:self.tabBar];
+            }
+        }
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
+            if (self.selectedViewController) {
+                [subElements addObject:self.selectedViewController];
+            }
+        }
+#endif
+        else if (view.sensorsdata_isDisplayedInScreen) {
+            [subElements addObject:view];
+        }
+    }
+
+    return subElements;
+}
+@end
+
+
+@implementation UINavigationController (SAElementPath)
+- (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
+    /* 兼容场景
+     可能存在元素，直接添加在 UINavigationController.view 上（即 UILayoutContainerView）
+     UINavigationController 页面层级大致如下
+     - UINavigationController
+     - UILayoutContainerView
+     - UINavigationTransitionView
+     - UINavigationBar
+     */
+    NSArray<UIView *> *subViews = self.view.subviews;
+    for (UIView *view in subViews) {
+        if ([view isKindOfClass:UINavigationBar.class]) {
+            // UINavigationBar 元素
+            if (self.isViewLoaded && self.navigationBar.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:self.navigationBar];
+            }
+        }
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
+            if (self.topViewController) {
+                [subElements addObject:self.topViewController];
+            }
+        }
+#endif
+
+        else if (view.sensorsdata_isDisplayedInScreen) {
+            [subElements addObject:view];
+        }
+    }
+    return subElements;
+}
+@end
+
+@implementation UIPageViewController (SAElementPath)
+
+- (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
+
+    /* 兼容场景
+     可能存在元素，直接添加在 UIPageViewController.view 上（即 _UIPageViewControllerContentView）
+     UIPageViewController 页面层级大致如下
+     - UIPageViewController
+     - _UIPageViewControllerContentView
+     - _UIQueuingScrollView
+     - Others
+     */
+    for (UIView *view in self.view.subviews) {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        if ([NSStringFromClass(view.class) isEqualToString:@"_UIQueuingScrollView"]) {
+            if (self.viewControllers.count > 0) {
+                [subElements addObjectsFromArray:self.viewControllers];
+            }
+        } else
+#endif
+            if (view.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:view];
+            }
     }
     return subElements;
 }

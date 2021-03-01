@@ -31,7 +31,7 @@
 #import "SAIdentifier.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SACommonUtility.h"
+#import "SAReachability.h"
 #import "SALog.h"
 #import "SAFileStore.h"
 #import "SADateFormatter.h"
@@ -124,14 +124,13 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
 
 #pragma mark – Public Methods
 
-- (NSMutableDictionary *)libPropertiesWithMethod:(NSString *)method {
+- (NSDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod {
     NSMutableDictionary *libProperties = [NSMutableDictionary dictionary];
     libProperties[SAEventPresetPropertyLib] = self.automaticProperties[SAEventPresetPropertyLib];
     libProperties[SAEventPresetPropertyLibVersion] = self.automaticProperties[SAEventPresetPropertyLibVersion];
     libProperties[SAEventPresetPropertyAppVersion] = self.automaticProperties[SAEventPresetPropertyAppVersion];
-    if ([SAValidator isValidString:method]) {
-        libProperties[SAEventPresetPropertyLibMethod] = method;
-    }
+    NSString *method = [SAValidator isValidString:libMethod] ? libMethod : kSALibMethodCode;
+    libProperties[SAEventPresetPropertyLibMethod] = method;
     return libProperties;
 }
 
@@ -146,7 +145,7 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
 }
 
 - (NSDictionary *)currentNetworkProperties {
-    NSString *networkType = [SACommonUtility currentNetworkStatus];
+    NSString *networkType = [SANetwork networkTypeString];
 
     NSMutableDictionary *networkProperties = [NSMutableDictionary dictionary];
     networkProperties[SAEventPresetPropertyNetworkType] = networkType;

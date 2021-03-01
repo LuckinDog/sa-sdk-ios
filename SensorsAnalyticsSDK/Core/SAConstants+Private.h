@@ -89,6 +89,9 @@ extern NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
+
+extern NSString * const kSAEeventPropertyReferrerTitle;
+
 // 远程控制配置信息
 extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
 
@@ -98,6 +101,14 @@ extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
 extern long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT;
+
+#pragma mark--lib method
+extern NSString * const kSALibMethodAuto;
+extern NSString * const kSALibMethodCode;
+
+#pragma mark--track
+extern NSString * const kSAEventTypeTrack;
+extern NSString * const kSAEventTypeSignup;
 
 #pragma mark--profile
 extern NSString * const SA_PROFILE_SET;
@@ -143,3 +154,4 @@ extern NSNotificationName const SA_H5_MESSAGE_NOTIFICATION;
 
 #pragma mark - SA notifications
 extern NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION;
+

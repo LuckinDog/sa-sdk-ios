@@ -19,6 +19,9 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsVisualizedType) {
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAuxiliaryToolManager : NSObject
+
+@property (nonatomic, assign, readonly) SensorsAnalyticsVisualizedType visualizedType;
+
 + (instancetype)sharedInstance;
 
 - (BOOL)canHandleURL:(NSURL *)url;
@@ -28,10 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isVisualizedAutoTrackURL:(NSURL *)url;
 - (BOOL)isDebugModeURL:(NSURL *)url;
 
+/// 是否正在进行 可视化全埋点/点击分析 连接
 - (BOOL)isVisualizedConnecting;
-
-/// 当前类型
-- (SensorsAnalyticsVisualizedType)currentVisualizedType;
 @end
 
 NS_ASSUME_NONNULL_END
