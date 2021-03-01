@@ -1,5 +1,5 @@
 //
-// SAGestureViewProcessorContext.m
+// SAGestureViewProcessorHandler.m
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/10.
@@ -22,17 +22,17 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAGestureViewProcessorContext.h"
+#import "SAGestureViewProcessorHandler.h"
 #import "SAAlertGestureViewProcessor.h"
 
-@interface SAGestureViewProcessorContext ()
+@interface SAGestureViewProcessorHandler ()
 
 @property (nonatomic, strong) id<SAGestureViewProcessor> processor;
 @property (nonatomic, strong) UIGestureRecognizer *gesture;
 
 @end
 
-@implementation SAGestureViewProcessorContext
+@implementation SAGestureViewProcessorHandler
 
 - (instancetype)initWithGesture:(UIGestureRecognizer *)gesture {
     if (self = [super init]) {

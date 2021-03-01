@@ -27,7 +27,7 @@
 #import "SASwizzle.h"
 #import "SALog.h"
 
-static void *const kSAGestureTargetContextKey = (void *)&kSAGestureTargetContextKey;
+static void *const kSAGestureTargetHandlerKey = (void *)&kSAGestureTargetHandlerKey;
 static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetActionPairsKey;
 
 @implementation UIGestureRecognizer (SAAutoTrack)
@@ -66,11 +66,11 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 
 #pragma mark - Associated Object
 - (SAGestureTargetContext *)sensorsdata_targetContext {
-    return objc_getAssociatedObject(self, kSAGestureTargetContextKey);;
+    return objc_getAssociatedObject(self, kSAGestureTargetHandlerKey);;
 }
 
 - (void)setSensorsdata_targetContext:(SAGestureTargetContext *)sensorsdata_targetContext {
-    objc_setAssociatedObject(self, kSAGestureTargetContextKey, sensorsdata_targetContext, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, kSAGestureTargetHandlerKey, sensorsdata_targetContext, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (NSMutableArray <SAGestureTargetActionPair *>*)sensorsdata_targetActionPairs {

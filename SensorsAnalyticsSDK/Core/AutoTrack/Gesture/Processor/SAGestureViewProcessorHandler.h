@@ -1,5 +1,5 @@
 //
-// SATargetProcessorStrategy.h
+// SAGestureViewProcessorHandler.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/10.
@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAGestureViewProcessorContext : NSObject
+@interface SAGestureViewProcessorHandler : NSObject
 
 @property (nonatomic, assign, readonly) BOOL isTrackable;
 @property (nonatomic, strong, readonly) UIView *trackableView;

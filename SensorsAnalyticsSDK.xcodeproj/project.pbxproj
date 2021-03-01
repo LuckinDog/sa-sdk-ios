@@ -21,8 +21,8 @@
 		4541244025D15D57008857FD /* SAGestureTargetActionPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */; };
 		4548D20C25DE02B90060841D /* SAGestureTargetContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 4548D20A25DE02B90060841D /* SAGestureTargetContext.h */; };
 		4548D20D25DE02B90060841D /* SAGestureTargetContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 4548D20B25DE02B90060841D /* SAGestureTargetContext.m */; };
-		454A037025D3B17F00CD4FD7 /* SAGestureViewProcessorContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 454A036E25D3B17F00CD4FD7 /* SAGestureViewProcessorContext.h */; };
-		454A037125D3B17F00CD4FD7 /* SAGestureViewProcessorContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A036F25D3B17F00CD4FD7 /* SAGestureViewProcessorContext.m */; };
+		454A037025D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 454A036E25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.h */; };
+		454A037125D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454A036F25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.m */; };
 		457080BC25DE0CE800A31076 /* SAGestureViewIgnore.h in Headers */ = {isa = PBXBuildFile; fileRef = 457080BA25DE0CE800A31076 /* SAGestureViewIgnore.h */; };
 		457080BD25DE0CE800A31076 /* SAGestureViewIgnore.m in Sources */ = {isa = PBXBuildFile; fileRef = 457080BB25DE0CE800A31076 /* SAGestureViewIgnore.m */; };
 		45CC194625D38A2000D149D4 /* SAGestureTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 45CC194425D38A2000D149D4 /* SAGestureTarget.h */; };
@@ -231,8 +231,8 @@
 		4541243E25D15D57008857FD /* SAGestureTargetActionPair.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetActionPair.m; sourceTree = "<group>"; };
 		4548D20A25DE02B90060841D /* SAGestureTargetContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureTargetContext.h; sourceTree = "<group>"; };
 		4548D20B25DE02B90060841D /* SAGestureTargetContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetContext.m; sourceTree = "<group>"; };
-		454A036E25D3B17F00CD4FD7 /* SAGestureViewProcessorContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureViewProcessorContext.h; sourceTree = "<group>"; };
-		454A036F25D3B17F00CD4FD7 /* SAGestureViewProcessorContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureViewProcessorContext.m; sourceTree = "<group>"; };
+		454A036E25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureViewProcessorHandler.h; sourceTree = "<group>"; };
+		454A036F25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureViewProcessorHandler.m; sourceTree = "<group>"; };
 		457080BA25DE0CE800A31076 /* SAGestureViewIgnore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureViewIgnore.h; sourceTree = "<group>"; };
 		457080BB25DE0CE800A31076 /* SAGestureViewIgnore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureViewIgnore.m; sourceTree = "<group>"; };
 		45CC194425D38A2000D149D4 /* SAGestureTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureTarget.h; sourceTree = "<group>"; };
@@ -515,8 +515,8 @@
 		45CC195225D38A3E00D149D4 /* Processor */ = {
 			isa = PBXGroup;
 			children = (
-				454A036E25D3B17F00CD4FD7 /* SAGestureViewProcessorContext.h */,
-				454A036F25D3B17F00CD4FD7 /* SAGestureViewProcessorContext.m */,
+				454A036E25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.h */,
+				454A036F25D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.m */,
 				45CC195325D38A9700D149D4 /* SAGeneralGestureViewProcessor.h */,
 				45CC195425D38A9700D149D4 /* SAGeneralGestureViewProcessor.m */,
 				451844E125DFACD800CA3F98 /* SAAlertGestureViewProcessor.h */,
@@ -963,7 +963,7 @@
 				881A41A2253D7B4F00854F69 /* SAModuleManager.h in Headers */,
 				4D9E5DAD25943BCD0095A0D0 /* SAAuxiliaryToolManager.h in Headers */,
 				881A41F6253D7B5000854F69 /* NSString+HashCode.h in Headers */,
-				454A037025D3B17F00CD4FD7 /* SAGestureViewProcessorContext.h in Headers */,
+				454A037025D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.h in Headers */,
 				881A41F2253D7B5000854F69 /* SAModuleProtocol.h in Headers */,
 				4D9E5DB425943BCD0095A0D0 /* SAVisualizedObjectSerializerManger.h in Headers */,
 				451844E325DFACD800CA3F98 /* SAAlertGestureViewProcessor.h in Headers */,
@@ -1189,7 +1189,7 @@
 				4DA89BC125C2BC1E003ABA43 /* SANetwork.m in Sources */,
 				4D9E5DB125943BCD0095A0D0 /* SAObjectSerializerConfig.m in Sources */,
 				881A4213253D7B5000854F69 /* SAPresetProperty.m in Sources */,
-				454A037125D3B17F00CD4FD7 /* SAGestureViewProcessorContext.m in Sources */,
+				454A037125D3B17F00CD4FD7 /* SAGestureViewProcessorHandler.m in Sources */,
 				4D9E5DC525943BCE0095A0D0 /* SAObjectIdentityProvider.m in Sources */,
 				4D9E5DAA25943BCD0095A0D0 /* SAVisualizedObjectSerializerManger.m in Sources */,
 				4D9E5DA725943BCD0095A0D0 /* SAVisualizedAutoTrackObjectSerializer.m in Sources */,
