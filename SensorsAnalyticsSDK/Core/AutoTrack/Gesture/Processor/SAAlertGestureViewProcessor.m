@@ -25,7 +25,7 @@
 #import "SAAlertGestureViewProcessor.h"
 #import "SAAlertController.h"
 #import "SAAutoTrackUtils.h"
-#import "UIGestureRecognizer+AutoTrack.h"
+#import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewIgnore.h"
 
 static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIView *view) {

@@ -1,5 +1,5 @@
 //
-//  UIGestureRecognizer+AutoTrack.m
+//  UIGestureRecognizer+SAAutoTrack.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 储强盛 on 2018/10/25.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "UIGestureRecognizer+AutoTrack.h"
+#import "UIGestureRecognizer+SAAutoTrack.h"
 #import <objc/runtime.h>
 #import "SASwizzle.h"
 #import "SALog.h"
@@ -30,7 +30,7 @@
 static void *const kSAGestureTargetContextKey = (void *)&kSAGestureTargetContextKey;
 static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetActionPairsKey;
 
-@implementation UIGestureRecognizer (AutoTrack)
+@implementation UIGestureRecognizer (SAAutoTrack)
 
 #pragma mark - Hook Method
 - (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action {

@@ -1,5 +1,5 @@
 //
-//  UIGestureRecognizer+AutoTrack.h
+//  UIGestureRecognizer+SAAutoTrack.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 储强盛 on 2018/10/25.
@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIGestureRecognizer (AutoTrack)
+@interface UIGestureRecognizer (SAAutoTrack)
 
 @property (nonatomic, strong, readonly) NSMutableArray <SAGestureTargetActionPair *>*sensorsdata_targetActionPairs;
 @property (nonatomic, strong, readonly) SAGestureTargetContext *sensorsdata_targetContext;

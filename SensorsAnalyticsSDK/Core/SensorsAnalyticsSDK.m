@@ -54,7 +54,7 @@
 #import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
-#import "UIGestureRecognizer+AutoTrack.h"
+#import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
@@ -80,7 +80,6 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
-#import "UIGestureRecognizer+AutoTrack.h"
 
 #define VERSION @"2.3.0"
 

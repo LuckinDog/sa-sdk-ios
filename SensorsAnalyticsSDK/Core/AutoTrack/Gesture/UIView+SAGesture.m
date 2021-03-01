@@ -23,7 +23,7 @@
 #endif
 
 #import "UIView+SAGesture.h"
-#import "UIGestureRecognizer+AutoTrack.h"
+#import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewIgnore.h"
 #import "SAGestureViewProcessorContext.h"
 #import "SAViewElementInfoFactory.h"
