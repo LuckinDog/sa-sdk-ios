@@ -50,22 +50,6 @@
 
 @end
 
-@implementation SAViewElementInfo (SAFactory)
-
-+ (SAViewElementInfo *)elementInfoWithView:(UIView *)view {
-    NSString *viewType = NSStringFromClass(view.class);
-    if ([viewType isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] ||
-        [viewType isEqualToString:@"_UIAlertControllerCollectionViewCell"]) {
-        return [[SAAlertElementInfo alloc] initWithView:view];
-    }
-    if ([viewType isEqualToString:@"_UIContextMenuActionsListCell"]) {
-        return [[SAMenuElementInfo alloc] initWithView:view];
-    }
-    return [[SAViewElementInfo alloc] initWithView:view];
-}
-
-@end
-
 #pragma mark - Alert Element Type
 @implementation SAAlertElementInfo
 

@@ -1,5 +1,5 @@
 //
-// SAViewElementInfo.h
+// SAViewElementInfoFactory.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/18.
@@ -19,26 +19,14 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SAAutoTrackProperty.h"
+#import "SAViewElementInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAViewElementInfo : NSObject
+@interface SAViewElementInfoFactory : NSObject
 
-@property (nonatomic, weak) UIView *view;
++ (SAViewElementInfo *)elementInfoWithView:(UIView *)view;
 
-- (instancetype)initWithView:(UIView *)view;
-
-- (NSString *)elementType;
-
-- (BOOL)isSupportPosition;
-
-@end
-
-@interface SAAlertElementInfo : SAViewElementInfo
-@end
-
-@interface SAMenuElementInfo : SAViewElementInfo
 @end
 
 NS_ASSUME_NONNULL_END
