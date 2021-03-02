@@ -25,7 +25,7 @@
 #import "UIView+SAGesture.h"
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewIgnore.h"
-#import "SAGestureViewProcessorHandler.h"
+#import "SAGeneralGestureViewProcessor.h"
 #import "SAViewElementInfoFactory.h"
 #import "SAVisualizedUtils.h"
 
@@ -49,8 +49,8 @@
         BOOL existSensorsTarget = gesture.sensorsdata_gestureTarget != nil;
         BOOL existCustomTarget = [SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count > 0;
         if (existSensorsTarget && existCustomTarget) {
-            SAGestureViewProcessorHandler *handler = [[SAGestureViewProcessorHandler alloc] initWithGesture:gesture];
-            if (handler.trackableView == gesture.view) {
+            SAGeneralGestureViewProcessor *processor = [SAGeneralGestureViewProcessor processorWithGesture:gesture];
+            if (processor.trackableView == gesture.view) {
                 return YES;
             }
         }
