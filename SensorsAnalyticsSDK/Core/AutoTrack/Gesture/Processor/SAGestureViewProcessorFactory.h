@@ -1,5 +1,5 @@
 //
-// SAAlertGestureViewProcessor.h
+// SAGestureViewProcessorFactory.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/19.
@@ -22,13 +22,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SALegacyAlertGestureViewProcessor : SAGeneralGestureViewProcessor
-@end
+@interface SAGestureViewProcessorFactory : NSObject
 
-@interface SANewAlertGestureViewProcessor : SAGeneralGestureViewProcessor
-@end
++ (SAGeneralGestureViewProcessor *)processorWithGesture:(UIGestureRecognizer *)gesture;
 
-@interface SAMenuGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
 

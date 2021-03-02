@@ -37,12 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SAGeneralGestureViewProcessor (SAFactory)
+@interface SALegacyAlertGestureViewProcessor : SAGeneralGestureViewProcessor
+@end
 
-/// 通过返回不同的 Processor 类来适配特殊处理
-/// @param gesture 手势
-+ (SAGeneralGestureViewProcessor *)processorWithGesture:(UIGestureRecognizer *)gesture;
+@interface SANewAlertGestureViewProcessor : SAGeneralGestureViewProcessor
+@end
 
+@interface SAMenuGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
 NS_ASSUME_NONNULL_END

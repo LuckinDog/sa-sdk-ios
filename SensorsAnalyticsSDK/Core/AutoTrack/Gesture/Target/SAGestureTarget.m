@@ -23,7 +23,7 @@
 #endif
 
 #import "SAGestureTarget.h"
-#import "SAGeneralGestureViewProcessor.h"
+#import "SAGestureViewProcessorFactory.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "UIView+AutoTrack.h"
@@ -42,7 +42,7 @@
 }
 
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
-    SAGeneralGestureViewProcessor *processor = [SAGeneralGestureViewProcessor processorWithGesture:gesture];
+    SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
     if (!processor.isTrackable) {
         return;
     }
