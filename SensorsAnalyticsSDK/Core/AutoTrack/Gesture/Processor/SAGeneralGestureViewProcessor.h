@@ -22,15 +22,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAGestureViewProcessor <NSObject>
+@interface SAGeneralGestureViewProcessor : NSObject
 
-@required
 - (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture;
 - (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture;
-
-@end
-
-@interface SAGeneralGestureViewProcessor : NSObject<SAGestureViewProcessor>
 
 @end
 

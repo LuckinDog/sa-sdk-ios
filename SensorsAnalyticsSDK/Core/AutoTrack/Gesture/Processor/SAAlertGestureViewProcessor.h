@@ -22,13 +22,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SALegacyAlertGestureViewProcessor : NSObject<SAGestureViewProcessor>
+@interface SALegacyAlertGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
-@interface SANewAlertGestureViewProcessor : NSObject<SAGestureViewProcessor>
+@interface SANewAlertGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
-@interface SAMenuGestureViewProcessor : NSObject<SAGestureViewProcessor>
+@interface SAMenuGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
 

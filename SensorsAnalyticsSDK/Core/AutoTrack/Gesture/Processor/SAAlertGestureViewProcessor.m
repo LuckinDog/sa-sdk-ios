@@ -43,17 +43,11 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
     return  [subViews copy];
 }
 
-#pragma mark - Legacy Alert
+#pragma mark - 适配 iOS 10 以前的 Alert
 @implementation SALegacyAlertGestureViewProcessor
 
 - (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
-    if (gesture.state != UIGestureRecognizerStateEnded) {
-        return NO;
-    }
-    if ([SAGestureViewIgnore ignoreWithView:gesture.view]) {
-        return NO;
-    }
-    if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
+    if (![super isTrackableWithGesture:gesture]) {
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
@@ -78,17 +72,11 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 
 @end
 
-#pragma mark - New Alert
+#pragma mark - 适配 iOS 10 及以后的 Alert
 @implementation SANewAlertGestureViewProcessor
 
 - (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
-    if (gesture.state != UIGestureRecognizerStateEnded) {
-        return NO;
-    }
-    if ([SAGestureViewIgnore ignoreWithView:gesture.view]) {
-        return NO;
-    }
-    if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
+    if (![super isTrackableWithGesture:gesture]) {
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
@@ -113,21 +101,8 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 
 @end
 
-#pragma mark - Menu
+#pragma mark - 适配 iOS 13 及以后的 UIMenu
 @implementation SAMenuGestureViewProcessor
-
-- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
-    if (gesture.state != UIGestureRecognizerStateEnded) {
-        return NO;
-    }
-    if ([SAGestureViewIgnore ignoreWithView:gesture.view]) {
-        return NO;
-    }
-    if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
-        return NO;
-    }
-    return YES;
-}
 
 - (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture {
     NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIContextMenuActionsListCell", gesture.view);

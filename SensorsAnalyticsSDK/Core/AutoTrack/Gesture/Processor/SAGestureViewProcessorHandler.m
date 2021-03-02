@@ -27,7 +27,7 @@
 
 @interface SAGestureViewProcessorHandler ()
 
-@property (nonatomic, strong) id<SAGestureViewProcessor> processor;
+@property (nonatomic, strong) SAGeneralGestureViewProcessor *processor;
 @property (nonatomic, strong) UIGestureRecognizer *gesture;
 
 @end
