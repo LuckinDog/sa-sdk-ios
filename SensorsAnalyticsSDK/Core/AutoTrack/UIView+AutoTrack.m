@@ -26,7 +26,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
-#import "SAViewElementInfoFactory.h"
+#import "SAViewElementInfo.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
@@ -54,7 +54,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementType {
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    SAViewElementInfo *elementInfo = [SAViewElementInfo elementInfoWithView:self];
     return [elementInfo elementType];
 }
 
@@ -485,7 +485,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    SAViewElementInfo *elementInfo = [SAViewElementInfo elementInfoWithView:self];
     if (!elementInfo.isSupportPosition) {
         return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }

@@ -35,6 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SAViewElementInfo (SAFactory)
+
++ (SAViewElementInfo *)elementInfoWithView:(UIView *)view;
+
+@end
+
 @interface SAAlertElementInfo : SAViewElementInfo
 @end
 

@@ -26,7 +26,7 @@
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewIgnore.h"
 #import "SAGeneralGestureViewProcessor.h"
-#import "SAViewElementInfoFactory.h"
+#import "SAViewElementInfo.h"
 #import "SAVisualizedUtils.h"
 
 @implementation UIView (SAGesture)
@@ -41,7 +41,7 @@
     if ([SAGestureViewIgnore ignoreWithView:self]) {
         return NO;
     }
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    SAViewElementInfo *elementInfo = [SAViewElementInfo elementInfoWithView:self];
     if (![[elementInfo elementType] isEqualToString:NSStringFromClass(self.class)]) {
         return YES;
     }
