@@ -24,8 +24,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAGeneralGestureViewProcessor : NSObject
 
-- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture;
-- (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture;
+/// 校验手势是否能够采集事件
+@property (nonatomic, assign, readonly) BOOL isTrackable;
+
+/// 手势事件采集时的控件元素
+@property (nonatomic, strong, readonly) UIView *trackableView;
+
+/// 初始化传入的手势
+@property (nonatomic, strong, readonly) UIGestureRecognizer *gesture;
+
+- (instancetype)initWithGesture:(UIGestureRecognizer *)gesture;
+
+@end
+
+@interface SAGeneralGestureViewProcessor (SAFactory)
+
+/// 通过返回不同的 Processor 类来适配特殊处理
+/// @param gesture 手势
++ (SAGeneralGestureViewProcessor *)processorWithGesture:(UIGestureRecognizer *)gesture;
 
 @end
 
