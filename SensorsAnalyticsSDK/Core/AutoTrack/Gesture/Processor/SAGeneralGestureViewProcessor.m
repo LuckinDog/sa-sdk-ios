@@ -23,58 +23,26 @@
 #endif
 
 #import "SAGeneralGestureViewProcessor.h"
-#import "SAAlertGestureViewProcessor.h"
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewIgnore.h"
 
-@interface SAGeneralGestureViewProcessor ()
-
-@property (nonatomic, strong) UIGestureRecognizer *gesture;
-
-@end
-
 @implementation SAGeneralGestureViewProcessor
 
-- (instancetype)initWithGesture:(UIGestureRecognizer *)gesture {
-    if (self = [super init]) {
-        self.gesture = gesture;
-    }
-    return self;
-}
-
-- (BOOL)isTrackable {
-    if (self.gesture.state != UIGestureRecognizerStateEnded) {
+- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
+    if (gesture.state != UIGestureRecognizerStateEnded) {
         return NO;
     }
-    if ([SAGestureViewIgnore ignoreWithView:self.gesture.view]) {
+    if ([SAGestureViewIgnore ignoreWithView:gesture.view]) {
         return NO;
     }
-    if ([SAGestureTargetActionPair filterValidPairsFrom:self.gesture.sensorsdata_targetActionPairs].count == 0) {
+    if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count == 0) {
         return NO;
     }
     return YES;
 }
 
-- (UIView *)trackableView {
-    return self.gesture.view;
-}
-
-@end
-
-@implementation SAGeneralGestureViewProcessor (SAFactory)
-
-+ (SAGeneralGestureViewProcessor *)processorWithGesture:(UIGestureRecognizer *)gesture {
-    NSString *viewType = NSStringFromClass(gesture.view.class);
-    if ([viewType isEqualToString:@"_UIAlertControllerView"]) {
-        return [[SALegacyAlertGestureViewProcessor alloc] initWithGesture:gesture];
-    }
-    if ([viewType isEqualToString:@"_UIAlertControllerInterfaceActionGroupView"]) {
-        return [[SANewAlertGestureViewProcessor alloc] initWithGesture:gesture];
-    }
-    if ([viewType isEqualToString:@"_UIContextMenuActionsListView"]) {
-        return [[SAMenuGestureViewProcessor alloc] initWithGesture:gesture];
-    }
-    return [[SAGeneralGestureViewProcessor alloc] initWithGesture:gesture];
+- (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture {
+    return gesture.view;
 }
 
 @end

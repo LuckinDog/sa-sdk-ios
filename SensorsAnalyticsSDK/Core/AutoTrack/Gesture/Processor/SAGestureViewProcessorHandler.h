@@ -1,5 +1,5 @@
 //
-// SAGeneralGestureViewProcessor.h
+// SAGestureViewProcessorHandler.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/10.
@@ -22,10 +22,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAGeneralGestureViewProcessor : NSObject
+@interface SAGestureViewProcessorHandler : NSObject
 
-- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture;
-- (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture;
+@property (nonatomic, assign, readonly) BOOL isTrackable;
+@property (nonatomic, strong, readonly) UIView *trackableView;
+
+- (instancetype)initWithGesture:(UIGestureRecognizer *)gesture;
 
 @end
 

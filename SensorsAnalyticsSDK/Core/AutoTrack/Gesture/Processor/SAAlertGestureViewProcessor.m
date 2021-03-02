@@ -46,23 +46,23 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 #pragma mark - 适配 iOS 10 以前的 Alert
 @implementation SALegacyAlertGestureViewProcessor
 
-- (BOOL)isTrackable {
-    if (![super isTrackable]) {
+- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
+    if (![super isTrackableWithGesture:gesture]) {
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
-    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self.gesture.view];
+    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:gesture.view];
     if ([viewController isKindOfClass:UIAlertController.class] && [viewController.nextResponder isKindOfClass:SAAlertController.class]) {
         return NO;
     }
     return YES;
 }
 
-- (UIView *)trackableView {
-    NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIAlertControllerCollectionViewCell", self.gesture.view);
-    CGPoint currentPoint = [self.gesture locationInView:self.gesture.view];
+- (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture {
+    NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIAlertControllerCollectionViewCell", gesture.view);
+    CGPoint currentPoint = [gesture locationInView:gesture.view];
     for (UIView *visualView in visualViews) {
-        CGRect rect = [visualView convertRect:visualView.bounds toView:self.gesture.view];
+        CGRect rect = [visualView convertRect:visualView.bounds toView:gesture.view];
         if (CGRectContainsPoint(rect, currentPoint)) {
             return visualView;
         }
@@ -75,23 +75,23 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 #pragma mark - 适配 iOS 10 及以后的 Alert
 @implementation SANewAlertGestureViewProcessor
 
-- (BOOL)isTrackable {
-    if (![super isTrackable]) {
+- (BOOL)isTrackableWithGesture:(UIGestureRecognizer *)gesture {
+    if (![super isTrackableWithGesture:gesture]) {
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
-    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self.gesture.view];
+    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:gesture.view];
     if ([viewController isKindOfClass:UIAlertController.class] && [viewController.nextResponder isKindOfClass:SAAlertController.class]) {
         return NO;
     }
     return YES;
 }
 
-- (UIView *)trackableView {
-    NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIInterfaceActionCustomViewRepresentationView", self.gesture.view);
-    CGPoint currentPoint = [self.gesture locationInView:self.gesture.view];
+- (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture {
+    NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIInterfaceActionCustomViewRepresentationView", gesture.view);
+    CGPoint currentPoint = [gesture locationInView:gesture.view];
     for (UIView *visualView in visualViews) {
-        CGRect rect = [visualView convertRect:visualView.bounds toView:self.gesture.view];
+        CGRect rect = [visualView convertRect:visualView.bounds toView:gesture.view];
         if (CGRectContainsPoint(rect, currentPoint)) {
             return visualView;
         }
@@ -104,11 +104,11 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 #pragma mark - 适配 iOS 13 及以后的 UIMenu
 @implementation SAMenuGestureViewProcessor
 
-- (UIView *)trackableView {
-    NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIContextMenuActionsListCell", self.gesture.view);
-    CGPoint currentPoint = [self.gesture locationInView:self.gesture.view];
+- (UIView *)trackableViewWithGesture:(UIGestureRecognizer *)gesture {
+    NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIContextMenuActionsListCell", gesture.view);
+    CGPoint currentPoint = [gesture locationInView:gesture.view];
     for (UIView *visualView in visualViews) {
-        CGRect rect = [visualView convertRect:visualView.bounds toView:self.gesture.view];
+        CGRect rect = [visualView convertRect:visualView.bounds toView:gesture.view];
         if (CGRectContainsPoint(rect, currentPoint)) {
             return visualView;
         }
