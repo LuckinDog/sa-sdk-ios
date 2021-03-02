@@ -46,12 +46,12 @@
         return YES;
     }
     for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
-        if (gesture.sensorsdata_gestureTarget) {
-            if ([SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count > 0) {
-                SAGestureViewProcessorHandler *context = [[SAGestureViewProcessorHandler alloc] initWithGesture:gesture];
-                if (context.trackableView == gesture.view) {
-                    return YES;
-                }
+        BOOL existSensorsTarget = gesture.sensorsdata_gestureTarget != nil;
+        BOOL existCustomTarget = [SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count > 0;
+        if (existSensorsTarget && existCustomTarget) {
+            SAGestureViewProcessorHandler *handler = [[SAGestureViewProcessorHandler alloc] initWithGesture:gesture];
+            if (handler.trackableView == gesture.view) {
+                return YES;
             }
         }
     }
