@@ -26,7 +26,7 @@
 
 @implementation SAViewElementInfoFactory
 
-+ (id<SAViewElementInfoProtocol>)elementInfoWithView:(UIView *)view {
++ (SAViewElementInfo *)elementInfoWithView:(UIView *)view {
     NSString *viewType = NSStringFromClass(view.class);
     if ([viewType isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] ||
         [viewType isEqualToString:@"_UIAlertControllerCollectionViewCell"]) {

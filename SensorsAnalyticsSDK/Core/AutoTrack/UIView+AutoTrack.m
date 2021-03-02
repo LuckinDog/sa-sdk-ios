@@ -54,7 +54,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementType {
-    id <SAViewElementInfoProtocol> elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
     return [elementInfo elementType];
 }
 
@@ -485,8 +485,11 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    id<SAViewElementInfoProtocol> elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
-    return [elementInfo elementSimilarPathWithIndexPath:indexPath];
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    if (!elementInfo.isSupportPosition) {
+        return [self sensorsdata_itemPathWithIndexPath:indexPath];
+    }
+    return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];
 }
 
 @end

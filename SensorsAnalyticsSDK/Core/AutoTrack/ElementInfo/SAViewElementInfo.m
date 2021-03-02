@@ -38,31 +38,20 @@
     return NSStringFromClass(self.view.class);
 }
 
-- (NSString *)elementPosition {
+- (BOOL)isSupportPosition {
     if ([self.view conformsToProtocol:@protocol(SAAutoTrackCellProperty)]) {
         id<SAAutoTrackCellProperty> cell = (id<SAAutoTrackCellProperty>)self.view;
         if (cell.sensorsdata_IndexPath) {
-            return [[NSString alloc] initWithFormat:@"%ld:%ld", (long)cell.sensorsdata_IndexPath.section, (long)cell.sensorsdata_IndexPath.item];
+            return YES;
         }
     }
-    return nil;
-}
-
-- (NSString *)elementSimilarPathWithIndexPath:(NSIndexPath *)indexPath {
-    return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.view.class), (long)indexPath.section];
+    return NO;
 }
 
 @end
 
 #pragma mark - Alert Element Type
 @implementation SAAlertElementInfo
-
-- (instancetype)initWithView:(UIView *)view {
-    if (self = [super init]) {
-        self.view = view;
-    }
-    return self;
-}
 
 - (NSString *)elementType {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
@@ -82,29 +71,14 @@
 #endif
 }
 
-- (NSString *)elementPosition {
-    return nil;
-}
-
-- (NSString *)elementSimilarPathWithIndexPath:(NSIndexPath *)indexPath {
-    if ([self.view conformsToProtocol:@protocol(SAAutoTrackCellProperty)]) {
-        id<SAAutoTrackCellProperty> cell = (id<SAAutoTrackCellProperty>)self.view;
-        return [cell sensorsdata_itemPathWithIndexPath:indexPath];
-    }
-    return nil;
+- (BOOL)isSupportPosition {
+    return NO;
 }
 
 @end
 
 #pragma mark - Menu Element Type
 @implementation SAMenuElementInfo
-
-- (instancetype)initWithView:(UIView *)view {
-    if (self = [super init]) {
-        self.view = view;
-    }
-    return self;
-}
 
 - (NSString *)elementType {
     if (@available(iOS 13.0, *)) {
@@ -113,16 +87,8 @@
     return nil;
 }
 
-- (NSString *)elementPosition {
-    return nil;
-}
-
-- (NSString *)elementSimilarPathWithIndexPath:(NSIndexPath *)indexPath {
-    if ([self.view conformsToProtocol:@protocol(SAAutoTrackCellProperty)]) {
-        id<SAAutoTrackCellProperty> cell = (id<SAAutoTrackCellProperty>)self.view;
-        return [cell sensorsdata_itemPathWithIndexPath:indexPath];
-    }
-    return nil;
+- (BOOL)isSupportPosition {
+    return NO;
 }
 
 @end

@@ -23,27 +23,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAViewElementInfoProtocol <NSObject>
+@interface SAViewElementInfo : NSObject
 
-@required
 @property (nonatomic, weak) UIView *view;
+
 - (instancetype)initWithView:(UIView *)view;
+
 - (NSString *)elementType;
-- (NSString *)elementPosition;
-- (NSString *)elementSimilarPathWithIndexPath:(NSIndexPath *)indexPath;
+
+- (BOOL)isSupportPosition;
 
 @end
 
-@interface SAViewElementInfo : NSObject<SAViewElementInfoProtocol>
-@property (nonatomic, weak) UIView *view;
+@interface SAAlertElementInfo : SAViewElementInfo
 @end
 
-@interface SAAlertElementInfo : NSObject<SAViewElementInfoProtocol>
-@property (nonatomic, weak) UIView *view;
-@end
-
-@interface SAMenuElementInfo : NSObject<SAViewElementInfoProtocol>
-@property (nonatomic, weak) UIView *view;
+@interface SAMenuElementInfo : SAViewElementInfo
 @end
 
 NS_ASSUME_NONNULL_END

@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAViewElementInfoFactory : NSObject
 
-+ (id<SAViewElementInfoProtocol>)elementInfoWithView:(UIView *)view;
++ (SAViewElementInfo *)elementInfoWithView:(UIView *)view;
 
 @end
 

@@ -41,7 +41,7 @@
     if ([SAGestureViewIgnore ignoreWithView:self]) {
         return NO;
     }
-    id <SAViewElementInfoProtocol> elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
     if (![[elementInfo elementType] isEqualToString:NSStringFromClass(self.class)]) {
         return YES;
     }
