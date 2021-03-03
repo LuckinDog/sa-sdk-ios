@@ -30,6 +30,7 @@
 static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
+static NSString * const kSAGestureModuleName = @"Gesture";
 
 @interface SAModuleManager ()
 
@@ -49,6 +50,11 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
     // 加密
     if (configOptions.enableEncrypt) {
         [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
+    }
+    
+    // 手势采集
+    if (configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeGesture];
     }
 }
 
@@ -98,6 +104,8 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
             return kSAChannelMatchModuleName;
         case SAModuleTypeEncrypt:
             return kSAEncryptModuleName;
+        case SAModuleTypeGesture:
+            return kSAGestureModuleName;
         default:
             return nil;
     }
@@ -186,6 +194,17 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 
 - (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
     [self.encryptManager handleEncryptWithConfig:encryptConfig];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Gesture)
+
+- (BOOL)isGestureVisualView:(id)obj {
+    id<SAGestureModuleProtocol> manager = (id<SAGestureModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeGesture];
+    return manager ? [manager isGestureVisualView:obj] : NO;
 }
 
 @end

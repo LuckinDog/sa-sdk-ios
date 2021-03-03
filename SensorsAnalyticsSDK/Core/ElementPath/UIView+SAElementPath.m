@@ -29,8 +29,8 @@
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
-#import "UIView+SAGesture.h"
 #import "SAViewElementInfoFactory.h"
+#import "SAModuleManager.h"
 
 @implementation UIView (SAElementPath)
 
@@ -175,7 +175,7 @@
             }
         }
     }
-    return self.sensorsdata_isGestureVisualView;
+    return [SAModuleManager.sharedInstance isGestureVisualView:self];
 }
 
 #pragma mark SAVisualizedViewPathProperty

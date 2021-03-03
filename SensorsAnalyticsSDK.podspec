@@ -27,6 +27,11 @@ Pod::Spec.new do |s|
 #    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
   end
 
+  s.subspec 'DisableGesture' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+   f.exclude_files = "SensorsAnalyticsSDK/Core/AutoTrack/Gesture/**/*.{h,m}"
+  end
+
   # 禁用设备方向采集
   s.subspec 'DISABLE_TRACK_DEVICE_ORIENTATION' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'

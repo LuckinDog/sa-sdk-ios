@@ -1,9 +1,9 @@
 //
-// UIView+SAGesture.h
+// SAGestureManager.h
 // SensorsAnalyticsSDK
 //
-// Created by yuqiang on 2020/12/4.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by yuqiang on 2021/3/3.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
 // limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIView (SAGesture)
+@interface SAGestureManager : NSObject<SAModuleProtocol, SAGestureModuleProtocol>
 
-/// 当前的 View 是否是可视化全埋点 View
-@property (nonatomic, assign, readonly) BOOL sensorsdata_isGestureVisualView;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 @end
 

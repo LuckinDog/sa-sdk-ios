@@ -27,6 +27,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeChannelMatch,
     SAModuleTypeEncrypt,
+    SAModuleTypeGesture,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -60,6 +61,11 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @property (nonatomic, strong, readonly) id<SAEncryptModuleProtocol> encryptManager;
 
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Gesture) <SAGestureModuleProtocol>
 @end
 
 NS_ASSUME_NONNULL_END

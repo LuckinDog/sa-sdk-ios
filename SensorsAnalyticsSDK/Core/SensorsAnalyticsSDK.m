@@ -54,7 +54,6 @@
 #import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
-#import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
@@ -2249,16 +2248,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
         [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-        
-        [UIGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                                   withMethod:@selector(sensorsdata_initWithTarget:action:)
-                                        error:NULL];
-        [UIGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                                   withMethod:@selector(sensorsdata_addTarget:action:)
-                                        error:NULL];
-        [UIGestureRecognizer sa_swizzleMethod:@selector(removeTarget:action:)
-                                   withMethod:@selector(sensorsdata_removeTarget:action:)
-                                        error:NULL];
     });
     
     //React Native
