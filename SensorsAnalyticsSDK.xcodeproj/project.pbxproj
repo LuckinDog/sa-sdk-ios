@@ -528,7 +528,6 @@
 		4D4DB28425B7D17E00938842 /* AutoTrack */ = {
 			isa = PBXGroup;
 			children = (
-				453FC62425EE3D6300591C47 /* Gesture */,
 				4D4DB28C25B7D17E00938842 /* Cell */,
 				4D4DB2E125B7D1F300938842 /* SAAutoTrackProperty.h */,
 				4D4DB2D825B7D1F200938842 /* SAAutoTrackUtils.h */,
@@ -886,6 +885,7 @@
 			children = (
 				881A40D2253D7B4F00854F69 /* Core */,
 				881A4224253D7B5E00854F69 /* Location */,
+				453FC62425EE3D6300591C47 /* Gesture */,
 				CB30C0AB22840F1B0004061D /* Resources */,
 			);
 			path = SensorsAnalyticsSDK;
