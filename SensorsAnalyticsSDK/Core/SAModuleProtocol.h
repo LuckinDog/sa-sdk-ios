@@ -96,6 +96,17 @@ NS_ASSUME_NONNULL_BEGIN
 /// @return 返回校验结果
 - (BOOL)isGestureVisualView:(id)obj;
 
+/// 检验 cell 是否支持限定位置(Alert/Menu 不支持限定位置)
+/// @param obj 控件元素
+/// @return 返回校验结果
+- (BOOL)isForbiddenElementPositionWithView:(id)obj;
+
+
+/// 获取采集控件的元素类型(Alert/Menu 元素类型特除处理)
+/// @param obj 控件元素
+/// @return 返回元素类型
+- (NSString * _Nullable)elementPathWithView:(id)obj;
+
 @end
 
 NS_ASSUME_NONNULL_END

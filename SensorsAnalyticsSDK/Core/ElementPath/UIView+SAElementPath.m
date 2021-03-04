@@ -29,7 +29,6 @@
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
-#import "SAViewElementInfoFactory.h"
 #import "SAModuleManager.h"
 
 @implementation UIView (SAElementPath)
@@ -490,8 +489,7 @@
 @implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
-    if (!elementInfo.isSupportPosition) {
+    if ([SAModuleManager.sharedInstance isForbiddenElementPositionWithView:self]) {
         return nil;
     }
     

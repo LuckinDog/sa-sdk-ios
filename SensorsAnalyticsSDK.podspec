@@ -11,11 +11,22 @@ Pod::Spec.new do |s|
   s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreMotion'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
-  s.subspec 'Core' do |c|
+  s.subspec 'AutoTrack' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
     c.source_files = core_dir + "**/*.{h,m}"
     c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
+  end
+
+  s.subspec 'Gesture' do |ss|
+    ss.dependency 'SensorsAnalyticsSDK/AutoTrack'
+    ss.source_files = "SensorsAnalyticsSDK/Gesture/**/*.{h,m}"
+    ss.private_header_files = 'SensorsAnalyticsSDK/Gesture/**/*.h'
+  end
+
+  s.subspec 'Core' do |ss|
+    ss.dependency 'SensorsAnalyticsSDK/AutoTrack'
+    ss.dependency 'SensorsAnalyticsSDK/Gesture'
   end
 
   # 开启 GPS 定位采集
@@ -25,11 +36,6 @@ Pod::Spec.new do |s|
     f.source_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/Location/**/*.h'
 #    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
-  end
-
-  s.subspec 'DisableGesture' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-   f.exclude_files = "SensorsAnalyticsSDK/Core/AutoTrack/Gesture/**/*.{h,m}"
   end
 
   # 禁用设备方向采集

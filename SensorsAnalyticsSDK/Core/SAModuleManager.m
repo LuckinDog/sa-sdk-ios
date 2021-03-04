@@ -25,6 +25,7 @@
 #import "SAModuleManager.h"
 #import "SAModuleProtocol.h"
 #import "SAConfigOptions.h"
+#import "SALog.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
@@ -53,8 +54,10 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     }
     
     // 手势采集
-    if (configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
+    @try {
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeGesture];
+    } @catch (NSException *exception) {
+        SALogWarn(@"%@ error: %@", self, exception);
     }
 }
 
@@ -202,9 +205,21 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 @implementation SAModuleManager (Gesture)
 
+- (id<SAGestureModuleProtocol>)gestureManager {
+    id<SAGestureModuleProtocol, SAModuleProtocol> manager = (id<SAGestureModuleProtocol, SAModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeGesture];
+    return manager.isEnable ? manager : nil;
+}
+
 - (BOOL)isGestureVisualView:(id)obj {
-    id<SAGestureModuleProtocol> manager = (id<SAGestureModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeGesture];
-    return manager ? [manager isGestureVisualView:obj] : NO;
+    return [self.gestureManager isGestureVisualView:obj];
+}
+
+- (BOOL)isForbiddenElementPositionWithView:(id)obj {
+    return [[self gestureManager] isForbiddenElementPositionWithView:obj];
+}
+
+- (NSString * _Nullable)elementPathWithView:(id)obj {
+    return [[self gestureManager] elementPathWithView:obj];
 }
 
 @end

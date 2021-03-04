@@ -483,6 +483,7 @@
 		453FC62425EE3D6300591C47 /* Gesture */ = {
 			isa = PBXGroup;
 			children = (
+				453ECA1A25DE4BC600E5DFB6 /* ElementInfo */,
 				453FC63425EE3D6300591C47 /* View */,
 				453FC62725EE3D6300591C47 /* Target */,
 				453FC62A25EE3D6300591C47 /* Processor */,
@@ -538,7 +539,6 @@
 				4D4DB2E025B7D1F300938842 /* UIApplication+AutoTrack.m */,
 				4D4DB2DF25B7D1F300938842 /* UIView+AutoTrack.h */,
 				4D4DB2DE25B7D1F200938842 /* UIView+AutoTrack.m */,
-				453ECA1A25DE4BC600E5DFB6 /* ElementInfo */,
 				4D4DB2D725B7D1F200938842 /* UIViewController+AutoTrack.h */,
 				4D4DB2E325B7D1F300938842 /* UIViewController+AutoTrack.m */,
 			);

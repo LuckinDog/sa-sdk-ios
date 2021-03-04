@@ -28,9 +28,10 @@
 #import "SAGestureViewIgnore.h"
 #import "SAGestureViewProcessorFactory.h"
 #import "SAViewElementInfoFactory.h"
-#import "SAVisualizedUtils.h"
 
 @implementation SAGestureManager
+
+#pragma mark - SAModuleProtocol
 
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
@@ -55,6 +56,8 @@
     });
 }
 
+#pragma mark - SAGestureModuleProtocol
+
 - (BOOL)isGestureVisualView:(id)obj {
     if (!self.enable) {
         return NO;
@@ -63,10 +66,7 @@
         return NO;
     }
     UIView *view = (UIView *)obj;
-    if (!view.userInteractionEnabled) {
-        return NO;
-    }
-    if (![SAVisualizedUtils isVisibleForView:view]) {
+    if (!view.userInteractionEnabled || view.alpha <= 0.01 || view.isHidden) {
         return NO;
     }
     if ([SAGestureViewIgnore ignoreWithView:view]) {
@@ -87,6 +87,30 @@
         }
     }
     return NO;
+}
+
+- (BOOL)isForbiddenElementPositionWithView:(id)obj {
+    if (!self.enable) {
+        return NO;
+    }
+    if (![obj isKindOfClass:UIView.class]) {
+        return YES;
+    }
+    UIView *view = (UIView *)obj;
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:view];
+    return elementInfo.isForbiddenElementPosition;
+}
+
+- (NSString * _Nullable)elementPathWithView:(id)obj {
+    if (!self.enable) {
+        return nil;
+    }
+    if (![obj isKindOfClass:UIView.class]) {
+        return nil;
+    }
+    UIView *view = (UIView *)obj;
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:view];
+    return elementInfo.elementType;
 }
 
 @end

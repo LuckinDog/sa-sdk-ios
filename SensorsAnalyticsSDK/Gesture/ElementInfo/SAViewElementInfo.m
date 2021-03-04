@@ -38,13 +38,7 @@
     return NSStringFromClass(self.view.class);
 }
 
-- (BOOL)isSupportPosition {
-    if ([self.view conformsToProtocol:@protocol(SAAutoTrackCellProperty)]) {
-        id<SAAutoTrackCellProperty> cell = (id<SAAutoTrackCellProperty>)self.view;
-        if (cell.sensorsdata_IndexPath) {
-            return YES;
-        }
-    }
+- (BOOL)isForbiddenElementPosition {
     return NO;
 }
 
@@ -71,8 +65,8 @@
 #endif
 }
 
-- (BOOL)isSupportPosition {
-    return NO;
+- (BOOL)isForbiddenElementPosition {
+    return YES;
 }
 
 @end
@@ -87,8 +81,8 @@
     return nil;
 }
 
-- (BOOL)isSupportPosition {
-    return NO;
+- (BOOL)isForbiddenElementPosition {
+    return YES;
 }
 
 @end

@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)elementType;
 
-- (BOOL)isSupportPosition;
+- (BOOL)isForbiddenElementPosition;
 
 @end
 
