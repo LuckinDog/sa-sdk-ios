@@ -25,7 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SAHookDelegateProtocol <NSObject>
 @optional
 + (NSSet<NSString *> *)optionalSelectors;
-- (NSSet<NSString *> *)optionalSelectors;
 
 @end
 

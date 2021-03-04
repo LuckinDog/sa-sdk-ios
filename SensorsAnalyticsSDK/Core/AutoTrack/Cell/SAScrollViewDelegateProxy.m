@@ -58,8 +58,4 @@
     [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
 }
 
-+ (NSSet<NSString *> *)optionalSelectors {
-    return [NSSet setWithArray:@[@"tableView:didSelectRowAtIndexPath:"]];
-}
-
 @end

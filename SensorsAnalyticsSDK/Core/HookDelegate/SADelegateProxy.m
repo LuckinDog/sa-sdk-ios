@@ -167,7 +167,8 @@
     if (currentOptionalSelectors) {
         [optionalSelectors unionSet:currentOptionalSelectors];
     }
-    if ([self optionalSelectors]) {
+    
+    if ([self respondsToSelector:@selector(optionalSelectors)] &&[self optionalSelectors]) {
         [optionalSelectors unionSet:[self optionalSelectors]];
     }
     ((NSObject *)delegate).sensorsdata_optionalSelectors = [optionalSelectors copy];
