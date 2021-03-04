@@ -105,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 获取采集控件的元素类型(Alert/Menu 元素类型特除处理)
 /// @param obj 控件元素
 /// @return 返回元素类型
-- (NSString * _Nullable)elementPathWithView:(id)obj;
+- (NSString * _Nullable)elementTypeWithView:(id)obj;
 
 @end
 

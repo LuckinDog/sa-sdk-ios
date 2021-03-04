@@ -101,7 +101,7 @@
     return elementInfo.isForbiddenElementPosition;
 }
 
-- (NSString * _Nullable)elementPathWithView:(id)obj {
+- (NSString * _Nullable)elementTypeWithView:(id)obj {
     if (!self.enable) {
         return nil;
     }

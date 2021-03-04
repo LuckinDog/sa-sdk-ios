@@ -54,7 +54,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementType {
-    NSString *elementType = [SAModuleManager.sharedInstance elementPathWithView:self];
+    NSString *elementType = [SAModuleManager.sharedInstance elementTypeWithView:self];
     return elementType ?: NSStringFromClass(self.class);
 }
 
