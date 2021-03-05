@@ -3,7 +3,9 @@
         "public": [
             "UIPageControl",
             "UITextView",
-            "UITabBar"
+            "UITabBar",
+            "UICollectionView",
+            "UISearchBar"
         ],
         "private": [
             "_UIContextMenuContainerView",
