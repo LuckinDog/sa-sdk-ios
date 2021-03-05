@@ -33,6 +33,10 @@
     }
     
     SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
+    if (![ASIdentifierManagerClass respondsToSelector:sharedManagerSelector]) {
+        return nil;
+    }
+    
     id (*sharedManagerIMP)(id, SEL) = (id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector];
     if (!sharedManagerIMP) {
         return nil;
@@ -44,6 +48,10 @@
     }
     
     SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
+    if (![sharedManager respondsToSelector:advertisingIdentifierSelector]) {
+        return nil;
+    }
+    
     NSUUID * (*advertisingIdentifierIMP)(id, SEL) = (NSUUID * (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector];
     if (!advertisingIdentifierIMP) {
         return nil;
