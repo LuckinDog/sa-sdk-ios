@@ -59,9 +59,6 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 }
 
 - (BOOL)isTrackable {
-    if (self.gesture.state != UIGestureRecognizerStateEnded) {
-        return NO;
-    }
     if ([SAGestureViewIgnore ignoreWithView:self.gesture.view]) {
         return NO;
     }
@@ -148,6 +145,44 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
         }
     }
     return nil;
+}
+
+@end
+
+#pragma mark - TableViewCell.contentView 上仅存在系统手势时, 不支持可视化全埋点元素选中
+@implementation SATableCellGestureViewProcessor
+
+- (BOOL)isTrackable {
+    if (![super isTrackable]) {
+        return NO;
+    }
+    for (SAGestureTargetActionPair *pair in self.gesture.sensorsdata_targetActionPairs) {
+        if (pair.isValid) {
+            if (![NSStringFromSelector(pair.action) isEqualToString:@"_longPressGestureRecognized:"]) {
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
+
+@end
+
+#pragma mark - CollectionViewCell.contentView 上仅存在系统手势时, 不支持可视化全埋点元素选中
+@implementation SACollectionCellGestureViewProcessor
+
+- (BOOL)isTrackable {
+    if (![super isTrackable]) {
+        return NO;
+    }
+    for (SAGestureTargetActionPair *pair in self.gesture.sensorsdata_targetActionPairs) {
+        if (pair.isValid) {
+            if (![NSStringFromSelector(pair.action) isEqualToString:@"_handleMenuGesture:"]) {
+                return YES;
+            }
+        }
+    }
+    return NO;
 }
 
 @end

@@ -37,6 +37,12 @@
     if ([viewType isEqualToString:@"_UIContextMenuActionsListView"]) {
         return [[SAMenuGestureViewProcessor alloc] initWithGesture:gesture];
     }
+    if ([viewType isEqualToString:@"UITableViewCellContentView"]) {
+        return [[SATableCellGestureViewProcessor alloc] initWithGesture:gesture];
+    }
+    if ([gesture.view.nextResponder isKindOfClass:UICollectionViewCell.class]) {
+        return [[SACollectionCellGestureViewProcessor alloc] initWithGesture:gesture];
+    }
     return [[SAGeneralGestureViewProcessor alloc] initWithGesture:gesture];
 }
 

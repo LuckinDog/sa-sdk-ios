@@ -42,6 +42,9 @@
 }
 
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
+    if (gesture.state != UIGestureRecognizerStateEnded) {
+        return;
+    }
     SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
     if (!processor.isTrackable) {
         return;

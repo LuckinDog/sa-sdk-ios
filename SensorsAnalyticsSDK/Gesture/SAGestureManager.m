@@ -69,19 +69,14 @@
     if (!view.userInteractionEnabled || view.alpha <= 0.01 || view.isHidden) {
         return NO;
     }
-    if ([SAGestureViewIgnore ignoreWithView:view]) {
-        return NO;
-    }
     SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:view];
     if (![[elementInfo elementType] isEqualToString:NSStringFromClass(view.class)]) {
         return YES;
     }
     for (UIGestureRecognizer *gesture in view.gestureRecognizers) {
-        BOOL existSensorsTarget = gesture.sensorsdata_gestureTarget != nil;
-        BOOL existCustomTarget = [SAGestureTargetActionPair filterValidPairsFrom:gesture.sensorsdata_targetActionPairs].count > 0;
-        if (existSensorsTarget && existCustomTarget) {
+        if (gesture.sensorsdata_gestureTarget) {
             SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
-            if (processor.trackableView == gesture.view) {
+            if (processor.isTrackable && processor.trackableView == gesture.view) {
                 return YES;
             }
         }

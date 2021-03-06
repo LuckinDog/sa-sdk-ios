@@ -46,4 +46,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAMenuGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
+@interface SATableCellGestureViewProcessor : SAGeneralGestureViewProcessor
+@end
+
+@interface SACollectionCellGestureViewProcessor : SAGeneralGestureViewProcessor
+@end
+
 NS_ASSUME_NONNULL_END
