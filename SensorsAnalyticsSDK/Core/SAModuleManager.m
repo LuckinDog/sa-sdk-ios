@@ -25,7 +25,6 @@
 #import "SAModuleManager.h"
 #import "SAModuleProtocol.h"
 #import "SAConfigOptions.h"
-#import "SALog.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
@@ -54,10 +53,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     }
     
     // 手势采集
-    @try {
+    if (NSClassFromString(@"SAGestureManager")) {
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeGesture];
-    } @catch (NSException *exception) {
-        SALogWarn(@"%@ error: %@", self, exception);
     }
 }
 
