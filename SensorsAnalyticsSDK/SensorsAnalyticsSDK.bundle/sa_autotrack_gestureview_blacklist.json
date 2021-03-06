@@ -5,6 +5,8 @@
             "UITextView",
             "UITabBar",
             "UICollectionView",
+            "UICollectionViewCell",
+            "UITableViewCell",
             "UISearchBar"
         ],
         "private": [
