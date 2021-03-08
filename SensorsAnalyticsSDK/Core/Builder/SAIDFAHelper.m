@@ -28,10 +28,6 @@
 
 + (NSString *)idfa {
     Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
-    if (!ASIdentifierManagerClass) {
-        return nil;
-    }
-    
     SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
     if (![ASIdentifierManagerClass respondsToSelector:sharedManagerSelector]) {
         return nil;
@@ -43,10 +39,6 @@
     }
     
     id sharedManager = sharedManagerIMP(ASIdentifierManagerClass, sharedManagerSelector);
-    if (!sharedManager) {
-        return nil;
-    }
-    
     SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
     if (![sharedManager respondsToSelector:advertisingIdentifierSelector]) {
         return nil;
