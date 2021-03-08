@@ -44,21 +44,25 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 
 - (void)sensorsdata_addTarget:(id)target action:(SEL)action {
     // Track 事件需要在原有事件之前触发(原有事件中更改页面内容,会导致部分内容获取不准确)
-    if (self.sensorsdata_gestureTarget) {
-        if (![SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs]) {
-            SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
-            [self.sensorsdata_targetActionPairs addObject:resulatPair];
-            [self sensorsdata_addTarget:self.sensorsdata_gestureTarget action:@selector(trackGestureRecognizerAppClick:)];
+    @synchronized (self) {
+        if (self.sensorsdata_gestureTarget) {
+            if (![SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs]) {
+                SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
+                [self.sensorsdata_targetActionPairs addObject:resulatPair];
+                [self sensorsdata_addTarget:self.sensorsdata_gestureTarget action:@selector(trackGestureRecognizerAppClick:)];
+            }
         }
     }
     [self sensorsdata_addTarget:target action:action];
 }
 
 - (void)sensorsdata_removeTarget:(id)target action:(SEL)action {
-    if (self.sensorsdata_gestureTarget) {
-        SAGestureTargetActionPair *existPair = [SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs];
-        if (existPair) {
-            [self.sensorsdata_targetActionPairs removeObject:existPair];
+    @synchronized (self) {
+        if (self.sensorsdata_gestureTarget) {
+            SAGestureTargetActionPair *existPair = [SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs];
+            if (existPair) {
+                [self.sensorsdata_targetActionPairs removeObject:existPair];
+            }
         }
     }
     [self sensorsdata_removeTarget:target action:action];
