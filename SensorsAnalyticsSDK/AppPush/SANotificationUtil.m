@@ -42,7 +42,14 @@
     
     //SF related properties
     NSString *sfDataString = userInfo[kSAPushServiceKeySF];
-    if (sfDataString && [sfDataString isKindOfClass:[NSString class]]) {
+    //if no "sf_data" key , then remove "sf_msg_title" and "sf_msg_content" properties
+    if (!sfDataString) {
+        properties[kSFMessageTitle] = nil;
+        properties[kSFMessageContent] = nil;
+        return [properties copy];
+    }
+    
+    if ([sfDataString isKindOfClass:[NSString class]]) {
         NSData *sfData = [userInfo[kSAPushServiceKeySF] dataUsingEncoding:NSUTF8StringEncoding];
         NSError *error;
         NSDictionary *sfProperties;
