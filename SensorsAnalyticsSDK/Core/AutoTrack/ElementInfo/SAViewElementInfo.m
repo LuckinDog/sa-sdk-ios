@@ -23,6 +23,7 @@
 #endif
 
 #import "SAViewElementInfo.h"
+#import "SAModuleManager.h"
 
 #pragma mark - View Element Type
 @implementation SAViewElementInfo
@@ -40,6 +41,13 @@
 
 - (BOOL)isSupportElementPosition {
     return YES;
+}
+
+- (BOOL)isVisualView {
+    if (!self.view.userInteractionEnabled || self.view.alpha <= 0.01 || self.view.isHidden) {
+        return NO;
+    }
+    return [SAModuleManager.sharedInstance isGestureVisualView:self.view];
 }
 
 @end
@@ -69,6 +77,13 @@
     return NO;
 }
 
+- (BOOL)isVisualView {
+    if (SAModuleManager.sharedInstance.gestureManager) {
+        return YES;
+    }
+    return [super isVisualView];
+}
+
 @end
 
 #pragma mark - Menu Element Type
@@ -83,6 +98,13 @@
 
 - (BOOL)isSupportElementPosition {
     return NO;
+}
+
+- (BOOL)isVisualView {
+    if (SAModuleManager.sharedInstance.gestureManager) {
+        return YES;
+    }
+    return [super isVisualView];
 }
 
 @end

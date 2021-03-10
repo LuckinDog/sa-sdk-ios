@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isSupportElementPosition;
 
+- (BOOL)isVisualView;
+
 @end
 
 @interface SAAlertElementInfo : SAViewElementInfo
