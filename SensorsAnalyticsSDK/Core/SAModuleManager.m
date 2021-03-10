@@ -54,7 +54,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     
     // 手势采集
     if (NSClassFromString(@"SAGestureManager")) {
-        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeGesture];
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
     }
 }
 
@@ -104,8 +104,6 @@ static NSString * const kSAGestureModuleName = @"Gesture";
             return kSAChannelMatchModuleName;
         case SAModuleTypeEncrypt:
             return kSAEncryptModuleName;
-        case SAModuleTypeGesture:
-            return kSAGestureModuleName;
         default:
             return nil;
     }
@@ -203,7 +201,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @implementation SAModuleManager (Gesture)
 
 - (id<SAGestureModuleProtocol>)gestureManager {
-    id<SAGestureModuleProtocol, SAModuleProtocol> manager = (id<SAGestureModuleProtocol, SAModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeGesture];
+    id<SAGestureModuleProtocol, SAModuleProtocol> manager = (id<SAGestureModuleProtocol, SAModuleProtocol>)self.modules[kSAGestureModuleName];
     return manager.isEnable ? manager : nil;
 }
 

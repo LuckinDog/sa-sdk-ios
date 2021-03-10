@@ -27,7 +27,6 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeChannelMatch,
     SAModuleTypeEncrypt,
-    SAModuleTypeGesture,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
