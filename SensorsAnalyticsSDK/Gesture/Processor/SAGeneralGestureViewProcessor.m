@@ -190,10 +190,8 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
         return NO;
     }
     for (SAGestureTargetActionPair *pair in self.gesture.sensorsdata_targetActionPairs) {
-        if (pair.isValid) {
-            if (![NSStringFromSelector(pair.action) isEqualToString:@"_longPressGestureRecognized:"]) {
-                return YES;
-            }
+        if (pair.isValid && ![NSStringFromSelector(pair.action) isEqualToString:@"_longPressGestureRecognized:"]) {
+            return YES;
         }
     }
     return NO;
@@ -209,10 +207,8 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
         return NO;
     }
     for (SAGestureTargetActionPair *pair in self.gesture.sensorsdata_targetActionPairs) {
-        if (pair.isValid) {
-            if (![NSStringFromSelector(pair.action) isEqualToString:@"_handleMenuGesture:"]) {
-                return YES;
-            }
+        if (pair.isValid && ![NSStringFromSelector(pair.action) isEqualToString:@"_handleMenuGesture:"]) {
+            return YES;
         }
     }
     return NO;
