@@ -65,7 +65,6 @@
 
 + (NSDictionary *)propertiesFromSFData:(NSDictionary *)sfData {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    properties[kSFMessageTitle] = sfData[kSFMessageTitle.sensorsdata_sfPushKey];
     properties[kSFPlanStrategyID] = sfData[kSFPlanStrategyID.sensorsdata_sfPushKey];
     properties[kSFChannelCategory] = sfData[kSFChannelCategory.sensorsdata_sfPushKey];
     properties[kSFAudienceID] = sfData[kSFAudienceID.sensorsdata_sfPushKey];
@@ -77,7 +76,6 @@
     properties[kSFPlanID] = sfData[kSFPlanID.sensorsdata_sfPushKey];
     properties[kSFStrategyUnitID] = sfData[kSFStrategyUnitID.sensorsdata_sfPushKey];
     properties[kSFEnterPlanTime] = sfData[kSFEnterPlanTime.sensorsdata_sfPushKey];
-    properties[kSFMessageContent] = sfData[kSFMessageContent.sensorsdata_sfPushKey];
     return [properties copy];
 }
 

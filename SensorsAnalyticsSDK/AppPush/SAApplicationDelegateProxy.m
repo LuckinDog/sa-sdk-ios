@@ -70,8 +70,11 @@
         if ([alert isKindOfClass:[NSDictionary class]]) {
             properties[kSAEventPropertyNotificationTitle] = alert[kSAPushAppleUserInfoKeyTitle];
             properties[kSAEventPropertyNotificationContent] = alert[kSAPushAppleUserInfoKeyBody];
+            properties[kSFMessageTitle] = alert[kSAPushAppleUserInfoKeyTitle];
+            properties[kSFMessageContent] = alert[kSAPushAppleUserInfoKeyBody];;
         } else if ([alert isKindOfClass:[NSString class]]) {
             properties[kSAEventPropertyNotificationContent] = alert;
+            properties[kSFMessageContent] = alert;
         }
     }
     
@@ -99,10 +102,12 @@
     
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     properties[kSAEventPropertyNotificationContent] = notification.alertBody;
+    properties[kSFMessageContent] = notification.alertBody;
     properties[kSAEventPropertyNotificationServiceName] = kSAEventPropertyNotificationServiceNameLocal;
     
     if (@available(iOS 8.2, *)) {
         properties[kSAEventPropertyNotificationTitle] = notification.alertTitle;
+        properties[kSFMessageTitle] = notification.alertTitle;
     }
     
     [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];

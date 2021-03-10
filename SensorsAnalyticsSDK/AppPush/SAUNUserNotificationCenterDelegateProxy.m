@@ -56,6 +56,8 @@
     
     properties[kSAEventPropertyNotificationTitle] = request.content.title;
     properties[kSAEventPropertyNotificationContent] = request.content.body;
+    properties[kSFMessageTitle] = request.content.title;
+    properties[kSFMessageContent] = request.content.body;
     
     NSDictionary *userInfo = request.content.userInfo;
     if (userInfo) {
