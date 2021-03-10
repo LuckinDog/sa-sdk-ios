@@ -56,12 +56,14 @@
     
     properties[kSAEventPropertyNotificationTitle] = request.content.title;
     properties[kSAEventPropertyNotificationContent] = request.content.body;
-    properties[kSFMessageTitle] = request.content.title;
-    properties[kSFMessageContent] = request.content.body;
     
     NSDictionary *userInfo = request.content.userInfo;
     if (userInfo) {
         [properties addEntriesFromDictionary:[SANotificationUtil propertiesFromUserInfo:userInfo]];
+        if (userInfo[kSAPushServiceKeySF]) {
+            properties[kSFMessageTitle] = request.content.title;
+            properties[kSFMessageContent] = request.content.body;
+        }
     }
     
     [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];

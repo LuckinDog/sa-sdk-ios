@@ -65,7 +65,6 @@
     properties[kSAEventPropertyNotificationChannel] = kSAEventPropertyNotificationChannelApple;
     
     if (userInfo) {
-        [properties addEntriesFromDictionary:[SANotificationUtil propertiesFromUserInfo:userInfo]];
         id alert = userInfo[kSAPushAppleUserInfoKeyAps][kSAPushAppleUserInfoKeyAlert];
         if ([alert isKindOfClass:[NSDictionary class]]) {
             properties[kSAEventPropertyNotificationTitle] = alert[kSAPushAppleUserInfoKeyTitle];
@@ -76,6 +75,11 @@
             properties[kSAEventPropertyNotificationContent] = alert;
             properties[kSFMessageContent] = alert;
         }
+        if (!userInfo[kSAPushServiceKeySF]) {
+            properties[kSFMessageTitle] = nil;
+            properties[kSFMessageContent] = nil;
+        }
+        [properties addEntriesFromDictionary:[SANotificationUtil propertiesFromUserInfo:userInfo]];
     }
     
     [[SensorsAnalyticsSDK sharedInstance] track:kSAEventNameNotificationClick withProperties:properties];
