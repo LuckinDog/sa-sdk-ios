@@ -18,6 +18,13 @@ Pod::Spec.new do |s|
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
+  # 支持 CAID 渠道匹配
+  s.subspec 'CAID' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+    f.source_files = "SensorsAnalyticsSDK/CAID/**/*.{h,m}"
+    f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
+  end
+
   # 开启 GPS 定位采集
   s.subspec 'Location' do |f|
     f.frameworks = 'CoreLocation'
