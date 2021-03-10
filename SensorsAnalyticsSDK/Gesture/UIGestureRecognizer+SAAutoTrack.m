@@ -28,7 +28,7 @@
 #import "SALog.h"
 
 static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
-static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetActionPairsKey;
+static void *const kSAGestureTargetActionModelsKey = (void *)&kSAGestureTargetActionModelsKey;
 
 @implementation UIGestureRecognizer (SAAutoTrack)
 
@@ -36,7 +36,7 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 - (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action {
     [self sensorsdata_initWithTarget:target action:action];
     self.sensorsdata_gestureTarget = [SAGestureTarget targetWithGesture:self];
-    self.sensorsdata_targetActionPairs = [NSMutableArray array];
+    self.sensorsdata_targetActionModels = [NSMutableArray array];
     [self removeTarget:target action:action];
     [self addTarget:target action:action];
     return self;
@@ -45,9 +45,9 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 - (void)sensorsdata_addTarget:(id)target action:(SEL)action {
     // Track 事件需要在原有事件之前触发(原有事件中更改页面内容,会导致部分内容获取不准确)
     if (self.sensorsdata_gestureTarget) {
-        if (![SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs]) {
-            SAGestureTargetActionPair *resulatPair = [[SAGestureTargetActionPair alloc] initWithTarget:target action:action];
-            [self.sensorsdata_targetActionPairs addObject:resulatPair];
+        if (![SAGestureTargetActionModel containsObjectWithTarget:target andAction:action fromModels:self.sensorsdata_targetActionModels]) {
+            SAGestureTargetActionModel *resulatModel = [[SAGestureTargetActionModel alloc] initWithTarget:target action:action];
+            [self.sensorsdata_targetActionModels addObject:resulatModel];
             [self sensorsdata_addTarget:self.sensorsdata_gestureTarget action:@selector(trackGestureRecognizerAppClick:)];
         }
     }
@@ -56,9 +56,9 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
 
 - (void)sensorsdata_removeTarget:(id)target action:(SEL)action {
     if (self.sensorsdata_gestureTarget) {
-        SAGestureTargetActionPair *existPair = [SAGestureTargetActionPair containsObjectWithTarget:target andAction:action fromPairs:self.sensorsdata_targetActionPairs];
-        if (existPair) {
-            [self.sensorsdata_targetActionPairs removeObject:existPair];
+        SAGestureTargetActionModel *existModel = [SAGestureTargetActionModel containsObjectWithTarget:target andAction:action fromModels:self.sensorsdata_targetActionModels];
+        if (existModel) {
+            [self.sensorsdata_targetActionModels removeObject:existModel];
         }
     }
     [self sensorsdata_removeTarget:target action:action];
@@ -73,12 +73,12 @@ static void *const kSAGestureTargetActionPairsKey = (void *)&kSAGestureTargetAct
     objc_setAssociatedObject(self, kSAGestureTargetKey, sensorsdata_gestureTarget, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSMutableArray <SAGestureTargetActionPair *>*)sensorsdata_targetActionPairs {
-    return objc_getAssociatedObject(self, kSAGestureTargetActionPairsKey);
+- (NSMutableArray <SAGestureTargetActionModel *>*)sensorsdata_targetActionModels {
+    return objc_getAssociatedObject(self, kSAGestureTargetActionModelsKey);
 }
 
-- (void)setSensorsdata_targetActionPairs:(NSMutableArray <SAGestureTargetActionPair *>*)sensorsdata_targetActionPairs {
-    objc_setAssociatedObject(self, kSAGestureTargetActionPairsKey, sensorsdata_targetActionPairs, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setSensorsdata_targetActionModels:(NSMutableArray <SAGestureTargetActionModel *>*)sensorsdata_targetActionModels {
+    objc_setAssociatedObject(self, kSAGestureTargetActionModelsKey, sensorsdata_targetActionModels, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end

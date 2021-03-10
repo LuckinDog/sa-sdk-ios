@@ -1,5 +1,5 @@
 //
-// SAGestureTargetActionPair.h
+// SAGestureTargetActionModel.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/8.
@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAGestureTargetActionPair : NSObject
+@interface SAGestureTargetActionModel : NSObject
 
 @property (nonatomic, weak) id target;
 @property (nonatomic, assign) SEL action;
@@ -35,12 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// 由于在 dealloc 中使用了 weak 引用,会触发崩溃,因此没有通过重写 isEqual: 方式实现该逻辑
 /// @param target target
 /// @param action action
-/// @param pairs 待查询的数组
-+ (SAGestureTargetActionPair * _Nullable)containsObjectWithTarget:(id)target andAction:(SEL)action fromPairs:(NSArray <SAGestureTargetActionPair *>*)pairs;
+/// @param models 待查询的数组
++ (SAGestureTargetActionModel * _Nullable)containsObjectWithTarget:(id)target andAction:(SEL)action fromModels:(NSArray <SAGestureTargetActionModel *>*)models;
 
-/// 从数组中过滤出有效的 target-action pair 对象
-/// @param pairs 有效的对象数组
-+ (NSArray <SAGestureTargetActionPair *>*)filterValidPairsFrom:(NSArray <SAGestureTargetActionPair *>*)pairs;
+/// 从数组中过滤出有效的 target-action 对象
+/// @param models 有效的对象数组
++ (NSArray <SAGestureTargetActionModel *>*)filterValidModelsFrom:(NSArray <SAGestureTargetActionModel *>*)models;
 
 @end
 

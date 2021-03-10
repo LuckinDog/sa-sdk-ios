@@ -1,5 +1,5 @@
 //
-// SAGestureTargetActionPair.m
+// SAGestureTargetActionModel.m
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/2/8.
@@ -22,9 +22,9 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAGestureTargetActionPair.h"
+#import "SAGestureTargetActionModel.h"
 
-@implementation SAGestureTargetActionPair
+@implementation SAGestureTargetActionModel
 
 - (instancetype)initWithTarget:(id)target action:(SEL)action {
     if (self = [super init]) {
@@ -46,20 +46,20 @@
     return [self.target respondsToSelector:self.action];
 }
 
-+ (SAGestureTargetActionPair * _Nullable)containsObjectWithTarget:(id)target andAction:(SEL)action fromPairs:(NSArray <SAGestureTargetActionPair *>*)pairs {
-    for (SAGestureTargetActionPair *pair in pairs) {
-        if ([pair isEqualToTarget:target andAction:action]) {
-            return pair;
++ (SAGestureTargetActionModel * _Nullable)containsObjectWithTarget:(id)target andAction:(SEL)action fromModels:(NSArray <SAGestureTargetActionModel *>*)models {
+    for (SAGestureTargetActionModel *model in models) {
+        if ([model isEqualToTarget:target andAction:action]) {
+            return model;
         }
     }
     return nil;
 }
 
-+ (NSArray <SAGestureTargetActionPair *>*)filterValidPairsFrom:(NSArray <SAGestureTargetActionPair *>*)pairs {
++ (NSArray <SAGestureTargetActionModel *>*)filterValidModelsFrom:(NSArray <SAGestureTargetActionModel *>*)models {
     NSMutableArray *result = [NSMutableArray array];
-    for (SAGestureTargetActionPair *pair in pairs) {
-        if (pair.isValid) {
-            [result addObject:pair];
+    for (SAGestureTargetActionModel *model in models) {
+        if (model.isValid) {
+            [result addObject:model];
         }
     }
     return [result copy];

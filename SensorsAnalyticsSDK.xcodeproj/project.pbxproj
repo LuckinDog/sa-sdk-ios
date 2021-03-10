@@ -11,7 +11,7 @@
 		453ECA1625DE4B0700E5DFB6 /* SAViewElementInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 453ECA1425DE4B0700E5DFB6 /* SAViewElementInfo.m */; };
 		453ECA2B25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 453ECA2925DE4C5B00E5DFB6 /* SAViewElementInfoFactory.h */; };
 		453ECA2C25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 453ECA2A25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.m */; };
-		453FC63825EE3D6300591C47 /* SAGestureTargetActionPair.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC62525EE3D6300591C47 /* SAGestureTargetActionPair.h */; };
+		453FC63825EE3D6300591C47 /* SAGestureTargetActionModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC62525EE3D6300591C47 /* SAGestureTargetActionModel.h */; };
 		453FC63A25EE3D6300591C47 /* SAGestureTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC62825EE3D6300591C47 /* SAGestureTarget.h */; };
 		453FC63B25EE3D6300591C47 /* SAGestureTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC62925EE3D6300591C47 /* SAGestureTarget.m */; };
 		453FC63D25EE3D6300591C47 /* SAGeneralGestureViewProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC62C25EE3D6300591C47 /* SAGeneralGestureViewProcessor.h */; };
@@ -19,7 +19,7 @@
 		453FC64025EE3D6300591C47 /* SAGeneralGestureViewProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC62F25EE3D6300591C47 /* SAGeneralGestureViewProcessor.m */; };
 		453FC64125EE3D6300591C47 /* SAGestureViewProcessorFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC63025EE3D6300591C47 /* SAGestureViewProcessorFactory.h */; };
 		453FC64225EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC63125EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m */; };
-		453FC64425EE3D6300591C47 /* SAGestureTargetActionPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC63325EE3D6300591C47 /* SAGestureTargetActionPair.m */; };
+		453FC64425EE3D6300591C47 /* SAGestureTargetActionModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC63325EE3D6300591C47 /* SAGestureTargetActionModel.m */; };
 		453FC64725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */; };
 		4584B30825EF23FF00900FC4 /* SAGestureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4584B30625EF23FF00900FC4 /* SAGestureManager.h */; };
 		4584B30925EF23FF00900FC4 /* SAGestureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4584B30725EF23FF00900FC4 /* SAGestureManager.m */; };
@@ -221,7 +221,7 @@
 		453ECA1425DE4B0700E5DFB6 /* SAViewElementInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAViewElementInfo.m; sourceTree = "<group>"; };
 		453ECA2925DE4C5B00E5DFB6 /* SAViewElementInfoFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAViewElementInfoFactory.h; sourceTree = "<group>"; };
 		453ECA2A25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAViewElementInfoFactory.m; sourceTree = "<group>"; };
-		453FC62525EE3D6300591C47 /* SAGestureTargetActionPair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGestureTargetActionPair.h; sourceTree = "<group>"; };
+		453FC62525EE3D6300591C47 /* SAGestureTargetActionModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGestureTargetActionModel.h; sourceTree = "<group>"; };
 		453FC62825EE3D6300591C47 /* SAGestureTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGestureTarget.h; sourceTree = "<group>"; };
 		453FC62925EE3D6300591C47 /* SAGestureTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGestureTarget.m; sourceTree = "<group>"; };
 		453FC62C25EE3D6300591C47 /* SAGeneralGestureViewProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGeneralGestureViewProcessor.h; sourceTree = "<group>"; };
@@ -229,7 +229,7 @@
 		453FC62F25EE3D6300591C47 /* SAGeneralGestureViewProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGeneralGestureViewProcessor.m; sourceTree = "<group>"; };
 		453FC63025EE3D6300591C47 /* SAGestureViewProcessorFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGestureViewProcessorFactory.h; sourceTree = "<group>"; };
 		453FC63125EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+SAAutoTrack.m"; sourceTree = "<group>"; };
-		453FC63325EE3D6300591C47 /* SAGestureTargetActionPair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetActionPair.m; sourceTree = "<group>"; };
+		453FC63325EE3D6300591C47 /* SAGestureTargetActionModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetActionModel.m; sourceTree = "<group>"; };
 		453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+SAAutoTrack.h"; sourceTree = "<group>"; };
 		4584B30625EF23FF00900FC4 /* SAGestureManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureManager.h; sourceTree = "<group>"; };
 		4584B30725EF23FF00900FC4 /* SAGestureManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureManager.m; sourceTree = "<group>"; };
@@ -481,8 +481,8 @@
 			children = (
 				453FC62725EE3D6300591C47 /* Target */,
 				453FC62A25EE3D6300591C47 /* Processor */,
-				453FC62525EE3D6300591C47 /* SAGestureTargetActionPair.h */,
-				453FC63325EE3D6300591C47 /* SAGestureTargetActionPair.m */,
+				453FC62525EE3D6300591C47 /* SAGestureTargetActionModel.h */,
+				453FC63325EE3D6300591C47 /* SAGestureTargetActionModel.m */,
 				453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */,
 				453FC63125EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m */,
 				4584B30625EF23FF00900FC4 /* SAGestureManager.h */,
@@ -1004,7 +1004,7 @@
 				4D9E5DBC25943BCE0095A0D0 /* SAVisualizedAutoTrackObjectSerializer.h in Headers */,
 				453ECA2B25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.h in Headers */,
 				4D9E5DA525943BCD0095A0D0 /* SAObjectSerializerContext.h in Headers */,
-				453FC63825EE3D6300591C47 /* SAGestureTargetActionPair.h in Headers */,
+				453FC63825EE3D6300591C47 /* SAGestureTargetActionModel.h in Headers */,
 				4D9E5DBB25943BCE0095A0D0 /* SAObjectIdentityProvider.h in Headers */,
 				4D9E5DC025943BCE0095A0D0 /* SAVisualizedConnection.h in Headers */,
 				4D4DB2C925B7D19C00938842 /* UIScrollView+AutoTrack.h in Headers */,
@@ -1164,7 +1164,7 @@
 				4D4DB31725B7D58300938842 /* SADateFormatter.m in Sources */,
 				4D4DB31325B7D55400938842 /* SAEventTracker.m in Sources */,
 				4D4DB30F25B7D54D00938842 /* SALog.m in Sources */,
-				453FC64425EE3D6300591C47 /* SAGestureTargetActionPair.m in Sources */,
+				453FC64425EE3D6300591C47 /* SAGestureTargetActionModel.m in Sources */,
 				4D4DB30B25B7D54600938842 /* SAValidator.m in Sources */,
 				4D4DB30725B7D52700938842 /* SAGzipUtility.m in Sources */,
 				453FC63B25EE3D6300591C47 /* SAGestureTarget.m in Sources */,
