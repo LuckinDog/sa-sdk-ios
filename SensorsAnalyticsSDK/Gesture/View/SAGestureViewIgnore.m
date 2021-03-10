@@ -40,12 +40,8 @@
     if (![info isKindOfClass:NSDictionary.class]) {
         return NO;
     }
-    id gestureView = info[@"gestureView"];
-    if (![gestureView isKindOfClass:NSDictionary.class]) {
-        return NO;
-    }
     // 公开类名使用 - isKindOfClass: 判断
-    id publicClasses = gestureView[@"public"];
+    id publicClasses = info[@"public"];
     if ([publicClasses isKindOfClass:NSArray.class]) {
         for (NSString *publicClass in (NSArray *)publicClasses) {
             if ([view isKindOfClass:NSClassFromString(publicClass)]) {
@@ -54,7 +50,7 @@
         }
     }
     // 私有类名使用字符串匹配判断
-    id privateClasses = gestureView[@"private"];
+    id privateClasses = info[@"private"];
     if ([privateClasses isKindOfClass:NSArray.class]) {
         if ([(NSArray *)privateClasses containsObject:NSStringFromClass(view.class)]) {
             return YES;
