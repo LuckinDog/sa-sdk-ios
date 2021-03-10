@@ -38,8 +38,8 @@
     return NSStringFromClass(self.view.class);
 }
 
-- (BOOL)isForbiddenElementPosition {
-    return NO;
+- (BOOL)isSupportElementPosition {
+    return YES;
 }
 
 @end
@@ -65,8 +65,8 @@
 #endif
 }
 
-- (BOOL)isForbiddenElementPosition {
-    return YES;
+- (BOOL)isSupportElementPosition {
+    return NO;
 }
 
 @end
@@ -81,8 +81,8 @@
     return nil;
 }
 
-- (BOOL)isForbiddenElementPosition {
-    return YES;
+- (BOOL)isSupportElementPosition {
+    return NO;
 }
 
 @end

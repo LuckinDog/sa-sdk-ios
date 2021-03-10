@@ -479,7 +479,6 @@
 		453FC62425EE3D6300591C47 /* Gesture */ = {
 			isa = PBXGroup;
 			children = (
-				453ECA1A25DE4BC600E5DFB6 /* ElementInfo */,
 				453FC62725EE3D6300591C47 /* Target */,
 				453FC62A25EE3D6300591C47 /* Processor */,
 				453FC62525EE3D6300591C47 /* SAGestureTargetActionPair.h */,
@@ -515,6 +514,7 @@
 		4D4DB28425B7D17E00938842 /* AutoTrack */ = {
 			isa = PBXGroup;
 			children = (
+				453ECA1A25DE4BC600E5DFB6 /* ElementInfo */,
 				4D4DB28C25B7D17E00938842 /* Cell */,
 				4D4DB2E125B7D1F300938842 /* SAAutoTrackProperty.h */,
 				4D4DB2D825B7D1F200938842 /* SAAutoTrackUtils.h */,

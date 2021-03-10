@@ -30,6 +30,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
 #import "SAModuleManager.h"
+#import "SAViewElementInfoFactory.h"
 
 @implementation UIView (SAElementPath)
 
@@ -174,6 +175,16 @@
             }
         }
     }
+    
+    if (!self.userInteractionEnabled || self.alpha <= 0.01 || self.isHidden) {
+        return NO;
+    }
+    
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    if (![[elementInfo elementType] isEqualToString:NSStringFromClass(self.class)]) {
+        return YES;
+    }
+    
     return [SAModuleManager.sharedInstance isGestureVisualView:self];
 }
 
@@ -489,7 +500,8 @@
 @implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
-    if ([SAModuleManager.sharedInstance isForbiddenElementPositionWithView:self]) {
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    if (!elementInfo.isSupportElementPosition) {
         return nil;
     }
     

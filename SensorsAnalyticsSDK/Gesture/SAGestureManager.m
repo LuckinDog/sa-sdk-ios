@@ -26,7 +26,6 @@
 #import "SASwizzle.h"
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewProcessorFactory.h"
-#import "SAViewElementInfoFactory.h"
 
 @implementation SAGestureManager
 
@@ -65,13 +64,6 @@
         return NO;
     }
     UIView *view = (UIView *)obj;
-    if (!view.userInteractionEnabled || view.alpha <= 0.01 || view.isHidden) {
-        return NO;
-    }
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:view];
-    if (![[elementInfo elementType] isEqualToString:NSStringFromClass(view.class)]) {
-        return YES;
-    }
     for (UIGestureRecognizer *gesture in view.gestureRecognizers) {
         if (gesture.sensorsdata_gestureTarget) {
             SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
@@ -81,30 +73,6 @@
         }
     }
     return NO;
-}
-
-- (BOOL)isForbiddenElementPositionWithView:(id)obj {
-    if (!self.enable) {
-        return NO;
-    }
-    if (![obj isKindOfClass:UIView.class]) {
-        return YES;
-    }
-    UIView *view = (UIView *)obj;
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:view];
-    return elementInfo.isForbiddenElementPosition;
-}
-
-- (NSString * _Nullable)elementTypeWithView:(id)obj {
-    if (!self.enable) {
-        return nil;
-    }
-    if (![obj isKindOfClass:UIView.class]) {
-        return nil;
-    }
-    UIView *view = (UIView *)obj;
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:view];
-    return elementInfo.elementType;
 }
 
 @end

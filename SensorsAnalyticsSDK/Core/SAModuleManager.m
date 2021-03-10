@@ -209,12 +209,4 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     return [self.gestureManager isGestureVisualView:obj];
 }
 
-- (BOOL)isForbiddenElementPositionWithView:(id)obj {
-    return [self.gestureManager isForbiddenElementPositionWithView:obj];
-}
-
-- (NSString * _Nullable)elementTypeWithView:(id)obj {
-    return [self.gestureManager elementTypeWithView:obj];
-}
-
 @end
