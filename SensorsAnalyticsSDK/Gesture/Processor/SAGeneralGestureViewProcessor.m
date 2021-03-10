@@ -24,7 +24,6 @@
 
 #import "SAGeneralGestureViewProcessor.h"
 #import "UIGestureRecognizer+SAAutoTrack.h"
-#import "SAGestureViewIgnore.h"
 #import "SAAlertController.h"
 #import "SAAutoTrackUtils.h"
 
@@ -59,7 +58,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 }
 
 - (BOOL)isTrackable {
-    if ([SAGestureViewIgnore ignoreWithView:self.gesture.view]) {
+    if ([self isIgnoreWithView:self.gesture.view]) {
         return NO;
     }
     if ([SAGestureTargetActionPair filterValidPairsFrom:self.gesture.sensorsdata_targetActionPairs].count == 0) {
@@ -70,6 +69,40 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 
 - (UIView *)trackableView {
     return self.gesture.view;
+}
+
+#pragma mark - private method
+- (BOOL)isIgnoreWithView:(UIView *)view {
+    static dispatch_once_t onceToken;
+    static id info = nil;
+    dispatch_once(&onceToken, ^{
+        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gestureview_blacklist.json" ofType:nil];
+        NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+        if (jsonData) {
+            info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+        }
+    });
+    if (![info isKindOfClass:NSDictionary.class]) {
+        return NO;
+    }
+    // 公开类名使用 - isKindOfClass: 判断
+    id publicClasses = info[@"public"];
+    if ([publicClasses isKindOfClass:NSArray.class]) {
+        for (NSString *publicClass in (NSArray *)publicClasses) {
+            if ([view isKindOfClass:NSClassFromString(publicClass)]) {
+                return YES;
+            }
+        }
+    }
+    // 私有类名使用字符串匹配判断
+    id privateClasses = info[@"private"];
+    if ([privateClasses isKindOfClass:NSArray.class]) {
+        if ([(NSArray *)privateClasses containsObject:NSStringFromClass(view.class)]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end

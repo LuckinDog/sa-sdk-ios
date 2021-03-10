@@ -25,7 +25,6 @@
 #import "SAGestureManager.h"
 #import "SASwizzle.h"
 #import "UIGestureRecognizer+SAAutoTrack.h"
-#import "SAGestureViewIgnore.h"
 #import "SAGestureViewProcessorFactory.h"
 #import "SAViewElementInfoFactory.h"
 
