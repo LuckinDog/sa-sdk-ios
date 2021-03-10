@@ -27,9 +27,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeReactNative,
     SAModuleTypeChannelMatch,
+    SAModuleTypeEncrypt,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
+
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions;
 
 + (instancetype)sharedInstance;
 
@@ -61,6 +64,14 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 #pragma mark -
 
 @interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Encrypt) <SAEncryptModuleProtocol>
+
+@property (nonatomic, strong, readonly) id<SAEncryptModuleProtocol> encryptManager;
+
 @end
 
 NS_ASSUME_NONNULL_END
