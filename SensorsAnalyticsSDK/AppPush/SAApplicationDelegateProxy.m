@@ -65,20 +65,21 @@
     properties[kSAEventPropertyNotificationChannel] = kSAEventPropertyNotificationChannelApple;
     
     if (userInfo) {
+        NSString *title = nil;
+        NSString *content = nil;
         id alert = userInfo[kSAPushAppleUserInfoKeyAps][kSAPushAppleUserInfoKeyAlert];
         if ([alert isKindOfClass:[NSDictionary class]]) {
-            properties[kSAEventPropertyNotificationTitle] = alert[kSAPushAppleUserInfoKeyTitle];
-            properties[kSAEventPropertyNotificationContent] = alert[kSAPushAppleUserInfoKeyBody];
-            properties[kSFMessageTitle] = alert[kSAPushAppleUserInfoKeyTitle];
-            properties[kSFMessageContent] = alert[kSAPushAppleUserInfoKeyBody];;
+            title = alert[kSAPushAppleUserInfoKeyTitle];
+            content = alert[kSAPushAppleUserInfoKeyBody];
         } else if ([alert isKindOfClass:[NSString class]]) {
-            properties[kSAEventPropertyNotificationContent] = alert;
-            properties[kSFMessageContent] = alert;
+            content = alert;
         }
-        if (!userInfo[kSAPushServiceKeySF]) {
-            properties[kSFMessageTitle] = nil;
-            properties[kSFMessageContent] = nil;
+        if (userInfo[kSAPushServiceKeySF]) {
+            properties[kSFMessageTitle] = title;
+            properties[kSFMessageContent] = content;
         }
+        properties[kSAEventPropertyNotificationTitle] = title;
+        properties[kSAEventPropertyNotificationContent] = content;
         [properties addEntriesFromDictionary:[SANotificationUtil propertiesFromUserInfo:userInfo]];
     }
     
