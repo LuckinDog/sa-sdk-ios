@@ -32,6 +32,15 @@ static NSDictionary *caid;
 
 @implementation SACAIDUtils
 
++ (void)load {
+    Class CAID = NSClassFromString(@"CAID");
+    if (!CAID) {
+        NSAssert(CAID, @"您未集成 CAID SDK，请按照集成文档正确集成后 CAID SDK 后调用 getCAIDAsyncly 接口获取 CAID 信息");
+        return;
+    }
+    [CAID sa_swizzleMethod:NSSelectorFromString(@"getCAIDAsyncly:") withClass:SACAIDUtils.class withMethod:NSSelectorFromString(@"sensorsdata_getCAIDAsyncly:") error:nil];
+}
+
 + (NSDictionary *)CAIDInfo {
     Class CAID = NSClassFromString(@"CAID");
     if (!CAID) {
@@ -48,43 +57,33 @@ static NSDictionary *caid;
     return caid;
 }
 
-@end
-
-@implementation NSObject (CAID)
-
-+ (void)load {
-    Class CAID = NSClassFromString(@"CAID");
-    if (!CAID) {
-        NSAssert(CAID, @"您未集成 CAID SDK，请按照集成文档正确集成后 CAID SDK 后调用 getCAIDAsyncly 接口获取 CAID 信息");
-        return;
-    }
-    [CAID sa_swizzleMethod:NSSelectorFromString(@"getCAIDAsyncly:") withMethod:NSSelectorFromString(@"sensorsdata_getCAIDAsyncly:") error:nil];
-}
-
+#pragma mark - swizzled Method
 - (void)sensorsdata_getCAIDAsyncly:(void(^)(id error, id caidStruct))callback {
     [self sensorsdata_getCAIDAsyncly:^(id _Nonnull error, id _Nonnull caidStruct) {
-        if ([error respondsToSelector:NSSelectorFromString(@"code")]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-            NSInteger code = [[error performSelector:NSSelectorFromString(@"code")] integerValue];
-            if (code == 0) {
+        SEL codeSel = NSSelectorFromString(@"code");
+        if ([error respondsToSelector:codeSel]) {
+            NSNumber *code = ((NSNumber * (*)(id, SEL))[error methodForSelector:codeSel])(error, codeSel);
+            if (code.integerValue == 0) {
                 NSMutableDictionary *caid = [NSMutableDictionary dictionary];
-                if ([caidStruct respondsToSelector:NSSelectorFromString(@"caid")]) {
-                    caid[@"caid"] = [caidStruct performSelector:NSSelectorFromString(@"caid")];
+                SEL caidSel = NSSelectorFromString(@"caid");
+                if ([caidStruct respondsToSelector:caidSel]) {
+                    caid[@"caid"] = ((NSString * (*)(id, SEL))[caidStruct methodForSelector:caidSel])(caidStruct, caidSel);
                 }
-                if ([caidStruct respondsToSelector:NSSelectorFromString(@"version")]) {
-                    caid[@"caid_version"] = [caidStruct performSelector:NSSelectorFromString(@"version")];
+                SEL caidVersionSel = NSSelectorFromString(@"version");
+                if ([caidStruct respondsToSelector:caidVersionSel]) {
+                    caid[@"caid_version"] = ((NSString * (*)(id, SEL))[caidStruct methodForSelector:caidVersionSel])(caidStruct, caidVersionSel);
                 }
-                if ([caidStruct respondsToSelector:NSSelectorFromString(@"lastVersionCAID")]) {
-                    caid[@"last_caid"] = [caidStruct performSelector:NSSelectorFromString(@"lastVersionCAID")];
+                SEL lastVersionCAIDSel = NSSelectorFromString(@"lastVersionCAID");
+                if ([caidStruct respondsToSelector:lastVersionCAIDSel]) {
+                    caid[@"last_caid"] = ((NSString * (*)(id, SEL))[caidStruct methodForSelector:lastVersionCAIDSel])(caidStruct, lastVersionCAIDSel);
                 }
-                if ([caidStruct respondsToSelector:NSSelectorFromString(@"lastVersion")]) {
-                    caid[@"last_caid_version"] = [caidStruct performSelector:NSSelectorFromString(@"lastVersion")];
+                SEL lastVersionSel = NSSelectorFromString(@"lastVersion");
+                if ([caidStruct respondsToSelector:lastVersionSel]) {
+                    caid[@"last_caid_version"] = ((NSString * (*)(id, SEL))[caidStruct methodForSelector:lastVersionSel])(caidStruct, lastVersionSel);
                 }
-                // 客户每次调用 getCAIDAsyncly 方法成功都会更新本地 CAID 信息
+                // 客户每次调用 getCAIDAsyncly 方法成功后都会更新本地 CAID 信息
                 [SAFileStore archiveWithFileName:kSACAIDCacheKey value:caid];
             }
-#pragma clang diagnostic pop
         }
         callback(error, caidStruct);
     }];

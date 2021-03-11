@@ -99,7 +99,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 /// 当前获取到的设备 ID 为有效值
 - (BOOL)isValidOfDeviceInfo {
-    return ([SAIdentifier idfa].length > 0 || [self CAIDInfo]);
+    return ([SAIdentifier idfa].length > 0 || [self CAIDInfo].allKeys > 0);
 }
 
 #pragma mark - 激活事件
