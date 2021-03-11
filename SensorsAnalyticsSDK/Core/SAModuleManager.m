@@ -45,9 +45,9 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
     // 渠道联调诊断功能获取多渠道匹配开关
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSAChannelMatchModuleName];
     // 初始化 LinkHandler 处理 deepLink 相关操作
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDeeplink];
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
     
     // 加密
     if (configOptions.enableEncrypt) {
@@ -97,12 +97,8 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
     switch (type) {
         case SAModuleTypeLocation:
             return kSALocationModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
         case SAModuleTypeEncrypt:
             return kSAEncryptModuleName;
-        case SAModuleTypeDeeplink:
-            return kSADeeplinkModuleName;
         default:
             return nil;
     }
@@ -166,7 +162,7 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
 @implementation SAModuleManager (ChannelMatch)
 
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)self.modules[kSAChannelMatchModuleName];
     [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
 }
 
@@ -200,7 +196,7 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
 @implementation SAModuleManager (Deeplink)
 
 - (id<SADeeplinkModuleProtocol>)deeplinkManager {
-    id<SADeeplinkModuleProtocol> manager = (id<SADeeplinkModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeDeeplink];
+    id<SADeeplinkModuleProtocol> manager = (id<SADeeplinkModuleProtocol>)self.modules[kSADeeplinkModuleName];
     return manager;
 }
 
