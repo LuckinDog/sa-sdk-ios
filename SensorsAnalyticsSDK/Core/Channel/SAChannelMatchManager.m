@@ -154,7 +154,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     sources[@"idfa"] = [SAIdentifier idfa];
     sources[@"idfv"] = [SAIdentifier idfv];
     NSMutableArray *result = [NSMutableArray array];
-    for (NSString *key in sources) {
+    for (NSString *key in sources.allKeys) {
         [result addObject:[NSString stringWithFormat:@"%@=%@", key, sources[key]]];
     }
     return [result componentsJoinedByString:@"##"];
@@ -238,7 +238,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     // 此场景在实际业务中出现概率较低，不考虑此问题
     [deviceIdSet intersectSet:installSourceSet];
     // 取交集，当交集不为空时，表示设备一致
-    if (deviceIdSet.count) {
+    if (deviceIdSet.count > 0) {
         [self showChannelDebugInstall];
     } else {
         [self showErrorMessage:@"无法重连，请检查是否更换了联调手机"];
@@ -250,11 +250,12 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"即将开启联调模式" message:nil preferredStyle:SAAlertControllerStyleAlert];
     __weak SAChannelMatchManager *weakSelf = self;
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        if ([weakSelf isValidForChannelDebug] && [weakSelf isValidOfDeviceInfo]) {
+        __strong SAChannelMatchManager *strongSelf = weakSelf;
+        if ([strongSelf isValidForChannelDebug] && [strongSelf isValidOfDeviceInfo]) {
             NSDictionary *qureyItems = [SAURLUtils queryItemsWithURL:url];
-            [weakSelf uploadUserInfoIntoWhiteList:qureyItems];
+            [strongSelf uploadUserInfoIntoWhiteList:qureyItems];
         } else {
-            [weakSelf showChannelDebugErrorMessage];
+            [strongSelf showChannelDebugErrorMessage];
         }
     }];
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];

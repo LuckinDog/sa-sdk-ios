@@ -32,15 +32,6 @@ static NSDictionary *caid;
 
 @implementation SACAIDUtils
 
-+ (void)load {
-    Class CAID = NSClassFromString(@"CAID");
-    if (!CAID) {
-        NSAssert(CAID, @"您未集成 CAID SDK，请按照集成文档正确集成后 CAID SDK 后调用 getCAIDAsyncly 接口获取 CAID 信息");
-        return;
-    }
-    [CAID sa_swizzleMethod:NSSelectorFromString(@"getCAIDAsyncly:") withClass:SACAIDUtils.class withMethod:NSSelectorFromString(@"sensorsdata_getCAIDAsyncly:") error:nil];
-}
-
 + (NSDictionary *)CAIDInfo {
     Class CAID = NSClassFromString(@"CAID");
     if (!CAID) {
@@ -58,35 +49,48 @@ static NSDictionary *caid;
 }
 
 #pragma mark - swizzled Method
++ (void)load {
+    Class CAID = NSClassFromString(@"CAID");
+    if (!CAID) {
+        NSAssert(CAID, @"您未集成 CAID SDK，请按照集成文档正确集成 CAID SDK 后调用 getCAIDAsyncly 接口获取 CAID 信息");
+        return;
+    }
+    SEL origSel = NSSelectorFromString(@"getCAIDAsyncly:");
+    SEL swizzledSel = NSSelectorFromString(@"sensorsdata_getCAIDAsyncly:");
+    [CAID sa_swizzleMethod:origSel withClass:SACAIDUtils.class withMethod:swizzledSel error:nil];
+}
+
 - (void)sensorsdata_getCAIDAsyncly:(void(^)(id error, id caidStruct))callback {
     [self sensorsdata_getCAIDAsyncly:^(id _Nonnull error, id _Nonnull caidStruct) {
-        SEL codeSel = NSSelectorFromString(@"code");
-        if ([error respondsToSelector:codeSel]) {
-            NSNumber *code = ((NSNumber * (*)(id, SEL))[error methodForSelector:codeSel])(error, codeSel);
-            if (code.integerValue == 0) {
-                NSMutableDictionary *caid = [NSMutableDictionary dictionary];
-                SEL caidSel = NSSelectorFromString(@"caid");
-                if ([caidStruct respondsToSelector:caidSel]) {
-                    caid[@"caid"] = ((NSString * (*)(id, SEL))[caidStruct methodForSelector:caidSel])(caidStruct, caidSel);
-                }
-                SEL caidVersionSel = NSSelectorFromString(@"version");
-                if ([caidStruct respondsToSelector:caidVersionSel]) {
-                    caid[@"caid_version"] = ((NSString * (*)(id, SEL))[caidStruct methodForSelector:caidVersionSel])(caidStruct, caidVersionSel);
-                }
-                SEL lastVersionCAIDSel = NSSelectorFromString(@"lastVersionCAID");
-                if ([caidStruct respondsToSelector:lastVersionCAIDSel]) {
-                    caid[@"last_caid"] = ((NSString * (*)(id, SEL))[caidStruct methodForSelector:lastVersionCAIDSel])(caidStruct, lastVersionCAIDSel);
-                }
-                SEL lastVersionSel = NSSelectorFromString(@"lastVersion");
-                if ([caidStruct respondsToSelector:lastVersionSel]) {
-                    caid[@"last_caid_version"] = ((NSString * (*)(id, SEL))[caidStruct methodForSelector:lastVersionSel])(caidStruct, lastVersionSel);
-                }
-                // 客户每次调用 getCAIDAsyncly 方法成功后都会更新本地 CAID 信息
-                [SAFileStore archiveWithFileName:kSACAIDCacheKey value:caid];
-            }
+        NSInteger code = [SACAIDUtils invokeError:error selString:@"code"];
+        if (code == 0) {
+            // CAIDErrorCodeNone = 0, 无错误
+            NSMutableDictionary *caid = [NSMutableDictionary dictionary];
+            caid[@"caid"] = (NSString *)[SACAIDUtils invokeObject:caidStruct selString:@"caid"];
+            caid[@"caid_version"] = (NSNumber *)[SACAIDUtils invokeObject:caidStruct selString:@"version"];
+            caid[@"last_caid"] = (NSString *)[SACAIDUtils invokeObject:caidStruct selString:@"lastVersionCAID"];
+            caid[@"last_caid_version"] = (NSNumber *)[SACAIDUtils invokeObject:caidStruct selString:@"lastVersion"];
+            // 客户每次调用 getCAIDAsyncly 方法成功后都会更新本地 CAID 信息
+            [SAFileStore archiveWithFileName:kSACAIDCacheKey value:caid];
         }
         callback(error, caidStruct);
     }];
+}
+
++ (NSInteger)invokeError:(id)obj selString:(NSString *)selString {
+    SEL sel = NSSelectorFromString(selString);
+    if ([obj respondsToSelector:sel]) {
+        return ((NSInteger (*)(id, SEL))[obj methodForSelector:sel])(obj, sel);
+    }
+    return -1;
+}
+
++ (id)invokeObject:(id)obj selString:(NSString *)selString {
+    SEL sel = NSSelectorFromString(selString);
+    if ([obj respondsToSelector:sel]) {
+        return ((id (*)(id, SEL))[obj methodForSelector:sel])(obj, sel);
+    }
+    return nil;
 }
 
 @end
