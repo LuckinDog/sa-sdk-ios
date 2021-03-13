@@ -41,7 +41,7 @@ static NSDictionary *caid;
     if (!caid) {
         caid = [SAFileStore unarchiveWithFileName:kSACAIDCacheKey];
     }
-    if (!caid) {
+    if (caid.allKeys.count == 0 ) {
         SALogError(@"未获取到缓存的 CAID 信息，请检查是否正确集成 CAID SDK，并调用 getCAIDAsyncly 接口获取 CAID 信息");
         return nil;
     }
