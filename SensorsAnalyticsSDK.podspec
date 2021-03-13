@@ -31,6 +31,7 @@ Pod::Spec.new do |s|
   s.subspec 'AppPush' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/AppPush/**/*.{h,m}"
+    f.private_header_files = 'SensorsAnalyticsSDK/AppPush/**/*.h'
   end
 
   # 禁用设备方向采集
