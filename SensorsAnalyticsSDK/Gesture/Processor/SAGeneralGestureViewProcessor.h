@@ -43,6 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SANewAlertGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 
+@interface SALegacyMenuGestureViewProcessor : SAGeneralGestureViewProcessor
+@end
+
 @interface SAMenuGestureViewProcessor : SAGeneralGestureViewProcessor
 @end
 

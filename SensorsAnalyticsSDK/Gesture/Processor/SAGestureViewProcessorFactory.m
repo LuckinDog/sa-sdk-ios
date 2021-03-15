@@ -34,6 +34,9 @@
     if ([viewType isEqualToString:@"_UIAlertControllerInterfaceActionGroupView"]) {
         return [[SANewAlertGestureViewProcessor alloc] initWithGesture:gesture];
     }
+    if ([viewType isEqualToString:@"UIInterfaceActionGroupView"]) {
+        return [[SALegacyMenuGestureViewProcessor alloc] initWithGesture:gesture];
+    }
     if ([viewType isEqualToString:@"_UIContextMenuActionsListView"]) {
         return [[SAMenuGestureViewProcessor alloc] initWithGesture:gesture];
     }

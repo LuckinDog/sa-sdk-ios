@@ -165,7 +165,24 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 
 @end
 
-#pragma mark - 适配 iOS 13 及以后的 UIMenu
+#pragma mark - 适配 iOS 13 的 UIMenu
+@implementation SALegacyMenuGestureViewProcessor
+
+- (UIView *)trackableView {
+    NSArray <UIView *>*visualViews = sensorsdata_searchVisualSubView(@"_UIContextMenuActionView", self.gesture.view);
+    CGPoint currentPoint = [self.gesture locationInView:self.gesture.view];
+    for (UIView *visualView in visualViews) {
+        CGRect rect = [visualView convertRect:visualView.bounds toView:self.gesture.view];
+        if (CGRectContainsPoint(rect, currentPoint)) {
+            return visualView;
+        }
+    }
+    return nil;
+}
+
+@end
+
+#pragma mark - 适配 iOS 14 及以后的 UIMenu
 @implementation SAMenuGestureViewProcessor
 
 - (UIView *)trackableView {
