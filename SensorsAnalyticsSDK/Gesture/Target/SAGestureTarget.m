@@ -34,15 +34,38 @@
 + (SAGestureTarget * _Nullable)targetWithGesture:(UIGestureRecognizer *)gesture {
     NSString *gestureType = NSStringFromClass(gesture.class);
     if ([gesture isMemberOfClass:UITapGestureRecognizer.class] ||
-        [gesture isMemberOfClass:UILongPressGestureRecognizer.class] ||
         [gestureType isEqualToString:@"_UIContextMenuSelectionGestureRecognizer"]) {
         return [[SAGestureTarget alloc] init];
+    }
+    if ([gesture isMemberOfClass:UILongPressGestureRecognizer.class]) {
+        return [[SALongPressGestureTarget alloc] init];
     }
     return nil;
 }
 
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateEnded) {
+        return;
+    }
+    SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
+    if (!processor.isTrackable) {
+        return;
+    }
+    
+    NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:processor.trackableView];
+    if (!properties) {
+        return;
+    }
+    
+    [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+}
+
+@end
+
+@implementation SALongPressGestureTarget
+
+- (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
+    if (gesture.state != UIGestureRecognizerStateBegan) {
         return;
     }
     SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
