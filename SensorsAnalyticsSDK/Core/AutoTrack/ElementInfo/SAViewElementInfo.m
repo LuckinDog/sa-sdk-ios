@@ -101,6 +101,10 @@
 }
 
 - (BOOL)isVisualView {
+    // 在 iOS 14 中, 应当圈选 UICollectionViewCell
+    if ([self.view.superview isKindOfClass:UICollectionViewCell.class]) {
+        return NO;
+    }
     if (SAModuleManager.sharedInstance.gestureManager) {
         return YES;
     }
