@@ -86,32 +86,6 @@
 
 @end
 
-#pragma mark - iOS 13 Menu Element Type
-@implementation SAIOS13MenuElementInfo
-
-- (NSString *)elementType {
-    if (@available(iOS 13.0, *)) {
-        return NSStringFromClass(UIMenu.class);
-    }
-    return nil;
-}
-
-- (BOOL)isSupportElementPosition {
-    return NO;
-}
-
-- (BOOL)isVisualView {
-    if ([self.view.superview isKindOfClass:UICollectionViewCell.class]) {
-        return NO;
-    }
-    if (SAModuleManager.sharedInstance.gestureManager) {
-        return YES;
-    }
-    return [super isVisualView];
-}
-
-@end
-
 #pragma mark - Menu Element Type
 @implementation SAMenuElementInfo
 

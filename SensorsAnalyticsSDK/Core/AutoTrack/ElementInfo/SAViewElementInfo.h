@@ -40,9 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAAlertElementInfo : SAViewElementInfo
 @end
 
-@interface SAIOS13MenuElementInfo : SAViewElementInfo
-@end
-
 @interface SAMenuElementInfo : SAViewElementInfo
 @end
 
