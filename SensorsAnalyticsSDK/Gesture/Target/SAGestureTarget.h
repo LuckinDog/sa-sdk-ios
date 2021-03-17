@@ -30,8 +30,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SALongPressGestureTarget : SAGestureTarget
-
-@end
-
 NS_ASSUME_NONNULL_END
