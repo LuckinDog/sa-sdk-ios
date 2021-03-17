@@ -32,8 +32,10 @@
         [viewType isEqualToString:@"_UIAlertControllerCollectionViewCell"]) {
         return [[SAAlertElementInfo alloc] initWithView:view];
     }
-    if ([viewType isEqualToString:@"_UIContextMenuActionView"] ||
-        [viewType isEqualToString:@"_UIContextMenuActionsListCell"]) {
+    if ([viewType isEqualToString:@"_UIContextMenuActionView"]) {
+        return [[SAIOS13MenuElementInfo alloc] initWithView:view];
+    }
+    if ([viewType isEqualToString:@"_UIContextMenuActionsListCell"]) {
         return [[SAMenuElementInfo alloc] initWithView:view];
     }
     return [[SAViewElementInfo alloc] initWithView:view];
