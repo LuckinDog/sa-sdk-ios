@@ -2720,6 +2720,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLibVersion];
 
             NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
+            // 校验 properties
+            if (![self assertPropertyTypes:&propertiesDict withEventType:type]) {
+                SALogError(@"%@ failed to track event from H5.", self);
+                return;
+            }
             if([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
