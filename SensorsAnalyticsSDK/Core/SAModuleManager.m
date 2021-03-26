@@ -25,6 +25,7 @@
 #import "SAModuleManager.h"
 #import "SAModuleProtocol.h"
 #import "SAConfigOptions.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
@@ -44,13 +45,16 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 @implementation SAModuleManager
 
-+ (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
     // 渠道联调诊断功能获取多渠道匹配开关
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSAChannelMatchModuleName];
     // 初始化 LinkHandler 处理 deepLink 相关操作
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
+    // 初始化 Debug 模块
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
+    [SAModuleManager.sharedInstance handleDebugMode:debugMode];
     
     // 加密
     if (configOptions.enableEncrypt) {
@@ -60,6 +64,11 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     // 手势采集
     if (NSClassFromString(@"SAGestureManager")) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
+    }
+
+    if (configOptions.enableTrackPush) {
+        [[SAModuleManager sharedInstance] setEnable:YES forModule:kSANotificationModuleName];
+        [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
     }
 }
 
@@ -105,12 +114,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     switch (type) {
         case SAModuleTypeLocation:
             return kSALocationModuleName;
-        case SAModuleTypeDebugMode:
-            return kSADebugModeModuleName;
         case SAModuleTypeEncrypt:
             return kSAEncryptModuleName;
-        case SAModuleTypeAppPush:
-            return kSANotificationModuleName;
         default:
             return nil;
     }
@@ -185,7 +190,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @implementation SAModuleManager (DebugMode)
 
 - (id<SADebugModeModuleProtocol>)debugModeManager {
-    return (id<SADebugModeModuleProtocol>)[self managerForModuleType:SAModuleTypeDebugMode];
+    return (id<SADebugModeModuleProtocol>)self.modules[kSADebugModeModuleName];
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
@@ -238,7 +243,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @implementation SAModuleManager (PushClick)
 
 - (void)setLaunchOptions:(NSDictionary *)launchOptions {
-    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)[[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeAppPush];
+    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)self.modules[kSANotificationModuleName];
     [manager setLaunchOptions:launchOptions];
 }
 

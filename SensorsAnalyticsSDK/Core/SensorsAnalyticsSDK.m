@@ -236,7 +236,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
     });
 }
 
@@ -281,9 +281,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SensorsAnalyticsNetworkTypeWIFI;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
-
-            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeDebugMode];
-            [SAModuleManager.sharedInstance handleDebugMode:debugMode];
 
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -358,11 +355,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // WKWebView 打通
             if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
                 [self swizzleWebViewMethod];
-            }
-            
-            if (_configOptions.enableTrackPush) {
-                [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeAppPush];
-                [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
             }
         }
         
@@ -2728,7 +2720,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
         [sharedInstance initRemoteConfigManager];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
     });
     return sharedInstance;
 }
@@ -2741,7 +2733,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
     });
     return sharedInstance;
 }

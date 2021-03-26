@@ -25,14 +25,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
-    SAModuleTypeDebugMode,
     SAModuleTypeEncrypt,
-    SAModuleTypeAppPush,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
 
-+ (void)startWithConfigOptions:(SAConfigOptions *)configOptions;
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 + (instancetype)sharedInstance;
 
