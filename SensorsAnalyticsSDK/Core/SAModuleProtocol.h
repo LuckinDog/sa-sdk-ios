@@ -111,14 +111,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
-@protocol SAAppPushModuleProtocol <NSObject>
-
-- (void)setLaunchOptions:(NSDictionary *)launchOptions;
-
-@end
-
-#pragma mark -
-
 @protocol SAGestureModuleProtocol <NSObject>
 
 /// 校验可视化全埋点元素能否选中

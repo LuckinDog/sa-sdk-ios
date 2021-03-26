@@ -33,7 +33,6 @@ static NSString * const kSADebugModeModuleName = @"DebugMode";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
-static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAGestureModuleName = @"Gesture";
 
 @interface SAModuleManager ()
@@ -62,11 +61,6 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     // 手势采集
     if (NSClassFromString(@"SAGestureManager")) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
-    }
-
-    if (configOptions.enableTrackPush) {
-        [[SAModuleManager sharedInstance] setEnable:YES forModule:kSANotificationModuleName];
-        [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
     }
 }
 
@@ -230,17 +224,6 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
     [self.encryptManager handleEncryptWithConfig:encryptConfig];
-}
-
-@end
-
-#pragma mark -
-
-@implementation SAModuleManager (PushClick)
-
-- (void)setLaunchOptions:(NSDictionary *)launchOptions {
-    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)self.modules[kSANotificationModuleName];
-    [manager setLaunchOptions:launchOptions];
 }
 
 @end

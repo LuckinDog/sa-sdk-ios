@@ -66,10 +66,6 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @end
 
-@interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
-
-@end
-
 #pragma mark -
 
 @interface SAModuleManager (Gesture) <SAGestureModuleProtocol>

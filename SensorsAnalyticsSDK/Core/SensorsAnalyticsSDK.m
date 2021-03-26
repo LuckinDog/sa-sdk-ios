@@ -77,7 +77,7 @@
 #import "SAModuleManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.5.1"
+#define VERSION @"2.5.2"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -2064,7 +2064,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         
         SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
         [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-        [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
     });
     
