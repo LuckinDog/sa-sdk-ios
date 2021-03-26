@@ -59,7 +59,6 @@
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
 #import "SADateFormatter.h"
-#import "SALinkHandler.h"
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
 #import "SAEventStore.h"
@@ -76,7 +75,6 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
-#import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
 #define VERSION @"2.5.1"
@@ -211,9 +209,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 
-/// DeepLink handler
-@property (nonatomic, strong) SALinkHandler *linkHandler;
-
 @property (nonatomic, strong) SAIdentifier *identifier;
 
 @property (nonatomic, strong) SAPresetProperty *presetProperty;
@@ -327,10 +322,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _trackChannelEventNames = [[NSMutableSet alloc] init];
 
              _trackTimer = [[SATrackTimer alloc] init];
-            
-            // 初始化 LinkHandler 处理 deepLink 相关操作
-            _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-            
+
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
             _presetEventNames = [NSSet setWithObjects:
@@ -638,8 +630,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
-    [_linkHandler acquireColdLaunchDeepLinkInfo];
-
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -651,7 +641,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
         properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
         //添加 deeplink 相关渠道信息，可能不存在
-        [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
+        [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
 
         [self trackAutoEvent:eventName properties:properties];
     });
@@ -770,7 +760,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
     return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
-    [_linkHandler canHandleURL:url] ||
     [SAModuleManager.sharedInstance canHandleURL:url] ||
     [[SARemoteConfigManager sharedInstance] canHandleURL:url];
 }
@@ -799,9 +788,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self enableLog:YES];
         [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
         [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
-        return YES;
-    } else if ([_linkHandler canHandleURL:url]) {
-        [_linkHandler handleDeepLink:url];
         return YES;
     } else {
         return [SAModuleManager.sharedInstance handleURL:url];
@@ -1079,7 +1065,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (NSMutableDictionary *)mergeDeepLinkInfoIntoProperties:(NSDictionary *)properties {
     NSMutableDictionary *deepLinkInfo = [NSMutableDictionary dictionary];
     // 添加 latest utms 属性。用户传入的属性优先级更高。
-    [deepLinkInfo addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
+    [deepLinkInfo addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
     if ([SAValidator isValidDictionary:properties]) {
         [deepLinkInfo addEntriesFromDictionary:properties];
     }
@@ -1956,8 +1942,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (autoTrack) {
         // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
         // 只需要处理全埋点的页面浏览事件
-        [eventProperties addEntriesFromDictionary:[_linkHandler utmProperties]];
-        [_linkHandler clearUtmProperties];
+        [eventProperties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
+        [SAModuleManager.sharedInstance clearUtmProperties];
     }
 
     if ([SAValidator isValidDictionary:properties]) {
@@ -2160,7 +2146,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             NSMutableDictionary *properties = [NSMutableDictionary dictionary];
             properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(YES);
             properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(NO);
-            [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
+            [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
             [self trackAutoEvent:SA_EVENT_NAME_APP_START properties:properties];
         }
     }
@@ -2193,7 +2179,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     _applicationWillResignActive = NO;
 
     // 清除本次启动解析的来源渠道信息
-    [_linkHandler clearUtmProperties];
+    [SAModuleManager.sharedInstance clearUtmProperties];
     
     [self stopFlushTimer];
     
@@ -2493,7 +2479,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 @implementation SensorsAnalyticsSDK (Deeplink)
 
 - (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback {
-    _linkHandler.linkHandlerCallback = callback;
+    SAModuleManager.sharedInstance.linkHandlerCallback = callback;
 }
 
 @end
@@ -2583,7 +2569,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [propertiesDict removeObjectForKey:@"_nocache"];
 
                 // 添加 DeepLink 来源渠道参数。优先级最高，覆盖 H5 传过来的同名字段
-                [propertiesDict addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+                [propertiesDict addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
             }
 
             [eventDict removeObjectForKey:@"_nocache"];

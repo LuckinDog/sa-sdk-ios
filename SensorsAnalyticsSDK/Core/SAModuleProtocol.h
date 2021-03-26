@@ -109,6 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark -
+
 @protocol SAAppPushModuleProtocol <NSObject>
 
 - (void)setLaunchOptions:(NSDictionary *)launchOptions;
@@ -123,6 +125,28 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param obj 控件元素
 /// @return 返回校验结果
 - (BOOL)isGestureVisualView:(id)obj;
+
+@end
+
+#pragma mark -
+
+@protocol SADeeplinkModuleProtocol <NSObject>
+
+/// DeepLink 回调函数
+/// @param linkHandlerCallback  callback 请求成功后的回调函数
+///     - params：创建渠道链接时填写的 App 内参数
+///     - succes：deeplink 唤起结果
+///     - appAwakePassedTime：获取渠道信息所用时间
+- (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback;
+
+/// 最新的来源渠道信息
+@property (nonatomic, copy, nullable, readonly) NSDictionary *latestUtmProperties;
+
+/// 当前 DeepLink 启动时的来源渠道信息
+@property (nonatomic, copy, readonly) NSDictionary *utmProperties;
+
+/// 清除本次 DeepLink 解析到的 utm 信息
+- (void)clearUtmProperties;
 
 @end
 

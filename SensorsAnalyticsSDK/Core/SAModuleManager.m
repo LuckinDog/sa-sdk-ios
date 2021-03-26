@@ -31,6 +31,7 @@ static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSADebugModeModuleName = @"DebugMode";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
+static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAGestureModuleName = @"Gesture";
 
@@ -47,7 +48,9 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
     // 渠道联调诊断功能获取多渠道匹配开关
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSAChannelMatchModuleName];
+    // 初始化 LinkHandler 处理 deepLink 相关操作
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
     
     // 加密
     if (configOptions.enableEncrypt) {
@@ -102,8 +105,6 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     switch (type) {
         case SAModuleTypeLocation:
             return kSALocationModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
         case SAModuleTypeDebugMode:
             return kSADebugModeModuleName;
         case SAModuleTypeEncrypt:
@@ -173,7 +174,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @implementation SAModuleManager (ChannelMatch)
 
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)self.modules[kSAChannelMatchModuleName];
     [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
 }
 
@@ -232,6 +233,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 @end
 
+#pragma mark -
+
 @implementation SAModuleManager (PushClick)
 
 - (void)setLaunchOptions:(NSDictionary *)launchOptions {
@@ -252,6 +255,33 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (BOOL)isGestureVisualView:(id)obj {
     return [self.gestureManager isGestureVisualView:obj];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Deeplink)
+
+- (id<SADeeplinkModuleProtocol>)deeplinkManager {
+    id<SADeeplinkModuleProtocol> manager = (id<SADeeplinkModuleProtocol>)self.modules[kSADeeplinkModuleName];
+    return manager;
+}
+
+- (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback {
+    [self.deeplinkManager setLinkHandlerCallback:linkHandlerCallback];
+}
+
+- (NSDictionary *)latestUtmProperties {
+    return self.deeplinkManager.latestUtmProperties;
+}
+
+- (NSDictionary *)utmProperties {
+    return self.deeplinkManager.utmProperties;
+}
+
+- (void)clearUtmProperties {
+    [self.deeplinkManager clearUtmProperties];
 }
 
 @end

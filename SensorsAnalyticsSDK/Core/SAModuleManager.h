@@ -26,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeDebugMode,
-    SAModuleTypeChannelMatch,
     SAModuleTypeEncrypt,
     SAModuleTypeAppPush,
 };
@@ -79,6 +78,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @interface SAModuleManager (Gesture) <SAGestureModuleProtocol>
 
 @property (nonatomic, strong, readonly) id<SAGestureModuleProtocol> gestureManager;
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
 
 @end
 
