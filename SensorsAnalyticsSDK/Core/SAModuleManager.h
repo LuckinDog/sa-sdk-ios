@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeEncrypt,
+    SAModuleTypeAppPush,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -61,9 +62,22 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @end
 
+@interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Gesture) <SAGestureModuleProtocol>
+
+@property (nonatomic, strong, readonly) id<SAGestureModuleProtocol> gestureManager;
+
+@end
+
 #pragma mark -
 
 @interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
+
 @end
 
 NS_ASSUME_NONNULL_END
