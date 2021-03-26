@@ -57,9 +57,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     [SAModuleManager.sharedInstance handleDebugMode:debugMode];
     
     // 加密
-    if (configOptions.enableEncrypt) {
-        [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
-    }
+    [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
     
     // 手势采集
     if (NSClassFromString(@"SAGestureManager")) {
@@ -114,8 +112,6 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     switch (type) {
         case SAModuleTypeLocation:
             return kSALocationModuleName;
-        case SAModuleTypeEncrypt:
-            return kSAEncryptModuleName;
         default:
             return nil;
     }
@@ -220,7 +216,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @implementation SAModuleManager (Encrypt)
 
 - (id<SAEncryptModuleProtocol>)encryptManager {
-    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeEncrypt];
+    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)self.modules[kSAEncryptModuleName];
     return manager.isEnable ? manager : nil;
 }
 
