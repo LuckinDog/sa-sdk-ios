@@ -26,6 +26,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
+#import "SAViewElementInfoFactory.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
@@ -53,26 +54,8 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementType {
-
-    // 采集弹框类型（UIAlertController、UIActionSheet、UIAlertView）
-    if ([SAAutoTrackUtils isAlertForResponder:self]) {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        UIWindow *window = self.window;
-        if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
-            CGFloat actionHeight = self.bounds.size.height;
-            if (actionHeight > 50) {
-                return NSStringFromClass(UIActionSheet.class);
-            } else {
-                return NSStringFromClass(UIAlertView.class);
-            }
-        } else {
-            return NSStringFromClass(UIAlertController.class);
-        }
-#else
-        return NSStringFromClass(UIAlertController.class);
-#endif
-    }
-    return NSStringFromClass(self.class);
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    return elementInfo.elementType;
 }
 
 - (NSString *)sensorsdata_elementContent {
@@ -95,7 +78,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
             }
         }
 #pragma clang diagnostic pop
-    } else if ([self isKindOfClass:NSClassFromString(@"RCTView")]) { // RCTView RN 元素，https://reactnative.dev
+    } else if ([SAAutoTrackUtils isKindOfRNView:self]) { // RN 元素，https://reactnative.dev
         NSString *content = [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (content.length > 0) {
             [elementContent appendString:content];
@@ -136,7 +119,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self];
 
     // 获取当前 controller 作为 screen_name
-    if ([viewController isKindOfClass:UINavigationController.class] || [viewController isKindOfClass:UIAlertController.class]) {
+    if (!viewController || [viewController isKindOfClass:UINavigationController.class] || [viewController isKindOfClass:UIAlertController.class]) {
         viewController = [SAAutoTrackUtils currentViewController];
     }
     return viewController;
@@ -205,12 +188,10 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 @implementation UIImageView (AutoTrack)
 
 - (NSString *)sensorsdata_elementContent {
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
     NSString *imageName = self.image.sensorsAnalyticsImageName;
     if (imageName.length > 0) {
         return [NSString stringWithFormat:@"%@", imageName];
     }
-#endif
     return super.sensorsdata_elementContent;
 }
 
@@ -504,7 +485,8 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    if ([SAAutoTrackUtils isAlertClickForView:self]) {
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    if (!elementInfo.isSupportElementPosition) {
         return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];

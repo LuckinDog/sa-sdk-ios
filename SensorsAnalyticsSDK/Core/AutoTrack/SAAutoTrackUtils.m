@@ -26,7 +26,7 @@
 #import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+HeatMap.h"
+#import "UIView+SAElementSelector.h"
 #import "UIView+AutoTrack.h"
 #import "SALog.h"
 #import "SAAlertController.h"
@@ -65,14 +65,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return [next isKindOfClass:UIViewController.class] ? (UIViewController *)next : nil;
 }
 
-+ (UIViewController *)findSuperViewControllerByView:(UIView *)view {
-    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:view];
-    if ([viewController isKindOfClass:UINavigationController.class]) {
-        viewController = [SAAutoTrackUtils currentViewController];
-    }
-    return viewController;
-}
-
 + (UIViewController *)currentViewController {
     __block UIViewController *currentViewController = nil;
     void (^ block)(void) = ^{
@@ -84,15 +76,28 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return currentViewController;
 }
 
-+ (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    __block UIViewController *currentViewController = viewController;
-    if (viewController.presentedViewController && ![viewController.presentedViewController isKindOfClass:UIAlertController.class]) {
-        viewController = [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
++ (BOOL)canFindPresentedViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return NO;
     }
+    if ([viewController isKindOfClass:UIAlertController.class]) {
+        return NO;
+    }
+    if ([@"_UIContextMenuActionsOnlyViewController" isEqualToString:NSStringFromClass(viewController.class)]) {
+        return NO;
+    }
+    return YES;
+}
+
++ (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
+    if ([self canFindPresentedViewController:viewController.presentedViewController]) {
+         return [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
+     }
 
     if ([viewController isKindOfClass:[UITabBarController class]]) {
         return [self findCurrentViewControllerFromRootViewController:[(UITabBarController *)viewController selectedViewController] isRoot:NO];
     }
+
     if ([viewController isKindOfClass:[UINavigationController class]]) {
         // 根视图为 UINavigationController
         UIViewController *topViewController = [(UINavigationController *)viewController topViewController];
@@ -103,27 +108,25 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
         if (viewController.childViewControllers.count == 1 && isRoot) {
             return [self findCurrentViewControllerFromRootViewController:viewController.childViewControllers.firstObject isRoot:NO];
         } else {
+            __block UIViewController *currentViewController = viewController;
             //从最上层遍历（逆序），查找正在显示的 UITabBarController 或 UINavigationController 类型的
             // 是否包含 UINavigationController 或 UITabBarController 类全屏显示的 controller
-            __block BOOL isContainController = NO;
             [viewController.childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
                 // 判断 obj.view 是否加载，如果尚未加载，调用 obj.view 会触发 viewDidLoad，可能影响客户业务
                 if (obj.isViewLoaded) {
-                    CGPoint point = [obj.view convertPoint:CGPointMake(0, 0) toView:nil];
+                    CGPoint point = [obj.view convertPoint:CGPointZero toView:nil];
+                    CGSize windowSize = obj.view.window.bounds.size;
                    // 正在全屏显示
-                    BOOL isFullScreenShow = !obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0));
+                    BOOL isFullScreenShow = !obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointZero) && CGSizeEqualToSize(obj.view.bounds.size, windowSize);
                    // 判断类型
                     BOOL isStopFindController = [obj isKindOfClass:UINavigationController.class] || [obj isKindOfClass:UITabBarController.class];
                     if (isFullScreenShow && isStopFindController) {
                         currentViewController = [self findCurrentViewControllerFromRootViewController:obj isRoot:NO];
                         *stop = YES;
-                        isContainController = YES;
                     }
                 }
             }];
-            if (!isContainController) {
-                return viewController;
-            }
+            return currentViewController;
         }
     } else if ([viewController respondsToSelector:NSSelectorFromString(@"contentViewController")]) {
 #pragma clang diagnostic push
@@ -131,40 +134,10 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
         UIViewController *tempViewController = [viewController performSelector:NSSelectorFromString(@"contentViewController")];
 #pragma clang diagnostic pop
         if (tempViewController) {
-            currentViewController = [self findCurrentViewControllerFromRootViewController:tempViewController isRoot:NO];
+            return [self findCurrentViewControllerFromRootViewController:tempViewController isRoot:NO];
         }
     } 
-    return currentViewController;
-}
-
-+ (BOOL)isAlertForResponder:(UIResponder *)responder {
-    do {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        BOOL isUIAlertView = [responder isKindOfClass:UIAlertView.class];
-        BOOL isUIActionSheet = [responder isKindOfClass:UIActionSheet.class];
-#pragma clang diagnostic pop
-
-        BOOL isUIAlertController = [responder isKindOfClass:UIAlertController.class];
-
-        if ([[responder nextResponder] isKindOfClass:SAAlertController.class]) {
-            return NO;
-        }
-        if (isUIAlertController || isUIAlertView || isUIActionSheet) {
-            return YES;
-        }
-    } while ((responder = [responder nextResponder]));
-    return NO;
-}
-
-/// 是否为弹框点击
-+ (BOOL)isAlertClickForView:(UIView *)view {
- #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        if ([NSStringFromClass(view.class) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] || [NSStringFromClass(view.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) { // 标记弹框
-            return YES;
-        }
-#endif
-     return NO;
+    return viewController;
 }
 
 ///  在间隔时间内是否采集 $AppClick 全埋点
@@ -183,6 +156,18 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
         return NO;
     }
     return YES;
+}
+
+// 判断是否为 RN 元素
++ (BOOL)isKindOfRNView:(UIView *)view {
+    NSArray <NSString *> *classNames = @[@"RCTSurfaceView", @"RCTSurfaceHostingView", @"RCTFPSGraph", @"RCTModalHostView", @"RCTView", @"RCTTextView", @"RCTInputAccessoryView", @"RCTInputAccessoryViewContent", @"RNSScreenContainerView", @"RNSScreen", @"RCTVideo"];
+    for (NSString *className in classNames) {
+        Class class = NSClassFromString(className);
+        if (class && [view isKindOfClass:class]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end
@@ -260,16 +245,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 #pragma mark -
 @implementation SAAutoTrackUtils (ViewPath)
-
-+ (BOOL)isIgnoredVisualizedAutoTrackForViewController:(UIViewController *)viewController {
-    if (!viewController) {
-        return NO;
-    }
-    SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
-    BOOL isEnableVisualizedAutoTrack = [sa isVisualizedAutoTrackEnabled] && [sa isVisualizedAutoTrackViewController:viewController];
-    return !isEnableVisualizedAutoTrack;
-}
-
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController {
     SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
 
@@ -319,7 +294,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 /// 获取模糊路径
 + (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath {
-    if ([self isIgnoredVisualizedAutoTrackForViewController:viewController]) {
+    if ([self isIgnoredViewPathForViewController:viewController]) {
         return nil;
     }
 

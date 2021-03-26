@@ -23,11 +23,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SASecretKey;
+@class SAConfigOptions;
+
 @protocol SAModuleProtocol <NSObject>
 
 - (instancetype)init;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@optional
+
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 
@@ -82,6 +89,40 @@ NS_ASSUME_NONNULL_BEGIN
 /// Debug 模式下，弹窗显示错误信息
 /// @param message 错误信息
 - (void)showDebugModeWarning:(NSString *)message;
+
+@end
+
+#pragma mark -
+
+@protocol SAEncryptModuleProtocol <NSObject>
+
+@property (nonatomic, readonly) BOOL hasSecretKey;
+
+/// 用于远程配置回调中处理并保存密钥
+/// @param encryptConfig 返回的
+- (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig;
+
+/// 加密数据
+/// @param obj 需要加密的 JSON 数据
+/// @return 返回加密后的数据
+- (nullable NSDictionary *)encryptJSONObject:(id)obj;
+
+@end
+
+@protocol SAAppPushModuleProtocol <NSObject>
+
+- (void)setLaunchOptions:(NSDictionary *)launchOptions;
+
+@end
+
+#pragma mark -
+
+@protocol SAGestureModuleProtocol <NSObject>
+
+/// 校验可视化全埋点元素能否选中
+/// @param obj 控件元素
+/// @return 返回校验结果
+- (BOOL)isGestureVisualView:(id)obj;
 
 @end
 
