@@ -138,9 +138,7 @@
 
 + (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector, ... {
     Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
-    if (![target forwardingTargetForSelector:selector] && ![originalClass instancesRespondToSelector:selector]) {
-        return;
-    }
+    
     va_list args;
     va_start(args, selector);
     id arg1 = nil, arg2 = nil, arg3 = nil, arg4 = nil;
@@ -156,9 +154,14 @@
         .super_class = originalClass
     };
     // 消息转发给原始类
-    void (*func)(struct objc_super *, SEL, id, id, id, id) = (void *)&objc_msgSendSuper;
-    func(&targetSuper, selector, arg1, arg2, arg3, arg4);
-    va_end(args);
+    @try {
+        void (*func)(struct objc_super *, SEL, id, id, id, id) = (void *)&objc_msgSendSuper;
+        func(&targetSuper, selector, arg1, arg2, arg3, arg4);
+    } @catch (NSException *exception) {
+        SALogInfo(@"msgSendSuper with exception: %@", exception);
+    } @finally {
+        va_end(args);
+    }
 }
 
 + (void)resolveOptionalSelectorsForDelegate:(id)delegate {
