@@ -146,6 +146,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 #endif
 }
 
+// 冷启动时 $AppStart 中需要添加 $deeplink_url 信息，且要保证 $AppDeeplinkLaunch 早于 $AppStart。
+// 因此这里需要提前处理 DeepLink 逻辑
 - (void)acquireColdLaunchDeepLinkInfo {
     // 避免方法被多次调用
     static dispatch_once_t deepLinkToken;
