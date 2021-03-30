@@ -46,11 +46,11 @@
     }
     
     Class proxyClass = [self class];
-    NSMutableSet *delegateSelectors = [NSMutableSet setWithSet:[self selectorsFor:delegate withSelectors:selectors]];
+    NSMutableSet *delegateSelectors = [NSMutableSet setWithSet:selectors];
     
     // 当前代理对象已经处理过
     if ([delegate sensorsdata_className]) {
-        NSMutableSet *currentSelectors = [NSMutableSet setWithSet:((NSObject *)delegate).sensorsdata_selectors];
+        NSMutableSet *currentSelectors = [NSMutableSet setWithSet:[delegate sensorsdata_selectors]];
         if (currentSelectors.count > 0) {
             [delegateSelectors minusSet:currentSelectors];
         }
@@ -61,13 +61,13 @@
         
         [self addInstanceMethodWithSelectors:delegateSelectors fromClass:proxyClass toClass:[SAClassHelper realClassWithObject:delegate]];
         [delegateSelectors unionSet:currentSelectors];
-        ((NSObject *)delegate).sensorsdata_selectors = [delegateSelectors copy];
-        ((NSObject *)delegate).sensorsdata_delegateProxy = self;
+        [delegate setSensorsdata_selectors:[delegateSelectors copy]];
+        [delegate setSensorsdata_delegateProxy:self];
         return;
     }
     
-    ((NSObject *)delegate).sensorsdata_selectors = [delegateSelectors copy];
-    ((NSObject *)delegate).sensorsdata_delegateProxy = self;
+    [delegate setSensorsdata_selectors:[delegateSelectors copy]];
+    [delegate setSensorsdata_delegateProxy:self];
     // KVO 创建子类后会重写 - (Class)class 方法, 直接通过 object.class 无法获取真实的类
     Class realClass = [SAClassHelper realClassWithObject:delegate];
     // 如果当前代理对象归属为 KVO 创建的类, 则无需新建子类
@@ -123,17 +123,6 @@
         SEL sel = NSSelectorFromString(selector);
         [SAMethodHelper addInstanceMethodWithSelector:sel fromClass:fromClass toClass:toClass];
     }
-}
-
-+ (NSSet<NSString *> *)selectorsFor:(id)object withSelectors:(NSSet<NSString *> *)selectors {
-    NSMutableSet<NSString *> *validSelectors = [[NSMutableSet alloc] init];
-    for (NSString *selector in selectors) {
-        SEL aSelector = NSSelectorFromString(selector);
-        if (aSelector && [object respondsToSelector:aSelector]) {
-            [validSelectors addObject:selector];
-        }
-    }
-    return [validSelectors copy];
 }
 
 + (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector, ... {
