@@ -31,6 +31,10 @@
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
 
+    if (delegate == nil) {
+        return;
+    }
+    
     if (self.delegate == nil) {
         return;
     }
@@ -50,6 +54,10 @@
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
+    
+    if (delegate == nil) {
+        return;
+    }
 
     if (self.delegate == nil) {
         return;
