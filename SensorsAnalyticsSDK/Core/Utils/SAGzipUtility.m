@@ -35,26 +35,26 @@
      Special thanks to Robbie Hanson of Deusty Designs for sharing sample code
      showing how deflateInit2() can be used to make zlib generate a compressed
      file with gzip headers:
-
+     
      http://deusty.blogspot.com/2007/07/gzip-compressiondecompression.html
-
+     
      */
-
+    
     if (!pUncompressedData || [pUncompressedData length] == 0) {
         SALogError(@" Error: Can't compress an empty or null NSData object.");
         return nil;
     }
-
+    
     int deflateStatus;
     float buffer = 1.1;
     do {
-
+    
         /* Before we can begin compressing (aka "deflating") data using the zlib
          functions, we must initialize zlib. Normally this is done by calling the
          deflateInit() function; in this case, however, we'll use deflateInit2() so
          that the compressed data will have gzip headers. This will make it easy to
          decompress the data later using a tool like gunzip, WinZip, etc.
-
+         
          deflateInit2() accepts many parameters, the first of which is a C struct of
          type "z_stream" defined in zlib.h. The properties of this struct are used to
          control how the compression algorithms work. z_stream is also used to
@@ -68,10 +68,10 @@
         zlibStreamStruct.total_out = 0; // Total number of output bytes produced so far
         zlibStreamStruct.next_in   = (Bytef *)[pUncompressedData bytes]; // Pointer to input bytes
         zlibStreamStruct.avail_in  = (uInt)[pUncompressedData length]; // Number of input bytes left to process
-
+        
         /* Initialize the zlib deflation (i.e. compression) internals with deflateInit2().
          The parameters are as follows:
-
+         
          z_streamp strm - Pointer to a zstream struct
          int level      - Compression level. Must be Z_DEFAULT_COMPRESSION, or between
          0 and 9: 1 gives best speed, 9 gives best compression, 0 gives
@@ -112,20 +112,20 @@
             SALogError(@"deflateInit2() Error: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
             return nil;
         }
-
+    
         // Create output memory buffer for compressed data. The zlib documentation states that
         // destination buffer size must be at least 0.1% larger than avail_in plus 12 bytes.
         NSMutableData *compressedData = [NSMutableData dataWithLength:[pUncompressedData length] * buffer + 12];
-
+        
         do {
             // Store location where next byte should be put in next_out
             zlibStreamStruct.next_out = [compressedData mutableBytes] + zlibStreamStruct.total_out;
-
+            
             // Calculate the amount of remaining free space in the output buffer
             // by subtracting the number of bytes that have been written so far
             // from the buffer's total capacity
             zlibStreamStruct.avail_out = (uInt)([compressedData length] - zlibStreamStruct.total_out);
-
+            
             /* deflate() compresses as much data as possible, and stops/returns when
              the input buffer becomes empty or the output buffer becomes full. If
              deflate() returns Z_OK, it means that there are more bytes left to
@@ -135,13 +135,13 @@
              end of the input stream was reached (i.e.g, all of the data has been
              compressed) and the loop should stop. */
             deflateStatus = deflate(&zlibStreamStruct, Z_FINISH);
-
+            
         } while ( deflateStatus == Z_OK );
-
+        
         if (deflateStatus == Z_BUF_ERROR && buffer < 32) {
             continue;
         }
-
+        
         // Check for zlib error and convert code to usable error message if appropriate
         if (deflateStatus != Z_STREAM_END) {
             NSString *errorMsg = nil;
@@ -169,21 +169,20 @@
                     break;
             }
             SALogError(@"zlib error while attempting compression: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
-
+            
             // Free data structures that were dynamically created for the stream.
             deflateEnd(&zlibStreamStruct);
-
+            
             return nil;
         }
-
+        
         // Free data structures that were dynamically created for the stream.
         deflateEnd(&zlibStreamStruct);
         [compressedData setLength: zlibStreamStruct.total_out];
-
+        
         return compressedData;
     } while ( false );
     return nil;
 }
 
 @end
-
