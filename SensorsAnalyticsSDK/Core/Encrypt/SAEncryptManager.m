@@ -122,12 +122,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     NSString *ecKey = encryptConfig[@"key_ec"];
     if ([SAValidator isValidString:ecKey] && NSClassFromString(kSAEncryptECCClassName)) {
         // 获取 ECC 密钥
-        NSData *data = [ecKey dataUsingEncoding:NSUTF8StringEncoding];
-        if (!data) {
-            return;
-        }
-
-        NSDictionary *ecKeyDic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        NSDictionary *ecKeyDic = [SAJSONUtil JSONObjectWithString:ecKey];
         if (![SAValidator isValidDictionary:ecKeyDic]) {
             return;
         }

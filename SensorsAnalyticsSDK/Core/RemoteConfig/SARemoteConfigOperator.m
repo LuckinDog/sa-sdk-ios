@@ -84,15 +84,7 @@
         NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
             NSInteger statusCode = response.statusCode;
             BOOL success = statusCode == 200 || statusCode == 304;
-            NSDictionary<NSString *, id> *config = nil;
-            @try{
-                if (statusCode == 200 && data.length) {
-                    config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-                }
-            } @catch (NSException *e) {
-                SALogError(@"【remote config】%@ error: %@", self, e);
-                success = NO;
-            }
+            NSDictionary<NSString *, id> *config = [SAJSONUtil JSONObjectWithData:data];
             
             // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
             dispatch_async(dispatch_get_main_queue(), ^{
