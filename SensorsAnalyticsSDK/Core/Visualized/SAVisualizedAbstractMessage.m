@@ -67,24 +67,31 @@
 }
 
 - (void)setPayloadObject:(id)object forKey:(NSString *)key {
-    _payload[key] = object ?: [NSNull null];
+    _payload[key] = object;
 }
 
 - (id)payloadObjectForKey:(NSString *)key {
     id object = _payload[key];
-    return [object isEqual:[NSNull null]] ? nil : object;
+    return object;
+}
+
+- (void)removePayloadObjectForKey:(NSString *)key {
+    if (!key) {
+        return;
+    }
+    _payload[key] = nil;
 }
 
 - (NSDictionary *)payload {
     return [_payload copy];
 }
 
-- (NSData *)JSONData:(BOOL)useGzip featureCode:(NSString *)featureCode {
+- (NSData *)JSONDataWithFeatureCode:(NSString *)featureCode {
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     jsonObject[@"type"] = _type;
     jsonObject[@"os"] = @"iOS"; // 操作系统类型
     jsonObject[@"lib"] = @"iOS"; // SDK 类型
-
+    
     SAVisualizedObjectSerializerManger *serializerManger = [SAVisualizedObjectSerializerManger sharedInstance];
     @try {
         if ([SAAutoTrackUtils currentViewController]) {
@@ -93,7 +100,7 @@
             jsonObject[@"page_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
-
+        
         if (serializerManger.lastViewScreenController) {
             NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:serializerManger.lastViewScreenController];
             jsonObject[@"page_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
@@ -109,51 +116,43 @@
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
-
+    
     jsonObject[@"app_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
     jsonObject[@"feature_code"] = featureCode;
     jsonObject[@"is_webview"] = @(serializerManger.isContainWebView);
-
+    
     // 添加前端弹框信息
     if (serializerManger.alertInfos.count > 0) {
         jsonObject[@"app_alert_infos"] = [serializerManger.alertInfos copy];
     }
-
+    
     // H5 页面信息
     if (serializerManger.webPageInfo) {
         SAVisualizedWebPageInfo *webPageInfo = serializerManger.webPageInfo;
         jsonObject[@"h5_url"] = webPageInfo.url;
         jsonObject[@"h5_title"] = webPageInfo.title;
     }
-
+    
     // SDK 版本号
     jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;
-
+    
     if (_payload.count == 0) {
         return [SAJSONUtil JSONSerializeObject:jsonObject];
     }
-    if (useGzip) {
-        // 如果使用 GZip 压缩
-        // 1. 序列化 Payload
-        NSData *jsonData = [SAJSONUtil JSONSerializeObject:_payload];
-        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-        // 2. 使用 GZip 进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-
-        // 3. Base64 Encode
-        NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-
-        jsonObject[@"gzip_payload"] = b64String;
-    } else {
-        jsonObject[@"payload"] = [_payload copy];
-    }
-
+    // 如果使用 GZip 压缩
+    // 1. 序列化 Payload
+    NSData *jsonData = [SAJSONUtil JSONSerializeObject:_payload];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    // 2. 使用 GZip 进行压缩
+    NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // 3. Base64 Encode
+    NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+    
+    jsonObject[@"gzip_payload"] = b64String;
+    
     return [SAJSONUtil JSONSerializeObject:jsonObject];
-}
-
-- (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {
-    return nil;
 }
 
 - (NSString *)debugDescription {

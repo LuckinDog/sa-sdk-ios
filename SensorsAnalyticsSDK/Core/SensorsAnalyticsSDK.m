@@ -54,7 +54,6 @@
 #import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
-#import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
@@ -66,6 +65,7 @@
 #import "SAEventStore.h"
 #import "SAHTTPSession.h"
 #import "SANetwork.h"
+#import "SAReachability.h"
 #import "SAEventTracker.h"
 #import "SAScriptMessageHandler.h"
 #import "WKWebView+SABridge.h"
@@ -75,12 +75,11 @@
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
-#import "SAEncryptSecretKeyHandler.h"
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.2.7"
+#define VERSION @"2.5.2"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -194,7 +193,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-@property (nonatomic, strong) SADataEncryptBuilder *encryptBuilder;
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
@@ -220,9 +218,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAPresetProperty *presetProperty;
 
-@property (nonatomic, strong) SAConsoleLogger *consoleLogger;
-
-@property (nonatomic, strong) SAEncryptSecretKeyHandler *secretKeyHandler;
+@property (atomic, strong) SAConsoleLogger *consoleLogger;
 
 @property (nonatomic, strong) SAReferrerManager *referrerManager;
 
@@ -238,8 +234,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SensorsAnalyticsNetworkType _networkTypePolicy;
 }
 
-@synthesize encryptBuilder = _encryptBuilder;
-
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
@@ -250,6 +244,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
     });
 }
 
@@ -271,7 +266,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                  andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     @try {
-        
+
         SAConfigOptions * options = [[SAConfigOptions alloc]initWithServerURL:serverURL launchOptions:launchOptions];
         self = [self initWithConfigOptions:options debugMode:debugMode];
     } @catch(NSException *exception) {
@@ -303,6 +298,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
+            [[SAReachability sharedInstance] startMonitoring];
+            
             _network = [[SANetwork alloc] init];
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
@@ -322,12 +319,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
             _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
             
-            // 加密
-            _secretKeyHandler = [[SAEncryptSecretKeyHandler alloc] initWithConfigOptions:configOptions];
-            if (_configOptions.enableEncrypt) {
-                [self updateEncryptBuilder];
-            }
-            
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
 #endif
@@ -342,9 +333,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 初始化 LinkHandler 处理 deepLink 相关操作
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-
-            // 渠道联调诊断功能获取多渠道匹配开关
-            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -380,7 +368,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             // WKWebView 打通
-            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
+            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
                 [self swizzleWebViewMethod];
             }
         }
@@ -449,13 +437,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)enableLoggers:(BOOL)enableLog {
+- (void)enableLoggers {
     if (!self.consoleLogger) {
         SAConsoleLogger *consoleLogger = [[SAConsoleLogger alloc] init];
         [SALog addLogger:consoleLogger];
         self.consoleLogger = consoleLogger;
     }
-    self.consoleLogger.enableLog = enableLog;
 }
 
 + (UInt64)getCurrentTime {
@@ -918,15 +905,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
     
-    BOOL isWifi = [[SACommonUtility currentNetworkStatus] isEqualToString:@"WIFI"];
+    BOOL isWifi = [SAReachability sharedInstance].isReachableViaWiFi;
     return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
 }
-
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
     if (!url) {
         return NO;
     }
+
+    // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
+    [[SAReachability sharedInstance] startMonitoring];
 
     if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
         //点击图 & 可视化全埋点
@@ -946,10 +935,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self enableLog:YES];
         [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
         [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
-        return YES;
-    } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
-        // 校验加密公钥
-        [self.secretKeyHandler checkSecretKeyURL:url];
         return YES;
     } else if ([_linkHandler canHandleURL:url]) {
         [_linkHandler handleDeepLink:url];
@@ -972,11 +957,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController {
-    if (!viewController) {
+    if (!viewController || !self.configOptions.enableVisualizedAutoTrack) {
         return NO;
     }
 
-    if (_visualizedAutoTrackViewControllers.count == 0 && self.configOptions.enableVisualizedAutoTrack) {
+    if (_visualizedAutoTrackViewControllers.count == 0) {
         return YES;
     }
 
@@ -1040,7 +1025,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         // App 内嵌 H5 数据交互
-        if (self.configOptions.enableVisualizedAutoTrack) {
+        if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
             [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
             if ([SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting) {
                 [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
@@ -1088,11 +1073,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isHeatMapViewController:(UIViewController *)viewController {
-    if (!viewController) {
+    if (!viewController || !self.configOptions.enableHeatMap) {
         return NO;
     }
 
-    if (_heatMapViewControllers.count == 0 && self.configOptions.enableHeatMap) {
+    if (_heatMapViewControllers.count == 0) {
         return YES;
     }
 
@@ -2096,7 +2081,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
-    if (self.configOptions.enableVisualizedAutoTrack) {
+    if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
         [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:controller];
     }
 
@@ -2251,44 +2236,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
                              withMethod:@selector(sa_sendAction:to:from:forEvent:)
                                   error:&error];
-        
-        SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
-        [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-        [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
         if (error) {
             SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
             error = NULL;
         }
+        
+        SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
+        [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+        [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
     });
-    
-    //UILabel
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
-    static dispatch_once_t onceTokenGesture;
-    dispatch_once(&onceTokenGesture, ^{
-
-        NSError *error = NULL;
-        //$AppClick
-        [UITapGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                             withMethod:@selector(sa_addTarget:action:)
-                                  error:&error];
-        
-        [UITapGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                                      withMethod:@selector(sa_initWithTarget:action:)
-                                           error:&error];
-        
-        [UILongPressGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                                      withMethod:@selector(sa_addTarget:action:)
-                                           error:&error];
-        
-        [UILongPressGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                                      withMethod:@selector(sa_initWithTarget:action:)
-                                           error:&error];
-        if (error) {
-            SALogError(@"Failed to swizzle Target on UITapGestureRecognizer. Details: %@", error);
-            error = NULL;
-        }
-    });
-#endif
     
     //React Native
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -2503,8 +2459,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] deleteUser];
 }
 
-- (void)enableLog:(BOOL)enabelLog{
-    [self enableLoggers:enabelLog];
+- (void)enableLog:(BOOL)enableLog {
+    [SALog sharedLog].enableLog = enableLog;
+    if (!enableLog) {
+        return;
+    }
+    [self enableLoggers];
 }
 
 - (void)enableTrackScreenOrientation:(BOOL)enable {
@@ -2548,8 +2508,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)clearKeychainData {
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
-    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationAccount service:kSAService];
-    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 #endif
 
 }
@@ -2563,13 +2521,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     options.currentLibVersion = [self libVersion];
     
     __weak typeof(self) weakSelf = self;
-    options.encryptBuilderCreateResultBlock = ^BOOL{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        return strongSelf.encryptBuilder ? YES : NO;
+    options.createEncryptorResultBlock = ^BOOL{
+        return SAModuleManager.sharedInstance.hasSecretKey;
     };
     options.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf handleEncryptWithConfig:encryptConfig];
+        [SAModuleManager.sharedInstance handleEncryptWithConfig:encryptConfig];
     };
     options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -2655,44 +2611,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [newUserAgent appendString:self.addWebViewUserAgent];
     self.userAgent = newUserAgent;
     [SACommonUtility saveUserAgent:self.userAgent];
-}
-
-#pragma mark - SecretKey
-
-- (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
-    if (encryptConfig) {
-        SASecretKey *secretKey = [[SASecretKey alloc] init];
-        secretKey.version = [encryptConfig[@"pkv"] integerValue];
-        secretKey.key = encryptConfig[@"public_key"];
-                                    
-        // 存储公钥
-        [self.secretKeyHandler saveSecretKey:secretKey];
-        
-        // 更新加密构造器
-        [self updateEncryptBuilder];
-    }
-}
-
-- (void)updateEncryptBuilder {
-    // 获取公钥
-    SASecretKey *secretKey = [self.secretKeyHandler loadSecretKey];
-    if (secretKey.key.length > 0) {
-        self.encryptBuilder = [[SADataEncryptBuilder alloc] initWithRSAPublicKey:secretKey];
-    }
-}
-
-#pragma mark – Getters and Setters
-
-- (void)setEncryptBuilder:(SADataEncryptBuilder *)encryptBuilder {
-    [self.readWriteLock writeWithBlock:^{
-        self->_encryptBuilder = encryptBuilder;
-    }];
-}
-
-- (SADataEncryptBuilder *)encryptBuilder {
-    return [self.readWriteLock readWithBlock:^id _Nonnull{
-        return self->_encryptBuilder;
-    }];
 }
 
 @end
@@ -2976,6 +2894,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
         [sharedInstance initRemoteConfigManager];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
     });
     return sharedInstance;
 }
@@ -2988,6 +2907,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
     });
     return sharedInstance;
 }
@@ -3103,6 +3023,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)enableHeatMap {
     self.configOptions.enableHeatMap = YES;
+
+    // 开启 WKWebView 和 js 的数据交互
+    [self swizzleWebViewMethod];
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {

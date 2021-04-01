@@ -26,7 +26,7 @@
 #import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+HeatMap.h"
+#import "UIView+SAElementSelector.h"
 #import "UIView+AutoTrack.h"
 #import "SALog.h"
 #import "SAAlertController.h"
@@ -76,8 +76,21 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return currentViewController;
 }
 
++ (BOOL)canFindPresentedViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return NO;
+    }
+    if ([viewController isKindOfClass:UIAlertController.class]) {
+        return NO;
+    }
+    if ([@"_UIContextMenuActionsOnlyViewController" isEqualToString:NSStringFromClass(viewController.class)]) {
+        return NO;
+    }
+    return YES;
+}
+
 + (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    if (viewController.presentedViewController && ![viewController.presentedViewController isKindOfClass:UIAlertController.class]) {
+    if ([self canFindPresentedViewController:viewController.presentedViewController]) {
          return [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
      }
 
@@ -127,36 +140,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return viewController;
 }
 
-+ (BOOL)isAlertForResponder:(UIResponder *)responder {
-    do {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        BOOL isUIAlertView = [responder isKindOfClass:UIAlertView.class];
-        BOOL isUIActionSheet = [responder isKindOfClass:UIActionSheet.class];
-#pragma clang diagnostic pop
-
-        BOOL isUIAlertController = [responder isKindOfClass:UIAlertController.class];
-
-        if ([[responder nextResponder] isKindOfClass:SAAlertController.class]) {
-            return NO;
-        }
-        if (isUIAlertController || isUIAlertView || isUIActionSheet) {
-            return YES;
-        }
-    } while ((responder = [responder nextResponder]));
-    return NO;
-}
-
-/// 是否为弹框点击
-+ (BOOL)isAlertClickForView:(UIView *)view {
- #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        if ([NSStringFromClass(view.class) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] || [NSStringFromClass(view.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) { // 标记弹框
-            return YES;
-        }
-#endif
-     return NO;
-}
-
 ///  在间隔时间内是否采集 $AppClick 全埋点
 + (BOOL)isValidAppClickForObject:(id<SAAutoTrackViewProperty>)object {
     if (!object) {
@@ -173,6 +156,18 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
         return NO;
     }
     return YES;
+}
+
+// 判断是否为 RN 元素
++ (BOOL)isKindOfRNView:(UIView *)view {
+    NSArray <NSString *> *classNames = @[@"RCTSurfaceView", @"RCTSurfaceHostingView", @"RCTFPSGraph", @"RCTModalHostView", @"RCTView", @"RCTTextView", @"RCTInputAccessoryView", @"RCTInputAccessoryViewContent", @"RNSScreenContainerView", @"RNSScreen", @"RCTVideo"];
+    for (NSString *className in classNames) {
+        Class class = NSClassFromString(className);
+        if (class && [view isKindOfClass:class]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end
@@ -250,16 +245,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 #pragma mark -
 @implementation SAAutoTrackUtils (ViewPath)
-
-+ (BOOL)isIgnoredVisualizedAutoTrackForViewController:(UIViewController *)viewController {
-    if (!viewController) {
-        return NO;
-    }
-    SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
-    BOOL isEnableVisualizedAutoTrack = [sa isVisualizedAutoTrackEnabled] && [sa isVisualizedAutoTrackViewController:viewController];
-    return !isEnableVisualizedAutoTrack;
-}
-
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController {
     SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
 
@@ -309,7 +294,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 /// 获取模糊路径
 + (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath {
-    if ([self isIgnoredVisualizedAutoTrackForViewController:viewController]) {
+    if ([self isIgnoredViewPathForViewController:viewController]) {
         return nil;
     }
 

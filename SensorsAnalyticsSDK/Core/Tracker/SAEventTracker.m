@@ -31,9 +31,9 @@
 #import "SAJSONUtil.h"
 #import "SALog.h"
 #import "SAObject+SAConfigOptions.h"
-#import "SACommonUtility.h"
+#import "SAReachability.h"
 #import "SAConstants+Private.h"
-#import "SADataEncryptBuilder.h"
+#import "SAModuleManager.h"
 
 @interface SAEventTracker ()
 
@@ -66,11 +66,9 @@
 
 - (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp {
     SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
-    // 加密
-    if (self.enableEncrypt) {
-        NSDictionary *obj = [self.encryptBuilder encryptionJSONObject:record.event];
-        [record setSecretObject:obj];
-    }
+    // 尝试加密
+    NSDictionary *obj = [SAModuleManager.sharedInstance encryptJSONObject:record.event];
+    [record setSecretObject:obj];
 
     [self.eventStore insertRecord:record];
 
@@ -89,14 +87,14 @@
         return NO;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
-    if (!([SACommonUtility currentNetworkType] & self.networkTypePolicy)) {
+    if (!([SANetwork networkTypeOptions] & self.networkTypePolicy)) {
         return NO;
     }
     return YES;
 }
 
 - (NSArray<SAEventRecord *> *)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
-    if (!self.enableEncrypt) {
+    if (!SAModuleManager.sharedInstance.encryptManager) {
         return records;
     }
     NSMutableArray *encryptRecords = [NSMutableArray arrayWithCapacity:records.count];
@@ -105,7 +103,7 @@
             [encryptRecords addObject:record];
         } else {
             // 缓存数据未加密，再加密
-            NSDictionary *obj = [self.encryptBuilder encryptionJSONObject:record.event];
+            NSDictionary *obj = [SAModuleManager.sharedInstance encryptJSONObject:record.event];
             if (obj) {
                 [record setSecretObject:obj];
                 [encryptRecords addObject:record];
@@ -132,7 +130,7 @@
         return NO;
     }
 
-    // 加密
+    // 尝试加密
     NSArray<SAEventRecord *> *encryptRecords = [self encryptEventRecords:records];
 
     // 获取查询到的数据的 id
