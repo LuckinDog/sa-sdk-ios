@@ -56,9 +56,6 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         // 设置需要解析的预置属性名
         _presetUtms = [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
         _utms = [NSMutableDictionary dictionary];
-
-        [self filterInvalidSourceChannnels];
-        [self unarchiveSavedDeepLinkInfo];
     }
     return self;
 }
@@ -66,15 +63,17 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
     _configOptions = configOptions;
 
-    [self handleLaunchOptions:_configOptions.launchOptions];
+    [self filterValidSourceChannnels:configOptions.sourceChannels];
+    [self unarchiveSavedDeepLinkInfo:configOptions.enableSaveDeepLinkInfo];
+    [self handleLaunchOptions:configOptions.launchOptions];
     [self acquireColdLaunchDeepLinkInfo];
 }
 
-- (void)filterInvalidSourceChannnels {
+- (void)filterValidSourceChannnels:(NSArray *)sourceChannels {
     NSSet *reservedPropertyName = sensorsdata_reserved_properties();
     NSMutableSet *set = [[NSMutableSet alloc] init];
     // 将用户自定义属性中与 SDK 保留字段相同的字段过滤掉
-    for (NSString *name in _configOptions.sourceChannels) {
+    for (NSString *name in sourceChannels) {
         if (![reservedPropertyName containsObject:name]) {
             [set addObject:name];
         } else {
@@ -85,8 +84,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     _sourceChannels = set;
 }
 
-- (void)unarchiveSavedDeepLinkInfo {
-    if (!_configOptions.enableSaveDeepLinkInfo) {
+- (void)unarchiveSavedDeepLinkInfo:(BOOL)enableSave {
+    if (!enableSave) {
         [SAFileStore archiveWithFileName:kSavedDeepLinkInfoFileName value:nil];
         return;
     }
