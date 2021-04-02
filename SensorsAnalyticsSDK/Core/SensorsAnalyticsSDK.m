@@ -1510,8 +1510,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:trackEventDic];
         SALogDebug(@"\n【track event】:\n%@", trackEventDic);
-        BOOL isForceFlush = [type isEqualToString:kSAEventTypeSignup] || [event isEqualToString:SA_EVENT_NAME_APP_START];
-        [self.eventTracker trackEvent:trackEventDic isForceFlush:isForceFlush];
+
+        [self.eventTracker trackEvent:trackEventDic isSignUp:[type isEqualToString:@"track_signup"]];
     });
 }
 
@@ -2807,7 +2807,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     [self.identifier login:newLoginId];
                     enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
                     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
-                    [self.eventTracker trackEvent:enqueueEvent isForceFlush:YES];
+                    [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
                     SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
                     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
                 }

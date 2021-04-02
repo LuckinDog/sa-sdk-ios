@@ -61,10 +61,10 @@
 }
 
 - (void)trackEvent:(NSDictionary *)event {
-    [self trackEvent:event isForceFlush:NO];
+    [self trackEvent:event isSignUp:NO];
 }
 
-- (void)trackEvent:(NSDictionary *)event isForceFlush:(BOOL)isForceFlush {
+- (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp {
     SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
     // 尝试加密
     NSDictionary *obj = [SAModuleManager.sharedInstance encryptJSONObject:record.event];
@@ -73,7 +73,7 @@
     [self.eventStore insertRecord:record];
 
     // $SignUp 事件或者本地缓存的数据是超过 flushBulkSize
-    if (isForceFlush || self.eventStore.count > self.flushBulkSize || self.isDebugMode) {
+    if (isSignUp || self.eventStore.count > self.flushBulkSize || self.isDebugMode) {
         // 添加异步队列任务，保证数据继续入库
         dispatch_async(self.queue, ^{
             [self flushAllEventRecords];

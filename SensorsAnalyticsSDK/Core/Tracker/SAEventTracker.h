@@ -38,7 +38,7 @@ extern NSUInteger const SAEventFlushRecordSize;
 - (instancetype)initWithQueue:(dispatch_queue_t)queue;
 
 - (void)trackEvent:(NSDictionary *)event;
-- (void)trackEvent:(NSDictionary *)event isForceFlush:(BOOL)isForceFlush;
+- (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp;
 
 - (void)flushAllEventRecords;
 
