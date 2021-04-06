@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)configDetailWithEvent:(NSString *)event properties:(NSDictionary *)properties;
 
+- (NSString *)obtainValidLibMethod:(NSString *)libMethod;
+
 @end
 
 NS_ASSUME_NONNULL_END

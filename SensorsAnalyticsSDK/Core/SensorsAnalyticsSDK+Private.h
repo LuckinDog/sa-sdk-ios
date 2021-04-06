@@ -67,6 +67,8 @@
 
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
 
+- (BOOL)isValidName:(NSString *)name;
+
 
 /**
  根据 viewController 判断，是否采集事件

@@ -26,9 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAEventObject : NSObject
 
 @property (nonatomic, copy) NSString *event;
-@property (nonatomic, strong) NSDictionary *properties;
+@property (nonatomic, strong) NSMutableDictionary *properties;
 @property (nonatomic, strong) SAEventLibObject *libObject;
 
+@property (nonatomic, copy) NSString *type;
 @property (nonatomic, copy) NSString *anonymousID;
 @property (nonatomic, copy) NSString *distinctID;
 
@@ -38,11 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SACustomEventObject : SAEventObject
+@interface SASignUpEventObject : SAEventObject
 
 @end
 
-@interface SASignUpEventObject : SAEventObject
+@interface SACustomEventObject : SAEventObject
+
+@property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
 @end
 
