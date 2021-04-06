@@ -31,13 +31,10 @@
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
 
-    if (delegate == nil) {
+    if (!delegate || !self.delegate) {
         return;
     }
     
-    if (self.delegate == nil) {
-        return;
-    }
     // 判断是否忽略 $AppClick 事件采集
     if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
@@ -55,13 +52,10 @@
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
     
-    if (delegate == nil) {
+    if (!delegate || !self.delegate) {
         return;
     }
-
-    if (self.delegate == nil) {
-        return;
-    }
+    
     // 判断是否忽略 $AppClick 事件采集
     if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
