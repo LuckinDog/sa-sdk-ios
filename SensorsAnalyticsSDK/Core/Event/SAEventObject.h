@@ -29,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSDictionary *properties;
 @property (nonatomic, strong) SAEventLibObject *libObject;
 
+@property (nonatomic, copy) NSString *anonymousID;
+@property (nonatomic, copy) NSString *distinctID;
+
 - (instancetype)initWithEvent:(NSString *)event properties:(NSDictionary *)properties;
 
 - (NSDictionary *)generateJSONObject;
