@@ -18,20 +18,21 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "SAEventBuildStrategy.h"
 #import "SAEventLibObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAEventObject : NSObject
+@interface SAEventObject : SAEventBuildStrategy
 
 @property (nonatomic, copy) NSString *event;
-@property (nonatomic, strong) NSMutableDictionary *properties;
 @property (nonatomic, strong) SAEventLibObject *libObject;
 
 @property (nonatomic, copy) NSString *type;
 @property (nonatomic, copy) NSString *anonymousID;
 @property (nonatomic, copy) NSString *distinctID;
+@property (nonatomic, assign) UInt64 currentSystemUpTime;
+@property (nonatomic, assign) UInt64 timeStamp;
 
 - (instancetype)initWithEvent:(NSString *)event properties:(NSDictionary *)properties;
 

@@ -24,6 +24,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventBuildStrategy : NSObject
 
+@property (nonatomic, strong) NSMutableDictionary *properties;
+
+- (void)addDeeplinkProperties;
+
+- (void)addPresetProperties;
+
+- (void)addSuperProperties;
+
+- (void)addDynamicProperties;
+
+
 @end
 
 NS_ASSUME_NONNULL_END

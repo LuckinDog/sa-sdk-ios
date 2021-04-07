@@ -76,12 +76,24 @@
 
 - (instancetype)initWithEvent:(NSString *)event properties:(NSDictionary *)properties {
     if (self = [super initWithEvent:event properties:properties]) {
-        NSString *libMethod = [self.libObject obtainValidLibMethod:self.properties[SAEventPresetPropertyLibMethod]];
-        self.properties[SAEventPresetPropertyLibMethod] = libMethod;
-        self.libObject.method = libMethod;
         self.type = kSAEventTypeSignup;
     }
     return self;
+}
+
+- (NSDictionary *)generateJSONObject {
+    [self addDeeplinkProperties];
+    
+    NSString *libMethod = [self.libObject obtainValidLibMethod:self.properties[SAEventPresetPropertyLibMethod]];
+    self.properties[SAEventPresetPropertyLibMethod] = libMethod;
+    self.libObject.method = libMethod;
+    self.properties[SA_EVENT_LIB] = [self.libObject generateJSONObject];
+    
+    [self addPresetProperties];
+    [self addSuperProperties];
+    [self addDynamicProperties];
+    
+    return [self.properties copy];
 }
 
 @end
@@ -93,7 +105,7 @@
         if (![self isValidNameForTrackEvent:event]) {
             return nil;
         }
-        
+        [self addDeeplinkProperties];
         NSSet *presetEventNames = [NSSet setWithObjects:
                                    SA_EVENT_NAME_APP_START,
                                    SA_EVENT_NAME_APP_START_PASSIVELY ,
@@ -125,7 +137,6 @@
         self.properties[SAEventPresetPropertyLibMethod] = libMethod;
         self.libObject.method = libMethod;
         self.type = kSAEventTypeTrack;
-        
     }
     return self;
 }
@@ -143,7 +154,7 @@
         if (![self isValidNameForTrackEvent:event]) {
             return nil;
         }
-        
+        [self addDeeplinkProperties];
         self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
         self.libObject.method = kSALibMethodAuto;
         self.type = kSAEventTypeTrack;
@@ -160,7 +171,7 @@
         if (![self isValidNameForTrackEvent:event]) {
             return nil;
         }
-        
+        [self addDeeplinkProperties];
         NSString *libMethod = [self.libObject obtainValidLibMethod:self.properties[SAEventPresetPropertyLibMethod]];
         self.properties[SAEventPresetPropertyLibMethod] = libMethod;
         self.libObject.method = libMethod;

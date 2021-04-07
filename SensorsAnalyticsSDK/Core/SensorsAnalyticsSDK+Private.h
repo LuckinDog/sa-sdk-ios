@@ -69,6 +69,8 @@
 
 - (BOOL)isValidName:(NSString *)name;
 
+- (NSDictionary *)latestUtmProperties;
+
 
 /**
  根据 viewController 判断，是否采集事件

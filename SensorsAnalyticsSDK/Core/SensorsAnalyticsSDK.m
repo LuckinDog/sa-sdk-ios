@@ -78,6 +78,7 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
+#import "SAEventObject.h"
 
 #define VERSION @"2.5.2"
 
@@ -1220,6 +1221,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
     return YES;
+}
+
+- (NSDictionary *)latestUtmProperties {
+    return [_linkHandler latestUtmProperties];
 }
 
 - (NSMutableDictionary *)mergeDeepLinkInfoIntoProperties:(NSDictionary *)properties {
