@@ -371,6 +371,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
                 [self swizzleWebViewMethod];
             }
+            
+            if (_configOptions.enableTrackPush) {
+                [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeAppPush];
+                [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
+            }
         }
         
     } @catch(NSException *exception) {
@@ -2247,6 +2252,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         
         SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
         [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+        [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
     });
     
