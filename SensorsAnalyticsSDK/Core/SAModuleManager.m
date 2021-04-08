@@ -32,6 +32,7 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAGestureModuleName = @"Gesture";
+static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @interface SAModuleManager ()
 
@@ -57,6 +58,9 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     if (NSClassFromString(@"SAGestureManager")) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
     }
+
+    // 全埋点
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
 }
 
 + (instancetype)sharedInstance {
@@ -107,6 +111,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
             return kSAEncryptModuleName;
         case SAModuleTypeAppPush:
             return kSANotificationModuleName;
+        case SAModuleTypeAutoTrack:
+            return kSAAutoTrackModuleName;
         default:
             return nil;
     }
@@ -220,5 +226,11 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 - (BOOL)isGestureVisualView:(id)obj {
     return [self.gestureManager isGestureVisualView:obj];
 }
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (AutoTrack)
 
 @end

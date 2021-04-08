@@ -34,6 +34,10 @@
 #import "SensorsAnalyticsSDK+WebView.h"
 #endif
 
+#if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
+#import "SensorsAnalyticsSDK+SAAutoTrack.h"
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**

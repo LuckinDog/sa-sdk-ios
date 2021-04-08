@@ -28,6 +28,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeChannelMatch,
     SAModuleTypeEncrypt,
     SAModuleTypeAppPush,
+    SAModuleTypeAutoTrack,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -36,8 +37,14 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 + (instancetype)sharedInstance;
 
+/// 通过模块类型获取模块的管理类
+/// @param type 模块类型
+/// @return 模块管理类
 - (nullable id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type;
 
+/// 开启或关闭某种类型的模块
+/// @param enable 开启或者关闭
+/// @param type 模块类型
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
 
 @end
@@ -72,6 +79,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @interface SAModuleManager (Gesture) <SAGestureModuleProtocol>
 
 @property (nonatomic, strong, readonly) id<SAGestureModuleProtocol> gestureManager;
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (AutoTrack) <SAAutoTrackModuleProtocol>
 
 @end
 
