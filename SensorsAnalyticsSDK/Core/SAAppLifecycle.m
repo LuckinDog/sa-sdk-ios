@@ -43,8 +43,8 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     if (self) {
         _state = SAAppLifecycleStateInit;
 
-        [self setupLaunchedState];
         [self setupListeners];
+        [self setupLaunchedState];
     }
     return self;
 }

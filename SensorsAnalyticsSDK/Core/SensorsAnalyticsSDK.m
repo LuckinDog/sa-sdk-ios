@@ -348,8 +348,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
 
-            _appLifecycle = [[SAAppLifecycle alloc] init];
             [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
+            _appLifecycle = [[SAAppLifecycle alloc] init];
 
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
