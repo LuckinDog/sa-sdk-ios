@@ -29,6 +29,7 @@
 #import "SAFileStore.h"
 #import "SAConstants+Private.h"
 #import "SALog.h"
+#import "SAModuleManager.h"
 
 @implementation SAEventObject
 
@@ -52,18 +53,18 @@
     if (eventName == nil || [eventName length] == 0) {
         NSString *errMsg = @"Event name should not be empty or nil";
         SALogError(@"%@", errMsg);
-        SensorsAnalyticsDebugMode debugMode = SensorsAnalyticsSDK.sharedInstance.debugMode;
+        SensorsAnalyticsDebugMode debugMode = SAModuleManager.sharedInstance.debugMode;
         if (debugMode != SensorsAnalyticsDebugOff) {
-            [SensorsAnalyticsSDK.sharedInstance showDebugModeWarning:errMsg withNoMoreButton:YES];
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
         }
         return NO;
     }
     if (![SensorsAnalyticsSDK.sharedInstance isValidName:eventName]) {
         NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
         SALogError(@"%@", errMsg);
-        SensorsAnalyticsDebugMode debugMode = SensorsAnalyticsSDK.sharedInstance.debugMode;
+        SensorsAnalyticsDebugMode debugMode = SAModuleManager.sharedInstance.debugMode;
         if (debugMode != SensorsAnalyticsDebugOff) {
-            [SensorsAnalyticsSDK.sharedInstance showDebugModeWarning:errMsg withNoMoreButton:YES];
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
         }
         return NO;
     }

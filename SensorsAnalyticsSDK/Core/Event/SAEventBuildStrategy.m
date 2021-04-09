@@ -23,8 +23,8 @@
 #endif
 
 #import "SAEventBuildStrategy.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAValidator.h"
+#import "SAModuleManager.h"
 
 @implementation SAEventBuildStrategy
 
@@ -33,7 +33,7 @@
     if ([SAValidator isValidDictionary:currentProperties]) {
         // 添加 latest utms 属性。用户传入的属性优先级更高。
         NSMutableDictionary *deepLinkInfo = [NSMutableDictionary dictionary];
-        [deepLinkInfo addEntriesFromDictionary:[SensorsAnalyticsSDK.sharedInstance latestUtmProperties]];
+        [deepLinkInfo addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
         [deepLinkInfo addEntriesFromDictionary:currentProperties];
         self.properties = [deepLinkInfo mutableCopy];
     }

@@ -1,8 +1,8 @@
 //
-// NSObject+SACellClick.h
+// SADebugModeManager.h
 // SensorsAnalyticsSDK
 //
-// Created by yuqiang on 2020/11/5.
+// Created by 张敏超🍎 on 2020/11/20.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,22 +18,19 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import <Foundation/Foundation.h>
+#import "SAModuleProtocol.h"
+#import "SAConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSObject (SACellClick)
+@interface SADebugModeManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SADebugModeModuleProtocol>
 
-/// 用于记录创建子类时的原始父类名称
-@property (nonatomic, copy, nullable) NSString *sensorsdata_className;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
-/// 注册一个操作,在对象释放时调用; 重复调用该方法时,只有第一次调用时的 block 生效
-/// @param deallocBlock 操作
-- (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock;
+@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
+
+@property (nonatomic) BOOL showDebugAlertView;
 
 @end
 
