@@ -27,15 +27,21 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeChannelMatch,
     SAModuleTypeEncrypt,
+    SAModuleTypeReactNative,
     SAModuleTypeAppPush,
     SAModuleTypeAutoTrack,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
 
-+ (void)startWithConfigOptions:(SAConfigOptions *)configOptions;
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 + (instancetype)sharedInstance;
+
+/// 当前 SDK 中是否包含特定类型的模块
+/// @param type 需要判断的模块类型
+/// @return 是否包含
+- (BOOL)contains:(SAModuleType)type;
 
 /// 通过模块类型获取模块的管理类
 /// @param type 模块类型
@@ -64,11 +70,19 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 #pragma mark -
 
+@interface SAModuleManager (DebugMode) <SADebugModeModuleProtocol>
+
+@end
+
+#pragma mark -
+
 @interface SAModuleManager (Encrypt) <SAEncryptModuleProtocol>
 
 @property (nonatomic, strong, readonly) id<SAEncryptModuleProtocol> encryptManager;
 
 @end
+
+#pragma mark -
 
 @interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
 
@@ -79,6 +93,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @interface SAModuleManager (Gesture) <SAGestureModuleProtocol>
 
 @property (nonatomic, strong, readonly) id<SAGestureModuleProtocol> gestureManager;
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
 
 @end
 
