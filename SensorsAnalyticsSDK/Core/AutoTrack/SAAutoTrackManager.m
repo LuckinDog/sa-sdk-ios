@@ -30,12 +30,13 @@
 #import "SAModuleManager.h"
 #import "SAAppLifecycle.h"
 #import "SAConstants+Private.h"
-#import "SAConfigOptions.h"
 #import "SALog.h"
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SASwizzle.h"
 #import "NSObject+DelegateProxy.h"
+#import "SAAutoTrackUtils.h"
+#import <objc/runtime.h>
 
 @interface SAAutoTrackManager ()
 

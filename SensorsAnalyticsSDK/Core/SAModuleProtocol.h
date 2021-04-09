@@ -107,6 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark -
 
 @protocol SAAutoTrackModuleProtocol <NSObject>
+
 @end
 
 NS_ASSUME_NONNULL_END
