@@ -67,7 +67,9 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
     }
 
     // 全埋点
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+    if (configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+    }
 }
 
 + (instancetype)sharedInstance {
@@ -126,10 +128,6 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
     switch (type) {
         case SAModuleTypeLocation:
             return kSALocationModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
-        case SAModuleTypeEncrypt:
-            return kSAEncryptModuleName;
         case SAModuleTypeReactNative:
             return kSAReactNativeModuleName;
         case SAModuleTypeAppPush:
