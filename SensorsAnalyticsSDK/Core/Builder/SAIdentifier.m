@@ -134,9 +134,16 @@
     Class cla = NSClassFromString(@"SAIDFAHelper");
     SEL sel = NSSelectorFromString(@"idfa");
     if ([cla respondsToSelector:sel]) {
-        return ((NSString * (*)(id, SEL))[cla methodForSelector:sel])(cla, sel);
+        NSString * (*idfaIMP)(id, SEL) = (NSString * (*)(id, SEL))[cla methodForSelector:sel];
+        if (idfaIMP) {
+            return idfaIMP(cla, sel);
+        }
     }
     return nil;
+}
+
++ (NSString *)idfv {
+    return [UIDevice currentDevice].identifierForVendor.UUIDString;;
 }
 
 + (NSString *)uniqueHardwareId {
@@ -144,7 +151,7 @@
 
     // 没有IDFA，则使用IDFV
     if (!distinctId) {
-        distinctId = [UIDevice currentDevice].identifierForVendor.UUIDString;
+        distinctId = [self idfv];
     }
 
     // 没有IDFV，则使用UUID

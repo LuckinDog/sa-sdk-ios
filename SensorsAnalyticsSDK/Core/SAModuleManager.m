@@ -31,6 +31,8 @@ static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSAReactNativeModuleName = @"ReactNative";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
+static NSString * const kSANotificationModuleName = @"AppPush";
+static NSString * const kSAGestureModuleName = @"Gesture";
 
 @interface SAModuleManager ()
 
@@ -50,6 +52,11 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
     // 加密
     if (configOptions.enableEncrypt) {
         [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
+    }
+    
+    // 手势采集
+    if (NSClassFromString(@"SAGestureManager")) {
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
     }
 }
 
@@ -75,6 +82,8 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
             return kSAChannelMatchModuleName;
         case SAModuleTypeEncrypt:
             return kSAEncryptModuleName;
+        case SAModuleTypeAppPush:
+            return kSANotificationModuleName;
         default:
             return nil;
     }
@@ -203,6 +212,30 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 
 - (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
     [self.encryptManager handleEncryptWithConfig:encryptConfig];
+}
+
+@end
+
+@implementation SAModuleManager (PushClick)
+
+- (void)setLaunchOptions:(NSDictionary *)launchOptions {
+    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)[[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeAppPush];
+    [manager setLaunchOptions:launchOptions];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Gesture)
+
+- (id<SAGestureModuleProtocol>)gestureManager {
+    id<SAGestureModuleProtocol, SAModuleProtocol> manager = (id<SAGestureModuleProtocol, SAModuleProtocol>)self.modules[kSAGestureModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
+- (BOOL)isGestureVisualView:(id)obj {
+    return [self.gestureManager isGestureVisualView:obj];
 }
 
 @end
