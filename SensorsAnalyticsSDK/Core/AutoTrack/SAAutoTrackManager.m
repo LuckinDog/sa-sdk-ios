@@ -25,8 +25,6 @@
 #import "SAAutoTrackManager.h"
 #import "SAConfigOptions.h"
 #import "SARemoteConfigManager.h"
-#import "SensorsAnalyticsSDK+Public.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAModuleManager.h"
 #import "SAAppLifecycle.h"
 #import "SAConstants+Private.h"
@@ -120,26 +118,34 @@
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
-    if (![self isAutoTrackEnabled]) {
-        return;
-    }
+    BOOL isIgnoreAppStart = [self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
+    BOOL isIgnoreAppEnd = [self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
 
     if (oldState == SAAppLifecycleStateInit) {
         // 触发冷启动事件或被动启动
-        if (newState == SAAppLifecycleStateStartPassively) {
-            [self.appStartTracker trackAppStartPassively];
-        } else {
-            [self.appStartTracker trackAppStartWithRelauch:NO];
+        if (!isIgnoreAppStart) {
+            if (newState == SAAppLifecycleStateStartPassively) {
+                [self.appStartTracker trackAppStartPassively];
+            } else {
+                [self.appStartTracker trackAppStartWithRelauch:NO];
+            }
         }
 
+        // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
     } else if (newState == SAAppLifecycleStateStart) {
         // 触发热启动
-        [self.appStartTracker trackAppStartWithRelauch:YES];
+        if (!isIgnoreAppStart) {
+            [self.appStartTracker trackAppStartWithRelauch:YES];
+        }
+
+        // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
     } else if (newState == SAAppLifecycleStateEnd) {
         // 触发退出事件
-        [self.appEndTracker trackAppEnd];
+        if (!isIgnoreAppEnd) {
+            [self.appEndTracker trackAppEnd];
+        }
     }
 }
 
