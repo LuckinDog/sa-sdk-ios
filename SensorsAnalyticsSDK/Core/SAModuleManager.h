@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
+    SAModuleTypeAppPush,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -63,6 +64,10 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @interface SAModuleManager (Encrypt) <SAEncryptModuleProtocol>
 
 @property (nonatomic, strong, readonly) id<SAEncryptModuleProtocol> encryptManager;
+
+@end
+
+@interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
 
 @end
 

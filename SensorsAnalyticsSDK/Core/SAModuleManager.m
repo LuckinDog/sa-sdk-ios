@@ -32,7 +32,11 @@ static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSADebugModeModuleName = @"DebugMode";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
+<<<<<<< HEAD
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
+=======
+static NSString * const kSANotificationModuleName = @"AppPush";
+>>>>>>> 1a29ab2610f5f1f39de1a36b3afa8f284b9a6082
 static NSString * const kSAGestureModuleName = @"Gesture";
 
 @interface SAModuleManager ()
@@ -106,6 +110,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     switch (type) {
         case SAModuleTypeLocation:
             return kSALocationModuleName;
+        case SAModuleTypeAppPush:
+            return kSANotificationModuleName;
         default:
             return nil;
     }
@@ -224,6 +230,15 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
     [self.encryptManager handleEncryptWithConfig:encryptConfig];
+}
+
+@end
+
+@implementation SAModuleManager (PushClick)
+
+- (void)setLaunchOptions:(NSDictionary *)launchOptions {
+    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)[[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeAppPush];
+    [manager setLaunchOptions:launchOptions];
 }
 
 @end
