@@ -84,6 +84,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
             return kSALocationModuleName;
         case SAModuleTypeReactNative:
             return kSAReactNativeModuleName;
+        case SAModuleTypeAppPush:
+            return kSANotificationModuleName;
         default:
             return nil;
     }
