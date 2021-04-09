@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
+    SAModuleTypeReactNative,
     SAModuleTypeAppPush,
 };
 
@@ -34,8 +35,19 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 + (instancetype)sharedInstance;
 
+/// 当前 SDK 中是否包含特定类型的模块
+/// @param type 需要判断的模块类型
+/// @return 是否包含
+- (BOOL)contains:(SAModuleType)type;
+
+/// 通过模块类型获取模块的管理类
+/// @param type 模块类型
+/// @return 模块管理类
 - (nullable id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type;
 
+/// 开启或关闭某种类型的模块
+/// @param enable 开启或者关闭
+/// @param type 模块类型
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
 
 @end

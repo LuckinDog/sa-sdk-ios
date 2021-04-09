@@ -1964,92 +1964,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-#ifdef SENSORS_ANALYTICS_REACT_NATIVE
-static inline void sa_methodExchange(const char *className, const char *originalMethodName, const char *replacementMethodName, IMP imp) {
-    @try {
-        Class cls = objc_getClass(className);//得到指定类的类定义
-        SEL oriSEL = sel_getUid(originalMethodName);//把originalMethodName注册到RunTime系统中
-        Method oriMethod = class_getInstanceMethod(cls, oriSEL);//获取实例方法
-        struct objc_method_description *desc = method_getDescription(oriMethod);//获得指定方法的描述
-        if (desc->types) {
-            SEL buSel = sel_registerName(replacementMethodName);//把replacementMethodName注册到RunTime系统中
-            if (class_addMethod(cls, buSel, imp, desc->types)) {//通过运行时，把方法动态添加到类中
-                Method buMethod  = class_getInstanceMethod(cls, buSel);//获取实例方法
-                method_exchangeImplementations(oriMethod, buMethod);//交换方法
-            }
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
-    }
-}
-
-static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactTag, BOOL blockNativeResponder) {
-    //先执行原来的方法
-    SEL oriSel = sel_getUid("sda_setJSResponder:blockNativeResponder:");
-    void (*setJSResponderWithBlockNativeResponder)(id, SEL, id, BOOL) = (void (*)(id, SEL, id, BOOL))[NSClassFromString(@"RCTUIManager") instanceMethodForSelector:oriSel];//函数指针
-    setJSResponderWithBlockNativeResponder(obj, cmd, reactTag, blockNativeResponder);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @try {
-            //关闭 AutoTrack
-            if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
-                return;
-            }
-            
-            //忽略 $AppClick 事件
-            if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-                return;
-            }
-            
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[NSClassFromString(@"RNView") class]]) {
-                return;
-            }
-            
-            if ([obj isKindOfClass:NSClassFromString(@"RCTUIManager")]) {
-                SEL viewForReactTagSelector = NSSelectorFromString(@"viewForReactTag:");
-                UIView *uiView = ((UIView* (*)(id, SEL, NSNumber *))[obj methodForSelector:viewForReactTagSelector])(obj, viewForReactTagSelector, reactTag);
-                NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-                
-                if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]] || [uiView isKindOfClass:[NSClassFromString(@"RCTScrollView") class]]) {
-                    //好像跟 UISwitch 会重复
-                    return;
-                }
-                
-                [properties setValue:@"RNView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-                [properties setValue:[uiView.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                
-                UIViewController *viewController = nil;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                if ([uiView respondsToSelector:NSSelectorFromString(@"reactViewController")]) {
-                    viewController = [uiView performSelector:NSSelectorFromString(@"reactViewController")];
-                }
-#pragma clang diagnostic pop
-                if (viewController) {
-                    //获取 Controller 名称($screen_name)
-                    NSString *screenName = NSStringFromClass([viewController class]);
-                    [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
-                    
-                    NSString *controllerTitle = viewController.navigationItem.title;
-                    if (controllerTitle != nil) {
-                        [properties setValue:viewController.navigationItem.title forKey:SA_EVENT_PROPERTY_TITLE];
-                    }
-                    
-                    NSString *viewPath = [SAAutoTrackUtils viewSimilarPathForView:uiView atViewController:viewController shouldSimilarPath:NO];
-                    if (viewPath) {
-                        properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewPath;
-                    }
-                }
-
-                [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
-            }
-        } @catch (NSException *exception) {
-            SALogError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
-        }
-    });
-}
-#endif
-
 - (void)_enableAutoTrack {    
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
@@ -2072,14 +1986,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
     });
-    
     //React Native
-#ifdef SENSORS_ANALYTICS_REACT_NATIVE
-    if (NSClassFromString(@"RCTUIManager")) {
-        //        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
-        sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
+    if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
     }
-#endif
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {

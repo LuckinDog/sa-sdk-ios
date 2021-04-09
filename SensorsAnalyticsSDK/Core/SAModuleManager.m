@@ -30,13 +30,11 @@
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSADebugModeModuleName = @"DebugMode";
+static NSString * const kSAReactNativeModuleName = @"ReactNative";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
-<<<<<<< HEAD
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
-=======
 static NSString * const kSANotificationModuleName = @"AppPush";
->>>>>>> 1a29ab2610f5f1f39de1a36b3afa8f284b9a6082
 static NSString * const kSAGestureModuleName = @"Gesture";
 
 @interface SAModuleManager ()
@@ -78,11 +76,28 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     return manager;
 }
 
+#pragma mark - Private
+
+- (NSString *)moduleNameForType:(SAModuleType)type {
+    switch (type) {
+        case SAModuleTypeLocation:
+            return kSALocationModuleName;
+        case SAModuleTypeReactNative:
+            return kSAReactNativeModuleName;
+        default:
+            return nil;
+    }
+}
+
+- (NSString *)classNameForModule:(NSString *)moduleName {
+    return [NSString stringWithFormat:@"SA%@Manager", moduleName];
+}
+
 - (void)setEnable:(BOOL)enable forModule:(NSString *)moduleName {
     if (self.modules[moduleName]) {
         self.modules[moduleName].enable = enable;
     } else if (enable) {
-        NSString *className = [NSString stringWithFormat:@"SA%@Manager", moduleName];
+        NSString *className = [self classNameForModule:moduleName];
         Class<SAModuleProtocol> cla = NSClassFromString(className);
         NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
         if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
@@ -96,6 +111,14 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     }
 }
 
+#pragma mark - Public
+
+- (BOOL)contains:(SAModuleType)type {
+    NSString *moduleName = [self moduleNameForType:type];
+    NSString *className = [self classNameForModule:moduleName];
+    return [NSClassFromString(className) conformsToProtocol:@protocol(SAModuleProtocol)];
+}
+
 - (id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     return self.modules[name];
@@ -104,17 +127,6 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     [self setEnable:enable forModule:name];
-}
-
-- (NSString *)moduleNameForType:(SAModuleType)type {
-    switch (type) {
-        case SAModuleTypeLocation:
-            return kSALocationModuleName;
-        case SAModuleTypeAppPush:
-            return kSANotificationModuleName;
-        default:
-            return nil;
-    }
 }
 
 #pragma mark - Open URL

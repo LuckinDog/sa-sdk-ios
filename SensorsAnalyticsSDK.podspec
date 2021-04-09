@@ -73,12 +73,6 @@ Pod::Spec.new do |s|
     w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
   end
 
-  # 开启 React Native 页面控件的自动采集 $AppClick 事件
-  s.subspec 'ENABLE_REACT_NATIVE_APPCLICK' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_REACT_NATIVE=1'}
-  end
-
   # 允许使用私有 API，v2.0.0 已废弃，待删除
   s.subspec 'ENABLE_NO_PUBLIC_APIS' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
