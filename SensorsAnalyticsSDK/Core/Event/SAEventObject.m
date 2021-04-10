@@ -47,6 +47,8 @@ static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
         self.currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
         self.timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
         
+        self.dynamicSuperProperties = [SAModuleManager.sharedInstance acquireDynamicSuperProperties];
+        
         self.loginId = SensorsAnalyticsSDK.sharedInstance.loginId;
         self.anonymousID = SensorsAnalyticsSDK.sharedInstance.anonymousId;
         self.track_id = @(arc4random());

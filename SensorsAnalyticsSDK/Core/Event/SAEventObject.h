@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) UInt64 currentSystemUpTime;
 @property (nonatomic, assign) UInt64 timeStamp;
 
+@property (nonatomic, strong) NSDictionary *dynamicSuperProperties;
+
 #pragma mark - event
 @property (nonatomic, copy) NSString *type;
 @property (nonatomic, copy) NSString *event;
