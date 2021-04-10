@@ -71,8 +71,6 @@ extern NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;
 
 #pragma mark--autoTrack property
-// App 首次启动
-extern NSString * const SA_EVENT_PROPERTY_APP_FIRST_START;
 // App 浏览页面 Url
 extern NSString * const SA_EVENT_PROPERTY_SCREEN_URL;
 // App 浏览页面 Referrer Url

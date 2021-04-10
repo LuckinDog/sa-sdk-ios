@@ -73,8 +73,6 @@ NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK = @"$ios_install
 NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT = @"$user_agent";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME = @"$first_visit_time";
 #pragma mark - autoTrack property
-// App 首次启动
-NSString * const SA_EVENT_PROPERTY_APP_FIRST_START = @"$is_first_time";
 // App 浏览页面 Url
 NSString * const SA_EVENT_PROPERTY_SCREEN_URL = @"$url";
 // App 浏览页面 Referrer Url

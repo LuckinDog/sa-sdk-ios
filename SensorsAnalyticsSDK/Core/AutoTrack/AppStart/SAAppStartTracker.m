@@ -48,7 +48,7 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
     return NO;
 }
 
-- (void)trackAppStartWithRelauch:(BOOL)isRelaunched {
+- (void)trackAppStartWithRelauch:(BOOL)isRelaunched utmProperties:(NSDictionary *)utmProperties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     if (isRelaunched) {
         properties[kSAEventPropertyAppFirstStart] = @(NO);
@@ -57,15 +57,17 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
         properties[kSAEventPropertyAppFirstStart] = @([self isFirstAppStart]);
         properties[kSAEventPropertyResumeFromBackground] = @(NO);
     }
-#warning Deeplink
+    //添加 deeplink 相关渠道信息，可能不存在
+    [properties addEntriesFromDictionary:utmProperties];
     [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStart properties:properties];
 }
 
-- (void)trackAppStartPassively {
+- (void)trackAppStartPassivelyWithUtmProperties:(NSDictionary *)utmProperties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     properties[kSAEventPropertyAppFirstStart] = @([self isFirstAppStart]);
     properties[kSAEventPropertyResumeFromBackground] = @(NO);
-#warning Deeplink
+    //添加 deeplink 相关渠道信息，可能不存在
+    [properties addEntriesFromDictionary:utmProperties];
     [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStartPassively properties:properties];
 }
 

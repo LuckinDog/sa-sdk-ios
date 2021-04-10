@@ -121,9 +121,9 @@
         // 触发冷启动事件或被动启动
         if (!isIgnoreAppStart) {
             if (newState == SAAppLifecycleStateStartPassively) {
-                [self.appStartTracker trackAppStartPassively];
+                [self.appStartTracker trackAppStartPassivelyWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
             } else {
-                [self.appStartTracker trackAppStartWithRelauch:NO];
+                [self.appStartTracker trackAppStartWithRelauch:NO utmProperties:SAModuleManager.sharedInstance.utmProperties];
             }
         }
 
@@ -132,7 +132,7 @@
     } else if (newState == SAAppLifecycleStateStart) {
         // 触发热启动
         if (!isIgnoreAppStart) {
-            [self.appStartTracker trackAppStartWithRelauch:YES];
+            [self.appStartTracker trackAppStartWithRelauch:YES utmProperties:SAModuleManager.sharedInstance.utmProperties];
         }
 
         // 启动 AppEnd 事件计时器
