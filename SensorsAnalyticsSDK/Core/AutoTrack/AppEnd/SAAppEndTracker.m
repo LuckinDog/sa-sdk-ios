@@ -23,27 +23,17 @@
 #endif
 
 #import "SAAppEndTracker.h"
-#import "SAAppLifecycle.h"
-#import "SensorsAnalyticsSDK+Public.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-
-@interface SAAppEndTracker ()
-
-@property (nonatomic, copy) NSString *appEndTimerEventID;
-
-@end
 
 @implementation SAAppEndTracker
 
 - (void)trackTimerStartAppEnd {
-    self.appEndTimerEventID = [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
+    [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
 }
 
 - (void)trackAppEnd {
     [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppEnd properties:nil];
-//    [SensorsAnalyticsSDK.sharedInstance trackTimerEnd:self.appEndTimerEventID];
-    self.appEndTimerEventID = nil;
 }
 
 @end

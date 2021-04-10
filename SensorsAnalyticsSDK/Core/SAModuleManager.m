@@ -256,6 +256,8 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @end
 
+#pragma mark -
+
 @implementation SAModuleManager (PushClick)
 
 - (void)setLaunchOptions:(NSDictionary *)launchOptions {

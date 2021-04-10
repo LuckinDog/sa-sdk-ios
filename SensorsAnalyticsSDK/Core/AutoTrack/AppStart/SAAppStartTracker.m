@@ -23,8 +23,6 @@
 #endif
 
 #import "SAAppStartTracker.h"
-#import "SAAppLifecycle.h"
-#import "SensorsAnalyticsSDK+Public.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 
