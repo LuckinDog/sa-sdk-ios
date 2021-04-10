@@ -48,15 +48,15 @@ NSString * const SA_EVENT_ITEM_DELETE = @"item_delete";
 
 #pragma mark - event name
 // App 启动或激活
-NSString * const SA_EVENT_NAME_APP_START = @"$AppStart";
+NSString * const kSAEventNameAppStart = @"$AppStart";
 // App 退出或进入后台
-NSString * const SA_EVENT_NAME_APP_END = @"$AppEnd";
+NSString * const kSAEventNameAppEnd = @"$AppEnd";
 // App 浏览页面
 NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN = @"$AppViewScreen";
 // App 元素点击
 NSString * const SA_EVENT_NAME_APP_CLICK = @"$AppClick";
 // 自动追踪相关事件及属性
-NSString * const SA_EVENT_NAME_APP_START_PASSIVELY = @"$AppStartPassively";
+NSString * const kSAEventNameAppStartPassively = @"$AppStartPassively";
 
 NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
 
@@ -118,7 +118,6 @@ NSString * const SA_PROFILE_APPEND = @"profile_append";
 NSString * const SA_PROFILE_INCREMENT = @"profile_increment";
 
 #pragma mark - NSUserDefaults
-NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
 

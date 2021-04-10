@@ -26,8 +26,7 @@
 #import "SAAppLifecycle.h"
 #import "SensorsAnalyticsSDK+Public.h"
 #import "SensorsAnalyticsSDK+Private.h"
-
-static NSString * const kSAEventNameAppEnd = @"$AppEnd";
+#import "SAConstants+Private.h"
 
 @interface SAAppEndTracker ()
 

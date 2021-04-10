@@ -323,9 +323,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
             _presetEventNames = [NSSet setWithObjects:
-                                      SA_EVENT_NAME_APP_START,
-                                      SA_EVENT_NAME_APP_START_PASSIVELY ,
-                                      SA_EVENT_NAME_APP_END,
+                                      kSAEventNameAppStart,
+                                      kSAEventNameAppStartPassively,
+                                      kSAEventNameAppEnd,
                                       SA_EVENT_NAME_APP_VIEW_SCREEN,
                                       SA_EVENT_NAME_APP_CLICK,
                                       SA_EVENT_NAME_APP_SIGN_UP,
@@ -585,7 +585,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 启动 AppEnd 事件计时器
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [self trackTimerStart:SA_EVENT_NAME_APP_END];
+        [self trackTimerStart:kSAEventNameAppEnd];
     });
 }
 

@@ -28,9 +28,8 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 
+// App 启动标记
 static NSString * const kSAHasLaunchedOnce = @"HasLaunchedOnce";
-static NSString * const kSAEventNameAppStart = @"$AppStart";
-static NSString * const kSAEventNameAppStartPassively = @"$AppStartPassively";
 // App 首次启动
 static NSString * const kSAEventPropertyAppFirstStart = @"$is_first_time";
 // App 是否从后台恢复

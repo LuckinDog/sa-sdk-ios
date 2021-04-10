@@ -45,15 +45,15 @@ extern NSString * const SA_EVENT_ITEM_DELETE;
 #pragma mark--evnet nanme
 
 // App 启动或激活
-extern NSString * const SA_EVENT_NAME_APP_START;
+extern NSString * const kSAEventNameAppStart;
 // App 退出或进入后台
-extern NSString * const SA_EVENT_NAME_APP_END;
+extern NSString * const kSAEventNameAppEnd;
 // App 浏览页面
 extern NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN;
 // App 元素点击
 extern NSString * const SA_EVENT_NAME_APP_CLICK;
 // 自动追踪相关事件及属性
-extern NSString * const SA_EVENT_NAME_APP_START_PASSIVELY;
+extern NSString * const kSAEventNameAppStartPassively;
 
 extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
 
@@ -115,7 +115,6 @@ extern NSString * const SA_PROFILE_APPEND;
 extern NSString * const SA_PROFILE_INCREMENT;
 
 #pragma mark--others
-extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
 
