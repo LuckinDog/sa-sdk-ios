@@ -25,16 +25,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventObject : SAEventBuildStrategy
 
-@property (nonatomic, copy) NSString *event;
 @property (nonatomic, strong) SAEventLibObject *libObject;
 
-@property (nonatomic, copy) NSString *type;
-@property (nonatomic, copy) NSString *anonymousID;
-@property (nonatomic, copy) NSString *distinctID;
 @property (nonatomic, assign) UInt64 currentSystemUpTime;
 @property (nonatomic, assign) UInt64 timeStamp;
 
+#pragma mark - event
+@property (nonatomic, copy) NSString *type;
+@property (nonatomic, copy) NSString *event;
+@property (nonatomic, copy) NSString *loginId;
+@property (nonatomic, copy) NSString *anonymousID;
+@property (nonatomic, copy) NSString *distinctID;
+@property (nonatomic, strong) NSNumber *track_id;
+
 - (instancetype)initWithEvent:(NSString *)event properties:(NSDictionary *)properties;
+
+- (BOOL)isCanTrack;
 
 - (NSDictionary *)generateJSONObject;
 
@@ -59,6 +65,14 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SAProfileEventObject : SAEventObject
+
+@end
+
+@interface SAProfileIncrementEventObject : SAProfileEventObject
+
+@end
+
+@interface SAProfileAppendEventObject : SAProfileEventObject
 
 @end
 
