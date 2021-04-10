@@ -24,10 +24,16 @@
 
 #import "SASuperPropertyManager.h"
 #import "SAFileStore.h"
+#import "SAReadWriteLock.h"
 
 @interface SASuperPropertyManager ()
 
+/// 静态公共属性
 @property (atomic, strong) NSDictionary *superProperties;
+
+/// 动态公共属性
+@property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
+@property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
 
 @end
 
@@ -36,6 +42,9 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+        NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
+        _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
+        
         [self unarchiveSuperProperties];
     }
     return self;
@@ -88,6 +97,22 @@
     if (unregisterPropertyKeys.count > 0) {
         [self removeDuplicateSuperProperties:unregisterPropertyKeys];
     }
+}
+
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
+    [self.dynamicSuperPropertiesLock writeWithBlock:^{
+        self.dynamicSuperProperties = dynamicSuperProperties;
+    }];
+}
+
+- (NSDictionary *)acquireDynamicSuperProperties {
+    // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
+    return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
+        if (self.dynamicSuperProperties) {
+            return self.dynamicSuperProperties();
+        }
+        return nil;
+    }];
 }
 
 #pragma mark - private

@@ -331,4 +331,12 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     [self.superPropertyManager unregisterSameLetterSuperProperties:propertyDict];
 }
 
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> * _Nonnull (^)(void))dynamicSuperProperties {
+    [self.superPropertyManager registerDynamicSuperProperties:dynamicSuperProperties];
+}
+
+- (NSDictionary *)acquireDynamicSuperProperties {
+    return [self.superPropertyManager acquireDynamicSuperProperties];
+}
+
 @end

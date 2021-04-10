@@ -170,6 +170,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param propertyDict 对比的属性字典
 - (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict;
 
+/// 注册动态公共属性
+/// @param dynamicSuperProperties 动态公共属性的回调
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties;
+
+/// 获取动态公共属性
+- (NSDictionary *)acquireDynamicSuperProperties;
+
 @end
 
 NS_ASSUME_NONNULL_END

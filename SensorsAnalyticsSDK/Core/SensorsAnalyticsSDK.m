@@ -168,7 +168,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 @property (nonatomic, strong) SAReadWriteLock *readWriteLock;
-@property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
 
 @property (nonatomic, strong) SATrackTimer *trackTimer;
 
@@ -200,7 +199,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) WKWebView *wkWebView;
 @property (nonatomic, strong) dispatch_group_t loadUAGroup;
 
-@property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
 @property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked; // 标记启动事件是否触发过
@@ -304,9 +302,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
             _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
-            
-            NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
-            _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
             
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
@@ -1192,7 +1187,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     libProperties[SAEventPresetPropertyLibDetail] = libDetail;
     
-    __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
+    __block NSDictionary *dynamicSuperPropertiesDict = [SAModuleManager.sharedInstance acquireDynamicSuperProperties];
     
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     
@@ -1669,19 +1664,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    [self.dynamicSuperPropertiesLock writeWithBlock:^{
-        self.dynamicSuperProperties = dynamicSuperProperties;
-    }];
-}
-
-- (NSDictionary *)acquireDynamicSuperProperties {
-    // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
-    return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
-        if (self.dynamicSuperProperties) {
-            return self.dynamicSuperProperties();
-        }
-        return nil;
-    }];
+    [SAModuleManager.sharedInstance registerDynamicSuperProperties:dynamicSuperProperties];
 }
 
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
@@ -2348,7 +2331,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
     __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
-    __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
+    __block NSDictionary *dynamicSuperPropertiesDict = [SAModuleManager.sharedInstance acquireDynamicSuperProperties];
 
     dispatch_async(self.serialQueue, ^{
         @try {
