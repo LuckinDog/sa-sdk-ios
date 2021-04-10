@@ -170,7 +170,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SAReadWriteLock *readWriteLock;
 @property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
 
-@property (atomic, strong) NSDictionary *superProperties;
 @property (nonatomic, strong) SATrackTimer *trackTimer;
 
 @property (nonatomic, strong) NSRegularExpression *propertiesRegex;
@@ -1211,18 +1210,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dynamicSuperPropertiesDict = nil;
         }
         //去重
-        [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+        [SAModuleManager.sharedInstance unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
         NSMutableDictionary *eventPropertiesDic = [NSMutableDictionary dictionary];
         if ([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
+            NSDictionary *superProperties = [SAModuleManager.sharedInstance currentSuperProperties];
             [eventPropertiesDic addEntriesFromDictionary:self.presetProperty.automaticProperties];
-            [eventPropertiesDic addEntriesFromDictionary:self->_superProperties];
+            [eventPropertiesDic addEntriesFromDictionary:superProperties];
             [eventPropertiesDic addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
             //update lib $app_version from super properties
-            id appVersion = self->_superProperties[SAEventPresetPropertyAppVersion];
+            id appVersion = superProperties[SAEventPresetPropertyAppVersion];
             if (appVersion) {
                 libProperties[SAEventPresetPropertyAppVersion] = appVersion;
             }
@@ -1664,12 +1664,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     dispatch_async(self.serialQueue, ^{
-        [self unregisterSameLetterSuperProperties:propertyDict];
-        // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
-        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
-        [tmp addEntriesFromDictionary:propertyDict];
-        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
-        [self archiveSuperProperties];
+        [SAModuleManager.sharedInstance registerSuperProperties:propertyDict];
     });
 }
 
@@ -1699,80 +1694,31 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-///注销仅大小写不同的 SuperProperties
-- (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict {
-    dispatch_block_t block =^{
-        NSArray *allNewKeys = [propertyDict.allKeys copy];
-        //如果包含仅大小写不同的 key ,unregisterSuperProperty
-        NSArray *superPropertyAllKeys = [self.superProperties.allKeys copy];
-        NSMutableArray *unregisterPropertyKeys = [NSMutableArray array];
-        for (NSString *newKey in allNewKeys) {
-            [superPropertyAllKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                NSString *usedKey = (NSString *)obj;
-                if ([usedKey caseInsensitiveCompare:newKey] == NSOrderedSame) { // 存在不区分大小写相同 key
-                    [unregisterPropertyKeys addObject:usedKey];
-                }
-            }];
-        }
-        if (unregisterPropertyKeys.count > 0) {
-            [self removeDuplicateSuperProperties:unregisterPropertyKeys];
-        }
-    };
-    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
-        block();
-    } else {
-        dispatch_async(self.serialQueue, block);
-    }
-}
-
 - (void)unregisterSuperProperty:(NSString *)property {
     dispatch_async(self.serialQueue, ^{
-        NSMutableDictionary *superProperties = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
-        if (property) {
-            [superProperties removeObjectForKey:property];
-        }
-        self.superProperties = [NSDictionary dictionaryWithDictionary:superProperties];
-        [self archiveSuperProperties];
+        [SAModuleManager.sharedInstance unregisterSuperProperty:property];
     });
-}
-
-//remove duplicate keys, case insensitive
-- (void)removeDuplicateSuperProperties:(NSArray<NSString *> *)properties {
-    NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
-    [tmp removeObjectsForKeys:properties];
-    self.superProperties = [NSDictionary dictionaryWithDictionary:tmp];
 }
 
 - (void)clearSuperProperties {
     dispatch_async(self.serialQueue, ^{
-        self->_superProperties = @{};
-        [self archiveSuperProperties];
+        [SAModuleManager.sharedInstance clearSuperProperties];
     });
 }
 
 - (NSDictionary *)currentSuperProperties {
-    return [_superProperties copy];
+    return [SAModuleManager.sharedInstance currentSuperProperties];
 }
 
 #pragma mark - Local caches
 
 - (void)unarchive {
-    [self unarchiveSuperProperties];
     [self unarchiveTrackChannelEvents];
-}
-
-- (void)unarchiveSuperProperties {
-    NSDictionary *archivedSuperProperties = (NSDictionary *)[SAFileStore unarchiveWithFileName:@"super_properties"];
-    _superProperties = archivedSuperProperties ? [archivedSuperProperties copy] : [NSDictionary dictionary];
 }
 
 - (void)unarchiveTrackChannelEvents {
     NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
     [self.trackChannelEventNames unionSet:trackChannelEvents];
-}
-
-- (void)archiveSuperProperties {
-    [SAFileStore archiveWithFileName:@"super_properties" value:self.superProperties];
 }
 
 - (void)archiveTrackChannelEventNames {
@@ -2439,7 +2385,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSMutableDictionary *libMDic = eventDict[SA_EVENT_LIB];
             //update lib $app_version from super properties
-            id appVersion = self->_superProperties[SAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
+            NSDictionary *superProperties = [SAModuleManager.sharedInstance currentSuperProperties];
+            id appVersion = superProperties[SAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
             if (appVersion) {
                 libMDic[SAEventPresetPropertyAppVersion] = appVersion;
             }
@@ -2462,9 +2409,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     dynamicSuperPropertiesDict = nil;
                 }
                 // 去重
-                [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+                [SAModuleManager.sharedInstance unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
-                [propertiesDict addEntriesFromDictionary:self->_superProperties];
+                [propertiesDict addEntriesFromDictionary:superProperties];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
                 // 每次 track 时手机网络状态
