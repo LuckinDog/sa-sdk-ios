@@ -635,54 +635,80 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)appLifecycleStateDidChange:(NSNotification *)sender {
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
+    switch (newState) {
+        case SAAppLifecycleStateStart:
+            [self handleAppStartStateWithUserInfo:userInfo];
+            break;
 
-    if (newState == SAAppLifecycleStateStart) {
-        SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
-        // 触发热启动
-        if (oldState != SAAppLifecycleStateInit) {
-            // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
-            [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
-            [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
-        }
+        case SAAppLifecycleStateEnd:
+            [self handleAppEndState];
+            break;
 
-        // 遍历 trackTimer
-        UInt64 currentSysUpTime = [self.class getSystemUpTime];
-        dispatch_async(self.serialQueue, ^{
-            [self.trackTimer resumeAllEventTimers:currentSysUpTime];
-        });
+        case SAAppLifecycleStateTerminate:
+            [self handleAppTerminateState];
+            break;
 
-        [self startFlushTimer];
-    } else if (newState == SAAppLifecycleStateEnd) {
-#warning 清除本次启动解析的来源渠道信息
-//        [_linkHandler clearUtmProperties];
-
-        [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
-
-        // 遍历 trackTimer
-        UInt64 currentSysUpTime = [self.class getSystemUpTime];
-        dispatch_async(self.serialQueue, ^{
-            [self.trackTimer pauseAllEventTimers:currentSysUpTime];
-        });
-
-        UIApplication *application = UIApplication.sharedApplication;
-        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-        // 结束后台任务
-        void (^endBackgroundTask)(void) = ^() {
-            [application endBackgroundTask:backgroundTaskIdentifier];
-            backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-        };
-
-        backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
-            endBackgroundTask();
-        }];
-
-        dispatch_async(self.serialQueue, ^{
-            [self.eventTracker flushAllEventRecords];
-            endBackgroundTask();
-        });
-    } else if (newState == SAAppLifecycleStateTerminate) {
-        dispatch_sync(self.serialQueue, ^{});
+        default:
+            break;
     }
+}
+
+- (void)handleAppStartStateWithUserInfo:(NSDictionary *)userInfo {
+    SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
+    // 触发热启动
+    if (oldState != SAAppLifecycleStateInit) {
+        // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
+        [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
+    }
+
+    // 遍历 trackTimer
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer resumeAllEventTimers:currentSysUpTime];
+    });
+
+    [self startFlushTimer];
+}
+
+- (void)handleAppEndState {
+    // 清除本次启动解析的来源渠道信息
+    [SAModuleManager.sharedInstance clearUtmProperties];
+
+    [self stopFlushTimer];
+
+    [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+    [self.deviceOrientationManager stopDeviceMotionUpdates];
+#endif
+
+    UIApplication *application = UIApplication.sharedApplication;
+    __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+    // 结束后台任务
+    void (^endBackgroundTask)(void) = ^() {
+        [application endBackgroundTask:backgroundTaskIdentifier];
+        backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+    };
+
+    backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
+        endBackgroundTask();
+    }];
+
+    // 遍历 trackTimer
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer pauseAllEventTimers:currentSysUpTime];
+    });
+
+    dispatch_async(self.serialQueue, ^{
+        [self.eventTracker flushAllEventRecords];
+        endBackgroundTask();
+    });
+}
+
+- (void)handleAppTerminateState {
+    dispatch_sync(self.serialQueue, ^{});
 }
 
 #pragma mark - HandleURL
