@@ -34,6 +34,7 @@ static NSString * const kSAReactNativeModuleName = @"ReactNative";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
+static NSString * const kSASuperPropertyModuleName = @"SuperProperty";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAGestureModuleName = @"Gesture";
 
@@ -56,6 +57,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     // 初始化 Debug 模块
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
     [SAModuleManager.sharedInstance handleDebugMode:debugMode];
+    // 初始化公共属性模块
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSASuperPropertyModuleName];
     
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
@@ -295,6 +298,37 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (void)clearUtmProperties {
     [self.deeplinkManager clearUtmProperties];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (SuperProperty)
+
+- (id<SASuperPropertyModuleProtocol>)superPropertyManager {
+    id<SASuperPropertyModuleProtocol> manager = (id<SASuperPropertyModuleProtocol>)self.modules[kSASuperPropertyModuleName];
+    return manager;
+}
+
+- (void)registerSuperProperties:(NSDictionary *)propertyDict {
+    [self.superPropertyManager registerSuperProperties:propertyDict];
+}
+
+- (void)unregisterSuperProperty:(NSString *)property {
+    [self.superPropertyManager unregisterSuperProperty:property];
+}
+
+- (NSDictionary *)currentSuperProperties {
+    return [self.superPropertyManager currentSuperProperties];
+}
+
+- (void)clearSuperProperties {
+    [self.superPropertyManager clearSuperProperties];
+}
+
+- (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict {
+    [self.superPropertyManager unregisterSameLetterSuperProperties:propertyDict];
 }
 
 @end

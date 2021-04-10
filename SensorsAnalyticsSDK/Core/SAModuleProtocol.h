@@ -148,4 +148,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark -
+
+@protocol SASuperPropertyModuleProtocol <NSObject>
+
+/// 注册公共属性
+/// @param propertyDict 公共属性
+- (void)registerSuperProperties:(NSDictionary *)propertyDict;
+
+/// 注销公共属性
+/// @param property 公共属性的 key
+- (void)unregisterSuperProperty:(NSString *)property;
+
+/// 获取当前的公共属性
+- (NSDictionary *)currentSuperProperties;
+
+/// 清空公共属性
+- (void)clearSuperProperties;
+
+/// 从当前公共属性中移除 key (忽略大小写) 相同的属性
+/// @param propertyDict 对比的属性字典
+- (void)unregisterSameLetterSuperProperties:(NSDictionary *)propertyDict;
+
+@end
+
 NS_ASSUME_NONNULL_END
