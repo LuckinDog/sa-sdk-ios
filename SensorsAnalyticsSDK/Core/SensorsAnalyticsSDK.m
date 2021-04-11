@@ -72,7 +72,6 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
-#import "SAChannelMatchManager.h"
 #import "SAAppLifecycle.h"
 
 #define VERSION @"2.5.4"
@@ -570,14 +569,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
 
-- (void)startAppEndTimer {
-    // 启动 AppEnd 事件计时器
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [self trackTimerStart:kSAEventNameAppEnd];
-    });
-}
-
 - (void)ignoreViewType:(Class)aClass {
     [_ignoredViewTypeList addObject:aClass];
 }
@@ -624,32 +615,54 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)appLifecycleStateDidChange:(NSNotification *)sender {
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
-    switch (newState) {
-        case SAAppLifecycleStateStart:
-            [self handleAppStartStateWithUserInfo:userInfo];
-            break;
+    SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
-        case SAAppLifecycleStateEnd:
-            [self handleAppEndState];
-            break;
+    // 被动启动
+    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
+        [self handleAppStartPassivelyState];
+        return;
+    }
 
-        case SAAppLifecycleStateTerminate:
-            [self handleAppTerminateState];
-            break;
+    // 冷启动
+    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        [self handleAppStartState];
+        return;
+    }
 
-        default:
-            break;
+    // 热启动
+    if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        [self handleAppRelauchState];
+        return;
+    }
+
+    // 退出
+    if (newState == SAAppLifecycleStateEnd) {
+        [self handleAppEndState];
+    }
+
+    // 终止
+    if (newState == SAAppLifecycleStateTerminate) {
+        [self handleAppTerminateState];
     }
 }
 
-- (void)handleAppStartStateWithUserInfo:(NSDictionary *)userInfo {
-    SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
-    // 触发热启动
-    if (oldState != SAAppLifecycleStateInit) {
-        // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
-        [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
-        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
-    }
+- (void)handleAppStartPassivelyState {
+    self.launchedPassively = YES;
+    [self stopFlushTimer];
+}
+
+- (void)handleAppStartState {
+    self.launchedPassively = NO;
+    [self startFlushTimer];
+    [self tryToRequestRemoteConfigWhenInitialized];
+}
+
+- (void)handleAppRelauchState {
+    self.launchedPassively = NO;
+
+    // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
+    [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
+    [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
 
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
@@ -664,7 +677,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }];
         self.launchedPassivelyControllers = nil;
     }
-    
+
     [self startFlushTimer];
 }
 
@@ -673,6 +686,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [SAModuleManager.sharedInstance clearUtmProperties];
 
     [self stopFlushTimer];
+
+    self.launchedPassively = NO;
 
     [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
 

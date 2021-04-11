@@ -130,41 +130,71 @@
 }
 
 #pragma mark - Notification
+
 - (void)appLifecycleStateDidChange:(NSNotification *)sender {
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
-    BOOL isIgnoreAppStart = ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
-    BOOL isIgnoreAppEnd = ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
-
-    if (oldState == SAAppLifecycleStateInit) {
-        // 触发冷启动事件或被动启动
-        if (!isIgnoreAppStart) {
-            if (newState == SAAppLifecycleStateStartPassively) {
-                [self.appStartTracker trackAppStartPassivelyWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
-            } else {
-                [self.appStartTracker trackAppStartWithRelauch:NO utmProperties:SAModuleManager.sharedInstance.utmProperties];
-            }
-        }
-
-        // 启动 AppEnd 事件计时器
-        [self.appEndTracker trackTimerStartAppEnd];
-    } else if (newState == SAAppLifecycleStateStart) {
-        // 触发热启动
-        if (!isIgnoreAppStart) {
-            [self.appStartTracker trackAppStartWithRelauch:YES utmProperties:SAModuleManager.sharedInstance.utmProperties];
-        }
-
-        // 启动 AppEnd 事件计时器
-        [self.appEndTracker trackTimerStartAppEnd];
-    } else if (newState == SAAppLifecycleStateEnd) {
-        // 触发退出事件
-        if (!isIgnoreAppEnd) {
-            [self.referrer clear];
-            [self.appEndTracker trackAppEnd];
-        }
+    // 被动启动
+    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
+        [self handleAppStartPassivelyState];
+        return;
     }
+
+    // 冷启动
+    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        [self handleAppStartState];
+        return;
+    }
+
+    // 热启动
+    if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        [self handleAppRelauchState];
+        return;
+    }
+
+    // 退出
+    if (newState == SAAppLifecycleStateEnd) {
+        [self handleAppEndState];
+    }
+}
+
+- (void)handleAppStartPassivelyState {
+    if (![self isIgnoreAppStart]) {
+        [self.appStartTracker trackAppStartPassivelyWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
+    }
+}
+
+- (void)handleAppStartState {
+    if (![self isIgnoreAppStart]) {
+        [self.appStartTracker trackAppStartWithRelauch:NO utmProperties:SAModuleManager.sharedInstance.utmProperties];
+    }
+    // 启动 AppEnd 事件计时器
+    [self.appEndTracker trackTimerStartAppEnd];
+}
+
+- (void)handleAppRelauchState {
+    if (![self isIgnoreAppStart]) {
+        [self.appStartTracker trackAppStartWithRelauch:YES utmProperties:SAModuleManager.sharedInstance.utmProperties];
+    }
+    // 启动 AppEnd 事件计时器
+    [self.appEndTracker trackTimerStartAppEnd];
+}
+
+- (void)handleAppEndState {
+    if (![self isIgnoreAppEnd]) {
+        [self.referrer clear];
+        [self.appEndTracker trackAppEnd];
+    }
+}
+
+- (BOOL)isIgnoreAppStart {
+    return ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
+}
+
+- (BOOL)isIgnoreAppEnd {
+    return ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
 }
 
 - (void)remoteConfigModelChanged:(NSNotification *)sender {
