@@ -75,7 +75,7 @@
 #import "SAChannelMatchManager.h"
 #import "SAAppLifecycle.h"
 
-#define VERSION @"2.5.3"
+#define VERSION @"2.5.4"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
