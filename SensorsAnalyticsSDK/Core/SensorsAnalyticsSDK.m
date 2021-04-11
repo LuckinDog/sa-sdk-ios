@@ -218,8 +218,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @end
 
 @implementation SensorsAnalyticsSDK {
-    BOOL _showDebugAlertView;
-    UInt8 _debugAlertViewHasShownNumber;
     SensorsAnalyticsNetworkType _networkTypePolicy;
 }
 
@@ -293,9 +291,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
-            _showDebugAlertView = YES;
-            _debugAlertViewHasShownNumber = 0;
-            
             NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
             _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
             
