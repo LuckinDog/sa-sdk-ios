@@ -23,6 +23,7 @@
 #import "SAAppStartTracker.h"
 #import "SAAppEndTracker.h"
 #import "SAModuleProtocol.h"
+#import "SAReferrer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, strong) SAReferrer *referrer;
 
 @property (nonatomic, strong, readonly) SAAppStartTracker *appStartTracker;
 @property (nonatomic, strong, readonly) SAAppEndTracker *appEndTracker;

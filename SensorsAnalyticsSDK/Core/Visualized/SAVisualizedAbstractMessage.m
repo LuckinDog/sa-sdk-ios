@@ -98,20 +98,20 @@
             NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:[SAAutoTrackUtils currentViewController]];
             jsonObject[@"screen_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"page_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
-            jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
+            jsonObject[@"title"] = autoTrackScreenProperties[kSAEventPropertyTitle];
         }
 
         if (serializerManger.lastViewScreenController) {
             NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:serializerManger.lastViewScreenController];
             jsonObject[@"page_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
-            jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
+            jsonObject[@"title"] = autoTrackScreenProperties[kSAEventPropertyTitle];
         }
         // 获取 RN 页面信息
         NSDictionary <NSString *, NSString *> *RNScreenInfo = [SAVisualizedUtils currentRNScreenVisualizeProperties];
         if (RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME]) {
             jsonObject[@"page_name"] = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"screen_name"] = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
-            jsonObject[@"title"] = RNScreenInfo[SA_EVENT_PROPERTY_TITLE];
+            jsonObject[@"title"] = RNScreenInfo[kSAEventPropertyTitle];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);

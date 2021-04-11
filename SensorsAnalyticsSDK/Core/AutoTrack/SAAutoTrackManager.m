@@ -34,6 +34,7 @@
 #import "SASwizzle.h"
 #import "NSObject+DelegateProxy.h"
 #import "SAAutoTrackUtils.h"
+#import "SAValidator.h"
 #import <objc/runtime.h>
 
 @interface SAAutoTrackManager ()
@@ -52,6 +53,8 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _referrer = [[SAReferrer alloc] init];
+
         _appStartTracker = [[SAAppStartTracker alloc] init];
         _appEndTracker = [[SAAppEndTracker alloc] init];
 
@@ -102,6 +105,24 @@
     }
 }
 
+#pragma mark - SAAutoTrackModuleProtocol
+
+- (NSDictionary *)referrerProperties {
+    if ([SAValidator isValidString:self.referrer.title]) {
+        return @{kSAEeventPropertyReferrerTitle : self.referrer.title};
+    }
+    return nil;
+}
+
+- (NSDictionary *)referrerPropertiesWithURL:(NSString *)currentURL
+                            eventProperties:(NSDictionary *)eventProperties
+                                serialQueue:(dispatch_queue_t)serialQueue {
+    return [self.referrer propertiesWithURL:currentURL
+                            eventProperties:eventProperties
+                                serialQueue:serialQueue
+                                enableTitle:self.configOptions.enableReferrerTitle];
+}
+
 #pragma mark - Instance
 
 + (SAAutoTrackManager *)sharedInstance {
@@ -140,6 +161,7 @@
     } else if (newState == SAAppLifecycleStateEnd) {
         // 触发退出事件
         if (!isIgnoreAppEnd) {
+            [self.referrer clear];
             [self.appEndTracker trackAppEnd];
         }
     }

@@ -49,6 +49,19 @@
     return [SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:eventType];
 }
 
+#pragma mark - Referrer
+
+- (NSString *)getLastScreenUrl {
+    return SAAutoTrackManager.sharedInstance.referrer.url;
+}
+
+- (void)clearReferrerWhenAppEnd {
+    SAAutoTrackManager.sharedInstance.referrer.clearWhenAppEnd = YES;
+}
+
+- (NSDictionary *)getLastScreenTrackProperties {
+    return SAAutoTrackManager.sharedInstance.referrer.properties;
+}
 
 #pragma mark - Deprecated
 

@@ -313,4 +313,18 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @implementation SAModuleManager (AutoTrack)
 
+- (NSDictionary *)referrerProperties {
+    id<SAAutoTrackModuleProtocol> manager = (id<SAAutoTrackModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeAutoTrack];
+    return manager.referrerProperties;
+}
+
+- (NSDictionary *)referrerPropertiesWithURL:(NSString *)currentURL
+                            eventProperties:(NSDictionary *)eventProperties
+                                serialQueue:(dispatch_queue_t)serialQueue {
+    id<SAAutoTrackModuleProtocol> manager = (id<SAAutoTrackModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeAutoTrack];
+    return [manager referrerPropertiesWithURL:currentURL
+                              eventProperties:eventProperties
+                                  serialQueue:serialQueue];
+}
+
 @end

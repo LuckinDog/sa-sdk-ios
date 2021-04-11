@@ -47,8 +47,6 @@
 		4D4DB2D025B7D19C00938842 /* SADelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */; };
 		4D4DB2E425B7D1F300938842 /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2D725B7D1F200938842 /* UIViewController+AutoTrack.h */; };
 		4D4DB2E525B7D1F300938842 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2D825B7D1F200938842 /* SAAutoTrackUtils.h */; };
-		4D4DB2E625B7D1F300938842 /* SAReferrerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2D925B7D1F200938842 /* SAReferrerManager.m */; };
-		4D4DB2E725B7D1F300938842 /* SAReferrerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2DA25B7D1F200938842 /* SAReferrerManager.h */; };
 		4D4DB2EA25B7D1F300938842 /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2DD25B7D1F200938842 /* UIApplication+AutoTrack.h */; };
 		4D4DB2EB25B7D1F300938842 /* UIView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2DE25B7D1F200938842 /* UIView+AutoTrack.m */; };
 		4D4DB2EC25B7D1F300938842 /* UIView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2DF25B7D1F300938842 /* UIView+AutoTrack.h */; };
@@ -166,11 +164,11 @@
 		881A4228253D7B5E00854F69 /* SALocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4226253D7B5E00854F69 /* SALocationManager.m */; };
 		881A4231253D7B8600854F69 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A422F253D7B8600854F69 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881A4232253D7B8600854F69 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4230253D7B8600854F69 /* SAAppExtensionDataManager.m */; };
-		888D7A0D2567B3C30052FCF7 /* SADebugModeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */; };
-		888D7A0E2567B3C30052FCF7 /* SADebugModeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */; };
 		88329A91257651E300F8B34E /* SAIDFAHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 88329A8F257651E300F8B34E /* SAIDFAHelper.h */; };
 		88329A92257651E300F8B34E /* SAIDFAHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 88329A90257651E300F8B34E /* SAIDFAHelper.m */; };
 		884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */ = {isa = PBXBuildFile; fileRef = 884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		888D7A0D2567B3C30052FCF7 /* SADebugModeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */; };
+		888D7A0E2567B3C30052FCF7 /* SADebugModeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */; };
 		A805C7A12615CDAC00CF28C5 /* SAAppLifecycle.h in Headers */ = {isa = PBXBuildFile; fileRef = A805C79F2615CDAC00CF28C5 /* SAAppLifecycle.h */; };
 		A805C7A22615CDAC00CF28C5 /* SAAppLifecycle.m in Sources */ = {isa = PBXBuildFile; fileRef = A805C7A02615CDAC00CF28C5 /* SAAppLifecycle.m */; };
 		A80D28EB2616BD7900122A2D /* SAAppStartTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = A80D28E72616BD7900122A2D /* SAAppStartTracker.h */; };
@@ -192,6 +190,8 @@
 		A835227825E5FD75005D69D5 /* SAEncryptManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A835226E25E5FD75005D69D5 /* SAEncryptManager.h */; };
 		A835227925E5FD75005D69D5 /* SAAbstractEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = A835226F25E5FD75005D69D5 /* SAAbstractEncryptor.h */; };
 		A835227A25E5FD75005D69D5 /* SAAbstractEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = A835227025E5FD75005D69D5 /* SAAbstractEncryptor.m */; };
+		A87EE17526228B0900BC950B /* SAReferrer.m in Sources */ = {isa = PBXBuildFile; fileRef = A87EE17326228B0900BC950B /* SAReferrer.m */; };
+		A87EE17626228B0900BC950B /* SAReferrer.h in Headers */ = {isa = PBXBuildFile; fileRef = A87EE17426228B0900BC950B /* SAReferrer.h */; };
 		A8A87E4C2568EBD500E16895 /* SARemoteConfigCheckOperator.h in Headers */ = {isa = PBXBuildFile; fileRef = A8A87E422568EBD500E16895 /* SARemoteConfigCheckOperator.h */; };
 		A8A87E4D2568EBD500E16895 /* SARemoteConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A87E432568EBD500E16895 /* SARemoteConfigManager.m */; };
 		A8A87E4E2568EBD500E16895 /* SARemoteConfigCheckOperator.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A87E442568EBD500E16895 /* SARemoteConfigCheckOperator.m */; };
@@ -312,8 +312,6 @@
 		4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADelegateProxy.m; sourceTree = "<group>"; };
 		4D4DB2D725B7D1F200938842 /* UIViewController+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AutoTrack.h"; sourceTree = "<group>"; };
 		4D4DB2D825B7D1F200938842 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
-		4D4DB2D925B7D1F200938842 /* SAReferrerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAReferrerManager.m; sourceTree = "<group>"; };
-		4D4DB2DA25B7D1F200938842 /* SAReferrerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAReferrerManager.h; sourceTree = "<group>"; };
 		4D4DB2DD25B7D1F200938842 /* UIApplication+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+AutoTrack.h"; sourceTree = "<group>"; };
 		4D4DB2DE25B7D1F200938842 /* UIView+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+AutoTrack.m"; sourceTree = "<group>"; };
 		4D4DB2DF25B7D1F300938842 /* UIView+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+AutoTrack.h"; sourceTree = "<group>"; };
@@ -429,11 +427,11 @@
 		881A4226253D7B5E00854F69 /* SALocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALocationManager.m; sourceTree = "<group>"; };
 		881A422F253D7B8600854F69 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAAppExtensionDataManager.h; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.h; sourceTree = SOURCE_ROOT; };
 		881A4230253D7B8600854F69 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAAppExtensionDataManager.m; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.m; sourceTree = SOURCE_ROOT; };
-		888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADebugModeManager.h; sourceTree = "<group>"; };
-		888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADebugModeManager.m; sourceTree = "<group>"; };
 		88329A8F257651E300F8B34E /* SAIDFAHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAIDFAHelper.h; sourceTree = "<group>"; };
 		88329A90257651E300F8B34E /* SAIDFAHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAIDFAHelper.m; sourceTree = "<group>"; };
 		884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+Public.h"; sourceTree = "<group>"; };
+		888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADebugModeManager.h; sourceTree = "<group>"; };
+		888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADebugModeManager.m; sourceTree = "<group>"; };
 		A805C79F2615CDAC00CF28C5 /* SAAppLifecycle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAppLifecycle.h; sourceTree = "<group>"; };
 		A805C7A02615CDAC00CF28C5 /* SAAppLifecycle.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAppLifecycle.m; sourceTree = "<group>"; };
 		A80D28E72616BD7900122A2D /* SAAppStartTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppStartTracker.h; sourceTree = "<group>"; };
@@ -455,6 +453,8 @@
 		A835226E25E5FD75005D69D5 /* SAEncryptManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAEncryptManager.h; sourceTree = "<group>"; };
 		A835226F25E5FD75005D69D5 /* SAAbstractEncryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAbstractEncryptor.h; sourceTree = "<group>"; };
 		A835227025E5FD75005D69D5 /* SAAbstractEncryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAbstractEncryptor.m; sourceTree = "<group>"; };
+		A87EE17326228B0900BC950B /* SAReferrer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAReferrer.m; sourceTree = "<group>"; };
+		A87EE17426228B0900BC950B /* SAReferrer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAReferrer.h; sourceTree = "<group>"; };
 		A8A87E422568EBD500E16895 /* SARemoteConfigCheckOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SARemoteConfigCheckOperator.h; sourceTree = "<group>"; };
 		A8A87E432568EBD500E16895 /* SARemoteConfigManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SARemoteConfigManager.m; sourceTree = "<group>"; };
 		A8A87E442568EBD500E16895 /* SARemoteConfigCheckOperator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SARemoteConfigCheckOperator.m; sourceTree = "<group>"; };
@@ -579,11 +579,10 @@
 				4D4DB28C25B7D17E00938842 /* Cell */,
 				A80D28E62616BD7900122A2D /* AppStart */,
 				A80D28F52616BDE000122A2D /* AppEnd */,
+				A87EE17226228B0900BC950B /* AppViewScreen */,
 				4D4DB2E125B7D1F300938842 /* SAAutoTrackProperty.h */,
 				4D4DB2D825B7D1F200938842 /* SAAutoTrackUtils.h */,
 				4D4DB2E225B7D1F300938842 /* SAAutoTrackUtils.m */,
-				4D4DB2DA25B7D1F200938842 /* SAReferrerManager.h */,
-				4D4DB2D925B7D1F200938842 /* SAReferrerManager.m */,
 				4D4DB2DD25B7D1F200938842 /* UIApplication+AutoTrack.h */,
 				4D4DB2E025B7D1F300938842 /* UIApplication+AutoTrack.m */,
 				4D4DB2DF25B7D1F300938842 /* UIView+AutoTrack.h */,
@@ -922,6 +921,15 @@
 			path = Location;
 			sourceTree = "<group>";
 		};
+		888D7A0A2567B3AE0052FCF7 /* DebugMode */ = {
+			isa = PBXGroup;
+			children = (
+				888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */,
+				888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */,
+			);
+			path = DebugMode;
+			sourceTree = "<group>";
+		};
 		A80D28E62616BD7900122A2D /* AppStart */ = {
 			isa = PBXGroup;
 			children = (
@@ -938,15 +946,15 @@
 				A80D28F72616BE0600122A2D /* SAAppEndTracker.m */,
 			);
 			path = AppEnd;
-            sourceTree = "<group>";
-        };
-		888D7A0A2567B3AE0052FCF7 /* DebugMode */ = {
+			sourceTree = "<group>";
+		};
+		A87EE17226228B0900BC950B /* AppViewScreen */ = {
 			isa = PBXGroup;
 			children = (
-				888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */,
-				888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */,
+				A87EE17326228B0900BC950B /* SAReferrer.m */,
+				A87EE17426228B0900BC950B /* SAReferrer.h */,
 			);
-			path = DebugMode;
+			path = AppViewScreen;
 			sourceTree = "<group>";
 		};
 		CB30BD4A22840CA40004061D = {
@@ -1029,15 +1037,6 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		FCEA7FB725F8D95400C81687 /* CAID */ = {
-			isa = PBXGroup;
-			children = (
-				FCEA7FB925F8D95400C81687 /* SACAIDUtils.h */,
-				FCEA7FB825F8D95400C81687 /* SACAIDUtils.m */,
-			);
-			path = CAID;
-			sourceTree = "<group>";
-		};
 		F2346B7D25E0AE5600AA3684 /* HookDelegate */ = {
 			isa = PBXGroup;
 			children = (
@@ -1097,7 +1096,6 @@
 				881A420F253D7B5000854F69 /* SAAlertController.h in Headers */,
 				A80D28EB2616BD7900122A2D /* SAAppStartTracker.h in Headers */,
 				4D9E5DB525943BCD0095A0D0 /* SAPropertyDescription.h in Headers */,
-				4D4DB2E925B7D1F300938842 /* UIGestureRecognizer+AutoTrack.h in Headers */,
 				F277F5C025CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h in Headers */,
 				881A419A253D7B4F00854F69 /* SADeviceOrientationManager.h in Headers */,
 				4D2D53C22591EB3A00805141 /* SAReadWriteLock.h in Headers */,
@@ -1111,11 +1109,7 @@
 				4DA89BC325C2BC1E003ABA43 /* SANetwork.h in Headers */,
 				881A41A2253D7B4F00854F69 /* SAModuleManager.h in Headers */,
 				A805C7A12615CDAC00CF28C5 /* SAAppLifecycle.h in Headers */,
-				881A418C253D7B4F00854F69 /* SAFileLogger.h in Headers */,
-				881A41CD253D7B5000854F69 /* SAApplicationStateSerializer.h in Headers */,
 				888D7A0D2567B3C30052FCF7 /* SADebugModeManager.h in Headers */,
-				881A41C6253D7B4F00854F69 /* SAEventStore.h in Headers */,
-				881A4219253D7B5000854F69 /* SAVisualizedObjectSerializerManger.h in Headers */,
 				4D9E5DAD25943BCD0095A0D0 /* SAAuxiliaryToolManager.h in Headers */,
 				881A41F6253D7B5000854F69 /* NSString+HashCode.h in Headers */,
 				88329A91257651E300F8B34E /* SAIDFAHelper.h in Headers */,
@@ -1129,11 +1123,11 @@
 				A8A87E542568EBD500E16895 /* SARemoteConfigManager.h in Headers */,
 				A835227525E5FD75005D69D5 /* SARSAEncryptor.h in Headers */,
 				A835227825E5FD75005D69D5 /* SAEncryptManager.h in Headers */,
-				4D4DB2CA25B7D19C00938842 /* NSObject+SACellClick.h in Headers */,
 				F277F5C925CF9A43009B5CE6 /* SANotificationUtil.h in Headers */,
 				881A41A0253D7B4F00854F69 /* SensorsAnalyticsSDK+Private.h in Headers */,
 				4D9E5DB625943BCD0095A0D0 /* SAVisualizedSnapshotMessage.h in Headers */,
 				F277F5C825CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.h in Headers */,
+				A87EE17626228B0900BC950B /* SAReferrer.h in Headers */,
 				A80D290A26172D0B00122A2D /* SensorsAnalyticsSDK+SAAutoTrack.h in Headers */,
 				A8A87E532568EBD500E16895 /* SARemoteConfigCommonOperator.h in Headers */,
 				881A4212253D7B5000854F69 /* SAIdentifier.h in Headers */,
@@ -1182,7 +1176,6 @@
 				4D9E5DAC25943BCD0095A0D0 /* SAValueTransformers.h in Headers */,
 				4D2D53992591EB2100805141 /* SADatabase.h in Headers */,
 				881A4191253D7B4F00854F69 /* SADeeplinkManager.h in Headers */,
-				4D4DB2E725B7D1F300938842 /* SAReferrerManager.h in Headers */,
 				4D9E5DC925943BCE0095A0D0 /* SAApplicationStateSerializer.h in Headers */,
 				881A419B253D7B4F00854F69 /* SAConfigOptions.h in Headers */,
 				4D9E5DC325943BCE0095A0D0 /* SATypeDescription.h in Headers */,
@@ -1370,13 +1363,7 @@
 				881A41E4253D7B5000854F69 /* SAKeyChainItemWrapper.m in Sources */,
 				881A41AA253D7B4F00854F69 /* SAScriptMessageHandler.m in Sources */,
 				881A4194253D7B4F00854F69 /* SATrackTimer.m in Sources */,
-				45922DC42553ECE0003AFEE7 /* SAClassHelper.m in Sources */,
-				881A4208253D7B5000854F69 /* SAReachability.m in Sources */,
-				881A421B253D7B5000854F69 /* SAVisualizedAutoTrackObjectSerializer.m in Sources */,
-				881A41DA253D7B5000854F69 /* SAApplicationStateSerializer.m in Sources */,
-				881A41C7253D7B4F00854F69 /* SATypeDescription.m in Sources */,
 				888D7A0E2567B3C30052FCF7 /* SADebugModeManager.m in Sources */,
-				881A41B6253D7B4F00854F69 /* SAWeakPropertyContainer.m in Sources */,
 				A835227725E5FD75005D69D5 /* SAECCEncryptor.m in Sources */,
 				4D2D53BE2591EB3A00805141 /* SAJSONUtil.m in Sources */,
 				4D2D537B2591EB0600805141 /* SALogMessage.m in Sources */,
@@ -1395,7 +1382,6 @@
 				881A41F9253D7B5000854F69 /* SAConfigOptions.m in Sources */,
 				4D4DB2EF25B7D1F300938842 /* SAAutoTrackUtils.m in Sources */,
 				4D9E5DAE25943BCD0095A0D0 /* SAClassDescription.m in Sources */,
-				4D4DB2E625B7D1F300938842 /* SAReferrerManager.m in Sources */,
 				4D4DB2D025B7D19C00938842 /* SADelegateProxy.m in Sources */,
 				A835227625E5FD75005D69D5 /* SARSAEncryptor.m in Sources */,
 				881A4180253D7B4F00854F69 /* SASecurityPolicy.m in Sources */,
@@ -1431,7 +1417,7 @@
 				881A4210253D7B5000854F69 /* SAIdentifier.m in Sources */,
 				4D9E5DC725943BCE0095A0D0 /* SAVisualizedUtils.m in Sources */,
 				F277F5BF25CF9A43009B5CE6 /* SAApplicationDelegateProxy.m in Sources */,
-				881A4209253D7B5000854F69 /* SAEncryptUtils.m in Sources */,
+				A87EE17526228B0900BC950B /* SAReferrer.m in Sources */,
 				4D9E5DA825943BCD0095A0D0 /* NSInvocation+SAHelpers.m in Sources */,
 				453ECA2C25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.m in Sources */,
 				881A41A1253D7B4F00854F69 /* SAAppExtensionDataManager.m in Sources */,
