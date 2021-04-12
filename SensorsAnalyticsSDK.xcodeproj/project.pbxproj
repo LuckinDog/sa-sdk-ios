@@ -129,7 +129,7 @@
 		881A4181253D7B4F00854F69 /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40D4253D7B4F00854F69 /* NSString+HashCode.m */; };
 		881A4191253D7B4F00854F69 /* SADeeplinkManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40E5253D7B4F00854F69 /* SADeeplinkManager.h */; };
 		881A4193253D7B4F00854F69 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */; };
-		881A4194253D7B4F00854F69 /* SATrackTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E8253D7B4F00854F69 /* SATrackTimer.m */; };
+		881A4194253D7B4F00854F69 /* SATrackTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E8253D7B4F00854F69 /* SATrackTimerManager.m */; };
 		881A4195253D7B4F00854F69 /* SAObject+SAConfigOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E9253D7B4F00854F69 /* SAObject+SAConfigOptions.m */; };
 		881A4196253D7B4F00854F69 /* SAConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40EA253D7B4F00854F69 /* SAConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881A4197253D7B4F00854F69 /* SASwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40EB253D7B4F00854F69 /* SASwizzle.h */; };
@@ -161,7 +161,7 @@
 		881A41FC253D7B5000854F69 /* SASwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4157253D7B4F00854F69 /* SASwizzle.m */; };
 		881A41FD253D7B5000854F69 /* SAObject+SAConfigOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A4158253D7B4F00854F69 /* SAObject+SAConfigOptions.h */; };
 		881A41FE253D7B5000854F69 /* SAConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4159253D7B4F00854F69 /* SAConstants.m */; };
-		881A41FF253D7B5000854F69 /* SATrackTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A415A253D7B4F00854F69 /* SATrackTimer.h */; };
+		881A41FF253D7B5000854F69 /* SATrackTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A415A253D7B4F00854F69 /* SATrackTimerManager.h */; };
 		881A4201253D7B5000854F69 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A415C253D7B4F00854F69 /* SAAppExtensionDataManager.h */; };
 		881A4202253D7B5000854F69 /* SAModuleManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A415D253D7B4F00854F69 /* SAModuleManager.m */; };
 		881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4163253D7B4F00854F69 /* SAHTTPSession.m */; };
@@ -392,7 +392,7 @@
 		881A40E5253D7B4F00854F69 /* SADeeplinkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADeeplinkManager.h; sourceTree = "<group>"; };
 		881A40E6253D7B4F00854F69 /* SANetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDK.m; sourceTree = "<group>"; };
-		881A40E8253D7B4F00854F69 /* SATrackTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATrackTimer.m; sourceTree = "<group>"; };
+		881A40E8253D7B4F00854F69 /* SATrackTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerManager.m; sourceTree = "<group>"; };
 		881A40E9253D7B4F00854F69 /* SAObject+SAConfigOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SAObject+SAConfigOptions.m"; sourceTree = "<group>"; };
 		881A40EA253D7B4F00854F69 /* SAConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAConstants.h; sourceTree = "<group>"; };
 		881A40EB253D7B4F00854F69 /* SASwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASwizzle.h; sourceTree = "<group>"; };
@@ -424,7 +424,7 @@
 		881A4157253D7B4F00854F69 /* SASwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASwizzle.m; sourceTree = "<group>"; };
 		881A4158253D7B4F00854F69 /* SAObject+SAConfigOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SAObject+SAConfigOptions.h"; sourceTree = "<group>"; };
 		881A4159253D7B4F00854F69 /* SAConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConstants.m; sourceTree = "<group>"; };
-		881A415A253D7B4F00854F69 /* SATrackTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SATrackTimer.h; sourceTree = "<group>"; };
+		881A415A253D7B4F00854F69 /* SATrackTimerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SATrackTimerManager.h; sourceTree = "<group>"; };
 		881A415C253D7B4F00854F69 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppExtensionDataManager.h; sourceTree = "<group>"; };
 		881A415D253D7B4F00854F69 /* SAModuleManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAModuleManager.m; sourceTree = "<group>"; };
 		881A4163253D7B4F00854F69 /* SAHTTPSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHTTPSession.m; sourceTree = "<group>"; };
@@ -581,9 +581,19 @@
 			path = SuperProperty;
 			sourceTree = "<group>";
 		};
+		45720B2126246201000F41C7 /* TrackTimer */ = {
+			isa = PBXGroup;
+			children = (
+				881A415A253D7B4F00854F69 /* SATrackTimerManager.h */,
+				881A40E8253D7B4F00854F69 /* SATrackTimerManager.m */,
+			);
+			path = TrackTimer;
+			sourceTree = "<group>";
+		};
 		4592509C261AC8B800A08FC3 /* Event */ = {
 			isa = PBXGroup;
 			children = (
+				45720B2126246201000F41C7 /* TrackTimer */,
 				457209FD26214CC5000F41C7 /* SuperProperty */,
 				4592509D261AC8FC00A08FC3 /* SAEventBuildStrategy.h */,
 				4592509E261AC8FC00A08FC3 /* SAEventBuildStrategy.m */,
@@ -746,8 +756,6 @@
 				881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */,
 				881A40EB253D7B4F00854F69 /* SASwizzle.h */,
 				881A4157253D7B4F00854F69 /* SASwizzle.m */,
-				881A415A253D7B4F00854F69 /* SATrackTimer.h */,
-				881A40E8253D7B4F00854F69 /* SATrackTimer.m */,
 				881A4156253D7B4F00854F69 /* SensorsAnalyticsExceptionHandler.h */,
 				881A40EC253D7B4F00854F69 /* SensorsAnalyticsExceptionHandler.m */,
 				881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */,
@@ -1134,7 +1142,7 @@
 				4D9E5DC625943BCE0095A0D0 /* SAVisualizedMessage.h in Headers */,
 				453FC64725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h in Headers */,
 				4D9E5DBD25943BCE0095A0D0 /* SAJSTouchEventView.h in Headers */,
-				881A41FF253D7B5000854F69 /* SATrackTimer.h in Headers */,
+				881A41FF253D7B5000854F69 /* SATrackTimerManager.h in Headers */,
 				453FC64125EE3D6300591C47 /* SAGestureViewProcessorFactory.h in Headers */,
 				A8A87E502568EBD500E16895 /* SARemoteConfigModel.h in Headers */,
 				881A41A8253D7B4F00854F69 /* SAFileStore.h in Headers */,
@@ -1354,7 +1362,7 @@
 				4D2D53842591EB0600805141 /* SAFileLogger.m in Sources */,
 				881A41E4253D7B5000854F69 /* SAKeyChainItemWrapper.m in Sources */,
 				881A41AA253D7B4F00854F69 /* SAScriptMessageHandler.m in Sources */,
-				881A4194253D7B4F00854F69 /* SATrackTimer.m in Sources */,
+				881A4194253D7B4F00854F69 /* SATrackTimerManager.m in Sources */,
 				888D7A0E2567B3C30052FCF7 /* SADebugModeManager.m in Sources */,
 				A835227725E5FD75005D69D5 /* SAECCEncryptor.m in Sources */,
 				4D2D53BE2591EB3A00805141 /* SAJSONUtil.m in Sources */,

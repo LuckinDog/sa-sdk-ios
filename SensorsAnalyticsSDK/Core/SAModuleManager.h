@@ -103,4 +103,10 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @end
 
+#pragma mark -
+
+@interface SAModuleManager (TrackTimer) <SATrackTimerModuleProtocol>
+
+@end
+
 NS_ASSUME_NONNULL_END

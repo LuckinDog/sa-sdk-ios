@@ -272,76 +272,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)identify:(NSString *)anonymousId;
 
-#pragma mark - trackTimer
-/**
- 开始事件计时
-
- @discussion
- 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimerStart:"Event" 记录事件开始时间，该方法并不会真正发送事件；
- 随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，
- SDK 会追踪 "Event" 事件，并自动将事件持续时间记录在事件属性 "event_duration" 中，时间单位为秒。
-
- @param event 事件名称
- @return 返回计时事件的 eventId，用于交叉计时场景。普通计时可忽略
- */
-- (nullable NSString *)trackTimerStart:(NSString *)event;
-
-/**
- 结束事件计时
-
- @discussion
- 多次调用 trackTimerEnd: 时，以首次调用为准
-
- @param event 事件名称或事件的 eventId
- @param propertyDict 自定义属性
- */
-- (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
-
-/**
- 结束事件计时
-
- @discussion
- 多次调用 trackTimerEnd: 时，以首次调用为准
-
- @param event 事件名称或事件的 eventId
- */
-- (void)trackTimerEnd:(NSString *)event;
-
-/**
- 暂停事件计时
-
- @discussion
- 多次调用 trackTimerPause: 时，以首次调用为准。
-
- @param event 事件名称或事件的 eventId
- */
-- (void)trackTimerPause:(NSString *)event;
-
-/**
- 恢复事件计时
-
- @discussion
- 多次调用 trackTimerResume: 时，以首次调用为准。
-
- @param event 事件名称或事件的 eventId
- */
-- (void)trackTimerResume:(NSString *)event;
-
-/**
-删除事件计时
-
- @discussion
- 多次调用 removeTimer: 时，只有首次调用有效。
-
- @param event 事件名称或事件的 eventId
-*/
-- (void)removeTimer:(NSString *)event;
-
-/**
- 清除所有事件计时器
- */
-- (void)clearTrackTimer;
-
 - (UIViewController *_Nullable)currentViewController;
 
 #pragma mark track event
@@ -905,6 +835,80 @@ NS_ASSUME_NONNULL_BEGIN
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
  */
 - (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
+
+@end
+
+#pragma mark - TrackTimer
+@interface SensorsAnalyticsSDK (TrackTimer)
+
+/**
+ 开始事件计时
+
+ @discussion
+ 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimerStart:"Event" 记录事件开始时间，该方法并不会真正发送事件；
+ 随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，
+ SDK 会追踪 "Event" 事件，并自动将事件持续时间记录在事件属性 "event_duration" 中，时间单位为秒。
+
+ @param event 事件名称
+ @return 返回计时事件的 eventId，用于交叉计时场景。普通计时可忽略
+ */
+- (nullable NSString *)trackTimerStart:(NSString *)event;
+
+/**
+ 结束事件计时
+
+ @discussion
+ 多次调用 trackTimerEnd: 时，以首次调用为准
+
+ @param event 事件名称或事件的 eventId
+ @param propertyDict 自定义属性
+ */
+- (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
+
+/**
+ 结束事件计时
+
+ @discussion
+ 多次调用 trackTimerEnd: 时，以首次调用为准
+
+ @param event 事件名称或事件的 eventId
+ */
+- (void)trackTimerEnd:(NSString *)event;
+
+/**
+ 暂停事件计时
+
+ @discussion
+ 多次调用 trackTimerPause: 时，以首次调用为准。
+
+ @param event 事件名称或事件的 eventId
+ */
+- (void)trackTimerPause:(NSString *)event;
+
+/**
+ 恢复事件计时
+
+ @discussion
+ 多次调用 trackTimerResume: 时，以首次调用为准。
+
+ @param event 事件名称或事件的 eventId
+ */
+- (void)trackTimerResume:(NSString *)event;
+
+/**
+删除事件计时
+
+ @discussion
+ 多次调用 removeTimer: 时，只有首次调用有效。
+
+ @param event 事件名称或事件的 eventId
+*/
+- (void)removeTimer:(NSString *)event;
+
+/**
+ 清除所有事件计时器
+ */
+- (void)clearTrackTimer;
 
 @end
 

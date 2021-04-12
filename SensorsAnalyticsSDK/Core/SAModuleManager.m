@@ -35,6 +35,7 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSASuperPropertyModuleName = @"SuperProperty";
+static NSString * const kSATrackTimerModuleName = @"TrackTimer";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAGestureModuleName = @"Gesture";
 
@@ -59,6 +60,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     [SAModuleManager.sharedInstance handleDebugMode:debugMode];
     // 初始化公共属性模块
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSASuperPropertyModuleName];
+    // 初始化 Track Timer 模块
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSATrackTimerModuleName];
     
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
@@ -337,6 +340,61 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (NSDictionary *)acquireDynamicSuperProperties {
     return [self.superPropertyManager acquireDynamicSuperProperties];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (TrackTimer)
+
+- (id<SATrackTimerModuleProtocol>)trackTimerManager {
+    id<SATrackTimerModuleProtocol> manager = (id<SATrackTimerModuleProtocol>)self.modules[kSATrackTimerModuleName];
+    return manager;
+}
+
+- (NSString *)generateEventIdByEventName:(NSString *)eventName {
+    return [self.trackTimerManager generateEventIdByEventName:eventName];
+}
+
+- (void)trackTimerStart:(NSString *)eventId currentSysUpTime:(UInt64)currentSysUpTime {
+    [self.trackTimerManager trackTimerStart:eventId currentSysUpTime:currentSysUpTime];
+}
+
+- (void)trackTimerStart:(NSString *)eventId timeUnit:(SensorsAnalyticsTimeUnit)timeUnit currentSysUpTime:(UInt64)currentSysUpTime {
+    [self.trackTimerManager trackTimerStart:eventId timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
+}
+
+- (void)trackTimerPause:(NSString *)eventId currentSysUpTime:(UInt64)currentSysUpTime {
+    [self.trackTimerManager trackTimerPause:eventId currentSysUpTime:currentSysUpTime];
+}
+
+- (void)trackTimerResume:(NSString *)eventId currentSysUpTime:(UInt64)currentSysUpTime {
+    [self.trackTimerManager trackTimerResume:eventId currentSysUpTime:currentSysUpTime];
+}
+
+- (void)trackTimerRemove:(NSString *)eventId {
+    [self.trackTimerManager trackTimerRemove:eventId];
+}
+
+- (nullable NSNumber *)eventDurationFromEventId:(NSString *)eventId currentSysUpTime:(UInt64)currentSysUpTime {
+    return [self.trackTimerManager eventDurationFromEventId:eventId currentSysUpTime:currentSysUpTime];
+}
+
+- (NSString *)eventNameFromEventId:(NSString *)eventId {
+    return [self.trackTimerManager eventNameFromEventId:eventId];
+}
+
+- (void)pauseAllEventTimers:(UInt64)currentSysUpTime {
+    [self.trackTimerManager pauseAllEventTimers:currentSysUpTime];
+}
+
+- (void)resumeAllEventTimers:(UInt64)currentSysUpTime {
+    [self.trackTimerManager resumeAllEventTimers:currentSysUpTime];
+}
+
+- (void)clearAllEventTimers {
+    [self.trackTimerManager clearAllEventTimers];
 }
 
 @end
