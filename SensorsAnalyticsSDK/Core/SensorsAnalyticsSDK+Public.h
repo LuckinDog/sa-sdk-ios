@@ -408,63 +408,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @abstract
- * 用来设置每个事件都带有的一些公共属性
- *
- * @discussion
- * 当 track 的 Properties，superProperties 和 SDK 自动生成的 automaticProperties 有相同的 key 时，遵循如下的优先级：
- *    track.properties > superProperties > automaticProperties
- * 另外，当这个接口被多次调用时，是用新传入的数据去 merge 先前的数据，并在必要时进行 merge
- * 例如，在调用接口前，dict 是 @{@"a":1, @"b": "bbb"}，传入的 dict 是 @{@"b": 123, @"c": @"asd"}，则 merge 后的结果是
- * @{"a":1, @"b": 123, @"c": @"asd"}，同时，SDK 会自动将 superProperties 保存到文件中，下次启动时也会从中读取
- *
- * @param propertyDict 传入 merge 到公共属性的 dict
- */
-- (void)registerSuperProperties:(NSDictionary *)propertyDict;
-
-/**
- * @abstract
- * 用来设置事件的动态公共属性
- *
- * @discussion
- * 当 track 的 Properties，superProperties 和 SDK 自动生成的 automaticProperties 有相同的 key 时，遵循如下的优先级：
- *    track.properties > dynamicSuperProperties > superProperties > automaticProperties
- *
- * 例如，track.properties 是 @{@"a":1, @"b": "bbb"}，返回的 eventCommonProperty 是 @{@"b": 123, @"c": @"asd"}，
- * superProperties 是  @{@"a":1, @"b": "bbb",@"c":@"ccc"}，automaticProperties 是 @{@"a":1, @"b": "bbb",@"d":@"ddd"},
- * 则 merge 后的结果是 @{"a":1, @"b": "bbb", @"c": @"asd",@"d":@"ddd"}
- * 返回的 NSDictionary 需满足以下要求
- * 重要：1,key 必须是 NSString
- *          2,key 的名称必须符合要求
- *          3,value 的类型必须是 NSString、NSNumber、NSSet、NSArray、NSDate
- *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
- * @param dynamicSuperProperties block 用来返回事件的动态公共属性
- */
-- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties;
-
-/**
- * @abstract
- * 从 superProperty 中删除某个 property
- *
- * @param property 待删除的 property 的名称
- */
-- (void)unregisterSuperProperty:(NSString *)property;
-
-/**
- * @abstract
- * 删除当前所有的 superProperty
- */
-- (void)clearSuperProperties;
-
-/**
- * @abstract
- * 拿到当前的 superProperty 的副本
- *
- * @return 当前的 superProperty 的副本
- */
-- (NSDictionary *)currentSuperProperties;
-
-/**
- * @abstract
  * 得到 SDK 的版本
  *
  * @return SDK 的版本
@@ -909,6 +852,68 @@ NS_ASSUME_NONNULL_BEGIN
  清除所有事件计时器
  */
 - (void)clearTrackTimer;
+
+@end
+
+#pragma mark - SuperProperties
+@interface SensorsAnalyticsSDK (SuperProperties)
+
+/**
+ * @abstract
+ * 用来设置每个事件都带有的一些公共属性
+ *
+ * @discussion
+ * 当 track 的 Properties，superProperties 和 SDK 自动生成的 automaticProperties 有相同的 key 时，遵循如下的优先级：
+ *    track.properties > superProperties > automaticProperties
+ * 另外，当这个接口被多次调用时，是用新传入的数据去 merge 先前的数据，并在必要时进行 merge
+ * 例如，在调用接口前，dict 是 @{@"a":1, @"b": "bbb"}，传入的 dict 是 @{@"b": 123, @"c": @"asd"}，则 merge 后的结果是
+ * @{"a":1, @"b": 123, @"c": @"asd"}，同时，SDK 会自动将 superProperties 保存到文件中，下次启动时也会从中读取
+ *
+ * @param propertyDict 传入 merge 到公共属性的 dict
+ */
+- (void)registerSuperProperties:(NSDictionary *)propertyDict;
+
+/**
+ * @abstract
+ * 用来设置事件的动态公共属性
+ *
+ * @discussion
+ * 当 track 的 Properties，superProperties 和 SDK 自动生成的 automaticProperties 有相同的 key 时，遵循如下的优先级：
+ *    track.properties > dynamicSuperProperties > superProperties > automaticProperties
+ *
+ * 例如，track.properties 是 @{@"a":1, @"b": "bbb"}，返回的 eventCommonProperty 是 @{@"b": 123, @"c": @"asd"}，
+ * superProperties 是  @{@"a":1, @"b": "bbb",@"c":@"ccc"}，automaticProperties 是 @{@"a":1, @"b": "bbb",@"d":@"ddd"},
+ * 则 merge 后的结果是 @{"a":1, @"b": "bbb", @"c": @"asd",@"d":@"ddd"}
+ * 返回的 NSDictionary 需满足以下要求
+ * 重要：1,key 必须是 NSString
+ *          2,key 的名称必须符合要求
+ *          3,value 的类型必须是 NSString、NSNumber、NSSet、NSArray、NSDate
+ *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
+ * @param dynamicSuperProperties block 用来返回事件的动态公共属性
+ */
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties;
+
+/**
+ * @abstract
+ * 从 superProperty 中删除某个 property
+ *
+ * @param property 待删除的 property 的名称
+ */
+- (void)unregisterSuperProperty:(NSString *)property;
+
+/**
+ * @abstract
+ * 删除当前所有的 superProperty
+ */
+- (void)clearSuperProperties;
+
+/**
+ * @abstract
+ * 拿到当前的 superProperty 的副本
+ *
+ * @return 当前的 superProperty 的副本
+ */
+- (NSDictionary *)currentSuperProperties;
 
 @end
 

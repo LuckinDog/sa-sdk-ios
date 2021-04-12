@@ -1591,21 +1591,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return YES;
 }
 
-- (void)registerSuperProperties:(NSDictionary *)propertyDict {
-    propertyDict = [propertyDict copy];
-    if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
-        SALogError(@"%@ failed to register super properties.", self);
-        return;
-    }
-    dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance registerSuperProperties:propertyDict];
-    });
-}
-
-- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    [SAModuleManager.sharedInstance registerDynamicSuperProperties:dynamicSuperProperties];
-}
-
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
     if (!callback) {
         return;
@@ -1614,22 +1599,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         self.trackEventCallback = callback;
     });
-}
-
-- (void)unregisterSuperProperty:(NSString *)property {
-    dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance unregisterSuperProperty:property];
-    });
-}
-
-- (void)clearSuperProperties {
-    dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance clearSuperProperties];
-    });
-}
-
-- (NSDictionary *)currentSuperProperties {
-    return [SAModuleManager.sharedInstance currentSuperProperties];
 }
 
 #pragma mark - Local caches
@@ -2308,6 +2277,42 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [SAModuleManager.sharedInstance clearAllEventTimers];
     });
+}
+
+@end
+
+#pragma mark - SuperProperties
+@implementation SensorsAnalyticsSDK (SuperProperties)
+
+- (void)registerSuperProperties:(NSDictionary *)propertyDict {
+    propertyDict = [propertyDict copy];
+    if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
+        SALogError(@"%@ failed to register super properties.", self);
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [SAModuleManager.sharedInstance registerSuperProperties:propertyDict];
+    });
+}
+
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
+    [SAModuleManager.sharedInstance registerDynamicSuperProperties:dynamicSuperProperties];
+}
+
+- (void)unregisterSuperProperty:(NSString *)property {
+    dispatch_async(self.serialQueue, ^{
+        [SAModuleManager.sharedInstance unregisterSuperProperty:property];
+    });
+}
+
+- (void)clearSuperProperties {
+    dispatch_async(self.serialQueue, ^{
+        [SAModuleManager.sharedInstance clearSuperProperties];
+    });
+}
+
+- (NSDictionary *)currentSuperProperties {
+    return [SAModuleManager.sharedInstance currentSuperProperties];
 }
 
 @end
