@@ -638,6 +638,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
         [self handleAppEndState];
+        return;
     }
 
     // 终止
