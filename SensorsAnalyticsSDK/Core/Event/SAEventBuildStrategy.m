@@ -35,7 +35,7 @@
         NSMutableDictionary *deepLinkInfo = [NSMutableDictionary dictionary];
         [deepLinkInfo addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
         [deepLinkInfo addEntriesFromDictionary:currentProperties];
-        self.properties = [deepLinkInfo mutableCopy];
+        self.properties = [deepLinkInfo copy];
     }
 }
 

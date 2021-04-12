@@ -1,8 +1,8 @@
 //
-// SAEventBuildStrategy.h
+// SAPropertyValidator.h
 // SensorsAnalyticsSDK
 //
-// Created by yuqiang on 2021/4/5.
+// Created by yuqiang on 2021/4/12.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,18 +22,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAEventBuildStrategy : NSObject
+@interface SAPropertyValidator : NSObject
 
-@property (nonatomic, strong) NSDictionary *properties;
-
-- (void)addDeeplinkProperties;
-
-- (void)addPresetProperties;
-
-- (void)addSuperProperties;
-
-- (void)addDynamicProperties;
-
++ (BOOL)assertProperties:(NSDictionary *_Nullable*_Nullable)propertiesAddress
+            eachProperty:(BOOL(^ _Nullable)(NSString *key, NSString *value))eachProperty;
 
 @end
 

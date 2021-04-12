@@ -23,6 +23,8 @@
 		453FC64725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */; };
 		45720A0026214D13000F41C7 /* SASuperPropertyManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 457209FE26214D13000F41C7 /* SASuperPropertyManager.h */; };
 		45720A0126214D13000F41C7 /* SASuperPropertyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 457209FF26214D13000F41C7 /* SASuperPropertyManager.m */; };
+		45720B1C2624500B000F41C7 /* SAPropertyValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 45720B1A2624500B000F41C7 /* SAPropertyValidator.h */; };
+		45720B1D2624500B000F41C7 /* SAPropertyValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 45720B1B2624500B000F41C7 /* SAPropertyValidator.m */; };
 		4584B30825EF23FF00900FC4 /* SAGestureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4584B30625EF23FF00900FC4 /* SAGestureManager.h */; };
 		4584B30925EF23FF00900FC4 /* SAGestureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4584B30725EF23FF00900FC4 /* SAGestureManager.m */; };
 		4592509F261AC8FC00A08FC3 /* SAEventBuildStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4592509D261AC8FC00A08FC3 /* SAEventBuildStrategy.h */; };
@@ -259,6 +261,8 @@
 		453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+SAAutoTrack.h"; sourceTree = "<group>"; };
 		457209FE26214D13000F41C7 /* SASuperPropertyManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASuperPropertyManager.h; sourceTree = "<group>"; };
 		457209FF26214D13000F41C7 /* SASuperPropertyManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASuperPropertyManager.m; sourceTree = "<group>"; };
+		45720B1A2624500B000F41C7 /* SAPropertyValidator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPropertyValidator.h; sourceTree = "<group>"; };
+		45720B1B2624500B000F41C7 /* SAPropertyValidator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPropertyValidator.m; sourceTree = "<group>"; };
 		4584B30625EF23FF00900FC4 /* SAGestureManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureManager.h; sourceTree = "<group>"; };
 		4584B30725EF23FF00900FC4 /* SAGestureManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGestureManager.m; sourceTree = "<group>"; };
 		4592509D261AC8FC00A08FC3 /* SAEventBuildStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventBuildStrategy.h; sourceTree = "<group>"; };
@@ -587,6 +591,8 @@
 				459250A8261BF34A00A08FC3 /* SAEventObject.m */,
 				459250AE261BF37400A08FC3 /* SAEventLibObject.h */,
 				459250AF261BF37400A08FC3 /* SAEventLibObject.m */,
+				45720B1A2624500B000F41C7 /* SAPropertyValidator.h */,
+				45720B1B2624500B000F41C7 /* SAPropertyValidator.m */,
 			);
 			path = Event;
 			sourceTree = "<group>";
@@ -1120,6 +1126,7 @@
 				459250B0261BF37400A08FC3 /* SAEventLibObject.h in Headers */,
 				4D9E5DD525943BDF0095A0D0 /* UIView+SAElementPath.h in Headers */,
 				881A4197253D7B4F00854F69 /* SASwizzle.h in Headers */,
+				45720B1C2624500B000F41C7 /* SAPropertyValidator.h in Headers */,
 				4D2D537E2591EB0600805141 /* SALoggerPrePostFixFormatter.h in Headers */,
 				881A41FD253D7B5000854F69 /* SAObject+SAConfigOptions.h in Headers */,
 				4D4DB2CB25B7D19C00938842 /* SAMethodHelper.h in Headers */,
@@ -1391,6 +1398,7 @@
 				F2E9723225E637820009A2B9 /* SAAppPushManager.m in Sources */,
 				881A41FC253D7B5000854F69 /* SASwizzle.m in Sources */,
 				459250AA261BF34A00A08FC3 /* SAEventObject.m in Sources */,
+				45720B1D2624500B000F41C7 /* SAPropertyValidator.m in Sources */,
 				4D9E5DB725943BCD0095A0D0 /* SAAuxiliaryToolManager.m in Sources */,
 				881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */,
 				4D9E5DB325943BCD0095A0D0 /* SAObjectSerializerContext.m in Sources */,
