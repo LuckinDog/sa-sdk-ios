@@ -39,7 +39,7 @@
 - (instancetype)initWithEvent:(NSString *)event properties:(NSDictionary *)properties {
     if (self = [super init]) {
         self.event = event;
-        self.properties = [properties copy]
+        self.properties = [properties copy];
         self.libObject = [[SAEventLibObject alloc] init];
         [self.libObject configDetailWithEvent:event properties:properties];
         
@@ -117,18 +117,19 @@
 }
 
 - (NSDictionary *)generateJSONObject {
+    NSMutableDictionary *temp = [NSMutableDictionary dictionaryWithDictionary:self.properties];
     [self addDeeplinkProperties];
     
     NSString *libMethod = [self.libObject obtainValidLibMethod:self.properties[SAEventPresetPropertyLibMethod]];
-    self.properties[SAEventPresetPropertyLibMethod] = libMethod;
+    temp[SAEventPresetPropertyLibMethod] = libMethod;
     self.libObject.method = libMethod;
-    self.properties[SA_EVENT_LIB] = [self.libObject generateJSONObject];
+    temp[SA_EVENT_LIB] = [self.libObject generateJSONObject];
     
     [self addPresetProperties];
     [self addSuperProperties];
     [self addDynamicProperties];
     
-    return [self.properties copy];
+    return [temp copy];
 }
 
 @end
@@ -155,22 +156,6 @@
         if ([presetEventNames containsObject:event]) {
             SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         }
-        
-        if (SensorsAnalyticsSDK.sharedInstance.configOptions.enableAutoAddChannelCallbackEvent) {
-            // 后端匹配逻辑已经不需要 $channel_device_info 信息
-            // 这里仍然添加此字段是为了解决服务端版本兼容问题
-            self.properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
-
-            BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
-            self.properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
-            if (isNotContains && event) {
-                [self.trackChannelEventNames addObject:event];
-                [self archiveTrackChannelEventNames];
-            }
-        }
-        NSString *libMethod = [self.libObject obtainValidLibMethod:self.properties[SAEventPresetPropertyLibMethod]];
-        self.properties[SAEventPresetPropertyLibMethod] = libMethod;
-        self.libObject.method = libMethod;
         self.type = kSAEventTypeTrack;
     }
     return self;
@@ -190,7 +175,6 @@
             return nil;
         }
         [self addDeeplinkProperties];
-        self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
         self.libObject.method = kSALibMethodAuto;
         self.type = kSAEventTypeTrack;
     }
@@ -207,9 +191,6 @@
             return nil;
         }
         [self addDeeplinkProperties];
-        NSString *libMethod = [self.libObject obtainValidLibMethod:self.properties[SAEventPresetPropertyLibMethod]];
-        self.properties[SAEventPresetPropertyLibMethod] = libMethod;
-        self.libObject.method = libMethod;
         self.type = kSAEventTypeTrack;
     }
     return self;
