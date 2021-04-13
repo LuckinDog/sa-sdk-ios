@@ -1,8 +1,8 @@
 //
-// SAEventBuildStrategy.h
+// SAProfileEventObject.h
 // SensorsAnalyticsSDK
 //
-// Created by yuqiang on 2021/4/5.
+// Created by yuqiang on 2021/4/13.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,22 +18,19 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "SABaseEventObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAEventBuildStrategy : NSObject
+@interface SAProfileEventObject : SABaseEventObject
 
-@property (nonatomic, strong) NSDictionary *properties;
+@end
 
-//- (void)addDeeplinkPropertiesToDestination:(NSMutableDictionary *)destination;
-//
-//- (void)addPresetPropertiesToDestination:(NSMutableDictionary *)destination;
-//
-//- (void)addSuperPropertiesToDestination:(NSMutableDictionary *)destination;
-//
-//- (void)addDynamicPropertiesToDestination:(NSMutableDictionary *)destination;
+@interface SAProfileIncrementEventObject : SAProfileEventObject
 
+@end
+
+@interface SAProfileAppendEventObject : SAProfileEventObject
 
 @end
 

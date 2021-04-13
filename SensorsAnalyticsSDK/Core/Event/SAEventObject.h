@@ -18,35 +18,11 @@
 // limitations under the License.
 //
 
-#import "SAEventBuildStrategy.h"
-#import "SAEventLibObject.h"
+#import "SABaseEventObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAEventObject : SAEventBuildStrategy
-
-@property (nonatomic, strong) SAEventLibObject *libObject;
-
-@property (nonatomic, assign) UInt64 currentSystemUpTime;
-@property (nonatomic, assign) UInt64 timeStamp;
-
-@property (nonatomic, strong) NSDictionary *dynamicSuperProperties;
-
-#pragma mark - event
-@property (nonatomic, copy) NSString *type;
-@property (nonatomic, copy) NSString *event;
-@property (nonatomic, copy) NSString *loginId;
-@property (nonatomic, copy) NSString *anonymousID;
-@property (nonatomic, copy) NSString *distinctID;
-@property (nonatomic, strong) NSNumber *track_id;
-@property (nonatomic, copy) NSString *project;
-@property (nonatomic, copy) NSString *token;
-
-- (instancetype)initWithEvent:(NSString *)event properties:(NSDictionary *)properties;
-
-- (BOOL)isCanTrack;
-
-- (NSDictionary *)generateJSONObject;
+@interface SAEventObject : SABaseEventObject
 
 @end
 
@@ -65,18 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SAPresetEventObject : SAEventObject
-
-@end
-
-@interface SAProfileEventObject : SAEventObject
-
-@end
-
-@interface SAProfileIncrementEventObject : SAProfileEventObject
-
-@end
-
-@interface SAProfileAppendEventObject : SAProfileEventObject
 
 @end
 
