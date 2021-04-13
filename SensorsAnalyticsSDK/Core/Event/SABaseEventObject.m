@@ -60,6 +60,44 @@
     return YES;
 }
 
+- (void)correctionEventPropertiesWithDestination:(NSMutableDictionary *)destination {
+    // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
+    self.project = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+    self.token = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+    id originalTime = destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+    if ([originalTime isKindOfClass:NSDate.class]) {
+        NSDate *customTime = (NSDate *)originalTime;
+        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+            self.timeStamp = customTimeInt;
+        } else {
+            SALogError(@"$time error %ld，Please check the value", (long)customTimeInt);
+        }
+    } else if (originalTime) {
+        SALogError(@"$time '%@' invalid，Please check the value", originalTime);
+    }
+    
+    // $project, $token, $time 处理完毕后需要移除
+    NSArray<NSString *> *needRemoveKeys = @[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT,
+                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN,
+                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+    [destination removeObjectsForKeys:needRemoveKeys];
+    
+    // 序列化所有 NSDate 类型
+    [destination enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[NSDate class]]) {
+            NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+            NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
+            destination[key] = dateStr;
+        }
+    }];
+
+    // TODO: 修正 $device_id，防止用户修改
+//    if (destination[SAEventPresetPropertyDeviceID] && self.presetProperty.deviceID) {
+//        destination[SAEventPresetPropertyDeviceID] = self.presetProperty.deviceID;
+//    }
+}
+
 - (void)addEventInfoToDestination:(NSMutableDictionary *)destination {
     NSDictionary *eventInfo = @{SA_EVENT_DISTINCT_ID: SensorsAnalyticsSDK.sharedInstance.distinctId,
                                 SA_EVENT_LOGIN_ID: SensorsAnalyticsSDK.sharedInstance.loginId,
@@ -78,7 +116,7 @@
 }
 
 - (NSDictionary *)generateJSONObject {
-    return self.properties;
+    return @{};
 }
 
 @end

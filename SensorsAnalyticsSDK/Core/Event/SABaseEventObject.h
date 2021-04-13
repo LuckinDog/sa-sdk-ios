@@ -45,6 +45,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isCanTrack;
 
+/// 事件属性修正
+/// @param destination 事件属性字典
+- (void)correctionEventPropertiesWithDestination:(NSMutableDictionary *)destination;
+
+/// 添加事件信息
+/// @param destination 事件字典
 - (void)addEventInfoToDestination:(NSMutableDictionary *)destination;
 
 - (NSDictionary *)generateJSONObject;
