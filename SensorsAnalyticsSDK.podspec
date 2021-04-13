@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.5.2"
+  s.version      = "2.5.4"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -46,6 +46,13 @@ Pod::Spec.new do |s|
 #    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
   end
 
+  # 推送点击
+  s.subspec 'AppPush' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+    f.source_files = "SensorsAnalyticsSDK/AppPush/**/*.{h,m}"
+    f.private_header_files = 'SensorsAnalyticsSDK/AppPush/**/*.h'
+  end
+
   # 禁用设备方向采集
   s.subspec 'DISABLE_TRACK_DEVICE_ORIENTATION' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
@@ -64,18 +71,6 @@ Pod::Spec.new do |s|
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
     w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
-  end
-
-  # 禁用 debugMode 下弹框提示
-  s.subspec 'DISABLE_DEBUG_WARNING' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
-  end
-
-  # 开启 React Native 页面控件的自动采集 $AppClick 事件
-  s.subspec 'ENABLE_REACT_NATIVE_APPCLICK' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_REACT_NATIVE=1'}
   end
 
   # 允许使用私有 API，v2.0.0 已废弃，待删除
