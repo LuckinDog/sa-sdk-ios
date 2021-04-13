@@ -26,13 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSDictionary *properties;
 
-- (void)addDeeplinkProperties;
+- (void)addDeeplinkPropertiesToDestination:(NSMutableDictionary *)destination;
 
-- (void)addPresetProperties;
+- (void)addPresetPropertiesToDestination:(NSMutableDictionary *)destination;
 
-- (void)addSuperProperties;
+- (void)addSuperPropertiesToDestination:(NSMutableDictionary *)destination;
 
-- (void)addDynamicProperties;
+- (void)addDynamicPropertiesToDestination:(NSMutableDictionary *)destination;
 
 
 @end

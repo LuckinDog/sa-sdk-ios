@@ -28,27 +28,20 @@
 
 @implementation SAEventBuildStrategy
 
-- (void)addDeeplinkProperties {
-    NSDictionary *currentProperties = [self.properties copy];
-    if ([SAValidator isValidDictionary:currentProperties]) {
-        // 添加 latest utms 属性。用户传入的属性优先级更高。
-        NSMutableDictionary *deepLinkInfo = [NSMutableDictionary dictionary];
-        [deepLinkInfo addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
-        [deepLinkInfo addEntriesFromDictionary:currentProperties];
-        self.properties = [deepLinkInfo copy];
-    }
+- (void)addDeeplinkPropertiesToDestination:(NSMutableDictionary *)destination {
+    [destination addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
 }
 
-- (void)addPresetProperties {
-    
+- (void)addPresetPropertiesToDestination:(NSMutableDictionary *)destination {
+    [destination addEntriesFromDictionary:@{}];
 }
 
-- (void)addSuperProperties {
-    
+- (void)addSuperPropertiesToDestination:(NSMutableDictionary *)destination {
+    [destination addEntriesFromDictionary:[SAModuleManager.sharedInstance currentSuperProperties]];
 }
 
-- (void)addDynamicProperties {
-    
+- (void)addDynamicPropertiesToDestination:(NSMutableDictionary *)destination {
+    [destination addEntriesFromDictionary:[SAModuleManager.sharedInstance acquireDynamicSuperProperties]];
 }
 
 @end

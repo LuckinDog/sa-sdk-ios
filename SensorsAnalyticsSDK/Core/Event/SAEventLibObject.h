@@ -27,12 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nonnull) NSString *lib;
 @property (nonatomic, copy, nonnull) NSString *method;
 @property (nonatomic, copy, nonnull) NSString *version;
-@property (nonatomic, copy, nonnull) NSString *appVersion;
+@property (nonatomic, strong, nonnull) id appVersion;
 @property (nonatomic, copy, nullable) NSString *detail;
 
 - (NSDictionary *)generateJSONObject;
 
 - (void)configDetailWithEvent:(NSString *)event properties:(NSDictionary *)properties;
+
+- (void)updateAppVersionFromProperties:(NSDictionary *)properties;
 
 - (NSString *)obtainValidLibMethod:(NSString *)libMethod;
 

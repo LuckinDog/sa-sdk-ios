@@ -78,6 +78,13 @@
     self.detail = libDetail;
 }
 
+- (void)updateAppVersionFromProperties:(NSDictionary *)properties {
+    id appVersion = properties[SAEventPresetPropertyAppVersion];
+    if (appVersion) {
+        self.appVersion = appVersion;
+    }
+}
+
 - (NSString *)obtainValidLibMethod:(NSString *)libMethod {
     // 如果传入自定义属性中的 $lib_method 不为 String 类型，直接返回不进行修正处理
     if (libMethod && ![libMethod isKindOfClass:NSString.class]) {

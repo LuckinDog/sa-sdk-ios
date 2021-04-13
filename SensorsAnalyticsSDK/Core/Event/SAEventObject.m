@@ -33,6 +33,7 @@
 #import "SARemoteConfigManager.h"
 #import "SACommonUtility.h"
 #import "SAPropertyValidator.h"
+#import "SADateFormatter.h"
 
 @implementation SAEventObject
 
@@ -78,8 +79,102 @@
     return NO;
 }
 
+- (void)addEventPropertiesToDestination:(NSMutableDictionary *)destination {
+    // 动态公共属性预处理:
+    // 1. 动态公共属性类型校验
+    // 2. 动态公共属性内容校验
+    // 3. 从静态公共属性中移除 key(忽略大小写) 相同的属性
+    NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties;
+    if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+        SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
+        dynamicSuperPropertiesDict = nil;
+    } else if (![SAPropertyValidator assertProperties:&dynamicSuperPropertiesDict eachProperty:nil]) {
+        dynamicSuperPropertiesDict = nil;
+    }
+    [SAModuleManager.sharedInstance unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+    
+    // 添加 DeepLink 信息
+    [destination addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
+    
+    // TODO: 添加预置属性
+    [destination addEntriesFromDictionary:@{}];
+    
+    // 添加公共属性
+    NSDictionary *superProperties = [SAModuleManager.sharedInstance currentSuperProperties];
+    [destination addEntriesFromDictionary:superProperties];
+    
+    // 添加动态公共属性
+    [destination addEntriesFromDictionary:self.dynamicSuperProperties];
+    
+    // 从公共属性中更新 lib 节点中的 $app_version 值
+    [self.libObject updateAppVersionFromProperties:superProperties];
+    
+    // TODO: 每次 track 时手机网络状态
+    [destination addEntriesFromDictionary:@{}];
+    
+    // TODO: referrerTitle 处理
+//    if (self.configOptions.enableReferrerTitle) {
+        // 给 track 和 $sign_up 事件添加 $referrer_title 属性。如果公共属性中存在此属性时会被覆盖，此逻辑优先级更高
+//        eventPropertiesDic[kSAEeventPropertyReferrerTitle] = self.referrerManager.referrerTitle;
+//    }
+
+    //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
+    //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
+    NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:self.event currentSysUpTime:self.currentSystemUpTime];
+    if (eventDuration) {
+        destination[@"event_duration"] = eventDuration;
+    }
+}
+
+- (void)correctionEventPropertiesWithDestination:(NSMutableDictionary *)destination {
+    // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
+    NSString *project = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+    NSString *token = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+    id originalTime = destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+    if ([originalTime isKindOfClass:NSDate.class]) {
+        NSDate *customTime = (NSDate *)originalTime;
+        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+            self.timeStamp = customTimeInt;
+        } else {
+            SALogError(@"$time error %ld，Please check the value", (long)customTimeInt);
+        }
+    } else if (originalTime) {
+        SALogError(@"$time '%@' invalid，Please check the value", originalTime);
+    }
+    
+    
+    // $project, $token, $time 处理完毕后需要移除
+    NSArray<NSString *> *needRemoveKeys = @[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT,
+                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN,
+                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+    [destination removeObjectsForKeys:needRemoveKeys];
+    
+    // 序列化所有 NSDate 类型
+    [destination enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[NSDate class]]) {
+            NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+            NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
+            destination[key] = dateStr;
+        }
+    }];
+
+    // TODO: 修正 $device_id，防止用户修改
+//    if (destination[SAEventPresetPropertyDeviceID] && self.presetProperty.deviceID) {
+//        destination[SAEventPresetPropertyDeviceID] = self.presetProperty.deviceID;
+//    }
+}
+
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    [self addEventPropertiesToDestination:properties];
+    
+    if ([self.properties isKindOfClass:[NSDictionary class]]) {
+        [properties addEntriesFromDictionary:self.properties];
+    }
+    
+    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
+    
     properties[SA_EVENT_LIB] = [self.libObject generateJSONObject];
     return [properties copy];
 }
@@ -118,17 +213,18 @@
 }
 
 - (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *temp = [NSMutableDictionary dictionaryWithDictionary:self.properties];
-    [self addDeeplinkProperties];
+    NSMutableDictionary *temp = [NSMutableDictionary dictionary];
+    [self addDeeplinkPropertiesToDestination:temp];
+    [self addPresetPropertiesToDestination:temp];
+    [self addSuperPropertiesToDestination:temp];
+    [self addDynamicPropertiesToDestination:temp];
     
     NSString *libMethod = [self.libObject obtainValidLibMethod:self.properties[SAEventPresetPropertyLibMethod]];
     temp[SAEventPresetPropertyLibMethod] = libMethod;
     self.libObject.method = libMethod;
     temp[SA_EVENT_LIB] = [self.libObject generateJSONObject];
     
-    [self addPresetProperties];
-    [self addSuperProperties];
-    [self addDynamicProperties];
+    [temp addEntriesFromDictionary:self.properties];
     
     return [temp copy];
 }
@@ -142,7 +238,6 @@
         if (![self isValidNameForTrackEvent:event]) {
             return nil;
         }
-        [self addDeeplinkProperties];
         NSSet *presetEventNames = [NSSet setWithObjects:
                                    SA_EVENT_NAME_APP_START,
                                    SA_EVENT_NAME_APP_START_PASSIVELY ,
@@ -175,7 +270,6 @@
         if (![self isValidNameForTrackEvent:event]) {
             return nil;
         }
-        [self addDeeplinkProperties];
         self.libObject.method = kSALibMethodAuto;
         self.type = kSAEventTypeTrack;
     }
@@ -191,7 +285,6 @@
         if (![self isValidNameForTrackEvent:event]) {
             return nil;
         }
-        [self addDeeplinkProperties];
         self.type = kSAEventTypeTrack;
     }
     return self;
