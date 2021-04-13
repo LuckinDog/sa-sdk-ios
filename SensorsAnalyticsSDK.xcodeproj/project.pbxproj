@@ -31,8 +31,6 @@
 		458D04C926259A98004B55F1 /* SABaseEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 458D04C726259A98004B55F1 /* SABaseEventObject.m */; };
 		458D04CF26259BCB004B55F1 /* SAProfileEventObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 458D04CD26259BCB004B55F1 /* SAProfileEventObject.h */; };
 		458D04D026259BCB004B55F1 /* SAProfileEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 458D04CE26259BCB004B55F1 /* SAProfileEventObject.m */; };
-		4592509F261AC8FC00A08FC3 /* SAEventBuildStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4592509D261AC8FC00A08FC3 /* SAEventBuildStrategy.h */; };
-		459250A0261AC8FC00A08FC3 /* SAEventBuildStrategy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4592509E261AC8FC00A08FC3 /* SAEventBuildStrategy.m */; };
 		459250A9261BF34A00A08FC3 /* SAEventObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 459250A7261BF34A00A08FC3 /* SAEventObject.h */; };
 		459250AA261BF34A00A08FC3 /* SAEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 459250A8261BF34A00A08FC3 /* SAEventObject.m */; };
 		459250B0261BF37400A08FC3 /* SAEventLibObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 459250AE261BF37400A08FC3 /* SAEventLibObject.h */; };
@@ -273,8 +271,6 @@
 		458D04C726259A98004B55F1 /* SABaseEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SABaseEventObject.m; sourceTree = "<group>"; };
 		458D04CD26259BCB004B55F1 /* SAProfileEventObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAProfileEventObject.h; sourceTree = "<group>"; };
 		458D04CE26259BCB004B55F1 /* SAProfileEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAProfileEventObject.m; sourceTree = "<group>"; };
-		4592509D261AC8FC00A08FC3 /* SAEventBuildStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventBuildStrategy.h; sourceTree = "<group>"; };
-		4592509E261AC8FC00A08FC3 /* SAEventBuildStrategy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventBuildStrategy.m; sourceTree = "<group>"; };
 		459250A7261BF34A00A08FC3 /* SAEventObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventObject.h; sourceTree = "<group>"; };
 		459250A8261BF34A00A08FC3 /* SAEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventObject.m; sourceTree = "<group>"; };
 		459250AE261BF37400A08FC3 /* SAEventLibObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventLibObject.h; sourceTree = "<group>"; };
@@ -603,8 +599,6 @@
 			children = (
 				45720B2126246201000F41C7 /* TrackTimer */,
 				457209FD26214CC5000F41C7 /* SuperProperty */,
-				4592509D261AC8FC00A08FC3 /* SAEventBuildStrategy.h */,
-				4592509E261AC8FC00A08FC3 /* SAEventBuildStrategy.m */,
 				458D04C626259A98004B55F1 /* SABaseEventObject.h */,
 				458D04C726259A98004B55F1 /* SABaseEventObject.m */,
 				459250A7261BF34A00A08FC3 /* SAEventObject.h */,
@@ -1103,7 +1097,6 @@
 				881A41AC253D7B4F00854F69 /* SAScriptMessageHandler.h in Headers */,
 				881A41FB253D7B5000854F69 /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				458D04C826259A98004B55F1 /* SABaseEventObject.h in Headers */,
-				4592509F261AC8FC00A08FC3 /* SAEventBuildStrategy.h in Headers */,
 				4D4DB2EC25B7D1F300938842 /* UIView+AutoTrack.h in Headers */,
 				A8A87E4C2568EBD500E16895 /* SARemoteConfigCheckOperator.h in Headers */,
 				4584B30825EF23FF00900FC4 /* SAGestureManager.h in Headers */,
@@ -1341,7 +1334,6 @@
 			files = (
 				4D4DB31B25B7D58C00938842 /* SAEventStore.m in Sources */,
 				4D4DB31725B7D58300938842 /* SADateFormatter.m in Sources */,
-				459250A0261AC8FC00A08FC3 /* SAEventBuildStrategy.m in Sources */,
 				4D4DB31325B7D55400938842 /* SAEventTracker.m in Sources */,
 				4D4DB30F25B7D54D00938842 /* SALog.m in Sources */,
 				453FC64425EE3D6300591C47 /* SAGestureTargetActionModel.m in Sources */,
