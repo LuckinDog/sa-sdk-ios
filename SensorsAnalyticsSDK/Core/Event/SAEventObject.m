@@ -74,6 +74,7 @@
         self.properties = [temp mutableCopy];
         return YES;
     }
+    SALogError(@"%@ failed to track event.", self);
     return NO;
 }
 
@@ -227,6 +228,8 @@
         self.properties = [temp mutableCopy];
         return YES;
     }
+    
+    SALogError(@"%@ failed to track event.", self);
     return NO;
 }
 
@@ -250,6 +253,8 @@
         self.properties = [temp mutableCopy];
         return YES;
     }
+    
+    SALogError(@"%@ failed to track event.", self);
     return NO;
 }
 
