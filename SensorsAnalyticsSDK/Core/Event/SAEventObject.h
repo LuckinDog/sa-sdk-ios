@@ -24,6 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventObject : SABaseEventObject
 
+@property (nonatomic, copy) NSString *event;
+@property (nonatomic, copy) NSString *loginId;
+@property (nonatomic, copy) NSString *anonymousID;
+
+@property (nonatomic, strong) NSDictionary *dynamicSuperProperties;
+
+- (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event;
+
 @end
 
 @interface SASignUpEventObject : SAEventObject
