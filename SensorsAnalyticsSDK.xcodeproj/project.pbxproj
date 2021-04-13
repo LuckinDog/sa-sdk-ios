@@ -191,7 +191,7 @@
 		A87EE1DB26229B4A00BC950B /* SAAutoTrackManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A87EE1D726229B4A00BC950B /* SAAutoTrackManager.h */; };
 		A87EE1DC26229B4A00BC950B /* SAAutoTrackManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A87EE1D826229B4A00BC950B /* SAAutoTrackManager.m */; };
 		A87EE1DD26229B4A00BC950B /* SensorsAnalyticsSDK+SAAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A87EE1D926229B4A00BC950B /* SensorsAnalyticsSDK+SAAutoTrack.m */; };
-		A87EE1DE26229B4A00BC950B /* SensorsAnalyticsSDK+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A87EE1DA26229B4A00BC950B /* SensorsAnalyticsSDK+SAAutoTrack.h */; };
+		A87EE1DE26229B4A00BC950B /* SensorsAnalyticsSDK+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A87EE1DA26229B4A00BC950B /* SensorsAnalyticsSDK+SAAutoTrack.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A8A87E4C2568EBD500E16895 /* SARemoteConfigCheckOperator.h in Headers */ = {isa = PBXBuildFile; fileRef = A8A87E422568EBD500E16895 /* SARemoteConfigCheckOperator.h */; };
 		A8A87E4D2568EBD500E16895 /* SARemoteConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A87E432568EBD500E16895 /* SARemoteConfigManager.m */; };
 		A8A87E4E2568EBD500E16895 /* SARemoteConfigCheckOperator.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A87E442568EBD500E16895 /* SARemoteConfigCheckOperator.m */; };
