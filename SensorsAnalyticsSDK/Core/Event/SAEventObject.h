@@ -39,6 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *anonymousID;
 @property (nonatomic, copy) NSString *distinctID;
 @property (nonatomic, strong) NSNumber *track_id;
+@property (nonatomic, copy) NSString *project;
+@property (nonatomic, copy) NSString *token;
 
 - (instancetype)initWithEvent:(NSString *)event properties:(NSDictionary *)properties;
 

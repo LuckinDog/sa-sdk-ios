@@ -128,8 +128,8 @@
 
 - (void)correctionEventPropertiesWithDestination:(NSMutableDictionary *)destination {
     // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
-    NSString *project = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
-    NSString *token = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+    self.project = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+    self.token = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
     id originalTime = destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
     if ([originalTime isKindOfClass:NSDate.class]) {
         NSDate *customTime = (NSDate *)originalTime;
@@ -142,7 +142,6 @@
     } else if (originalTime) {
         SALogError(@"$time '%@' invalid，Please check the value", originalTime);
     }
-    
     
     // $project, $token, $time 处理完毕后需要移除
     NSArray<NSString *> *needRemoveKeys = @[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT,
@@ -167,16 +166,27 @@
 
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    // 添加属性
     [self addEventPropertiesToDestination:properties];
     
+    // 添加用户传入的属性
     if ([self.properties isKindOfClass:[NSDictionary class]]) {
         [properties addEntriesFromDictionary:self.properties];
     }
     
-    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
+    // 属性修正
+    [self correctionEventPropertiesWithDestination:properties];
     
-    properties[SA_EVENT_LIB] = [self.libObject generateJSONObject];
-    return [properties copy];
+    // 组装事件信息
+    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
+    NSDictionary *jsonObject = @{SA_EVENT_NAME: eventName,
+                                 SA_EVENT_PROPERTIES: properties,
+                                 SA_EVENT_DISTINCT_ID: SensorsAnalyticsSDK.sharedInstance.distinctId,
+                                 SA_EVENT_TIME: @(self.timeStamp),
+                                 SA_EVENT_LIB: [self.libObject generateJSONObject],
+                                 SA_EVENT_TRACK_ID: self.track_id
+                                 };
+    return jsonObject;
 }
 
 - (BOOL)isValidNameForTrackEvent:(NSString *)eventName {
