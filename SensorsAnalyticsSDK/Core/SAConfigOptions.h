@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param serverURL 数据接收地址
  @return 配置对象
  */
-- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable id)launchOptions NS_DESIGNATED_INITIALIZER;
 
 /// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
@@ -159,16 +159,19 @@ NS_ASSUME_NONNULL_BEGIN
 /// 开启前向页面标题采集功能，默认不开启
 @property (nonatomic, assign) BOOL enableReferrerTitle;
 
+///开启自动采集通知
+@property (nonatomic, assign) BOOL enableTrackPush;
+
 @end
 
 
-/// RSA 公钥秘钥信息
+/// 密钥信息
 @interface SASecretKey : NSObject <NSCoding>
 
-/// 秘钥版本
+/// 密钥版本
 @property(nonatomic, assign) NSInteger version;
 
-/// 秘钥值
+/// 密钥值
 @property(nonatomic, copy) NSString *key;
 
 @end

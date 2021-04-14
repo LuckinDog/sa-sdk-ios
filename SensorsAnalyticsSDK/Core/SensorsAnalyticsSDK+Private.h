@@ -26,7 +26,6 @@
 #import <WebKit/WebKit.h>
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
-#import "SADataEncryptBuilder.h"
 
 
 @interface SensorsAnalyticsSDK(Private)
@@ -66,9 +65,6 @@
 */
 - (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties;
 
-- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
-
-
 /**
  根据 viewController 判断，是否采集事件
 
@@ -94,10 +90,9 @@
 
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
+@property (nonatomic, readonly, class) SAConfigOptions *configOptions;
 
 @property (nonatomic, strong, readonly) SANetwork *network;
-
-@property (nonatomic, strong, readonly) SADataEncryptBuilder *encryptBuilder;
 
 @property (nonatomic, weak) UIViewController *previousTrackViewController;
 
@@ -115,7 +110,7 @@
 @property(atomic, copy) NSString *serverURL;
 
 /// App 启动的 launchOptions
-@property(nonatomic, copy) NSDictionary *launchOptions;
+@property(nonatomic, strong) id launchOptions;
 
 @end
 

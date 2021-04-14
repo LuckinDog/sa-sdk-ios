@@ -27,10 +27,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
     SAModuleTypeDeviceOrientation,
     SAModuleTypeReactNative,
-    SAModuleTypeChannelMatch,
+    SAModuleTypeAppPush,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
+
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 + (instancetype)sharedInstance;
 
@@ -62,6 +64,38 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 #pragma mark -
 
 @interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (DebugMode) <SADebugModeModuleProtocol>
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Encrypt) <SAEncryptModuleProtocol>
+
+@property (nonatomic, strong, readonly) id<SAEncryptModuleProtocol> encryptManager;
+
+@end
+
+@interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Gesture) <SAGestureModuleProtocol>
+
+@property (nonatomic, strong, readonly) id<SAGestureModuleProtocol> gestureManager;
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
+
 @end
 
 NS_ASSUME_NONNULL_END

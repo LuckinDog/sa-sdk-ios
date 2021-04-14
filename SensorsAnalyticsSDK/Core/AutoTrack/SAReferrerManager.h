@@ -28,8 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL isClearReferrer;
 @property (nonatomic, assign) BOOL enableReferrerTitle;
 
-@property (nonatomic, copy, readonly) NSDictionary *referrerProperties;
-@property (nonatomic, copy, readonly) NSString *referrerURL;
+@property (atomic, copy, readonly) NSDictionary *referrerProperties;
+@property (atomic, copy, readonly) NSString *referrerURL;
 @property (nonatomic, copy, readonly) NSString *referrerTitle;
 
 - (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties serialQueue:(dispatch_queue_t)serialQueue;

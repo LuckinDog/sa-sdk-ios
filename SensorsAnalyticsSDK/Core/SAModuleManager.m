@@ -24,20 +24,48 @@
 
 #import "SAModuleManager.h"
 #import "SAModuleProtocol.h"
+#import "SAConfigOptions.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSADeviceOrientationModuleName = @"DeviceOrientation";
+static NSString * const kSADebugModeModuleName = @"DebugMode";
 static NSString * const kSAReactNativeModuleName = @"ReactNative";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
+static NSString * const kSAEncryptModuleName = @"Encrypt";
+static NSString * const kSADeeplinkModuleName = @"Deeplink";
+static NSString * const kSANotificationModuleName = @"AppPush";
+static NSString * const kSAGestureModuleName = @"Gesture";
 
 @interface SAModuleManager ()
 
 @property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 
 @implementation SAModuleManager
+
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
+    SAModuleManager.sharedInstance.configOptions = configOptions;
+
+    // 渠道联调诊断功能获取多渠道匹配开关
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSAChannelMatchModuleName];
+    // 初始化 LinkHandler 处理 deepLink 相关操作
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
+    // 初始化 Debug 模块
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
+    [SAModuleManager.sharedInstance handleDebugMode:debugMode];
+    
+    // 加密
+    [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
+    
+    // 手势采集
+    if (NSClassFromString(@"SAGestureManager")) {
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
+    }
+}
 
 + (instancetype)sharedInstance {
     static dispatch_once_t onceToken;
@@ -59,8 +87,8 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
             return kSADeviceOrientationModuleName;
         case SAModuleTypeReactNative:
             return kSAReactNativeModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
+        case SAModuleTypeAppPush:
+            return kSANotificationModuleName;
         default:
             return nil;
     }
@@ -79,6 +107,9 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
         NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
         if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
             id<SAModuleProtocol> object = [[(Class)cla alloc] init];
+            if ([object respondsToSelector:@selector(setConfigOptions:)]) {
+                object.configOptions = self.configOptions;
+            }
             object.enable = enable;
             self.modules[moduleName] = object;
         }
@@ -164,14 +195,117 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
 @end
 
-
 #pragma mark -
 
 @implementation SAModuleManager (ChannelMatch)
 
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)self.modules[kSAChannelMatchModuleName];
     [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (DebugMode)
+
+- (id<SADebugModeModuleProtocol>)debugModeManager {
+    return (id<SADebugModeModuleProtocol>)self.modules[kSADebugModeModuleName];
+}
+
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    self.debugModeManager.debugMode = debugMode;
+}
+
+- (SensorsAnalyticsDebugMode)debugMode {
+    return self.debugModeManager.debugMode;
+}
+
+- (void)setShowDebugAlertView:(BOOL)isShow {
+    [self.debugModeManager setShowDebugAlertView:isShow];
+}
+
+- (void)handleDebugMode:(SensorsAnalyticsDebugMode)mode {
+    [self.debugModeManager handleDebugMode:mode];
+}
+
+- (void)showDebugModeWarning:(NSString *)message {
+    [self.debugModeManager showDebugModeWarning:message];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Encrypt)
+
+- (id<SAEncryptModuleProtocol>)encryptManager {
+    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)self.modules[kSAEncryptModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
+- (BOOL)hasSecretKey {
+    return self.encryptManager.hasSecretKey;
+}
+
+- (nullable NSDictionary *)encryptJSONObject:(nonnull id)obj {
+    return [self.encryptManager encryptJSONObject:obj];
+}
+
+- (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
+    [self.encryptManager handleEncryptWithConfig:encryptConfig];
+}
+
+@end
+
+@implementation SAModuleManager (PushClick)
+
+- (void)setLaunchOptions:(NSDictionary *)launchOptions {
+    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)[[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeAppPush];
+    [manager setLaunchOptions:launchOptions];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Gesture)
+
+- (id<SAGestureModuleProtocol>)gestureManager {
+    id<SAGestureModuleProtocol, SAModuleProtocol> manager = (id<SAGestureModuleProtocol, SAModuleProtocol>)self.modules[kSAGestureModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
+- (BOOL)isGestureVisualView:(id)obj {
+    return [self.gestureManager isGestureVisualView:obj];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Deeplink)
+
+- (id<SADeeplinkModuleProtocol>)deeplinkManager {
+    id<SADeeplinkModuleProtocol> manager = (id<SADeeplinkModuleProtocol>)self.modules[kSADeeplinkModuleName];
+    return manager;
+}
+
+- (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback {
+    [self.deeplinkManager setLinkHandlerCallback:linkHandlerCallback];
+}
+
+- (NSDictionary *)latestUtmProperties {
+    return self.deeplinkManager.latestUtmProperties;
+}
+
+- (NSDictionary *)utmProperties {
+    return self.deeplinkManager.utmProperties;
+}
+
+- (void)clearUtmProperties {
+    [self.deeplinkManager clearUtmProperties];
 }
 
 @end

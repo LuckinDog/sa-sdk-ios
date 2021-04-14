@@ -29,6 +29,7 @@
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
+#import "SAViewElementInfoFactory.h"
 
 @implementation UIView (SAElementPath)
 
@@ -41,17 +42,17 @@
     if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
         return NO;
     }
-
     /* 特殊场景兼容
      controller1.vew 上直接添加 controller2.view，在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController；
      此时如果 UITabBarController 或 UINavigationController 使用 presentViewController 弹出页面，则 UITabBarController.view (即为 UILayoutContainerView) 可能未 hidden，为了可以通过 UILayoutContainerView 找到 UITabBarController 的子元素，则这里特殊处理。
-       */
+     */
     if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"] && [self.nextResponder isKindOfClass:UIViewController.class]) {
         UIViewController *controller = (UIViewController *)[self nextResponder];
         if (controller.presentedViewController) {
             return YES;
         }
     }
+
 #endif
 
     if (!(self.window && self.superview) || ![SAVisualizedUtils isVisibleForView:self]) {
@@ -120,11 +121,13 @@
     if ([SAVisualizedUtils isCoveredForView:self]) {
         return NO;
     }
-
-    // 标记弹框
-    if ([SAAutoTrackUtils isAlertClickForView:self]) {
+    
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
+    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         return YES;
     }
+#endif
 
     if ([self sensorsdata_clickableForRNView]) {
         return YES;
@@ -148,29 +151,9 @@
         if (@available(iOS 9.0, *)) {
             appClickEvents = appClickEvents | UIControlEventPrimaryActionTriggered;
         }
-        BOOL containEvents = appClickEvents & control.allControlEvents;
+        BOOL containEvents = (appClickEvents & control.allControlEvents) != 0;
         if (containEvents && userInteractionEnabled && enabled) { // 可点击
             return YES;
-        }
-    } else if ([self isKindOfClass:UIImageView.class] || [self isKindOfClass:UILabel.class]) { // 可能添加手势
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
-        if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
-            return YES;
-        }
-#endif
-        if (self.userInteractionEnabled && self.gestureRecognizers.count > 0) {
-            __block BOOL enableGestureClick = NO;
-            [self.gestureRecognizers enumerateObjectsUsingBlock:^(__kindof UIGestureRecognizer *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-                // 目前 $AppClick 只采集 UITapGestureRecognizer 和 UILongPressGestureRecognizer
-                if ([obj isKindOfClass:UITapGestureRecognizer.class] || [obj isKindOfClass:UILongPressGestureRecognizer.class]) {
-                    *stop = YES;
-                    enableGestureClick = YES;
-                }
-            }];
-            return enableGestureClick;
-        } else {
-            return NO;
         }
     } else if ([self isKindOfClass:UITableViewCell.class]) {
         UITableView *tableView = (UITableView *)[self superview];
@@ -190,9 +173,10 @@
                 return YES;
             }
         }
-        return NO;
     }
-    return NO;
+    
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    return elementInfo.isVisualView;
 }
 
 #pragma mark SAVisualizedViewPathProperty
@@ -212,6 +196,7 @@
 
 /// 元素子视图
 - (NSArray *)sensorsdata_subElements {
+
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     /* 特殊场景兼容
      controller1.vew 上直接添加 controller2.view，
@@ -224,6 +209,7 @@
         }
     }
 #endif
+
     NSMutableArray *newSubViews = [NSMutableArray array];
     for (UIView *view in self.subviews) {
         if (view.sensorsdata_isDisplayedInScreen) {
@@ -505,10 +491,11 @@
 @implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
-    if ([SAAutoTrackUtils isAlertClickForView:self]) {
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    if (!elementInfo.isSupportElementPosition) {
         return nil;
     }
-
+    
     if (self.sensorsdata_IndexPath) {
         return [[NSString alloc] initWithFormat:@"%ld:%ld", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.item];
     }
@@ -548,7 +535,7 @@
 
 @end
 
-@implementation UIViewController (SAElementPathSAElementPath)
+@implementation UIViewController (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
     __block NSMutableArray *subElements = [NSMutableArray array];
@@ -557,25 +544,6 @@
 
     if (presentedViewController) {
         [subElements addObject:presentedViewController];
-        return subElements;
-    }
-
-    if ([self isKindOfClass:UINavigationController.class]) {
-        UINavigationController *nav = (UINavigationController *)self;
-        [subElements addObject:nav.topViewController];
-        if (self.isViewLoaded && nav.navigationBar.sensorsdata_isDisplayedInScreen) {
-            [subElements addObject:nav.navigationBar];
-        }
-        return subElements;
-    }
-
-    if ([self isKindOfClass:UITabBarController.class]) {
-        UITabBarController *tabBarVC = (UITabBarController *)self;
-        [subElements addObject:tabBarVC.selectedViewController];
-        // UITabBar 元素
-        if (self.isViewLoaded && tabBarVC.tabBar.sensorsdata_isDisplayedInScreen) {
-            [subElements addObject:tabBarVC.tabBar];
-        }
         return subElements;
     }
 
@@ -610,14 +578,123 @@
         return subElements;
     }
 
-    if ([self isKindOfClass:UIPageViewController.class]) {
-        UIPageViewController *pageViewController = (UIPageViewController *)self;
-        [subElements addObject:pageViewController.viewControllers];
-    }
-
     UIView *currentView = self.view;
     if (currentView && self.isViewLoaded && currentView.sensorsdata_isDisplayedInScreen) {
         [subElements addObject:currentView];
+    }
+    return subElements;
+}
+
+@end
+
+@implementation UITabBarController (SAElementPath)
+- (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
+
+    /* 兼容场景
+     可能存在元素，直接添加在 UITabBarController.view 上（即 UILayoutContainerView）
+     UITabBarController 页面层级大致如下
+     - UITabBarController
+     - UILayoutContainerView
+     - UITransitionView
+     - UITabBar
+     */
+    NSArray<UIView *> *subViews = self.view.subviews;
+    for (UIView *view in subViews) {
+        if ([view isKindOfClass:UITabBar.class]) {
+            // UITabBar 元素
+            if (self.isViewLoaded && self.tabBar.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:self.tabBar];
+            }
+        }
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
+            if (self.selectedViewController) {
+                [subElements addObject:self.selectedViewController];
+            }
+        }
+#endif
+        else if (view.sensorsdata_isDisplayedInScreen) {
+            [subElements addObject:view];
+        }
+    }
+
+    return subElements;
+}
+@end
+
+
+@implementation UINavigationController (SAElementPath)
+- (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
+    /* 兼容场景
+     可能存在元素，直接添加在 UINavigationController.view 上（即 UILayoutContainerView）
+     UINavigationController 页面层级大致如下
+     - UINavigationController
+     - UILayoutContainerView
+     - UINavigationTransitionView
+     - UINavigationBar
+     */
+    NSArray<UIView *> *subViews = self.view.subviews;
+    for (UIView *view in subViews) {
+        if ([view isKindOfClass:UINavigationBar.class]) {
+            // UINavigationBar 元素
+            if (self.isViewLoaded && self.navigationBar.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:self.navigationBar];
+            }
+        }
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
+            if (self.topViewController) {
+                [subElements addObject:self.topViewController];
+            }
+        }
+#endif
+
+        else if (view.sensorsdata_isDisplayedInScreen) {
+            [subElements addObject:view];
+        }
+    }
+    return subElements;
+}
+@end
+
+@implementation UIPageViewController (SAElementPath)
+
+- (NSArray *)sensorsdata_subElements {
+    NSMutableArray *subElements = [NSMutableArray array];
+    if (self.presentedViewController) {
+        [subElements addObject:self.presentedViewController];
+        return subElements;
+    }
+
+    /* 兼容场景
+     可能存在元素，直接添加在 UIPageViewController.view 上（即 _UIPageViewControllerContentView）
+     UIPageViewController 页面层级大致如下
+     - UIPageViewController
+     - _UIPageViewControllerContentView
+     - _UIQueuingScrollView
+     - Others
+     */
+    for (UIView *view in self.view.subviews) {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        if ([NSStringFromClass(view.class) isEqualToString:@"_UIQueuingScrollView"]) {
+            if (self.viewControllers.count > 0) {
+                [subElements addObjectsFromArray:self.viewControllers];
+            }
+        } else
+#endif
+            if (view.sensorsdata_isDisplayedInScreen) {
+                [subElements addObject:view];
+            }
     }
     return subElements;
 }

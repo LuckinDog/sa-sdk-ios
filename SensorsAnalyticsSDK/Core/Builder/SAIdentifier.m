@@ -131,22 +131,19 @@
 }
 
 + (NSString *)idfa {
-    NSString *idfa = nil;
-    // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFA
-    Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
-    if (ASIdentifierManagerClass) {
-        SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
-        id sharedManager = ((id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);
-        SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
-        NSUUID *uuid = ((NSUUID * (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
-        idfa = [uuid UUIDString];
-        // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
-        // 00000000-0000-0000-0000-000000000000
-        if ([idfa hasPrefix:@"00000000"]) {
-            return nil;
+    Class cla = NSClassFromString(@"SAIDFAHelper");
+    SEL sel = NSSelectorFromString(@"idfa");
+    if ([cla respondsToSelector:sel]) {
+        NSString * (*idfaIMP)(id, SEL) = (NSString * (*)(id, SEL))[cla methodForSelector:sel];
+        if (idfaIMP) {
+            return idfaIMP(cla, sel);
         }
     }
-    return idfa;
+    return nil;
+}
+
++ (NSString *)idfv {
+    return [UIDevice currentDevice].identifierForVendor.UUIDString;;
 }
 
 + (NSString *)uniqueHardwareId {
@@ -154,7 +151,7 @@
 
     // 没有IDFA，则使用IDFV
     if (!distinctId) {
-        distinctId = [UIDevice currentDevice].identifierForVendor.UUIDString;
+        distinctId = [self idfv];
     }
 
     // 没有IDFV，则使用UUID

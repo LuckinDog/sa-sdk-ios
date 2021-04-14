@@ -18,6 +18,10 @@
 //  limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 #import "SALog.h"
 #import "SALog+Private.h"
 #import "SALogMessage.h"
@@ -60,6 +64,11 @@ static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueId
 }
 
 + (void)log:(BOOL)asynchronous level:(SALogLevel)level file:(const char *)file function:(const char *)function line:(NSUInteger)line context:(NSInteger)context format:(NSString *)format, ... {
+    
+    if (![SALog sharedLog].enableLog) {
+        return;
+    }
+    
     //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
 #ifndef DEBUG
     if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {
@@ -109,6 +118,11 @@ static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueId
 }
 
 - (void)log:(BOOL)asynchronous level:(SALogLevel)level file:(const char *)file function:(const char *)function line:(NSUInteger)line context:(NSInteger)context format:(NSString *)format, ... {
+    
+    if (!self.enableLog) {
+        return;
+    }
+    
     //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
 #ifndef DEBUG
     if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {

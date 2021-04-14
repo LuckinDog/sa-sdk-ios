@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.2.8"
+  s.version      = "2.5.4"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -11,11 +11,30 @@ Pod::Spec.new do |s|
   s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
-  s.subspec 'Core' do |c|
+  s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
     c.source_files = core_dir + "**/*.{h,m}"
     c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
+  end
+  
+  s.subspec 'Core' do |c|
+    c.dependency 'SensorsAnalyticsSDK/Common'
+    c.dependency 'SensorsAnalyticsSDK/Gesture'
+  end
+
+  # 支持 CAID 渠道匹配
+  s.subspec 'CAID' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+    f.source_files = "SensorsAnalyticsSDK/CAID/**/*.{h,m}"
+    f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
+  end
+
+  # 手势采集
+  s.subspec 'Gesture' do |g|
+    g.dependency 'SensorsAnalyticsSDK/Common'
+    g.source_files = "SensorsAnalyticsSDK/Gesture/**/*.{h,m}"
+    g.private_header_files = 'SensorsAnalyticsSDK/Gesture/**/*.h'
   end
 
   # 开启 GPS 定位采集
@@ -35,6 +54,13 @@ Pod::Spec.new do |s|
     f.frameworks = 'CoreMotion'
   end
 
+  # 推送点击
+  s.subspec 'AppPush' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+    f.source_files = "SensorsAnalyticsSDK/AppPush/**/*.{h,m}"
+    f.private_header_files = 'SensorsAnalyticsSDK/AppPush/**/*.h'
+  end
+
   # 使用 UIWebView 或者 WKWebView 进行打通
   s.subspec 'WebView' do |w|
     w.dependency 'SensorsAnalyticsSDK/Core'
@@ -47,24 +73,6 @@ Pod::Spec.new do |s|
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
     w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
-  end
-
-  # 禁用 debugMode 下弹框提示
-  s.subspec 'DISABLE_DEBUG_WARNING' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
-  end
-
-  # 不采集 UIImage 的名称
-  s.subspec 'DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME=1'}
-  end
-
-  # 不采集手势点击事件
-  s.subspec 'DISABLE_AUTOTRACK_GESTURE' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE=1'}
   end
 
   # 允许使用私有 API，v2.0.0 已废弃，待删除
@@ -89,12 +97,6 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_AUTOTRACK_DEVICEID' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
-  end
-
-  # trackInstallation 不保存在 keychain，卸载重装会重新触发激活事件
-  s.subspec 'DISABLE_INSTALLATION_MARK_IN_KEYCHAIN' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN=1'}
   end
 
    # 禁用 keychain
