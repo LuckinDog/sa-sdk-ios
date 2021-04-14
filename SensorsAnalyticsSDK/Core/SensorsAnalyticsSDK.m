@@ -231,6 +231,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance initAppLifecycle];
     });
 }
 
@@ -326,9 +327,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
-
-            [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
-            _appLifecycle = [[SAAppLifecycle alloc] init];
 
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
@@ -610,7 +608,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-#pragma mark - Notification
+#pragma mark - AppLifecycle
+
+- (void)initAppLifecycle {
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
+    _appLifecycle = [[SAAppLifecycle alloc] init];
+}
 
 - (void)appLifecycleStateDidChange:(NSNotification *)sender {
     NSDictionary *userInfo = sender.userInfo;
@@ -2401,6 +2404,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                             andDebugMode:debugMode];
         [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
+        [sharedInstance initAppLifecycle];
     });
     return sharedInstance;
 }
@@ -2414,6 +2418,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance initAppLifecycle];
     });
     return sharedInstance;
 }
