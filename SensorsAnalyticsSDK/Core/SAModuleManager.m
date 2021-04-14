@@ -66,10 +66,10 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
     }
 
-    // 全埋点
-    if (configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
-        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
-    }
+    // 默认加载全埋点模块，没有判断是否开启全埋点，原因如下：
+    // 1. 同之前的逻辑保持一致
+    // 2. 保证添加对于生命周期的监听在生命周期类的实例化之前
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
 }
 
 + (instancetype)sharedInstance {
