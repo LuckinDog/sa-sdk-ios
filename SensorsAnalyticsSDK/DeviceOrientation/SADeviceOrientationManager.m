@@ -74,7 +74,7 @@ static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orie
 
 - (void)setupListeners {
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-
+    // 这里只需要监听 App 进入后台的原因是在应用启动的时候，远程配置都会去主动开启设备方向监听
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidEnterBackground:)
                                name:UIApplicationDidEnterBackgroundNotification
