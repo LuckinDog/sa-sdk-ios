@@ -119,4 +119,12 @@
     return @{};
 }
 
+- (BOOL)isValidProperties:(NSDictionary **)properties {
+    if ([SAPropertyValidator assertProperties:properties eachProperty:nil]) {
+        return YES;
+    }
+    SALogError(@"%@ failed to track event.", self);
+    return NO;
+}
+
 @end

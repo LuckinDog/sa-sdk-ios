@@ -56,16 +56,6 @@
     return YES;
 }
 
-- (BOOL)isValidProperties {
-    NSDictionary *temp = [self.properties copy];
-    if ([SAPropertyValidator assertProperties:&temp eachProperty:nil]) {
-        self.properties = [temp mutableCopy];
-        return YES;
-    }
-    SALogError(@"%@ failed to track event.", self);
-    return NO;
-}
-
 - (void)addEventPropertiesToDestination:(NSMutableDictionary *)destination {
     // 动态公共属性预处理:
     // 1. 动态公共属性类型校验
@@ -113,6 +103,23 @@
     }
 }
 
+- (BOOL)canEnqueueWithEventProperties:(NSMutableDictionary **)eventProperties {
+    if (!self.trackEventCallback) {
+        return YES;
+    }
+    BOOL canEnque = self.trackEventCallback(self.event, *eventProperties);
+    if (!canEnque) {
+        SALogDebug(@"\n【track event】: %@ can not enter database.", self.event);
+        return NO;
+    }
+    // 校验 properties
+    if (![self isValidProperties:eventProperties]) {
+        SALogError(@"%@ failed to track event.", self);
+        return NO;
+    }
+    return YES;
+}
+
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     // 添加属性
@@ -126,6 +133,10 @@
     // 属性修正
     [self correctionEventPropertiesWithDestination:properties];
     
+    if (![self canEnqueueWithEventProperties:&properties]) {
+        return nil;
+    }
+    
     // 组装事件信息
     NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
     NSMutableDictionary *jsonObject = [@{
@@ -134,7 +145,7 @@
                                         } mutableCopy];
     
     [self addEventInfoToDestination:jsonObject];
-    return jsonObject;
+    return [jsonObject copy];
 }
 
 - (BOOL)isValidNameForTrackEvent:(NSString *)eventName {

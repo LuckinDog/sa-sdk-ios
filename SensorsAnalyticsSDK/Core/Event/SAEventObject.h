@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSDictionary *dynamicSuperProperties;
 
+@property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
+
 - (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event;
 
 @end

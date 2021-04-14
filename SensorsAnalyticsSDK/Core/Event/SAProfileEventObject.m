@@ -37,9 +37,8 @@
 
 @implementation SAProfileIncrementEventObject
 
-- (BOOL)isValidProperties {
-    NSDictionary *temp = [self.properties copy];
-    BOOL isValid = [SAPropertyValidator assertProperties:&temp eachProperty:^BOOL(NSString * _Nonnull key, NSString * _Nonnull value) {
+- (BOOL)isValidProperties:(NSDictionary * _Nullable __autoreleasing *)properties {
+    BOOL isValid = [SAPropertyValidator assertProperties:properties eachProperty:^BOOL(NSString * _Nonnull key, NSString * _Nonnull value) {
         if (![value isKindOfClass:[NSNumber class]]) {
             NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [value class], value];
             SALogError(@"%@", errMsg);
@@ -50,7 +49,6 @@
     }];
     
     if (isValid) {
-        self.properties = [temp mutableCopy];
         return YES;
     }
     
@@ -62,9 +60,8 @@
 
 @implementation SAProfileAppendEventObject
 
-- (BOOL)isValidProperties {
-    NSDictionary *temp = [self.properties copy];
-    BOOL isValid = [SAPropertyValidator assertProperties:&temp eachProperty:^BOOL(NSString * _Nonnull key, NSString * _Nonnull value) {
+- (BOOL)isValidProperties:(NSDictionary * _Nullable __autoreleasing *)properties {
+    BOOL isValid = [SAPropertyValidator assertProperties:properties eachProperty:^BOOL(NSString * _Nonnull key, NSString * _Nonnull value) {
         if (![value isKindOfClass:[NSSet class]] && ![value isKindOfClass:[NSArray class]]) {
             NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [value  class], value];
             SALogError(@"%@", errMsg);
@@ -75,7 +72,6 @@
     }];
     
     if (isValid) {
-        self.properties = [temp mutableCopy];
         return YES;
     }
     

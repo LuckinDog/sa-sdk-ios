@@ -55,6 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary *)generateJSONObject;
 
+- (BOOL)isValidProperties:(NSDictionary *_Nullable*_Nonnull)properties;
+
 @end
 
 NS_ASSUME_NONNULL_END
