@@ -13,8 +13,9 @@ Pod::Spec.new do |s|
 
   s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
+    auto_track_dir = "SensorsAnalyticsSDK/Core/AutoTrack/"
     c.source_files = core_dir + "**/*.{h,m}"
-    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
+    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", auto_track_dir + "SensorsAnalyticsSDK+SAAutoTrack.h" 
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
   

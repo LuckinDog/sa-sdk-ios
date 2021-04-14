@@ -25,6 +25,7 @@
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
+#import "SensorsAnalyticsSDK+SAAutoTrack.h"
 
 #if __has_include("SensorsAnalyticsSDK+WKWebView.h")
 #import "SensorsAnalyticsSDK+WKWebView.h"
@@ -32,10 +33,6 @@
 
 #if __has_include("SensorsAnalyticsSDK+WebView.h")
 #import "SensorsAnalyticsSDK+WebView.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
-#import "SensorsAnalyticsSDK+SAAutoTrack.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
