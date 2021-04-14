@@ -84,6 +84,21 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 #pragma mark - Private
 
+- (NSString *)moduleNameForType:(SAModuleType)type {
+    switch (type) {
+        case SAModuleTypeLocation:
+            return kSALocationModuleName;
+        case SAModuleTypeReactNative:
+            return kSAReactNativeModuleName;
+        case SAModuleTypeAppPush:
+            return kSANotificationModuleName;
+        case SAModuleTypeAutoTrack:
+            return kSAAutoTrackModuleName;
+        default:
+            return nil;
+    }
+}
+
 - (NSString *)classNameForModule:(NSString *)moduleName {
     return [NSString stringWithFormat:@"SA%@Manager", moduleName];
 }
@@ -122,21 +137,6 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     [self setEnable:enable forModule:name];
-}
-
-- (NSString *)moduleNameForType:(SAModuleType)type {
-    switch (type) {
-        case SAModuleTypeLocation:
-            return kSALocationModuleName;
-        case SAModuleTypeReactNative:
-            return kSAReactNativeModuleName;
-        case SAModuleTypeAppPush:
-            return kSANotificationModuleName;
-        case SAModuleTypeAutoTrack:
-            return kSAAutoTrackModuleName;
-        default:
-            return nil;
-    }
 }
 
 #pragma mark - Open URL
