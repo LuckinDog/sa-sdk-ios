@@ -57,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isValidProperties:(NSDictionary *_Nullable*_Nonnull)properties;
 
+- (void)sendTrackNotificationWithEventInfo:(NSDictionary *)eventInfo;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -127,4 +127,9 @@
     return NO;
 }
 
+- (void)sendTrackNotificationWithEventInfo:(NSDictionary *)eventInfo {
+    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:eventInfo];
+    SALogDebug(@"\n【track event】:\n%@", eventInfo);
+}
+
 @end

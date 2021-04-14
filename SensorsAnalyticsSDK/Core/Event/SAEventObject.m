@@ -143,8 +143,11 @@
                                         SA_EVENT_NAME: eventName,
                                         SA_EVENT_PROPERTIES: properties,
                                         } mutableCopy];
-    
+    // 添加事件信息
     [self addEventInfoToDestination:jsonObject];
+    
+    // 发送 track 事件的通知
+    [self sendTrackNotificationWithEventInfo:[jsonObject copy]];
     return [jsonObject copy];
 }
 
