@@ -168,11 +168,13 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
 - (NSString *)deviceID {
     return self.automaticProperties[SAEventPresetPropertyDeviceID];
 }
-
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
+    
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
+- (NSDictionary *)presetPropertiesWithOrientationConfig:(SADeviceOrientationConfig *)orientationConfig
+#else
+- (NSDictionary *)presetProperties
 #endif
+
 {
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     // 是否首日访问

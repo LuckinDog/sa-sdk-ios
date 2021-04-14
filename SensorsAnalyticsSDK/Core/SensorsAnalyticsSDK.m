@@ -1288,11 +1288,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         @(arc4random()), SA_EVENT_TRACK_ID,
                         nil];
         } else if([type isEqualToString:kSAEventTypeTrack]) {
-            NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                                                                                       orientationConfig:self.deviceOrientationConfig
+            NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
+#else
+            NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetProperties];
 #endif
-                                                         ];
             [eventPropertiesDic addEntriesFromDictionary:presetPropertiesOfTrackType];
             
             eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
