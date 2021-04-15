@@ -74,7 +74,6 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
-#import "SAReferrerManager.h"
 #import "SAEventObject.h"
 
 #define VERSION @"2.5.3"

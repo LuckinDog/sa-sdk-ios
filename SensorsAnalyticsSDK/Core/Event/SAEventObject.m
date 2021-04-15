@@ -90,13 +90,13 @@
     [destination addEntriesFromDictionary:@{}];
     
     // TODO: referrerTitle 处理
-//    if (self.configOptions.enableReferrerTitle) {
+    if (SensorsAnalyticsSDK.configOptions.enableReferrerTitle) {
         // 给 track 和 $sign_up 事件添加 $referrer_title 属性。如果公共属性中存在此属性时会被覆盖，此逻辑优先级更高
-//        eventPropertiesDic[kSAEeventPropertyReferrerTitle] = self.referrerManager.referrerTitle;
-//    }
+        destination[kSAEeventPropertyReferrerTitle] = SensorsAnalyticsSDK.sharedInstance.referrerManager.referrerTitle;
+    }
 
-    //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
-    //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
+    // 根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
+    // 为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
     NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:self.event currentSysUpTime:self.currentSystemUpTime];
     if (eventDuration) {
         destination[@"event_duration"] = eventDuration;
