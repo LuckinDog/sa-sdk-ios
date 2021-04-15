@@ -81,7 +81,8 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 /// 当前的预置属性
 - (NSDictionary *)currentPresetProperties;
 
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively;
+/// track 类型的预置属性
+- (NSDictionary *)presetPropertiesOfTrackType;
 
 @end
 

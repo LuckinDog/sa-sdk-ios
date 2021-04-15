@@ -196,8 +196,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked; // 标记启动事件是否触发过
 
-///是否为被动启动
-@property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 
 @property (nonatomic, strong) SAIdentifier *identifier;
@@ -641,19 +639,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)handleAppStartPassivelyState {
-    self.launchedPassively = YES;
     [self stopFlushTimer];
 }
 
 - (void)handleAppStartState {
-    self.launchedPassively = NO;
     [self startFlushTimer];
     [self tryToRequestRemoteConfigWhenInitialized];
 }
 
 - (void)handleAppRelauchState {
-    self.launchedPassively = NO;
-
     // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
     [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
     [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
@@ -680,8 +674,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [SAModuleManager.sharedInstance clearUtmProperties];
 
     [self stopFlushTimer];
-
-    self.launchedPassively = NO;
 
     [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
 
@@ -1259,7 +1251,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                         @(arc4random()), SA_EVENT_TRACK_ID,
                         nil];
         } else if([type isEqualToString:kSAEventTypeTrack]) {
-            NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]];
+            NSDictionary *presetPropertiesOfTrackType = [self.presetProperty presetPropertiesOfTrackType];
             [eventPropertiesDic addEntriesFromDictionary:presetPropertiesOfTrackType];
             
             eventDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -1743,7 +1735,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if ([self isLaunchedPassively]) {
+        if (self.appLifecycle.state == SAAppLifecycleStateStartPassively) {
             return;
         }
         
@@ -1801,7 +1793,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    if (self.launchedPassively) {
+    if (self.appLifecycle.state == SAAppLifecycleStateStartPassively) {
         if (!self.launchedPassivelyControllers) {
             self.launchedPassivelyControllers = [NSMutableArray array];
         }

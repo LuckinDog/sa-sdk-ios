@@ -164,7 +164,7 @@ NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
     return self.automaticProperties[SAEventPresetPropertyDeviceID];
 }
 
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively {
+- (NSDictionary *)presetPropertiesOfTrackType {
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     // 是否首日访问
     presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
