@@ -610,102 +610,82 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 被动启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
-        [self handleAppStartPassivelyState];
+        [self stopFlushTimer];
         return;
     }
 
     // 冷启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        [self handleAppStartState];
+        [self startFlushTimer];
+        [self tryToRequestRemoteConfigWhenInitialized];
         return;
     }
 
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        [self handleAppRelauchState];
+        // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
+        [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
+
+        // 遍历 trackTimer
+        UInt64 currentSysUpTime = [self.class getSystemUpTime];
+        dispatch_async(self.serialQueue, ^{
+            [self.trackTimer resumeAllEventTimers:currentSysUpTime];
+        });
+
+        //track 被动启动的页面浏览
+        if (self.launchedPassivelyControllers) {
+            [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
+                [self trackViewScreen:controller];
+            }];
+            self.launchedPassivelyControllers = nil;
+        }
+
+        [self startFlushTimer];
         return;
     }
 
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
-        [self handleAppEndState];
+        // 清除本次启动解析的来源渠道信息
+        [SAModuleManager.sharedInstance clearUtmProperties];
+
+        [self stopFlushTimer];
+
+        [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
+
+        UIApplication *application = UIApplication.sharedApplication;
+        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+        // 结束后台任务
+        void (^endBackgroundTask)(void) = ^() {
+            [application endBackgroundTask:backgroundTaskIdentifier];
+            backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+        };
+
+        backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
+            endBackgroundTask();
+        }];
+
+        // 遍历 trackTimer
+        UInt64 currentSysUpTime = [self.class getSystemUpTime];
+        dispatch_async(self.serialQueue, ^{
+            [self.trackTimer pauseAllEventTimers:currentSysUpTime];
+        });
+
+        // 清除 $referrer
+        [SAModuleManager.sharedInstance clearReferrer];
+
+        dispatch_async(self.serialQueue, ^{
+            [self.eventTracker flushAllEventRecords];
+            endBackgroundTask();
+        });
         return;
     }
 
     // 终止
     if (newState == SAAppLifecycleStateTerminate) {
-        [self handleAppTerminateState];
+        dispatch_sync(self.serialQueue, ^{});
     }
-}
-
-- (void)handleAppStartPassivelyState {
-    [self stopFlushTimer];
-}
-
-- (void)handleAppStartState {
-    [self startFlushTimer];
-    [self tryToRequestRemoteConfigWhenInitialized];
-}
-
-- (void)handleAppRelauchState {
-    // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
-    [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
-    [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
-
-    // 遍历 trackTimer
-    UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer resumeAllEventTimers:currentSysUpTime];
-    });
-
-    //track 被动启动的页面浏览
-    if (self.launchedPassivelyControllers) {
-        [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
-            [self trackViewScreen:controller];
-        }];
-        self.launchedPassivelyControllers = nil;
-    }
-
-    [self startFlushTimer];
-}
-
-- (void)handleAppEndState {
-    // 清除本次启动解析的来源渠道信息
-    [SAModuleManager.sharedInstance clearUtmProperties];
-
-    [self stopFlushTimer];
-
-    [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
-
-    UIApplication *application = UIApplication.sharedApplication;
-    __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-    // 结束后台任务
-    void (^endBackgroundTask)(void) = ^() {
-        [application endBackgroundTask:backgroundTaskIdentifier];
-        backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-    };
-
-    backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
-        endBackgroundTask();
-    }];
-
-    // 遍历 trackTimer
-    UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer pauseAllEventTimers:currentSysUpTime];
-    });
-
-    // 清除 $referrer
-    [SAModuleManager.sharedInstance clearReferrer];
-
-    dispatch_async(self.serialQueue, ^{
-        [self.eventTracker flushAllEventRecords];
-        endBackgroundTask();
-    });
-}
-
-- (void)handleAppTerminateState {
-    dispatch_sync(self.serialQueue, ^{});
 }
 
 #pragma mark - HandleURL

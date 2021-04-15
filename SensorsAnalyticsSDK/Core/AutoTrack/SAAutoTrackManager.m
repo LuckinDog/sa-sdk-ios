@@ -142,53 +142,37 @@
 
     // 被动启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
-        [self handleAppStartPassivelyState];
+        if (![self isIgnoreAppStart]) {
+            [self.appStartTracker trackAppStartPassivelyWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
+        }
         return;
     }
 
     // 冷启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        [self handleAppStartState];
+        if (![self isIgnoreAppStart]) {
+            [self.appStartTracker trackAppStartWithRelauch:NO utmProperties:SAModuleManager.sharedInstance.utmProperties];
+        }
+        // 启动 AppEnd 事件计时器
+        [self.appEndTracker trackTimerStartAppEnd];
         return;
     }
 
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        [self handleAppRelauchState];
+        if (![self isIgnoreAppStart]) {
+            [self.appStartTracker trackAppStartWithRelauch:YES utmProperties:SAModuleManager.sharedInstance.utmProperties];
+        }
+        // 启动 AppEnd 事件计时器
+        [self.appEndTracker trackTimerStartAppEnd];
         return;
     }
 
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
-        [self handleAppEndState];
-    }
-}
-
-- (void)handleAppStartPassivelyState {
-    if (![self isIgnoreAppStart]) {
-        [self.appStartTracker trackAppStartPassivelyWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
-    }
-}
-
-- (void)handleAppStartState {
-    if (![self isIgnoreAppStart]) {
-        [self.appStartTracker trackAppStartWithRelauch:NO utmProperties:SAModuleManager.sharedInstance.utmProperties];
-    }
-    // 启动 AppEnd 事件计时器
-    [self.appEndTracker trackTimerStartAppEnd];
-}
-
-- (void)handleAppRelauchState {
-    if (![self isIgnoreAppStart]) {
-        [self.appStartTracker trackAppStartWithRelauch:YES utmProperties:SAModuleManager.sharedInstance.utmProperties];
-    }
-    // 启动 AppEnd 事件计时器
-    [self.appEndTracker trackTimerStartAppEnd];
-}
-
-- (void)handleAppEndState {
-    if (![self isIgnoreAppEnd]) {
-        [self.appEndTracker trackAppEnd];
+        if (![self isIgnoreAppEnd]) {
+            [self.appEndTracker trackAppEnd];
+        }
     }
 }
 
