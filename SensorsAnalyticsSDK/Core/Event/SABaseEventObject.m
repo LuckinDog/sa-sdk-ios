@@ -48,15 +48,10 @@
         self.timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
         
         self.track_id = @(arc4random());
+        
+        self.resultProperties = [NSMutableDictionary dictionary];
     }
     return self;
-}
-
-- (NSMutableDictionary *)resultProperties {
-    if (!_resultProperties) {
-        _resultProperties = [NSMutableDictionary dictionary];
-    }
-    return _resultProperties;
 }
 
 - (void)correctionEventPropertiesWithDestination:(NSMutableDictionary *)destination {

@@ -25,6 +25,8 @@
 #import "SASuperProperty.h"
 #import "SAFileStore.h"
 #import "SAReadWriteLock.h"
+#import "SAPropertyValidator.h"
+#import "SALog.h"
 
 @interface SASuperProperty ()
 
@@ -109,7 +111,16 @@
     // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
     return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
         if (self.dynamicSuperProperties) {
-            return self.dynamicSuperProperties();
+            NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties();
+            //获取用户自定义的动态公共属性
+            if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+                SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
+                return nil;
+            }
+            if (![SAPropertyValidator assertProperties:&dynamicSuperPropertiesDict eachProperty:nil]) {
+                return nil;
+            }
+            return dynamicSuperPropertiesDict;
         }
         return nil;
     }];

@@ -1075,19 +1075,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return newLibMethod;
 }
 
+- (void)willTrackEvent:(NSDictionary *)eventInfo isSignUp:(BOOL)isSignUp {
+    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:eventInfo];
+    SALogDebug(@"\n【track event】:\n%@", eventInfo);
+    [self.eventTracker trackEvent:eventInfo isSignUp:isSignUp];
+}
+
 - (void)trackSignupEvent:(NSDictionary *)properties {
     
     SASignUpEventObject *objcet = [[SASignUpEventObject alloc] initWithProperties:properties event:SA_EVENT_NAME_APP_SIGN_UP];
+    
     dispatch_async(self.serialQueue, ^{
-        __block NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        //获取用户自定义的动态公共属性
-        if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
-            SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
-            dynamicSuperPropertiesDict = nil;
-        } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
-            dynamicSuperPropertiesDict = nil;
-        }
-        //去重
+        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
         
         [objcet addPresetProperties:self.presetProperty.automaticProperties];
@@ -1097,8 +1096,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [objcet addNetworkProperties:self.presetProperty.currentNetworkProperties];
         
         NSDictionary *resultObj = [objcet generateJSONObject];
-        
         NSLog(@"=======> resultObj = %@", resultObj);
+        
+//        [self willTrackEvent:resultObj isSignUp:YES];
     });
     
     NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];

@@ -134,7 +134,6 @@
     return self;
 }
 
-
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *properties = self.resultProperties;
     // 添加用户传入的属性

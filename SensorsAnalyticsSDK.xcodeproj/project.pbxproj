@@ -601,9 +601,9 @@
 			children = (
 				45720B2126246201000F41C7 /* TrackTimer */,
 				457209FD26214CC5000F41C7 /* SuperProperty */,
+				45A452112627EC4C008D61A9 /* SAEventBuildStrategy.h */,
 				458D04C626259A98004B55F1 /* SABaseEventObject.h */,
 				458D04C726259A98004B55F1 /* SABaseEventObject.m */,
-				45A452112627EC4C008D61A9 /* SAEventBuildStrategy.h */,
 				459250A7261BF34A00A08FC3 /* SAEventObject.h */,
 				459250A8261BF34A00A08FC3 /* SAEventObject.m */,
 				458D04CD26259BCB004B55F1 /* SAProfileEventObject.h */,
