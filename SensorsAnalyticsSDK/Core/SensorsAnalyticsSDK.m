@@ -717,6 +717,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self.trackTimer pauseAllEventTimers:currentSysUpTime];
     });
 
+    // 清除 $referrer
+    [SAModuleManager.sharedInstance clearReferrer];
+
     dispatch_async(self.serialQueue, ^{
         [self.eventTracker flushAllEventRecords];
         endBackgroundTask();

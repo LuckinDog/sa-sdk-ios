@@ -162,6 +162,9 @@ NS_ASSUME_NONNULL_BEGIN
                             eventProperties:(NSDictionary *)eventProperties
                                 serialQueue:(dispatch_queue_t)serialQueue;
 
+/// 清除 $referrer
+- (void)clearReferrer;
+
 @end
 
 NS_ASSUME_NONNULL_END

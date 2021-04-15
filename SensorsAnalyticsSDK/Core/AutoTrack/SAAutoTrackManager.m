@@ -123,6 +123,10 @@
                                 enableTitle:self.configOptions.enableReferrerTitle];
 }
 
+- (void)clearReferrer {
+    [self.referrer clear];
+}
+
 #pragma mark - Instance
 
 + (SAAutoTrackManager *)sharedInstance {
@@ -184,7 +188,6 @@
 
 - (void)handleAppEndState {
     if (![self isIgnoreAppEnd]) {
-        [self.referrer clear];
         [self.appEndTracker trackAppEnd];
     }
 }
