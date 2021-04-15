@@ -93,9 +93,9 @@
     }];
 
     // TODO: 修正 $device_id，防止用户修改
-//    if (destination[SAEventPresetPropertyDeviceID] && self.presetProperty.deviceID) {
-//        destination[SAEventPresetPropertyDeviceID] = self.presetProperty.deviceID;
-//    }
+    if (destination[SAEventPresetPropertyDeviceID] && SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID) {
+        destination[SAEventPresetPropertyDeviceID] = SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID;
+    }
 }
 
 - (void)addEventInfoToDestination:(NSMutableDictionary *)destination {
