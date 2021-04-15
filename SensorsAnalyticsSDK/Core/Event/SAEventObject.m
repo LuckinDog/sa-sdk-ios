@@ -103,17 +103,17 @@
     }
 }
 
-- (BOOL)canEnqueueWithEventProperties:(NSMutableDictionary **)eventProperties {
+- (BOOL)canEnqueueWithEventProperties:(NSMutableDictionary *)eventProperties {
     if (!self.trackEventCallback) {
         return YES;
     }
-    BOOL canEnque = self.trackEventCallback(self.event, *eventProperties);
+    BOOL canEnque = self.trackEventCallback(self.event, eventProperties);
     if (!canEnque) {
         SALogDebug(@"\n【track event】: %@ can not enter database.", self.event);
         return NO;
     }
     // 校验 properties
-    if (![self isValidProperties:eventProperties]) {
+    if (![self isValidProperties:&eventProperties]) {
         SALogError(@"%@ failed to track event.", self);
         return NO;
     }
@@ -133,7 +133,7 @@
     // 属性修正
     [self correctionEventPropertiesWithDestination:properties];
     
-    if (![self canEnqueueWithEventProperties:&properties]) {
+    if (![self canEnqueueWithEventProperties:properties]) {
         return nil;
     }
     
