@@ -192,10 +192,15 @@
 
 - (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
     if (self = [super initWithProperties:properties event:event]) {
-        self.libObject.method = kSALibMethodAuto;
         self.type = kSAEventTypeTrack;
     }
     return self;
+}
+
+- (void)addDeepLinkProperties:(NSDictionary *)properties {
+    [self.resultProperties addEntriesFromDictionary:properties];
+    self.resultProperties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
+    self.libObject.method = kSALibMethodAuto;
 }
 
 @end

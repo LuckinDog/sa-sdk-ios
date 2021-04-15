@@ -1162,7 +1162,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         NSLog(@"=======>trackCustomEvent resultObj = %@", resultObj);
         
-//        [self willTrackEvent:resultObj isSignUp:YES];
+//        [self willTrackEvent:resultObj isSignUp:NO];
     });
     
     NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
@@ -1192,6 +1192,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
+    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithProperties:properties event:event];
+    dispatch_async(self.serialQueue, ^{
+        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
+        [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+        
+        [object addPresetProperties:self.presetProperty.automaticProperties];
+        [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
+        [object addSuperProperties:self.superProperty.currentSuperProperties];
+        [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
+        [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        [object addDurationWithEvent:event];
+        
+        NSDictionary *resultObj = [object generateJSONObject];
+        
+        if (![self willEnqueueWithObject:object]) {
+            return;
+        }
+        
+        NSLog(@"=======>trackAutoEvent resultObj = %@", resultObj);
+        
+//        [self willTrackEvent:resultObj isSignUp:NO];
+    });
+    
+    
     NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
     eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
     [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:kSALibMethodAuto];
