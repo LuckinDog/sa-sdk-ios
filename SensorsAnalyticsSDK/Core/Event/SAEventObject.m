@@ -74,7 +74,7 @@
     [destination addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
     
     // TODO: 添加预置属性
-    [destination addEntriesFromDictionary:@{}];
+    [destination addEntriesFromDictionary:SensorsAnalyticsSDK.sharedInstance.presetProperty.currentPresetProperties];
     
     // 添加公共属性
     NSDictionary *superProperties = [SAModuleManager.sharedInstance currentSuperProperties];
@@ -87,7 +87,7 @@
     [self.libObject updateAppVersionFromProperties:superProperties];
     
     // TODO: 每次 track 时手机网络状态
-    [destination addEntriesFromDictionary:@{}];
+    [destination addEntriesFromDictionary:SensorsAnalyticsSDK.sharedInstance.presetProperty.currentNetworkProperties];
     
     // TODO: referrerTitle 处理
     if (SensorsAnalyticsSDK.configOptions.enableReferrerTitle) {

@@ -27,7 +27,7 @@
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
 #import "SAReferrerManager.h"
-
+#import "SAPresetProperty.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -100,6 +100,8 @@
 @property (nonatomic, weak) UIViewController *previousTrackViewController;
 
 @property (nonatomic, strong) SAReferrerManager *referrerManager;
+
+@property (nonatomic, strong) SAPresetProperty *presetProperty;
 
 @end
 
