@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SAConstants.h"
-
+#import "SAEncryptProtocol.h"
 @class SASecretKey;
 @class SASecurityPolicy;
 
@@ -162,6 +162,9 @@ NS_ASSUME_NONNULL_BEGIN
 ///开启自动采集通知
 @property (nonatomic, assign) BOOL enableTrackPush;
 
+/// 自定义加密插件
+@property (nonatomic, strong) id<SAEncryptProtocol> encryptor;
+
 @end
 
 
@@ -173,6 +176,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 密钥值
 @property(nonatomic, copy) NSString *key;
+
+/// 对称加密类型
+@property(nonatomic, copy) NSString *symmetricEncryptType;
+
+/// 非对称加密类型
+@property(nonatomic, copy) NSString *asymmetricEncryptType;
 
 @end
 

@@ -18,14 +18,16 @@
 // limitations under the License.
 //
 
-#import "SAAbstractEncryptor.h"
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 extern NSString * const kSAEncryptECCPrefix;
 extern NSString * const kSAEncryptECCClassName;
 
-NS_ASSUME_NONNULL_BEGIN
+@interface SAECCEncryptor : NSObject
 
-@interface SAECCEncryptor : SAAbstractEncryptor
+- (NSString *)encryptSymmetricKey:(NSData *)symmetricKey publicKey:(NSString *)publicKey;
 
 @end
 

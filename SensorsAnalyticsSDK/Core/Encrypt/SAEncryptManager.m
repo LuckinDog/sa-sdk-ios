@@ -31,28 +31,20 @@
 #import "SAFileStore.h"
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "SAAESEncryptor.h"
-#import "SARSAEncryptor.h"
-#import "SAECCEncryptor.h"
 #import "SALog.h"
+#import "SAEncryptProtocol.h"
+#import "SARSAPluginEncryptor.h"
+#import "SAECCPluginEncryptor.h"
 
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 @interface SAEncryptManager ()
 
-/// 数据加密器（使用 AES 加密数据）
-@property (nonatomic, strong) SAAbstractEncryptor *dataEncryptor;
+@property (nonatomic, strong) id<SAEncryptProtocol> encryptor;
 
-/// 数据加密器的原始密钥（原始的 AES 密钥）
-@property (atomic, copy) NSData *originalAESKey;
+@property (nonatomic, copy) NSString *encryptedSymmetricKey;
 
-/// 数据加密器的加密后密钥（加密后的 AES 密钥）
-@property (atomic, copy) NSString *encryptedAESKey;
-
-/// 密钥加密器（使用 RSA/ECC 加密 AES 密钥）
-@property (nonatomic, strong) SAAbstractEncryptor *keyEncryptor;
-
-/// 密钥加密器的公钥（RSA/ECC 的公钥）
+/// 非对称密钥加密器的公钥（RSA/ECC 的公钥）
 @property (nonatomic, strong) SASecretKey *secretKey;
 
 @end
@@ -110,7 +102,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 #pragma mark - SAEncryptModuleProtocol
 
 - (BOOL)hasSecretKey {
-    return self.dataEncryptor && self.keyEncryptor;
+    // TODO: 判断当前是否有加密 key
+    return (self.encryptor != nil);
 }
 
 - (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
@@ -120,44 +113,53 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
     SASecretKey *secretKey = [[SASecretKey alloc] init];
     NSString *ecKey = encryptConfig[@"key_ec"];
-    if ([SAValidator isValidString:ecKey] && NSClassFromString(kSAEncryptECCClassName)) {
+
+    id<SAEncryptProtocol> encryptor = self.configOptions.encryptor;
+    if (encryptor && [self isValidEncryptor:encryptor]) {
+        // TODO: 处理自定义插件的 type 类型匹配逻辑
+        secretKey = [self secretKeyWithConfig:nil];
+        if (![self checkEncryptTypeWithEncryptor:encryptor secretKey:secretKey]) {
+            return;
+        }
+    } else if ([SAValidator isValidString:ecKey] && NSClassFromString(kSAEncryptECCClassName)) {
         // 获取 ECC 密钥
         NSData *data = [ecKey dataUsingEncoding:NSUTF8StringEncoding];
         if (!data) {
             return;
         }
-
         NSDictionary *ecKeyDic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-        if (![SAValidator isValidDictionary:ecKeyDic]) {
-            return;
-        }
-
-        NSNumber *pkv = ecKeyDic[@"pkv"];
-        NSString *type = ecKeyDic[@"type"];
-        NSString *publicKey = ecKeyDic[@"public_key"];
-        if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
-            return;
-        }
-
-        secretKey.version = [pkv integerValue];
-        secretKey.key = [NSString stringWithFormat:@"%@:%@", type, publicKey];
+        secretKey = [self secretKeyWithConfig:ecKeyDic];
     } else {
         // 获取 RSA 密钥
-        NSNumber *pkv = encryptConfig[@"pkv"];
-        NSString *publicKey = encryptConfig[@"public_key"];
-        if (!pkv || ![SAValidator isValidString:publicKey]) {
-            return;
-        }
-
-        secretKey.version = [pkv integerValue];
-        secretKey.key = publicKey;
+        secretKey = [self secretKeyWithConfig:encryptConfig];
     }
 
+    if (!secretKey) {
+        return;
+    }
     // 存储请求的公钥
     [self saveRequestSecretKey:secretKey];
 
     // 更新加密构造器
     [self updateEncryptor];
+}
+
+- (SASecretKey *)secretKeyWithConfig:(NSDictionary *)config {
+    if (![SAValidator isValidDictionary:config]) {
+        return nil;
+    }
+    NSNumber *pkv = config[@"pkv"];
+    NSString *type = config[@"type"] ?: @"RSA";
+    NSString *publicKey = config[@"public_key"];
+    if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
+        return nil;
+    }
+    SASecretKey *secretKey = [[SASecretKey alloc] init];
+    secretKey.version = [pkv integerValue];
+    secretKey.key = [type isEqualToString:@"RSA"] ? publicKey : [NSString stringWithFormat:@"%@:%@", type, publicKey];
+    secretKey.symmetricEncryptType = @"AES";
+    secretKey.asymmetricEncryptType = type;
+    return secretKey;
 }
 
 - (NSDictionary *)encryptJSONObject:(id)obj {
@@ -172,8 +174,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
             return nil;
         }
 
-        if (![self encryptAESKey]) {
-            SALogDebug(@"Enable encryption but encrypt AES key is failed!");
+        if (![self encryptSymmetricKey]) {
+            SALogDebug(@"Enable encryption but encrypt symmetric key is failed!");
             return nil;
         }
 
@@ -184,7 +186,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         NSData *zippedData = [SAGzipUtility gzipData:encodingData];
 
         // AES128 加密数据
-        NSString *encryptedString = [self.dataEncryptor encryptObject:zippedData];
+        NSString *encryptedString =  [self.encryptor encryptEvent:zippedData];
         if (![SAValidator isValidString:encryptedString]) {
             return nil;
         }
@@ -192,7 +194,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         // 封装加密的数据结构
         NSMutableDictionary *secretObj = [NSMutableDictionary dictionary];
         secretObj[@"pkv"] = @(self.secretKey.version);
-        secretObj[@"ekey"] = self.encryptedAESKey;
+        secretObj[@"ekey"] = self.encryptedSymmetricKey;
         secretObj[@"payload"] = encryptedString;
         return [NSDictionary dictionaryWithDictionary:secretObj];
     } @catch (NSException *exception) {
@@ -201,8 +203,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     }
 }
 
-#pragma mark - Private Methods
-
+#pragma mark - archive/unarchive secretKey
 - (void)saveRequestSecretKey:(SASecretKey *)secretKey {
     if (!secretKey) {
         return;
@@ -252,6 +253,13 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         }
     }
 
+    // compatibility old secret key
+    if (!secretKey.symmetricEncryptType) {
+        secretKey.symmetricEncryptType = @"AES";
+    }
+    if (!secretKey.asymmetricEncryptType) {
+        secretKey.asymmetricEncryptType = [secretKey.key hasPrefix:@"EC:"] ? @"EC" : @"RSA";
+    }
     return secretKey;
 }
 
@@ -267,42 +275,71 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
             return;
         }
 
-        // 更新 AES 密钥加密器
-        if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
-            if (!NSClassFromString(kSAEncryptECCClassName)) {
-                NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件并增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
-                return;
-            }
-
-            self.keyEncryptor = [[SAECCEncryptor alloc] initWithSecretKey:secretKey.key];
-        } else {
-            self.keyEncryptor = [[SARSAEncryptor alloc] initWithSecretKey:secretKey.key];
+        id<SAEncryptProtocol> encryptor = [self generateEncrptor:secretKey];
+        if (!encryptor) {
+            return;
         }
-
         // 更新密钥
         self.secretKey = secretKey;
 
-        // 更新原始的 AES 密钥
-        self.originalAESKey = self.keyEncryptor.random16ByteData;
+        // 更新数据加密插件
+        self.encryptor = encryptor;
 
-        // 更新加密后的 AES 密钥
-        self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
-
-        // 更新数据加密器
-        self.dataEncryptor = [[SAAESEncryptor alloc] initWithSecretKey:self.originalAESKey];
+        // 重新生成加密插件的对称密钥
+        self.encryptedSymmetricKey = [self.encryptor encryptSymmetricKeyWithPublicKey:secretKey.key];
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
 }
 
-- (BOOL)encryptAESKey {
-    if (self.encryptedAESKey) {
+- (id<SAEncryptProtocol>)generateEncrptor:(SASecretKey *)secretKey {
+    id<SAEncryptProtocol> encryptor;
+    if (self.configOptions.encryptor && [self isValidEncryptor:self.configOptions.encryptor]) {
+        encryptor = self.configOptions.encryptor;
+    } else if ([secretKey.key hasPrefix:kSAEncryptECCPrefix]) {
+        if (!NSClassFromString(kSAEncryptECCClassName)) {
+            NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件并增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
+            return nil;
+        }
+        encryptor = [[SAECCPluginEncryptor alloc] init];
+    } else {
+        encryptor = [[SARSAPluginEncryptor alloc] init];
+    }
+    if (![self checkEncryptTypeWithEncryptor:encryptor secretKey:secretKey]) {
+        return nil;
+    }
+    return encryptor;
+}
+
+- (BOOL)checkEncryptTypeWithEncryptor:(id<SAEncryptProtocol>)encryptor secretKey:(SASecretKey *)secretKey {
+    BOOL symmetricMatched = [[encryptor symmetricEncryptType] isEqualToString:secretKey.symmetricEncryptType];
+    BOOL asymmetricMatched = [[encryptor asymmetricEncryptType] isEqualToString:secretKey.asymmetricEncryptType];
+    return (symmetricMatched && asymmetricMatched);
+}
+
+- (BOOL)isValidEncryptor:(id<SAEncryptProtocol>)encryptor {
+    if (![encryptor respondsToSelector:@selector(symmetricEncryptType)]) {
+        return NO;
+    }
+    if (![encryptor respondsToSelector:@selector(asymmetricEncryptType)]) {
+        return NO;
+    }
+    if (![encryptor respondsToSelector:@selector(encryptEvent:)]) {
+        return NO;
+    }
+    if (![encryptor respondsToSelector:@selector(encryptSymmetricKeyWithPublicKey:)]) {
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)encryptSymmetricKey {
+    if (self.encryptedSymmetricKey) {
         return YES;
     }
-
-    self.encryptedAESKey = [self.keyEncryptor encryptObject:self.originalAESKey];
-
-    return self.encryptedAESKey != nil;
+    NSString *publicKey = self.secretKey.key;
+    self.encryptedSymmetricKey = [self.encryptor encryptSymmetricKeyWithPublicKey:publicKey];
+    return self.encryptedSymmetricKey != nil;
 }
 
 @end

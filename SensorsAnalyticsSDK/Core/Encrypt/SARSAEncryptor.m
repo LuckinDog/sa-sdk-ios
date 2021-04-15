@@ -29,52 +29,37 @@
 
 @interface SARSAEncryptor ()
 
-/// 异常字符处理后的公钥
-@property (nonatomic, copy) NSString *publicKey;
-
 @end
 
 @implementation SARSAEncryptor
 
-#pragma mark - Life Cycle
-
-- (instancetype)initWithSecretKey:(id)secretKey {
-    self = [super initWithSecretKey:secretKey];
-    if (self) {
-        [self configWithSecretKey:secretKey];
-    }
-    return self;
-}
-
-- (void)configWithSecretKey:(id)secretKey {
-    if (![SAValidator isValidString:secretKey]) {
-        return;
+- (NSString *)configWithPublicKey:(id)publicKey {
+    if (![SAValidator isValidString:publicKey]) {
+        return nil;
     }
 
-    NSString *secretKeyCopy = [secretKey copy];
-    secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\r" withString:@""];
-    secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-    secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@"\t" withString:@""];
-    secretKeyCopy = [secretKeyCopy stringByReplacingOccurrencesOfString:@" "  withString:@""];
-
-    self.publicKey = secretKeyCopy;
+    NSString *publicKeyCopy = [publicKey copy];
+    publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\r" withString:@""];
+    publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\t" withString:@""];
+    publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@" "  withString:@""];
+    return [publicKeyCopy copy];
 }
 
-#pragma mark - Public Methods
-
-- (nullable NSString *)encryptObject:(NSData *)obj {
+- (NSString *)encryptSymmetricKey:(NSData *)obj publicKey:(NSString *)publicKey {
     if (![SAValidator isValidData:obj]) {
         SALogError(@"Enable RSA encryption but the input obj is invalid!");
         return nil;
     }
-    
-    if (![SAValidator isValidString:self.publicKey]) {
+
+    NSString *aymmetricPublicKey = [self configWithPublicKey:publicKey];
+    if (![SAValidator isValidString:aymmetricPublicKey]) {
         SALogError(@"Enable RSA encryption but the public key is invalid!");
         return nil;
     }
     
     NSData *data = obj;
-    SecKeyRef keyRef = [self addPublicKey];
+    SecKeyRef keyRef = [self addPublicKey:aymmetricPublicKey];
     if (!keyRef) {
         SALogError(@"Enable RSA encryption but init public SecKeyRef failed!");
         return nil;
@@ -127,8 +112,8 @@
 
 #pragma mark – Private Methods
 
-- (SecKeyRef)addPublicKey {
-    NSString *key = [self.publicKey copy];
+- (SecKeyRef)addPublicKey:(NSString *)aymmetricPublicKey {
+    NSString *key = [aymmetricPublicKey copy];
     
     // This will be base64 encoded, decode it.
     NSData *data = [[NSData alloc] initWithBase64EncodedString:key options:NSDataBase64DecodingIgnoreUnknownCharacters];

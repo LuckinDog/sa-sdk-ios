@@ -29,38 +29,34 @@
 
 @interface SAAESEncryptor ()
 
-@property (nonatomic, copy) NSData *secretKey;
+@property (nonatomic, strong) NSData *symmetricKey;
 
 @end
 
 @implementation SAAESEncryptor
-
-#pragma mark - Life Cycle
-
-- (instancetype)initWithSecretKey:(id)secretKey {
-    self = [super initWithSecretKey:secretKey];
-    if (self) {
-        [self configWithSecretKey:secretKey];
-    }
-    return self;
-}
-
-- (void)configWithSecretKey:(id)secretKey {
-    if (![SAValidator isValidData:secretKey]) {
-        return;
-    }
-    self.secretKey = secretKey;
-}
-
 #pragma mark - Public Methods
 
-- (nullable NSString *)encryptObject:(NSData *)obj {
+- (NSData *)symmetricKey {
+    if (!_symmetricKey) {
+        // 默认使用 16 位长度随机字符串，RSA 和 ECC 保持一致
+        NSUInteger length = 16;
+        NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
+        NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
+        for (NSUInteger i = 0; i < length; i++) {
+            [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
+        }
+        _symmetricKey = [randomString dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    return _symmetricKey;
+}
+
+- (nullable NSString *)encryptData:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
         SALogError(@"Enable AES encryption but the input obj is invalid!");
         return nil;
     }
-    
-    if (![SAValidator isValidData:self.secretKey]) {
+
+    if (![SAValidator isValidData:self.symmetricKey]) {
         SALogError(@"Enable AES encryption but the secret key data is invalid!");
         return nil;
     }
@@ -78,7 +74,7 @@
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
                                           kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
-                                          [self.secretKey bytes],
+                                          [self.symmetricKey bytes],
                                           kCCBlockSizeAES128,
                                           [ivData bytes],
                                           [data bytes],

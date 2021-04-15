@@ -125,6 +125,8 @@
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeInteger:self.version forKey:@"version"];
     [coder encodeObject:self.key forKey:@"key"];
+    [coder encodeObject:self.symmetricEncryptType forKey:@"symmetricEncryptType"];
+    [coder encodeObject:self.asymmetricEncryptType forKey:@"asymmetricEncryptType"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
@@ -132,6 +134,8 @@
     if (self) {
         self.version = [coder decodeIntegerForKey:@"version"];
         self.key = [coder decodeObjectForKey:@"key"];
+        self.symmetricEncryptType = [coder decodeObjectForKey:@"symmetricEncryptType"];
+        self.asymmetricEncryptType = [coder decodeObjectForKey:@"asymmetricEncryptType"];
     }
     return self;
 }
