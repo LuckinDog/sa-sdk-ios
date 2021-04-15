@@ -1,8 +1,8 @@
 //
-// SASuperPropertyManager.h
+// SAEventBuildStrategy.h
 // SensorsAnalyticsSDK
 //
-// Created by yuqiang on 2021/4/10.
+// Created by yuqiang on 2021/4/15.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,13 +19,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SASuperPropertyManager : NSObject <SAModuleProtocol, SASuperPropertyModuleProtocol>
+@protocol SAEventBuildStrategy <NSObject>
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
+- (void)addPresetProperties:(NSDictionary *)properties;
+- (void)addSuperProperties:(NSDictionary *)properties;
+- (void)addDynamicSuperProperties:(NSDictionary *)properties;
+- (void)addDeepLinkProperties:(NSDictionary *)properties;
+
+- (void)addNetworkProperties:(NSDictionary *)properties;
+- (void)addDurationWithEvent:(NSString *)event;
+
+- (BOOL)isValidProperties:(NSDictionary *_Nullable*_Nullable)properties;
 
 @end
 

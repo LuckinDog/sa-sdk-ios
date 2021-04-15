@@ -1,5 +1,5 @@
 //
-// SASuperPropertyManager.m
+// SASuperProperty.m
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/4/10.
@@ -22,11 +22,11 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SASuperPropertyManager.h"
+#import "SASuperProperty.h"
 #import "SAFileStore.h"
 #import "SAReadWriteLock.h"
 
-@interface SASuperPropertyManager ()
+@interface SASuperProperty ()
 
 /// 静态公共属性
 @property (atomic, strong) NSDictionary *superProperties;
@@ -37,7 +37,7 @@
 
 @end
 
-@implementation SASuperPropertyManager
+@implementation SASuperProperty
 
 - (instancetype)init {
     self = [super init];

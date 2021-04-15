@@ -52,12 +52,11 @@
     return self;
 }
 
-- (BOOL)isCanTrack {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return NO;
+- (NSMutableDictionary *)resultProperties {
+    if (!_resultProperties) {
+        _resultProperties = [NSMutableDictionary dictionary];
     }
-    return YES;
+    return _resultProperties;
 }
 
 - (void)correctionEventPropertiesWithDestination:(NSMutableDictionary *)destination {
@@ -102,6 +101,7 @@
     NSDictionary *eventInfo = @{SA_EVENT_DISTINCT_ID: SensorsAnalyticsSDK.sharedInstance.distinctId,
                                 SA_EVENT_LOGIN_ID: SensorsAnalyticsSDK.sharedInstance.loginId,
                                 SA_EVENT_ANONYMOUS_ID: SensorsAnalyticsSDK.sharedInstance.anonymousId,
+                                SA_EVENT_TYPE: self.type,
                                 SA_EVENT_TIME: @(self.timeStamp),
                                 SA_EVENT_LIB: [self.libObject generateJSONObject],
                                 SA_EVENT_TRACK_ID: self.track_id
@@ -119,17 +119,31 @@
     return @{};
 }
 
+#pragma makr - SAEventBuildStrategy
+- (void)addPresetProperties:(NSDictionary *)properties {
+}
+
+- (void)addSuperProperties:(NSDictionary *)properties {
+}
+
+- (void)addDynamicSuperProperties:(NSDictionary *)properties {
+}
+
+- (void)addDeepLinkProperties:(NSDictionary *)properties {
+}
+
+- (void)addNetworkProperties:(NSDictionary *)properties {
+}
+
+- (void)addDurationWithEvent:(NSString *)event {
+}
+
 - (BOOL)isValidProperties:(NSDictionary **)properties {
     if ([SAPropertyValidator assertProperties:properties eachProperty:nil]) {
         return YES;
     }
     SALogError(@"%@ failed to track event.", self);
     return NO;
-}
-
-- (void)sendTrackNotificationWithEventInfo:(NSDictionary *)eventInfo {
-    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:eventInfo];
-    SALogDebug(@"\n【track event】:\n%@", eventInfo);
 }
 
 @end

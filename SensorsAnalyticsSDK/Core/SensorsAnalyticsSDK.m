@@ -74,6 +74,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
 #import "SAEventObject.h"
+#import "SASuperProperty.h"
 
 #define VERSION @"2.5.3"
 
@@ -206,6 +207,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SAPresetProperty *presetProperty;
 
+@property (nonatomic, strong) SASuperProperty *superProperty;
+
 @property (atomic, strong) SAConsoleLogger *consoleLogger;
 
 @property (nonatomic, strong) SAReferrerManager *referrerManager;
@@ -323,6 +326,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
             
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
+            
+            _superProperty = [[SASuperProperty alloc] init];
             
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
@@ -1071,6 +1076,31 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackSignupEvent:(NSDictionary *)properties {
+    
+    SASignUpEventObject *objcet = [[SASignUpEventObject alloc] initWithProperties:properties event:SA_EVENT_NAME_APP_SIGN_UP];
+    dispatch_async(self.serialQueue, ^{
+        __block NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
+        //获取用户自定义的动态公共属性
+        if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+            SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
+            dynamicSuperPropertiesDict = nil;
+        } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
+            dynamicSuperPropertiesDict = nil;
+        }
+        //去重
+        [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+        
+        [objcet addPresetProperties:self.presetProperty.automaticProperties];
+        [objcet addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
+        [objcet addSuperProperties:self.superProperty.currentSuperProperties];
+        [objcet addDynamicSuperProperties:dynamicSuperPropertiesDict];
+        [objcet addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        
+        NSDictionary *resultObj = [objcet generateJSONObject];
+        
+        NSLog(@"=======> resultObj = %@", resultObj);
+    });
+    
     NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
     NSString *libMethod = [self obtainValidLibMethod:eventProps[SAEventPresetPropertyLibMethod]];
     eventProps[SAEventPresetPropertyLibMethod] = libMethod;
@@ -1180,7 +1210,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     libProperties[SAEventPresetPropertyLibDetail] = libDetail;
     
-    __block NSDictionary *dynamicSuperPropertiesDict = [SAModuleManager.sharedInstance acquireDynamicSuperProperties];
+    __block NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
     
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     
@@ -1198,13 +1228,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             dynamicSuperPropertiesDict = nil;
         }
         //去重
-        [SAModuleManager.sharedInstance unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+        [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
         NSMutableDictionary *eventPropertiesDic = [NSMutableDictionary dictionary];
         if ([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
-            NSDictionary *superProperties = [SAModuleManager.sharedInstance currentSuperProperties];
+            NSDictionary *superProperties = [self.superProperty currentSuperProperties];
             [eventPropertiesDic addEntriesFromDictionary:self.presetProperty.automaticProperties];
             [eventPropertiesDic addEntriesFromDictionary:superProperties];
             [eventPropertiesDic addEntriesFromDictionary:dynamicSuperPropertiesDict];
@@ -2289,28 +2319,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance registerSuperProperties:propertyDict];
+        [self.superProperty registerSuperProperties:propertyDict];
     });
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    [SAModuleManager.sharedInstance registerDynamicSuperProperties:dynamicSuperProperties];
+    [self.superProperty registerDynamicSuperProperties:dynamicSuperProperties];
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance unregisterSuperProperty:property];
+        [self.superProperty unregisterSuperProperty:property];
     });
 }
 
 - (void)clearSuperProperties {
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance clearSuperProperties];
+        [self.superProperty clearSuperProperties];
     });
 }
 
 - (NSDictionary *)currentSuperProperties {
-    return [SAModuleManager.sharedInstance currentSuperProperties];
+    return [self.superProperty currentSuperProperties];
 }
 
 @end
@@ -2334,7 +2364,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
     __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
-    __block NSDictionary *dynamicSuperPropertiesDict = [SAModuleManager.sharedInstance acquireDynamicSuperProperties];
+    __block NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
 
     dispatch_async(self.serialQueue, ^{
         @try {
@@ -2371,7 +2401,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSMutableDictionary *libMDic = eventDict[SA_EVENT_LIB];
             //update lib $app_version from super properties
-            NSDictionary *superProperties = [SAModuleManager.sharedInstance currentSuperProperties];
+            NSDictionary *superProperties = [self.superProperty currentSuperProperties];
             id appVersion = superProperties[SAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
             if (appVersion) {
                 libMDic[SAEventPresetPropertyAppVersion] = appVersion;
@@ -2395,7 +2425,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     dynamicSuperPropertiesDict = nil;
                 }
                 // 去重
-                [SAModuleManager.sharedInstance unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+                [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
                 [propertiesDict addEntriesFromDictionary:superProperties];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];

@@ -20,10 +20,11 @@
 
 #import <Foundation/Foundation.h>
 #import "SAEventLibObject.h"
+#import "SAEventBuildStrategy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SABaseEventObject : NSObject
+@interface SABaseEventObject : NSObject <SAEventBuildStrategy>
 
 @property (nonatomic, copy) NSDictionary *properties;
 
@@ -41,9 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy) NSString *token;
 
-- (instancetype)initWithProperties:(NSDictionary *)properties;
+@property (nonatomic, strong) NSMutableDictionary *resultProperties;
 
-- (BOOL)isCanTrack;
+- (instancetype)initWithProperties:(NSDictionary *)properties;
 
 /// 事件属性修正
 /// @param destination 事件属性字典
@@ -56,8 +57,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)generateJSONObject;
 
 - (BOOL)isValidProperties:(NSDictionary *_Nullable*_Nonnull)properties;
-
-- (void)sendTrackNotificationWithEventInfo:(NSDictionary *)eventInfo;
 
 @end
 

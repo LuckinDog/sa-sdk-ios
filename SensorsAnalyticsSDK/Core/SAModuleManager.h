@@ -99,12 +99,6 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 #pragma mark -
 
-@interface SAModuleManager (SuperProperty) <SASuperPropertyModuleProtocol>
-
-@end
-
-#pragma mark -
-
 @interface SAModuleManager (TrackTimer) <SATrackTimerModuleProtocol>
 
 @end

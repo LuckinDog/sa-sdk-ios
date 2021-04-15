@@ -21,8 +21,8 @@
 		453FC64225EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC63125EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m */; };
 		453FC64425EE3D6300591C47 /* SAGestureTargetActionModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC63325EE3D6300591C47 /* SAGestureTargetActionModel.m */; };
 		453FC64725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */; };
-		45720A0026214D13000F41C7 /* SASuperPropertyManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 457209FE26214D13000F41C7 /* SASuperPropertyManager.h */; };
-		45720A0126214D13000F41C7 /* SASuperPropertyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 457209FF26214D13000F41C7 /* SASuperPropertyManager.m */; };
+		45720A0026214D13000F41C7 /* SASuperProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 457209FE26214D13000F41C7 /* SASuperProperty.h */; };
+		45720A0126214D13000F41C7 /* SASuperProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 457209FF26214D13000F41C7 /* SASuperProperty.m */; };
 		45720B1C2624500B000F41C7 /* SAPropertyValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 45720B1A2624500B000F41C7 /* SAPropertyValidator.h */; };
 		45720B1D2624500B000F41C7 /* SAPropertyValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 45720B1B2624500B000F41C7 /* SAPropertyValidator.m */; };
 		4584B30825EF23FF00900FC4 /* SAGestureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4584B30625EF23FF00900FC4 /* SAGestureManager.h */; };
@@ -35,6 +35,7 @@
 		459250AA261BF34A00A08FC3 /* SAEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 459250A8261BF34A00A08FC3 /* SAEventObject.m */; };
 		459250B0261BF37400A08FC3 /* SAEventLibObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 459250AE261BF37400A08FC3 /* SAEventLibObject.h */; };
 		459250B1261BF37400A08FC3 /* SAEventLibObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 459250AF261BF37400A08FC3 /* SAEventLibObject.m */; };
+		45A452132627EC4C008D61A9 /* SAEventBuildStrategy.h in Headers */ = {isa = PBXBuildFile; fileRef = 45A452112627EC4C008D61A9 /* SAEventBuildStrategy.h */; };
 		4D2D537A2591EB0600805141 /* SAConsoleLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2D536B2591EB0500805141 /* SAConsoleLogger.m */; };
 		4D2D537B2591EB0600805141 /* SALogMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2D536C2591EB0500805141 /* SALogMessage.m */; };
 		4D2D537E2591EB0600805141 /* SALoggerPrePostFixFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2D536F2591EB0500805141 /* SALoggerPrePostFixFormatter.h */; };
@@ -261,8 +262,8 @@
 		453FC63125EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+SAAutoTrack.m"; sourceTree = "<group>"; };
 		453FC63325EE3D6300591C47 /* SAGestureTargetActionModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetActionModel.m; sourceTree = "<group>"; };
 		453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+SAAutoTrack.h"; sourceTree = "<group>"; };
-		457209FE26214D13000F41C7 /* SASuperPropertyManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASuperPropertyManager.h; sourceTree = "<group>"; };
-		457209FF26214D13000F41C7 /* SASuperPropertyManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASuperPropertyManager.m; sourceTree = "<group>"; };
+		457209FE26214D13000F41C7 /* SASuperProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASuperProperty.h; sourceTree = "<group>"; };
+		457209FF26214D13000F41C7 /* SASuperProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASuperProperty.m; sourceTree = "<group>"; };
 		45720B1A2624500B000F41C7 /* SAPropertyValidator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPropertyValidator.h; sourceTree = "<group>"; };
 		45720B1B2624500B000F41C7 /* SAPropertyValidator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPropertyValidator.m; sourceTree = "<group>"; };
 		4584B30625EF23FF00900FC4 /* SAGestureManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGestureManager.h; sourceTree = "<group>"; };
@@ -275,6 +276,7 @@
 		459250A8261BF34A00A08FC3 /* SAEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventObject.m; sourceTree = "<group>"; };
 		459250AE261BF37400A08FC3 /* SAEventLibObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventLibObject.h; sourceTree = "<group>"; };
 		459250AF261BF37400A08FC3 /* SAEventLibObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventLibObject.m; sourceTree = "<group>"; };
+		45A452112627EC4C008D61A9 /* SAEventBuildStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventBuildStrategy.h; sourceTree = "<group>"; };
 		4D2D536B2591EB0500805141 /* SAConsoleLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConsoleLogger.m; sourceTree = "<group>"; };
 		4D2D536C2591EB0500805141 /* SALogMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALogMessage.m; sourceTree = "<group>"; };
 		4D2D536D2591EB0500805141 /* SAConsoleLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAConsoleLogger.h; sourceTree = "<group>"; };
@@ -579,8 +581,8 @@
 		457209FD26214CC5000F41C7 /* SuperProperty */ = {
 			isa = PBXGroup;
 			children = (
-				457209FE26214D13000F41C7 /* SASuperPropertyManager.h */,
-				457209FF26214D13000F41C7 /* SASuperPropertyManager.m */,
+				457209FE26214D13000F41C7 /* SASuperProperty.h */,
+				457209FF26214D13000F41C7 /* SASuperProperty.m */,
 			);
 			path = SuperProperty;
 			sourceTree = "<group>";
@@ -601,6 +603,7 @@
 				457209FD26214CC5000F41C7 /* SuperProperty */,
 				458D04C626259A98004B55F1 /* SABaseEventObject.h */,
 				458D04C726259A98004B55F1 /* SABaseEventObject.m */,
+				45A452112627EC4C008D61A9 /* SAEventBuildStrategy.h */,
 				459250A7261BF34A00A08FC3 /* SAEventObject.h */,
 				459250A8261BF34A00A08FC3 /* SAEventObject.m */,
 				458D04CD26259BCB004B55F1 /* SAProfileEventObject.h */,
@@ -1089,8 +1092,9 @@
 				4D4DB2C825B7D19C00938842 /* SADelegateProxy.h in Headers */,
 				A835227225E5FD75005D69D5 /* SAAESEncryptor.h in Headers */,
 				4D2D53A12591EB2100805141 /* SAEventFlush.h in Headers */,
+				45A452132627EC4C008D61A9 /* SAEventBuildStrategy.h in Headers */,
 				881A4211253D7B5000854F69 /* SAPresetProperty.h in Headers */,
-				45720A0026214D13000F41C7 /* SASuperPropertyManager.h in Headers */,
+				45720A0026214D13000F41C7 /* SASuperProperty.h in Headers */,
 				881A41A9253D7B4F00854F69 /* WKWebView+SABridge.h in Headers */,
 				881A4227253D7B5E00854F69 /* SALocationManager.h in Headers */,
 				881A41F7253D7B5000854F69 /* SASecurityPolicy.h in Headers */,
@@ -1351,7 +1355,7 @@
 				F277F5D625CFBF38009B5CE6 /* SAScrollViewDelegateProxy.m in Sources */,
 				4D4DB2CE25B7D19C00938842 /* SAClassHelper.m in Sources */,
 				881A4220253D7B5000854F69 /* SAFileStore.m in Sources */,
-				45720A0126214D13000F41C7 /* SASuperPropertyManager.m in Sources */,
+				45720A0126214D13000F41C7 /* SASuperProperty.m in Sources */,
 				F277F5C625CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.m in Sources */,
 				4D4DB2EB25B7D1F300938842 /* UIView+AutoTrack.m in Sources */,
 				F277F5C125CF9A43009B5CE6 /* SANotificationUtil.m in Sources */,

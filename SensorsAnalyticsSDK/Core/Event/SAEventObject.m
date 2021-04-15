@@ -37,105 +37,22 @@
 - (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
     if (self = [super initWithProperties:properties]) {
         self.event = event;
-        self.dynamicSuperProperties = [SAModuleManager.sharedInstance acquireDynamicSuperProperties];
         self.loginId = SensorsAnalyticsSDK.sharedInstance.loginId;
         self.anonymousID = SensorsAnalyticsSDK.sharedInstance.anonymousId;
     }
     return self;
 }
 
-- (BOOL)isCanTrack {
-    if (![super isCanTrack]) {
-        return NO;
-    }
-    
-    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:self.event]) {
-        SALogDebug(@"【remote config】 %@ is ignored by remote config", self.event);
-        return NO;
-    }
-    return YES;
-}
-
-- (void)addEventPropertiesToDestination:(NSMutableDictionary *)destination {
-    // 动态公共属性预处理:
-    // 1. 动态公共属性类型校验
-    // 2. 动态公共属性内容校验
-    // 3. 从静态公共属性中移除 key(忽略大小写) 相同的属性
-    NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties;
-    if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
-        SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
-        dynamicSuperPropertiesDict = nil;
-    } else if (![SAPropertyValidator assertProperties:&dynamicSuperPropertiesDict eachProperty:nil]) {
-        dynamicSuperPropertiesDict = nil;
-    }
-    [SAModuleManager.sharedInstance unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-    
-    // 添加 DeepLink 信息
-    [destination addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
-    
-    // TODO: 添加预置属性
-    [destination addEntriesFromDictionary:SensorsAnalyticsSDK.sharedInstance.presetProperty.currentPresetProperties];
-    
-    // 添加公共属性
-    NSDictionary *superProperties = [SAModuleManager.sharedInstance currentSuperProperties];
-    [destination addEntriesFromDictionary:superProperties];
-    
-    // 添加动态公共属性
-    [destination addEntriesFromDictionary:self.dynamicSuperProperties];
-    
-    // 从公共属性中更新 lib 节点中的 $app_version 值
-    [self.libObject updateAppVersionFromProperties:superProperties];
-    
-    // TODO: 每次 track 时手机网络状态
-    [destination addEntriesFromDictionary:SensorsAnalyticsSDK.sharedInstance.presetProperty.currentNetworkProperties];
-    
-    // TODO: referrerTitle 处理
-    if (SensorsAnalyticsSDK.configOptions.enableReferrerTitle) {
-        // 给 track 和 $sign_up 事件添加 $referrer_title 属性。如果公共属性中存在此属性时会被覆盖，此逻辑优先级更高
-        destination[kSAEeventPropertyReferrerTitle] = SensorsAnalyticsSDK.sharedInstance.referrerManager.referrerTitle;
-    }
-
-    // 根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
-    // 为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
-    NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:self.event currentSysUpTime:self.currentSystemUpTime];
-    if (eventDuration) {
-        destination[@"event_duration"] = eventDuration;
-    }
-}
-
-- (BOOL)canEnqueueWithEventProperties:(NSMutableDictionary *)eventProperties {
-    if (!self.trackEventCallback) {
-        return YES;
-    }
-    BOOL canEnque = self.trackEventCallback(self.event, eventProperties);
-    if (!canEnque) {
-        SALogDebug(@"\n【track event】: %@ can not enter database.", self.event);
-        return NO;
-    }
-    // 校验 properties
-    if (![self isValidProperties:&eventProperties]) {
-        SALogError(@"%@ failed to track event.", self);
-        return NO;
-    }
-    return YES;
-}
-
 - (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    // 添加属性
-    [self addEventPropertiesToDestination:properties];
-    
+    NSMutableDictionary *properties = self.resultProperties;
     // 添加用户传入的属性
     if ([self.properties isKindOfClass:[NSDictionary class]]) {
+        [self.libObject configDetailWithEvent:self.event properties:self.properties];
         [properties addEntriesFromDictionary:self.properties];
     }
     
     // 属性修正
     [self correctionEventPropertiesWithDestination:properties];
-    
-    if (![self canEnqueueWithEventProperties:properties]) {
-        return nil;
-    }
     
     // 组装事件信息
     NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
@@ -146,8 +63,6 @@
     // 添加事件信息
     [self addEventInfoToDestination:jsonObject];
     
-    // 发送 track 事件的通知
-    [self sendTrackNotificationWithEventInfo:[jsonObject copy]];
     return [jsonObject copy];
 }
 
@@ -173,6 +88,41 @@
     return YES;
 }
 
+#pragma makr - SAEventBuildStrategy
+- (void)addPresetProperties:(NSDictionary *)properties {
+    [self.resultProperties addEntriesFromDictionary:properties];
+}
+
+- (void)addSuperProperties:(NSDictionary *)properties {
+    [self.resultProperties addEntriesFromDictionary:properties];
+    // 从公共属性中更新 lib 节点中的 $app_version 值
+    [self.libObject updateAppVersionFromProperties:properties];
+}
+
+- (void)addDynamicSuperProperties:(NSDictionary *)properties {
+    [self.resultProperties addEntriesFromDictionary:properties];
+}
+
+- (void)addDeepLinkProperties:(NSDictionary *)properties {
+    [self.resultProperties addEntriesFromDictionary:properties];
+    NSString *libMethod = [self.libObject obtainValidLibMethod:properties[SAEventPresetPropertyLibMethod]];
+    self.resultProperties[SAEventPresetPropertyLibMethod] = libMethod;
+    self.libObject.method = libMethod;
+}
+
+- (void)addNetworkProperties:(NSDictionary *)properties {
+    [self.resultProperties addEntriesFromDictionary:properties];
+}
+
+- (void)addDurationWithEvent:(NSString *)event {
+    // 根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
+    // 为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
+    NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:event currentSysUpTime:self.currentSystemUpTime];
+    if (eventDuration) {
+        self.resultProperties[@"event_duration"] = eventDuration;
+    }
+}
+
 @end
 
 @implementation SASignUpEventObject
@@ -184,13 +134,12 @@
     return self;
 }
 
+
 - (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    // 添加属性
-    [self addEventPropertiesToDestination:properties];
-    
+    NSMutableDictionary *properties = self.resultProperties;
     // 添加用户传入的属性
     if ([self.properties isKindOfClass:[NSDictionary class]]) {
+        [self.libObject configDetailWithEvent:self.event properties:self.properties];
         [properties addEntriesFromDictionary:self.properties];
     }
     
@@ -224,7 +173,7 @@
 }
 
 - (BOOL)isCanTrack {
-    BOOL canTrack = [super isCanTrack];
+    BOOL canTrack = YES;
     NSSet *presetEventNames = [NSSet setWithObjects:
                                SA_EVENT_NAME_APP_START,
                                SA_EVENT_NAME_APP_START_PASSIVELY ,
