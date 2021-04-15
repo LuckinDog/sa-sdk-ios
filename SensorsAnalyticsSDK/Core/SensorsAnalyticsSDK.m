@@ -1017,6 +1017,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (BOOL)willEnqueueWithObject:(SAEventObject *)obj {
+    if (!self.trackEventCallback) {
+        return YES;
+    }
+    NSMutableDictionary *properties = obj.resultProperties;
+    BOOL willEnque = self.trackEventCallback(obj.event, properties);
+    if (!willEnque) {
+        SALogDebug(@"\n【track event】: %@ can not enter database.", obj.event);
+        return NO;
+    }
+    // 校验 properties
+    if (![obj isValidProperties:&properties]) {
+        SALogError(@"%@ failed to track event.", self);
+        return NO;
+    }
+    return YES;
+}
+
 - (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
     if (!self.trackEventCallback || !e[@"event"]) {
         return [e copy];
@@ -1096,6 +1114,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [objcet addNetworkProperties:self.presetProperty.currentNetworkProperties];
         
         NSDictionary *resultObj = [objcet generateJSONObject];
+        
+        if (![self willEnqueueWithObject:objcet]) {
+            return;
+        }
+        
         NSLog(@"=======> resultObj = %@", resultObj);
         
 //        [self willTrackEvent:resultObj isSignUp:YES];
