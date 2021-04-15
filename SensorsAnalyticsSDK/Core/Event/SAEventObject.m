@@ -66,28 +66,6 @@
     return [jsonObject copy];
 }
 
-- (BOOL)isValidNameForTrackEvent:(NSString *)eventName {
-    if (eventName == nil || [eventName length] == 0) {
-        NSString *errMsg = @"Event name should not be empty or nil";
-        SALogError(@"%@", errMsg);
-        SensorsAnalyticsDebugMode debugMode = SAModuleManager.sharedInstance.debugMode;
-        if (debugMode != SensorsAnalyticsDebugOff) {
-            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-        }
-        return NO;
-    }
-    if (![SensorsAnalyticsSDK.sharedInstance isValidName:eventName]) {
-        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
-        SALogError(@"%@", errMsg);
-        SensorsAnalyticsDebugMode debugMode = SAModuleManager.sharedInstance.debugMode;
-        if (debugMode != SensorsAnalyticsDebugOff) {
-            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-        }
-        return NO;
-    }
-    return YES;
-}
-
 #pragma makr - SAEventBuildStrategy
 - (void)addPresetProperties:(NSDictionary *)properties {
     [self.resultProperties addEntriesFromDictionary:properties];
@@ -163,9 +141,6 @@
 
 - (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
     if (self = [super initWithProperties:properties event:event]) {
-        if (![self isValidNameForTrackEvent:event]) {
-            return nil;
-        }
         self.type = kSAEventTypeTrack;
     }
     return self;
@@ -200,9 +175,6 @@
 
 - (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
     if (self = [super initWithProperties:properties event:event]) {
-        if (![self isValidNameForTrackEvent:event]) {
-            return nil;
-        }
         self.libObject.method = kSALibMethodAuto;
         self.type = kSAEventTypeTrack;
     }
@@ -215,9 +187,6 @@
 
 - (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
     if (self = [super initWithProperties:properties event:event]) {
-        if (![self isValidNameForTrackEvent:event]) {
-            return nil;
-        }
         self.type = kSAEventTypeTrack;
     }
     return self;
