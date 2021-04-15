@@ -108,7 +108,7 @@
     NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
     if (autoTrackMode == kSAAutoTrackModeDefault) {
         // 远程配置不修改现有的 autoTrack 方式
-        return (SensorsAnalyticsSDK.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
+        return (SensorsAnalyticsSDK.sharedInstance.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
     } else {
         // 远程配置修改现有的 autoTrack 方式
         BOOL isEnabled = (autoTrackMode != kSAAutoTrackModeDisabledAll);
@@ -128,7 +128,7 @@
     NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
     if (autoTrackMode == kSAAutoTrackModeDefault) {
         // 远程配置不修改现有的 autoTrack 方式
-        return !(SensorsAnalyticsSDK.configOptions.autoTrackEventType & eventType);
+        return !(SensorsAnalyticsSDK.sharedInstance.configOptions.autoTrackEventType & eventType);
     } else {
         // 远程配置修改现有的 autoTrack 方式
         BOOL isIgnored = (autoTrackMode == kSAAutoTrackModeDisabledAll) ? YES : !(autoTrackMode & eventType);

@@ -130,7 +130,7 @@
                                         SA_EVENT_PROPERTIES: properties,
                                         @"original_id": SensorsAnalyticsSDK.sharedInstance.anonymousId
                                         } mutableCopy];
-    
+    // 添加事件信息
     [self addEventInfoToDestination:jsonObject];
     return jsonObject;
 }
@@ -146,27 +146,44 @@
     return self;
 }
 
-- (BOOL)isCanTrack {
-    BOOL canTrack = YES;
-    NSSet *presetEventNames = [NSSet setWithObjects:
-                               SA_EVENT_NAME_APP_START,
-                               SA_EVENT_NAME_APP_START_PASSIVELY ,
-                               SA_EVENT_NAME_APP_END,
-                               SA_EVENT_NAME_APP_VIEW_SCREEN,
-                               SA_EVENT_NAME_APP_CLICK,
-                               SA_EVENT_NAME_APP_SIGN_UP,
-                               SA_EVENT_NAME_APP_CRASHED,
-                               SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];
-    
-    //事件校验，预置事件提醒
-    if ([presetEventNames containsObject:self.event]) {
-        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", self.event);
-    }
-    return canTrack;
-}
-
 - (void)archiveTrackChannelEventNames {
     [SAFileStore archiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO value:self.trackChannelEventNames];
+}
+
+- (NSDictionary *)generateJSONObject {
+    NSMutableDictionary *properties = self.resultProperties;
+    
+    if (self.enableAutoAddChannelCallbackEvent) {
+        // 后端匹配逻辑已经不需要 $channel_device_info 信息
+        // 这里仍然添加此字段是为了解决服务端版本兼容问题
+        properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
+
+        BOOL isNotContains = ![self.trackChannelEventNames containsObject:self.event];
+        properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
+        if (isNotContains && self.event) {
+            [self.trackChannelEventNames addObject:self.event];
+            [self archiveTrackChannelEventNames];
+        }
+    }
+    
+    // 添加用户传入的属性
+    if ([self.properties isKindOfClass:[NSDictionary class]]) {
+        [self.libObject configDetailWithEvent:self.event properties:self.properties];
+        [properties addEntriesFromDictionary:self.properties];
+    }
+    
+    // 属性修正
+    [self correctionEventPropertiesWithDestination:properties];
+    
+    // 组装事件信息
+    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
+    NSMutableDictionary *jsonObject = [@{
+                                        SA_EVENT_NAME: eventName,
+                                        SA_EVENT_PROPERTIES: properties
+                                        } mutableCopy];
+    // 添加事件信息
+    [self addEventInfoToDestination:jsonObject];
+    return jsonObject;
 }
 
 @end
