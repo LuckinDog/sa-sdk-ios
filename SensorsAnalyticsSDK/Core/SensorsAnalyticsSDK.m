@@ -194,8 +194,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
-@property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked; // 标记启动事件是否触发过
-
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 
 @property (nonatomic, strong) SAIdentifier *identifier;
