@@ -33,21 +33,30 @@ static NSString * const kSAEventPropertyAppFirstStart = @"$is_first_time";
 // App 是否从后台恢复
 static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_background";
 
+@interface SAAppStartTracker ()
+
+/// 是否为热启动
+@property (nonatomic, assign, getter=isRelaunch) BOOL relaunch;
+
+@end
+
 @implementation SAAppStartTracker
 
-- (BOOL)isFirstAppStart {
-    NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
-    if (![standard boolForKey:kSAHasLaunchedOnce]) {
-        [standard setBool:YES forKey:kSAHasLaunchedOnce];
-        [standard synchronize];
-        return YES;
+#pragma mark - Life Cycle
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _relaunch = NO;
     }
-    return NO;
+    return self;
 }
 
-- (void)trackAppStartWithRelauch:(BOOL)isRelaunched utmProperties:(NSDictionary *)utmProperties {
+#pragma mark - Public Methods
+
+- (void)trackAppStartWithUtmProperties:(NSDictionary *)utmProperties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    if (isRelaunched) {
+    if (self.isRelaunch) {
         properties[kSAEventPropertyAppFirstStart] = @(NO);
         properties[kSAEventPropertyResumeFromBackground] = @(YES);
     } else {
@@ -57,6 +66,9 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
     //添加 deeplink 相关渠道信息，可能不存在
     [properties addEntriesFromDictionary:utmProperties];
     [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStart properties:properties];
+
+    // 触发过启动事件，下次为热启动
+    self.relaunch = YES;
 }
 
 - (void)trackAppStartPassivelyWithUtmProperties:(NSDictionary *)utmProperties {
@@ -66,6 +78,21 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
     //添加 deeplink 相关渠道信息，可能不存在
     [properties addEntriesFromDictionary:utmProperties];
     [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStartPassively properties:properties];
+
+    // 触发过被动启动事件，下次为热启动
+    self.relaunch = YES;
+}
+
+#pragma mark – Private Methods
+
+- (BOOL)isFirstAppStart {
+    NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
+    if (![standard boolForKey:kSAHasLaunchedOnce]) {
+        [standard setBool:YES forKey:kSAHasLaunchedOnce];
+        [standard synchronize];
+        return YES;
+    }
+    return NO;
 }
 
 @end

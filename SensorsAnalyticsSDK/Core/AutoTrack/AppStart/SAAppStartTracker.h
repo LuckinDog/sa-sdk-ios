@@ -25,9 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAAppStartTracker : NSObject
 
 /// 触发启动事件
-/// @param isRelaunched 是否热启动
 /// @param utmProperties deeplink 相关渠道信息
-- (void)trackAppStartWithRelauch:(BOOL)isRelaunched utmProperties:(NSDictionary *)utmProperties;
+- (void)trackAppStartWithUtmProperties:(NSDictionary *)utmProperties;
 
 /// 触发被动启动事件
 /// @param utmProperties deeplink 相关渠道信息

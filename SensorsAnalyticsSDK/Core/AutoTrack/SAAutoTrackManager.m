@@ -151,7 +151,7 @@
     // 冷启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
         if (![self isIgnoreAppStart]) {
-            [self.appStartTracker trackAppStartWithRelauch:NO utmProperties:SAModuleManager.sharedInstance.utmProperties];
+            [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
         }
         // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
@@ -161,7 +161,7 @@
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
         if (![self isIgnoreAppStart]) {
-            [self.appStartTracker trackAppStartWithRelauch:YES utmProperties:SAModuleManager.sharedInstance.utmProperties];
+            [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
         }
         // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
