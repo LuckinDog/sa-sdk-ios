@@ -32,8 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary *)generateJSONObject;
 
-- (void)configDetailWithEvent:(NSString *)event properties:(NSDictionary *)properties;
-
 - (void)updateAppVersionFromProperties:(NSDictionary *)properties;
 
 - (NSString *)obtainValidLibMethod:(NSString *)libMethod;

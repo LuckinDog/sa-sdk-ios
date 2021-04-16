@@ -37,6 +37,7 @@
 - (instancetype)initWithEvent:(NSString *)event {
     if (self = [super init]) {
         self.event = event;
+        self.currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
     }
     return self;
 }
@@ -72,6 +73,25 @@
     NSString *libMethod = [self.libObject obtainValidLibMethod:properties[SAEventPresetPropertyLibMethod]];
     self.properties[SAEventPresetPropertyLibMethod] = libMethod;
     self.libObject.method = libMethod;
+}
+
+- (void)addUserProperties:(NSDictionary *)properties {
+    [super addUserProperties:properties];
+    
+    NSString *libDetail = nil;
+    if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEnabled] && properties.count > 0) {
+        //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
+        if ([self.event isEqualToString:SA_EVENT_NAME_APP_CLICK]) {
+            if (![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+                libDetail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
+            }
+        } else if ([self.event isEqualToString:SA_EVENT_NAME_APP_VIEW_SCREEN]) {
+            if (![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen]) {
+                libDetail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
+            }
+        }
+    }
+    self.libObject.detail = libDetail;
 }
 
 - (void)addNetworkProperties:(NSDictionary *)properties {

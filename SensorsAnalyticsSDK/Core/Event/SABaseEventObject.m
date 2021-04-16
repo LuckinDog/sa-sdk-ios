@@ -40,13 +40,8 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.libObject = [[SAEventLibObject alloc] init];
-        
-        self.currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
-        
         self.timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
-        
         self.track_id = @(arc4random());
-        
         self.properties = [NSMutableDictionary dictionary];
     }
     return self;

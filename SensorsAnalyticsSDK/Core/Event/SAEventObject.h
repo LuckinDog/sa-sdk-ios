@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAEventObject : SABaseEventObject
 
 @property (nonatomic, copy) NSString *event;
+@property (nonatomic, assign) UInt64 currentSystemUpTime;
 
 - (instancetype)initWithEvent:(NSString *)event;
 

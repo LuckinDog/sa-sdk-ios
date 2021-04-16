@@ -27,23 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SABaseEventObject : NSObject <SAEventBuildStrategy>
 
 @property (nonatomic, copy) NSString *type;
-
 @property (nonatomic, strong) SAEventLibObject *libObject;
-
-@property (nonatomic, assign) UInt64 currentSystemUpTime;
-
 @property (nonatomic, assign) UInt64 timeStamp;
-
 @property (nonatomic, strong) NSNumber *track_id;
-
 @property (nonatomic, copy) NSString *project;
-
 @property (nonatomic, copy) NSString *token;
-
 @property (nonatomic, strong) NSMutableDictionary *properties;
 
 - (NSDictionary *)generateJSONObject;
-
 - (BOOL)isValidProperties:(NSDictionary *_Nullable*_Nullable)properties;
 
 @end

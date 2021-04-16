@@ -61,23 +61,6 @@
     return [properties copy];
 }
 
-- (void)configDetailWithEvent:(NSString *)event properties:(NSDictionary *)properties {
-    NSString *libDetail = nil;
-    if ([self isAutoTrackEnabled] && properties.count > 0) {
-        //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
-        if ([event isEqualToString:SA_EVENT_NAME_APP_CLICK]) {
-            if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
-                libDetail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
-            }
-        } else if ([event isEqualToString:SA_EVENT_NAME_APP_VIEW_SCREEN]) {
-            if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen] == NO) {
-                libDetail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
-            }
-        }
-    }
-    self.detail = libDetail;
-}
-
 - (void)updateAppVersionFromProperties:(NSDictionary *)properties {
     id appVersion = properties[SAEventPresetPropertyAppVersion];
     if (appVersion) {
@@ -96,68 +79,6 @@
         newLibMethod = kSALibMethodCode;
     }
     return newLibMethod;
-}
-
-#pragma mark - private
-- (BOOL)isAutoTrackEnabled {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return NO;
-    }
-    
-    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
-    if (autoTrackMode == kSAAutoTrackModeDefault) {
-        // 远程配置不修改现有的 autoTrack 方式
-        return (SensorsAnalyticsSDK.sharedInstance.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
-    } else {
-        // 远程配置修改现有的 autoTrack 方式
-        BOOL isEnabled = (autoTrackMode != kSAAutoTrackModeDisabledAll);
-        if (!isEnabled) {
-            SALogDebug(@"【remote config】AutoTrack Event is ignored by remote config");
-        }
-        return isEnabled;
-    }
-}
-
-- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return YES;
-    }
-    
-    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
-    if (autoTrackMode == kSAAutoTrackModeDefault) {
-        // 远程配置不修改现有的 autoTrack 方式
-        return !(SensorsAnalyticsSDK.sharedInstance.configOptions.autoTrackEventType & eventType);
-    } else {
-        // 远程配置修改现有的 autoTrack 方式
-        BOOL isIgnored = (autoTrackMode == kSAAutoTrackModeDisabledAll) ? YES : !(autoTrackMode & eventType);
-        if (isIgnored) {
-            NSString *ignoredEvent = @"None";
-            switch (eventType) {
-                case SensorsAnalyticsEventTypeAppStart:
-                    ignoredEvent = SA_EVENT_NAME_APP_START;
-                    break;
-                    
-                case SensorsAnalyticsEventTypeAppEnd:
-                    ignoredEvent = SA_EVENT_NAME_APP_END;
-                    break;
-                    
-                case SensorsAnalyticsEventTypeAppClick:
-                    ignoredEvent = SA_EVENT_NAME_APP_CLICK;
-                    break;
-                    
-                case SensorsAnalyticsEventTypeAppViewScreen:
-                    ignoredEvent = SA_EVENT_NAME_APP_VIEW_SCREEN;
-                    break;
-                    
-                default:
-                    break;
-            }
-            SALogDebug(@"【remote config】%@ is ignored by remote config", ignoredEvent);
-        }
-        return isIgnored;
-    }
 }
 
 @end
