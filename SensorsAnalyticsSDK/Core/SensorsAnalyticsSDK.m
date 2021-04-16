@@ -1114,13 +1114,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
         
         NSDictionary *resultObj = [object generateJSONObject];
-        
         if (![self willEnqueueWithObject:object]) {
             return;
         }
-        
         NSLog(@"=======>trackSignupEvent resultObj = %@", resultObj);
-        
 //        [self willTrackEvent:resultObj isSignUp:YES];
     });
     
@@ -1155,13 +1152,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addDurationWithEvent:event];
         
         NSDictionary *resultObj = [object generateJSONObject];
-        
         if (![self willEnqueueWithObject:object]) {
             return;
         }
-        
         NSLog(@"=======>trackCustomEvent resultObj = %@", resultObj);
-        
 //        [self willTrackEvent:resultObj isSignUp:NO];
     });
     
@@ -1205,13 +1199,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addDurationWithEvent:event];
         
         NSDictionary *resultObj = [object generateJSONObject];
-        
         if (![self willEnqueueWithObject:object]) {
             return;
         }
-        
         NSLog(@"=======>trackAutoEvent resultObj = %@", resultObj);
-        
 //        [self willTrackEvent:resultObj isSignUp:NO];
     });
     
@@ -1228,6 +1219,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithProperties:properties event:event];
+    dispatch_async(self.serialQueue, ^{
+        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
+        [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+        
+        [object addPresetProperties:self.presetProperty.automaticProperties];
+        [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
+        [object addSuperProperties:self.superProperty.currentSuperProperties];
+        [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
+        [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        [object addDurationWithEvent:event];
+        
+        NSDictionary *resultObj = [object generateJSONObject];
+        if (![self willEnqueueWithObject:object]) {
+            return;
+        }
+        NSLog(@"=======>trackPresetEvent resultObj = %@", resultObj);
+//        [self willTrackEvent:resultObj isSignUp:NO];
+    });
+    
     NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
     NSString *libMethod = [self obtainValidLibMethod:eventProps[SAEventPresetPropertyLibMethod]];
     eventProps[SAEventPresetPropertyLibMethod] = libMethod;
