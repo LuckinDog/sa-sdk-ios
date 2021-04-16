@@ -36,6 +36,8 @@
         self.configOptions.autoTrackEventType = eventType;
 
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+
+        [SAAutoTrackManager.sharedInstance updateAutoTrackState];
     }
 }
 
@@ -71,6 +73,8 @@
 
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
     self.configOptions.autoTrackEventType = self.configOptions.autoTrackEventType ^ eventType;
+
+    [SAAutoTrackManager.sharedInstance updateAutoTrackState];
 }
 
 @end

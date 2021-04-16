@@ -24,6 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAppStartTracker : NSObject
 
+/// 是否忽略启动事件
+@property (nonatomic, assign, getter=isIgnore) BOOL ignore;
+
 /// 触发启动事件
 /// @param utmProperties deeplink 相关渠道信息
 - (void)trackAppStartWithUtmProperties:(NSDictionary *)utmProperties;
@@ -31,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 触发被动启动事件
 /// @param utmProperties deeplink 相关渠道信息
 - (void)trackAppStartPassivelyWithUtmProperties:(NSDictionary *)utmProperties;
+
+/// 启动事件名
+- (NSString *)eventName;
 
 @end
 

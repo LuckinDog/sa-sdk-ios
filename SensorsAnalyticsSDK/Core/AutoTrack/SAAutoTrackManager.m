@@ -43,6 +43,7 @@
 @property (nonatomic, strong) SAAppEndTracker *appEndTracker;
 
 @property (nonatomic, getter=isDisableSDK) BOOL disableSDK;
+@property (nonatomic, assign) NSInteger autoTrackMode;
 
 @end
 
@@ -57,6 +58,8 @@
 
         _appStartTracker = [[SAAppStartTracker alloc] init];
         _appEndTracker = [[SAAppEndTracker alloc] init];
+        _disableSDK = [SARemoteConfigManager sharedInstance].isDisableSDK;
+        _autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
 
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(remoteConfigModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
@@ -142,17 +145,13 @@
 
     // 被动启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
-        if (![self isIgnoreAppStart]) {
-            [self.appStartTracker trackAppStartPassivelyWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
-        }
+        [self.appStartTracker trackAppStartPassivelyWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
         return;
     }
 
     // 冷启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        if (![self isIgnoreAppStart]) {
-            [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
-        }
+        [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
         // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
         return;
@@ -160,9 +159,7 @@
 
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        if (![self isIgnoreAppStart]) {
-            [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
-        }
+        [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
         // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
         return;
@@ -170,9 +167,7 @@
 
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
-        if (![self isIgnoreAppEnd]) {
-            [self.appEndTracker trackAppEnd];
-        }
+        [self.appEndTracker trackAppEnd];
     }
 }
 
@@ -187,6 +182,9 @@
 - (void)remoteConfigModelChanged:(NSNotification *)sender {
     @try {
         self.disableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
+        self.autoTrackMode = [[sender.object valueForKey:@"autoTrackMode"] integerValue];
+
+        [self updateAutoTrackState];
     } @catch(NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
@@ -195,12 +193,12 @@
 #pragma mark - Public
 
 - (BOOL)isAutoTrackEnabled {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+    if (self.isDisableSDK) {
         SALogDebug(@"【remote config】SDK is disabled");
         return NO;
     }
 
-    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
+    NSInteger autoTrackMode = self.autoTrackMode;
     if (autoTrackMode == kSAAutoTrackModeDefault) {
         // 远程配置不修改现有的 autoTrack 方式
         return (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
@@ -215,12 +213,12 @@
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+    if (self.isDisableSDK) {
         SALogDebug(@"【remote config】SDK is disabled");
         return YES;
     }
 
-    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
+    NSInteger autoTrackMode = self.autoTrackMode;
     if (autoTrackMode == kSAAutoTrackModeDefault) {
         // 远程配置不修改现有的 autoTrack 方式
         return !(self.configOptions.autoTrackEventType & eventType);
@@ -231,11 +229,11 @@
             NSString *ignoredEvent = @"None";
             switch (eventType) {
                 case SensorsAnalyticsEventTypeAppStart:
-                    ignoredEvent = kSAEventNameAppStart;
+                    ignoredEvent = [self.appStartTracker eventName];
                     break;
 
                 case SensorsAnalyticsEventTypeAppEnd:
-                    ignoredEvent = kSAEventNameAppEnd;
+                    ignoredEvent = [self.appEndTracker eventName];
                     break;
 
                 case SensorsAnalyticsEventTypeAppClick:
@@ -253,6 +251,11 @@
         }
         return isIgnored;
     }
+}
+
+- (void)updateAutoTrackState {
+    self.appStartTracker.ignore = ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
+    self.appEndTracker.ignore = ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
 }
 
 @end

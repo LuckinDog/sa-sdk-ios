@@ -28,12 +28,30 @@
 
 @implementation SAAppEndTracker
 
+#pragma mark - Life Cycle
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _ignore = NO;
+    }
+    return self;
+}
+
+#pragma mark - Public Methods
+
 - (void)trackTimerStartAppEnd {
     [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
 }
 
 - (void)trackAppEnd {
-    [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppEnd properties:nil];
+    if (!self.ignore) {
+        [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppEnd properties:nil];
+    }
+}
+
+- (NSString *)eventName {
+    return kSAEventNameAppEnd;
 }
 
 @end

@@ -47,6 +47,7 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _ignore = NO;
         _relaunch = NO;
     }
     return self;
@@ -55,32 +56,40 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 #pragma mark - Public Methods
 
 - (void)trackAppStartWithUtmProperties:(NSDictionary *)utmProperties {
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    if (self.isRelaunch) {
-        properties[kSAEventPropertyAppFirstStart] = @(NO);
-        properties[kSAEventPropertyResumeFromBackground] = @(YES);
-    } else {
-        properties[kSAEventPropertyAppFirstStart] = @([self isFirstAppStart]);
-        properties[kSAEventPropertyResumeFromBackground] = @(NO);
+    if (!self.isIgnore) {
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        if (self.isRelaunch) {
+            properties[kSAEventPropertyAppFirstStart] = @(NO);
+            properties[kSAEventPropertyResumeFromBackground] = @(YES);
+        } else {
+            properties[kSAEventPropertyAppFirstStart] = @([self isFirstAppStart]);
+            properties[kSAEventPropertyResumeFromBackground] = @(NO);
+        }
+        //添加 deeplink 相关渠道信息，可能不存在
+        [properties addEntriesFromDictionary:utmProperties];
+        [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStart properties:properties];
     }
-    //添加 deeplink 相关渠道信息，可能不存在
-    [properties addEntriesFromDictionary:utmProperties];
-    [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStart properties:properties];
 
     // 触发过启动事件，下次为热启动
     self.relaunch = YES;
 }
 
 - (void)trackAppStartPassivelyWithUtmProperties:(NSDictionary *)utmProperties {
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    properties[kSAEventPropertyAppFirstStart] = @([self isFirstAppStart]);
-    properties[kSAEventPropertyResumeFromBackground] = @(NO);
-    //添加 deeplink 相关渠道信息，可能不存在
-    [properties addEntriesFromDictionary:utmProperties];
-    [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStartPassively properties:properties];
+    if (!self.isIgnore) {
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        properties[kSAEventPropertyAppFirstStart] = @([self isFirstAppStart]);
+        properties[kSAEventPropertyResumeFromBackground] = @(NO);
+        //添加 deeplink 相关渠道信息，可能不存在
+        [properties addEntriesFromDictionary:utmProperties];
+        [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStartPassively properties:properties];
+    }
 
     // 触发过被动启动事件，下次为热启动
     self.relaunch = YES;
+}
+
+- (NSString *)eventName {
+    return kSAEventNameAppStart;
 }
 
 #pragma mark – Private Methods
