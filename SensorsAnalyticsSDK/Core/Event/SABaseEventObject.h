@@ -26,8 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SABaseEventObject : NSObject <SAEventBuildStrategy>
 
-@property (nonatomic, copy) NSDictionary *properties;
-
 @property (nonatomic, copy) NSString *type;
 
 @property (nonatomic, strong) SAEventLibObject *libObject;
@@ -43,16 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *token;
 
 @property (nonatomic, strong) NSMutableDictionary *resultProperties;
-
-- (instancetype)initWithProperties:(NSDictionary *)properties;
-
-/// 事件属性修正
-/// @param destination 事件属性字典
-- (void)correctionEventPropertiesWithDestination:(NSMutableDictionary *)destination;
-
-/// 添加事件信息
-/// @param destination 事件字典
-- (void)addEventInfoToDestination:(NSMutableDictionary *)destination;
 
 - (NSDictionary *)generateJSONObject;
 

@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addSuperProperties:(NSDictionary *)properties;
 - (void)addDynamicSuperProperties:(NSDictionary *)properties;
 - (void)addDeepLinkProperties:(NSDictionary *)properties;
+- (void)addUserProperties:(NSDictionary *)properties;
 
 - (void)addNetworkProperties:(NSDictionary *)properties;
 - (void)addDurationWithEvent:(NSString *)event;

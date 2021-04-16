@@ -1101,7 +1101,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackSignupEvent:(NSDictionary *)properties {
     
-    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithProperties:properties event:SA_EVENT_NAME_APP_SIGN_UP];
+    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
     
     dispatch_async(self.serialQueue, ^{
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
@@ -1112,6 +1112,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        [object addUserProperties:properties];
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
@@ -1136,7 +1137,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
     }
     
-    SACustomEventObject *object = [[SACustomEventObject alloc] initWithProperties:properties event:event];
+    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
     object.enableAutoAddChannelCallbackEvent = _configOptions.enableAutoAddChannelCallbackEvent;
     object.trackChannelEventNames = self.trackChannelEventNames;
     
@@ -1156,6 +1157,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *presetProperties = [self.presetProperty presetProperties];
 #endif
         [object addPresetProperties:presetProperties];
+        [object addUserProperties:properties];
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
@@ -1192,7 +1194,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithProperties:properties event:event];
+    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
@@ -1209,6 +1211,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *presetProperties = [self.presetProperty presetProperties];
 #endif
         [object addPresetProperties:presetProperties];
+        [object addUserProperties:properties];
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
@@ -1231,7 +1234,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithProperties:properties event:event];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
@@ -1248,6 +1251,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *presetProperties = [self.presetProperty presetProperties];
 #endif
         [object addPresetProperties:presetProperties];
+        [object addUserProperties:properties];
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {

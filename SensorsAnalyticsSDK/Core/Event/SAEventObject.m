@@ -34,35 +34,17 @@
 
 @implementation SAEventObject
 
-- (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
-    if (self = [super initWithProperties:properties]) {
+- (instancetype)initWithEvent:(NSString *)event {
+    if (self = [super init]) {
         self.event = event;
-        self.loginId = SensorsAnalyticsSDK.sharedInstance.loginId;
-        self.anonymousID = SensorsAnalyticsSDK.sharedInstance.anonymousId;
     }
     return self;
 }
 
 - (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *properties = self.resultProperties;
-    // 添加用户传入的属性
-    if ([self.properties isKindOfClass:[NSDictionary class]]) {
-        [self.libObject configDetailWithEvent:self.event properties:self.properties];
-        [properties addEntriesFromDictionary:self.properties];
-    }
-    
-    // 属性修正
-    [self correctionEventPropertiesWithDestination:properties];
-    
-    // 组装事件信息
+    NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
     NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
-    NSMutableDictionary *jsonObject = [@{
-                                        SA_EVENT_NAME: eventName,
-                                        SA_EVENT_PROPERTIES: properties,
-                                        } mutableCopy];
-    // 添加事件信息
-    [self addEventInfoToDestination:jsonObject];
-    
+    jsonObject[SA_EVENT_NAME] = eventName;
     return [jsonObject copy];
 }
 
@@ -109,42 +91,27 @@
 
 @implementation SASignUpEventObject
 
-- (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
-    if (self = [super initWithProperties:properties event:event]) {
+- (instancetype)initWithEvent:(NSString *)event {
+    if (self = [super initWithEvent:event]) {
         self.type = kSAEventTypeSignup;
     }
     return self;
 }
 
 - (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *properties = self.resultProperties;
-    // 添加用户传入的属性
-    if ([self.properties isKindOfClass:[NSDictionary class]]) {
-        [self.libObject configDetailWithEvent:self.event properties:self.properties];
-        [properties addEntriesFromDictionary:self.properties];
-    }
-    
-    // 属性修正
-    [self correctionEventPropertiesWithDestination:properties];
-    
-    // 组装事件信息
+    NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
     NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
-    NSMutableDictionary *jsonObject = [@{
-                                        SA_EVENT_NAME: eventName,
-                                        SA_EVENT_PROPERTIES: properties,
-                                        @"original_id": SensorsAnalyticsSDK.sharedInstance.anonymousId
-                                        } mutableCopy];
-    // 添加事件信息
-    [self addEventInfoToDestination:jsonObject];
-    return jsonObject;
+    jsonObject[SA_EVENT_NAME] = eventName;
+    jsonObject[@"original_id"] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
+    return [jsonObject copy];
 }
 
 @end
 
 @implementation SACustomEventObject
 
-- (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
-    if (self = [super initWithProperties:properties event:event]) {
+- (instancetype)initWithEvent:(NSString *)event {
+    if (self = [super initWithEvent:event]) {
         self.type = kSAEventTypeTrack;
     }
     return self;
@@ -170,32 +137,19 @@
         }
     }
     
-    // 添加用户传入的属性
-    if ([self.properties isKindOfClass:[NSDictionary class]]) {
-        [self.libObject configDetailWithEvent:self.event properties:self.properties];
-        [properties addEntriesFromDictionary:self.properties];
-    }
-    
-    // 属性修正
-    [self correctionEventPropertiesWithDestination:properties];
-    
-    // 组装事件信息
+    NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
     NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
-    NSMutableDictionary *jsonObject = [@{
-                                        SA_EVENT_NAME: eventName,
-                                        SA_EVENT_PROPERTIES: properties
-                                        } mutableCopy];
-    // 添加事件信息
-    [self addEventInfoToDestination:jsonObject];
-    return jsonObject;
+    jsonObject[SA_EVENT_NAME] = eventName;
+    jsonObject[@"original_id"] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
+    return [jsonObject copy];
 }
 
 @end
 
 @implementation SAAutoTrackEventObject
 
-- (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
-    if (self = [super initWithProperties:properties event:event]) {
+- (instancetype)initWithEvent:(NSString *)event {
+    if (self = [super initWithEvent:event]) {
         self.type = kSAEventTypeTrack;
     }
     return self;
@@ -211,8 +165,8 @@
 
 @implementation SAPresetEventObject
 
-- (instancetype)initWithProperties:(NSDictionary *)properties event:(NSString *)event {
-    if (self = [super initWithProperties:properties event:event]) {
+- (instancetype)initWithEvent:(NSString *)event {
+    if (self = [super initWithEvent:event]) {
         self.type = kSAEventTypeTrack;
     }
     return self;

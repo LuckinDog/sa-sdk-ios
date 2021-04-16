@@ -37,10 +37,8 @@
 
 @implementation SABaseEventObject
 
-- (instancetype)initWithProperties:(NSDictionary *)properties {
+- (instancetype)init {
     if (self = [super init]) {
-        self.properties = [properties copy];
-        
         self.libObject = [[SAEventLibObject alloc] init];
         
         self.currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
@@ -54,62 +52,23 @@
     return self;
 }
 
-- (void)correctionEventPropertiesWithDestination:(NSMutableDictionary *)destination {
-    // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
-    self.project = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
-    self.token = (NSString *)destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-    id originalTime = destination[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
-    if ([originalTime isKindOfClass:NSDate.class]) {
-        NSDate *customTime = (NSDate *)originalTime;
-        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-            self.timeStamp = customTimeInt;
-        } else {
-            SALogError(@"$time error %ld，Please check the value", (long)customTimeInt);
-        }
-    } else if (originalTime) {
-        SALogError(@"$time '%@' invalid，Please check the value", originalTime);
-    }
-    
-    // $project, $token, $time 处理完毕后需要移除
-    NSArray<NSString *> *needRemoveKeys = @[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT,
-                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN,
-                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
-    [destination removeObjectsForKeys:needRemoveKeys];
-    
-    // 序列化所有 NSDate 类型
-    [destination enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if ([obj isKindOfClass:[NSDate class]]) {
-            NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
-            NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-            destination[key] = dateStr;
-        }
-    }];
-
-    // TODO: 修正 $device_id，防止用户修改
-    if (destination[SAEventPresetPropertyDeviceID] && SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID) {
-        destination[SAEventPresetPropertyDeviceID] = SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID;
-    }
-}
-
-- (void)addEventInfoToDestination:(NSMutableDictionary *)destination {
-    destination[SA_EVENT_DISTINCT_ID] = SensorsAnalyticsSDK.sharedInstance.distinctId;
-    destination[SA_EVENT_LOGIN_ID] = SensorsAnalyticsSDK.sharedInstance.loginId;
-    destination[SA_EVENT_ANONYMOUS_ID] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
-    destination[SA_EVENT_TYPE] = self.type;
-    destination[SA_EVENT_TIME] = @(self.timeStamp);
-    destination[SA_EVENT_LIB] = [self.libObject generateJSONObject];
-    destination[SA_EVENT_TRACK_ID] = self.track_id;
+- (NSDictionary *)generateJSONObject {
+    NSMutableDictionary *eventInfo = [NSMutableDictionary dictionary];
+    eventInfo[SA_EVENT_PROPERTIES] = self.resultProperties;
+    eventInfo[SA_EVENT_DISTINCT_ID] = SensorsAnalyticsSDK.sharedInstance.distinctId;
+    eventInfo[SA_EVENT_LOGIN_ID] = SensorsAnalyticsSDK.sharedInstance.loginId;
+    eventInfo[SA_EVENT_ANONYMOUS_ID] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
+    eventInfo[SA_EVENT_TYPE] = self.type;
+    eventInfo[SA_EVENT_TIME] = @(self.timeStamp);
+    eventInfo[SA_EVENT_LIB] = [self.libObject generateJSONObject];
+    eventInfo[SA_EVENT_TRACK_ID] = self.track_id;
     if (self.project) {
-        destination[SA_EVENT_PROJECT] = self.project;
+        eventInfo[SA_EVENT_PROJECT] = self.project;
     }
     if (self.token) {
-        destination[SA_EVENT_TOKEN] = self.token;
+        eventInfo[SA_EVENT_TOKEN] = self.token;
     }
-}
-
-- (NSDictionary *)generateJSONObject {
-    return @{};
+    return [eventInfo copy];
 }
 
 #pragma makr - SAEventBuildStrategy
@@ -126,6 +85,50 @@
 }
 
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
+}
+
+- (void)addUserProperties:(NSDictionary *)properties {
+    if ([properties isKindOfClass:[NSDictionary class]]) {
+        [self.resultProperties addEntriesFromDictionary:[properties copy]];
+    }
+    // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
+    self.project = (NSString *)self.resultProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+    self.token = (NSString *)self.resultProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+    id originalTime = self.resultProperties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+    if ([originalTime isKindOfClass:NSDate.class]) {
+        NSDate *customTime = (NSDate *)originalTime;
+        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+            self.timeStamp = customTimeInt;
+        } else {
+            SALogError(@"$time error %ld，Please check the value", (long)customTimeInt);
+        }
+    } else if (originalTime) {
+        SALogError(@"$time '%@' invalid，Please check the value", originalTime);
+    }
+    
+    // $project, $token, $time 处理完毕后需要移除
+    NSArray<NSString *> *needRemoveKeys = @[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT,
+                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN,
+                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+    [self.resultProperties removeObjectsForKeys:needRemoveKeys];
+    
+    // 序列化所有 NSDate 类型
+    [self.resultProperties enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[NSDate class]]) {
+            NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+            NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
+            self.resultProperties[key] = dateStr;
+        }
+    }];
+
+    // TODO: 修正 $device_id，防止用户修改
+    if (self.resultProperties[SAEventPresetPropertyDeviceID] && SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID) {
+        self.resultProperties[SAEventPresetPropertyDeviceID] = SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID;
+    }
+    
+    // TODO: 处理 lib detail
+//    [self.libObject configDetailWithEvent:self.event properties:self.properties];
 }
 
 - (void)addNetworkProperties:(NSDictionary *)properties {
