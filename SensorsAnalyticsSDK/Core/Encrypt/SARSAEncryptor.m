@@ -27,6 +27,8 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
+NSString * const kSAEncryptRSAType = @"RSA";
+
 @interface SARSAEncryptor ()
 
 @end

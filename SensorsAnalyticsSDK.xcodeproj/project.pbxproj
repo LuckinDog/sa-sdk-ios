@@ -476,6 +476,7 @@
 		F277F5E225CFCE56009B5CE6 /* NSObject+DelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DelegateProxy.h"; sourceTree = "<group>"; };
 		F2E9722F25E637820009A2B9 /* SAAppPushManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppPushManager.h; sourceTree = "<group>"; };
 		F2E9723025E637820009A2B9 /* SAAppPushManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppPushManager.m; sourceTree = "<group>"; };
+		FC0028EF2629756400A18FE3 /* SAConfigOptions+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAConfigOptions+Private.h"; sourceTree = "<group>"; };
 		FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandlerTests.m; sourceTree = "<group>"; };
 		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
 		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
@@ -682,6 +683,7 @@
 				881A40F1253D7B4F00854F69 /* SAAlertController.m */,
 				881A415C253D7B4F00854F69 /* SAAppExtensionDataManager.h */,
 				881A40F5253D7B4F00854F69 /* SAAppExtensionDataManager.m */,
+				FC0028EF2629756400A18FE3 /* SAConfigOptions+Private.h */,
 				881A40EF253D7B4F00854F69 /* SAConfigOptions.h */,
 				881A4154253D7B4F00854F69 /* SAConfigOptions.m */,
 				881A40EA253D7B4F00854F69 /* SAConstants.h */,

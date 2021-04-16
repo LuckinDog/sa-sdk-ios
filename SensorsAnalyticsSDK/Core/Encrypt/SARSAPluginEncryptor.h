@@ -20,6 +20,8 @@
 
 #import <Foundation/Foundation.h>
 #import "SAEncryptProtocol.h"
+#import "SARSAEncryptor.h"
+#import "SAAESEncryptor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

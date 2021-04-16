@@ -27,9 +27,11 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
+NSString * const kSAEncryptAESType = @"AES";
+
 @interface SAAESEncryptor ()
 
-@property (nonatomic, strong) NSData *symmetricKey;
+@property (nonatomic, copy) NSData *symmetricKey;
 
 @end
 

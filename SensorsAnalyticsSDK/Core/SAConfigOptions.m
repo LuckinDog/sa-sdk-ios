@@ -23,7 +23,9 @@
 #endif
 
 #import "SAConfigOptions.h"
+#import "SAConfigOptions+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
+
 
 @interface SAConfigOptions ()<NSCopying>
 
@@ -87,6 +89,8 @@
 
     options.enableReferrerTitle = self.enableReferrerTitle;
     options.enableTrackPush = self.enableTrackPush;
+
+    options.encryptors = self.encryptors;
     
     return options;
 }
@@ -117,8 +121,35 @@
     }
 }
 
-@end
+- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor {
+    if (![self isValidEncryptor:encryptor]) {
+        NSString *format = @"\n 您使用了自定义加密插件 [ %@ ]，但是并没有实现加密协议相关方法。请正确实现自定义加密插件相关功能后再运行项目。\n";
+        NSString *message = [NSString stringWithFormat:format, NSStringFromClass(encryptor.class)];
+        NSAssert(NO, message);
+        return;
+    }
+    NSMutableArray *encryptors = [NSMutableArray arrayWithArray:self.encryptors];
+    [encryptors addObject:encryptor];
+    self.encryptors = [encryptors copy];
+}
 
+- (BOOL)isValidEncryptor:(id<SAEncryptProtocol>)encryptor {
+    if (![encryptor respondsToSelector:@selector(symmetricEncryptType)]) {
+        return NO;
+    }
+    if (![encryptor respondsToSelector:@selector(asymmetricEncryptType)]) {
+        return NO;
+    }
+    if (![encryptor respondsToSelector:@selector(encryptEvent:)]) {
+        return NO;
+    }
+    if (![encryptor respondsToSelector:@selector(encryptSymmetricKeyWithPublicKey:)]) {
+        return NO;
+    }
+    return YES;
+}
+
+@end
 
 @implementation SASecretKey
 

@@ -46,12 +46,12 @@
 
 /// 返回对称加密的类型，例如 AES
 - (NSString *)symmetricEncryptType {
-    return @"AES";
+    return kSAEncryptAESType;
 }
 
 /// 返回非对称加密的类型，例如 RSA
 - (NSString *)asymmetricEncryptType {
-    return @"RSA";
+    return kSAEncryptRSAType;
 }
 
 /// 返回压缩后的事件数据

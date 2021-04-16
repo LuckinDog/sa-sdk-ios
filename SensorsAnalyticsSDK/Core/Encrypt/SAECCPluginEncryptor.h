@@ -21,13 +21,11 @@
 #import <Foundation/Foundation.h>
 #import "SAEncryptProtocol.h"
 #import "SAECCEncryptor.h"
+#import "SAAESEncryptor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAECCPluginEncryptor : NSObject <SAEncryptProtocol>
-
-+ (BOOL)isAvailable;
-+ (BOOL)isECCPlugin:(NSString *)publicKey;
 
 @end
 
