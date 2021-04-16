@@ -93,15 +93,13 @@
 }
 
 - (void)addEventInfoToDestination:(NSMutableDictionary *)destination {
-    NSDictionary *eventInfo = @{SA_EVENT_DISTINCT_ID: SensorsAnalyticsSDK.sharedInstance.distinctId,
-                                SA_EVENT_LOGIN_ID: SensorsAnalyticsSDK.sharedInstance.loginId,
-                                SA_EVENT_ANONYMOUS_ID: SensorsAnalyticsSDK.sharedInstance.anonymousId,
-                                SA_EVENT_TYPE: self.type,
-                                SA_EVENT_TIME: @(self.timeStamp),
-                                SA_EVENT_LIB: [self.libObject generateJSONObject],
-                                SA_EVENT_TRACK_ID: self.track_id
-                                };
-    [destination addEntriesFromDictionary:eventInfo];
+    destination[SA_EVENT_DISTINCT_ID] = SensorsAnalyticsSDK.sharedInstance.distinctId;
+    destination[SA_EVENT_LOGIN_ID] = SensorsAnalyticsSDK.sharedInstance.loginId;
+    destination[SA_EVENT_ANONYMOUS_ID] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
+    destination[SA_EVENT_TYPE] = self.type;
+    destination[SA_EVENT_TIME] = @(self.timeStamp);
+    destination[SA_EVENT_LIB] = [self.libObject generateJSONObject];
+    destination[SA_EVENT_TRACK_ID] = self.track_id;
     if (self.project) {
         destination[SA_EVENT_PROJECT] = self.project;
     }
