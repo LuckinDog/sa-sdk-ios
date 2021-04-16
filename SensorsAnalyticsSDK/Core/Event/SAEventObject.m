@@ -64,8 +64,13 @@
     [self.libObject updateAppVersionFromProperties:properties];
 }
 
-- (void)addDynamicSuperProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
+- (BOOL)addDynamicSuperProperties:(NSDictionary *)properties {
+    NSDictionary *props = [properties copy];
+    if (![self isValidProperties:&props]) {
+        return NO;
+    }
+    [self.properties addEntriesFromDictionary:props];
+    return YES;
 }
 
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
@@ -75,8 +80,10 @@
     self.libObject.method = libMethod;
 }
 
-- (void)addUserProperties:(NSDictionary *)properties {
-    [super addUserProperties:properties];
+- (BOOL)addUserProperties:(NSDictionary *)properties {
+    if (![super addUserProperties:properties]) {
+        return NO;
+    }
     
     NSString *libDetail = nil;
     if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEnabled] && properties.count > 0) {
@@ -92,6 +99,7 @@
         }
     }
     self.libObject.detail = libDetail;
+    return YES;
 }
 
 - (void)addNetworkProperties:(NSDictionary *)properties {

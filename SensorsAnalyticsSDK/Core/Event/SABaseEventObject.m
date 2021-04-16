@@ -67,11 +67,16 @@
 }
 
 - (BOOL)isValidProperties:(NSDictionary **)properties {
-    if ([SAPropertyValidator assertProperties:properties eachProperty:nil]) {
-        return YES;
+    NSError *error = nil;
+    NSDictionary *dic = [SAPropertyValidator validProperties:*properties error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        SALogError(@"%@ failed to track event.", self);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+        return NO;
     }
-    SALogError(@"%@ failed to track event.", self);
-    return NO;
+    *properties = dic;
+    return YES;
 }
 
 #pragma makr - SAEventBuildStrategy
@@ -87,15 +92,20 @@
 - (void)addSuperProperties:(NSDictionary *)properties {
 }
 
-- (void)addDynamicSuperProperties:(NSDictionary *)properties {
+- (BOOL)addDynamicSuperProperties:(NSDictionary *)properties {
+    return YES;
 }
 
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
 }
 
-- (void)addUserProperties:(NSDictionary *)properties {
+- (BOOL)addUserProperties:(NSDictionary *)properties {
     if ([properties isKindOfClass:[NSDictionary class]]) {
-        [self.properties addEntriesFromDictionary:[properties copy]];
+        NSDictionary *props = [properties copy];
+        if (![self isValidProperties:&props]) {
+            return NO;
+        }
+        [self.properties addEntriesFromDictionary:props];
     }
     // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
     self.project = (NSString *)self.properties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
@@ -132,6 +142,7 @@
     if (self.properties[SAEventPresetPropertyDeviceID] && SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID) {
         self.properties[SAEventPresetPropertyDeviceID] = SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID;
     }
+    return YES;
 }
 
 - (void)addNetworkProperties:(NSDictionary *)properties {

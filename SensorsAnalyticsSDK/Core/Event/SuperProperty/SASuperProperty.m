@@ -117,10 +117,12 @@
                 SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
                 return nil;
             }
-            if (![SAPropertyValidator assertProperties:&dynamicSuperPropertiesDict eachProperty:nil]) {
+            NSError *error;
+            NSDictionary *dic = [SAPropertyValidator validProperties:dynamicSuperPropertiesDict error:&error];
+            if (error) {
                 return nil;
             }
-            return dynamicSuperPropertiesDict;
+            return dic;
         }
         return nil;
     }];

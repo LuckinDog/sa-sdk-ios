@@ -37,46 +37,34 @@
 
 @implementation SAProfileIncrementEventObject
 
-- (BOOL)isValidProperties:(NSDictionary * _Nullable __autoreleasing *)properties {
-    BOOL isValid = [SAPropertyValidator assertProperties:properties eachProperty:^BOOL(NSString * _Nonnull key, NSString * _Nonnull value) {
-        if (![value isKindOfClass:[NSNumber class]]) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [value class], value];
-            SALogError(@"%@", errMsg);
-            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-            return NO;
-        }
-        return YES;
-    }];
-    
-    if (isValid) {
-        return YES;
+- (BOOL)isValidProperties:(NSDictionary **)properties {
+    NSError *error = nil;
+    NSDictionary *dic = [SAPropertyValidator validProfileIncrementProperties:*properties error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        SALogError(@"%@ failed to track event.", self);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+        return NO;
     }
-    
-    SALogError(@"%@ failed to track event.", self);
-    return NO;
+    *properties = dic;
+    return YES;
 }
 
 @end
 
 @implementation SAProfileAppendEventObject
 
-- (BOOL)isValidProperties:(NSDictionary * _Nullable __autoreleasing *)properties {
-    BOOL isValid = [SAPropertyValidator assertProperties:properties eachProperty:^BOOL(NSString * _Nonnull key, NSString * _Nonnull value) {
-        if (![value isKindOfClass:[NSSet class]] && ![value isKindOfClass:[NSArray class]]) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [value  class], value];
-            SALogError(@"%@", errMsg);
-            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-            return NO;
-        }
-        return YES;
-    }];
-    
-    if (isValid) {
-        return YES;
+- (BOOL)isValidProperties:(NSDictionary **)properties {
+    NSError *error = nil;
+    NSDictionary *dic = [SAPropertyValidator validProfileAppendProperties:*properties error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        SALogError(@"%@ failed to track event.", self);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+        return NO;
     }
-    
-    SALogError(@"%@ failed to track event.", self);
-    return NO;
+    *properties = dic;
+    return YES;
 }
 
 @end

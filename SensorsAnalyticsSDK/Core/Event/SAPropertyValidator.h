@@ -24,8 +24,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAPropertyValidator : NSObject
 
-+ (BOOL)assertProperties:(NSDictionary *_Nullable*_Nullable)propertiesAddress
-            eachProperty:(BOOL(^ _Nullable)(NSString *key, NSString *value))eachProperty;
+/// 属性校验
+/// @param properties 属性
+/// @param error 错误信息
++ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
+
+/// profile_append 中属性校验: value 必须为集合类型
+/// @param properties 属性
+/// @param error 错误信息
++ (NSDictionary *)validProfileAppendProperties:(NSDictionary *)properties error:(NSError **)error;
+
+/// profile_increment 中属性校验: value 必须为 NSNumber 类型
+/// @param properties 属性
+/// @param error 错误信息
++ (NSDictionary *)validProfileIncrementProperties:(NSDictionary *)properties error:(NSError **)error;
 
 @end
 
