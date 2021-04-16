@@ -24,7 +24,7 @@
 
 #import "SAAutoTrackManager.h"
 #import "SAConfigOptions.h"
-#import "SARemoteConfigManager.h"
+#import "SARemoteConfigModel.h"
 #import "SAModuleManager.h"
 #import "SAAppLifecycle.h"
 #import "SAConstants+Private.h"
@@ -58,8 +58,6 @@
 
         _appStartTracker = [[SAAppStartTracker alloc] init];
         _appEndTracker = [[SAAppEndTracker alloc] init];
-        _disableSDK = [SARemoteConfigManager sharedInstance].isDisableSDK;
-        _autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
 
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(remoteConfigModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
@@ -184,7 +182,7 @@
         self.disableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
         self.autoTrackMode = [[sender.object valueForKey:@"autoTrackMode"] integerValue];
 
-        [self updateAutoTrackState];
+        [self updateAutoTrackEventType];
     } @catch(NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
@@ -253,7 +251,7 @@
     }
 }
 
-- (void)updateAutoTrackState {
+- (void)updateAutoTrackEventType {
     self.appStartTracker.ignore = ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
     self.appEndTracker.ignore = ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
 }

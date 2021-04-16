@@ -49,8 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param eventType 全埋点类型
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType;
 
-/// 更新全埋点状态
-- (void)updateAutoTrackState;
+/// 更新全埋点事件类型
+- (void)updateAutoTrackEventType;
 
 @end
 
