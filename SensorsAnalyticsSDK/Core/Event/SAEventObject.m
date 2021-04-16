@@ -137,31 +137,8 @@
     return self;
 }
 
-- (void)archiveTrackChannelEventNames {
-    [SAFileStore archiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO value:self.trackChannelEventNames];
-}
-
-- (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *properties = self.properties;
-    
-    if (self.enableAutoAddChannelCallbackEvent) {
-        // 后端匹配逻辑已经不需要 $channel_device_info 信息
-        // 这里仍然添加此字段是为了解决服务端版本兼容问题
-        properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
-
-        BOOL isNotContains = ![self.trackChannelEventNames containsObject:self.event];
-        properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
-        if (isNotContains && self.event) {
-            [self.trackChannelEventNames addObject:self.event];
-            [self archiveTrackChannelEventNames];
-        }
-    }
-    
-    NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
-    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
-    jsonObject[SA_EVENT_NAME] = eventName;
-    jsonObject[@"original_id"] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
-    return [jsonObject copy];
+- (void)addChannelProperties:(NSDictionary *)properties {
+    [self.properties addEntriesFromDictionary:properties];
 }
 
 @end

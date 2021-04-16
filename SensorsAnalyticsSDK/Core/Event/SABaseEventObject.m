@@ -66,7 +66,18 @@
     return [eventInfo copy];
 }
 
+- (BOOL)isValidProperties:(NSDictionary **)properties {
+    if ([SAPropertyValidator assertProperties:properties eachProperty:nil]) {
+        return YES;
+    }
+    SALogError(@"%@ failed to track event.", self);
+    return NO;
+}
+
 #pragma makr - SAEventBuildStrategy
+- (void)addChannelProperties:(NSDictionary *)properties {
+}
+
 - (void)addAutomaticProperties:(NSDictionary *)properties {
 }
 
@@ -127,14 +138,6 @@
 }
 
 - (void)addDurationProperty {
-}
-
-- (BOOL)isValidProperties:(NSDictionary **)properties {
-    if ([SAPropertyValidator assertProperties:properties eachProperty:nil]) {
-        return YES;
-    }
-    SALogError(@"%@ failed to track event.", self);
-    return NO;
 }
 
 @end

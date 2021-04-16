@@ -1138,10 +1138,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
-    object.enableAutoAddChannelCallbackEvent = _configOptions.enableAutoAddChannelCallbackEvent;
-    object.trackChannelEventNames = self.trackChannelEventNames;
     
     dispatch_async(self.serialQueue, ^{
+        if (self.configOptions.enableAutoAddChannelCallbackEvent) {
+            // 后端匹配逻辑已经不需要 $channel_device_info 信息
+            // 这里仍然添加此字段是为了解决服务端版本兼容问题
+            NSMutableDictionary *channelInfo = [NSMutableDictionary dictionary];
+            channelInfo[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
+
+            BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+            channelInfo[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
+            if (isNotContains && event) {
+                [self.trackChannelEventNames addObject:event];
+                [self archiveTrackChannelEventNames];
+            }
+            [object addChannelProperties:channelInfo];
+        }
+        
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
         

@@ -37,9 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SACustomEventObject : SAEventObject
 
-@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
-@property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
-
 @end
 
 @interface SAAutoTrackEventObject : SAEventObject
