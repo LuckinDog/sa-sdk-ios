@@ -50,20 +50,28 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 }
 
 - (void)setupLaunchedState {
-    dispatch_block_t mainThreadBlock = ^(){
-#if TARGET_OS_IPHONE
-        BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-#else
-        BOOL isAppStateBackground = NO;
-#endif
-        self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
-    };
-
-    // 被动启动时 iOS 13 以下异步主队列的 block 不会执行
     if (@available(iOS 13.0, *)) {
-        dispatch_async(dispatch_get_main_queue(), mainThreadBlock);
+        // iOS 13 及以上在异步主队列的 block 修改状态的原因:
+        // 1. 保证在执行启动（被动启动）事件时（动态）公共属性设置完毕（通过监听 UIApplicationDidFinishLaunchingNotification 可以实现）
+        // 2. 含有 SceneDelegate 的工程中延迟获取 applicationState 才是准确的（通过监听 UIApplicationDidFinishLaunchingNotification 获取不准确）
+        dispatch_async(dispatch_get_main_queue(), ^{
+#if TARGET_OS_IPHONE
+            BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+#else
+            BOOL isAppStateBackground = NO;
+#endif
+            self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
+        });
     } else {
-        [SACommonUtility performBlockOnMainThread:mainThreadBlock];
+        // iOS 13 以下通过监听 UIApplicationDidFinishLaunchingNotification 的通知来修改状态的原因:
+        // 1. iOS 13 以下被动启动时异步主队列的 block 不会执行
+        // 2. iOS 13 以下不会含有 SceneDelegate
+#if TARGET_OS_IPHONE
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidFinishLaunching:)
+                                                     name:UIApplicationDidFinishLaunchingNotification
+                                                   object:nil];
+#endif
     }
 }
 
@@ -110,6 +118,11 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 }
 
 #if TARGET_OS_IPHONE
+- (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+    self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
+}
+
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SALogDebug(@"%@ application did become active", self);
 
