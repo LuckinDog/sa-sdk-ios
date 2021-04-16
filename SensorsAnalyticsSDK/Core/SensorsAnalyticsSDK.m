@@ -219,9 +219,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance initAppLifecycle];
+        [sharedInstance startRemoteConfig];
+        [sharedInstance startAppLifecycle];
     });
 }
 
@@ -596,7 +596,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - AppLifecycle
 
-- (void)initAppLifecycle {
+- (void)startAppLifecycle {
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
     _appLifecycle = [[SAAppLifecycle alloc] init];
 }
@@ -1950,7 +1950,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - RemoteConfig
 
-- (void)initRemoteConfigManager {
+- (void)startRemoteConfig {
     // 初始化远程配置类
     SARemoteConfigOptions *options = [[SARemoteConfigOptions alloc] init];
     options.configOptions = _configOptions;
@@ -2323,9 +2323,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
-        [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
-        [sharedInstance initAppLifecycle];
+        [sharedInstance startRemoteConfig];
+        [sharedInstance startAppLifecycle];
     });
     return sharedInstance;
 }
@@ -2337,9 +2337,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance initAppLifecycle];
+        [sharedInstance startRemoteConfig];
+        [sharedInstance startAppLifecycle];
     });
     return sharedInstance;
 }
