@@ -1021,7 +1021,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!self.trackEventCallback) {
         return YES;
     }
-    NSMutableDictionary *properties = obj.resultProperties;
+    NSMutableDictionary *properties = obj.properties;
     BOOL willEnque = self.trackEventCallback(obj.event, properties);
     if (!willEnque) {
         SALogDebug(@"\n【track event】: %@ can not enter database.", obj.event);
@@ -1150,7 +1150,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        [object addDurationWithEvent:event];
+        [object addDurationProperty];
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
 #else
@@ -1204,7 +1204,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        [object addDurationWithEvent:event];
+        [object addDurationProperty];
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
 #else
@@ -1244,7 +1244,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        [object addDurationWithEvent:event];
+        [object addDurationProperty];
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
 #else

@@ -50,40 +50,40 @@
 
 #pragma makr - SAEventBuildStrategy
 - (void)addAutomaticProperties:(NSDictionary *)properties {
-    [self.resultProperties addEntriesFromDictionary:properties];
+    [self.properties addEntriesFromDictionary:properties];
 }
 
 - (void)addPresetProperties:(NSDictionary *)properties {
-    [self.resultProperties addEntriesFromDictionary:properties];
+    [self.properties addEntriesFromDictionary:properties];
 }
 
 - (void)addSuperProperties:(NSDictionary *)properties {
-    [self.resultProperties addEntriesFromDictionary:properties];
+    [self.properties addEntriesFromDictionary:properties];
     // 从公共属性中更新 lib 节点中的 $app_version 值
     [self.libObject updateAppVersionFromProperties:properties];
 }
 
 - (void)addDynamicSuperProperties:(NSDictionary *)properties {
-    [self.resultProperties addEntriesFromDictionary:properties];
+    [self.properties addEntriesFromDictionary:properties];
 }
 
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
-    [self.resultProperties addEntriesFromDictionary:properties];
+    [self.properties addEntriesFromDictionary:properties];
     NSString *libMethod = [self.libObject obtainValidLibMethod:properties[SAEventPresetPropertyLibMethod]];
-    self.resultProperties[SAEventPresetPropertyLibMethod] = libMethod;
+    self.properties[SAEventPresetPropertyLibMethod] = libMethod;
     self.libObject.method = libMethod;
 }
 
 - (void)addNetworkProperties:(NSDictionary *)properties {
-    [self.resultProperties addEntriesFromDictionary:properties];
+    [self.properties addEntriesFromDictionary:properties];
 }
 
-- (void)addDurationWithEvent:(NSString *)event {
+- (void)addDurationProperty {
     // 根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
     // 为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
-    NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:event currentSysUpTime:self.currentSystemUpTime];
+    NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:self.event currentSysUpTime:self.currentSystemUpTime];
     if (eventDuration) {
-        self.resultProperties[@"event_duration"] = eventDuration;
+        self.properties[@"event_duration"] = eventDuration;
     }
 }
 
@@ -122,7 +122,7 @@
 }
 
 - (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *properties = self.resultProperties;
+    NSMutableDictionary *properties = self.properties;
     
     if (self.enableAutoAddChannelCallbackEvent) {
         // 后端匹配逻辑已经不需要 $channel_device_info 信息
@@ -156,8 +156,8 @@
 }
 
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
-    [self.resultProperties addEntriesFromDictionary:properties];
-    self.resultProperties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
+    [self.properties addEntriesFromDictionary:properties];
+    self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
     self.libObject.method = kSALibMethodAuto;
 }
 

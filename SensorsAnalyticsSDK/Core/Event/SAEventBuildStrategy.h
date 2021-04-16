@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addUserProperties:(NSDictionary *)properties;
 
 - (void)addNetworkProperties:(NSDictionary *)properties;
-- (void)addDurationWithEvent:(NSString *)event;
+- (void)addDurationProperty;
 
 - (BOOL)isValidProperties:(NSDictionary *_Nullable*_Nullable)properties;
 
