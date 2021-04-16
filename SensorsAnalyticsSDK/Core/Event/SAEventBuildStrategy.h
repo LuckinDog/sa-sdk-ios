@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAEventBuildStrategy <NSObject>
 
+- (void)addAutomaticProperties:(NSDictionary *)properties;
 - (void)addPresetProperties:(NSDictionary *)properties;
 - (void)addSuperProperties:(NSDictionary *)properties;
 - (void)addDynamicSuperProperties:(NSDictionary *)properties;

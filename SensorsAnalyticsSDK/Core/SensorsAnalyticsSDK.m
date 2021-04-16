@@ -1107,7 +1107,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
         
-        [object addPresetProperties:self.presetProperty.automaticProperties];
+        [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
@@ -1144,12 +1144,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
         
-        [object addPresetProperties:self.presetProperty.automaticProperties];
+        [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
         [object addDurationWithEvent:event];
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+        NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
+#else
+        NSDictionary *presetProperties = [self.presetProperty presetProperties];
+#endif
+        [object addPresetProperties:presetProperties];
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
@@ -1197,6 +1203,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
         [object addDurationWithEvent:event];
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+        NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
+#else
+        NSDictionary *presetProperties = [self.presetProperty presetProperties];
+#endif
+        [object addPresetProperties:presetProperties];
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
@@ -1224,12 +1236,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
         
-        [object addPresetProperties:self.presetProperty.automaticProperties];
+        [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
         [object addDurationWithEvent:event];
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+        NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
+#else
+        NSDictionary *presetProperties = [self.presetProperty presetProperties];
+#endif
+        [object addPresetProperties:presetProperties];
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {

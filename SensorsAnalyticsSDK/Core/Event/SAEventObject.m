@@ -67,6 +67,10 @@
 }
 
 #pragma makr - SAEventBuildStrategy
+- (void)addAutomaticProperties:(NSDictionary *)properties {
+    [self.resultProperties addEntriesFromDictionary:properties];
+}
+
 - (void)addPresetProperties:(NSDictionary *)properties {
     [self.resultProperties addEntriesFromDictionary:properties];
 }
