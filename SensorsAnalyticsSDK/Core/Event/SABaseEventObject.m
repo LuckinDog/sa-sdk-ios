@@ -117,13 +117,10 @@
         }
     }];
 
-    // TODO: 修正 $device_id，防止用户修改
+    // 修正 $device_id，防止用户修改
     if (self.properties[SAEventPresetPropertyDeviceID] && SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID) {
         self.properties[SAEventPresetPropertyDeviceID] = SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID;
     }
-    
-    // TODO: 处理 lib detail
-//    [self.libObject configDetailWithEvent:self.event properties:self.properties];
 }
 
 - (void)addNetworkProperties:(NSDictionary *)properties {
