@@ -32,10 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary *)generateJSONObject;
 
-- (void)updateAppVersionFromProperties:(NSDictionary *)properties;
-
-- (NSString *)obtainValidLibMethod:(NSString *)libMethod;
-
 @end
 
 NS_ASSUME_NONNULL_END

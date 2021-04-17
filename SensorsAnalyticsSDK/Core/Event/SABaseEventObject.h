@@ -26,15 +26,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SABaseEventObject : NSObject <SAEventBuildStrategy>
 
+/// 事件类型
 @property (nonatomic, copy) NSString *type;
+
+/// lib 信息
 @property (nonatomic, strong) SAEventLibObject *libObject;
+
+/// 时间戳
 @property (nonatomic, assign) UInt64 timeStamp;
+
+/// 事件 id
 @property (nonatomic, strong) NSNumber *track_id;
+
+/// 项目
 @property (nonatomic, copy) NSString *project;
+
+/// token
 @property (nonatomic, copy) NSString *token;
+
+/// 事件属性
 @property (nonatomic, strong) NSMutableDictionary *properties;
 
+/// 生成最终的事件信息
 - (NSDictionary *)generateJSONObject;
+
+/// 校验属性
+/// @param properties 属性
 - (BOOL)isValidProperties:(NSDictionary *_Nullable*_Nullable)properties;
 
 @end

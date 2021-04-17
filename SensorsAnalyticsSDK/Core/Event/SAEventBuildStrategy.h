@@ -24,14 +24,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAEventBuildStrategy <NSObject>
 
+/// 添加渠道信息
+/// @param properties 渠道信息
 - (void)addChannelProperties:(NSDictionary *)properties;
+
+/// 添加 SDK 默认属性
+/// @param properties SDK 默认属性
 - (void)addAutomaticProperties:(NSDictionary *)properties;
+
+/// 添加 SDK 模块中的默认属性
+/// @param properties SDK 模块中的默认属性
 - (void)addPresetProperties:(NSDictionary *)properties;
+
+/// 添加公共属性
+/// @param properties 公共属性
 - (void)addSuperProperties:(NSDictionary *)properties;
+
+/// 添加动态公共属性
+/// @param properties 动态公共属性
 - (void)addDynamicSuperProperties:(NSDictionary *)properties;
+
+/// 添加 DeepLink 属性信息
+/// @param properties DeepLink 属性信息
 - (void)addDeepLinkProperties:(NSDictionary *)properties;
+
+/// 添加用户的属性信息(属性校验不通过时, 返回值为 NO)
+/// @param properties 用户的属性信息
 - (BOOL)addUserProperties:(NSDictionary *)properties;
+
+/// 添加网络信息
+/// @param properties 网络信息
 - (void)addNetworkProperties:(NSDictionary *)properties;
+
+/// 添加事件时长
 - (void)addDurationProperty;
 
 @end

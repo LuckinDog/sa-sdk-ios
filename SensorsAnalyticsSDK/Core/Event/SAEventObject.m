@@ -61,7 +61,10 @@
 - (void)addSuperProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
     // 从公共属性中更新 lib 节点中的 $app_version 值
-    [self.libObject updateAppVersionFromProperties:properties];
+    id appVersion = properties[SAEventPresetPropertyAppVersion];
+    if (appVersion) {
+        self.libObject.appVersion = appVersion;
+    }
 }
 
 - (void)addDynamicSuperProperties:(NSDictionary *)properties {
@@ -70,14 +73,24 @@
 
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-    NSString *libMethod = [self.libObject obtainValidLibMethod:properties[SAEventPresetPropertyLibMethod]];
-    self.properties[SAEventPresetPropertyLibMethod] = libMethod;
-    self.libObject.method = libMethod;
 }
 
 - (BOOL)addUserProperties:(NSDictionary *)properties {
     if (![super addUserProperties:properties]) {
         return NO;
+    }
+    
+    // 如果传入自定义属性中的 $lib_method 为 String 类型，需要进行修正处理
+    id libMethod = self.properties[SAEventPresetPropertyLibMethod];
+    if (!libMethod) {
+        self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
+    } else {
+        if ([libMethod isKindOfClass:NSString.class]) {
+            if (![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
+                // 自定义属性中的 $lib_method 不为有效值（code 或者 autoTrack），此时使用默认值 code
+                self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
+            }
+        }
     }
     
     NSString *libDetail = nil;
@@ -155,10 +168,13 @@
     return self;
 }
 
-- (void)addDeepLinkProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
+- (BOOL)addUserProperties:(NSDictionary *)properties {
+    if (![super addUserProperties:properties]) {
+        return NO;
+    }
     self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
     self.libObject.method = kSALibMethodAuto;
+    return YES;
 }
 
 @end
