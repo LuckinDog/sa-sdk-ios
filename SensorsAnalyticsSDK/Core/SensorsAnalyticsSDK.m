@@ -74,6 +74,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
 #import "SAEventObject.h"
+#import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
 
 #define VERSION @"2.5.3"
@@ -1269,7 +1270,40 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:event properties:eventProps type:kSAEventTypeTrack libMethod:libMethod];
 }
 
+- (void)profileAppendWithProperties:(NSDictionary *)properties {
+    SAProfileEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
+    dispatch_async(self.serialQueue, ^{
+        if (![object addUserProperties:properties]) {
+            return;
+        }
+        NSDictionary *resultObj = [object generateJSONObject];
+        NSLog(@"=======>profileAppend resultObj = %@", resultObj);
+//        [self willTrackEvent:resultObj isSignUp:NO];
+    });
+}
+
+- (void)profileIncrementWithProperties:(NSDictionary *)properties {
+    SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
+    dispatch_async(self.serialQueue, ^{
+        if (![object addUserProperties:properties]) {
+            return;
+        }
+        NSDictionary *resultObj = [object generateJSONObject];
+        NSLog(@"=======>profileIncrement resultObj = %@", resultObj);
+//        [self willTrackEvent:resultObj isSignUp:NO];
+    });
+}
+
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
+    SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
+    dispatch_async(self.serialQueue, ^{
+        if (![object addUserProperties:properties]) {
+            return;
+        }
+        NSDictionary *resultObj = [object generateJSONObject];
+        NSLog(@"=======>profile resultObj = %@", resultObj);
+//        [self willTrackEvent:resultObj isSignUp:NO];
+    });
     [self track:nil properties:properties type:type libMethod:kSALibMethodCode];
 }
 
@@ -2662,12 +2696,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
+        [[SensorsAnalyticsSDK sharedInstance] profileIncrementWithProperties:@{profile: amount}];
         [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_INCREMENT properties:@{profile: amount}];
     }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
+        [[SensorsAnalyticsSDK sharedInstance] profileIncrementWithProperties:profileDict];
         [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_INCREMENT properties:profileDict];
     }
 }
@@ -2675,6 +2711,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
+            [[SensorsAnalyticsSDK sharedInstance] profileAppendWithProperties:@{profile: content}];
             [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_APPEND properties:@{profile: content}];
         }
     }

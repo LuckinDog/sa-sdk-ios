@@ -184,7 +184,7 @@ static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
     for (NSInteger index = 0; index < array.count; index++) {
         id element = [array objectAtIndex:index];
          NSString *newElement = [self validStringElement:element maxLength:SA_PROPERTY_LENGTH_LIMITATION error:error];
-        if (error) {
+        if (*error) {
             return @[];
         }
         [newArray addObject:newElement];
@@ -196,7 +196,7 @@ static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
     NSMutableSet <NSString *>*newSet = [NSMutableSet set];
     for (id element in set) {
          NSString *newElement = [self validStringElement:element maxLength:SA_PROPERTY_LENGTH_LIMITATION error:error];
-        if (error) {
+        if (*error) {
             return [NSSet set];
         }
         [newSet addObject:newElement];

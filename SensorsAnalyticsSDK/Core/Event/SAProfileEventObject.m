@@ -26,8 +26,9 @@
 
 @implementation SAProfileEventObject
 
-- (instancetype)init {
+- (instancetype)initWithType:(NSString *)type {
     if (self = [super init]) {
+        self.type = type;
         self.libObject.method = kSALibMethodCode;
     }
     return self;
