@@ -24,9 +24,7 @@
 
 #import "SAPropertyValidator.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SAModuleManager.h"
 #import "SACommonUtility.h"
-#import "SALog.h"
 
 #define SAPropertyError(errorCode, desc) [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" code:errorCode userInfo:@{NSLocalizedDescriptionKey: desc}]
 
