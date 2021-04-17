@@ -96,10 +96,11 @@
 
 - (BOOL)addUserProperties:(NSDictionary *)properties {
     if ([properties isKindOfClass:[NSDictionary class]]) {
-        NSDictionary *props = [properties copy];
+        NSMutableDictionary *props = [properties mutableCopy];
         if (![self isValidProperties:&props]) {
             return NO;
         }
+        [props removeObjectForKey:SAEventPresetPropertyDeviceID];
         [self.properties addEntriesFromDictionary:props];
     }
     // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
@@ -132,11 +133,6 @@
             self.properties[key] = dateStr;
         }
     }];
-
-    // 修正 $device_id，防止用户修改
-    if (self.properties[SAEventPresetPropertyDeviceID] && SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID) {
-        self.properties[SAEventPresetPropertyDeviceID] = SensorsAnalyticsSDK.sharedInstance.presetProperty.deviceID;
-    }
     return YES;
 }
 
