@@ -1111,6 +1111,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackSignupEvent:(NSDictionary *)properties {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
     dispatch_async(self.serialQueue, ^{
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+            SALogDebug(@"【remote config】SDK is disabled");
+            return;
+        }
+        if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:SA_EVENT_NAME_APP_SIGN_UP]) {
+            SALogDebug(@"【remote config】 %@ is ignored by remote config", SA_EVENT_NAME_APP_SIGN_UP);
+            return;
+        }
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
@@ -1146,6 +1154,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+            SALogDebug(@"【remote config】SDK is disabled");
+            return;
+        }
+        if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
+            SALogDebug(@"【remote config】 %@ is ignored by remote config", event);
+            return;
+        }
         if (self.configOptions.enableAutoAddChannelCallbackEvent) {
             // 后端匹配逻辑已经不需要 $channel_device_info 信息
             // 这里仍然添加此字段是为了解决服务端版本兼容问题
@@ -1210,6 +1226,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+            SALogDebug(@"【remote config】SDK is disabled");
+            return;
+        }
+        if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
+            SALogDebug(@"【remote config】 %@ is ignored by remote config", event);
+            return;
+        }
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [object addPresetProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
@@ -1244,6 +1268,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+            SALogDebug(@"【remote config】SDK is disabled");
+            return;
+        }
+        if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:event]) {
+            SALogDebug(@"【remote config】 %@ is ignored by remote config", event);
+            return;
+        }
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
@@ -1273,6 +1305,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)profileAppendWithProperties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
     dispatch_async(self.serialQueue, ^{
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+            SALogDebug(@"【remote config】SDK is disabled");
+            return;
+        }
         if (![object addUserProperties:properties]) {
             return;
         }
@@ -1285,6 +1321,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)profileIncrementWithProperties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
     dispatch_async(self.serialQueue, ^{
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+            SALogDebug(@"【remote config】SDK is disabled");
+            return;
+        }
         if (![object addUserProperties:properties]) {
             return;
         }
@@ -1297,6 +1337,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
     dispatch_async(self.serialQueue, ^{
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+            SALogDebug(@"【remote config】SDK is disabled");
+            return;
+        }
         if (![object addUserProperties:properties]) {
             return;
         }
