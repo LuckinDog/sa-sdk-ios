@@ -1017,6 +1017,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (NSDictionary *)modulePresetProperties {
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+    return [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
+#else
+    return [self.presetProperty presetProperties];
+#endif
+}
+
 - (BOOL)willEnqueueWithObject:(SAEventObject *)obj {
     if (!self.trackEventCallback) {
         return YES;
@@ -1158,13 +1166,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        [object addPresetProperties:[self modulePresetProperties]];
         [object addDurationProperty];
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
-#else
-        NSDictionary *presetProperties = [self.presetProperty presetProperties];
-#endif
-        [object addPresetProperties:presetProperties];
         if (![object addUserProperties:properties]) {
             return;
         }
@@ -1212,13 +1215,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        [object addPresetProperties:[self modulePresetProperties]];
         [object addDurationProperty];
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
-#else
-        NSDictionary *presetProperties = [self.presetProperty presetProperties];
-#endif
-        [object addPresetProperties:presetProperties];
         if (![object addUserProperties:properties]) {
             return;
         }
@@ -1251,13 +1249,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        [object addPresetProperties:[self modulePresetProperties]];
         [object addDurationProperty];
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-        NSDictionary *presetProperties = [self.presetProperty presetPropertiesWithOrientationConfig:self.deviceOrientationConfig];
-#else
-        NSDictionary *presetProperties = [self.presetProperty presetProperties];
-#endif
-        [object addPresetProperties:presetProperties];
         if (![object addUserProperties:properties]) {
             return;
         }
