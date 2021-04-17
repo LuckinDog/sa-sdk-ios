@@ -78,15 +78,18 @@
     
     // 如果传入自定义属性中的 $lib_method 为 String 类型，需要进行修正处理
     id libMethod = self.properties[SAEventPresetPropertyLibMethod];
-    if (!libMethod) {
-        self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
-    } else {
+    if (libMethod) {
         if ([libMethod isKindOfClass:NSString.class]) {
-            if (![libMethod isEqualToString:kSALibMethodCode] && ![libMethod isEqualToString:kSALibMethodAuto]) {
+            if ([libMethod isEqualToString:kSALibMethodCode] ||
+                [libMethod isEqualToString:kSALibMethodAuto]) {
+                self.libObject.method = libMethod;
+            } else {
                 // 自定义属性中的 $lib_method 不为有效值（code 或者 autoTrack），此时使用默认值 code
                 self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
             }
         }
+    } else {
+        self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
     }
     
     NSString *libDetail = nil;
