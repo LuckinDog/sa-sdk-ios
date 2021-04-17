@@ -50,6 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SAChannelEventObject : SAEventObject
+
+@end
+
 @interface SAH5EventObject : SAEventObject
 
 @end

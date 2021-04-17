@@ -27,6 +27,7 @@
 #import "SAConstants+Private.h"
 #import "SAPropertyValidator.h"
 #import "SAModuleManager.h"
+#import "SAIdentifier.h"
 
 @implementation SAEventObject
 
@@ -154,6 +155,9 @@
 
 - (void)addChannelProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
+    // 后端匹配逻辑已经不需要 $channel_device_info 信息
+    // 这里仍然添加此字段是为了解决服务端版本兼容问题
+    self.properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
 }
 
 @end
@@ -185,6 +189,21 @@
         self.type = kSAEventTypeTrack;
     }
     return self;
+}
+
+@end
+
+@implementation SAChannelEventObject
+
+- (void)addChannelProperties:(NSDictionary *)properties {
+    [self.properties addEntriesFromDictionary:properties];
+    // idfa
+    NSString *idfa = [SAIdentifier idfa];
+    if (idfa) {
+        self.properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = [NSString stringWithFormat:@"idfa=%@", idfa];
+    } else {
+        self.properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"";
+    }
 }
 
 @end
