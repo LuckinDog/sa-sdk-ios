@@ -207,7 +207,3 @@
 }
 
 @end
-
-@implementation SAH5EventObject
-
-@end
