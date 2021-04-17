@@ -25,12 +25,8 @@
 #import "SAEventObject.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import "SARemoteConfigManager.h"
 #import "SAPropertyValidator.h"
-#import "SADateFormatter.h"
-#import "SAFileStore.h"
 #import "SAModuleManager.h"
-#import "SALog.h"
 
 @implementation SAEventObject
 
