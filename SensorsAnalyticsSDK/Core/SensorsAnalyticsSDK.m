@@ -2476,14 +2476,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
         [[SensorsAnalyticsSDK sharedInstance] profileIncrementWithProperties:@{profile: amount}];
-        [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_INCREMENT properties:@{profile: amount}];
     }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
         [[SensorsAnalyticsSDK sharedInstance] profileIncrementWithProperties:profileDict];
-        [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_INCREMENT properties:profileDict];
     }
 }
 
@@ -2491,7 +2489,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
             [[SensorsAnalyticsSDK sharedInstance] profileAppendWithProperties:@{profile: content}];
-            [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_APPEND properties:@{profile: content}];
         }
     }
 }
