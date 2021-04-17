@@ -60,6 +60,7 @@
 #import "SAWeakPropertyContainer.h"
 #import "SADateFormatter.h"
 #import "SAFileStore.h"
+#import "SATrackTimer.h"
 #import "SAEventStore.h"
 #import "SAHTTPSession.h"
 #import "SANetwork.h"
@@ -167,6 +168,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 @property (nonatomic, strong) SAReadWriteLock *readWriteLock;
+
+@property (nonatomic, strong) SATrackTimer *trackTimer;
 
 @property (nonatomic, strong) NSRegularExpression *propertiesRegex;
 @property (nonatomic, copy) NSSet *presetEventNames;
@@ -311,6 +314,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _heatMapViewControllers = [[NSMutableSet alloc] init];
             _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
             _trackChannelEventNames = [[NSMutableSet alloc] init];
+            
+            _trackTimer = [[SATrackTimer alloc] init];
 
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -1833,7 +1838,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance resumeAllEventTimers:currentSysUpTime];
+        [self.trackTimer resumeAllEventTimers:currentSysUpTime];
     });
 
     if ([self isAutoTrackEnabled] && _appRelaunched) {
@@ -1902,7 +1907,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance pauseAllEventTimers:currentSysUpTime];
+        [self.trackTimer pauseAllEventTimers:currentSysUpTime];
     });
 
     if ([self isAutoTrackEnabled]) {
@@ -2178,10 +2183,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self checkEventName:event]) {
         return nil;
     }
-    NSString *eventId = [SAModuleManager.sharedInstance generateEventIdByEventName:event];
+    NSString *eventId = [self.trackTimer generateEventIdByEventName:event];
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance trackTimerStart:eventId currentSysUpTime:currentSysUpTime];
+        [self.trackTimer trackTimerStart:eventId currentSysUpTime:currentSysUpTime];
     });
     return eventId;
 }
@@ -2201,7 +2206,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance trackTimerPause:event currentSysUpTime:currentSysUpTime];
+        [self.trackTimer trackTimerPause:event currentSysUpTime:currentSysUpTime];
     });
 }
 
@@ -2211,7 +2216,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance trackTimerResume:event currentSysUpTime:currentSysUpTime];
+        [self.trackTimer trackTimerResume:event currentSysUpTime:currentSysUpTime];
     });
 }
 
@@ -2220,13 +2225,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance trackTimerRemove:event];
+        [self.trackTimer trackTimerRemove:event];
     });
 }
 
 - (void)clearTrackTimer {
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance clearAllEventTimers];
+        [self.trackTimer clearAllEventTimers];
     });
 }
 
@@ -2614,7 +2619,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
+        [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
     });
 }
 
@@ -2625,7 +2630,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
+        [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
     });
 }
 

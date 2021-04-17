@@ -42,8 +42,8 @@
 
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
-    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
-    jsonObject[SA_EVENT_NAME] = eventName;
+//    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
+//    jsonObject[SA_EVENT_NAME] = eventName;
     return [jsonObject copy];
 }
 
@@ -118,10 +118,10 @@
 - (void)addDurationProperty {
     // 根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
     // 为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
-    NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:self.event currentSysUpTime:self.currentSystemUpTime];
-    if (eventDuration) {
-        self.properties[@"event_duration"] = eventDuration;
-    }
+//    NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:self.event currentSysUpTime:self.currentSystemUpTime];
+//    if (eventDuration) {
+//        self.properties[@"event_duration"] = eventDuration;
+//    }
 }
 
 @end
@@ -138,9 +138,9 @@
 
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
-    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
-    jsonObject[SA_EVENT_NAME] = eventName;
-    jsonObject[@"original_id"] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
+//    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
+//    jsonObject[SA_EVENT_NAME] = eventName;
+//    jsonObject[@"original_id"] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
     return [jsonObject copy];
 }
 

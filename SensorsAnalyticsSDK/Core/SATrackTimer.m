@@ -1,5 +1,5 @@
 //
-// SATrackTimerManager.m
+// SATrackTimer.m
 // SensorsAnalyticsSDK
 //
 // Created by 彭远洋 on 2019/12/26.
@@ -22,17 +22,17 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SATrackTimerManager.h"
+#import "SATrackTimer.h"
 #import "SAConstants+Private.h"
 
-@interface SATrackTimerManager ()
+@interface SATrackTimer ()
 
 @property (nonatomic, strong) NSMutableDictionary *eventNames;
 @property (nonatomic, strong) NSMutableDictionary *eventIds;
 
 @end
 
-@implementation SATrackTimerManager
+@implementation SATrackTimer
 
 static NSString *const kEventIdSuffix = @"_SATimer";
 
