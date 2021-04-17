@@ -33,11 +33,12 @@
 @implementation SABaseEventObject
 
 - (instancetype)init {
-    if (self = [super init]) {
-        self.libObject = [[SAEventLibObject alloc] init];
-        self.timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
-        self.track_id = @(arc4random());
-        self.properties = [NSMutableDictionary dictionary];
+    self = [super init];
+    if (self) {
+        _libObject = [[SAEventLibObject alloc] init];
+        _timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
+        _track_id = @(arc4random());
+        _properties = [NSMutableDictionary dictionary];
     }
     return self;
 }

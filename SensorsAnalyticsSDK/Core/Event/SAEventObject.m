@@ -32,9 +32,10 @@
 @implementation SAEventObject
 
 - (instancetype)initWithEvent:(NSString *)event {
-    if (self = [super init]) {
-        self.event = event;
-        self.currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
+    self = [super init];
+    if (self) {
+        _event = event;
+        _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
     }
     return self;
 }
@@ -128,7 +129,8 @@
 @implementation SASignUpEventObject
 
 - (instancetype)initWithEvent:(NSString *)event {
-    if (self = [super initWithEvent:event]) {
+    self = [super initWithEvent:event];
+    if (self) {
         self.type = kSAEventTypeSignup;
     }
     return self;
@@ -147,7 +149,8 @@
 @implementation SACustomEventObject
 
 - (instancetype)initWithEvent:(NSString *)event {
-    if (self = [super initWithEvent:event]) {
+    self = [super initWithEvent:event];
+    if (self) {
         self.type = kSAEventTypeTrack;
     }
     return self;
@@ -165,7 +168,8 @@
 @implementation SAAutoTrackEventObject
 
 - (instancetype)initWithEvent:(NSString *)event {
-    if (self = [super initWithEvent:event]) {
+    self = [super initWithEvent:event];
+    if (self) {
         self.type = kSAEventTypeTrack;
     }
     return self;
@@ -185,7 +189,8 @@
 @implementation SAPresetEventObject
 
 - (instancetype)initWithEvent:(NSString *)event {
-    if (self = [super initWithEvent:event]) {
+    self = [super initWithEvent:event];
+    if (self) {
         self.type = kSAEventTypeTrack;
     }
     return self;

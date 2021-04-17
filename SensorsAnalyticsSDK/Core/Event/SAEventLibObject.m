@@ -33,12 +33,13 @@
 @implementation SAEventLibObject
 
 - (instancetype)init {
-    if (self = [super init]) {
-        self.lib = @"iOS";
-        self.method = kSALibMethodCode;
-        self.version = [SensorsAnalyticsSDK.sharedInstance libVersion];
-        self.appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-        self.detail = nil;
+    self = [super init];
+    if (self) {
+        _lib = @"iOS";
+        _method = kSALibMethodCode;
+        _version = [SensorsAnalyticsSDK.sharedInstance libVersion];
+        _appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        _detail = nil;
     }
     return self;
 }
