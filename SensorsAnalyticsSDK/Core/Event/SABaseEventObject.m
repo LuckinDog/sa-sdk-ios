@@ -92,8 +92,7 @@
 - (void)addSuperProperties:(NSDictionary *)properties {
 }
 
-- (BOOL)addDynamicSuperProperties:(NSDictionary *)properties {
-    return YES;
+- (void)addDynamicSuperProperties:(NSDictionary *)properties {
 }
 
 - (void)addDeepLinkProperties:(NSDictionary *)properties {

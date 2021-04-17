@@ -1100,19 +1100,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackSignupEvent:(NSDictionary *)properties {
-    
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
-    
     dispatch_async(self.serialQueue, ^{
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-        
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.currentSuperProperties];
         [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        [object addUserProperties:properties];
+        if (![object addUserProperties:properties]) {
+            return;
+        }
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
@@ -1138,7 +1136,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
-    
     dispatch_async(self.serialQueue, ^{
         if (self.configOptions.enableAutoAddChannelCallbackEvent) {
             // 后端匹配逻辑已经不需要 $channel_device_info 信息
@@ -1156,8 +1153,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-        
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.currentSuperProperties];
@@ -1170,7 +1165,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *presetProperties = [self.presetProperty presetProperties];
 #endif
         [object addPresetProperties:presetProperties];
-        [object addUserProperties:properties];
+        if (![object addUserProperties:properties]) {
+            return;
+        }
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
@@ -1210,8 +1207,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-        
         [object addPresetProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.currentSuperProperties];
@@ -1224,7 +1219,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *presetProperties = [self.presetProperty presetProperties];
 #endif
         [object addPresetProperties:presetProperties];
-        [object addUserProperties:properties];
+        if (![object addUserProperties:properties]) {
+            return;
+        }
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
@@ -1233,7 +1230,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSLog(@"=======>trackAutoEvent resultObj = %@", resultObj);
 //        [self willTrackEvent:resultObj isSignUp:NO];
     });
-    
     
     NSMutableDictionary *eventProps = [self mergeDeepLinkInfoIntoProperties:properties];
     eventProps[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
@@ -1250,8 +1246,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-        
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.currentSuperProperties];
@@ -1264,7 +1258,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSDictionary *presetProperties = [self.presetProperty presetProperties];
 #endif
         [object addPresetProperties:presetProperties];
-        [object addUserProperties:properties];
+        if (![object addUserProperties:properties]) {
+            return;
+        }
         
         NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {

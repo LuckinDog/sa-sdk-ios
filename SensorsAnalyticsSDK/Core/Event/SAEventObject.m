@@ -64,13 +64,8 @@
     [self.libObject updateAppVersionFromProperties:properties];
 }
 
-- (BOOL)addDynamicSuperProperties:(NSDictionary *)properties {
-    NSDictionary *props = [properties copy];
-    if (![self isValidProperties:&props]) {
-        return NO;
-    }
-    [self.properties addEntriesFromDictionary:props];
-    return YES;
+- (void)addDynamicSuperProperties:(NSDictionary *)properties {
+    [self.properties addEntriesFromDictionary:properties];
 }
 
 - (void)addDeepLinkProperties:(NSDictionary *)properties {

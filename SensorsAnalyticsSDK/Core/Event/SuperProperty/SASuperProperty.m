@@ -26,6 +26,7 @@
 #import "SAFileStore.h"
 #import "SAReadWriteLock.h"
 #import "SAPropertyValidator.h"
+#import "SAModuleManager.h"
 #import "SALog.h"
 
 @interface SASuperProperty ()
@@ -109,6 +110,7 @@
 
 - (NSDictionary *)acquireDynamicSuperProperties {
     // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
+    __weak typeof(self) weakSelf = self;
     return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
         if (self.dynamicSuperProperties) {
             NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties();
@@ -120,8 +122,11 @@
             NSError *error;
             NSDictionary *dic = [SAPropertyValidator validProperties:dynamicSuperPropertiesDict error:&error];
             if (error) {
+                SALogError(@"%@", error.localizedDescription);
+                [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
                 return nil;
             }
+            [weakSelf unregisterSameLetterSuperProperties:dic];
             return dic;
         }
         return nil;
