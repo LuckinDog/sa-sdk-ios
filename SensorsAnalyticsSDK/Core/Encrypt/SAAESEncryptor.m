@@ -27,7 +27,7 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
-NSString * const kSAEncryptAESType = @"AES";
+NSString * const kSASymmetricEncryptTypeAES = @"AES";
 
 @interface SAAESEncryptor ()
 

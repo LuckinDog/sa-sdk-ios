@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kSAEncryptRSAType;
+extern NSString * const kSAAsymmetricEncryptTypeRSA;
 
 @interface SARSAEncryptor : NSObject
 

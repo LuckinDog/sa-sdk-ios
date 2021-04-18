@@ -22,8 +22,8 @@
 
 @interface SAConfigOptions (Private)
 
-@property (nonatomic, strong) NSArray *encryptors;
+@property (nonatomic, copy, readonly) NSArray *encryptors;
 
-- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
+//- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
 
 @end

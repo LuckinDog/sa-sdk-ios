@@ -162,6 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
 ///开启自动采集通知
 @property (nonatomic, assign) BOOL enableTrackPush;
 
+- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
+
 @end
 
 

@@ -45,11 +45,11 @@
 }
 
 - (NSString *)symmetricEncryptType {
-    return kSAEncryptAESType;
+    return kSASymmetricEncryptTypeAES;
 }
 
 - (NSString *)asymmetricEncryptType {
-    return kSAEncryptECCType;
+    return kSAAsymmetricEncryptTypeECC;
 }
 
 - (NSString *)encryptEvent:(NSData *)event {

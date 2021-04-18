@@ -28,7 +28,7 @@
 
 NSString * const kSAEncryptECCPrefix = @"EC:";
 NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
-NSString * const kSAEncryptECCType = @"EC";
+NSString * const kSAAsymmetricEncryptTypeECC = @"EC";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
 

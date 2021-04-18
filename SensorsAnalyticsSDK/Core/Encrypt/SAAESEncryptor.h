@@ -21,7 +21,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kSAEncryptAESType;
+extern NSString * const kSASymmetricEncryptTypeAES;
 
 @interface SAAESEncryptor : NSObject
 
