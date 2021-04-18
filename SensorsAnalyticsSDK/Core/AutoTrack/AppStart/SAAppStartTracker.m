@@ -70,6 +70,13 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
         [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStart properties:properties];
     }
 
+    // 更新首次标记
+    if ([self isFirstAppStart]) {
+        NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
+        [standard setBool:YES forKey:kSAHasLaunchedOnce];
+        [standard synchronize];
+    }
+
     // 触发过启动事件，下次为热启动
     self.relaunch = YES;
 }
@@ -84,6 +91,13 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
         [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppStartPassively properties:properties];
     }
 
+    // 更新首次标记
+    if ([self isFirstAppStart]) {
+        NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
+        [standard setBool:YES forKey:kSAHasLaunchedOnce];
+        [standard synchronize];
+    }
+
     // 触发过被动启动事件，下次为热启动
     self.relaunch = YES;
 }
@@ -95,13 +109,8 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 #pragma mark – Private Methods
 
 - (BOOL)isFirstAppStart {
-    NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
-    if (![standard boolForKey:kSAHasLaunchedOnce]) {
-        [standard setBool:YES forKey:kSAHasLaunchedOnce];
-        [standard synchronize];
-        return YES;
-    }
-    return NO;
+    BOOL isHasLaunchedOnce = [[NSUserDefaults standardUserDefaults] boolForKey:kSAHasLaunchedOnce];
+    return !isHasLaunchedOnce;
 }
 
 @end
