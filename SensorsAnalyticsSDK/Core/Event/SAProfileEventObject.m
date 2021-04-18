@@ -39,34 +39,24 @@
 
 @implementation SAProfileIncrementEventObject
 
-- (BOOL)isValidProperties:(NSDictionary **)properties {
-    NSError *error = nil;
-    NSDictionary *dic = [SAPropertyValidator validProfileIncrementProperties:*properties error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        SALogError(@"%@ failed to track event.", self);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return NO;
+- (instancetype)initWithType:(NSString *)type {
+    self = [super init];
+    if (self) {
+        self.propertiesValidator = [[SAProfileIncrementValidator alloc] init];
     }
-    *properties = dic;
-    return YES;
+    return self;
 }
 
 @end
 
 @implementation SAProfileAppendEventObject
 
-- (BOOL)isValidProperties:(NSDictionary **)properties {
-    NSError *error = nil;
-    NSDictionary *dic = [SAPropertyValidator validProfileAppendProperties:*properties error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        SALogError(@"%@ failed to track event.", self);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return NO;
+- (instancetype)initWithType:(NSString *)type {
+    self = [super init];
+    if (self) {
+        self.propertiesValidator = [[SAProfileAppendValidator alloc] init];
     }
-    *properties = dic;
-    return YES;
+    return self;
 }
 
 @end

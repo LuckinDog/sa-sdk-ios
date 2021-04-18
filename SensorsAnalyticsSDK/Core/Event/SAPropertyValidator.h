@@ -22,6 +22,38 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol SAPropertyKeyProtocol <NSObject>
+
+@required
+- (void)sensorsdata_isValidPropertyKeyWithError:(NSError **)error;
+
+@end
+
+@protocol SAPropertyValueProtocol <NSObject>
+
+@required
+- (id __nullable)sensorsdata_propertyValueWithArgs:(NSDictionary * __nullable)args error:(NSError **)error;
+
+@end
+
+@interface NSString (SAProperty)<SAPropertyKeyProtocol, SAPropertyValueProtocol>
+@end
+
+@interface NSNumber (SAProperty)<SAPropertyValueProtocol>
+@end
+
+@interface NSDate (SAProperty)<SAPropertyValueProtocol>
+@end
+
+@interface NSSet (SAProperty)<SAPropertyValueProtocol>
+@end
+
+@interface NSArray (SAProperty)<SAPropertyValueProtocol>
+@end
+
+@interface NSNull (SAProperty)<SAPropertyValueProtocol>
+@end
+
 @interface SAPropertyValidator : NSObject
 
 /// 属性校验
@@ -29,15 +61,25 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param error 错误信息
 + (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
 
+- (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
+
+@end
+
+@interface SAProfileAppendValidator : SAPropertyValidator
+
 /// profile_append 中属性校验: value 必须为集合类型
 /// @param properties 属性
 /// @param error 错误信息
-+ (NSDictionary *)validProfileAppendProperties:(NSDictionary *)properties error:(NSError **)error;
++ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
+
+@end
+
+@interface SAProfileIncrementValidator : SAPropertyValidator
 
 /// profile_increment 中属性校验: value 必须为 NSNumber 类型
 /// @param properties 属性
 /// @param error 错误信息
-+ (NSDictionary *)validProfileIncrementProperties:(NSDictionary *)properties error:(NSError **)error;
++ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
 
 @end
 

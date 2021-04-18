@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "SAEventLibObject.h"
 #import "SAEventBuildStrategy.h"
+#import "SAPropertyValidator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -47,12 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// 事件属性
 @property (nonatomic, strong) NSMutableDictionary *properties;
 
+/// 属性校验器
+@property (nonatomic, strong) SAPropertyValidator *propertiesValidator;
+
 /// 生成最终的事件信息
 - (NSDictionary *)generateJSONObject;
-
-/// 校验属性
-/// @param properties 属性
-- (BOOL)isValidProperties:(NSDictionary *_Nullable*_Nullable)properties;
 
 @end
 

@@ -26,8 +26,6 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAModuleManager.h"
-#import "SAPropertyValidator.h"
-#import "SADateFormatter.h"
 #import "SALog.h"
 
 @implementation SABaseEventObject
@@ -39,6 +37,7 @@
         _timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
         _track_id = @(arc4random());
         _properties = [NSMutableDictionary dictionary];
+        _propertiesValidator = [[SAPropertyValidator alloc] init];
     }
     return self;
 }
@@ -62,19 +61,6 @@
     return [eventInfo copy];
 }
 
-- (BOOL)isValidProperties:(NSDictionary **)properties {
-    NSError *error = nil;
-    NSDictionary *dic = [SAPropertyValidator validProperties:*properties error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        SALogError(@"%@ failed to track event.", self);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return NO;
-    }
-    *properties = dic;
-    return YES;
-}
-
 #pragma makr - SAEventBuildStrategy
 - (void)addChannelProperties:(NSDictionary *)properties {
 }
@@ -95,15 +81,17 @@
 }
 
 - (BOOL)addUserProperties:(NSDictionary *)properties {
-    if ([properties isKindOfClass:[NSDictionary class]]) {
-        NSDictionary *props = [properties copy];
-        if (![self isValidProperties:&props]) {
-            return NO;
-        }
-        NSMutableDictionary *dic = [props mutableCopy];
-        [dic removeObjectForKey:SAEventPresetPropertyDeviceID];
-        [self.properties addEntriesFromDictionary:dic];
+    NSError *error = nil;
+    NSMutableDictionary *props = [[self.propertiesValidator validProperties:properties error:&error] mutableCopy];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+        return NO;
     }
+    
+    [props removeObjectForKey:SAEventPresetPropertyDeviceID];
+    [self.properties addEntriesFromDictionary:props];
+    
     // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
     self.project = (NSString *)self.properties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     self.token = (NSString *)self.properties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
@@ -125,15 +113,6 @@
                                             SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN,
                                             SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
     [self.properties removeObjectsForKeys:needRemoveKeys];
-    
-    // 序列化所有 NSDate 类型
-    [self.properties enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if ([obj isKindOfClass:[NSDate class]]) {
-            NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
-            NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-            self.properties[key] = dateStr;
-        }
-    }];
     return YES;
 }
 

@@ -25,197 +25,233 @@
 #import "SAPropertyValidator.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SACommonUtility.h"
+#import "SADateFormatter.h"
 
 #define SAPropertyError(errorCode, desc) [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" code:errorCode userInfo:@{NSLocalizedDescriptionKey: desc}]
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
+static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLength";
+
+@implementation NSString (SAProperty)
+
+- (void)sensorsdata_isValidPropertyKeyWithError:(NSError *__autoreleasing  _Nullable *)error {
+    if (![SensorsAnalyticsSDK.sharedInstance isValidName: self]) {
+        *error = SAPropertyError(10001, ([NSString stringWithFormat:@"property name[%@] is not valid", self]));
+        return;
+    }
+}
+
+- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+    NSInteger maxLength = SA_PROPERTY_LENGTH_LIMITATION;
+    if (args && args[SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION]) {
+        maxLength = [args[SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION] integerValue];
+    }
+    NSUInteger length = [self lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    if (length > maxLength) {
+        //截取再拼接 $ 末尾，替换原数据
+        NSMutableString *newString = [NSMutableString stringWithString:[SACommonUtility subByteString:self byteLength:maxLength - 1]];
+        [newString appendString:@"$"];
+        return [newString copy];
+    }
+    return self;
+}
+
+@end
+
+@implementation NSNumber (SAProperty)
+
+- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+    return self;
+}
+
+@end
+
+@implementation NSDate (SAProperty)
+
+- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+    NSString *dateStr = [dateFormatter stringFromDate:self];
+    return dateStr;
+}
+
+@end
+
+@implementation NSSet (SAProperty)
+
+- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+    NSMutableSet *result = [NSMutableSet set];
+    for (id element in self) {
+        if (![element isKindOfClass:NSString.class]) {
+            NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [element class], element];
+            *error = SAPropertyError(10004, errMsg);
+            return nil;
+        }
+        id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithArgs:nil error:error];
+        [result addObject:sensorsValue];
+    }
+    return [result copy];
+}
+
+@end
+
+@implementation NSArray (SAProperty)
+
+- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+    NSMutableArray *result = [NSMutableArray array];
+    for (id element in self) {
+        if (![element isKindOfClass:NSString.class]) {
+            NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [element class], element];
+            *error = SAPropertyError(10004, errMsg);
+            return nil;
+        }
+        id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithArgs:nil error:error];
+        [result addObject:sensorsValue];
+    }
+    return [result copy];
+}
+
+@end
+
+@implementation NSNull (SAProperty)
+
+- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+    return nil;
+}
+
+@end
 
 @implementation SAPropertyValidator
 
 + (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
-    return [self validProperties:properties eachProperty:nil error:error];
-}
-
-+ (NSDictionary *)validProfileAppendProperties:(NSDictionary *)properties error:(NSError **)error {
-    NSError *innerError = nil;
-    __block NSString *innerKey;
-    __block NSString *innervalue;
-    NSDictionary *dic = [self validProperties:properties eachProperty:^BOOL(NSString *key, NSString *value) {
-        innerKey = key;
-        innervalue = value;
-        return ([value isKindOfClass:NSArray.class] || [value isKindOfClass:NSSet.class]);
-    } error:&innerError];
-    
-    if (innerError) {
-        if (innerError.code == 10009) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [innervalue  class], innervalue];
-            *error = SAPropertyError(innerError.code, errMsg);
-        }
-        *error = innerError;
+    if (![properties isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
-    return dic;
-}
-
-+ (NSDictionary *)validProfileIncrementProperties:(NSDictionary *)properties error:(NSError **)error {
-    NSError *innerError = nil;
-    __block NSString *innerKey;
-    __block NSString *innervalue;
-    NSDictionary *dic = [self validProperties:properties eachProperty:^BOOL(NSString *key, NSString *value) {
-        innerKey = key;
-        innervalue = value;
-        return [value isKindOfClass:NSNumber.class];
-    } error:&innerError];
-    
-    if (innerError) {
-        if (innerError.code == 10009) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [innervalue class], innervalue];
-            *error = SAPropertyError(innerError.code, errMsg);
-        }
-        *error = innerError;
-        return nil;
-    }
-    return dic;
-}
-
-+ (NSDictionary *)validProperties:(NSDictionary *)properties eachProperty:(BOOL(^)(NSString *key, NSString *value))eachProperty error:(NSError **)error {
-    
-    NSMutableDictionary *resultProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
-    NSMutableArray *mutKeyArrayForValueIsNSNull = [NSMutableArray array];
-    NSMutableArray *mutKeyArrayForValueIsNSString = [NSMutableArray array];
-    NSMutableArray *mutKeyArrayForValueIsNSSet = [NSMutableArray array];
-    NSMutableArray *mutKeyArrayForValueIsNSArray = [NSMutableArray array];
-    
-    for (id key in properties.allKeys) {
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    for (id key in properties) {
         // key 校验
-        if (![key isKindOfClass:NSString.class]) {
-            *error = SAPropertyError(10001, @"Property Key should by NSString");
+        if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
+            *error = SAPropertyError(10001, ([NSString stringWithFormat:@"Property Key should by %@", NSStringFromClass([key class])]));
             return nil;
         }
-        if (![SensorsAnalyticsSDK.sharedInstance isValidName: key]) {
-            *error = SAPropertyError(10002, ([NSString stringWithFormat:@"property name[%@] is not valid", key]));
+        
+        [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
+        if (*error) {
             return nil;
         }
         
         // value 校验
         id value = properties[key];
-        if (eachProperty) {
-            BOOL isValid = eachProperty(key, value);
-            if (!isValid) {
-                *error = SAPropertyError(10009, ([NSString stringWithFormat:@"property name[%@] value[%@] is not valid", key, value]));
-                return nil;
-            }
+        if (![value conformsToProtocol:@protocol(SAPropertyValueProtocol)]) {
+            NSString *errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [value class], value];
+            *error = SAPropertyError(10003, errMsg);
+            return nil;
         }
         
-        if ([value isKindOfClass:NSNull.class]) {
-            [mutKeyArrayForValueIsNSNull addObject:key];
-            continue;
+        // value 转换
+        NSMutableDictionary *args = nil;
+        if ([key isEqualToString:@"app_crashed_reason"]) {
+            args = [NSMutableDictionary dictionary];
+            args[SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION] = @(SA_PROPERTY_LENGTH_LIMITATION * 2);
         }
-        if ([value isKindOfClass:NSString.class]) {
-            [mutKeyArrayForValueIsNSString addObject:key];
-            continue;
-        }
-        if ([value isKindOfClass:NSSet.class]) {
-            [mutKeyArrayForValueIsNSSet addObject:key];
-            continue;
-        }
-        if ([value isKindOfClass:NSArray.class]) {
-            [mutKeyArrayForValueIsNSArray addObject:key];
-            continue;
-        }
-        if ([value isKindOfClass:NSNumber.class] ||
-            [value isKindOfClass:NSDate.class]) {
-            continue;
+        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithArgs:args error:error];
+        if (*error) {
+            return nil;
         }
         
-        NSString *errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [value class], value];
-        *error = SAPropertyError(10003, errMsg);
+        if (sensorsValue) {
+            result[key] = sensorsValue;
+        }
+    }
+    return [result copy];
+}
+
+- (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
+    return [[self class] validProperties:properties error:error];
+}
+
+@end
+
+@implementation SAProfileAppendValidator
+
++ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
+    if (![properties isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
-    
-    // 移除 value = NSNULL 的键值对
-    if (mutKeyArrayForValueIsNSNull.count > 0) {
-        [resultProperties removeObjectsForKeys:mutKeyArrayForValueIsNSNull];
-    }
-    
-    // 校验 NSString
-    if (mutKeyArrayForValueIsNSString.count > 0) {
-        for (NSString *key in mutKeyArrayForValueIsNSString) {
-            NSString *string = resultProperties[key];
-            NSUInteger maxLength = SA_PROPERTY_LENGTH_LIMITATION;
-            if ([key isEqualToString:@"app_crashed_reason"]) {
-                maxLength = SA_PROPERTY_LENGTH_LIMITATION * 2;
-            }
-            NSString *newString = [self validStringElement:string maxLength:maxLength error:nil];
-            resultProperties[key] = newString;
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    for (id key in properties) {
+        // key 校验
+        if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
+            *error = SAPropertyError(10001, ([NSString stringWithFormat:@"Property Key should by %@", NSStringFromClass([key class])]));
+            return nil;
         }
-    }
-    
-    // 校验 NSArray 集合元素: 必须为 String 类型
-    if (mutKeyArrayForValueIsNSArray.count > 0) {
-        for (NSString *key in mutKeyArrayForValueIsNSArray) {
-            NSArray *array = resultProperties[key];
-            NSArray *newArray = [self validArrayElement:array error:error];
-            if (*error) {
-                return nil;
-            }
-            resultProperties[key] = newArray;
-        }
-    }
-    
-    // 校验 NSSet 集合元素: 必须为 String 类型
-    if (mutKeyArrayForValueIsNSSet.count > 0) {
-        for (NSString *key in mutKeyArrayForValueIsNSSet) {
-            NSSet *set = resultProperties[key];
-            NSSet *newSet = [self validSetElement:set error:error];
-            if (*error) {
-                return nil;
-            }
-            resultProperties[key] = newSet;
-        }
-    }
-    return [resultProperties copy];
-}
-
-+ (NSArray <NSString *>*)validArrayElement:(NSArray *)array error:(NSError **)error {
-    NSMutableArray <NSString *>*newArray = [NSMutableArray array];
-    for (NSInteger index = 0; index < array.count; index++) {
-        id element = [array objectAtIndex:index];
-         NSString *newElement = [self validStringElement:element maxLength:SA_PROPERTY_LENGTH_LIMITATION error:error];
+        
+        [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
         if (*error) {
-            return @[];
+            return nil;
         }
-        [newArray addObject:newElement];
-    }
-    return [newArray copy];
-}
-
-+ (NSSet <NSString *>*)validSetElement:(NSSet *)set error:(NSError **)error {
-    NSMutableSet <NSString *>*newSet = [NSMutableSet set];
-    for (id element in set) {
-         NSString *newElement = [self validStringElement:element maxLength:SA_PROPERTY_LENGTH_LIMITATION error:error];
+        
+        // value 校验
+        id value = properties[key];
+        if (![value isKindOfClass:[NSArray class]] &&
+            ![value isKindOfClass:[NSSet class]]) {
+            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [value  class], value];
+            *error = SAPropertyError(10003, errMsg);
+            return nil;
+        }
+        
+        // value 转换
+        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithArgs:nil error:error];
         if (*error) {
-            return [NSSet set];
+            return nil;
         }
-        [newSet addObject:newElement];
+        
+        if (sensorsValue) {
+            result[key] = sensorsValue;
+        }
     }
-    return [newSet copy];
+    return [result copy];
 }
 
-+ (NSString *)validStringElement:(id)element maxLength:(NSInteger)maxLength error:(NSError **)error {
-    if (![element isKindOfClass:NSString.class]) {
-        NSString *errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [element class], element];
-        *error = SAPropertyError(10004, errMsg);
+@end
+
+@implementation SAProfileIncrementValidator
+
++ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
+    if (![properties isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
-    NSUInteger length = [element lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    if (length > maxLength) {
-        //截取再拼接 $ 末尾，替换原数据
-        NSMutableString *newString = [NSMutableString stringWithString:[SACommonUtility subByteString:element byteLength:maxLength - 1]];
-        [newString appendString:@"$"];
-        return [newString copy];
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    for (id key in properties) {
+        // key 校验
+        if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
+            *error = SAPropertyError(10001, ([NSString stringWithFormat:@"Property Key should by %@", NSStringFromClass([key class])]));
+            return nil;
+        }
+        
+        [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
+        if (*error) {
+            return nil;
+        }
+        
+        // value 校验
+        id value = properties[key];
+        if (![value isKindOfClass:[NSNumber class]]) {
+            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [value class], value];
+            *error = SAPropertyError(10003, errMsg);
+            return nil;
+        }
+        
+        // value 转换
+        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithArgs:nil error:error];
+        if (*error) {
+            return nil;
+        }
+        
+        if (sensorsValue) {
+            result[key] = sensorsValue;
+        }
     }
-    return [element copy];
+    return [result copy];
 }
 
 @end

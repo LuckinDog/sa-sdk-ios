@@ -1047,17 +1047,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!self.trackEventCallback) {
         return YES;
     }
-    NSMutableDictionary *properties = obj.properties;
-    BOOL willEnque = self.trackEventCallback(obj.event, properties);
+    BOOL willEnque = self.trackEventCallback(obj.event, obj.properties);
     if (!willEnque) {
         SALogDebug(@"\n【track event】: %@ can not enter database.", obj.event);
         return NO;
     }
     // 校验 properties
-    if (![obj isValidProperties:&properties]) {
+    NSError *error = nil;
+    NSDictionary *properties = [obj.propertiesValidator validProperties:obj.properties error:&error];
+    if (error) {
         SALogError(@"%@ failed to track event.", self);
         return NO;
     }
+    obj.properties = [properties mutableCopy];
     return YES;
 }
 
@@ -1117,11 +1119,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![object addUserProperties:properties]) {
             return;
         }
-        
-        NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
             return;
         }
+        NSDictionary *resultObj = [object generateJSONObject];
         [self willTrackEvent:resultObj isSignUp:YES];
     });
 }
@@ -1156,11 +1157,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![object addUserProperties:properties]) {
             return;
         }
-        
-        NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
             return;
         }
+        NSDictionary *resultObj = [object generateJSONObject];
         [self willTrackEvent:resultObj isSignUp:NO];
     });
 }
@@ -1188,11 +1188,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![object addUserProperties:properties]) {
             return;
         }
-        
-        NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
             return;
         }
+        NSDictionary *resultObj = [object generateJSONObject];
         [self willTrackEvent:resultObj isSignUp:NO];
     });
 }
@@ -1221,11 +1220,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![object addUserProperties:properties]) {
             return;
         }
-        
-        NSDictionary *resultObj = [object generateJSONObject];
         if (![self willEnqueueWithObject:object]) {
             return;
         }
+        NSDictionary *resultObj = [object generateJSONObject];
         [self willTrackEvent:resultObj isSignUp:NO];
     });
 }
@@ -1319,11 +1317,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (![object addUserProperties:properties]) {
                 return;
             }
-            
-            NSDictionary *resultObj = [object generateJSONObject];
             if (![self willEnqueueWithObject:object]) {
                 return;
             }
+            NSDictionary *resultObj = [object generateJSONObject];
             [self willTrackEvent:resultObj isSignUp:NO];
         });
     };
