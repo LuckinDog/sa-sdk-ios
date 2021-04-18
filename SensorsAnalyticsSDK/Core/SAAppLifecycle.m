@@ -50,20 +50,22 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 }
 
 - (void)setupLaunchedState {
+    dispatch_block_t mainThreadBlock = ^(){
+#if TARGET_OS_IPHONE
+        BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+#else
+        BOOL isAppStateBackground = NO;
+#endif
+        self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
+    };
+
     if (@available(iOS 13.0, *)) {
         // iOS 13 及以上在异步主队列的 block 修改状态的原因:
         // 1. 保证在执行启动（被动启动）事件时（动态）公共属性设置完毕（通过监听 UIApplicationDidFinishLaunchingNotification 可以实现）
         // 2. 含有 SceneDelegate 的工程中延迟获取 applicationState 才是准确的（通过监听 UIApplicationDidFinishLaunchingNotification 获取不准确）
-        dispatch_async(dispatch_get_main_queue(), ^{
-#if TARGET_OS_IPHONE
-            BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-#else
-            BOOL isAppStateBackground = NO;
-#endif
-            self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
-        });
+        dispatch_async(dispatch_get_main_queue(), mainThreadBlock);
     } else {
-        // iOS 13 以下通过监听 UIApplicationDidFinishLaunchingNotification 的通知来修改状态的原因:
+        // iOS 13 以下通过监听 UIApplicationDidFinishLaunchingNotification 的通知来处理被动启动和冷启动（非延迟初始化）的情况:
         // 1. iOS 13 以下被动启动时异步主队列的 block 不会执行
         // 2. iOS 13 以下不会含有 SceneDelegate
 #if TARGET_OS_IPHONE
@@ -72,6 +74,8 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
                                                      name:UIApplicationDidFinishLaunchingNotification
                                                    object:nil];
 #endif
+        // 处理 iOS 13 以下（冷启动）延迟初始化的情况
+        dispatch_async(dispatch_get_main_queue(), mainThreadBlock);
     }
 }
 
