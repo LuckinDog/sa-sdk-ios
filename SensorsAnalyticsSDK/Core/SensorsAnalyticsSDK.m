@@ -1176,16 +1176,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackWithEvent:event object:object properties:properties];
 }
 
-- (void)profileAppendWithProperties:(NSDictionary *)properties {
-    SAProfileEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
-    [self trackWithEvent:nil object:object properties:properties];
-}
-
-- (void)profileIncrementWithProperties:(NSDictionary *)properties {
-    SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-    [self trackWithEvent:nil object:object properties:properties];
-}
-
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
     [self trackWithEvent:nil object:object properties:properties];
@@ -2392,20 +2382,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
-        [[SensorsAnalyticsSDK sharedInstance] profileIncrementWithProperties:@{profile: amount}];
+        SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
+        [SensorsAnalyticsSDK.sharedInstance trackWithEvent:nil object:object properties:@{profile: amount}];
     }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
-        [[SensorsAnalyticsSDK sharedInstance] profileIncrementWithProperties:profileDict];
+        SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
+        [SensorsAnalyticsSDK.sharedInstance trackWithEvent:nil object:object properties:profileDict];
     }
 }
 
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-            [[SensorsAnalyticsSDK sharedInstance] profileAppendWithProperties:@{profile: content}];
+            SAProfileEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
+            [SensorsAnalyticsSDK.sharedInstance trackWithEvent:nil object:object properties:@{profile: content}];
         }
     }
 }
