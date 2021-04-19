@@ -1507,7 +1507,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    [self.superProperty registerDynamicSuperProperties:dynamicSuperProperties];
+    dispatch_async(self.serialQueue, ^{
+        [self.superProperty registerDynamicSuperProperties:dynamicSuperProperties];
+    });
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
@@ -2183,8 +2185,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
     __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
-    __block NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-
+    
     dispatch_async(self.serialQueue, ^{
         @try {
             if (!eventInfo) {
@@ -2235,19 +2236,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-                
-                //获取用户自定义的动态公共属性
-                if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
-                    SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
-                    dynamicSuperPropertiesDict = nil;
-                } else if (![self assertPropertyTypes:&dynamicSuperPropertiesDict withEventType:@"register_super_properties"]) {
-                    dynamicSuperPropertiesDict = nil;
-                }
-                // 去重
-                [self.superProperty unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-
-                [propertiesDict addEntriesFromDictionary:superProperties];
-                [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
+                [propertiesDict addEntriesFromDictionary:[self.superProperty allProperties]];
 
                 // 每次 track 时手机网络状态
                 [propertiesDict addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
