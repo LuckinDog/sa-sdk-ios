@@ -65,19 +65,24 @@
 }
 
 #pragma makr - SAEventBuildStrategy
-- (void)addChannelProperties:(NSDictionary *)properties {
+- (BOOL)addChannelProperties:(NSDictionary *)properties {
+    return YES;
 }
 
-- (void)addAutomaticProperties:(NSDictionary *)properties {
+- (BOOL)addAutomaticProperties:(NSDictionary *)properties {
+    return YES;
 }
 
-- (void)addPresetProperties:(NSDictionary *)properties {
+- (BOOL)addPresetProperties:(NSDictionary *)properties {
+    return YES;
 }
 
-- (void)addSuperProperties:(NSDictionary *)properties {
+- (BOOL)addSuperProperties:(NSDictionary *)properties {
+    return YES;
 }
 
-- (void)addDeepLinkProperties:(NSDictionary *)properties {
+- (BOOL)addDeepLinkProperties:(NSDictionary *)properties {
+    return YES;
 }
 
 - (BOOL)addCustomProperties:(NSDictionary *)properties {
@@ -116,10 +121,12 @@
     return YES;
 }
 
-- (void)addNetworkProperties:(NSDictionary *)properties {
+- (BOOL)addNetworkProperties:(NSDictionary *)properties {
+    return YES;
 }
 
-- (void)addDurationProperty:(NSNumber *)duration {
+- (BOOL)addDurationProperty:(NSNumber *)duration {
+    return YES;
 }
 
 @end

@@ -26,23 +26,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 添加渠道信息
 /// @param properties 渠道信息
-- (void)addChannelProperties:(NSDictionary *)properties;
+- (BOOL)addChannelProperties:(NSDictionary *)properties;
 
 /// 添加 SDK 默认属性
 /// @param properties SDK 默认属性
-- (void)addAutomaticProperties:(NSDictionary *)properties;
+- (BOOL)addAutomaticProperties:(NSDictionary *)properties;
 
 /// 添加 SDK 模块中的默认属性
 /// @param properties SDK 模块中的默认属性
-- (void)addPresetProperties:(NSDictionary *)properties;
+- (BOOL)addPresetProperties:(NSDictionary *)properties;
 
 /// 添加公共属性
 /// @param properties 公共属性
-- (void)addSuperProperties:(NSDictionary *)properties;
+- (BOOL)addSuperProperties:(NSDictionary *)properties;
 
 /// 添加 DeepLink 属性信息
 /// @param properties DeepLink 属性信息
-- (void)addDeepLinkProperties:(NSDictionary *)properties;
+- (BOOL)addDeepLinkProperties:(NSDictionary *)properties;
 
 /// 添加自定义属性(属性校验不通过时, 返回值为 NO)
 /// @param properties 自定义属性
@@ -50,11 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 添加网络信息
 /// @param properties 网络信息
-- (void)addNetworkProperties:(NSDictionary *)properties;
+- (BOOL)addNetworkProperties:(NSDictionary *)properties;
 
 /// 添加事件时长
 /// @param duration 事件时长
-- (void)addDurationProperty:(NSNumber *)duration;
+- (BOOL)addDurationProperty:(NSNumber *)duration;
 
 @end
 
