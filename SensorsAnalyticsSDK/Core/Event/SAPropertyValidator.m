@@ -24,6 +24,7 @@
 
 #import "SAPropertyValidator.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SADateFormatter.h"
 
@@ -148,6 +149,10 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
         }
         
         // value 转换
+        if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
+            result[key] = value;
+            continue;
+        }
         NSMutableDictionary *args = nil;
         if ([key isEqualToString:@"app_crashed_reason"]) {
             args = [NSMutableDictionary dictionary];
