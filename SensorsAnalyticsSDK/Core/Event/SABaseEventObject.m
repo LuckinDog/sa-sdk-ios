@@ -38,6 +38,7 @@
         _track_id = @(arc4random());
         _properties = [NSMutableDictionary dictionary];
         _propertiesValidator = [[SAPropertyValidator alloc] init];
+        _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
     }
     return self;
 }
@@ -118,7 +119,7 @@
 - (void)addNetworkProperties:(NSDictionary *)properties {
 }
 
-- (void)addDurationProperty {
+- (void)addDurationProperty:(NSNumber *)duration {
 }
 
 @end

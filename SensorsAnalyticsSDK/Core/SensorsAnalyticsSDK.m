@@ -1058,7 +1058,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addSuperProperties:self.superProperty.allProperties];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
         [object addPresetProperties:[self modulePresetProperties]];
-        [object addDurationProperty];
+        NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
+        [object addDurationProperty:eventDuration];
         if (![object addCustomProperties:properties]) {
             return;
         }
@@ -1223,7 +1224,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [object addSuperProperties:self.superProperty.allProperties];
             [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
             [object addPresetProperties:[self modulePresetProperties]];
-            [object addDurationProperty];
+            NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
+            [object addDurationProperty:eventDuration];
             if (![object addCustomProperties:properties]) {
                 return;
             }

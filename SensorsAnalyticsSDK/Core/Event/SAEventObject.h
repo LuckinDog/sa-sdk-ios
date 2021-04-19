@@ -24,9 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventObject : SABaseEventObject
 
-/// 用于统计事件时长
-@property (nonatomic, assign) UInt64 currentSystemUpTime;
-
 - (instancetype)initWithEvent:(NSString *)event;
 
 @end

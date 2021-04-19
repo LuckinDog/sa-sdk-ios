@@ -34,7 +34,6 @@
 - (instancetype)initWithEvent:(NSString *)event {
     self = [super init];
     if (self) {
-        _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
         self.event = event;
     }
     return self;
@@ -104,13 +103,10 @@
     [self.properties addEntriesFromDictionary:properties];
 }
 
-- (void)addDurationProperty {
-    // 根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
-    // 为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
-//    NSNumber *eventDuration = [SAModuleManager.sharedInstance eventDurationFromEventId:self.event currentSysUpTime:self.currentSystemUpTime];
-//    if (eventDuration) {
-//        self.properties[@"event_duration"] = eventDuration;
-//    }
+- (void)addDurationProperty:(NSNumber *)duration {
+    if (duration) {
+        self.properties[@"event_duration"] = duration;
+    }
 }
 
 @end

@@ -53,7 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addNetworkProperties:(NSDictionary *)properties;
 
 /// 添加事件时长
-- (void)addDurationProperty;
+/// @param duration 事件时长
+- (void)addDurationProperty:(NSNumber *)duration;
 
 @end
 

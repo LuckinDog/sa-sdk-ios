@@ -51,6 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 事件属性
 @property (nonatomic, strong) NSMutableDictionary *properties;
 
+/// 用于统计事件时长
+@property (nonatomic, assign) UInt64 currentSystemUpTime;
+
 /// 属性校验器
 @property (nonatomic, strong) SAPropertyValidator *propertiesValidator;
 
