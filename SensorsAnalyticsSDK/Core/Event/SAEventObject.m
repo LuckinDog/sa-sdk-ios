@@ -40,13 +40,6 @@
     return self;
 }
 
-- (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
-//    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
-//    jsonObject[SA_EVENT_NAME] = eventName;
-    return [jsonObject copy];
-}
-
 #pragma makr - SAEventBuildStrategy
 - (void)addAutomaticProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
