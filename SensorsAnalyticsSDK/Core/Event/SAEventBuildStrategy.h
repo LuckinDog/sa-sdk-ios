@@ -44,9 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties DeepLink 属性信息
 - (void)addDeepLinkProperties:(NSDictionary *)properties;
 
-/// 添加用户的属性信息(属性校验不通过时, 返回值为 NO)
-/// @param properties 用户的属性信息
-- (BOOL)addUserProperties:(NSDictionary *)properties;
+/// 添加自定义属性(属性校验不通过时, 返回值为 NO)
+/// @param properties 自定义属性
+- (BOOL)addCustomProperties:(NSDictionary *)properties;
 
 /// 添加网络信息
 /// @param properties 网络信息

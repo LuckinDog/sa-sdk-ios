@@ -1059,7 +1059,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
         [object addPresetProperties:[self modulePresetProperties]];
         [object addDurationProperty];
-        if (![object addUserProperties:properties]) {
+        if (![object addCustomProperties:properties]) {
             return;
         }
         if (![self willEnqueueWithObject:object]) {
@@ -1224,7 +1224,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
             [object addPresetProperties:[self modulePresetProperties]];
             [object addDurationProperty];
-            if (![object addUserProperties:properties]) {
+            if (![object addCustomProperties:properties]) {
                 return;
             }
             if (![self willEnqueueWithObject:object]) {

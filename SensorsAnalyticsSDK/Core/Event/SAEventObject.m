@@ -62,8 +62,8 @@
     [self.properties addEntriesFromDictionary:properties];
 }
 
-- (BOOL)addUserProperties:(NSDictionary *)properties {
-    if (![super addUserProperties:properties]) {
+- (BOOL)addCustomProperties:(NSDictionary *)properties {
+    if (![super addCustomProperties:properties]) {
         return NO;
     }
     
@@ -162,8 +162,8 @@
     return self;
 }
 
-- (BOOL)addUserProperties:(NSDictionary *)properties {
-    if (![super addUserProperties:properties]) {
+- (BOOL)addCustomProperties:(NSDictionary *)properties {
+    if (![super addCustomProperties:properties]) {
         return NO;
     }
     self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;

@@ -79,7 +79,7 @@
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
 }
 
-- (BOOL)addUserProperties:(NSDictionary *)properties {
+- (BOOL)addCustomProperties:(NSDictionary *)properties {
     NSError *error = nil;
     NSMutableDictionary *props = [[self.propertiesValidator validProperties:properties error:&error] mutableCopy];
     if (error) {
