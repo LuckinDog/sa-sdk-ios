@@ -145,14 +145,6 @@
     }
 }
 
-- (BOOL)isIgnoreAppStart {
-    return ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
-}
-
-- (BOOL)isIgnoreAppEnd {
-    return ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
-}
-
 - (void)remoteConfigModelChanged:(NSNotification *)sender {
     @try {
         self.disableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
@@ -228,8 +220,8 @@
 }
 
 - (void)updateAutoTrackEventType {
-    self.appStartTracker.ignore = [self isIgnoreAppStart];
-    self.appEndTracker.ignore = [self isIgnoreAppEnd];
+    self.appStartTracker.ignore = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
+    self.appEndTracker.ignore = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
 }
 
 @end

@@ -87,9 +87,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity:2];
     userInfo[kSAAppLifecycleNewStateKey] = @(state);
-    if (_state >= SAAppLifecycleStateInit) {
-        userInfo[kSAAppLifecycleOldStateKey] = @(_state);
-    }
+    userInfo[kSAAppLifecycleOldStateKey] = @(_state);
 
     _state = state;
 
