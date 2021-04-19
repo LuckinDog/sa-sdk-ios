@@ -228,8 +228,8 @@
 }
 
 - (void)updateAutoTrackEventType {
-    self.appStartTracker.ignore = ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
-    self.appEndTracker.ignore = ![self isAutoTrackEnabled] || [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
+    self.appStartTracker.ignore = [self isIgnoreAppStart];
+    self.appEndTracker.ignore = [self isIgnoreAppEnd];
 }
 
 @end

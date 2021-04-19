@@ -612,15 +612,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
-    // 被动启动
-    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
-        [self stopFlushTimer];
-        return;
-    }
-
     // 冷启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        [self startFlushTimer];
         [self tryToRequestRemoteConfigWhenInitialized];
         return;
     }
@@ -666,9 +659,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             backgroundTaskIdentifier = UIBackgroundTaskInvalid;
         };
 
-        backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
-            endBackgroundTask();
-        }];
+        backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:endBackgroundTask];
 
         // 遍历 trackTimer
         UInt64 currentSysUpTime = [self.class getSystemUpTime];
