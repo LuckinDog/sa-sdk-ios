@@ -1057,6 +1057,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.allProperties];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
         [object addPresetProperties:[self modulePresetProperties]];
         NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
         [object addDurationProperty:eventDuration];

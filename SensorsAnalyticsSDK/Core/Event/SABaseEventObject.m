@@ -125,6 +125,10 @@
     return YES;
 }
 
+- (BOOL)addReferrerTitleProperty:(NSString *)referrerTitle {
+    return YES;
+}
+
 - (BOOL)addDurationProperty:(NSNumber *)duration {
     return YES;
 }

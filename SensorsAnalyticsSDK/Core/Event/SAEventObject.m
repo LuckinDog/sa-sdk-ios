@@ -108,6 +108,11 @@
     return YES;
 }
 
+- (BOOL)addReferrerTitleProperty:(NSString *)referrerTitle {
+    self.properties[kSAEeventPropertyReferrerTitle] = referrerTitle;
+    return YES;
+}
+
 - (BOOL)addDurationProperty:(NSNumber *)duration {
     if (duration) {
         self.properties[@"event_duration"] = duration;

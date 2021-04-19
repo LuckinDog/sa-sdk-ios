@@ -52,6 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties 网络信息
 - (BOOL)addNetworkProperties:(NSDictionary *)properties;
 
+/// 添加前向页面标题
+/// @param referrerTitle 前向页面标题
+- (BOOL)addReferrerTitleProperty:(NSString *)referrerTitle;
+
 /// 添加事件时长
 /// @param duration 事件时长
 - (BOOL)addDurationProperty:(NSNumber *)duration;
