@@ -82,8 +82,6 @@
 
 #define VERSION @"2.5.4"
 
-static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
-
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 static dispatch_once_t sdkInitializeOnceToken;
