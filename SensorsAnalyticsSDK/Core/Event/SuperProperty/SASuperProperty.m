@@ -53,8 +53,6 @@
     return self;
 }
 
-#pragma mark - SASuperPropertyModuleProtocol
-
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
     [self unregisterSameLetterSuperProperties:propertyDict];
     // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
@@ -110,27 +108,27 @@
 
 - (NSDictionary *)acquireDynamicSuperProperties {
     // 获取动态公共属性不能放到 self.serialQueue 中，如果 dispatch_async(self.serialQueue, ^{}) 后面有 dispatch_sync(self.serialQueue, ^{}) 可能会出现死锁
-    __weak typeof(self) weakSelf = self;
     return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
         if (self.dynamicSuperProperties) {
-            NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties();
-            //获取用户自定义的动态公共属性
-            if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
-                SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
-                return nil;
-            }
-            NSError *error;
-            NSDictionary *dic = [SAPropertyValidator validProperties:dynamicSuperPropertiesDict error:&error];
-            if (error) {
-                SALogError(@"%@", error.localizedDescription);
-                [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-                return nil;
-            }
-            [weakSelf unregisterSameLetterSuperProperties:dic];
-            return dic;
+            return self.dynamicSuperProperties();
         }
         return nil;
     }];
+}
+
+- (NSDictionary *)allProperties {
+    NSDictionary *dynamicProperties = [self acquireDynamicSuperProperties];
+    NSError *error;
+    NSDictionary *validProperties = [SAPropertyValidator validProperties:dynamicProperties error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+        validProperties = nil;
+    }
+    [self unregisterSameLetterSuperProperties:validProperties];
+    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:self.currentSuperProperties];
+    [result addEntriesFromDictionary:validProperties];
+    return [result copy];
 }
 
 #pragma mark - private

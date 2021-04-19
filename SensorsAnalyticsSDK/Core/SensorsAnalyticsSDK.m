@@ -1053,11 +1053,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [object addChannelProperties:[self channelPropertiesWithEvent:object.event]];
         }
         
-        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-        [object addSuperProperties:self.superProperty.currentSuperProperties];
-        [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
+        [object addSuperProperties:self.superProperty.allProperties];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
         [object addPresetProperties:[self modulePresetProperties]];
         [object addDurationProperty];
@@ -1220,11 +1218,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             [object addChannelProperties:[self channelPropertiesWithEvent:event]];
-            NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
             [object addAutomaticProperties:self.presetProperty.automaticProperties];
             [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-            [object addSuperProperties:self.superProperty.currentSuperProperties];
-            [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
+            [object addSuperProperties:self.superProperty.allProperties];
             [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
             [object addPresetProperties:[self modulePresetProperties]];
             [object addDurationProperty];

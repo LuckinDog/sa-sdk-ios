@@ -65,10 +65,6 @@
     }
 }
 
-- (void)addDynamicSuperProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
-}
-
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
 }

@@ -49,6 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 获取动态公共属性
 - (NSDictionary *)acquireDynamicSuperProperties;
 
+/// 获取公共属性 + 动态公共属性
+- (NSDictionary *)allProperties;
+
 @end
 
 NS_ASSUME_NONNULL_END

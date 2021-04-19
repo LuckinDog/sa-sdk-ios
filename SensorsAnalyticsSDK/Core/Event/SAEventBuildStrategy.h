@@ -40,10 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties 公共属性
 - (void)addSuperProperties:(NSDictionary *)properties;
 
-/// 添加动态公共属性
-/// @param properties 动态公共属性
-- (void)addDynamicSuperProperties:(NSDictionary *)properties;
-
 /// 添加 DeepLink 属性信息
 /// @param properties DeepLink 属性信息
 - (void)addDeepLinkProperties:(NSDictionary *)properties;

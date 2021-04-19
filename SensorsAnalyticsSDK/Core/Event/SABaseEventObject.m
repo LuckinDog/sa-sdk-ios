@@ -76,9 +76,6 @@
 - (void)addSuperProperties:(NSDictionary *)properties {
 }
 
-- (void)addDynamicSuperProperties:(NSDictionary *)properties {
-}
-
 - (void)addDeepLinkProperties:(NSDictionary *)properties {
 }
 
