@@ -1055,11 +1055,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [object addChannelProperties:[self channelPropertiesWithEvent:eventId]];
         }
         
+        if (self.configOptions.enableReferrerTitle) {
+            [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
+        }
+        
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.allProperties];
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
         [object addPresetProperties:[self modulePresetProperties]];
         NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:eventId currentSysUpTime:object.currentSystemUpTime];
         [object addDurationProperty:eventDuration];
