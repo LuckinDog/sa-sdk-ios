@@ -40,7 +40,7 @@
 @implementation SAProfileIncrementEventObject
 
 - (instancetype)initWithType:(NSString *)type {
-    self = [super init];
+    self = [super initWithType:type];
     if (self) {
         self.propertiesValidator = [[SAProfileIncrementValidator alloc] init];
     }
@@ -52,7 +52,7 @@
 @implementation SAProfileAppendEventObject
 
 - (instancetype)initWithType:(NSString *)type {
-    self = [super init];
+    self = [super initWithType:type];
     if (self) {
         self.propertiesValidator = [[SAProfileAppendValidator alloc] init];
     }
