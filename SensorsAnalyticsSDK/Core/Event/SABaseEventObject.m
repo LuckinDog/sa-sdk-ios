@@ -34,9 +34,12 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _libObject = [[SAEventLibObject alloc] init];
+        _distinctId = SensorsAnalyticsSDK.sharedInstance.distinctId;
+        _loginId = SensorsAnalyticsSDK.sharedInstance.distinctId;
+        _anonymousId = SensorsAnalyticsSDK.sharedInstance.distinctId;
+        _lib = [[SAEventLibObject alloc] init];
         _timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
-        _track_id = @(arc4random());
+        _trackId = @(arc4random());
         _properties = [NSMutableDictionary dictionary];
         _propertiesValidator = [[SAPropertyValidator alloc] init];
         _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
@@ -47,21 +50,16 @@
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *eventInfo = [NSMutableDictionary dictionary];
     eventInfo[SA_EVENT_PROPERTIES] = self.properties;
-    eventInfo[SA_EVENT_DISTINCT_ID] = SensorsAnalyticsSDK.sharedInstance.distinctId;
-    eventInfo[SA_EVENT_LOGIN_ID] = SensorsAnalyticsSDK.sharedInstance.loginId;
-    eventInfo[SA_EVENT_ANONYMOUS_ID] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
+    eventInfo[SA_EVENT_DISTINCT_ID] = self.distinctId;
+    eventInfo[SA_EVENT_LOGIN_ID] = self.loginId;
+    eventInfo[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
     eventInfo[SA_EVENT_TYPE] = self.type;
     eventInfo[SA_EVENT_TIME] = @(self.timeStamp);
-    eventInfo[SA_EVENT_LIB] = [self.libObject generateJSONObject];
-    eventInfo[SA_EVENT_TRACK_ID] = self.track_id;
+    eventInfo[SA_EVENT_LIB] = [self.lib generateJSONObject];
+    eventInfo[SA_EVENT_TRACK_ID] = self.trackId;
     eventInfo[SA_EVENT_NAME] = self.event;
-    
-    if (self.project) {
-        eventInfo[SA_EVENT_PROJECT] = self.project;
-    }
-    if (self.token) {
-        eventInfo[SA_EVENT_TOKEN] = self.token;
-    }
+    eventInfo[SA_EVENT_PROJECT] = self.project;
+    eventInfo[SA_EVENT_TOKEN] = self.token;
     return [eventInfo copy];
 }
 

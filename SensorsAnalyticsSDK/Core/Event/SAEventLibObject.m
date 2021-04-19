@@ -59,6 +59,7 @@
     properties[SAEventPresetPropertyAppVersion] = self.appVersion;
     properties[SAEventPresetPropertyLibMethod] = self.method;
     properties[SAEventPresetPropertyLibDetail] = self.detail;
+    // TODO: 不 copy
     return [properties copy];
 }
 

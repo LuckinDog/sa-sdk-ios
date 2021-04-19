@@ -27,7 +27,6 @@
 #import "SAConstants+Private.h"
 #import "SAPresetProperty.h"
 #import "SAModuleManager.h"
-#import "SAIdentifier.h"
 
 @implementation SAEventObject
 
@@ -47,7 +46,7 @@
     // 从公共属性中更新 lib 节点中的 $app_version 值
     id appVersion = properties[SAEventPresetPropertyAppVersion];
     if (appVersion) {
-        self.libObject.appVersion = appVersion;
+        self.lib.appVersion = appVersion;
     }
     return YES;
 }
@@ -63,12 +62,13 @@
     }
     
     // 如果传入自定义属性中的 $lib_method 为 String 类型，需要进行修正处理
+    // TODO: 逻辑调整
     id libMethod = self.properties[SAEventPresetPropertyLibMethod];
     if (libMethod) {
         if ([libMethod isKindOfClass:NSString.class]) {
             if ([libMethod isEqualToString:kSALibMethodCode] ||
                 [libMethod isEqualToString:kSALibMethodAuto]) {
-                self.libObject.method = libMethod;
+                self.lib.method = libMethod;
             } else {
                 // 自定义属性中的 $lib_method 不为有效值（code 或者 autoTrack），此时使用默认值 code
                 self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
@@ -77,7 +77,7 @@
     } else {
         self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
     }
-    
+    // TODO: 逻辑- 去除 if
     NSString *libDetail = nil;
     if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEnabled] && properties.count > 0) {
         //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
@@ -91,7 +91,7 @@
             }
         }
     }
-    self.libObject.detail = libDetail;
+    self.lib.detail = libDetail;
     return YES;
 }
 
@@ -124,9 +124,10 @@
     return self;
 }
 
+// 去除 copy
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
-    jsonObject[@"original_id"] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
+    jsonObject[@"original_id"] = self.anonymousId;
     return [jsonObject copy];
 }
 
@@ -167,7 +168,7 @@
         return NO;
     }
     self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
-    self.libObject.method = kSALibMethodAuto;
+    self.lib.method = kSALibMethodAuto;
     return YES;
 }
 

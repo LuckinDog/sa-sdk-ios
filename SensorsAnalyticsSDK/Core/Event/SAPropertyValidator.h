@@ -24,15 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAPropertyKeyProtocol <NSObject>
 
-@required
 - (void)sensorsdata_isValidPropertyKeyWithError:(NSError **)error;
 
 @end
 
 @protocol SAPropertyValueProtocol <NSObject>
 
-@required
-- (id __nullable)sensorsdata_propertyValueWithArgs:(NSDictionary * __nullable)args error:(NSError **)error;
+- (id _Nullable)sensorsdata_propertyValueWithArgs:(NSDictionary * _Nullable)args error:(NSError **)error;
 
 @end
 

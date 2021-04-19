@@ -566,13 +566,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self.identifier isValidLoginId:loginId]) {
         return;
     }
-
+    // TODO:
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
+        [self trackSignupEvent:properties];
     });
-
-    [self trackSignupEvent:properties];
-    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
 }
 
 - (void)logout {
@@ -1076,8 +1075,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![self willEnqueueWithObject:object]) {
             return;
         }
-        NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:[object.type isEqualToString:kSAEventTypeSignup]];
+        NSDictionary *result = [object generateJSONObject];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:result];
+        SALogDebug(@"\n【track event】:\n%@", result);
+        [self.eventTracker trackEvent:result isSignUp:[object.type isEqualToString:kSAEventTypeSignup]];
     });
 }
 
@@ -1149,18 +1150,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return YES;
 }
 
-- (void)willTrackEvent:(NSDictionary *)eventInfo isSignUp:(BOOL)isSignUp {
-    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:eventInfo];
-    SALogDebug(@"\n【track event】:\n%@", eventInfo);
-    [self.eventTracker trackEvent:eventInfo isSignUp:isSignUp];
-}
-
 - (void)trackSignupEvent:(NSDictionary *)properties {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] init];
     [self trackWithEvent:SA_EVENT_NAME_APP_SIGN_UP object:object properties:properties];
 }
 
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
+    // TODO:
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
@@ -1186,6 +1182,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
 ///  AppCrashed、$AppRemoteConfigChanged 等预置事件
 - (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties {
+    // TODO:
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
@@ -2372,6 +2369,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+// TODO:
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
     [self trackSignupEvent:propertieDict];

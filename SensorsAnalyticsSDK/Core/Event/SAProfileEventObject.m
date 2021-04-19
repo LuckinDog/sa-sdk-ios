@@ -30,7 +30,7 @@
     self = [super init];
     if (self) {
         self.type = type;
-        self.libObject.method = kSALibMethodCode;
+        self.lib.method = kSALibMethodCode;
     }
     return self;
 }

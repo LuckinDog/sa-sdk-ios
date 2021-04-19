@@ -38,7 +38,6 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
 - (void)sensorsdata_isValidPropertyKeyWithError:(NSError *__autoreleasing  _Nullable *)error {
     if (![SensorsAnalyticsSDK.sharedInstance isValidName: self]) {
         *error = SAPropertyError(10001, ([NSString stringWithFormat:@"property name[%@] is not valid", self]));
-        return;
     }
 }
 
@@ -69,10 +68,8 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
 
 @implementation NSDate (SAProperty)
 
-- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
-    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
-    NSString *dateStr = [dateFormatter stringFromDate:self];
-    return dateStr;
+- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError **)error {
+    return self;
 }
 
 @end

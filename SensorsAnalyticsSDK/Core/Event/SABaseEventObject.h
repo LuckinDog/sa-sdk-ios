@@ -27,20 +27,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SABaseEventObject : NSObject <SAEventBuildStrategy>
 
+/// 未登录时: 匿名 ID; 登录后: 登录 ID
+@property (nonatomic, copy) NSString *distinctId;
+
+/// 登录 ID
+@property (nonatomic, copy) NSString *loginId;
+
+/// 匿名 ID
+@property (nonatomic, copy) NSString *anonymousId;
+
 /// 事件名称
 @property (nonatomic, copy) NSString *event;
 
 /// 事件类型
 @property (nonatomic, copy) NSString *type;
 
-/// lib 信息
-@property (nonatomic, strong) SAEventLibObject *libObject;
+/// TODO: rename lib 信息
+@property (nonatomic, strong) SAEventLibObject *lib;
 
 /// 时间戳
 @property (nonatomic, assign) UInt64 timeStamp;
 
 /// 事件 id
-@property (nonatomic, strong) NSNumber *track_id;
+@property (nonatomic, strong) NSNumber *trackId;
 
 /// 项目
 @property (nonatomic, copy) NSString *project;
