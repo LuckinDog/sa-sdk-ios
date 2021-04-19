@@ -26,6 +26,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAModuleManager.h"
+#import "SAPresetProperty.h"
 #import "SALog.h"
 
 @implementation SABaseEventObject

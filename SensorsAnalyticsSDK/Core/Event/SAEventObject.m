@@ -25,7 +25,7 @@
 #import "SAEventObject.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import "SAPropertyValidator.h"
+#import "SAPresetProperty.h"
 #import "SAModuleManager.h"
 #import "SAIdentifier.h"
 
