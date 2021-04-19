@@ -69,6 +69,10 @@
     return YES;
 }
 
+- (BOOL)addOldChannelProperties:(NSDictionary *)properties {
+    return YES;
+}
+
 - (BOOL)addAutomaticProperties:(NSDictionary *)properties {
     return YES;
 }

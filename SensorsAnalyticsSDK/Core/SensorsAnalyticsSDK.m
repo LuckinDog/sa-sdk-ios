@@ -1059,6 +1059,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
         }
         
+        [object addOldChannelProperties:[self channelPropertiesWithEvent:eventId]];
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
         [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
         [object addSuperProperties:self.superProperty.allProperties];
@@ -1199,35 +1200,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self trackCustomEvent:event properties:propertyDict];
         return;
     }
+    if (![self isValidNameForTrackEvent:event]) {
+        return;
+    }
+    //事件校验，预置事件提醒
+    if ([_presetEventNames containsObject:event]) {
+        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
+    }
 
     NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // ua
     NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
 
     dispatch_block_t trackChannelEventBlock = ^{
+        // idfa
+        NSString *idfa = [SAIdentifier idfa];
+        if (idfa) {
+            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
+        } else {
+            [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
+        }
         SAChannelEventObject *object = [[SAChannelEventObject alloc] init];
-        dispatch_async(self.serialQueue, ^{
-            if (![self remoteConfigIsEnableWithEvent:event]) {
-                return;
-            }
-            
-            [object addChannelProperties:[self channelPropertiesWithEvent:event]];
-            [object addAutomaticProperties:self.presetProperty.automaticProperties];
-            [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-            [object addSuperProperties:self.superProperty.allProperties];
-            [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-            [object addPresetProperties:[self modulePresetProperties]];
-            NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
-            [object addDurationProperty:eventDuration];
-            if (![object addCustomProperties:properties]) {
-                return;
-            }
-            if (![self willEnqueueWithObject:object]) {
-                return;
-            }
-            NSDictionary *resultObj = [object generateJSONObject];
-            [self willTrackEvent:resultObj isSignUp:NO];
-        });
+        [self trackWithEvent:event object:object properties:properties];
     };
 
     if (userAgent.length == 0) {

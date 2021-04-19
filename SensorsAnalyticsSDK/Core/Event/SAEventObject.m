@@ -188,14 +188,11 @@
 @implementation SAChannelEventObject
 
 - (BOOL)addChannelProperties:(NSDictionary *)properties {
+    return YES;
+}
+
+- (BOOL)addOldChannelProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-    // idfa
-    NSString *idfa = [SAIdentifier idfa];
-    if (idfa) {
-        self.properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = [NSString stringWithFormat:@"idfa=%@", idfa];
-    } else {
-        self.properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"";
-    }
     return YES;
 }
 
