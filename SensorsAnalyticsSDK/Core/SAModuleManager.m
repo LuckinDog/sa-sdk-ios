@@ -324,25 +324,4 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @implementation SAModuleManager (AutoTrack)
 
-- (id<SAAutoTrackModuleProtocol>)autoTrackManager {
-    id<SAAutoTrackModuleProtocol, SAModuleProtocol> manager = (id<SAAutoTrackModuleProtocol, SAModuleProtocol>)self.modules[kSAAutoTrackModuleName];
-    return manager.isEnable ? manager : nil;
-}
-
-- (NSDictionary *)referrerProperties {
-    return self.autoTrackManager.referrerProperties;
-}
-
-- (NSDictionary *)referrerPropertiesWithURL:(NSString *)currentURL
-                            eventProperties:(NSDictionary *)eventProperties
-                                serialQueue:(dispatch_queue_t)serialQueue {
-    return [self.autoTrackManager referrerPropertiesWithURL:currentURL
-                                            eventProperties:eventProperties
-                                                serialQueue:serialQueue];
-}
-
-- (void)clearReferrer {
-    [self.autoTrackManager clearReferrer];
-}
-
 @end

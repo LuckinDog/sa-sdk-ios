@@ -23,7 +23,6 @@
 #endif
 
 #import "SAAppLifecycle.h"
-#import "SACommonUtility.h"
 #import "SALog.h"
 
 NSNotificationName const kSAAppLifecycleStateDidChangeNotification = @"com.sensorsdata.SAAppLifecycleStateDidChange";

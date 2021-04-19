@@ -1,9 +1,9 @@
 //
-// SAReferrer.m
+// SAReferrerManager.m
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/4/10.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Created by 彭远洋 on 2020/12/9.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,24 +22,24 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAReferrer.h"
+#import "SAReferrerManager.h"
 #import "SAConstants+Private.h"
 
-@interface SAReferrer ()
+@interface SAReferrerManager ()
 
-@property (nonatomic, copy, nullable) NSString *currentTitle;
+@property (atomic, copy, readwrite) NSDictionary *referrerProperties;
+@property (atomic, copy, readwrite) NSString *referrerURL;
+@property (nonatomic, copy, readwrite) NSString *referrerTitle;
+@property (nonatomic, copy) NSString *currentTitle;
 
 @end
 
-@implementation SAReferrer
+@implementation SAReferrerManager
 
-- (NSDictionary *)propertiesWithURL:(NSString *)currentURL
-                    eventProperties:(NSDictionary *)eventProperties
-                        serialQueue:(dispatch_queue_t)serialQueue
-                        enableTitle:(BOOL)isEnableTitle {
-    NSString *referrerURL = self.url;
+- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties serialQueue:(dispatch_queue_t)serialQueue {
+    NSString *referrerURL = self.referrerURL;
     NSMutableDictionary *newProperties = [NSMutableDictionary dictionaryWithDictionary:eventProperties];
-    
+
     // 客户自定义属性中包含 $url 时，以客户自定义内容为准
     if (!newProperties[kSAEventPropertyScreenURL]) {
         newProperties[kSAEventPropertyScreenURL] = currentURL;
@@ -49,27 +49,27 @@
         newProperties[kSAEventPropertyScreenReferrerURL] = referrerURL;
     }
     // $referrer 内容以最终页面浏览事件中的 $url 为准
-    self.url = newProperties[kSAEventPropertyScreenURL];
-    self.properties = newProperties;
+    self.referrerURL = newProperties[kSAEventPropertyScreenURL];
+    self.referrerProperties = newProperties;
 
-    if (isEnableTitle) {
-        dispatch_async(serialQueue, ^{
-            [self cacheTitle:newProperties];
-        });
-    }
-
+    dispatch_async(serialQueue, ^{
+        [self cacheReferrerTitle:newProperties];
+    });
     return newProperties;
 }
 
-- (void)cacheTitle:(NSDictionary *)properties {
-    self.title = self.currentTitle;
+- (void)cacheReferrerTitle:(NSDictionary *)properties {
+    if (!self.enableReferrerTitle) {
+        return;
+    }
+    self.referrerTitle = self.currentTitle;
     self.currentTitle = properties[kSAEventPropertyTitle];
 }
 
-- (void)clear {
-    if (self.isClearWhenAppEnd) {
+- (void)clearReferrer {
+    if (self.isClearReferrer) {
         // 需求层面只需要清除 $referrer，不需要清除 $referrer_title
-        self.url = nil;
+        self.referrerURL = nil;
     }
 }
 

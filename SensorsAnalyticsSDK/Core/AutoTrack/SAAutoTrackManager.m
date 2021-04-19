@@ -54,8 +54,6 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _referrer = [[SAReferrer alloc] init];
-
         _appStartTracker = [[SAAppStartTracker alloc] init];
         _appEndTracker = [[SAAppEndTracker alloc] init];
 
@@ -104,28 +102,6 @@
     if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
     }
-}
-
-#pragma mark - SAAutoTrackModuleProtocol
-
-- (NSDictionary *)referrerProperties {
-    if ([SAValidator isValidString:self.referrer.title]) {
-        return @{kSAEeventPropertyReferrerTitle : self.referrer.title};
-    }
-    return nil;
-}
-
-- (NSDictionary *)referrerPropertiesWithURL:(NSString *)currentURL
-                            eventProperties:(NSDictionary *)eventProperties
-                                serialQueue:(dispatch_queue_t)serialQueue {
-    return [self.referrer propertiesWithURL:currentURL
-                            eventProperties:eventProperties
-                                serialQueue:serialQueue
-                                enableTitle:self.configOptions.enableReferrerTitle];
-}
-
-- (void)clearReferrer {
-    [self.referrer clear];
 }
 
 #pragma mark - Instance

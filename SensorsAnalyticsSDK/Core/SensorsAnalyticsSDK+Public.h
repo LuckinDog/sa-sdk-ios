@@ -379,6 +379,28 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
 
+/**
+ * @abstract
+ * 获取 LastScreenUrl
+ *
+ * @return LastScreenUrl
+ */
+- (NSString *)getLastScreenUrl;
+
+/**
+ * @abstract
+ * App 退出或进到后台时清空 referrer，默认情况下不清空
+ */
+- (void)clearReferrerWhenAppEnd;
+
+/**
+ * @abstract
+ * 获取 LastScreenTrackProperties
+ *
+ * @return LastScreenTrackProperties
+ */
+- (NSDictionary *)getLastScreenTrackProperties;
+
 - (SensorsAnalyticsDebugMode)debugMode;
 
 /**

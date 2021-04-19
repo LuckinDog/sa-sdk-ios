@@ -152,19 +152,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAAutoTrackModuleProtocol <NSObject>
 
-@property (nonatomic, copy, readonly, nullable) NSDictionary *referrerProperties;
-
-/// 事件属性中添加 $url 和 $referrer 字段
-/// @param currentURL 当前的 url
-/// @param eventProperties 事件属性
-/// @param serialQueue 缓存 title 的串行队列
-- (NSDictionary *)referrerPropertiesWithURL:(NSString *)currentURL
-                            eventProperties:(NSDictionary *)eventProperties
-                                serialQueue:(dispatch_queue_t)serialQueue;
-
-/// 清除 $referrer
-- (void)clearReferrer;
-
 @end
 
 NS_ASSUME_NONNULL_END
