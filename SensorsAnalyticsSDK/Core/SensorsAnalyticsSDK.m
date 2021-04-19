@@ -1356,14 +1356,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
-    NSError *error = nil;
-    propertyDict = [SAPropertyValidator validProperties:[propertyDict copy] error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        SALogError(@"%@ failed to register super properties.", self);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return;
-    }
     dispatch_async(self.serialQueue, ^{
         [self.superProperty registerSuperProperties:propertyDict];
     });

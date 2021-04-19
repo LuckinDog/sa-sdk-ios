@@ -49,10 +49,18 @@
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
-    [self unregisterSameLetterSuperProperties:propertyDict];
-    // 注意这里的顺序，发生冲突时是以propertyDict为准，所以它是后加入的
+    NSError *error = nil;
+    NSDictionary *validProperty = [SAPropertyValidator validProperties:[propertyDict copy] error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        SALogError(@"%@ failed to register super properties.", self);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+        return;
+    }
+    [self unregisterSameLetterSuperProperties:validProperty];
+    // 注意这里的顺序，发生冲突时是以 propertyDict 为准，所以它是后加入的
     NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
-    [tmp addEntriesFromDictionary:propertyDict];
+    [tmp addEntriesFromDictionary:validProperty];
     self.superProperties = [NSDictionary dictionaryWithDictionary:tmp];
     [self archiveSuperProperties];
 }
