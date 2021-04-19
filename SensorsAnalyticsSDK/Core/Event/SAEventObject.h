@@ -24,8 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventObject : SABaseEventObject
 
-- (instancetype)initWithEvent:(NSString *)event;
-
 @end
 
 @interface SASignUpEventObject : SAEventObject

@@ -31,14 +31,6 @@
 
 @implementation SAEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super init];
-    if (self) {
-        self.event = event;
-    }
-    return self;
-}
-
 #pragma makr - SAEventBuildStrategy
 - (BOOL)addAutomaticProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
@@ -124,8 +116,8 @@
 
 @implementation SASignUpEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super initWithEvent:event];
+- (instancetype)init {
+    self = [super init];
     if (self) {
         self.type = kSAEventTypeSignup;
     }
@@ -142,8 +134,8 @@
 
 @implementation SACustomEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super initWithEvent:event];
+- (instancetype)init {
+    self = [super init];
     if (self) {
         self.type = kSAEventTypeTrack;
     }
@@ -162,8 +154,8 @@
 
 @implementation SAAutoTrackEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super initWithEvent:event];
+- (instancetype)init {
+    self = [super init];
     if (self) {
         self.type = kSAEventTypeTrack;
     }
@@ -183,8 +175,8 @@
 
 @implementation SAPresetEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super initWithEvent:event];
+- (instancetype)init {
+    self = [super init];
     if (self) {
         self.type = kSAEventTypeTrack;
     }

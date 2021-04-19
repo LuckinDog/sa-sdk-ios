@@ -1043,14 +1043,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return YES;
 }
 
-- (void)trackWithEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+- (void)trackWithEvent:(NSString *)eventId object:(SABaseEventObject *)object properties:(NSDictionary *)properties {
     dispatch_async(self.serialQueue, ^{
-        if (![self remoteConfigIsEnableWithEvent:object.event]) {
+        NSString *eventName = [self.trackTimer eventNameFromEventId:eventId];
+        object.event = eventName;
+        if (![self remoteConfigIsEnableWithEvent:eventName]) {
             return;
         }
         
         if (self.configOptions.enableAutoAddChannelCallbackEvent) {
-            [object addChannelProperties:[self channelPropertiesWithEvent:object.event]];
+            [object addChannelProperties:[self channelPropertiesWithEvent:eventId]];
         }
         
         [object addAutomaticProperties:self.presetProperty.automaticProperties];
@@ -1059,7 +1061,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
         [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
         [object addPresetProperties:[self modulePresetProperties]];
-        NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
+        NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:eventId currentSysUpTime:object.currentSystemUpTime];
         [object addDurationProperty:eventDuration];
         if (![object addCustomProperties:properties]) {
             return;
@@ -1134,8 +1136,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackSignupEvent:(NSDictionary *)properties {
-    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
-    [self trackWithEventObject:object properties:properties];
+    SASignUpEventObject *object = [[SASignUpEventObject alloc] init];
+    [self trackWithEvent:SA_EVENT_NAME_APP_SIGN_UP object:object properties:properties];
 }
 
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -1146,9 +1148,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([_presetEventNames containsObject:event]) {
         SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
     }
-    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
-    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:eventName];
-    [self trackWithEventObject:object properties:properties];
+    SACustomEventObject *object = [[SACustomEventObject alloc] init];
+    [self trackWithEvent:event object:object properties:properties];
 }
 
 /// 自动采集全埋点事件：
@@ -1157,9 +1158,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:eventName];
-    [self trackWithEventObject:object properties:properties];
+    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] init];
+    [self trackWithEvent:event object:object properties:properties];
 }
 
 /// 采集预置事件
@@ -1169,24 +1169,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:eventName];
-    [self trackWithEventObject:object properties:properties];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] init];
+    [self trackWithEvent:event object:object properties:properties];
 }
 
 - (void)profileAppendWithProperties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
-    [self trackWithEventObject:object properties:properties];
+    [self trackWithEvent:nil object:object properties:properties];
 }
 
 - (void)profileIncrementWithProperties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-    [self trackWithEventObject:object properties:properties];
+    [self trackWithEvent:nil object:object properties:properties];
 }
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
-    [self trackWithEventObject:object properties:properties];
+    [self trackWithEvent:nil object:object properties:properties];
 }
 
 - (void)track:(NSString *)event {
@@ -1213,7 +1212,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
 
     dispatch_block_t trackChannelEventBlock = ^{
-        SAChannelEventObject *object = [[SAChannelEventObject alloc] initWithEvent:event];
+        SAChannelEventObject *object = [[SAChannelEventObject alloc] init];
         dispatch_async(self.serialQueue, ^{
             if (![self remoteConfigIsEnableWithEvent:event]) {
                 return;
