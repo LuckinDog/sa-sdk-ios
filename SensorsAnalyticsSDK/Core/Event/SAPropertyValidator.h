@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAPropertyValueProtocol <NSObject>
 
-- (id _Nullable)sensorsdata_propertyValueWithArgs:(NSDictionary * _Nullable)args error:(NSError **)error;
+- (id _Nullable)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError **)error;
 
 @end
 

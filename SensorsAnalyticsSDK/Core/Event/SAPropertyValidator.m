@@ -30,8 +30,7 @@
 
 #define SAPropertyError(errorCode, desc) [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" code:errorCode userInfo:@{NSLocalizedDescriptionKey: desc}]
 
-static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
-static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLength";
+static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 @implementation NSString (SAProperty)
 
@@ -41,10 +40,10 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
     }
 }
 
-- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
-    NSInteger maxLength = SA_PROPERTY_LENGTH_LIMITATION;
-    if (args && args[SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION]) {
-        maxLength = [args[SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION] integerValue];
+- (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
+    NSInteger maxLength = kSAPropertyLengthLimitation;
+    if ([key isEqualToString:@"app_crashed_reason"]) {
+        maxLength = kSAPropertyLengthLimitation * 2;
     }
     NSUInteger length = [self lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     if (length > maxLength) {
@@ -60,7 +59,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
 
 @implementation NSNumber (SAProperty)
 
-- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+- (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
     return self;
 }
 
@@ -68,7 +67,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
 
 @implementation NSDate (SAProperty)
 
-- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError **)error {
+- (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
     return self;
 }
 
@@ -76,7 +75,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
 
 @implementation NSSet (SAProperty)
 
-- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+- (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
     NSMutableSet *result = [NSMutableSet set];
     for (id element in self) {
         if (![element isKindOfClass:NSString.class]) {
@@ -84,7 +83,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
             *error = SAPropertyError(10004, errMsg);
             return nil;
         }
-        id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithArgs:nil error:error];
+        id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
         [result addObject:sensorsValue];
     }
     return [result copy];
@@ -94,7 +93,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
 
 @implementation NSArray (SAProperty)
 
-- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+- (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
     NSMutableArray *result = [NSMutableArray array];
     for (id element in self) {
         if (![element isKindOfClass:NSString.class]) {
@@ -102,7 +101,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
             *error = SAPropertyError(10004, errMsg);
             return nil;
         }
-        id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithArgs:nil error:error];
+        id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
         [result addObject:sensorsValue];
     }
     return [result copy];
@@ -112,7 +111,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
 
 @implementation NSNull (SAProperty)
 
-- (id)sensorsdata_propertyValueWithArgs:(NSDictionary *)args error:(NSError *__autoreleasing  _Nullable *)error {
+- (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
     return nil;
 }
 
@@ -146,16 +145,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
         }
         
         // value 转换
-        if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
-            result[key] = value;
-            continue;
-        }
-        NSMutableDictionary *args = nil;
-        if ([key isEqualToString:@"app_crashed_reason"]) {
-            args = [NSMutableDictionary dictionary];
-            args[SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION] = @(SA_PROPERTY_LENGTH_LIMITATION * 2);
-        }
-        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithArgs:args error:error];
+        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithKey:key error:error];
         if (*error) {
             return nil;
         }
@@ -196,13 +186,13 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
         id value = properties[key];
         if (![value isKindOfClass:[NSArray class]] &&
             ![value isKindOfClass:[NSSet class]]) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [value  class], value];
+            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet, NSArray. got %@ %@", self, [value  class], value];
             *error = SAPropertyError(10003, errMsg);
             return nil;
         }
         
         // value 转换
-        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithArgs:nil error:error];
+        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithKey:key error:error];
         if (*error) {
             return nil;
         }
@@ -243,15 +233,7 @@ static NSString * const SA_PROPERTY_ARGS_KEY_LENGTH_LIMITATION = @"SAStringLengt
             return nil;
         }
         
-        // value 转换
-        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithArgs:nil error:error];
-        if (*error) {
-            return nil;
-        }
-        
-        if (sensorsValue) {
-            result[key] = sensorsValue;
-        }
+        result[key] = value;
     }
     return [result copy];
 }
