@@ -272,6 +272,76 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)identify:(NSString *)anonymousId;
 
+#pragma mark - trackTimer
+/**
+ 开始事件计时
+
+ @discussion
+ 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimerStart:"Event" 记录事件开始时间，该方法并不会真正发送事件；
+ 随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，
+ SDK 会追踪 "Event" 事件，并自动将事件持续时间记录在事件属性 "event_duration" 中，时间单位为秒。
+
+ @param event 事件名称
+ @return 返回计时事件的 eventId，用于交叉计时场景。普通计时可忽略
+ */
+- (nullable NSString *)trackTimerStart:(NSString *)event;
+
+/**
+ 结束事件计时
+
+ @discussion
+ 多次调用 trackTimerEnd: 时，以首次调用为准
+
+ @param event 事件名称或事件的 eventId
+ @param propertyDict 自定义属性
+ */
+- (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
+
+/**
+ 结束事件计时
+
+ @discussion
+ 多次调用 trackTimerEnd: 时，以首次调用为准
+
+ @param event 事件名称或事件的 eventId
+ */
+- (void)trackTimerEnd:(NSString *)event;
+
+/**
+ 暂停事件计时
+
+ @discussion
+ 多次调用 trackTimerPause: 时，以首次调用为准。
+
+ @param event 事件名称或事件的 eventId
+ */
+- (void)trackTimerPause:(NSString *)event;
+
+/**
+ 恢复事件计时
+
+ @discussion
+ 多次调用 trackTimerResume: 时，以首次调用为准。
+
+ @param event 事件名称或事件的 eventId
+ */
+- (void)trackTimerResume:(NSString *)event;
+
+/**
+删除事件计时
+
+ @discussion
+ 多次调用 removeTimer: 时，只有首次调用有效。
+
+ @param event 事件名称或事件的 eventId
+*/
+- (void)removeTimer:(NSString *)event;
+
+/**
+ 清除所有事件计时器
+ */
+- (void)clearTrackTimer;
+
 - (UIViewController *_Nullable)currentViewController;
 
 #pragma mark track event
@@ -405,6 +475,63 @@ NS_ASSUME_NONNULL_BEGIN
  * @param callback 传入事件名称和事件属性，可以修改或删除事件属性。请返回一个 BOOL 值，true 表示事件将入库， false 表示事件将被抛弃
  */
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback;
+
+/**
+ * @abstract
+ * 用来设置每个事件都带有的一些公共属性
+ *
+ * @discussion
+ * 当 track 的 Properties，superProperties 和 SDK 自动生成的 automaticProperties 有相同的 key 时，遵循如下的优先级：
+ *    track.properties > superProperties > automaticProperties
+ * 另外，当这个接口被多次调用时，是用新传入的数据去 merge 先前的数据，并在必要时进行 merge
+ * 例如，在调用接口前，dict 是 @{@"a":1, @"b": "bbb"}，传入的 dict 是 @{@"b": 123, @"c": @"asd"}，则 merge 后的结果是
+ * @{"a":1, @"b": 123, @"c": @"asd"}，同时，SDK 会自动将 superProperties 保存到文件中，下次启动时也会从中读取
+ *
+ * @param propertyDict 传入 merge 到公共属性的 dict
+ */
+- (void)registerSuperProperties:(NSDictionary *)propertyDict;
+
+/**
+ * @abstract
+ * 用来设置事件的动态公共属性
+ *
+ * @discussion
+ * 当 track 的 Properties，superProperties 和 SDK 自动生成的 automaticProperties 有相同的 key 时，遵循如下的优先级：
+ *    track.properties > dynamicSuperProperties > superProperties > automaticProperties
+ *
+ * 例如，track.properties 是 @{@"a":1, @"b": "bbb"}，返回的 eventCommonProperty 是 @{@"b": 123, @"c": @"asd"}，
+ * superProperties 是  @{@"a":1, @"b": "bbb",@"c":@"ccc"}，automaticProperties 是 @{@"a":1, @"b": "bbb",@"d":@"ddd"},
+ * 则 merge 后的结果是 @{"a":1, @"b": "bbb", @"c": @"asd",@"d":@"ddd"}
+ * 返回的 NSDictionary 需满足以下要求
+ * 重要：1,key 必须是 NSString
+ *          2,key 的名称必须符合要求
+ *          3,value 的类型必须是 NSString、NSNumber、NSSet、NSArray、NSDate
+ *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
+ * @param dynamicSuperProperties block 用来返回事件的动态公共属性
+ */
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties;
+
+/**
+ * @abstract
+ * 从 superProperty 中删除某个 property
+ *
+ * @param property 待删除的 property 的名称
+ */
+- (void)unregisterSuperProperty:(NSString *)property;
+
+/**
+ * @abstract
+ * 删除当前所有的 superProperty
+ */
+- (void)clearSuperProperties;
+
+/**
+ * @abstract
+ * 拿到当前的 superProperty 的副本
+ *
+ * @return 当前的 superProperty 的副本
+ */
+- (NSDictionary *)currentSuperProperties;
 
 /**
  * @abstract
@@ -725,7 +852,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
  *
  * @discussion
- * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。 
+ * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。
  *
  * @param properties 激活事件的属性
  * @param disableCallback  是否关闭这次渠道匹配的回调请求
@@ -778,142 +905,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
  */
 - (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
-
-@end
-
-#pragma mark - TrackTimer
-@interface SensorsAnalyticsSDK (TrackTimer)
-
-/**
- 开始事件计时
-
- @discussion
- 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimerStart:"Event" 记录事件开始时间，该方法并不会真正发送事件；
- 随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，
- SDK 会追踪 "Event" 事件，并自动将事件持续时间记录在事件属性 "event_duration" 中，时间单位为秒。
-
- @param event 事件名称
- @return 返回计时事件的 eventId，用于交叉计时场景。普通计时可忽略
- */
-- (nullable NSString *)trackTimerStart:(NSString *)event;
-
-/**
- 结束事件计时
-
- @discussion
- 多次调用 trackTimerEnd: 时，以首次调用为准
-
- @param event 事件名称或事件的 eventId
- @param propertyDict 自定义属性
- */
-- (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
-
-/**
- 结束事件计时
-
- @discussion
- 多次调用 trackTimerEnd: 时，以首次调用为准
-
- @param event 事件名称或事件的 eventId
- */
-- (void)trackTimerEnd:(NSString *)event;
-
-/**
- 暂停事件计时
-
- @discussion
- 多次调用 trackTimerPause: 时，以首次调用为准。
-
- @param event 事件名称或事件的 eventId
- */
-- (void)trackTimerPause:(NSString *)event;
-
-/**
- 恢复事件计时
-
- @discussion
- 多次调用 trackTimerResume: 时，以首次调用为准。
-
- @param event 事件名称或事件的 eventId
- */
-- (void)trackTimerResume:(NSString *)event;
-
-/**
-删除事件计时
-
- @discussion
- 多次调用 removeTimer: 时，只有首次调用有效。
-
- @param event 事件名称或事件的 eventId
-*/
-- (void)removeTimer:(NSString *)event;
-
-/**
- 清除所有事件计时器
- */
-- (void)clearTrackTimer;
-
-@end
-
-#pragma mark - SuperProperties
-@interface SensorsAnalyticsSDK (SuperProperties)
-
-/**
- * @abstract
- * 用来设置每个事件都带有的一些公共属性
- *
- * @discussion
- * 当 track 的 Properties，superProperties 和 SDK 自动生成的 automaticProperties 有相同的 key 时，遵循如下的优先级：
- *    track.properties > superProperties > automaticProperties
- * 另外，当这个接口被多次调用时，是用新传入的数据去 merge 先前的数据，并在必要时进行 merge
- * 例如，在调用接口前，dict 是 @{@"a":1, @"b": "bbb"}，传入的 dict 是 @{@"b": 123, @"c": @"asd"}，则 merge 后的结果是
- * @{"a":1, @"b": 123, @"c": @"asd"}，同时，SDK 会自动将 superProperties 保存到文件中，下次启动时也会从中读取
- *
- * @param propertyDict 传入 merge 到公共属性的 dict
- */
-- (void)registerSuperProperties:(NSDictionary *)propertyDict;
-
-/**
- * @abstract
- * 用来设置事件的动态公共属性
- *
- * @discussion
- * 当 track 的 Properties，superProperties 和 SDK 自动生成的 automaticProperties 有相同的 key 时，遵循如下的优先级：
- *    track.properties > dynamicSuperProperties > superProperties > automaticProperties
- *
- * 例如，track.properties 是 @{@"a":1, @"b": "bbb"}，返回的 eventCommonProperty 是 @{@"b": 123, @"c": @"asd"}，
- * superProperties 是  @{@"a":1, @"b": "bbb",@"c":@"ccc"}，automaticProperties 是 @{@"a":1, @"b": "bbb",@"d":@"ddd"},
- * 则 merge 后的结果是 @{"a":1, @"b": "bbb", @"c": @"asd",@"d":@"ddd"}
- * 返回的 NSDictionary 需满足以下要求
- * 重要：1,key 必须是 NSString
- *          2,key 的名称必须符合要求
- *          3,value 的类型必须是 NSString、NSNumber、NSSet、NSArray、NSDate
- *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
- * @param dynamicSuperProperties block 用来返回事件的动态公共属性
- */
-- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties;
-
-/**
- * @abstract
- * 从 superProperty 中删除某个 property
- *
- * @param property 待删除的 property 的名称
- */
-- (void)unregisterSuperProperty:(NSString *)property;
-
-/**
- * @abstract
- * 删除当前所有的 superProperty
- */
-- (void)clearSuperProperties;
-
-/**
- * @abstract
- * 拿到当前的 superProperty 的副本
- *
- * @return 当前的 superProperty 的副本
- */
-- (NSDictionary *)currentSuperProperties;
 
 @end
 

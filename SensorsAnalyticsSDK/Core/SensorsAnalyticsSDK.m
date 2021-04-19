@@ -1254,6 +1254,62 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return NO;
 }
 
+- (nullable NSString *)trackTimerStart:(NSString *)event {
+    if (![self checkEventName:event]) {
+        return nil;
+    }
+    NSString *eventId = [_trackTimer generateEventIdByEventName:event];
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerStart:eventId currentSysUpTime:currentSysUpTime];
+    });
+    return eventId;
+}
+
+- (void)trackTimerEnd:(NSString *)event {
+    [self trackTimerEnd:event withProperties:nil];
+}
+
+- (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    // trackTimerEnd 事件需要支持新渠道匹配功能，且用户手动调用 trackTimerEnd 应归为手动埋点
+    [self trackCustomEvent:event properties:propertyDict];
+}
+
+- (void)trackTimerPause:(NSString *)event {
+    if (![self checkEventName:event]) {
+        return;
+    }
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerPause:event currentSysUpTime:currentSysUpTime];
+    });
+}
+
+- (void)trackTimerResume:(NSString *)event {
+    if (![self checkEventName:event]) {
+        return;
+    }
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerResume:event currentSysUpTime:currentSysUpTime];
+    });
+}
+
+- (void)removeTimer:(NSString *)event {
+    if (![self checkEventName:event]) {
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerRemove:event];
+    });
+}
+
+- (void)clearTrackTimer {
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer clearAllEventTimers];
+    });
+}
+
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
     if (controllers == nil || controllers.count == 0) {
         return;
@@ -1434,6 +1490,37 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         *propertiesAddress = [NSDictionary dictionaryWithDictionary:mutDict];
     }
     return YES;
+}
+
+- (void)registerSuperProperties:(NSDictionary *)propertyDict {
+    propertyDict = [propertyDict copy];
+    if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
+        SALogError(@"%@ failed to register super properties.", self);
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.superProperty registerSuperProperties:propertyDict];
+    });
+}
+
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
+    [self.superProperty registerDynamicSuperProperties:dynamicSuperProperties];
+}
+
+- (void)unregisterSuperProperty:(NSString *)property {
+    dispatch_async(self.serialQueue, ^{
+        [self.superProperty unregisterSuperProperty:property];
+    });
+}
+
+- (void)clearSuperProperties {
+    dispatch_async(self.serialQueue, ^{
+        [self.superProperty clearSuperProperties];
+    });
+}
+
+- (NSDictionary *)currentSuperProperties {
+    return [self.superProperty currentSuperProperties];
 }
 
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
@@ -2070,103 +2157,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
     [SAModuleManager.sharedInstance trackAppInstall:event properties:properties disableCallback:disableCallback];
-}
-
-@end
-
-#pragma mark - TrackTimer
-@implementation SensorsAnalyticsSDK (TrackTimer)
-
-- (nullable NSString *)trackTimerStart:(NSString *)event {
-    if (![self checkEventName:event]) {
-        return nil;
-    }
-    NSString *eventId = [self.trackTimer generateEventIdByEventName:event];
-    UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer trackTimerStart:eventId currentSysUpTime:currentSysUpTime];
-    });
-    return eventId;
-}
-
-- (void)trackTimerEnd:(NSString *)event {
-    [self trackTimerEnd:event withProperties:nil];
-}
-
-- (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    // trackTimerEnd 事件需要支持新渠道匹配功能，且用户手动调用 trackTimerEnd 应归为手动埋点
-    [self trackCustomEvent:event properties:propertyDict];
-}
-
-- (void)trackTimerPause:(NSString *)event {
-    if (![self checkEventName:event]) {
-        return;
-    }
-    UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer trackTimerPause:event currentSysUpTime:currentSysUpTime];
-    });
-}
-
-- (void)trackTimerResume:(NSString *)event {
-    if (![self checkEventName:event]) {
-        return;
-    }
-    UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer trackTimerResume:event currentSysUpTime:currentSysUpTime];
-    });
-}
-
-- (void)removeTimer:(NSString *)event {
-    if (![self checkEventName:event]) {
-        return;
-    }
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer trackTimerRemove:event];
-    });
-}
-
-- (void)clearTrackTimer {
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer clearAllEventTimers];
-    });
-}
-
-@end
-
-#pragma mark - SuperProperties
-@implementation SensorsAnalyticsSDK (SuperProperties)
-
-- (void)registerSuperProperties:(NSDictionary *)propertyDict {
-    propertyDict = [propertyDict copy];
-    if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
-        SALogError(@"%@ failed to register super properties.", self);
-        return;
-    }
-    dispatch_async(self.serialQueue, ^{
-        [self.superProperty registerSuperProperties:propertyDict];
-    });
-}
-
-- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    [self.superProperty registerDynamicSuperProperties:dynamicSuperProperties];
-}
-
-- (void)unregisterSuperProperty:(NSString *)property {
-    dispatch_async(self.serialQueue, ^{
-        [self.superProperty unregisterSuperProperty:property];
-    });
-}
-
-- (void)clearSuperProperties {
-    dispatch_async(self.serialQueue, ^{
-        [self.superProperty clearSuperProperties];
-    });
-}
-
-- (NSDictionary *)currentSuperProperties {
-    return [self.superProperty currentSuperProperties];
 }
 
 @end
