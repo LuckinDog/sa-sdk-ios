@@ -973,9 +973,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     // 校验 properties
-    NSString *type = itemDict[SA_EVENT_TYPE];
-    if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
+    NSError *error = nil;
+    propertyDict = [SAPropertyValidator validProperties:[propertyDict copy] error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
         SALogError(@"%@ failed to item properties", self);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
     
@@ -1112,10 +1115,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return nil;
     }
     // 校验 properties
-    if (![self assertPropertyTypes:&originProperties withEventType:type]) {
+    NSError *error = nil;
+    NSDictionary *validProperties = nil;
+    if ([type isEqualToString:SA_PROFILE_INCREMENT]) {
+        validProperties = [SAProfileIncrementValidator validProperties:originProperties error:&error];
+    } else if ([type isEqualToString:SA_PROFILE_APPEND]) {
+        validProperties = [SAProfileAppendValidator validProperties:originProperties error:&error];
+    } else {
+        validProperties = [SAPropertyValidator validProperties:originProperties error:&error];
+    }
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
         SALogError(@"%@ failed to track event.", self);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return nil;
     }
+    [originProperties removeAllObjects];
+    [originProperties addEntriesFromDictionary:validProperties];
     return event;
 }
 
@@ -1339,157 +1355,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (NSString *)libVersion {
     return VERSION;
-}
-
-- (BOOL)assertPropertyTypes:(NSDictionary **)propertiesAddress withEventType:(NSString *)eventType {
-    NSDictionary *properties = *propertiesAddress;
-    NSMutableDictionary *newProperties = nil;
-    NSMutableArray *mutKeyArrayForValueIsNSNull = nil;
-    for (id __unused k in properties) {
-        // key 必须是NSString
-        if (![k isKindOfClass: [NSString class]]) {
-            NSString *errMsg = @"Property Key should by NSString";
-            SALogError(@"%@", errMsg);
-            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-            return NO;
-        }
-
-        // key的名称必须符合要求
-        if (![self isValidName: k]) {
-            NSString *errMsg = [NSString stringWithFormat:@"property name[%@] is not valid", k];
-            SALogError(@"%@", errMsg);
-            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-            return NO;
-        }
-
-        // value的类型检查
-        id propertyValue = properties[k];
-        if(![propertyValue isKindOfClass:[NSString class]] &&
-           ![propertyValue isKindOfClass:[NSNumber class]] &&
-           ![propertyValue isKindOfClass:[NSSet class]] &&
-           ![propertyValue isKindOfClass:[NSArray class]] &&
-           ![propertyValue isKindOfClass:[NSDate class]]) {
-            NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [propertyValue class], propertyValue];
-            SALogError(@"%@", errMsg);
-            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-
-            if ([propertyValue isKindOfClass:[NSNull class]]) {
-                //NSNull 需要对数据做修复，remove 对应的 key
-                if (!mutKeyArrayForValueIsNSNull) {
-                    mutKeyArrayForValueIsNSNull = [NSMutableArray arrayWithObject:k];
-                } else {
-                    [mutKeyArrayForValueIsNSNull addObject:k];
-                }
-            } else {
-                return NO;
-            }
-        }
-
-        NSString *(^verifyString)(NSString *, NSMutableDictionary **, id *) = ^NSString *(NSString *string, NSMutableDictionary **dic, id *objects) {
-            // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
-            if (![string isKindOfClass:[NSString class]]) {
-                NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [string class], string];
-                SALogError(@"%@", errMsg);
-                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-                return nil;
-            }
-            NSUInteger length = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-            if (length > SA_PROPERTY_LENGTH_LIMITATION) {
-                //截取再拼接 $ 末尾，替换原数据
-                NSMutableString *newString = [NSMutableString stringWithString:[SACommonUtility subByteString:string byteLength:SA_PROPERTY_LENGTH_LIMITATION - 1]];
-                [newString appendString:@"$"];
-                if (*dic == nil) {
-                    *dic = [NSMutableDictionary dictionaryWithDictionary:properties];
-                }
-
-                if (*objects == nil) {
-                    *objects = [propertyValue mutableCopy];
-                }
-                return newString;
-            }
-            return string;
-        };
-        if ([propertyValue isKindOfClass:[NSSet class]]) {
-            id object;
-            NSMutableSet *newSetObject = nil;
-            NSEnumerator *enumerator = [propertyValue objectEnumerator];
-            while (object = [enumerator nextObject]) {
-                NSString *string = verifyString(object, &newProperties, &newSetObject);
-                if (string == nil) {
-                    return NO;
-                } else if (string != object) {
-                    [newSetObject removeObject:object];
-                    [newSetObject addObject:string];
-                }
-            }
-            if (newSetObject) {
-                [newProperties setObject:newSetObject forKey:k];
-            }
-        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-            NSMutableArray *newArray = nil;
-            for (NSInteger index = 0; index < [(NSArray *)propertyValue count]; index++) {
-                id object = [propertyValue objectAtIndex:index];
-                NSString *string = verifyString(object, &newProperties, &newArray);
-                if (string == nil) {
-                    return NO;
-                } else if (string != object) {
-                    [newArray replaceObjectAtIndex:index withObject:string];
-                }
-            }
-            if (newArray) {
-                [newProperties setObject:newArray forKey:k];
-            }
-        }
-
-        // NSString 检查长度，但忽略部分属性
-        if ([propertyValue isKindOfClass:[NSString class]]) {
-            NSUInteger objLength = [((NSString *)propertyValue) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-            NSUInteger valueMaxLength = SA_PROPERTY_LENGTH_LIMITATION;
-            if ([k isEqualToString:@"app_crashed_reason"]) {
-                valueMaxLength = SA_PROPERTY_LENGTH_LIMITATION * 2;
-            }
-            if (objLength > valueMaxLength) {
-                //截取再拼接 $ 末尾，替换原数据
-                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:propertyValue byteLength:valueMaxLength - 1]];
-                [newObject appendString:@"$"];
-                if (!newProperties) {
-                    newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
-                }
-                [newProperties setObject:newObject forKey:k];
-            }
-        }
-
-        // profileIncrement的属性必须是NSNumber
-        if ([eventType isEqualToString:SA_PROFILE_INCREMENT]) {
-            if (![propertyValue isKindOfClass:[NSNumber class]]) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [properties[k] class], propertyValue];
-                SALogError(@"%@", errMsg);
-                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-                return NO;
-            }
-        }
-
-        // profileAppend的属性必须是个NSSet、NSArray
-        if ([eventType isEqualToString:SA_PROFILE_APPEND]) {
-            if (![propertyValue isKindOfClass:[NSSet class]] && ![propertyValue isKindOfClass:[NSArray class]]) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [propertyValue  class], propertyValue];
-                SALogError(@"%@", errMsg);
-                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-                return NO;
-            }
-        }
-    }
-    //截取之后，修改原 properties
-    if (newProperties) {
-        *propertiesAddress = [NSDictionary dictionaryWithDictionary:newProperties];
-    }
-
-    if (mutKeyArrayForValueIsNSNull) {
-        NSMutableDictionary *mutDict = [NSMutableDictionary dictionaryWithDictionary:*propertiesAddress];
-        [mutDict removeObjectsForKeys:mutKeyArrayForValueIsNSNull];
-        *propertiesAddress = [NSDictionary dictionaryWithDictionary:mutDict];
-    }
-    return YES;
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
