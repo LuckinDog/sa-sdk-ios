@@ -35,9 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) SAReferrer *referrer;
 
-@property (nonatomic, strong, readonly) SAAppStartTracker *appStartTracker;
-@property (nonatomic, strong, readonly) SAAppEndTracker *appEndTracker;
-
 + (SAAutoTrackManager *)sharedInstance;
 
 #pragma mark - Public
