@@ -71,11 +71,7 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
     }
 
     // 更新首次标记
-    if ([self isFirstAppStart]) {
-        NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
-        [standard setBool:YES forKey:kSAHasLaunchedOnce];
-        [standard synchronize];
-    }
+    [self updateFirstAppStart];
 
     // 触发过启动事件，下次为热启动
     self.relaunch = YES;
@@ -92,11 +88,7 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
     }
 
     // 更新首次标记
-    if ([self isFirstAppStart]) {
-        NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
-        [standard setBool:YES forKey:kSAHasLaunchedOnce];
-        [standard synchronize];
-    }
+    [self updateFirstAppStart];
 
     // 触发过被动启动事件，下次为热启动
     self.relaunch = YES;
@@ -111,6 +103,14 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 - (BOOL)isFirstAppStart {
     BOOL isHasLaunchedOnce = [[NSUserDefaults standardUserDefaults] boolForKey:kSAHasLaunchedOnce];
     return !isHasLaunchedOnce;
+}
+
+- (void)updateFirstAppStart {
+    if ([self isFirstAppStart]) {
+        NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
+        [standard setBool:YES forKey:kSAHasLaunchedOnce];
+        [standard synchronize];
+    }
 }
 
 @end

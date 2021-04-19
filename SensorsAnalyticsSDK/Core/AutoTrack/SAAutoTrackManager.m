@@ -123,16 +123,8 @@
         return;
     }
 
-    // 冷启动
-    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
-        // 启动 AppEnd 事件计时器
-        [self.appEndTracker trackTimerStartAppEnd];
-        return;
-    }
-
-    // 热启动
-    if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+    // 冷（热）启动
+    if (newState == SAAppLifecycleStateStart) {
         [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
         // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
