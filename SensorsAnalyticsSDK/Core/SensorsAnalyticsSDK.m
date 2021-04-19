@@ -1073,7 +1073,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
         NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:NO];
+        [self willTrackEvent:resultObj isSignUp:[object.type isEqualToString:kSAEventTypeSignup]];
     });
 }
 
