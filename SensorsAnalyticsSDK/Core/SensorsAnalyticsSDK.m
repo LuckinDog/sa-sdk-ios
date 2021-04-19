@@ -1493,9 +1493,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
-    propertyDict = [propertyDict copy];
-    if (![self assertPropertyTypes:&propertyDict withEventType:@"register_super_properties"]) {
+    NSError *error = nil;
+    propertyDict = [SAPropertyValidator validProperties:[propertyDict copy] error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
         SALogError(@"%@ failed to register super properties.", self);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
     dispatch_async(self.serialQueue, ^{
@@ -2232,7 +2235,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-
+                
                 //获取用户自定义的动态公共属性
                 if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
                     SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
