@@ -1043,8 +1043,37 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return YES;
 }
 
-- (BOOL)willEnqueueWithObject:(SAEventObject *)obj {
-    if (!self.trackEventCallback) {
+- (void)trackWithEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    dispatch_async(self.serialQueue, ^{
+        if (![self remoteConfigIsEnableWithEvent:object.event]) {
+            return;
+        }
+        
+        if (self.configOptions.enableAutoAddChannelCallbackEvent) {
+            [object addChannelProperties:[self channelPropertiesWithEvent:object.event]];
+        }
+        
+        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
+        [object addAutomaticProperties:self.presetProperty.automaticProperties];
+        [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
+        [object addSuperProperties:self.superProperty.currentSuperProperties];
+        [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
+        [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+        [object addPresetProperties:[self modulePresetProperties]];
+        [object addDurationProperty];
+        if (![object addUserProperties:properties]) {
+            return;
+        }
+        if (![self willEnqueueWithObject:object]) {
+            return;
+        }
+        NSDictionary *resultObj = [object generateJSONObject];
+        [self willTrackEvent:resultObj isSignUp:NO];
+    });
+}
+
+- (BOOL)willEnqueueWithObject:(SABaseEventObject *)obj {
+    if (!self.trackEventCallback || !obj.event) {
         return YES;
     }
     BOOL willEnque = self.trackEventCallback(obj.event, obj.properties);
@@ -1106,25 +1135,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackSignupEvent:(NSDictionary *)properties {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
-    dispatch_async(self.serialQueue, ^{
-        if (![self remoteConfigIsEnableWithEvent:SA_EVENT_NAME_APP_SIGN_UP]) {
-            return;
-        }
-        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        [object addAutomaticProperties:self.presetProperty.automaticProperties];
-        [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-        [object addSuperProperties:self.superProperty.currentSuperProperties];
-        [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
-        [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        if (![object addUserProperties:properties]) {
-            return;
-        }
-        if (![self willEnqueueWithObject:object]) {
-            return;
-        }
-        NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:YES];
-    });
+    [self trackWithEventObject:object properties:properties];
 }
 
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -1135,34 +1146,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([_presetEventNames containsObject:event]) {
         SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
     }
-    
-    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
-    dispatch_async(self.serialQueue, ^{
-        if (![self remoteConfigIsEnableWithEvent:event]) {
-            return;
-        }
-        
-        if (self.configOptions.enableAutoAddChannelCallbackEvent) {
-            [object addChannelProperties:[self channelPropertiesWithEvent:event]];
-        }
-        
-        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        [object addAutomaticProperties:self.presetProperty.automaticProperties];
-        [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-        [object addSuperProperties:self.superProperty.currentSuperProperties];
-        [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
-        [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        [object addPresetProperties:[self modulePresetProperties]];
-        [object addDurationProperty];
-        if (![object addUserProperties:properties]) {
-            return;
-        }
-        if (![self willEnqueueWithObject:object]) {
-            return;
-        }
-        NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:NO];
-    });
+    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
+    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:eventName];
+    [self trackWithEventObject:object properties:properties];
 }
 
 /// 自动采集全埋点事件：
@@ -1171,29 +1157,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:event];
-    dispatch_async(self.serialQueue, ^{
-        if (![self remoteConfigIsEnableWithEvent:event]) {
-            return;
-        }
-        
-        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        [object addPresetProperties:self.presetProperty.automaticProperties];
-        [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-        [object addSuperProperties:self.superProperty.currentSuperProperties];
-        [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
-        [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        [object addPresetProperties:[self modulePresetProperties]];
-        [object addDurationProperty];
-        if (![object addUserProperties:properties]) {
-            return;
-        }
-        if (![self willEnqueueWithObject:object]) {
-            return;
-        }
-        NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:NO];
-    });
+    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
+    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:eventName];
+    [self trackWithEventObject:object properties:properties];
 }
 
 /// 采集预置事件
@@ -1203,76 +1169,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:event];
-    dispatch_async(self.serialQueue, ^{
-        if (![self remoteConfigIsEnableWithEvent:event]) {
-            return;
-        }
-        
-        NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-        [object addAutomaticProperties:self.presetProperty.automaticProperties];
-        [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-        [object addSuperProperties:self.superProperty.currentSuperProperties];
-        [object addDynamicSuperProperties:dynamicSuperPropertiesDict];
-        [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-        [object addPresetProperties:[self modulePresetProperties]];
-        [object addDurationProperty];
-        if (![object addUserProperties:properties]) {
-            return;
-        }
-        if (![self willEnqueueWithObject:object]) {
-            return;
-        }
-        NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:NO];
-    });
+    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:eventName];
+    [self trackWithEventObject:object properties:properties];
 }
 
 - (void)profileAppendWithProperties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
-    dispatch_async(self.serialQueue, ^{
-        if (![self remoteConfigIsEnableWithEvent:nil]) {
-            return;
-        }
-        
-        if (![object addUserProperties:properties]) {
-            return;
-        }
-        
-        NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:NO];
-    });
+    [self trackWithEventObject:object properties:properties];
 }
 
 - (void)profileIncrementWithProperties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-    dispatch_async(self.serialQueue, ^{
-        if (![self remoteConfigIsEnableWithEvent:nil]) {
-            return;
-        }
-        
-        if (![object addUserProperties:properties]) {
-            return;
-        }
-        
-        NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:NO];
-    });
+    [self trackWithEventObject:object properties:properties];
 }
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
-    dispatch_async(self.serialQueue, ^{
-        if (![self remoteConfigIsEnableWithEvent:nil]) {
-            return;
-        }
-        
-        if (![object addUserProperties:properties]) {
-            return;
-        }
-        NSDictionary *resultObj = [object generateJSONObject];
-        [self willTrackEvent:resultObj isSignUp:NO];
-    });
+    [self trackWithEventObject:object properties:properties];
 }
 
 - (void)track:(NSString *)event {

@@ -34,8 +34,8 @@
 - (instancetype)initWithEvent:(NSString *)event {
     self = [super init];
     if (self) {
-        _event = event;
         _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
+        self.event = event;
     }
     return self;
 }
@@ -138,9 +138,7 @@
 
 - (NSDictionary *)generateJSONObject {
     NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
-//    NSString *eventName = [SAModuleManager.sharedInstance eventNameFromEventId:self.event];
-//    jsonObject[SA_EVENT_NAME] = eventName;
-//    jsonObject[@"original_id"] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
+    jsonObject[@"original_id"] = SensorsAnalyticsSDK.sharedInstance.anonymousId;
     return [jsonObject copy];
 }
 

@@ -27,6 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SABaseEventObject : NSObject <SAEventBuildStrategy>
 
+/// 事件名称
+@property (nonatomic, copy) NSString *event;
+
 /// 事件类型
 @property (nonatomic, copy) NSString *type;
 

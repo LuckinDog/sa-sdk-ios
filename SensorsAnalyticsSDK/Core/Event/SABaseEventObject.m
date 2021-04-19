@@ -52,6 +52,8 @@
     eventInfo[SA_EVENT_TIME] = @(self.timeStamp);
     eventInfo[SA_EVENT_LIB] = [self.libObject generateJSONObject];
     eventInfo[SA_EVENT_TRACK_ID] = self.track_id;
+    eventInfo[SA_EVENT_NAME] = self.event;
+    
     if (self.project) {
         eventInfo[SA_EVENT_PROJECT] = self.project;
     }
