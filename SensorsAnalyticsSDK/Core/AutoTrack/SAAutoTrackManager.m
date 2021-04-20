@@ -96,11 +96,12 @@
         [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
         [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+
+        //React Native
+        if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
+            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
+        }
     });
-    //React Native
-    if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
-        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
-    }
 }
 
 #pragma mark - Instance
