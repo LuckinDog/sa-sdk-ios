@@ -566,11 +566,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self.identifier isValidLoginId:loginId]) {
         return;
     }
-    // TODO:
+
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-        [self trackSignupEvent:properties];
+        SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
+        [self trackWithEventObject:object properties:properties];
     });
 }
 
@@ -1143,11 +1144,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
     return YES;
-}
-
-- (void)trackSignupEvent:(NSDictionary *)properties {
-    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
-    [self trackWithEventObject:object properties:properties];
 }
 
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -2379,10 +2375,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-// TODO:
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
-    [self trackSignupEvent:propertieDict];
+    dispatch_async(self.serialQueue, ^{
+        SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
+        [self trackWithEventObject:object properties:propertieDict];
+    });
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId {
