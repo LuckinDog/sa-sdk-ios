@@ -66,21 +66,15 @@
     }
     
     // 如果传入自定义属性中的 $lib_method 为 String 类型，需要进行修正处理
-    // TODO: 逻辑调整
     id libMethod = self.properties[SAEventPresetPropertyLibMethod];
-    if (libMethod) {
-        if ([libMethod isKindOfClass:NSString.class]) {
-            if ([libMethod isEqualToString:kSALibMethodCode] ||
-                [libMethod isEqualToString:kSALibMethodAuto]) {
-                self.lib.method = libMethod;
-            } else {
-                // 自定义属性中的 $lib_method 不为有效值（code 或者 autoTrack），此时使用默认值 code
-                self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
-            }
+    if (!libMethod || [libMethod isKindOfClass:NSString.class]) {
+        if (![libMethod isEqualToString:kSALibMethodCode] &&
+            ![libMethod isEqualToString:kSALibMethodAuto]) {
+            libMethod = kSALibMethodCode;
         }
-    } else {
-        self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
     }
+    self.properties[SAEventPresetPropertyLibMethod] = libMethod;
+    self.lib.method = libMethod;
 
     //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
     BOOL isAppClick = [self.event isEqualToString:SA_EVENT_NAME_APP_CLICK] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
