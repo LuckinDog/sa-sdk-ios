@@ -104,12 +104,6 @@
     });
 }
 
-#pragma mark - Instance
-
-+ (SAAutoTrackManager *)sharedInstance {
-    return (SAAutoTrackManager *)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeAutoTrack];
-}
-
 #pragma mark - Notification
 
 - (void)appLifecycleStateDidChange:(NSNotification *)sender {
