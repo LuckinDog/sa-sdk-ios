@@ -33,6 +33,25 @@ static NSSet *presetEventNames;
 
 @implementation SAEventObject
 
+- (instancetype)initWithEvent:(NSString *)event {
+    self = [super init];
+    if (self) {
+        self.event = event;
+    }
+    return self;
+}
+
+- (void)isValidEventWithError:(NSError *__autoreleasing  _Nullable *)error {
+    if (self.event == nil || [self.event length] == 0) {
+        *error = SAPropertyError(20001, @"Event name should not be empty or nil");
+        return;
+    }
+    if (![SAValidator isValidKey:self.event]) {
+        *error = SAPropertyError(20002, @"Event name[%@] not valid", self.event);
+        return;
+    }
+}
+
 #pragma makr - SAEventBuildStrategy
 - (void)addAutomaticProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
@@ -94,18 +113,6 @@ static NSSet *presetEventNames;
     }
 }
 
-- (void)setEventName:(NSString *)event error:(NSError *__autoreleasing  _Nullable *)error {
-    if (event == nil || [event length] == 0) {
-        *error = SAPropertyError(20001, @"Event name should not be empty or nil");
-        return;
-    }
-    if (![SAValidator isValidKey:event]) {
-        *error = SAPropertyError(20002, @"Event name[%@] not valid", event);
-        return;
-    }
-    self.event = event;
-}
-
 @end
 
 @implementation SASignUpEventObject
@@ -140,8 +147,8 @@ static NSSet *presetEventNames;
     [self.properties addEntriesFromDictionary:properties];
 }
 
-- (void)setEventName:(NSString *)event error:(NSError *__autoreleasing  _Nullable *)error {
-    [super setEventName:event error:error];
+- (void)isValidEventWithError:(NSError *__autoreleasing  _Nullable *)error {
+    [super isValidEventWithError:error];
     if (*error) {
         return;
     }
@@ -155,8 +162,8 @@ static NSSet *presetEventNames;
                         SA_EVENT_NAME_APP_CRASHED,
                         SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];
     //事件校验，预置事件提醒
-    if ([presetEventNames containsObject:event]) {
-        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
+    if ([presetEventNames containsObject:self.event]) {
+        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", self.event);
     }
 }
 

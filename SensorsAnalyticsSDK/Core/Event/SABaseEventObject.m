@@ -46,6 +46,9 @@
     return self;
 }
 
+- (void)isValidEventWithError:(NSError *__autoreleasing  _Nullable *)error {
+}
+
 - (NSMutableDictionary *)generateJSONObject {
     NSMutableDictionary *eventInfo = [NSMutableDictionary dictionary];
     eventInfo[SA_EVENT_PROPERTIES] = self.properties;

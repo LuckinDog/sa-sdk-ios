@@ -172,7 +172,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SATrackTimer *trackTimer;
 
 @property (nonatomic, strong) NSRegularExpression *propertiesRegex;
-@property (nonatomic, copy) NSSet *presetEventNames;
 
 @property (nonatomic, strong) NSTimer *timer;
 
@@ -319,15 +318,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
-            _presetEventNames = [NSSet setWithObjects:
-                                      SA_EVENT_NAME_APP_START,
-                                      SA_EVENT_NAME_APP_START_PASSIVELY ,
-                                      SA_EVENT_NAME_APP_END,
-                                      SA_EVENT_NAME_APP_VIEW_SCREEN,
-                                      SA_EVENT_NAME_APP_CLICK,
-                                      SA_EVENT_NAME_APP_SIGN_UP,
-                                      SA_EVENT_NAME_APP_CRASHED,
-                                      SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];
 
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
             
@@ -570,8 +560,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-        SASignUpEventObject *object = [[SASignUpEventObject alloc] init];
-        [object setEventName:SA_EVENT_NAME_APP_SIGN_UP error:nil];
+        SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
         [self trackWithEventObject:object properties:properties];
     });
 }
@@ -1020,8 +1009,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SALogDebug(@"【remote config】SDK is disabled");
         return;
     }
+
     if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:eventName]) {
         SALogDebug(@"【remote config】 %@ is ignored by remote config", SA_EVENT_NAME_APP_SIGN_UP);
+        return;
+    }
+
+    NSError *error = nil;
+    [object isValidEventWithError:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
     
@@ -1042,16 +1040,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addPresetProperties:[self modulePresetProperties]];
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
-    NSError *error = nil;
+
     [object addCustomProperties:properties error:&error];
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
+
     if (![self willEnqueueWithObject:object]) {
         return;
     }
+
     NSDictionary *result = [object generateJSONObject];
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:result];
     SALogDebug(@"\n【track event】:\n%@", result);
@@ -1111,14 +1111,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
-    SACustomEventObject *object = [[SACustomEventObject alloc] init];
-    NSError *error = nil;
-    [object setEventName:event error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return;
-    }
+    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         [self trackWithEventObject:object properties:properties];
     });
@@ -1127,14 +1120,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 /// 自动采集全埋点事件：
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick
 - (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties {
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] init];
-    NSError *error = nil;
-    [object setEventName:event error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return;
-    }
+    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         [self trackWithEventObject:object properties:properties];
     });
@@ -1144,14 +1130,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
 ///  AppCrashed、$AppRemoteConfigChanged 等预置事件
 - (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties {
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] init];
-    NSError *error = nil;
-    [object setEventName:event error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return;
-    }
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         [self trackWithEventObject:object properties:properties];
     });
@@ -1193,14 +1172,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
         }
-        SACustomEventObject *object = [[SACustomEventObject alloc] init];
-        NSError *error = nil;
-        [object setEventName:event error:&error];
-        if (error) {
-            SALogError(@"%@", error.localizedDescription);
-            [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-            return;
-        }
+        SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
         dispatch_async(self.serialQueue, ^{
             [object addChannelProperties:[self channelPropertiesWithEvent:event]];
             [self trackWithEventObject:object properties:properties];
@@ -2347,8 +2319,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
-    SASignUpEventObject *object = [[SASignUpEventObject alloc] init];
-    [object setEventName:SA_EVENT_NAME_APP_SIGN_UP error:nil];
+    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
     dispatch_async(self.serialQueue, ^{
         [self trackWithEventObject:object properties:propertieDict];
     });

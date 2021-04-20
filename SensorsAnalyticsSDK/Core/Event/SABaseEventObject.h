@@ -66,6 +66,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 属性校验器
 @property (nonatomic, strong) SAPropertyValidator *propertiesValidator;
 
+/// 校验事件名称
+/// @param error 错误信息
+- (void)isValidEventWithError:(NSError **)error;
+
 /// 生成最终的事件信息
 - (NSMutableDictionary *)generateJSONObject;
 
