@@ -48,6 +48,10 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)setupLaunchedState {
     dispatch_block_t mainThreadBlock = ^(){
 #if TARGET_OS_IPHONE
@@ -91,7 +95,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 
     _state = state;
 
-    [NSNotificationCenter.defaultCenter postNotificationName:kSAAppLifecycleStateDidChangeNotification object:self userInfo:userInfo];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSAAppLifecycleStateDidChangeNotification object:self userInfo:userInfo];
 }
 
 #pragma mark - Listener

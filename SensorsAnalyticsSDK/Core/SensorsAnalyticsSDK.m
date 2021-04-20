@@ -603,7 +603,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - AppLifecycle
 
 - (void)startAppLifecycle {
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
     _appLifecycle = [[SAAppLifecycle alloc] init];
 }
 
