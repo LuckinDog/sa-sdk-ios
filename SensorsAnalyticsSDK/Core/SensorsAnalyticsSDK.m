@@ -1022,6 +1022,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
+
+    object.distinctId = self.distinctId;
+    object.loginId = self.loginId;
+    object.anonymousId = self.anonymousId;
     
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
         NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:object.event];

@@ -23,7 +23,6 @@
 #endif
 
 #import "SABaseEventObject.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAPresetProperty.h"
 #import "SALog.h"
@@ -33,9 +32,6 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _distinctId = SensorsAnalyticsSDK.sharedInstance.distinctId;
-        _loginId = SensorsAnalyticsSDK.sharedInstance.distinctId;
-        _anonymousId = SensorsAnalyticsSDK.sharedInstance.distinctId;
         _lib = [[SAEventLibObject alloc] init];
         _timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
         _trackId = @(arc4random());
