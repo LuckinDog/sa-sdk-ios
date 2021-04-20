@@ -79,7 +79,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     NSMutableSet *result = [NSMutableSet set];
     for (id element in self) {
         if (![element isKindOfClass:NSString.class]) {
-            NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [element class], element];
+            NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet, NSArray must be NSString. got: %@ %@", self, [element class], element];
             *error = SAPropertyError(10004, errMsg);
             return nil;
         }
@@ -97,7 +97,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     NSMutableArray *result = [NSMutableArray array];
     for (id element in self) {
         if (![element isKindOfClass:NSString.class]) {
-            NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [element class], element];
+            NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet, NSArray must be NSString. got: %@ %@", self, [element class], element];
             *error = SAPropertyError(10004, errMsg);
             return nil;
         }

@@ -110,10 +110,10 @@
         if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
             self.timeStamp = customTimeInt;
         } else {
-            SALogError(@"$time error %ld，Please check the value", (long)customTimeInt);
+            SALogError(@"$time error %ld, Please check the value", (long)customTimeInt);
         }
     } else if (originalTime) {
-        SALogError(@"$time '%@' invalid，Please check the value", originalTime);
+        SALogError(@"$time '%@' invalid, Please check the value", originalTime);
     }
     
     // $project, $token, $time 处理完毕后需要移除
