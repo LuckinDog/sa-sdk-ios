@@ -28,7 +28,10 @@
 #import "SACommonUtility.h"
 #import "SADateFormatter.h"
 
-#define SAPropertyError(errorCode, desc) [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" code:errorCode userInfo:@{NSLocalizedDescriptionKey: desc}]
+#define SAPropertyError(errorCode, fromat, ...) \
+    [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" \
+                        code:errorCode \
+                    userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:fromat,##__VA_ARGS__]}] \
 
 static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
@@ -36,7 +39,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 - (void)sensorsdata_isValidPropertyKeyWithError:(NSError *__autoreleasing  _Nullable *)error {
     if (![SensorsAnalyticsSDK.sharedInstance isValidName: self]) {
-        *error = SAPropertyError(10001, ([NSString stringWithFormat:@"property name[%@] is not valid", self]));
+        *error = SAPropertyError(10001, @"property name[%@] is not valid", self);
     }
 }
 
@@ -79,8 +82,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     NSMutableSet *result = [NSMutableSet set];
     for (id element in self) {
         if (![element isKindOfClass:NSString.class]) {
-            NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet, NSArray must be NSString. got: %@ %@", self, [element class], element];
-            *error = SAPropertyError(10004, errMsg);
+            *error = SAPropertyError(10004, @"%@ value of NSSet, NSArray must be NSString. got: %@ %@", self, [element class], element);
             return nil;
         }
         id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
@@ -97,8 +99,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     NSMutableArray *result = [NSMutableArray array];
     for (id element in self) {
         if (![element isKindOfClass:NSString.class]) {
-            NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet, NSArray must be NSString. got: %@ %@", self, [element class], element];
-            *error = SAPropertyError(10004, errMsg);
+            *error = SAPropertyError(10004, @"%@ value of NSSet, NSArray must be NSString. got: %@ %@", self, [element class], element);
             return nil;
         }
         id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
@@ -127,7 +128,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     for (id key in properties) {
         // key 校验
         if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
-            *error = SAPropertyError(10001, ([NSString stringWithFormat:@"Property Key should by %@", NSStringFromClass([key class])]));
+            *error = SAPropertyError(10001, @"Property Key should by %@", [key class]);
             return nil;
         }
         
@@ -139,8 +140,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
         // value 校验
         id value = properties[key];
         if (![value conformsToProtocol:@protocol(SAPropertyValueProtocol)]) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [value class], value];
-            *error = SAPropertyError(10003, errMsg);
+            *error = SAPropertyError(10003, @"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [value class], value);
             return nil;
         }
         
@@ -173,7 +173,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     for (id key in properties) {
         // key 校验
         if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
-            *error = SAPropertyError(10001, ([NSString stringWithFormat:@"Property Key should by %@", NSStringFromClass([key class])]));
+            *error = SAPropertyError(10001, @"Property Key should by %@", [key class]);
             return nil;
         }
         
@@ -186,8 +186,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
         id value = properties[key];
         if (![value isKindOfClass:[NSArray class]] &&
             ![value isKindOfClass:[NSSet class]]) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet, NSArray. got %@ %@", self, [value  class], value];
-            *error = SAPropertyError(10003, errMsg);
+            *error = SAPropertyError(10003, @"%@ profile_append value must be NSSet, NSArray. got %@ %@", self, [value  class], value);
             return nil;
         }
         
@@ -216,7 +215,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     for (id key in properties) {
         // key 校验
         if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
-            *error = SAPropertyError(10001, ([NSString stringWithFormat:@"Property Key should by %@", NSStringFromClass([key class])]));
+            *error = SAPropertyError(10001, @"Property Key should by %@", [key class]);
             return nil;
         }
         
@@ -228,8 +227,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
         // value 校验
         id value = properties[key];
         if (![value isKindOfClass:[NSNumber class]]) {
-            NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [value class], value];
-            *error = SAPropertyError(10003, errMsg);
+            *error = SAPropertyError(10003, @"%@ profile_increment value must be NSNumber. got: %@ %@", self, [value class], value);
             return nil;
         }
         
