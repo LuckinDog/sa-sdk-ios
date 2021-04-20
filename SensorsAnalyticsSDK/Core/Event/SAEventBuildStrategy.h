@@ -28,10 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties 渠道信息
 - (BOOL)addChannelProperties:(NSDictionary *)properties;
 
-/// 兼容添加旧的渠道信息
-/// @param properties 渠道信息
-- (BOOL)addOldChannelProperties:(NSDictionary *)properties;
-
 /// 添加 SDK 默认属性
 /// @param properties SDK 默认属性
 - (BOOL)addAutomaticProperties:(NSDictionary *)properties;

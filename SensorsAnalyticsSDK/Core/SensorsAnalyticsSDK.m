@@ -1046,14 +1046,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
-        [object addChannelProperties:[self channelPropertiesWithEvent:eventId]];
+        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:eventId];
+        channelInfo[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
+        [object addChannelProperties:channelInfo];
     }
     
     if (self.configOptions.enableReferrerTitle) {
         [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
     }
     
-    [object addOldChannelProperties:[self channelPropertiesWithEvent:eventId]];
     [object addAutomaticProperties:self.presetProperty.automaticProperties];
     [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
     [object addSuperProperties:self.superProperty.allProperties];
@@ -1230,8 +1231,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
         }
-        SAChannelEventObject *object = [[SAChannelEventObject alloc] init];
+        SACustomEventObject *object = [[SACustomEventObject alloc] init];
         dispatch_async(self.serialQueue, ^{
+            [object addChannelProperties:[self channelPropertiesWithEvent:event]];
             [self trackWithEvent:event object:object properties:properties];
         });
     };
@@ -1404,13 +1406,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [SAFileStore archiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO value:self.trackChannelEventNames];
 }
 
-- (NSDictionary *)channelPropertiesWithEvent:(NSString *)event {
+- (NSMutableDictionary *)channelPropertiesWithEvent:(NSString *)event {
     BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
     if (isNotContains && event) {
         [self.trackChannelEventNames addObject:event];
         [self archiveTrackChannelEventNames];
     }
-    return @{SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT: @(isNotContains)};
+    return [NSMutableDictionary dictionaryWithObject:@(isNotContains) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
 }
 
 - (void)startFlushTimer {

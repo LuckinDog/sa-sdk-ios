@@ -145,9 +145,6 @@
 
 - (BOOL)addChannelProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-    // 后端匹配逻辑已经不需要 $channel_device_info 信息
-    // 这里仍然添加此字段是为了解决服务端版本兼容问题
-    self.properties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
     return YES;
 }
 
@@ -182,19 +179,6 @@
         self.type = kSAEventTypeTrack;
     }
     return self;
-}
-
-@end
-
-@implementation SAChannelEventObject
-
-- (BOOL)addChannelProperties:(NSDictionary *)properties {
-    return YES;
-}
-
-- (BOOL)addOldChannelProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
-    return YES;
 }
 
 @end

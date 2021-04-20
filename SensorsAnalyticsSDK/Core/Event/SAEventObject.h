@@ -42,8 +42,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SAChannelEventObject : SAEventObject
-
-@end
-
 NS_ASSUME_NONNULL_END
