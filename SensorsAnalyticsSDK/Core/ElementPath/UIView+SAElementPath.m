@@ -317,14 +317,14 @@
         NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
         // 如果 ReactNative 的 screenName 不存在，则判断页面信息不存在，即使用 Native 逻辑
         if (screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME]) {
-            return screenProperties[kSAEventPropertyTitle];
+            return screenProperties[SA_EVENT_PROPERTY_TITLE];
         }
     }
 
     // 处理 Native 元素
     if (self.sensorsdata_viewController) {
         NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
-        return autoTrackScreenProperties[kSAEventPropertyTitle];
+        return autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
     }
     return nil;
 }

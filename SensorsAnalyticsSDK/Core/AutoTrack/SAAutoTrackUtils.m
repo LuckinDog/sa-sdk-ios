@@ -178,7 +178,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 + (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
-    properties[kSAEventPropertyTitle] = viewController.sensorsdata_title;
+    properties[SA_EVENT_PROPERTY_TITLE] = viewController.sensorsdata_title;
     
     if ([viewController conformsToProtocol:@protocol(SAAutoTracker)] &&
         [viewController respondsToSelector:@selector(getTrackProperties)]) {

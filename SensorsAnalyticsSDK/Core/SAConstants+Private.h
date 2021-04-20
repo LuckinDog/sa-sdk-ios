@@ -72,12 +72,12 @@ extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;
 
 #pragma mark--autoTrack property
 // App 浏览页面 Url
-extern NSString * const kSAEventPropertyScreenURL;
+extern NSString * const SA_EVENT_PROPERTY_SCREEN_URL;
 // App 浏览页面 Referrer Url
-extern NSString * const kSAEventPropertyScreenReferrerURL;
+extern NSString * const SA_EVENT_PROPERTY_SCREEN_REFERRER_URL;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_ID;
 extern NSString * const SA_EVENT_PROPERTY_SCREEN_NAME;
-extern NSString * const kSAEventPropertyTitle;
+extern NSString * const SA_EVENT_PROPERTY_TITLE;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_POSITION;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_SELECTOR;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_PATH;
