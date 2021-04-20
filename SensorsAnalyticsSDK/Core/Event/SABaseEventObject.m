@@ -25,7 +25,6 @@
 #import "SABaseEventObject.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import "SAModuleManager.h"
 #import "SAPresetProperty.h"
 #import "SALog.h"
 
@@ -64,33 +63,25 @@
 }
 
 #pragma makr - SAEventBuildStrategy
-- (BOOL)addChannelProperties:(NSDictionary *)properties {
-    return YES;
+- (void)addChannelProperties:(NSDictionary *)properties {
 }
 
-- (BOOL)addAutomaticProperties:(NSDictionary *)properties {
-    return YES;
+- (void)addAutomaticProperties:(NSDictionary *)properties {
 }
 
-- (BOOL)addPresetProperties:(NSDictionary *)properties {
-    return YES;
+- (void)addPresetProperties:(NSDictionary *)properties {
 }
 
-- (BOOL)addSuperProperties:(NSDictionary *)properties {
-    return YES;
+- (void)addSuperProperties:(NSDictionary *)properties {
 }
 
-- (BOOL)addDeepLinkProperties:(NSDictionary *)properties {
-    return YES;
+- (void)addDeepLinkProperties:(NSDictionary *)properties {
 }
 
-- (BOOL)addCustomProperties:(NSDictionary *)properties {
-    NSError *error = nil;
-    NSMutableDictionary *props = [[self.propertiesValidator validProperties:properties error:&error] mutableCopy];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return NO;
+- (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
+    NSMutableDictionary *props = [[self.propertiesValidator validProperties:properties error:error] mutableCopy];
+    if (*error) {
+        return;
     }
     
     [props removeObjectForKey:SAEventPresetPropertyDeviceID];
@@ -117,19 +108,15 @@
                                             SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN,
                                             SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
     [self.properties removeObjectsForKeys:needRemoveKeys];
-    return YES;
 }
 
-- (BOOL)addNetworkProperties:(NSDictionary *)properties {
-    return YES;
+- (void)addNetworkProperties:(NSDictionary *)properties {
 }
 
-- (BOOL)addReferrerTitleProperty:(NSString *)referrerTitle {
-    return YES;
+- (void)addReferrerTitleProperty:(NSString *)referrerTitle {
 }
 
-- (BOOL)addDurationProperty:(NSNumber *)duration {
-    return YES;
+- (void)addDurationProperty:(NSNumber *)duration {
 }
 
 @end

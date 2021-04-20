@@ -31,34 +31,31 @@
 @implementation SAEventObject
 
 #pragma makr - SAEventBuildStrategy
-- (BOOL)addAutomaticProperties:(NSDictionary *)properties {
+- (void)addAutomaticProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-    return YES;
 }
 
-- (BOOL)addPresetProperties:(NSDictionary *)properties {
+- (void)addPresetProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-    return YES;
 }
 
-- (BOOL)addSuperProperties:(NSDictionary *)properties {
+- (void)addSuperProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
     // 从公共属性中更新 lib 节点中的 $app_version 值
     id appVersion = properties[SAEventPresetPropertyAppVersion];
     if (appVersion) {
         self.lib.appVersion = appVersion;
     }
-    return YES;
 }
 
-- (BOOL)addDeepLinkProperties:(NSDictionary *)properties {
+- (void)addDeepLinkProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-    return YES;
 }
 
-- (BOOL)addCustomProperties:(NSDictionary *)properties {
-    if (![super addCustomProperties:properties]) {
-        return NO;
+- (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
+    [super addCustomProperties:properties error:error];
+    if (*error) {
+        return;
     }
     
     // 如果传入自定义属性中的 $lib_method 为 String 类型，需要进行修正处理
@@ -92,24 +89,20 @@
         }
     }
     self.lib.detail = libDetail;
-    return YES;
 }
 
-- (BOOL)addNetworkProperties:(NSDictionary *)properties {
+- (void)addNetworkProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-    return YES;
 }
 
-- (BOOL)addReferrerTitleProperty:(NSString *)referrerTitle {
+- (void)addReferrerTitleProperty:(NSString *)referrerTitle {
     self.properties[kSAEeventPropertyReferrerTitle] = referrerTitle;
-    return YES;
 }
 
-- (BOOL)addDurationProperty:(NSNumber *)duration {
+- (void)addDurationProperty:(NSNumber *)duration {
     if (duration) {
         self.properties[@"event_duration"] = duration;
     }
-    return YES;
 }
 
 @end
@@ -143,9 +136,8 @@
     return self;
 }
 
-- (BOOL)addChannelProperties:(NSDictionary *)properties {
+- (void)addChannelProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-    return YES;
 }
 
 @end
@@ -160,13 +152,13 @@
     return self;
 }
 
-- (BOOL)addCustomProperties:(NSDictionary *)properties {
-    if (![super addCustomProperties:properties]) {
-        return NO;
+- (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
+    [super addCustomProperties:properties error:error];
+    if (*error) {
+        return;
     }
     self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
     self.lib.method = kSALibMethodAuto;
-    return YES;
 }
 
 @end

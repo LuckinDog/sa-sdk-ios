@@ -1062,7 +1062,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addPresetProperties:[self modulePresetProperties]];
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:eventId currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
-    if (![object addCustomProperties:properties]) {
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
     if (![self willEnqueueWithObject:object]) {

@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 事件类型
 @property (nonatomic, copy) NSString *type;
 
-/// TODO: rename lib 信息
+/// lib 信息
 @property (nonatomic, strong) SAEventLibObject *lib;
 
 /// 时间戳

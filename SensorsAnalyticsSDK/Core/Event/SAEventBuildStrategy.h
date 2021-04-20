@@ -26,39 +26,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 添加渠道信息
 /// @param properties 渠道信息
-- (BOOL)addChannelProperties:(NSDictionary *)properties;
+- (void)addChannelProperties:(NSDictionary *)properties;
 
 /// 添加 SDK 默认属性
 /// @param properties SDK 默认属性
-- (BOOL)addAutomaticProperties:(NSDictionary *)properties;
+- (void)addAutomaticProperties:(NSDictionary *)properties;
 
 /// 添加 SDK 模块中的默认属性
 /// @param properties SDK 模块中的默认属性
-- (BOOL)addPresetProperties:(NSDictionary *)properties;
+- (void)addPresetProperties:(NSDictionary *)properties;
 
 /// 添加公共属性
 /// @param properties 公共属性
-- (BOOL)addSuperProperties:(NSDictionary *)properties;
+- (void)addSuperProperties:(NSDictionary *)properties;
 
 /// 添加 DeepLink 属性信息
 /// @param properties DeepLink 属性信息
-- (BOOL)addDeepLinkProperties:(NSDictionary *)properties;
+- (void)addDeepLinkProperties:(NSDictionary *)properties;
 
-/// 添加自定义属性(属性校验不通过时, 返回值为 NO)
+/// 添加自定义属性(属性校验不通过时, error 包含错误信息)
 /// @param properties 自定义属性
-- (BOOL)addCustomProperties:(NSDictionary *)properties;
+- (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error;
 
 /// 添加网络信息
 /// @param properties 网络信息
-- (BOOL)addNetworkProperties:(NSDictionary *)properties;
+- (void)addNetworkProperties:(NSDictionary *)properties;
 
 /// 添加前向页面标题
 /// @param referrerTitle 前向页面标题
-- (BOOL)addReferrerTitleProperty:(NSString *)referrerTitle;
+- (void)addReferrerTitleProperty:(NSString *)referrerTitle;
 
 /// 添加事件时长
 /// @param duration 事件时长
-- (BOOL)addDurationProperty:(NSNumber *)duration;
+- (void)addDurationProperty:(NSNumber *)duration;
 
 @end
 
