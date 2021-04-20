@@ -20,9 +20,6 @@
 
 #import "SAProfileEventObject.h"
 #import "SAConstants+Private.h"
-#import "SAPropertyValidator.h"
-#import "SAModuleManager.h"
-#import "SALog.h"
 
 @implementation SAProfileEventObject
 
