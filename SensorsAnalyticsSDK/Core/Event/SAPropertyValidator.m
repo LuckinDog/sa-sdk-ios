@@ -23,22 +23,17 @@
 #endif
 
 #import "SAPropertyValidator.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SADateFormatter.h"
-
-#define SAPropertyError(errorCode, fromat, ...) \
-    [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" \
-                        code:errorCode \
-                    userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:fromat,##__VA_ARGS__]}] \
+#import "SAValidator.h"
 
 static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 @implementation NSString (SAProperty)
 
 - (void)sensorsdata_isValidPropertyKeyWithError:(NSError *__autoreleasing  _Nullable *)error {
-    if (![SensorsAnalyticsSDK.sharedInstance isValidName: self]) {
+    if (![SAValidator isValidKey: self]) {
         *error = SAPropertyError(10001, @"property name[%@] is not valid", self);
     }
 }

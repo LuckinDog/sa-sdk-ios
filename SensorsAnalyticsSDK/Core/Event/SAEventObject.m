@@ -26,16 +26,12 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAPresetProperty.h"
+#import "SAValidator.h"
+#import "SALog.h"
+
+static NSSet *presetEventNames;
 
 @implementation SAEventObject
-
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super init];
-    if (self) {
-        self.event = event;
-    }
-    return self;
-}
 
 #pragma makr - SAEventBuildStrategy
 - (void)addAutomaticProperties:(NSDictionary *)properties {
@@ -98,6 +94,18 @@
     }
 }
 
+- (void)setEventName:(NSString *)event error:(NSError *__autoreleasing  _Nullable *)error {
+    if (event == nil || [event length] == 0) {
+        *error = SAPropertyError(20001, @"Event name should not be empty or nil");
+        return;
+    }
+    if (![SAValidator isValidKey:event]) {
+        *error = SAPropertyError(20002, @"Event name[%@] not valid", event);
+        return;
+    }
+    self.event = event;
+}
+
 @end
 
 @implementation SASignUpEventObject
@@ -130,6 +138,26 @@
 
 - (void)addChannelProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
+}
+
+- (void)setEventName:(NSString *)event error:(NSError *__autoreleasing  _Nullable *)error {
+    [super setEventName:event error:error];
+    if (*error) {
+        return;
+    }
+    presetEventNames = [NSSet setWithObjects:
+                        SA_EVENT_NAME_APP_START,
+                        SA_EVENT_NAME_APP_START_PASSIVELY ,
+                        SA_EVENT_NAME_APP_END,
+                        SA_EVENT_NAME_APP_VIEW_SCREEN,
+                        SA_EVENT_NAME_APP_CLICK,
+                        SA_EVENT_NAME_APP_SIGN_UP,
+                        SA_EVENT_NAME_APP_CRASHED,
+                        SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];
+    //事件校验，预置事件提醒
+    if ([presetEventNames containsObject:event]) {
+        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
+    }
 }
 
 @end

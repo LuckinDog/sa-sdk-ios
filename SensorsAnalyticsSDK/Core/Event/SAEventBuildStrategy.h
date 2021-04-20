@@ -60,6 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param duration 事件时长
 - (void)addDurationProperty:(NSNumber *)duration;
 
+/// 设置事件名称
+/// @param event 事件名称
+- (void)setEventName:(NSString *)event error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

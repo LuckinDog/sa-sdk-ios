@@ -570,7 +570,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-        SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
+        SASignUpEventObject *object = [[SASignUpEventObject alloc] init];
+        [object setEventName:SA_EVENT_NAME_APP_SIGN_UP error:nil];
         [self trackWithEventObject:object properties:properties];
     });
 }
@@ -957,7 +958,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
     //item_type 必须为合法变量名
     NSString *itemType = itemDict[SA_EVENT_ITEM_TYPE];
-    if (itemType.length == 0 || ![self isValidName:itemType]) {
+    if (itemType.length == 0 || ![SAValidator isValidKey:itemType]) {
         NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
         SALogError(@"%@", errMsg);
         [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
@@ -1004,27 +1005,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self.eventTracker trackEvent:itemProperties];
 }
 #pragma mark - track event
-
-- (BOOL)isValidName:(NSString *)name {
-    if (!name) {
-        return NO;
-    }
-    @try {
-        // 保留字段通过字符串直接比较，效率更高
-        NSSet *reservedProperties = sensorsdata_reserved_properties();
-        for (NSString *reservedProperty in reservedProperties) {
-            if ([reservedProperty caseInsensitiveCompare:name] == NSOrderedSame) {
-                return NO;
-            }
-        }
-        // 属性名通过正则表达式匹配，比使用谓词效率更高
-        NSRange range = NSMakeRange(0, name.length);
-        return ([self.propertiesRegex numberOfMatchesInString:name options:0 range:range] > 0);
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-        return NO;
-    }
-}
 
 - (NSDictionary *)modulePresetProperties {
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
@@ -1130,32 +1110,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return event;
 }
 
-- (BOOL)isValidNameForTrackEvent:(NSString *)eventName {
-    if (eventName == nil || [eventName length] == 0) {
-        NSString *errMsg = @"Event name should not be empty or nil";
-        SALogError(@"%@", errMsg);
-        [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-        return NO;
-    }
-    if (![self isValidName:eventName]) {
-        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
-        SALogError(@"%@", errMsg);
-        [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-        return NO;
-    }
-    return YES;
-}
-
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
-    // TODO:
-    if (![self isValidNameForTrackEvent:event]) {
+    SACustomEventObject *object = [[SACustomEventObject alloc] init];
+    NSError *error = nil;
+    [object setEventName:event error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
-    //事件校验，预置事件提醒
-    if ([_presetEventNames containsObject:event]) {
-        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
-    }
-    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         [self trackWithEventObject:object properties:properties];
     });
@@ -1164,10 +1127,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 /// 自动采集全埋点事件：
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick
 - (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties {
-    if (![self isValidNameForTrackEvent:event]) {
+    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] init];
+    NSError *error = nil;
+    [object setEventName:event error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
         [self trackWithEventObject:object properties:properties];
     });
@@ -1177,12 +1144,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
 ///  AppCrashed、$AppRemoteConfigChanged 等预置事件
 - (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties {
-    // TODO:
-    if (![self isValidNameForTrackEvent:event]) {
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] init];
+    NSError *error = nil;
+    [object setEventName:event error:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:event];
-    [self trackWithEventObject:object properties:properties];
+    dispatch_async(self.serialQueue, ^{
+        [self trackWithEventObject:object properties:properties];
+    });
 }
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
@@ -1205,19 +1177,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
-
     if (_configOptions.enableAutoAddChannelCallbackEvent) {
         [self trackCustomEvent:event properties:propertyDict];
         return;
     }
-    if (![self isValidNameForTrackEvent:event]) {
-        return;
-    }
-    //事件校验，预置事件提醒
-    if ([_presetEventNames containsObject:event]) {
-        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
-    }
-
     NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // ua
     NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
@@ -1231,6 +1194,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
         }
         SACustomEventObject *object = [[SACustomEventObject alloc] init];
+        NSError *error = nil;
+        [object setEventName:event error:&error];
+        if (error) {
+            SALogError(@"%@", error.localizedDescription);
+            [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+            return;
+        }
         dispatch_async(self.serialQueue, ^{
             [object addChannelProperties:[self channelPropertiesWithEvent:event]];
             [self trackWithEventObject:object properties:properties];
@@ -1256,7 +1226,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)checkEventName:(NSString *)eventName {
-    if ([self isValidName:eventName]) {
+    if ([SAValidator isValidKey:eventName]) {
         return YES;
     }
     NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
@@ -2377,8 +2347,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
+    SASignUpEventObject *object = [[SASignUpEventObject alloc] init];
+    [object setEventName:SA_EVENT_NAME_APP_SIGN_UP error:nil];
     dispatch_async(self.serialQueue, ^{
-        SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
         [self trackWithEventObject:object properties:propertieDict];
     });
 }

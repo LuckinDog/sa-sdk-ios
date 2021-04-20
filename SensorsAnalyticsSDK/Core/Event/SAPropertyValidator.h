@@ -22,6 +22,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#define SAPropertyError(errorCode, fromat, ...) \
+    [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" \
+                        code:errorCode \
+                    userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:fromat,##__VA_ARGS__]}] \
+
 @protocol SAPropertyKeyProtocol <NSObject>
 
 - (void)sensorsdata_isValidPropertyKeyWithError:(NSError **)error;

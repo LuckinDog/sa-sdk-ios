@@ -64,8 +64,6 @@
 */
 - (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties;
 
-- (BOOL)isValidName:(NSString *)name;
-
 /**
  根据 viewController 判断，是否采集事件
 
