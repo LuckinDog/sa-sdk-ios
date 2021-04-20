@@ -80,7 +80,7 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
     self.relaunch = YES;
 }
 
-- (NSString *)eventName {
++ (NSString *)eventName {
     return kSAEventNameAppStart;
 }
 

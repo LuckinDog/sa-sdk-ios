@@ -184,11 +184,11 @@
             NSString *ignoredEvent = @"None";
             switch (eventType) {
                 case SensorsAnalyticsEventTypeAppStart:
-                    ignoredEvent = [self.appStartTracker eventName];
+                    ignoredEvent = [SAAppStartTracker eventName];
                     break;
 
                 case SensorsAnalyticsEventTypeAppEnd:
-                    ignoredEvent = [self.appEndTracker eventName];
+                    ignoredEvent = [SAAppEndTracker eventName];
                     break;
 
                 case SensorsAnalyticsEventTypeAppClick:

@@ -54,7 +54,7 @@
     [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppEnd properties:nil];
 }
 
-- (NSString *)eventName {
++ (NSString *)eventName {
     return kSAEventNameAppEnd;
 }
 
