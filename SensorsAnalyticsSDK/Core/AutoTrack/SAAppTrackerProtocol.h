@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 触发全埋点事件
 /// @param properties 事件属性
-- (void)trackEventWithProperties:(NSDictionary *)properties;
+- (void)trackEventWithProperties:(nullable NSDictionary *)properties;
 
 @end
 
