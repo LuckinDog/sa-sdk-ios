@@ -116,11 +116,10 @@
     return self;
 }
 
-// 去除 copy
-- (NSDictionary *)generateJSONObject {
-    NSMutableDictionary *jsonObject = [[super generateJSONObject] mutableCopy];
+- (NSMutableDictionary *)generateJSONObject {
+    NSMutableDictionary *jsonObject = [super generateJSONObject];
     jsonObject[@"original_id"] = self.anonymousId;
-    return [jsonObject copy];
+    return jsonObject;
 }
 
 @end

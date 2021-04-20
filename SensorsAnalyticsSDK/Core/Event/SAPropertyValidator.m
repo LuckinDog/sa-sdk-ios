@@ -119,7 +119,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 @implementation SAPropertyValidator
 
-+ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
     if (![properties isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
@@ -154,10 +154,10 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
             result[key] = sensorsValue;
         }
     }
-    return [result copy];
+    return result;
 }
 
-- (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
+- (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
     return [[self class] validProperties:properties error:error];
 }
 
@@ -165,7 +165,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 @implementation SAProfileAppendValidator
 
-+ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
     if (![properties isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
@@ -201,14 +201,14 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
             result[key] = sensorsValue;
         }
     }
-    return [result copy];
+    return result;
 }
 
 @end
 
 @implementation SAProfileIncrementValidator
 
-+ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
     if (![properties isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
@@ -235,7 +235,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
         
         result[key] = value;
     }
-    return [result copy];
+    return result;
 }
 
 @end

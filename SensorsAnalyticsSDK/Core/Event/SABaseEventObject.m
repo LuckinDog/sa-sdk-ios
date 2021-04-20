@@ -46,7 +46,7 @@
     return self;
 }
 
-- (NSDictionary *)generateJSONObject {
+- (NSMutableDictionary *)generateJSONObject {
     NSMutableDictionary *eventInfo = [NSMutableDictionary dictionary];
     eventInfo[SA_EVENT_PROPERTIES] = self.properties;
     eventInfo[SA_EVENT_DISTINCT_ID] = self.distinctId;
@@ -59,7 +59,7 @@
     eventInfo[SA_EVENT_NAME] = self.event;
     eventInfo[SA_EVENT_PROJECT] = self.project;
     eventInfo[SA_EVENT_TOKEN] = self.token;
-    return [eventInfo copy];
+    return eventInfo;
 }
 
 #pragma makr - SAEventBuildStrategy
@@ -79,7 +79,7 @@
 }
 
 - (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
-    NSMutableDictionary *props = [[self.propertiesValidator validProperties:properties error:error] mutableCopy];
+    NSMutableDictionary *props = [self.propertiesValidator validProperties:properties error:error];
     if (*error) {
         return;
     }

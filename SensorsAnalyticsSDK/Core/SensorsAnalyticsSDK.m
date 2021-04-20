@@ -1089,12 +1089,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     // 校验 properties
     NSError *error = nil;
-    NSDictionary *properties = [obj.propertiesValidator validProperties:obj.properties error:&error];
+    NSMutableDictionary *properties = [obj.propertiesValidator validProperties:obj.properties error:&error];
     if (error) {
         SALogError(@"%@ failed to track event.", self);
         return NO;
     }
-    obj.properties = [properties mutableCopy];
+    obj.properties = properties;
     return YES;
 }
 

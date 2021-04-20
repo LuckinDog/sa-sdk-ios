@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nonnull) id appVersion;
 @property (nonatomic, copy, nullable) NSString *detail;
 
-- (NSDictionary *)generateJSONObject;
+- (NSMutableDictionary *)generateJSONObject;
 
 @end
 

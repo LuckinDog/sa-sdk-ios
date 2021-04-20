@@ -57,9 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 属性校验
 /// @param properties 属性
 /// @param error 错误信息
-+ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
 
-- (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
+- (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
 
 @end
 
@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// profile_append 中属性校验: value 必须为集合类型
 /// @param properties 属性
 /// @param error 错误信息
-+ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
 
 @end
 
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// profile_increment 中属性校验: value 必须为 NSNumber 类型
 /// @param properties 属性
 /// @param error 错误信息
-+ (NSDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
 
 @end
 

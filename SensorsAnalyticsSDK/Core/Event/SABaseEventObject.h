@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SAPropertyValidator *propertiesValidator;
 
 /// 生成最终的事件信息
-- (NSDictionary *)generateJSONObject;
+- (NSMutableDictionary *)generateJSONObject;
 
 @end
 
