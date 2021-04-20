@@ -1033,20 +1033,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
-- (void)trackWithEvent:(NSString *)eventId object:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-    NSString *eventName = [self.trackTimer eventNameFromEventId:eventId];
-    object.event = eventName;
+- (void)trackWithEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    NSString *eventName = [self.trackTimer eventNameFromEventId:object.event];
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         SALogDebug(@"【remote config】SDK is disabled");
         return;
     }
-    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:SA_EVENT_NAME_APP_SIGN_UP]) {
+    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:eventName]) {
         SALogDebug(@"【remote config】 %@ is ignored by remote config", SA_EVENT_NAME_APP_SIGN_UP);
         return;
     }
     
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
-        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:eventId];
+        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:object.event];
         channelInfo[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
         [object addChannelProperties:channelInfo];
     }
@@ -1060,7 +1059,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addSuperProperties:self.superProperty.allProperties];
     [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
     [object addPresetProperties:[self modulePresetProperties]];
-    NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:eventId currentSysUpTime:object.currentSystemUpTime];
+    NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
     NSError *error = nil;
     [object addCustomProperties:properties error:&error];
@@ -1147,8 +1146,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackSignupEvent:(NSDictionary *)properties {
-    SASignUpEventObject *object = [[SASignUpEventObject alloc] init];
-    [self trackWithEvent:SA_EVENT_NAME_APP_SIGN_UP object:object properties:properties];
+    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
+    [self trackWithEventObject:object properties:properties];
 }
 
 - (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -1160,9 +1159,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([_presetEventNames containsObject:event]) {
         SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
     }
-    SACustomEventObject *object = [[SACustomEventObject alloc] init];
+    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
-        [self trackWithEvent:event object:object properties:properties];
+        [self trackWithEventObject:object properties:properties];
     });
 }
 
@@ -1172,9 +1171,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] init];
+    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEvent:event];
     dispatch_async(self.serialQueue, ^{
-        [self trackWithEvent:event object:object properties:properties];
+        [self trackWithEventObject:object properties:properties];
     });
 }
 
@@ -1186,14 +1185,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self isValidNameForTrackEvent:event]) {
         return;
     }
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] init];
-    [self trackWithEvent:event object:object properties:properties];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEvent:event];
+    [self trackWithEventObject:object properties:properties];
 }
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
     dispatch_async(self.serialQueue, ^{
-        [self trackWithEvent:nil object:object properties:properties];
+        [self trackWithEventObject:object properties:properties];
     });
 }
 
@@ -1238,7 +1237,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SACustomEventObject *object = [[SACustomEventObject alloc] init];
         dispatch_async(self.serialQueue, ^{
             [object addChannelProperties:[self channelPropertiesWithEvent:event]];
-            [self trackWithEvent:event object:object properties:properties];
+            [self trackWithEventObject:object properties:properties];
         });
     };
 
@@ -2219,7 +2218,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (profile && amount) {
         SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
         dispatch_async(SensorsAnalyticsSDK.sharedInstance.serialQueue, ^{
-            [SensorsAnalyticsSDK.sharedInstance trackWithEvent:nil object:object properties:@{profile: amount}];
+            [SensorsAnalyticsSDK.sharedInstance trackWithEventObject:object properties:@{profile: amount}];
         });
     }
 }
@@ -2228,7 +2227,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (profileDict) {
         SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
         dispatch_async(SensorsAnalyticsSDK.sharedInstance.serialQueue, ^{
-            [SensorsAnalyticsSDK.sharedInstance trackWithEvent:nil object:object properties:profileDict];
+            [SensorsAnalyticsSDK.sharedInstance trackWithEventObject:object properties:profileDict];
         });
     }
 }
@@ -2238,7 +2237,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
             SAProfileEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
             dispatch_async(SensorsAnalyticsSDK.sharedInstance.serialQueue, ^{
-                [SensorsAnalyticsSDK.sharedInstance trackWithEvent:nil object:object properties:@{profile: content}];
+                [SensorsAnalyticsSDK.sharedInstance trackWithEventObject:object properties:@{profile: content}];
             });
         }
     }

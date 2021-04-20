@@ -29,6 +29,14 @@
 
 @implementation SAEventObject
 
+- (instancetype)initWithEvent:(NSString *)event {
+    self = [super init];
+    if (self) {
+        self.event = event;
+    }
+    return self;
+}
+
 #pragma makr - SAEventBuildStrategy
 - (void)addAutomaticProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
