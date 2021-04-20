@@ -81,21 +81,13 @@
     } else {
         self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodCode;
     }
-    // TODO: 逻辑- 去除 if
-    NSString *libDetail = nil;
-    if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEnabled] && properties.count > 0) {
-        //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
-        if ([self.event isEqualToString:SA_EVENT_NAME_APP_CLICK]) {
-            if (![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-                libDetail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
-            }
-        } else if ([self.event isEqualToString:SA_EVENT_NAME_APP_VIEW_SCREEN]) {
-            if (![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen]) {
-                libDetail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
-            }
-        }
+
+    //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
+    BOOL isAppClick = [self.event isEqualToString:SA_EVENT_NAME_APP_CLICK] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
+    BOOL isViewScreen = [self.event isEqualToString:SA_EVENT_NAME_APP_VIEW_SCREEN] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen];
+    if (isAppClick || isViewScreen) {
+        self.lib.detail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
     }
-    self.lib.detail = libDetail;
 }
 
 - (void)addNetworkProperties:(NSDictionary *)properties {
