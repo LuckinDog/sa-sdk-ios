@@ -33,7 +33,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _ignore = NO;
+        _ignored = NO;
     }
     return self;
 }
@@ -44,10 +44,14 @@
     [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
 }
 
-- (void)trackAppEnd {
-    if (!self.ignore) {
-        [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppEnd properties:nil];
+#pragma mark - SAAppTrackerProtocol
+
+- (void)trackEventWithProperties:(NSDictionary *)properties {
+    if (self.ignored) {
+        return;
     }
+
+    [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppEnd properties:nil];
 }
 
 - (NSString *)eventName {

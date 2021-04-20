@@ -19,24 +19,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAAppTrackerProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAppStartTracker : NSObject
+@interface SAAppStartTracker : NSObject <SAAppTrackerProtocol>
 
-/// 是否忽略启动事件
-@property (nonatomic, assign, getter=isIgnore) BOOL ignore;
+@property (nonatomic, assign, getter=isIgnored) BOOL ignored;
 
-/// 触发启动事件
-/// @param utmProperties deeplink 相关渠道信息
-- (void)trackAppStartWithUtmProperties:(NSDictionary *)utmProperties;
-
-/// 触发被动启动事件
-/// @param utmProperties deeplink 相关渠道信息
-- (void)trackAppStartPassivelyWithUtmProperties:(NSDictionary *)utmProperties;
-
-/// 启动事件名
-- (NSString *)eventName;
+/// 是否被动启动
+@property (nonatomic, assign, getter=isPassively) BOOL passively;
 
 @end
 

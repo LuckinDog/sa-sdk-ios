@@ -27,14 +27,13 @@
 #import "SARemoteConfigModel.h"
 #import "SAModuleManager.h"
 #import "SAAppLifecycle.h"
-#import "SAConstants+Private.h"
 #import "SALog.h"
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SASwizzle.h"
 #import "NSObject+DelegateProxy.h"
-#import "SAAutoTrackUtils.h"
-#import "SAValidator.h"
+#import "SAAppStartTracker.h"
+#import "SAAppEndTracker.h"
 #import <objc/runtime.h>
 
 @interface SAAutoTrackManager ()
@@ -119,13 +118,16 @@
 
     // 被动启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
-        [self.appStartTracker trackAppStartPassivelyWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
+        self.appStartTracker.passively = YES;
+        [self.appStartTracker trackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
         return;
     }
 
     // 冷（热）启动
     if (newState == SAAppLifecycleStateStart) {
-        [self.appStartTracker trackAppStartWithUtmProperties:SAModuleManager.sharedInstance.utmProperties];
+        self.appStartTracker.passively = NO;
+        [self.appStartTracker trackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
+
         // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
         return;
@@ -133,7 +135,7 @@
 
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
-        [self.appEndTracker trackAppEnd];
+        [self.appEndTracker trackEventWithProperties:nil];
     }
 }
 
@@ -212,8 +214,8 @@
 }
 
 - (void)updateAutoTrackEventType {
-    self.appStartTracker.ignore = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
-    self.appEndTracker.ignore = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
+    self.appStartTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
+    self.appEndTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
 }
 
 @end

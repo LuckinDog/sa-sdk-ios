@@ -19,22 +19,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAAppTrackerProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAppEndTracker : NSObject
+@interface SAAppEndTracker : NSObject <SAAppTrackerProtocol>
 
-/// 是否忽略退出事件
-@property (nonatomic, assign, getter=isIgnore) BOOL ignore;
+@property (nonatomic, assign, getter=isIgnored) BOOL ignored;
 
 /// 开始退出事件计时
 - (void)trackTimerStartAppEnd;
-
-/// 触发退出事件
-- (void)trackAppEnd;
-
-/// 退出事件名
-- (NSString *)eventName;
 
 @end
 

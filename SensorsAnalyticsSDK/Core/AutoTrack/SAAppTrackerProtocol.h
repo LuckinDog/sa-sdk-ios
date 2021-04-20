@@ -1,8 +1,8 @@
 //
-// SAAutoTrackManager.h
+// SAAppTrackerProtocol.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/4/2.
+// Created by wenquan on 2021/4/20.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,30 +19,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAConstants+Private.h"
-#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAutoTrackManager : NSObject <SAModuleProtocol, SAAutoTrackModuleProtocol>
+@protocol SAAppTrackerProtocol <NSObject>
 
-@property (nonatomic, strong) SAConfigOptions *configOptions;
+/// 是否忽略事件
+@property (nonatomic, assign, getter=isIgnored) BOOL ignored;
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
+/// 获取 tracker 对应的事件名
+- (NSString *)eventName;
 
-+ (SAAutoTrackManager *)sharedInstance;
-
-#pragma mark - Public
-
-/// 是否开启全埋点
-- (BOOL)isAutoTrackEnabled;
-
-/// 是否忽略某些全埋点
-/// @param eventType 全埋点类型
-- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType;
-
-/// 更新全埋点事件类型
-- (void)updateAutoTrackEventType;
+/// 触发全埋点事件
+/// @param properties 事件属性
+- (void)trackEventWithProperties:(NSDictionary *)properties;
 
 @end
 
