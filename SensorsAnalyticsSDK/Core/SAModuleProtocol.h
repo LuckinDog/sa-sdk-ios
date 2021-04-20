@@ -152,6 +152,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAAutoTrackModuleProtocol <NSObject>
 
+/// 更新全埋点事件类型
+- (void)updateAutoTrackEventType;
+
+/// 是否开启全埋点
+- (BOOL)isAutoTrackEnabled;
+
+/// 是否忽略某些全埋点
+/// @param eventType 全埋点类型
+- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType;
+
 @end
 
 NS_ASSUME_NONNULL_END

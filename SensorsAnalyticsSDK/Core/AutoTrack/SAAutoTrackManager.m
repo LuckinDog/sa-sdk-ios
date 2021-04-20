@@ -34,6 +34,7 @@
 #import "NSObject+DelegateProxy.h"
 #import "SAAppStartTracker.h"
 #import "SAAppEndTracker.h"
+#import "SAConstants+Private.h"
 #import <objc/runtime.h>
 
 @interface SAAutoTrackManager ()

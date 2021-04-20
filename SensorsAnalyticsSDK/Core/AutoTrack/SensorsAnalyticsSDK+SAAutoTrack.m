@@ -24,7 +24,6 @@
 
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SAAutoTrackManager.h"
 #import "SAModuleManager.h"
 
 #pragma mark -
@@ -36,19 +35,18 @@
         self.configOptions.autoTrackEventType = eventType;
 
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
-
-        [SAAutoTrackManager.sharedInstance updateAutoTrackEventType];
+        [SAModuleManager.sharedInstance updateAutoTrackEventType];
     }
 }
 
 - (BOOL)isAutoTrackEnabled {
-    return [SAAutoTrackManager.sharedInstance isAutoTrackEnabled];
+    return [SAModuleManager.sharedInstance isAutoTrackEnabled];
 }
 
 #pragma mark - Ignore
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-    return [SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:eventType];
+    return [SAModuleManager.sharedInstance isAutoTrackEventTypeIgnored:eventType];
 }
 
 #pragma mark - Deprecated
@@ -60,7 +58,7 @@
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
     self.configOptions.autoTrackEventType = self.configOptions.autoTrackEventType ^ eventType;
 
-    [SAAutoTrackManager.sharedInstance updateAutoTrackEventType];
+    [SAModuleManager.sharedInstance updateAutoTrackEventType];
 }
 
 @end
