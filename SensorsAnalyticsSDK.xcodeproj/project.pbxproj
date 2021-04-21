@@ -578,19 +578,9 @@
 			path = Processor;
 			sourceTree = "<group>";
 		};
-		457209FD26214CC5000F41C7 /* SuperProperty */ = {
+		4592509C261AC8B800A08FC3 /* EventObject */ = {
 			isa = PBXGroup;
 			children = (
-				457209FE26214D13000F41C7 /* SASuperProperty.h */,
-				457209FF26214D13000F41C7 /* SASuperProperty.m */,
-			);
-			path = SuperProperty;
-			sourceTree = "<group>";
-		};
-		4592509C261AC8B800A08FC3 /* Event */ = {
-			isa = PBXGroup;
-			children = (
-				457209FD26214CC5000F41C7 /* SuperProperty */,
 				45A452112627EC4C008D61A9 /* SAEventBuildStrategy.h */,
 				458D04C626259A98004B55F1 /* SABaseEventObject.h */,
 				458D04C726259A98004B55F1 /* SABaseEventObject.m */,
@@ -603,7 +593,7 @@
 				45720B1A2624500B000F41C7 /* SAPropertyValidator.h */,
 				45720B1B2624500B000F41C7 /* SAPropertyValidator.m */,
 			);
-			path = Event;
+			path = EventObject;
 			sourceTree = "<group>";
 		};
 		4D4DB28425B7D17E00938842 /* AutoTrack */ = {
@@ -709,7 +699,6 @@
 		881A40D2253D7B4F00854F69 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				4592509C261AC8B800A08FC3 /* Event */,
 				4D4DB28425B7D17E00938842 /* AutoTrack */,
 				881A416D253D7B4F00854F69 /* Builder */,
 				881A414E253D7B4F00854F69 /* Channel */,
@@ -930,6 +919,9 @@
 		881A416D253D7B4F00854F69 /* Builder */ = {
 			isa = PBXGroup;
 			children = (
+				4592509C261AC8B800A08FC3 /* EventObject */,
+				457209FE26214D13000F41C7 /* SASuperProperty.h */,
+				457209FF26214D13000F41C7 /* SASuperProperty.m */,
 				881A4170253D7B4F00854F69 /* SAIdentifier.h */,
 				881A416E253D7B4F00854F69 /* SAIdentifier.m */,
 				88329A8F257651E300F8B34E /* SAIDFAHelper.h */,
