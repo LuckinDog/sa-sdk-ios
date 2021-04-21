@@ -57,7 +57,7 @@ static NSSet *presetEventNames;
     [self.properties addEntriesFromDictionary:properties];
 }
 
-- (void)addPresetProperties:(NSDictionary *)properties {
+- (void)addModuleProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
 }
 

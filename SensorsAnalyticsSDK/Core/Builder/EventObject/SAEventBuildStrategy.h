@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 添加 SDK 模块中的默认属性
 /// @param properties SDK 模块中的默认属性
-- (void)addPresetProperties:(NSDictionary *)properties;
+- (void)addModuleProperties:(NSDictionary *)properties;
 
 /// 添加公共属性
 /// @param properties 公共属性

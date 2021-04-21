@@ -1007,7 +1007,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     object.distinctId = self.distinctId;
     object.loginId = self.loginId;
     object.anonymousId = self.anonymousId;
-    
+
+    [object addAutomaticProperties:self.presetProperty.automaticProperties];
+    [object addSuperProperties:self.superProperty.allProperties];
+    [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+    NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
+    [object addDurationProperty:eventDuration];
+    [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
+
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
         NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:object.event];
         channelInfo[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
@@ -1017,16 +1024,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (self.configOptions.enableReferrerTitle) {
         [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
     }
-    
-    [object addAutomaticProperties:self.presetProperty.automaticProperties];
-    [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-    [object addSuperProperties:self.superProperty.allProperties];
-    [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
-    [object addPresetProperties:[self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]]];
-    NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
-    [object addDurationProperty:eventDuration];
 
     [object addCustomProperties:properties error:&error];
+    [object addModuleProperties:[self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]]];
+
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];

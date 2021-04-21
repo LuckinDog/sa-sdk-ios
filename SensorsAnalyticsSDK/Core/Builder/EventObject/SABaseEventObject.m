@@ -81,7 +81,7 @@
 - (void)addAutomaticProperties:(NSDictionary *)properties {
 }
 
-- (void)addPresetProperties:(NSDictionary *)properties {
+- (void)addModuleProperties:(NSDictionary *)properties {
 }
 
 - (void)addSuperProperties:(NSDictionary *)properties {
