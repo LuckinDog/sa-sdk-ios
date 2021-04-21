@@ -139,6 +139,10 @@ static NSSet *presetEventNames;
     return YES;
 }
 
+// $SignUp 事件不添加该属性
+- (void)addModuleProperties:(NSDictionary *)properties {
+}
+
 @end
 
 @implementation SACustomEventObject
