@@ -70,6 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param error 错误信息
 - (void)isValidEventWithError:(NSError **)error;
 
+/// 获取事件名称
+- (NSString *)eventName;
+
 /// 校验是否是登录事件
 - (BOOL)isSignUp;
 

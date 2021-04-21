@@ -42,6 +42,15 @@
     return self;
 }
 
+- (NSString *)eventName {
+    if (![self.event hasSuffix:kEventIdSuffix]) {
+        return self.event;
+    }
+    //eventId 结构为 {eventName}_D3AC265B_3CC2_4C45_B8F0_3E05A83A9DAE_SATimer，新增后缀长度为 44
+    NSString *eventName = [self.event substringToIndex:(self.event.length - 1) - 44];
+    return eventName;
+}
+
 - (BOOL)isSignUp {
     return [self.type isEqualToString: kSAEventTypeSignup];
 }
@@ -59,7 +68,7 @@
     eventInfo[SA_EVENT_TIME] = @(self.timeStamp);
     eventInfo[SA_EVENT_LIB] = [self.lib generateJSONObject];
     eventInfo[SA_EVENT_TRACK_ID] = self.trackId;
-    eventInfo[SA_EVENT_NAME] = self.event;
+    eventInfo[SA_EVENT_NAME] = self.eventName;
     eventInfo[SA_EVENT_PROJECT] = self.project;
     eventInfo[SA_EVENT_TOKEN] = self.token;
     return eventInfo;

@@ -986,13 +986,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - track event
 
 - (void)trackWithEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-    NSString *eventName = [self.trackTimer eventNameFromEventId:object.event];
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         SALogDebug(@"【remote config】SDK is disabled");
         return;
     }
 
-    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:eventName]) {
+    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:object.eventName]) {
         SALogDebug(@"【remote config】 %@ is ignored by remote config", SA_EVENT_NAME_APP_SIGN_UP);
         return;
     }
