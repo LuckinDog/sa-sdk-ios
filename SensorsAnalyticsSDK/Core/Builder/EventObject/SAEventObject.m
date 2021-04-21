@@ -117,8 +117,8 @@ static NSSet *presetEventNames;
 
 @implementation SASignUpEventObject
 
-- (instancetype)init {
-    self = [super init];
+- (instancetype)initWithEvent:(NSString *)event {
+    self = [super initWithEvent:event];
     if (self) {
         self.type = kSAEventTypeSignup;
     }
@@ -135,8 +135,8 @@ static NSSet *presetEventNames;
 
 @implementation SACustomEventObject
 
-- (instancetype)init {
-    self = [super init];
+- (instancetype)initWithEvent:(NSString *)event {
+    self = [super initWithEvent:event];
     if (self) {
         self.type = kSAEventTypeTrack;
     }
@@ -171,8 +171,8 @@ static NSSet *presetEventNames;
 
 @implementation SAAutoTrackEventObject
 
-- (instancetype)init {
-    self = [super init];
+- (instancetype)initWithEvent:(NSString *)event {
+    self = [super initWithEvent:event];
     if (self) {
         self.type = kSAEventTypeTrack;
     }
@@ -192,8 +192,8 @@ static NSSet *presetEventNames;
 
 @implementation SAPresetEventObject
 
-- (instancetype)init {
-    self = [super init];
+- (instancetype)initWithEvent:(NSString *)event {
+    self = [super initWithEvent:event];
     if (self) {
         self.type = kSAEventTypeTrack;
     }
