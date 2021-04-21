@@ -70,19 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAProfileAppendValidator : SAPropertyValidator
 
-/// profile_append 中属性校验: value 必须为集合类型
-/// @param properties 属性
-/// @param error 错误信息
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
-
 @end
 
 @interface SAProfileIncrementValidator : SAPropertyValidator
-
-/// profile_increment 中属性校验: value 必须为 NSNumber 类型
-/// @param properties 属性
-/// @param error 错误信息
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
 
 @end
 
