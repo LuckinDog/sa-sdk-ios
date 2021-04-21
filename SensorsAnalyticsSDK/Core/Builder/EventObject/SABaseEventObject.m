@@ -52,7 +52,7 @@
 }
 
 - (BOOL)isSignUp {
-    return [self.type isEqualToString: kSAEventTypeSignup];
+    return NO;
 }
 
 - (void)isValidEventWithError:(NSError *__autoreleasing  _Nullable *)error {

@@ -131,6 +131,10 @@ static NSSet *presetEventNames;
     return jsonObject;
 }
 
+- (BOOL)isSignUp {
+    return YES;
+}
+
 @end
 
 @implementation SACustomEventObject
