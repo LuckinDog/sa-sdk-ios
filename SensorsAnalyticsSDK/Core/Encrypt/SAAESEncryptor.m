@@ -85,6 +85,7 @@ NSString * const kSASymmetricEncryptTypeAES = @"AES";
                                           bufferSize,
                                           &numBytesEncrypted);
     if (cryptStatus == kCCSuccess) {
+        // 获得加密内容后，在内容前添加 16 位随机字节，增加数据复杂度
         NSData *encryptData = [NSData dataWithBytes:buffer length:numBytesEncrypted];
         NSMutableData *ivEncryptData = [NSMutableData dataWithData:ivData];
         [ivEncryptData appendData:encryptData];

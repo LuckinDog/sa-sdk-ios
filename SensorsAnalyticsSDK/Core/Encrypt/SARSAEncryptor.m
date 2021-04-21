@@ -105,15 +105,7 @@ NSString * const kSAAsymmetricEncryptTypeRSA = @"RSA";
     return [ret base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
 }
 
-- (NSData *)random16ByteData {
-    unsigned char buf[16];
-    arc4random_buf(buf, sizeof(buf));
-    NSData *data = [NSData dataWithBytes:buf length:sizeof(buf)];
-    return data;
-}
-
 #pragma mark – Private Methods
-
 - (SecKeyRef)addPublicKey:(NSString *)aymmetricPublicKey {
     NSString *key = [aymmetricPublicKey copy];
     

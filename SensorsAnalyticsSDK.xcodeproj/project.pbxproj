@@ -228,6 +228,7 @@
 		FCE5FAB32626F12E0084C1F6 /* SAECCPluginEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = FCE5FAB12626F12E0084C1F6 /* SAECCPluginEncryptor.m */; };
 		FCE7F166262EE4C40018EB14 /* SASecretKeyFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = FCE7F164262EE4C40018EB14 /* SASecretKeyFactory.m */; };
 		FCE7F167262EE4C40018EB14 /* SASecretKeyFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = FCE7F165262EE4C40018EB14 /* SASecretKeyFactory.h */; };
+		FCE7F19D263012660018EB14 /* SAEncryptTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FCE7F19C263012660018EB14 /* SAEncryptTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -490,6 +491,7 @@
 		FCE5FAB12626F12E0084C1F6 /* SAECCPluginEncryptor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAECCPluginEncryptor.m; sourceTree = "<group>"; };
 		FCE7F164262EE4C40018EB14 /* SASecretKeyFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecretKeyFactory.m; sourceTree = "<group>"; };
 		FCE7F165262EE4C40018EB14 /* SASecretKeyFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASecretKeyFactory.h; sourceTree = "<group>"; };
+		FCE7F19C263012660018EB14 /* SAEncryptTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAEncryptTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -980,6 +982,7 @@
 				4D6A188D22978F5B00F6B218 /* AutoTrack */,
 				CB6EBAEE22855222003CFBA8 /* Resources */,
 				CB6EBAF222855222003CFBA8 /* SANetworkTests.m */,
+				FCE7F19C263012660018EB14 /* SAEncryptTests.m */,
 				FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */,
 				FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */,
 				FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */,
@@ -1418,6 +1421,7 @@
 				FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */,
 				FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */,
 				4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */,
+				FCE7F19D263012660018EB14 /* SAEncryptTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
