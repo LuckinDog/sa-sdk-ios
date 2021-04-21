@@ -122,7 +122,4 @@
 - (void)addDurationProperty:(NSNumber *)duration {
 }
 
-- (void)setEventName:(NSString *)event error:(NSError *__autoreleasing  _Nullable *)error {
-}
-
 @end
