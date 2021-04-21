@@ -42,6 +42,10 @@ static NSSet *presetEventNames;
 }
 
 - (void)isValidEventWithError:(NSError *__autoreleasing  _Nullable *)error {
+    if (self.event && ![self.event isKindOfClass:NSString.class]) {
+        *error = SAPropertyError(20000, @"Event name must be NSString. got: %@ %@", [self.event class], self.event);
+        return;
+    }
     if (self.event == nil || [self.event length] == 0) {
         *error = SAPropertyError(20001, @"Event name should not be empty or nil");
         return;

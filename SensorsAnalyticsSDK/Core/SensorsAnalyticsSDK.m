@@ -986,6 +986,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - track event
 
 - (void)trackWithEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    NSError *error = nil;
+    [object isValidEventWithError:&error];
+    if (error) {
+        SALogError(@"%@", error.localizedDescription);
+        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+        return;
+    }
+
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         SALogDebug(@"【remote config】SDK is disabled");
         return;
@@ -993,14 +1001,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:object.eventName]) {
         SALogDebug(@"【remote config】 %@ is ignored by remote config", object.eventName);
-        return;
-    }
-
-    NSError *error = nil;
-    [object isValidEventWithError:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
 
