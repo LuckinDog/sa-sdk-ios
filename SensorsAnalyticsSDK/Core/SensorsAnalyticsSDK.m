@@ -1041,7 +1041,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSDictionary *result = [object generateJSONObject];
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:result];
     SALogDebug(@"\n【track event】:\n%@", result);
-    [self.eventTracker trackEvent:result isSignUp:[object.type isEqualToString:kSAEventTypeSignup]];
+    [self.eventTracker trackEvent:result isSignUp:object.isSignUp];
 }
 
 - (BOOL)willEnqueueWithObject:(SABaseEventObject *)obj {
