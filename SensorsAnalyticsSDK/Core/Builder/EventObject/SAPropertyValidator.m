@@ -152,9 +152,6 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     }
 
     [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
-    if (*error) {
-        return;
-    }
 }
 
 + (void)validValue:(id)value error:(NSError **)error {

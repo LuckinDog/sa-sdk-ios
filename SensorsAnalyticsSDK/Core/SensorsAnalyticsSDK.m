@@ -992,7 +992,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:object.eventName]) {
-        SALogDebug(@"【remote config】 %@ is ignored by remote config", SA_EVENT_NAME_APP_SIGN_UP);
+        SALogDebug(@"【remote config】 %@ is ignored by remote config", object.eventName);
         return;
     }
 
