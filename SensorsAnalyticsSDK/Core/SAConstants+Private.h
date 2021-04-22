@@ -61,7 +61,7 @@ extern NSString * const kSAEventNameSignUp;
 
 extern NSString * const kSAEventNameAppCrashed;
 
-extern NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED;
+extern NSString * const kSAEventNameAppRemoteConfigChanged;
 
 // 激活事件
 extern NSString * const kSAEventNameAppInstall;

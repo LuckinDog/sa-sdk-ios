@@ -64,7 +64,7 @@ NSString * const kSAEventNameSignUp = @"$SignUp";
 
 NSString * const kSAEventNameAppCrashed = @"AppCrashed";
 // 远程控制配置变化
-NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED = @"$AppRemoteConfigChanged";
+NSString * const kSAEventNameAppRemoteConfigChanged = @"$AppRemoteConfigChanged";
 
 // 激活事件
 NSString * const kSAEventNameAppInstall = @"$AppInstall";
