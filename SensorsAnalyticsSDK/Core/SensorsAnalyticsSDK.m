@@ -75,7 +75,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
 #import "SAReferrerManager.h"
-#import "SAEventObject.h"
+#import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
 

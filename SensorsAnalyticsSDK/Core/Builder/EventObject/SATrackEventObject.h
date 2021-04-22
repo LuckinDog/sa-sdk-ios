@@ -1,5 +1,5 @@
 //
-// SAEventObject.h
+// SATrackEventObject.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/4/6.
@@ -22,25 +22,25 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAEventObject : SABaseEventObject
+@interface SATrackEventObject : SABaseEventObject
 
 - (instancetype)initWithEvent:(NSString *)event;
 
 @end
 
-@interface SASignUpEventObject : SAEventObject
+@interface SASignUpEventObject : SATrackEventObject
 
 @end
 
-@interface SACustomEventObject : SAEventObject
+@interface SACustomEventObject : SATrackEventObject
 
 @end
 
-@interface SAAutoTrackEventObject : SAEventObject
+@interface SAAutoTrackEventObject : SATrackEventObject
 
 @end
 
-@interface SAPresetEventObject : SAEventObject
+@interface SAPresetEventObject : SATrackEventObject
 
 @end
 

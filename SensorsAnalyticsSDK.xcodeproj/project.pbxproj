@@ -31,8 +31,8 @@
 		458D04C926259A98004B55F1 /* SABaseEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 458D04C726259A98004B55F1 /* SABaseEventObject.m */; };
 		458D04CF26259BCB004B55F1 /* SAProfileEventObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 458D04CD26259BCB004B55F1 /* SAProfileEventObject.h */; };
 		458D04D026259BCB004B55F1 /* SAProfileEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 458D04CE26259BCB004B55F1 /* SAProfileEventObject.m */; };
-		459250A9261BF34A00A08FC3 /* SAEventObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 459250A7261BF34A00A08FC3 /* SAEventObject.h */; };
-		459250AA261BF34A00A08FC3 /* SAEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 459250A8261BF34A00A08FC3 /* SAEventObject.m */; };
+		459250A9261BF34A00A08FC3 /* SATrackEventObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 459250A7261BF34A00A08FC3 /* SATrackEventObject.h */; };
+		459250AA261BF34A00A08FC3 /* SATrackEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 459250A8261BF34A00A08FC3 /* SATrackEventObject.m */; };
 		459250B0261BF37400A08FC3 /* SAEventLibObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 459250AE261BF37400A08FC3 /* SAEventLibObject.h */; };
 		459250B1261BF37400A08FC3 /* SAEventLibObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 459250AF261BF37400A08FC3 /* SAEventLibObject.m */; };
 		45A452132627EC4C008D61A9 /* SAEventBuildStrategyProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 45A452112627EC4C008D61A9 /* SAEventBuildStrategyProtocol.h */; };
@@ -272,8 +272,8 @@
 		458D04C726259A98004B55F1 /* SABaseEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SABaseEventObject.m; sourceTree = "<group>"; };
 		458D04CD26259BCB004B55F1 /* SAProfileEventObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAProfileEventObject.h; sourceTree = "<group>"; };
 		458D04CE26259BCB004B55F1 /* SAProfileEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAProfileEventObject.m; sourceTree = "<group>"; };
-		459250A7261BF34A00A08FC3 /* SAEventObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventObject.h; sourceTree = "<group>"; };
-		459250A8261BF34A00A08FC3 /* SAEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventObject.m; sourceTree = "<group>"; };
+		459250A7261BF34A00A08FC3 /* SATrackEventObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SATrackEventObject.h; sourceTree = "<group>"; };
+		459250A8261BF34A00A08FC3 /* SATrackEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackEventObject.m; sourceTree = "<group>"; };
 		459250AE261BF37400A08FC3 /* SAEventLibObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventLibObject.h; sourceTree = "<group>"; };
 		459250AF261BF37400A08FC3 /* SAEventLibObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventLibObject.m; sourceTree = "<group>"; };
 		45A452112627EC4C008D61A9 /* SAEventBuildStrategyProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventBuildStrategyProtocol.h; sourceTree = "<group>"; };
@@ -584,8 +584,8 @@
 				45A452112627EC4C008D61A9 /* SAEventBuildStrategyProtocol.h */,
 				458D04C626259A98004B55F1 /* SABaseEventObject.h */,
 				458D04C726259A98004B55F1 /* SABaseEventObject.m */,
-				459250A7261BF34A00A08FC3 /* SAEventObject.h */,
-				459250A8261BF34A00A08FC3 /* SAEventObject.m */,
+				459250A7261BF34A00A08FC3 /* SATrackEventObject.h */,
+				459250A8261BF34A00A08FC3 /* SATrackEventObject.m */,
 				458D04CD26259BCB004B55F1 /* SAProfileEventObject.h */,
 				458D04CE26259BCB004B55F1 /* SAProfileEventObject.m */,
 				459250AE261BF37400A08FC3 /* SAEventLibObject.h */,
@@ -1125,7 +1125,7 @@
 				A8A87E542568EBD500E16895 /* SARemoteConfigManager.h in Headers */,
 				A835227525E5FD75005D69D5 /* SARSAEncryptor.h in Headers */,
 				A835227825E5FD75005D69D5 /* SAEncryptManager.h in Headers */,
-				459250A9261BF34A00A08FC3 /* SAEventObject.h in Headers */,
+				459250A9261BF34A00A08FC3 /* SATrackEventObject.h in Headers */,
 				F277F5C925CF9A43009B5CE6 /* SANotificationUtil.h in Headers */,
 				881A41A0253D7B4F00854F69 /* SensorsAnalyticsSDK+Private.h in Headers */,
 				4D9E5DB625943BCD0095A0D0 /* SAVisualizedSnapshotMessage.h in Headers */,
@@ -1407,7 +1407,7 @@
 				881A4202253D7B5000854F69 /* SAModuleManager.m in Sources */,
 				F2E9723225E637820009A2B9 /* SAAppPushManager.m in Sources */,
 				881A41FC253D7B5000854F69 /* SASwizzle.m in Sources */,
-				459250AA261BF34A00A08FC3 /* SAEventObject.m in Sources */,
+				459250AA261BF34A00A08FC3 /* SATrackEventObject.m in Sources */,
 				45720B1D2624500B000F41C7 /* SAPropertyValidator.m in Sources */,
 				4D9E5DB725943BCD0095A0D0 /* SAAuxiliaryToolManager.m in Sources */,
 				881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */,
