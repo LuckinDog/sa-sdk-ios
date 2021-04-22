@@ -100,7 +100,9 @@
         }];
     }
     if (unregisterPropertyKeys.count > 0) {
-        [self removeDuplicateSuperProperties:unregisterPropertyKeys];
+        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
+        [tmp removeObjectsForKeys:unregisterPropertyKeys];
+        self.superProperties = [NSDictionary dictionaryWithDictionary:tmp];
     }
 }
 
@@ -128,16 +130,6 @@
     NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:self.currentSuperProperties];
     [result addEntriesFromDictionary:validProperties];
     return [result copy];
-}
-
-#pragma mark - private
-
-/// 移除公共属性
-/// @param properties 待移除 key 的集合
-- (void)removeDuplicateSuperProperties:(NSArray<NSString *> *)properties {
-    NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
-    [tmp removeObjectsForKeys:properties];
-    self.superProperties = [NSDictionary dictionaryWithDictionary:tmp];
 }
 
 #pragma mark - 缓存
