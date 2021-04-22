@@ -977,7 +977,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithLibMethod:kSALibMethodCode];
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
-    itemProperties[SA_EVENT_TIME] = timeStamp;
+    itemProperties[kSAEventTime] = timeStamp;
 
     SALogDebug(@"\n【track event】:\n%@", itemProperties);
 
@@ -2027,7 +2027,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
 
-            eventDict[SA_EVENT_TIME] = timeStamp;
+            eventDict[kSAEventTime] = timeStamp;
 
             //JS SDK Data add _hybrid_h5 flag
             eventDict[SA_EVENT_HYBRID_H5] = @(YES);
