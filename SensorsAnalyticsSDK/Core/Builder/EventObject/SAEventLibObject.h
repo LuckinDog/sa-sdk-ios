@@ -24,10 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventLibObject : NSObject
 
-@property (nonatomic, copy, nonnull) NSString *lib;
-@property (nonatomic, copy, nonnull) NSString *method;
-@property (nonatomic, copy, nonnull) NSString *version;
-@property (nonatomic, strong, nonnull) id appVersion;
+@property (nonatomic, copy) NSString *lib;
+@property (nonatomic, copy) NSString *method;
+@property (nonatomic, copy) NSString *version;
+@property (nonatomic, strong) id appVersion;
 @property (nonatomic, copy, nullable) NSString *detail;
 
 - (NSMutableDictionary *)generateJSONObject;
