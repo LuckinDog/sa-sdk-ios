@@ -971,7 +971,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (propertyMDict.count > 0) {
-        itemProperties[SA_EVENT_PROPERTIES] = propertyMDict;
+        itemProperties[kSAEventProperties] = propertyMDict;
     }
     
     itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithLibMethod:kSALibMethodCode];
@@ -1564,7 +1564,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
         if (eventArray) {
             for (NSDictionary *dict in eventArray) {
-                [self trackCustomEvent:dict[kSAEventName] properties:dict[SA_EVENT_PROPERTIES]];
+                [self trackCustomEvent:dict[kSAEventName] properties:dict[kSAEventProperties]];
             }
             [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
             if (completion) {
@@ -1973,7 +1973,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLib];
             [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLibVersion];
 
-            NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
+            NSMutableDictionary *propertiesDict = eventDict[kSAEventProperties];
             if([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict

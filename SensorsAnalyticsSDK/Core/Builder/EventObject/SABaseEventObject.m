@@ -60,7 +60,7 @@
 
 - (NSMutableDictionary *)generateJSONObject {
     NSMutableDictionary *eventInfo = [NSMutableDictionary dictionary];
-    eventInfo[SA_EVENT_PROPERTIES] = self.properties;
+    eventInfo[kSAEventProperties] = self.properties;
     eventInfo[kSAEventDistinctId] = self.distinctId;
     eventInfo[SA_EVENT_LOGIN_ID] = self.loginId;
     eventInfo[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
