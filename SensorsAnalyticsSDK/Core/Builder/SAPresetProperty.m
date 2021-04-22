@@ -164,15 +164,15 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     return self.automaticProperties[kSAEventPresetPropertyDeviceId];
 }
 
-- (NSDictionary *)modulePresetProperties {
-    NSMutableDictionary *modulePresetProperties = [NSMutableDictionary dictionary];
+- (NSDictionary *)presetPropertiesOfTrackType {
+    NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     // 是否首日访问
-    modulePresetProperties[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
+    presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
 
     // 采集地理位置信息
-    [modulePresetProperties addEntriesFromDictionary:SAModuleManager.sharedInstance.properties];
+    [presetPropertiesOfTrackType addEntriesFromDictionary:SAModuleManager.sharedInstance.properties];
 
-    return modulePresetProperties;
+    return presetPropertiesOfTrackType;
 }
 
 #pragma mark – Private Methods

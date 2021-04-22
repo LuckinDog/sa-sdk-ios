@@ -75,10 +75,6 @@ NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK = @"$ios_install
 NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT = @"$user_agent";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME = @"$first_visit_time";
 #pragma mark - autoTrack property
-// App 首次启动
-NSString * const SA_EVENT_PROPERTY_APP_FIRST_START = @"$is_first_time";
-// App 是否从后台恢复
-NSString * const SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND = @"$resume_from_background";
 // App 浏览页面 Url
 NSString * const SA_EVENT_PROPERTY_SCREEN_URL = @"$url";
 // App 浏览页面 Referrer Url
@@ -124,7 +120,6 @@ NSString * const SA_PROFILE_APPEND = @"profile_append";
 NSString * const SA_PROFILE_INCREMENT = @"profile_increment";
 
 #pragma mark - NSUserDefaults
-NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
 

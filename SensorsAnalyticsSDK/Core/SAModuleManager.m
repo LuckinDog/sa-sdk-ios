@@ -37,6 +37,7 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAGestureModuleName = @"Gesture";
+static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @interface SAModuleManager ()
 
@@ -65,6 +66,11 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     if (NSClassFromString(@"SAGestureManager")) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
     }
+
+    // 默认加载全埋点模块，没有判断是否开启全埋点，原因如下：
+    // 1. 同之前的逻辑保持一致
+    // 2. 保证添加对于生命周期的监听在生命周期类的实例化之前
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
 }
 
 + (instancetype)sharedInstance {
@@ -89,6 +95,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
             return kSAReactNativeModuleName;
         case SAModuleTypeAppPush:
             return kSANotificationModuleName;
+        case SAModuleTypeAutoTrack:
+            return kSAAutoTrackModuleName;
         default:
             return nil;
     }
@@ -259,6 +267,8 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 @end
 
+#pragma mark -
+
 @implementation SAModuleManager (PushClick)
 
 - (void)setLaunchOptions:(NSDictionary *)launchOptions {
@@ -306,6 +316,29 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (void)clearUtmProperties {
     [self.deeplinkManager clearUtmProperties];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (AutoTrack)
+
+- (id<SAAutoTrackModuleProtocol>)autoTrackManager {
+    id<SAAutoTrackModuleProtocol> manager = (id<SAAutoTrackModuleProtocol>)self.modules[kSAAutoTrackModuleName];
+    return manager;
+}
+
+- (void)updateAutoTrackEventType {
+    [self.autoTrackManager updateAutoTrackEventType];
+}
+
+- (BOOL)isAutoTrackEnabled {
+    return [self.autoTrackManager isAutoTrackEnabled];
+}
+
+- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
+    return [self.autoTrackManager isAutoTrackEventTypeIgnored:eventType];
 }
 
 @end

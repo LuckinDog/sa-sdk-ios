@@ -28,6 +28,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeDeviceOrientation,
     SAModuleTypeReactNative,
     SAModuleTypeAppPush,
+    SAModuleTypeAutoTrack,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -80,6 +81,8 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @end
 
+#pragma mark -
+
 @interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
 
 @end
@@ -95,6 +98,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 #pragma mark -
 
 @interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (AutoTrack) <SAAutoTrackModuleProtocol>
 
 @end
 

@@ -27,9 +27,6 @@
 #include <sys/sysctl.h>
 #include <stdlib.h>
 
-#import <UIKit/UIApplication.h>
-#import <UIKit/UIDevice.h>
-#import <UIKit/UIScreen.h>
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "SensorsAnalyticsSDK.h"
@@ -74,6 +71,7 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
+#import "SAAppLifecycle.h"
 #import "SAReferrerManager.h"
 #import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
@@ -194,10 +192,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
-@property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked; // 标记启动事件是否触发过
-
-///是否为被动启动
-@property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 
 @property (nonatomic, strong) SAIdentifier *identifier;
@@ -208,14 +202,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (atomic, strong) SAConsoleLogger *consoleLogger;
 
+@property (nonatomic, strong) SAAppLifecycle *appLifecycle;
+
 @property (nonatomic, strong) SAReferrerManager *referrerManager;
 
 @end
 
 @implementation SensorsAnalyticsSDK {
-    BOOL _appRelaunched;                // App 从后台恢复
-    //进入非活动状态，比如双击 home、系统授权弹框
-    BOOL _applicationWillResignActive;
     SensorsAnalyticsNetworkType _networkTypePolicy;
 }
 
@@ -228,8 +221,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance startRemoteConfig];
+        [sharedInstance startAppLifecycle];
     });
 }
 
@@ -289,12 +283,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
-            _appRelaunched = NO;
-            _applicationWillResignActive = NO;
-
             _referrerManager =[[SAReferrerManager alloc] init];
             _referrerManager.enableReferrerTitle = configOptions.enableReferrerTitle;
-            
+
             NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
             _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
             
@@ -317,10 +308,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
-
-            [self setupListeners];
-            
-            [self setupLaunchedState];
 
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
@@ -376,34 +363,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
     
     SAHTTPSession.sharedInstance.securityPolicy = securityPolicy;
-}
-
-- (void)setupLaunchedState {
-    _launchedAppStartTracked = NO;
-    dispatch_block_t mainThreadBlock = ^(){
-        self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
-        self.launchedAppStartTracked = YES;
-    };
-    
-    // 被动启动时 iOS 13 以下异步主队列的 block 不会执行
-    if (@available(iOS 13.0, *)) {
-        dispatch_async(dispatch_get_main_queue(), mainThreadBlock);
-    } else {
-        [SACommonUtility performBlockOnMainThread:mainThreadBlock];
-    }
-    
-    // 补发启动事件
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self isLaunchedPassively]) {
-            [self stopFlushTimer];
-        } else {
-            [self startFlushTimer];
-            [self startAppEndTimer];
-            [self tryToRequestRemoteConfigWhenInitialized];
-        }
-        
-        [self autoTrackAppStart];
-    });
 }
 
 - (void)enableLoggers {
@@ -589,109 +548,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
 
-- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if (self.configOptions.autoTrackEventType != eventType) {
-        self.configOptions.autoTrackEventType = eventType;
-        
-        [self _enableAutoTrack];
-    }
-}
-
-- (void)autoTrackAppStart {
-    // 是否首次启动
-    BOOL isFirstStart = NO;
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
-        isFirstStart = YES;
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }
-
-    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
-        return;
-    }
-
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSString *eventName = [self isLaunchedPassively] ? kSAEventNameAppStartPassively : kSAEventNameAppStart;
-        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-        properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
-        properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
-        //添加 deeplink 相关渠道信息，可能不存在
-        [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
-
-        [self trackAutoEvent:eventName properties:properties];
-    });
-}
-
-- (void)startAppEndTimer {
-    // 启动 AppEnd 事件计时器
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [self trackTimerStart:kSAEventNameAppEnd];
-    });
-}
-
-- (BOOL)isAutoTrackEnabled {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return NO;
-    }
-    
-    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
-    if (autoTrackMode == kSAAutoTrackModeDefault) {
-        // 远程配置不修改现有的 autoTrack 方式
-        return (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone);
-    } else {
-        // 远程配置修改现有的 autoTrack 方式
-        BOOL isEnabled = (autoTrackMode != kSAAutoTrackModeDisabledAll);
-        if (!isEnabled) {
-            SALogDebug(@"【remote config】AutoTrack Event is ignored by remote config");
-        }
-        return isEnabled;
-    }
-}
-
-- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return YES;
-    }
-    
-    NSInteger autoTrackMode = [SARemoteConfigManager sharedInstance].autoTrackMode;
-    if (autoTrackMode == kSAAutoTrackModeDefault) {
-        // 远程配置不修改现有的 autoTrack 方式
-        return !(self.configOptions.autoTrackEventType & eventType);
-    } else {
-        // 远程配置修改现有的 autoTrack 方式
-        BOOL isIgnored = (autoTrackMode == kSAAutoTrackModeDisabledAll) ? YES : !(autoTrackMode & eventType);
-        if (isIgnored) {
-            NSString *ignoredEvent = @"None";
-            switch (eventType) {
-                case SensorsAnalyticsEventTypeAppStart:
-                    ignoredEvent = kSAEventNameAppStart;
-                    break;
-                    
-                case SensorsAnalyticsEventTypeAppEnd:
-                    ignoredEvent = kSAEventNameAppEnd;
-                    break;
-                    
-                case SensorsAnalyticsEventTypeAppClick:
-                    ignoredEvent = kSAEventNameAppClick;
-                    break;
-                    
-                case SensorsAnalyticsEventTypeAppViewScreen:
-                    ignoredEvent = kSAEventNameAppViewScreen;
-                    break;
-                    
-                default:
-                    break;
-            }
-            SALogDebug(@"【remote config】%@ is ignored by remote config", ignoredEvent);
-        }
-        return isIgnored;
-    }
-}
-
 - (void)ignoreViewType:(Class)aClass {
     [_ignoredViewTypeList addObject:aClass];
 }
@@ -731,6 +587,89 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self.eventTracker.eventStore deleteAllRecords];
     });
+}
+
+#pragma mark - AppLifecycle
+
+- (void)startAppLifecycle {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
+    _appLifecycle = [[SAAppLifecycle alloc] init];
+}
+
+- (void)appLifecycleStateDidChange:(NSNotification *)sender {
+    NSDictionary *userInfo = sender.userInfo;
+    SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
+    SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
+
+    // 冷启动
+    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        [self tryToRequestRemoteConfigWhenInitialized];
+        return;
+    }
+
+    // 热启动
+    if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
+        [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
+
+        // 遍历 trackTimer
+        UInt64 currentSysUpTime = [self.class getSystemUpTime];
+        dispatch_async(self.serialQueue, ^{
+            [self.trackTimer resumeAllEventTimers:currentSysUpTime];
+        });
+
+        //track 被动启动的页面浏览
+        if (self.launchedPassivelyControllers) {
+            [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
+                [self trackViewScreen:controller];
+            }];
+            self.launchedPassivelyControllers = nil;
+        }
+
+        [self startFlushTimer];
+        return;
+    }
+
+    // 退出
+    if (newState == SAAppLifecycleStateEnd) {
+        // 清除本次启动解析的来源渠道信息
+        [SAModuleManager.sharedInstance clearUtmProperties];
+
+        [self stopFlushTimer];
+
+        [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
+
+        UIApplication *application = UIApplication.sharedApplication;
+        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+        // 结束后台任务
+        void (^endBackgroundTask)(void) = ^() {
+            [application endBackgroundTask:backgroundTaskIdentifier];
+            backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+        };
+
+        backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:endBackgroundTask];
+
+        // 遍历 trackTimer
+        UInt64 currentSysUpTime = [self.class getSystemUpTime];
+        dispatch_async(self.serialQueue, ^{
+            [self.trackTimer pauseAllEventTimers:currentSysUpTime];
+        });
+
+        // 清除 $referrer
+        [_referrerManager clearReferrer];
+
+        dispatch_async(self.serialQueue, ^{
+            [self.eventTracker flushAllEventRecords];
+            endBackgroundTask();
+        });
+        return;
+    }
+
+    // 终止
+    if (newState == SAAppLifecycleStateTerminate) {
+        dispatch_sync(self.serialQueue, ^{});
+    }
 }
 
 #pragma mark - HandleURL
@@ -1028,7 +967,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     [object addCustomProperties:properties error:&error];
-    [object addModuleProperties:[self.presetProperty modulePresetProperties]];
+    [object addModuleProperties:[self.presetProperty presetPropertiesOfTrackType]];
 
     if (error) {
         SALogError(@"%@", error.localizedDescription);
@@ -1350,7 +1289,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if ([self isLaunchedPassively]) {
+        if (self.appLifecycle.state == SAAppLifecycleStateStartPassively) {
             return;
         }
         
@@ -1411,49 +1350,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-#pragma mark - UIApplication Events
-
-- (void)setupListeners {
-    // 监听 App 启动或结束事件
-    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-
-    if (@available(iOS 13.0, *)) {
-        // Code that requires iOS 13 or later
-    } else {
-        [notificationCenter addObserver:self
-                               selector:@selector(applicationDidFinishLaunching:)
-                                   name:UIApplicationDidFinishLaunchingNotification
-                                 object:nil];
-    }
-
-    [notificationCenter addObserver:self
-                           selector:@selector(applicationWillEnterForeground:)
-                               name:UIApplicationWillEnterForegroundNotification
-                             object:nil];
-    
-    [notificationCenter addObserver:self
-                           selector:@selector(applicationDidBecomeActive:)
-                               name:UIApplicationDidBecomeActiveNotification
-                             object:nil];
-    
-    [notificationCenter addObserver:self
-                           selector:@selector(applicationWillResignActive:)
-                               name:UIApplicationWillResignActiveNotification
-                             object:nil];
-    
-    [notificationCenter addObserver:self
-                           selector:@selector(applicationDidEnterBackground:)
-                               name:UIApplicationDidEnterBackgroundNotification
-                             object:nil];
-    
-    [notificationCenter addObserver:self
-                           selector:@selector(applicationWillTerminateNotification:)
-                               name:UIApplicationWillTerminateNotification
-                             object:nil];
-    
-    [self _enableAutoTrack];
-}
-
 - (void)autoTrackViewScreen:(UIViewController *)controller {
     if (!controller) {
         return;
@@ -1463,7 +1359,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    if (self.launchedPassively) {
+    if (self.appLifecycle.state == SAAppLifecycleStateStartPassively) {
         if (!self.launchedPassivelyControllers) {
             self.launchedPassivelyControllers = [NSMutableArray array];
         }
@@ -1529,34 +1425,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)_enableAutoTrack {    
-    // 监听所有 UIViewController 显示事件
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        //$AppViewScreen
-        [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sa_autotrack_viewDidAppear:) error:NULL];
-        NSError *error = NULL;
-        //$AppClick
-        // Actions & Events
-        [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-                             withMethod:@selector(sa_sendAction:to:from:forEvent:)
-                                  error:&error];
-        if (error) {
-            SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
-            error = NULL;
-        }
-        
-        SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
-        [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-        [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
-        [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-    });
-    //React Native
-    if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
-        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
-    }
-}
-
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
     @try {
         if (groupIdentifier == nil || [groupIdentifier isEqualToString:@""]) {
@@ -1575,124 +1443,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
-}
-
-- (void)applicationDidFinishLaunching:(NSNotification *)notification {
-    SALogDebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
-    
-    // iOS 13 以下需要额外依赖于 UIApplicationDidFinishLaunchingNotification 通知（被动启动时补发启动事件逻辑不会执行）
-    [self autoTrackAppStart];
-}
-
-- (void)applicationWillEnterForeground:(NSNotification *)notification {
-    SALogDebug(@"%@ application will enter foreground", self);
-    
-    _appRelaunched = self.isLaunchedAppStartTracked;
-}
-
-- (void)applicationDidBecomeActive:(NSNotification *)notification {
-    SALogDebug(@"%@ application did become active", self);
-    
-    self.launchedPassively = NO;
-    
-    if (_applicationWillResignActive) {
-        _applicationWillResignActive = NO;
-        return;
-    }
-    
-    if (_appRelaunched) {
-        // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
-        [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
-        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
-    }
-    
-    // 遍历 trackTimer
-    UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer resumeAllEventTimers:currentSysUpTime];
-    });
-
-    if ([self isAutoTrackEnabled] && _appRelaunched) {
-        // 追踪 AppStart 事件
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-            NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-            properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(YES);
-            properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(NO);
-            [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
-            [self trackAutoEvent:kSAEventNameAppStart properties:properties];
-        }
-    }
-
-    // 启动 AppEnd 事件计时器
-    [self trackTimerStart:kSAEventNameAppEnd];
-
-    //track 被动启动的页面浏览
-    if (self.launchedPassivelyControllers) {
-        [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
-            [self trackViewScreen:controller];
-        }];
-        self.launchedPassivelyControllers = nil;
-    }
-    
-    [self startFlushTimer];
-}
-
-- (void)applicationWillResignActive:(NSNotification *)notification {
-    SALogDebug(@"%@ application will resign active", self);
-    _applicationWillResignActive = YES;
-}
-
-- (void)applicationDidEnterBackground:(NSNotification *)notification {
-    SALogDebug(@"%@ application did enter background", self);
-    
-    if (!_applicationWillResignActive) {
-        return;
-    }
-    _applicationWillResignActive = NO;
-
-    // 清除本次启动解析的来源渠道信息
-    [SAModuleManager.sharedInstance clearUtmProperties];
-    
-    [self stopFlushTimer];
-    
-    self.launchedPassively = NO;
-    
-    [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
-
-    UIApplication *application = UIApplication.sharedApplication;
-    __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-    // 结束后台任务
-    void (^endBackgroundTask)(void) = ^() {
-        [application endBackgroundTask:backgroundTaskIdentifier];
-        backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-    };
-
-    backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
-        endBackgroundTask();
-    }];
-
-    // 遍历 trackTimer
-    UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer pauseAllEventTimers:currentSysUpTime];
-    });
-
-    if ([self isAutoTrackEnabled]) {
-        // 追踪 AppEnd 事件
-        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
-            [_referrerManager clearReferrer];
-            [self trackAutoEvent:kSAEventNameAppEnd properties:nil];
-        }
-    }
-
-    dispatch_async(self.serialQueue, ^{
-        [self.eventTracker flushAllEventRecords];
-        endBackgroundTask();
-    });
-}
-- (void)applicationWillTerminateNotification:(NSNotification *)notification {
-    SALogDebug(@"applicationWillTerminateNotification");
-    dispatch_sync(self.serialQueue, ^{});
 }
 
 #pragma mark - SensorsData  Analytics
@@ -1788,7 +1538,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - RemoteConfig
 
-- (void)initRemoteConfigManager {
+- (void)startRemoteConfig {
     // 初始化远程配置类
     SARemoteConfigOptions *options = [[SARemoteConfigOptions alloc] init];
     options.configOptions = _configOptions;
@@ -2161,8 +1911,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
-        [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
+        [sharedInstance startRemoteConfig];
+        [sharedInstance startAppLifecycle];
     });
     return sharedInstance;
 }
@@ -2174,8 +1925,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance initRemoteConfigManager];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance startRemoteConfig];
+        [sharedInstance startAppLifecycle];
     });
     return sharedInstance;
 }
@@ -2226,14 +1978,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.debugMode = debugMode;
-}
-
-- (void)enableAutoTrack {
-    [self enableAutoTrack:SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppViewScreen];
-}
-
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
-    self.configOptions.autoTrackEventType = self.configOptions.autoTrackEventType ^ eventType;
 }
 
 - (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
