@@ -90,13 +90,6 @@ static NSSet *presetEventNames;
     }
     self.properties[kSAEventPresetPropertyLibMethod] = libMethod;
     self.lib.method = libMethod;
-
-    //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
-    BOOL isAppClick = [self.event isEqualToString:kSAEventNameAppClick] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
-    BOOL isViewScreen = [self.event isEqualToString:kSAEventNameAppViewScreen] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen];
-    if (isAppClick || isViewScreen) {
-        self.lib.detail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
-    }
 }
 
 - (void)addReferrerTitleProperty:(NSString *)referrerTitle {
@@ -193,6 +186,14 @@ static NSSet *presetEventNames;
     }
     self.properties[kSAEventPresetPropertyLibMethod] = kSALibMethodAuto;
     self.lib.method = kSALibMethodAuto;
+
+    // 不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
+    // 仅在全埋点的元素点击和页面浏览事件中添加 $lib_detail
+    BOOL isAppClick = [self.event isEqualToString:kSAEventNameAppClick] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
+    BOOL isViewScreen = [self.event isEqualToString:kSAEventNameAppViewScreen] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen];
+    if (isAppClick || isViewScreen) {
+        self.lib.detail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
+    }
 }
 
 @end
