@@ -22,7 +22,7 @@
 #import "SAConstants.h"
 
 #pragma mark - Track Timer
-extern NSString  * const kEventIdSuffix;
+extern NSString  * const kSAEventIdSuffix;
 
 #pragma mark--evnet
 extern NSString * const SA_EVENT_TIME;

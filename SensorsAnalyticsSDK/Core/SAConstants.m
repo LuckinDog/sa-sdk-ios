@@ -26,7 +26,7 @@
 #import "SAConstants+Private.h"
 
 #pragma mark - Track Timer
-NSString *const kEventIdSuffix = @"_SATimer";
+NSString *const kSAEventIdSuffix = @"_SATimer";
 
 #pragma mark - event
 NSString * const SA_EVENT_TIME = @"time";

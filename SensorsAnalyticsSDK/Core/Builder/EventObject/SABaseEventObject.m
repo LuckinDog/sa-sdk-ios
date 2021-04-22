@@ -43,7 +43,7 @@
 }
 
 - (NSString *)eventName {
-    if (![self.event hasSuffix:kEventIdSuffix]) {
+    if (![self.event hasSuffix:kSAEventIdSuffix]) {
         return self.event;
     }
     //eventId 结构为 {eventName}_D3AC265B_3CC2_4C45_B8F0_3E05A83A9DAE_SATimer，新增后缀长度为 44
