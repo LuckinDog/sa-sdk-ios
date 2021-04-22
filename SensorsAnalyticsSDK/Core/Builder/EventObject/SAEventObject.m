@@ -41,7 +41,7 @@ static NSSet *presetEventNames;
     return self;
 }
 
-- (void)validateEventWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (void)validateEventWithError:(NSError **)error {
     if (self.event && ![self.event isKindOfClass:NSString.class]) {
         *error = SAPropertyError(20000, @"Event name must be NSString. got: %@ %@", [self.event class], self.event);
         return;
@@ -74,7 +74,7 @@ static NSSet *presetEventNames;
     }
 }
 
-- (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
+- (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error {
     [super addCustomProperties:properties error:error];
     if (*error) {
         return;
@@ -151,7 +151,7 @@ static NSSet *presetEventNames;
     [self.properties addEntriesFromDictionary:properties];
 }
 
-- (void)validateEventWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (void)validateEventWithError:(NSError **)error {
     [super validateEventWithError:error];
     if (*error) {
         return;
@@ -183,7 +183,7 @@ static NSSet *presetEventNames;
     return self;
 }
 
-- (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
+- (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error {
     [super addCustomProperties:properties error:error];
     if (*error) {
         return;

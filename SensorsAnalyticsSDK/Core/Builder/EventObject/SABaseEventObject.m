@@ -55,7 +55,7 @@
     return NO;
 }
 
-- (void)validateEventWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (void)validateEventWithError:(NSError **)error {
 }
 
 - (NSMutableDictionary *)jsonObject {
@@ -87,7 +87,7 @@
 - (void)addSuperProperties:(NSDictionary *)properties {
 }
 
-- (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
+- (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error {
     NSMutableDictionary *props = [self.propertiesValidator validProperties:properties error:error];
     if (*error) {
         return;
