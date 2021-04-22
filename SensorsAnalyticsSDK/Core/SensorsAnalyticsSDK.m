@@ -1970,7 +1970,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:self.presetProperty.automaticProperties];
-            [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLib];
+            [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLib];
             [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLibVersion];
 
             NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];

@@ -52,7 +52,7 @@
 #pragma mark - public
 - (NSMutableDictionary *)generateJSONObject {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    properties[SAEventPresetPropertyLib] = self.lib;
+    properties[kSAEventPresetPropertyLib] = self.lib;
     properties[SAEventPresetPropertyLibVersion] = self.version;
     properties[SAEventPresetPropertyAppVersion] = self.appVersion;
     properties[SAEventPresetPropertyLibMethod] = self.method;
