@@ -100,7 +100,7 @@ extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
 #pragma mark--common property
 //可选参数
 extern NSString * const kSAEventCommonOptionalPropertyProject;
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN;
+extern NSString * const kSAEventCommonOptionalPropertyToken;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
 extern long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT;
 

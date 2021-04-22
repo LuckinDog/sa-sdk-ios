@@ -1998,7 +1998,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             // $project & $token
             NSString *project = propertiesDict[kSAEventCommonOptionalPropertyProject];
-            NSString *token = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+            NSString *token = propertiesDict[kSAEventCommonOptionalPropertyToken];
             id timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
 
             if (project) {
@@ -2006,7 +2006,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 eventDict[kSAEventProject] = project;
             }
             if (token) {
-                [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+                [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyToken];
                 eventDict[kSAEventToken] = token;
             }
             if (timeNumber) { //包含 $time

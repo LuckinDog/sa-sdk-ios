@@ -102,7 +102,7 @@ NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG = @"$app_remote_config";
 
 #pragma mark - common property
 NSString * const kSAEventCommonOptionalPropertyProject = @"$project";
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
+NSString * const kSAEventCommonOptionalPropertyToken = @"$token";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";
 //神策成立时间，2015-05-15 10:24:00.000，某些时间戳判断（毫秒）
 long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT = 1431656640000;
