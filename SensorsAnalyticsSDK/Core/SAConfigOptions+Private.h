@@ -24,6 +24,6 @@
 
 @property (nonatomic, copy, readonly) NSArray *encryptors;
 
-//- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
+- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
 
 @end
