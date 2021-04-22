@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAEventBuildStrategy <NSObject>
+@protocol SAEventBuildStrategyProtocol <NSObject>
 
 /// 添加渠道信息
 /// @param properties 渠道信息

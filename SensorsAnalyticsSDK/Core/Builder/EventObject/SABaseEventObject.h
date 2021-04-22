@@ -20,12 +20,12 @@
 
 #import <Foundation/Foundation.h>
 #import "SAEventLibObject.h"
-#import "SAEventBuildStrategy.h"
+#import "SAEventBuildStrategyProtocol.h"
 #import "SAPropertyValidator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SABaseEventObject : NSObject <SAEventBuildStrategy>
+@interface SABaseEventObject : NSObject <SAEventBuildStrategyProtocol>
 
 /// 未登录时: 匿名 ID; 登录后: 登录 ID
 @property (nonatomic, copy) NSString *distinctId;
