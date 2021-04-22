@@ -181,6 +181,7 @@
 		A835227825E5FD75005D69D5 /* SAEncryptManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A835226E25E5FD75005D69D5 /* SAEncryptManager.h */; };
 		A835227925E5FD75005D69D5 /* SAAbstractEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = A835226F25E5FD75005D69D5 /* SAAbstractEncryptor.h */; };
 		A835227A25E5FD75005D69D5 /* SAAbstractEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = A835227025E5FD75005D69D5 /* SAAbstractEncryptor.m */; };
+		A87ECB3626317D6D007BE9B0 /* SAAppLifecycleUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A87ECB3526317D6D007BE9B0 /* SAAppLifecycleUtilsTest.m */; };
 		A87EE1B726229B0100BC950B /* SAAppLifecycle.m in Sources */ = {isa = PBXBuildFile; fileRef = A87EE1B526229B0100BC950B /* SAAppLifecycle.m */; };
 		A87EE1B826229B0100BC950B /* SAAppLifecycle.h in Headers */ = {isa = PBXBuildFile; fileRef = A87EE1B626229B0100BC950B /* SAAppLifecycle.h */; };
 		A87EE1C526229B2600BC950B /* SAAppEndTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = A87EE1BD26229B2600BC950B /* SAAppEndTracker.m */; };
@@ -445,6 +446,7 @@
 		A835226E25E5FD75005D69D5 /* SAEncryptManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAEncryptManager.h; sourceTree = "<group>"; };
 		A835226F25E5FD75005D69D5 /* SAAbstractEncryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAbstractEncryptor.h; sourceTree = "<group>"; };
 		A835227025E5FD75005D69D5 /* SAAbstractEncryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAbstractEncryptor.m; sourceTree = "<group>"; };
+		A87ECB3526317D6D007BE9B0 /* SAAppLifecycleUtilsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAppLifecycleUtilsTest.m; sourceTree = "<group>"; };
 		A87EE1B526229B0100BC950B /* SAAppLifecycle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppLifecycle.m; sourceTree = "<group>"; };
 		A87EE1B626229B0100BC950B /* SAAppLifecycle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppLifecycle.h; sourceTree = "<group>"; };
 		A87EE1BD26229B2600BC950B /* SAAppEndTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppEndTracker.m; sourceTree = "<group>"; };
@@ -616,6 +618,7 @@
 				4D6A189022978F5B00F6B218 /* ElementViewController.h */,
 				4D6A188E22978F5B00F6B218 /* ElementViewController.m */,
 				4D6A188F22978F5B00F6B218 /* SAAutoTrackUtilsTest.m */,
+				A87ECB3526317D6D007BE9B0 /* SAAppLifecycleUtilsTest.m */,
 			);
 			path = AutoTrack;
 			sourceTree = "<group>";
@@ -1461,6 +1464,7 @@
 				F214CE58249A07DF00A2633D /* SADatabaseUnitTest.m in Sources */,
 				FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */,
 				FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */,
+				A87ECB3626317D6D007BE9B0 /* SAAppLifecycleUtilsTest.m in Sources */,
 				4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
