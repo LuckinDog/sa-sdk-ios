@@ -1026,7 +1026,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     [object addCustomProperties:properties error:&error];
-    [object addModuleProperties:[self.presetProperty presetPropertiesOfTrackType:[self isLaunchedPassively]]];
+    [object addModuleProperties:[self.presetProperty modulePresetProperties]];
 
     if (error) {
         SALogError(@"%@", error.localizedDescription);
