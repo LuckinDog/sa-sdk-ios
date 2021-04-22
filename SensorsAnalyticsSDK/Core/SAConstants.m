@@ -105,7 +105,7 @@ NSString * const kSAEventCommonOptionalPropertyProject = @"$project";
 NSString * const kSAEventCommonOptionalPropertyToken = @"$token";
 NSString * const kSAEventCommonOptionalPropertyTime = @"$time";
 //神策成立时间，2015-05-15 10:24:00.000，某些时间戳判断（毫秒）
-long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT = 1431656640000;
+long long const kSAEventCommonOptionalPropertyTimeInt = 1431656640000;
 
 #pragma mark--lib method
 NSString * const kSALibMethodAuto = @"autoTrack";

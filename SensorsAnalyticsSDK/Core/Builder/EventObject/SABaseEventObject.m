@@ -106,7 +106,7 @@
     if ([originalTime isKindOfClass:NSDate.class]) {
         NSDate *customTime = (NSDate *)originalTime;
         NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+        if (customTimeInt >= kSAEventCommonOptionalPropertyTimeInt) {
             self.timeStamp = customTimeInt;
         } else {
             SALogError(@"$time error %ld, Please check the value", (long)customTimeInt);

@@ -2019,7 +2019,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 if (!customTime) {
                     SALogError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
-                } else if ([customTime compare:@(SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT)] == NSOrderedAscending) {
+                } else if ([customTime compare:@(kSAEventCommonOptionalPropertyTimeInt)] == NSOrderedAscending) {
                     SALogError(@"H5 $time error %@，Please check the value", timeNumber);
                 } else {
                     timeStamp = @([customTime unsignedLongLongValue]);
