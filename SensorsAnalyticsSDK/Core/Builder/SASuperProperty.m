@@ -28,6 +28,8 @@
 #import "SAModuleManager.h"
 #import "SALog.h"
 
+static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
+
 @interface SASuperProperty ()
 
 /// 静态公共属性
@@ -135,12 +137,12 @@
 #pragma mark - 缓存
 
 - (void)unarchiveSuperProperties {
-    NSDictionary *archivedSuperProperties = (NSDictionary *)[SAFileStore unarchiveWithFileName:@"super_properties"];
+    NSDictionary *archivedSuperProperties = (NSDictionary *)[SAFileStore unarchiveWithFileName:kSASavedSuperPropertiesFileName];
     _superProperties = archivedSuperProperties ? [archivedSuperProperties copy] : [NSDictionary dictionary];
 }
 
 - (void)archiveSuperProperties {
-    [SAFileStore archiveWithFileName:@"super_properties" value:self.superProperties];
+    [SAFileStore archiveWithFileName:kSASavedSuperPropertiesFileName value:self.superProperties];
 }
 
 @end
