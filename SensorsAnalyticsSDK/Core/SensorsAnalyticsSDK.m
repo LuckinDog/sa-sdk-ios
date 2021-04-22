@@ -966,7 +966,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     id project = propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     if (project) {
-        itemProperties[SA_EVENT_PROJECT] = project;
+        itemProperties[kSAEventProject] = project;
         [propertyMDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     }
     
@@ -2003,7 +2003,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
-                eventDict[SA_EVENT_PROJECT] = project;
+                eventDict[kSAEventProject] = project;
             }
             if (token) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];

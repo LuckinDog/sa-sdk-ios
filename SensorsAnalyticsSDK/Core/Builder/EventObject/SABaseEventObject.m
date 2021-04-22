@@ -69,7 +69,7 @@
     eventInfo[kSAEventLib] = [self.lib generateJSONObject];
     eventInfo[kSAEventTrackId] = self.trackId;
     eventInfo[kSAEventName] = self.eventName;
-    eventInfo[SA_EVENT_PROJECT] = self.project;
+    eventInfo[kSAEventProject] = self.project;
     eventInfo[SA_EVENT_TOKEN] = self.token;
     return eventInfo;
 }
