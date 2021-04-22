@@ -202,14 +202,16 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         if (!encryptor) {
             return;
         }
-        // 更新密钥
-        self.secretKey = secretKey;
 
-        // 更新加密插件
-        self.encryptor = encryptor;
-
-        // 重新生成加密插件的对称密钥
-        self.encryptedSymmetricKey = [self.encryptor encryptSymmetricKeyWithPublicKey:secretKey.key];
+        NSString *encryptedSymmetricKey = [encryptor encryptSymmetricKeyWithPublicKey:secretKey.key];
+        if ([SAValidator isValidString:encryptedSymmetricKey]) {
+            // 更新密钥
+            self.secretKey = secretKey;
+            // 更新加密插件
+            self.encryptor = encryptor;
+            // 重新生成加密插件的对称密钥
+            self.encryptedSymmetricKey = encryptedSymmetricKey;
+        }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
