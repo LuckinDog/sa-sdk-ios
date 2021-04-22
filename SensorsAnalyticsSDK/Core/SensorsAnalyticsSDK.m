@@ -1077,7 +1077,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     // 校验 properties
     NSError *error = nil;
-    NSDictionary *validProperties = nil;
+    NSMutableDictionary *validProperties = nil;
     if ([type isEqualToString:SA_PROFILE_INCREMENT]) {
         validProperties = [SAProfileIncrementValidator validProperties:originProperties error:&error];
     } else if ([type isEqualToString:SA_PROFILE_APPEND]) {
@@ -1091,8 +1091,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return nil;
     }
-    [originProperties removeAllObjects];
-    [originProperties addEntriesFromDictionary:validProperties];
+    event[@"properties"] = validProperties;
     return event;
 }
 
