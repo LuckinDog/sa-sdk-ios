@@ -171,7 +171,7 @@ static NSSet *presetEventNames;
                         kSAEventNameAppViewScreen,
                         kSAEventNameAppClick,
                         kSAEventNameSignUp,
-                        SA_EVENT_NAME_APP_CRASHED,
+                        kSAEventNameAppCrashed,
                         SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];
     //事件校验，预置事件提醒
     if ([presetEventNames containsObject:self.event]) {
