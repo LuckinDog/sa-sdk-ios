@@ -114,24 +114,18 @@ static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
 
 - (NSDictionary *)acquireDynamicSuperProperties {
     if (self.dynamicSuperProperties) {
-        return self.dynamicSuperProperties();
+        NSDictionary *dynamicProperties = self.dynamicSuperProperties();
+        NSError *error;
+        NSDictionary *validProperties = [SAPropertyValidator validProperties:dynamicProperties type:SAEventObjectTypeTrack error:&error];
+        if (error) {
+            SALogError(@"%@", error.localizedDescription);
+            [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+            return nil;
+        }
+        [self unregisterSameLetterSuperProperties:validProperties];
+        return validProperties;
     }
     return nil;
-}
-
-- (NSDictionary *)allProperties {
-    NSDictionary *dynamicProperties = [self acquireDynamicSuperProperties];
-    NSError *error;
-    NSDictionary *validProperties = [SAPropertyValidator validProperties:dynamicProperties type:SAEventObjectTypeTrack error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        validProperties = nil;
-    }
-    [self unregisterSameLetterSuperProperties:validProperties];
-    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:self.currentSuperProperties];
-    [result addEntriesFromDictionary:validProperties];
-    return [result copy];
 }
 
 #pragma mark - 缓存

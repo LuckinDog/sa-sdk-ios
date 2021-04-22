@@ -1008,8 +1008,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     object.loginId = self.loginId;
     object.anonymousId = self.anonymousId;
 
+    NSDictionary *dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     [object addEventProperties:self.presetProperty.automaticProperties];
-    [object addSuperProperties:self.superProperty.allProperties];
+    [object addSuperProperties:self.superProperty.currentSuperProperties];
+    [object addEventProperties:dynamicSuperProperties];
     [object addEventProperties:self.presetProperty.currentNetworkProperties];
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
@@ -1977,7 +1979,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-                [propertiesDict addEntriesFromDictionary:[self.superProperty allProperties]];
+
+                NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
+                [propertiesDict addEntriesFromDictionary:self.superProperty.currentSuperProperties];
+                [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
                 // 每次 track 时手机网络状态
                 [propertiesDict addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
