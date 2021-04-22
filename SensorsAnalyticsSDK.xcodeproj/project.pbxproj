@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4521E7762631B2E10035D4F5 /* SASuperPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4521E7752631B2E10035D4F5 /* SASuperPropertyTests.m */; };
 		453ECA1525DE4B0700E5DFB6 /* SAViewElementInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 453ECA1325DE4B0700E5DFB6 /* SAViewElementInfo.h */; };
 		453ECA1625DE4B0700E5DFB6 /* SAViewElementInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 453ECA1425DE4B0700E5DFB6 /* SAViewElementInfo.m */; };
 		453ECA2B25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 453ECA2925DE4C5B00E5DFB6 /* SAViewElementInfoFactory.h */; };
@@ -260,6 +261,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4521E7752631B2E10035D4F5 /* SASuperPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASuperPropertyTests.m; sourceTree = "<group>"; };
 		453ECA1325DE4B0700E5DFB6 /* SAViewElementInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAViewElementInfo.h; sourceTree = "<group>"; };
 		453ECA1425DE4B0700E5DFB6 /* SAViewElementInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAViewElementInfo.m; sourceTree = "<group>"; };
 		453ECA2925DE4C5B00E5DFB6 /* SAViewElementInfoFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAViewElementInfoFactory.h; sourceTree = "<group>"; };
@@ -1074,6 +1076,7 @@
 				FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */,
 				CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */,
 				A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */,
+				4521E7752631B2E10035D4F5 /* SASuperPropertyTests.m */,
 				4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */,
 				CB6EBAE7228551EC003CFBA8 /* Info.plist */,
 			);
@@ -1517,6 +1520,7 @@
 				880F37DA24AC34A4005AC8A0 /* SAEventStoreTests.m in Sources */,
 				A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */,
 				4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */,
+				4521E7762631B2E10035D4F5 /* SASuperPropertyTests.m in Sources */,
 				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
 				FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */,
 				4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */,
