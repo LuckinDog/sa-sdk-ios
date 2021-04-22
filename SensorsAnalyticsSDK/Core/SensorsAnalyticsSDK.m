@@ -1038,7 +1038,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    NSDictionary *result = [object generateJSONObject];
+    NSDictionary *result = [object jsonObject];
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:result];
     SALogDebug(@"\n【track event】:\n%@", result);
     [self.eventTracker trackEvent:result isSignUp:object.isSignUp];

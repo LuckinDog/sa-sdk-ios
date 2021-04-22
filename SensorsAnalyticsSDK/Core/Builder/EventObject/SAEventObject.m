@@ -121,8 +121,8 @@ static NSSet *presetEventNames;
     return self;
 }
 
-- (NSMutableDictionary *)generateJSONObject {
-    NSMutableDictionary *jsonObject = [super generateJSONObject];
+- (NSMutableDictionary *)jsonObject {
+    NSMutableDictionary *jsonObject = [super jsonObject];
     jsonObject[@"original_id"] = self.anonymousId;
     return jsonObject;
 }

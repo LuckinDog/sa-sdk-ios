@@ -58,7 +58,7 @@
 - (void)isValidEventWithError:(NSError *__autoreleasing  _Nullable *)error {
 }
 
-- (NSMutableDictionary *)generateJSONObject {
+- (NSMutableDictionary *)jsonObject {
     NSMutableDictionary *eventInfo = [NSMutableDictionary dictionary];
     eventInfo[kSAEventProperties] = self.properties;
     eventInfo[kSAEventDistinctId] = self.distinctId;
@@ -66,7 +66,7 @@
     eventInfo[kSAEventAnonymousId] = self.anonymousId;
     eventInfo[kSAEventType] = self.type;
     eventInfo[kSAEventTime] = @(self.timeStamp);
-    eventInfo[kSAEventLib] = [self.lib generateJSONObject];
+    eventInfo[kSAEventLib] = [self.lib jsonObject];
     eventInfo[kSAEventTrackId] = self.trackId;
     eventInfo[kSAEventName] = self.eventName;
     eventInfo[kSAEventProject] = self.project;

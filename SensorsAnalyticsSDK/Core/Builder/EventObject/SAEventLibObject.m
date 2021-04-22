@@ -50,7 +50,7 @@
 }
 
 #pragma mark - public
-- (NSMutableDictionary *)generateJSONObject {
+- (NSMutableDictionary *)jsonObject {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     properties[kSAEventPresetPropertyLib] = self.lib;
     properties[kSAEventPresetPropertyLibVersion] = self.version;

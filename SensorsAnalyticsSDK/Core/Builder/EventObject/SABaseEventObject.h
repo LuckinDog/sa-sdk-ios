@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isSignUp;
 
 /// 生成最终的事件信息
-- (NSMutableDictionary *)generateJSONObject;
+- (NSMutableDictionary *)jsonObject;
 
 @end
 
