@@ -79,7 +79,7 @@
 }
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
-    [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:anonymousId];
+    [SAFileStore archiveWithFileName:kSAEventDistinctId value:anonymousId];
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper saveUdid:anonymousId];
 #endif
@@ -165,14 +165,14 @@
 #pragma mark – Private Methods
 
 - (NSString *)unarchiveAnonymousId {
-    NSString *anonymousId = [SAFileStore unarchiveWithFileName:SA_EVENT_DISTINCT_ID];
+    NSString *anonymousId = [SAFileStore unarchiveWithFileName:kSAEventDistinctId];
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
             // 保存 Archiver
-            [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:distinctIdInKeychain];
+            [SAFileStore archiveWithFileName:kSAEventDistinctId value:distinctIdInKeychain];
         }
         anonymousId = distinctIdInKeychain;
     } else {

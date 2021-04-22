@@ -1957,7 +1957,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if([type isEqualToString:kSAEventTypeSignup]) {
                 eventDict[@"original_id"] = self.anonymousId;
             } else {
-                eventDict[SA_EVENT_DISTINCT_ID] = bestId;
+                eventDict[kSAEventDistinctId] = bestId;
             }
             eventDict[kSAEventTrackId] = @(arc4random());
 
@@ -2044,7 +2044,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
             if([type isEqualToString:kSAEventTypeSignup]) {
-                NSString *newLoginId = eventDict[SA_EVENT_DISTINCT_ID];
+                NSString *newLoginId = eventDict[kSAEventDistinctId];
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
                     enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
