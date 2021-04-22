@@ -87,7 +87,7 @@ NSString * const kSAEventPresetPropertyLibMethod = @"$lib_method";
 /// SDK 版本
 NSString * const kSAEventPresetPropertyLibVersion = @"$lib_version";
 /// SDK 版本
-NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
+NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 
 #pragma mark -
 

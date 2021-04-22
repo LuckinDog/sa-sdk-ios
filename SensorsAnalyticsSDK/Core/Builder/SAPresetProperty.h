@@ -31,7 +31,7 @@ extern NSString * const kSAEventPresetPropertyLibMethod;
 /// SDK 版本
 extern NSString * const kSAEventPresetPropertyLibVersion;
 /// SDK 调用栈
-extern NSString * const SAEventPresetPropertyLibDetail;
+extern NSString * const kSAEventPresetPropertyLibDetail;
 /// 应用版本
 extern NSString * const SAEventPresetPropertyAppVersion;
 
