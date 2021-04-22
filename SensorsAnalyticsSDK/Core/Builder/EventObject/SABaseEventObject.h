@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 校验事件名称
 /// @param error 错误信息
-- (void)isValidEventWithError:(NSError **)error;
+- (void)validateEventWithError:(NSError **)error;
 
 /// 获取事件名称
 - (NSString *)eventName;

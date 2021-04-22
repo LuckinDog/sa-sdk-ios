@@ -55,7 +55,7 @@
     return NO;
 }
 
-- (void)isValidEventWithError:(NSError *__autoreleasing  _Nullable *)error {
+- (void)validateEventWithError:(NSError *__autoreleasing  _Nullable *)error {
 }
 
 - (NSMutableDictionary *)jsonObject {

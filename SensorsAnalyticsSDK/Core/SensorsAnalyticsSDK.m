@@ -987,7 +987,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackWithEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
     NSError *error = nil;
-    [object isValidEventWithError:&error];
+    [object validateEventWithError:&error];
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
