@@ -612,7 +612,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : kSAEventNameAppStart;
+        NSString *eventName = [self isLaunchedPassively] ? kSAEventNameAppStartPassively : kSAEventNameAppStart;
         NSMutableDictionary *properties = [NSMutableDictionary dictionary];
         properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
         properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);

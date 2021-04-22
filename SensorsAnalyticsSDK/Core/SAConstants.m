@@ -58,7 +58,7 @@ NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN = @"$AppViewScreen";
 // App 元素点击
 NSString * const SA_EVENT_NAME_APP_CLICK = @"$AppClick";
 // 自动追踪相关事件及属性
-NSString * const SA_EVENT_NAME_APP_START_PASSIVELY = @"$AppStartPassively";
+NSString * const kSAEventNameAppStartPassively = @"$AppStartPassively";
 
 NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
 

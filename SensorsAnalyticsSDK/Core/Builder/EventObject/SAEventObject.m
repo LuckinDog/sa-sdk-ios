@@ -166,7 +166,7 @@ static NSSet *presetEventNames;
     }
     presetEventNames = [NSSet setWithObjects:
                         kSAEventNameAppStart,
-                        SA_EVENT_NAME_APP_START_PASSIVELY ,
+                        kSAEventNameAppStartPassively ,
                         SA_EVENT_NAME_APP_END,
                         SA_EVENT_NAME_APP_VIEW_SCREEN,
                         SA_EVENT_NAME_APP_CLICK,

@@ -55,7 +55,7 @@ extern NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN;
 // App 元素点击
 extern NSString * const SA_EVENT_NAME_APP_CLICK;
 // 自动追踪相关事件及属性
-extern NSString * const SA_EVENT_NAME_APP_START_PASSIVELY;
+extern NSString * const kSAEventNameAppStartPassively;
 
 extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
 
