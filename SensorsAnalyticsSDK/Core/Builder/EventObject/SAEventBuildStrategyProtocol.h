@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties 渠道信息
 - (void)addChannelProperties:(NSDictionary *)properties;
 
-/// 添加 SDK 模块中的默认属性
-/// @param properties SDK 模块中的默认属性
+/// 添加 SDK 模块中的预置属性
+/// @param properties SDK 模块中的预置属性
 - (void)addModuleProperties:(NSDictionary *)properties;
 
 /// 添加公共属性
