@@ -96,7 +96,7 @@
         return;
     }
     
-    [props removeObjectForKey:SAEventPresetPropertyDeviceID];
+    [props removeObjectForKey:kSAEventPresetPropertyDeviceId];
     [self.properties addEntriesFromDictionary:props];
     
     // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time

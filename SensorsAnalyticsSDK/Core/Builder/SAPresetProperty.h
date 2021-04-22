@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const SAEventPresetPropertyDeviceID;
+extern NSString * const kSAEventPresetPropertyDeviceId;
 
 /// SDK 类型
 extern NSString * const kSAEventPresetPropertyLib;

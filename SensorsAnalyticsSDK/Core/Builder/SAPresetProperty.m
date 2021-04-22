@@ -43,7 +43,7 @@ static NSString* const SACarrierChinaMCC = @"460";
 
 #pragma mark - device
 /// 设备 ID
-NSString * const SAEventPresetPropertyDeviceID = @"$device_id";
+NSString * const kSAEventPresetPropertyDeviceId = @"$device_id";
 /// 运营商
 static NSString * const SAEventPresetPropertyCarrier = @"$carrier";
 /// 型号
@@ -161,7 +161,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 }
 
 - (NSString *)deviceID {
-    return self.automaticProperties[SAEventPresetPropertyDeviceID];
+    return self.automaticProperties[kSAEventPresetPropertyDeviceId];
 }
 
 - (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively {
@@ -296,7 +296,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
         if (!_automaticProperties) {
             _automaticProperties = [NSMutableDictionary dictionary];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-            _automaticProperties[SAEventPresetPropertyDeviceID] = [SAIdentifier uniqueHardwareId];
+            _automaticProperties[kSAEventPresetPropertyDeviceId] = [SAIdentifier uniqueHardwareId];
 #endif
             _automaticProperties[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
             _automaticProperties[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
