@@ -612,7 +612,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
+        NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : kSAEventNameAppStart;
         NSMutableDictionary *properties = [NSMutableDictionary dictionary];
         properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
         properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
@@ -668,7 +668,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *ignoredEvent = @"None";
             switch (eventType) {
                 case SensorsAnalyticsEventTypeAppStart:
-                    ignoredEvent = SA_EVENT_NAME_APP_START;
+                    ignoredEvent = kSAEventNameAppStart;
                     break;
                     
                 case SensorsAnalyticsEventTypeAppEnd:
@@ -1618,7 +1618,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(YES);
             properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(NO);
             [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
-            [self trackAutoEvent:SA_EVENT_NAME_APP_START properties:properties];
+            [self trackAutoEvent:kSAEventNameAppStart properties:properties];
         }
     }
 

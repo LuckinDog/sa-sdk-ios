@@ -50,7 +50,7 @@ NSString * const SA_EVENT_ITEM_DELETE = @"item_delete";
 
 #pragma mark - event name
 // App 启动或激活
-NSString * const SA_EVENT_NAME_APP_START = @"$AppStart";
+NSString * const kSAEventNameAppStart = @"$AppStart";
 // App 退出或进入后台
 NSString * const SA_EVENT_NAME_APP_END = @"$AppEnd";
 // App 浏览页面

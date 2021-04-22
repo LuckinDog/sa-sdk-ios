@@ -47,7 +47,7 @@ extern NSString * const SA_EVENT_ITEM_DELETE;
 #pragma mark--evnet nanme
 
 // App 启动或激活
-extern NSString * const SA_EVENT_NAME_APP_START;
+extern NSString * const kSAEventNameAppStart;
 // App 退出或进入后台
 extern NSString * const SA_EVENT_NAME_APP_END;
 // App 浏览页面
