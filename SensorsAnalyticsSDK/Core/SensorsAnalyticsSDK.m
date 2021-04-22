@@ -550,7 +550,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-        SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
+        SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:kSAEventNameSignUp];
         [self trackWithEventObject:object properties:properties];
     });
 }
@@ -2267,7 +2267,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
-    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:SA_EVENT_NAME_APP_SIGN_UP];
+    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:kSAEventNameSignUp];
     dispatch_async(self.serialQueue, ^{
         [self trackWithEventObject:object properties:propertieDict];
     });

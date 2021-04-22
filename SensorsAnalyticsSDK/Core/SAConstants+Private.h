@@ -57,7 +57,7 @@ extern NSString * const kSAEventNameAppClick;
 // 自动追踪相关事件及属性
 extern NSString * const kSAEventNameAppStartPassively;
 
-extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
+extern NSString * const kSAEventNameSignUp;
 
 extern NSString * const SA_EVENT_NAME_APP_CRASHED;
 

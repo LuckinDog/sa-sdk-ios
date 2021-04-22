@@ -60,7 +60,7 @@ NSString * const kSAEventNameAppClick = @"$AppClick";
 // 自动追踪相关事件及属性
 NSString * const kSAEventNameAppStartPassively = @"$AppStartPassively";
 
-NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
+NSString * const kSAEventNameSignUp = @"$SignUp";
 
 NSString * const SA_EVENT_NAME_APP_CRASHED = @"AppCrashed";
 // 远程控制配置变化
