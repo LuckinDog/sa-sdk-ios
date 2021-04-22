@@ -1999,7 +1999,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = propertiesDict[kSAEventCommonOptionalPropertyProject];
             NSString *token = propertiesDict[kSAEventCommonOptionalPropertyToken];
-            id timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+            id timeNumber = propertiesDict[kSAEventCommonOptionalPropertyTime];
 
             if (project) {
                 [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyProject];
@@ -2024,7 +2024,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 } else {
                     timeStamp = @([customTime unsignedLongLongValue]);
                 }
-                [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+                [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyTime];
             }
 
             eventDict[kSAEventTime] = timeStamp;

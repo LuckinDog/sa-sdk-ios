@@ -102,7 +102,7 @@
     // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
     self.project = (NSString *)self.properties[kSAEventCommonOptionalPropertyProject];
     self.token = (NSString *)self.properties[kSAEventCommonOptionalPropertyToken];
-    id originalTime = self.properties[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+    id originalTime = self.properties[kSAEventCommonOptionalPropertyTime];
     if ([originalTime isKindOfClass:NSDate.class]) {
         NSDate *customTime = (NSDate *)originalTime;
         NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
@@ -118,7 +118,7 @@
     // $project, $token, $time 处理完毕后需要移除
     NSArray<NSString *> *needRemoveKeys = @[kSAEventCommonOptionalPropertyProject,
                                             kSAEventCommonOptionalPropertyToken,
-                                            SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+                                            kSAEventCommonOptionalPropertyTime];
     [self.properties removeObjectsForKeys:needRemoveKeys];
 }
 

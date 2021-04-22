@@ -101,7 +101,7 @@ extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
 //可选参数
 extern NSString * const kSAEventCommonOptionalPropertyProject;
 extern NSString * const kSAEventCommonOptionalPropertyToken;
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
+extern NSString * const kSAEventCommonOptionalPropertyTime;
 extern long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT;
 
 #pragma mark--lib method
