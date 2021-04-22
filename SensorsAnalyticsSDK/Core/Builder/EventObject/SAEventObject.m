@@ -68,7 +68,7 @@ static NSSet *presetEventNames;
 - (void)addSuperProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
     // 从公共属性中更新 lib 节点中的 $app_version 值
-    id appVersion = properties[SAEventPresetPropertyAppVersion];
+    id appVersion = properties[kSAEventPresetPropertyAppVersion];
     if (appVersion) {
         self.lib.appVersion = appVersion;
     }

@@ -63,7 +63,7 @@ static NSString * const SAEventPresetPropertyOSVersion = @"$os_version";
 
 #pragma mark - app
 /// 应用版本
-NSString * const SAEventPresetPropertyAppVersion = @"$app_version";
+NSString * const kSAEventPresetPropertyAppVersion = @"$app_version";
 /// 应用 ID
 static NSString * const SAEventPresetPropertyAppID = @"$app_id";
 /// 应用名称
@@ -123,7 +123,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     NSMutableDictionary *libProperties = [NSMutableDictionary dictionary];
     libProperties[kSAEventPresetPropertyLib] = self.automaticProperties[kSAEventPresetPropertyLib];
     libProperties[kSAEventPresetPropertyLibVersion] = self.automaticProperties[kSAEventPresetPropertyLibVersion];
-    libProperties[SAEventPresetPropertyAppVersion] = self.automaticProperties[SAEventPresetPropertyAppVersion];
+    libProperties[kSAEventPresetPropertyAppVersion] = self.automaticProperties[kSAEventPresetPropertyAppVersion];
     NSString *method = [SAValidator isValidString:libMethod] ? libMethod : kSALibMethodCode;
     libProperties[kSAEventPresetPropertyLibMethod] = method;
     return libProperties;
@@ -157,7 +157,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 }
 
 - (NSString *)appVersion {
-    return self.automaticProperties[SAEventPresetPropertyAppVersion];
+    return self.automaticProperties[kSAEventPresetPropertyAppVersion];
 }
 
 - (NSString *)deviceID {
@@ -308,7 +308,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
             _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
             _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
             _automaticProperties[SAEventPresetPropertyAppName] = [SAPresetProperty appName];
-            _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+            _automaticProperties[kSAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             _automaticProperties[kSAEventPresetPropertyLib] = @"iOS";
             _automaticProperties[kSAEventPresetPropertyLibVersion] = self.libVersion;
             // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）

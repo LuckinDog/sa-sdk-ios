@@ -54,7 +54,7 @@
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     properties[kSAEventPresetPropertyLib] = self.lib;
     properties[kSAEventPresetPropertyLibVersion] = self.version;
-    properties[SAEventPresetPropertyAppVersion] = self.appVersion;
+    properties[kSAEventPresetPropertyAppVersion] = self.appVersion;
     properties[kSAEventPresetPropertyLibMethod] = self.method;
     properties[kSAEventPresetPropertyLibDetail] = self.detail;
     return properties;

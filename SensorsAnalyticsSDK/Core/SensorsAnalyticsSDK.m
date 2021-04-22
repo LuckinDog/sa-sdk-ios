@@ -1964,9 +1964,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSMutableDictionary *libMDic = eventDict[kSAEventLib];
             //update lib $app_version from super properties
             NSDictionary *superProperties = [self.superProperty currentSuperProperties];
-            id appVersion = superProperties[SAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
+            id appVersion = superProperties[kSAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
             if (appVersion) {
-                libMDic[SAEventPresetPropertyAppVersion] = appVersion;
+                libMDic[kSAEventPresetPropertyAppVersion] = appVersion;
             }
 
             NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:self.presetProperty.automaticProperties];

@@ -33,7 +33,7 @@ extern NSString * const kSAEventPresetPropertyLibVersion;
 /// SDK 调用栈
 extern NSString * const kSAEventPresetPropertyLibDetail;
 /// 应用版本
-extern NSString * const SAEventPresetPropertyAppVersion;
+extern NSString * const kSAEventPresetPropertyAppVersion;
 
 extern NSString * const SAEventPresetPropertyNetworkType;
 extern NSString * const SAEventPresetPropertyWifi;
