@@ -2030,7 +2030,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             eventDict[kSAEventTime] = timeStamp;
 
             //JS SDK Data add _hybrid_h5 flag
-            eventDict[SA_EVENT_HYBRID_H5] = @(YES);
+            eventDict[kSAEventHybridH5] = @(YES);
 
             NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
 

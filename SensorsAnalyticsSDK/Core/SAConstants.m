@@ -38,7 +38,7 @@ NSString * const kSAEventType = @"type";
 NSString * const kSAEventLib = @"lib";
 NSString * const kSAEventProject = @"project";
 NSString * const kSAEventToken = @"token";
-NSString * const SA_EVENT_HYBRID_H5 = @"_hybrid_h5";
+NSString * const kSAEventHybridH5 = @"_hybrid_h5";
 NSString * const SA_EVENT_LOGIN_ID = @"login_id";
 NSString * const SA_EVENT_ANONYMOUS_ID = @"anonymous_id";
 
