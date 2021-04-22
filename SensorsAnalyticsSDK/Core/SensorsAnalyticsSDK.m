@@ -547,10 +547,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
+    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:kSAEventNameSignUp];
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-        SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEvent:kSAEventNameSignUp];
         [self trackWithEventObject:object properties:properties];
     });
 }
