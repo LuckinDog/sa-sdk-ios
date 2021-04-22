@@ -52,7 +52,7 @@
         _queue = queue;
         dispatch_async(_queue, ^{
             self.anonymousId = [self unarchiveAnonymousId];
-            self.loginId = [SAFileStore unarchiveWithFileName:SA_EVENT_LOGIN_ID];
+            self.loginId = [SAFileStore unarchiveWithFileName:kSAEventLoginId];
         });
     }
     return self;
@@ -119,14 +119,14 @@
 - (void)login:(NSString *)loginId {
     dispatch_async(self.queue, ^{
         self.loginId = loginId;
-        [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
+        [SAFileStore archiveWithFileName:kSAEventLoginId value:loginId];
     });
 }
 
 - (void)logout {
     dispatch_async(self.queue, ^{
         self.loginId = nil;
-        [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:nil];
+        [SAFileStore archiveWithFileName:kSAEventLoginId value:nil];
     });
 }
 

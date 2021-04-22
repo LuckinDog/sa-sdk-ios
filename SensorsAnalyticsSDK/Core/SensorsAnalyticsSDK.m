@@ -2039,7 +2039,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             // 只有当本地 loginId 不为空时才覆盖 H5 数据
             if (self.loginId) {
-                enqueueEvent[SA_EVENT_LOGIN_ID] = self.loginId;
+                enqueueEvent[kSAEventLoginId] = self.loginId;
             }
             enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
 
@@ -2047,7 +2047,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSString *newLoginId = eventDict[kSAEventDistinctId];
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
-                    enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
+                    enqueueEvent[kSAEventLoginId] = newLoginId;
                     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
                     [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
                     SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);

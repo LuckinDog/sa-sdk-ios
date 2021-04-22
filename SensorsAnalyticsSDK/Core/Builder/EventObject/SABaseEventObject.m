@@ -62,7 +62,7 @@
     NSMutableDictionary *eventInfo = [NSMutableDictionary dictionary];
     eventInfo[kSAEventProperties] = self.properties;
     eventInfo[kSAEventDistinctId] = self.distinctId;
-    eventInfo[SA_EVENT_LOGIN_ID] = self.loginId;
+    eventInfo[kSAEventLoginId] = self.loginId;
     eventInfo[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
     eventInfo[kSAEventType] = self.type;
     eventInfo[kSAEventTime] = @(self.timeStamp);
