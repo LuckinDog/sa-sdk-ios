@@ -483,7 +483,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     });
 
-    NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[kSAEventNameAppViewScreen] : allClasses[SA_EVENT_NAME_APP_CLICK];
+    NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[kSAEventNameAppViewScreen] : allClasses[kSAEventNameAppClick];
     for (NSString *publicClass in dictonary[@"public"]) {
         if ([viewController isKindOfClass:NSClassFromString(publicClass)]) {
             return YES;
@@ -676,7 +676,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     break;
                     
                 case SensorsAnalyticsEventTypeAppClick:
-                    ignoredEvent = SA_EVENT_NAME_APP_CLICK;
+                    ignoredEvent = kSAEventNameAppClick;
                     break;
                     
                 case SensorsAnalyticsEventTypeAppViewScreen:
@@ -1404,7 +1404,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([SAValidator isValidDictionary:p]) {
             [properties addEntriesFromDictionary:p];
         }
-        [self trackPresetEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+        [self trackPresetEvent:kSAEventNameAppClick properties:properties];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }

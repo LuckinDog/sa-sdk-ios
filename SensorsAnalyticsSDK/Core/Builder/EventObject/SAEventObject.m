@@ -96,7 +96,7 @@ static NSSet *presetEventNames;
     self.lib.method = libMethod;
 
     //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
-    BOOL isAppClick = [self.event isEqualToString:SA_EVENT_NAME_APP_CLICK] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
+    BOOL isAppClick = [self.event isEqualToString:kSAEventNameAppClick] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
     BOOL isViewScreen = [self.event isEqualToString:kSAEventNameAppViewScreen] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen];
     if (isAppClick || isViewScreen) {
         self.lib.detail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
@@ -169,7 +169,7 @@ static NSSet *presetEventNames;
                         kSAEventNameAppStartPassively ,
                         kSAEventNameAppEnd,
                         kSAEventNameAppViewScreen,
-                        SA_EVENT_NAME_APP_CLICK,
+                        kSAEventNameAppClick,
                         SA_EVENT_NAME_APP_SIGN_UP,
                         SA_EVENT_NAME_APP_CRASHED,
                         SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];

@@ -55,7 +55,7 @@
     NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:scrollView didSelectedAtIndexPath:indexPath];
     [properties addEntriesFromDictionary:dic];
 
-    [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+    [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:kSAEventNameAppClick properties:properties];
 }
 
 @end
