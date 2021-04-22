@@ -2007,7 +2007,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             if (token) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-                eventDict[SA_EVENT_TOKEN] = token;
+                eventDict[kSAEventToken] = token;
             }
             if (timeNumber) { //包含 $time
                 NSNumber *customTime = nil;

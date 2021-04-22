@@ -70,7 +70,7 @@
     eventInfo[kSAEventTrackId] = self.trackId;
     eventInfo[kSAEventName] = self.eventName;
     eventInfo[kSAEventProject] = self.project;
-    eventInfo[SA_EVENT_TOKEN] = self.token;
+    eventInfo[kSAEventToken] = self.token;
     return eventInfo;
 }
 
