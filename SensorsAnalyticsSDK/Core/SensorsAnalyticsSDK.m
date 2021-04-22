@@ -1959,7 +1959,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 eventDict[SA_EVENT_DISTINCT_ID] = bestId;
             }
-            eventDict[SA_EVENT_TRACK_ID] = @(arc4random());
+            eventDict[kSAEventTrackId] = @(arc4random());
 
             NSMutableDictionary *libMDic = eventDict[SA_EVENT_LIB];
             //update lib $app_version from super properties

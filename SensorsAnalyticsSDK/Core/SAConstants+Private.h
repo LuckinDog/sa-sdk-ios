@@ -26,7 +26,7 @@ extern NSString  * const kSAEventIdSuffix;
 
 #pragma mark--evnet
 extern NSString * const kSAEventTime;
-extern NSString * const SA_EVENT_TRACK_ID;
+extern NSString * const kSAEventTrackId;
 extern NSString * const SA_EVENT_NAME;
 extern NSString * const SA_EVENT_DISTINCT_ID;
 extern NSString * const SA_EVENT_PROPERTIES;
