@@ -66,10 +66,11 @@
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
-    NSMutableDictionary *superProperties = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
-    if (property) {
-        [superProperties removeObjectForKey:property];
+    if (!property) {
+        return;
     }
+    NSMutableDictionary *superProperties = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
+    [superProperties removeObjectForKey:property];
     self.superProperties = [NSDictionary dictionaryWithDictionary:superProperties];
     [self archiveSuperProperties];
 }
