@@ -85,7 +85,7 @@ NSString * const kSAEventPresetPropertyLib = @"$lib";
 /// SDK 方法
 NSString * const kSAEventPresetPropertyLibMethod = @"$lib_method";
 /// SDK 版本
-NSString * const SAEventPresetPropertyLibVersion = @"$lib_version";
+NSString * const kSAEventPresetPropertyLibVersion = @"$lib_version";
 /// SDK 版本
 NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
 
@@ -122,7 +122,7 @@ NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
 - (NSDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod {
     NSMutableDictionary *libProperties = [NSMutableDictionary dictionary];
     libProperties[kSAEventPresetPropertyLib] = self.automaticProperties[kSAEventPresetPropertyLib];
-    libProperties[SAEventPresetPropertyLibVersion] = self.automaticProperties[SAEventPresetPropertyLibVersion];
+    libProperties[kSAEventPresetPropertyLibVersion] = self.automaticProperties[kSAEventPresetPropertyLibVersion];
     libProperties[SAEventPresetPropertyAppVersion] = self.automaticProperties[SAEventPresetPropertyAppVersion];
     NSString *method = [SAValidator isValidString:libMethod] ? libMethod : kSALibMethodCode;
     libProperties[kSAEventPresetPropertyLibMethod] = method;
@@ -310,7 +310,7 @@ NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
             _automaticProperties[SAEventPresetPropertyAppName] = [SAPresetProperty appName];
             _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             _automaticProperties[kSAEventPresetPropertyLib] = @"iOS";
-            _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;
+            _automaticProperties[kSAEventPresetPropertyLibVersion] = self.libVersion;
             // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
             NSInteger minutesOffsetGMT = - ([[NSTimeZone defaultTimeZone] secondsFromGMT] / 60);
             _automaticProperties[SAEventPresetPropertyTimezoneOffset] = @(minutesOffsetGMT);

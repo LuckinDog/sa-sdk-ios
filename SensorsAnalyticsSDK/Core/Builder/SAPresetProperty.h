@@ -29,7 +29,7 @@ extern NSString * const kSAEventPresetPropertyLib;
 /// SDK 方法
 extern NSString * const kSAEventPresetPropertyLibMethod;
 /// SDK 版本
-extern NSString * const SAEventPresetPropertyLibVersion;
+extern NSString * const kSAEventPresetPropertyLibVersion;
 /// SDK 调用栈
 extern NSString * const SAEventPresetPropertyLibDetail;
 /// 应用版本

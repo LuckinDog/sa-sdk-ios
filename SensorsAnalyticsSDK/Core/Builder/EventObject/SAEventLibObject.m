@@ -53,7 +53,7 @@
 - (NSMutableDictionary *)generateJSONObject {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     properties[kSAEventPresetPropertyLib] = self.lib;
-    properties[SAEventPresetPropertyLibVersion] = self.version;
+    properties[kSAEventPresetPropertyLibVersion] = self.version;
     properties[SAEventPresetPropertyAppVersion] = self.appVersion;
     properties[kSAEventPresetPropertyLibMethod] = self.method;
     properties[SAEventPresetPropertyLibDetail] = self.detail;
