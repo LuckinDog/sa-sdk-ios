@@ -49,7 +49,7 @@ extern NSString * const SA_EVENT_ITEM_DELETE;
 // App 启动或激活
 extern NSString * const kSAEventNameAppStart;
 // App 退出或进入后台
-extern NSString * const SA_EVENT_NAME_APP_END;
+extern NSString * const kSAEventNameAppEnd;
 // App 浏览页面
 extern NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN;
 // App 元素点击

@@ -52,7 +52,7 @@ NSString * const SA_EVENT_ITEM_DELETE = @"item_delete";
 // App 启动或激活
 NSString * const kSAEventNameAppStart = @"$AppStart";
 // App 退出或进入后台
-NSString * const SA_EVENT_NAME_APP_END = @"$AppEnd";
+NSString * const kSAEventNameAppEnd = @"$AppEnd";
 // App 浏览页面
 NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN = @"$AppViewScreen";
 // App 元素点击

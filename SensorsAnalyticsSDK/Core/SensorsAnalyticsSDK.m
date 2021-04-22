@@ -627,7 +627,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 启动 AppEnd 事件计时器
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [self trackTimerStart:SA_EVENT_NAME_APP_END];
+        [self trackTimerStart:kSAEventNameAppEnd];
     });
 }
 
@@ -672,7 +672,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     break;
                     
                 case SensorsAnalyticsEventTypeAppEnd:
-                    ignoredEvent = SA_EVENT_NAME_APP_END;
+                    ignoredEvent = kSAEventNameAppEnd;
                     break;
                     
                 case SensorsAnalyticsEventTypeAppClick:
@@ -1623,7 +1623,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     // 启动 AppEnd 事件计时器
-    [self trackTimerStart:SA_EVENT_NAME_APP_END];
+    [self trackTimerStart:kSAEventNameAppEnd];
 
     //track 被动启动的页面浏览
     if (self.launchedPassivelyControllers) {
@@ -1680,7 +1680,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 追踪 AppEnd 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
             [_referrerManager clearReferrer];
-            [self trackAutoEvent:SA_EVENT_NAME_APP_END properties:nil];
+            [self trackAutoEvent:kSAEventNameAppEnd properties:nil];
         }
     }
 

@@ -219,7 +219,7 @@
 - (void)handleAllEventsPause:(NSMutableDictionary *)mapping time:(UInt64)currentSystemUpTime {
     for (NSString *key in mapping.allKeys) {
         if (key != nil) {
-            if ([key isEqualToString:SA_EVENT_NAME_APP_END]) {
+            if ([key isEqualToString:kSAEventNameAppEnd]) {
                 continue;
             }
         }
