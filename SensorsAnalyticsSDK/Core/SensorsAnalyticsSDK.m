@@ -1008,12 +1008,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     object.loginId = self.loginId;
     object.anonymousId = self.anonymousId;
 
-    [object addAutomaticProperties:self.presetProperty.automaticProperties];
+    [object addEventProperties:self.presetProperty.automaticProperties];
     [object addSuperProperties:self.superProperty.allProperties];
-    [object addNetworkProperties:self.presetProperty.currentNetworkProperties];
+    [object addEventProperties:self.presetProperty.currentNetworkProperties];
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.event currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
-    [object addDeepLinkProperties:SAModuleManager.sharedInstance.latestUtmProperties];
+    [object addEventProperties:SAModuleManager.sharedInstance.latestUtmProperties];
 
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
         NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:object.event];

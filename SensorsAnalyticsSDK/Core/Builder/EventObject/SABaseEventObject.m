@@ -75,19 +75,16 @@
 }
 
 #pragma makr - SAEventBuildStrategy
-- (void)addChannelProperties:(NSDictionary *)properties {
+- (void)addEventProperties:(NSDictionary *)properties {
 }
 
-- (void)addAutomaticProperties:(NSDictionary *)properties {
+- (void)addChannelProperties:(NSDictionary *)properties {
 }
 
 - (void)addModuleProperties:(NSDictionary *)properties {
 }
 
 - (void)addSuperProperties:(NSDictionary *)properties {
-}
-
-- (void)addDeepLinkProperties:(NSDictionary *)properties {
 }
 
 - (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
@@ -120,9 +117,6 @@
                                             kSAEventCommonOptionalPropertyToken,
                                             kSAEventCommonOptionalPropertyTime];
     [self.properties removeObjectsForKeys:needRemoveKeys];
-}
-
-- (void)addNetworkProperties:(NSDictionary *)properties {
 }
 
 - (void)addReferrerTitleProperty:(NSString *)referrerTitle {

@@ -24,13 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAEventBuildStrategyProtocol <NSObject>
 
+/// 添加事件属性
+/// @param properties 事件属性
+- (void)addEventProperties:(NSDictionary *)properties;
+
 /// 添加渠道信息
 /// @param properties 渠道信息
 - (void)addChannelProperties:(NSDictionary *)properties;
-
-/// 添加 SDK 默认属性
-/// @param properties SDK 默认属性
-- (void)addAutomaticProperties:(NSDictionary *)properties;
 
 /// 添加 SDK 模块中的默认属性
 /// @param properties SDK 模块中的默认属性
@@ -40,17 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties 公共属性
 - (void)addSuperProperties:(NSDictionary *)properties;
 
-/// 添加 DeepLink 属性信息
-/// @param properties DeepLink 属性信息
-- (void)addDeepLinkProperties:(NSDictionary *)properties;
-
 /// 添加自定义属性(属性校验不通过时, error 包含错误信息)
 /// @param properties 自定义属性
 - (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error;
-
-/// 添加网络信息
-/// @param properties 网络信息
-- (void)addNetworkProperties:(NSDictionary *)properties;
 
 /// 添加前向页面标题
 /// @param referrerTitle 前向页面标题

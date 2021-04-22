@@ -57,7 +57,7 @@ static NSSet *presetEventNames;
 }
 
 #pragma makr - SAEventBuildStrategy
-- (void)addAutomaticProperties:(NSDictionary *)properties {
+- (void)addEventProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
 }
 
@@ -72,10 +72,6 @@ static NSSet *presetEventNames;
     if (appVersion) {
         self.lib.appVersion = appVersion;
     }
-}
-
-- (void)addDeepLinkProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
 }
 
 - (void)addCustomProperties:(NSDictionary *)properties error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
@@ -101,10 +97,6 @@ static NSSet *presetEventNames;
     if (isAppClick || isViewScreen) {
         self.lib.detail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
     }
-}
-
-- (void)addNetworkProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
 }
 
 - (void)addReferrerTitleProperty:(NSString *)referrerTitle {
