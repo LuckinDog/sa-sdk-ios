@@ -36,7 +36,7 @@ extern NSString * const kSAEventProject;
 extern NSString * const kSAEventToken;
 extern NSString * const kSAEventHybridH5;
 extern NSString * const kSAEventLoginId;
-extern NSString * const SA_EVENT_ANONYMOUS_ID;
+extern NSString * const kSAEventAnonymousId;
 
 #pragma mark - Item
 extern NSString * const SA_EVENT_ITEM_TYPE;

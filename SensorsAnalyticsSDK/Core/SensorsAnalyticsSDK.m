@@ -2041,7 +2041,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (self.loginId) {
                 enqueueEvent[kSAEventLoginId] = self.loginId;
             }
-            enqueueEvent[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
+            enqueueEvent[kSAEventAnonymousId] = self.anonymousId;
 
             if([type isEqualToString:kSAEventTypeSignup]) {
                 NSString *newLoginId = eventDict[kSAEventDistinctId];
