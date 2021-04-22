@@ -83,7 +83,7 @@ NSString * const SAEventPresetPropertyIsFirstDay = @"$is_first_day";
 /// SDK 类型
 NSString * const kSAEventPresetPropertyLib = @"$lib";
 /// SDK 方法
-NSString * const SAEventPresetPropertyLibMethod = @"$lib_method";
+NSString * const kSAEventPresetPropertyLibMethod = @"$lib_method";
 /// SDK 版本
 NSString * const SAEventPresetPropertyLibVersion = @"$lib_version";
 /// SDK 版本
@@ -125,7 +125,7 @@ NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
     libProperties[SAEventPresetPropertyLibVersion] = self.automaticProperties[SAEventPresetPropertyLibVersion];
     libProperties[SAEventPresetPropertyAppVersion] = self.automaticProperties[SAEventPresetPropertyAppVersion];
     NSString *method = [SAValidator isValidString:libMethod] ? libMethod : kSALibMethodCode;
-    libProperties[SAEventPresetPropertyLibMethod] = method;
+    libProperties[kSAEventPresetPropertyLibMethod] = method;
     return libProperties;
 }
 

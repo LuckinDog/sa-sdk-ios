@@ -27,7 +27,7 @@ extern NSString * const SAEventPresetPropertyDeviceID;
 /// SDK 类型
 extern NSString * const kSAEventPresetPropertyLib;
 /// SDK 方法
-extern NSString * const SAEventPresetPropertyLibMethod;
+extern NSString * const kSAEventPresetPropertyLibMethod;
 /// SDK 版本
 extern NSString * const SAEventPresetPropertyLibVersion;
 /// SDK 调用栈

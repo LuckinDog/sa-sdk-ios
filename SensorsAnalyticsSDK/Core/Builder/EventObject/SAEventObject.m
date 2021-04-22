@@ -85,14 +85,14 @@ static NSSet *presetEventNames;
     }
     
     // 如果传入自定义属性中的 $lib_method 为 String 类型，需要进行修正处理
-    id libMethod = self.properties[SAEventPresetPropertyLibMethod];
+    id libMethod = self.properties[kSAEventPresetPropertyLibMethod];
     if (!libMethod || [libMethod isKindOfClass:NSString.class]) {
         if (![libMethod isEqualToString:kSALibMethodCode] &&
             ![libMethod isEqualToString:kSALibMethodAuto]) {
             libMethod = kSALibMethodCode;
         }
     }
-    self.properties[SAEventPresetPropertyLibMethod] = libMethod;
+    self.properties[kSAEventPresetPropertyLibMethod] = libMethod;
     self.lib.method = libMethod;
 
     //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
@@ -196,7 +196,7 @@ static NSSet *presetEventNames;
     if (*error) {
         return;
     }
-    self.properties[SAEventPresetPropertyLibMethod] = kSALibMethodAuto;
+    self.properties[kSAEventPresetPropertyLibMethod] = kSALibMethodAuto;
     self.lib.method = kSALibMethodAuto;
 }
 

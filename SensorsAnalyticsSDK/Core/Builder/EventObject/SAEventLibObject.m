@@ -55,7 +55,7 @@
     properties[kSAEventPresetPropertyLib] = self.lib;
     properties[SAEventPresetPropertyLibVersion] = self.version;
     properties[SAEventPresetPropertyAppVersion] = self.appVersion;
-    properties[SAEventPresetPropertyLibMethod] = self.method;
+    properties[kSAEventPresetPropertyLibMethod] = self.method;
     properties[SAEventPresetPropertyLibDetail] = self.detail;
     return properties;
 }
