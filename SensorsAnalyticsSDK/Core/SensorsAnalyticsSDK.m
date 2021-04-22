@@ -974,7 +974,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         itemProperties[kSAEventProperties] = propertyMDict;
     }
     
-    itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithLibMethod:kSALibMethodCode];
+    itemProperties[kSAEventLib] = [self.presetProperty libPropertiesWithLibMethod:kSALibMethodCode];
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     itemProperties[kSAEventTime] = timeStamp;
@@ -1961,7 +1961,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             eventDict[kSAEventTrackId] = @(arc4random());
 
-            NSMutableDictionary *libMDic = eventDict[SA_EVENT_LIB];
+            NSMutableDictionary *libMDic = eventDict[kSAEventLib];
             //update lib $app_version from super properties
             NSDictionary *superProperties = [self.superProperty currentSuperProperties];
             id appVersion = superProperties[SAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
