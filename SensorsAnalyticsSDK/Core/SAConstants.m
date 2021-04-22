@@ -54,7 +54,7 @@ NSString * const kSAEventNameAppStart = @"$AppStart";
 // App 退出或进入后台
 NSString * const kSAEventNameAppEnd = @"$AppEnd";
 // App 浏览页面
-NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN = @"$AppViewScreen";
+NSString * const kSAEventNameAppViewScreen = @"$AppViewScreen";
 // App 元素点击
 NSString * const SA_EVENT_NAME_APP_CLICK = @"$AppClick";
 // 自动追踪相关事件及属性

@@ -483,7 +483,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     });
 
-    NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[SA_EVENT_NAME_APP_VIEW_SCREEN] : allClasses[SA_EVENT_NAME_APP_CLICK];
+    NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[kSAEventNameAppViewScreen] : allClasses[SA_EVENT_NAME_APP_CLICK];
     for (NSString *publicClass in dictonary[@"public"]) {
         if ([viewController isKindOfClass:NSClassFromString(publicClass)]) {
             return YES;
@@ -680,7 +680,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     break;
                     
                 case SensorsAnalyticsEventTypeAppViewScreen:
-                    ignoredEvent = SA_EVENT_NAME_APP_VIEW_SCREEN;
+                    ignoredEvent = kSAEventNameAppViewScreen;
                     break;
                     
                 default:
@@ -1522,9 +1522,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSDictionary *newProperties = [_referrerManager propertiesWithURL:currentURL eventProperties:eventProperties serialQueue:self.serialQueue];
 
     if (autoTrack) {
-        [self trackAutoEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:newProperties];
+        [self trackAutoEvent:kSAEventNameAppViewScreen properties:newProperties];
     } else {
-        [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:newProperties];
+        [self trackPresetEvent:kSAEventNameAppViewScreen properties:newProperties];
     }
 }
 
@@ -2297,7 +2297,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
     NSDictionary *eventProperties = [_referrerManager propertiesWithURL:url eventProperties:properties serialQueue:self.serialQueue];
-    [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:eventProperties];
+    [self trackPresetEvent:kSAEventNameAppViewScreen properties:eventProperties];
 }
 
 @end
