@@ -1564,7 +1564,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
         if (eventArray) {
             for (NSDictionary *dict in eventArray) {
-                [self trackCustomEvent:dict[SA_EVENT_NAME] properties:dict[SA_EVENT_PROPERTIES]];
+                [self trackCustomEvent:dict[kSAEventName] properties:dict[SA_EVENT_PROPERTIES]];
             }
             [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
             if (completion) {

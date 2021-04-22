@@ -68,7 +68,7 @@
     eventInfo[kSAEventTime] = @(self.timeStamp);
     eventInfo[SA_EVENT_LIB] = [self.lib generateJSONObject];
     eventInfo[kSAEventTrackId] = self.trackId;
-    eventInfo[SA_EVENT_NAME] = self.eventName;
+    eventInfo[kSAEventName] = self.eventName;
     eventInfo[SA_EVENT_PROJECT] = self.project;
     eventInfo[SA_EVENT_TOKEN] = self.token;
     return eventInfo;

@@ -31,7 +31,7 @@ NSString *const kSAEventIdSuffix = @"_SATimer";
 #pragma mark - event
 NSString * const kSAEventTime = @"time";
 NSString * const kSAEventTrackId = @"_track_id";
-NSString * const SA_EVENT_NAME = @"event";
+NSString * const kSAEventName = @"event";
 NSString * const SA_EVENT_DISTINCT_ID = @"distinct_id";
 NSString * const SA_EVENT_PROPERTIES = @"properties";
 NSString * const SA_EVENT_TYPE = @"type";
