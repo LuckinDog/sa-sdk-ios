@@ -964,10 +964,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     // 处理 $project
     NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
-    id project = propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+    id project = propertyMDict[kSAEventCommonOptionalPropertyProject];
     if (project) {
         itemProperties[kSAEventProject] = project;
-        [propertyMDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+        [propertyMDict removeObjectForKey:kSAEventCommonOptionalPropertyProject];
     }
     
     if (propertyMDict.count > 0) {
@@ -1997,12 +1997,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventDict removeObjectForKey:@"server_url"];
 
             // $project & $token
-            NSString *project = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+            NSString *project = propertiesDict[kSAEventCommonOptionalPropertyProject];
             NSString *token = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
             id timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
 
             if (project) {
-                [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+                [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyProject];
                 eventDict[kSAEventProject] = project;
             }
             if (token) {
