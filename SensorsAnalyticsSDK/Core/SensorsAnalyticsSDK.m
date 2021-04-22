@@ -914,7 +914,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Item 操作
 - (void)itemSetWithType:(NSString *)itemType itemId:(NSString *)itemId properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
     NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
-    itemDict[SA_EVENT_TYPE] = SA_EVENT_ITEM_SET;
+    itemDict[kSAEventType] = SA_EVENT_ITEM_SET;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
 
@@ -925,7 +925,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)itemDeleteWithType:(NSString *)itemType itemId:(NSString *)itemId {
     NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
-    itemDict[SA_EVENT_TYPE] = SA_EVENT_ITEM_DELETE;
+    itemDict[kSAEventType] = SA_EVENT_ITEM_DELETE;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
     
@@ -1951,7 +1951,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
             }
 
-            NSString *type = eventDict[SA_EVENT_TYPE];
+            NSString *type = eventDict[kSAEventType];
             NSString *bestId = self.distinctId;
 
             if([type isEqualToString:kSAEventTypeSignup]) {

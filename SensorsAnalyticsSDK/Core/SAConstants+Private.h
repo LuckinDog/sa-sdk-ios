@@ -30,7 +30,7 @@ extern NSString * const kSAEventTrackId;
 extern NSString * const kSAEventName;
 extern NSString * const kSAEventDistinctId;
 extern NSString * const kSAEventProperties;
-extern NSString * const SA_EVENT_TYPE;
+extern NSString * const kSAEventType;
 extern NSString * const SA_EVENT_LIB;
 extern NSString * const SA_EVENT_PROJECT;
 extern NSString * const SA_EVENT_TOKEN;

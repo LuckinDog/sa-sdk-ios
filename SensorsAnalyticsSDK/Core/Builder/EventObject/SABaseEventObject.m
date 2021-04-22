@@ -64,7 +64,7 @@
     eventInfo[kSAEventDistinctId] = self.distinctId;
     eventInfo[SA_EVENT_LOGIN_ID] = self.loginId;
     eventInfo[SA_EVENT_ANONYMOUS_ID] = self.anonymousId;
-    eventInfo[SA_EVENT_TYPE] = self.type;
+    eventInfo[kSAEventType] = self.type;
     eventInfo[kSAEventTime] = @(self.timeStamp);
     eventInfo[SA_EVENT_LIB] = [self.lib generateJSONObject];
     eventInfo[kSAEventTrackId] = self.trackId;
