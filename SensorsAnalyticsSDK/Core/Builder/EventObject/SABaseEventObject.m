@@ -36,7 +36,6 @@
         _timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
         _trackId = @(arc4random());
         _properties = [NSMutableDictionary dictionary];
-        _propertiesValidator = [[SAPropertyValidator alloc] init];
         _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
     }
     return self;
@@ -53,6 +52,10 @@
 
 - (BOOL)isSignUp {
     return NO;
+}
+
+- (SAEventObjectType)eventObjectType {
+    return SAEventObjectTypeTrack;
 }
 
 - (void)validateEventWithError:(NSError **)error {
@@ -88,7 +91,7 @@
 }
 
 - (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error {
-    NSMutableDictionary *props = [self.propertiesValidator validProperties:properties error:error];
+    NSMutableDictionary *props = [SAPropertyValidator validProperties:properties type:[self eventObjectType] error:error];
     if (*error) {
         return;
     }

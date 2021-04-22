@@ -115,37 +115,46 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 @implementation SAPropertyValidator
 
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties type:(SAEventObjectType)type error:(NSError **)error {
     if (![properties isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     for (id key in properties) {
         // key 校验
-        [self validKey:key error:error];
+        [self validateKey:key error:error];
         if (*error) {
             return nil;
         }
 
         // value 校验
         id value = properties[key];
-        [self validValue:value error:error];
+        switch (type) {
+            case SAEventObjectTypeTrack:
+                [self validateValue:value error:error];
+                break;
+            case SAEventObjectTypeProfileIncrement:
+                [self validateProfileIncrementValue:value error:error];
+                break;
+            case SAEventObjectTypeProfileAppend:
+                [self validateProfileAppendValue:value error:error];
+                break;
+            default:
+                break;
+        }
+
+        // value 转换
+        id sensorsValue = [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithKey:key error:error];
         if (*error) {
             return nil;
         }
 
-        // value 转换
-        id sensorsValue = [self transformValue:(id <SAPropertyValueProtocol>)value key:key error:error];
-        if (*error) {
-            return nil;
-        }
-        
         result[key] = sensorsValue;
     }
     return result;
 }
 
-+ (void)validKey:(id)key error:(NSError **)error {
++ (void)validateKey:(id)key error:(NSError **)error {
     if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
         *error = SAPropertyError(10004, @"Property Key should by %@", [key class]);
         return;
@@ -154,44 +163,24 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
     [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
 }
 
-+ (void)validValue:(id)value error:(NSError **)error {
++ (void)validateValue:(id)value error:(NSError **)error {
     if (![value conformsToProtocol:@protocol(SAPropertyValueProtocol)]) {
         *error = SAPropertyError(10005, @"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [value class], value);
     }
 }
 
-+ (id _Nullable)transformValue:(id <SAPropertyValueProtocol>)value key:(NSString *)key error:(NSError **)error {
-    id sensorsValue = [value sensorsdata_propertyValueWithKey:key error:error];
-    return sensorsValue;
-}
-
-- (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
-    return [[self class] validProperties:properties error:error];
-}
-
-@end
-
-@implementation SAProfileAppendValidator
-
-+ (void)validValue:(id)value error:(NSError **)error {
++ (void)validateProfileAppendValue:(id)value error:(NSError **)error {
     if (![value isKindOfClass:[NSArray class]] &&
         ![value isKindOfClass:[NSSet class]]) {
         *error = SAPropertyError(10006, @"%@ profile_append value must be NSSet, NSArray. got %@ %@", self, [value  class], value);
     }
 }
 
-@end
-
-@implementation SAProfileIncrementValidator
-
-+ (void)validValue:(id)value error:(NSError **)error {
++ (void)validateProfileIncrementValue:(id)value error:(NSError **)error {
     if (![value isKindOfClass:[NSNumber class]]) {
         *error = SAPropertyError(10007, @"%@ profile_increment value must be NSNumber. got: %@ %@", self, [value class], value);
     }
 }
 
-+ (id _Nullable)transformValue:(id <SAPropertyValueProtocol>)value key:(NSString *)key {
-    return value;
-}
-
 @end
+

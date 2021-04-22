@@ -952,7 +952,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     // 校验 properties
     NSError *error = nil;
-    propertyDict = [SAPropertyValidator validProperties:[propertyDict copy] error:&error];
+    propertyDict = [SAPropertyValidator validProperties:[propertyDict copy] type:SAEventObjectTypeTrack error:&error];
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         SALogError(@"%@ failed to item properties", self);
@@ -1055,7 +1055,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     // 校验 properties
     NSError *error = nil;
-    NSMutableDictionary *properties = [obj.propertiesValidator validProperties:obj.properties error:&error];
+    NSMutableDictionary *properties = [SAPropertyValidator validProperties:obj.properties type:[obj eventObjectType] error:&error];
     if (error) {
         SALogError(@"%@ failed to track event.", self);
         return NO;
@@ -1078,13 +1078,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 校验 properties
     NSError *error = nil;
     NSMutableDictionary *validProperties = nil;
+    SAEventObjectType objectType = SAEventObjectTypeTrack;
     if ([type isEqualToString:SA_PROFILE_INCREMENT]) {
-        validProperties = [SAProfileIncrementValidator validProperties:originProperties error:&error];
+        objectType = SAEventObjectTypeProfileIncrement;
     } else if ([type isEqualToString:SA_PROFILE_APPEND]) {
-        validProperties = [SAProfileAppendValidator validProperties:originProperties error:&error];
-    } else {
-        validProperties = [SAPropertyValidator validProperties:originProperties error:&error];
+        objectType = SAEventObjectTypeProfileAppend;
     }
+    validProperties = [SAPropertyValidator validProperties:originProperties type:objectType error:&error];
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         SALogError(@"%@ failed to track event.", self);

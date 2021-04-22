@@ -63,9 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 用于统计事件时长
 @property (nonatomic, assign) UInt64 currentSystemUpTime;
 
-/// 属性校验器
-@property (nonatomic, strong) SAPropertyValidator *propertiesValidator;
-
 /// 校验事件名称
 /// @param error 错误信息
 - (void)validateEventWithError:(NSError **)error;
@@ -75,6 +72,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 校验是否是登录事件
 - (BOOL)isSignUp;
+
+/// object 类型, 用于属性校验
+- (SAEventObjectType)eventObjectType;
 
 /// 生成最终的事件信息
 - (NSMutableDictionary *)jsonObject;

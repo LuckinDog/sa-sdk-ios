@@ -40,24 +40,16 @@
 
 @implementation SAProfileIncrementEventObject
 
-- (instancetype)initWithType:(NSString *)type {
-    self = [super initWithType:type];
-    if (self) {
-        self.propertiesValidator = [[SAProfileIncrementValidator alloc] init];
-    }
-    return self;
+- (SAEventObjectType)eventObjectType {
+    return SAEventObjectTypeProfileIncrement;
 }
 
 @end
 
 @implementation SAProfileAppendEventObject
 
-- (instancetype)initWithType:(NSString *)type {
-    self = [super initWithType:type];
-    if (self) {
-        self.propertiesValidator = [[SAProfileAppendValidator alloc] init];
-    }
-    return self;
+- (SAEventObjectType)eventObjectType {
+    return SAEventObjectTypeProfileAppend;
 }
 
 @end

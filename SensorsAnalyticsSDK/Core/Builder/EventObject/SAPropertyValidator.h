@@ -27,6 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
                         code:errorCode \
                     userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:fromat,##__VA_ARGS__]}] \
 
+typedef NS_ENUM(NSUInteger, SAEventObjectType) {
+    SAEventObjectTypeTrack,
+    SAEventObjectTypeProfileIncrement,
+    SAEventObjectTypeProfileAppend,
+};
+
 @protocol SAPropertyKeyProtocol <NSObject>
 
 - (void)sensorsdata_isValidPropertyKeyWithError:(NSError **)error;
@@ -61,18 +67,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 属性校验
 /// @param properties 属性
+/// @param type 类型
 /// @param error 错误信息
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
-
-- (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
-
-@end
-
-@interface SAProfileAppendValidator : SAPropertyValidator
-
-@end
-
-@interface SAProfileIncrementValidator : SAPropertyValidator
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties type:(SAEventObjectType)type error:(NSError **)error;
 
 @end
 
