@@ -307,7 +307,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _superProperty = [[SASuperProperty alloc] init];
             
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
-            [self unarchive];
+            [self unarchiveTrackChannelEvents];
 
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
@@ -1242,14 +1242,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #pragma mark - Local caches
-
-- (void)unarchive {
-    [self unarchiveTrackChannelEvents];
-}
-
 - (void)unarchiveTrackChannelEvents {
-    NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    [self.trackChannelEventNames unionSet:trackChannelEvents];
+    dispatch_async(self.serialQueue, ^{
+        NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
+        [self.trackChannelEventNames unionSet:trackChannelEvents];
+    });
 }
 
 - (void)archiveTrackChannelEventNames {
