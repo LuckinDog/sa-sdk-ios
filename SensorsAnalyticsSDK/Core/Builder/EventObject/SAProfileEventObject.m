@@ -40,16 +40,27 @@
 
 @implementation SAProfileIncrementEventObject
 
-- (SAEventObjectType)eventObjectType {
-    return SAEventObjectTypeProfileIncrement;
+- (id)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError *__autoreleasing  _Nullable *)error {
+    id newValue = [super sensorsdata_validKey:key value:value error:error];
+    if (![value isKindOfClass:[NSNumber class]]) {
+        *error = SAPropertyError(10007, @"%@ profile_increment value must be NSNumber. got: %@ %@", self, [value class], value);
+        return nil;
+    }
+    return newValue;
 }
 
 @end
 
 @implementation SAProfileAppendEventObject
 
-- (SAEventObjectType)eventObjectType {
-    return SAEventObjectTypeProfileAppend;
+- (id)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError *__autoreleasing  _Nullable *)error {
+    id newValue = [super sensorsdata_validKey:key value:value error:error];
+    if (![newValue isKindOfClass:[NSArray class]] &&
+        ![newValue isKindOfClass:[NSSet class]]) {
+        *error = SAPropertyError(10006, @"%@ profile_append value must be NSSet, NSArray. got %@ %@", self, [value  class], value);
+        return nil;
+    }
+    return newValue;
 }
 
 @end
