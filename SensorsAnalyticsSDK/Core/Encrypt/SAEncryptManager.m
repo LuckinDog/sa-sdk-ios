@@ -194,7 +194,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         }
 
         // 返回的密钥与已有的密钥一样则不需要更新
-        if ([self.secretKey.key isEqualToString:secretKey.key]) {
+        if ([self isSameSecretKey:self.secretKey newSecretKey:secretKey]) {
             return;
         }
 
@@ -215,6 +215,22 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
+}
+
+- (BOOL)isSameSecretKey:(SASecretKey *)currentSecretKey newSecretKey:(SASecretKey *)newSecretKey {
+    if (currentSecretKey.version != newSecretKey.version) {
+        return NO;
+    }
+    if (![currentSecretKey.key isEqualToString:newSecretKey.key]) {
+        return NO;
+    }
+    if (![currentSecretKey.symmetricEncryptType isEqualToString:newSecretKey.symmetricEncryptType]) {
+        return NO;
+    }
+    if (![currentSecretKey.asymmetricEncryptType isEqualToString:newSecretKey.asymmetricEncryptType]) {
+        return NO;
+    }
+    return YES;
 }
 
 - (id<SAEncryptProtocol>)filterEncrptor:(SASecretKey *)secretKey {
@@ -242,9 +258,13 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (BOOL)checkEncryptType:(id<SAEncryptProtocol>)encryptor secretKey:(SASecretKey *)secretKey {
-    BOOL symmetricMatched = [[encryptor symmetricEncryptType] isEqualToString:secretKey.symmetricEncryptType];
-    BOOL asymmetricMatched = [[encryptor asymmetricEncryptType] isEqualToString:secretKey.asymmetricEncryptType];
-    return (symmetricMatched && asymmetricMatched);
+    if (![[encryptor symmetricEncryptType] isEqualToString:secretKey.symmetricEncryptType]) {
+        return NO;
+    }
+    if (![[encryptor asymmetricEncryptType] isEqualToString:secretKey.asymmetricEncryptType]) {
+        return NO;
+    }
+    return YES;
 }
 
 #pragma mark - archive/unarchive secretKey

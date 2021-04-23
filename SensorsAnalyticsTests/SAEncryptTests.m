@@ -88,7 +88,7 @@
 - (void)testAESEncrypt {
     NSString *testContent = @"这是一段测试的字符串";
     NSString *encrypt = [_aesEncryptor encryptData:[testContent dataUsingEncoding:NSUTF8StringEncoding]];
-    NSString *decrypt = [self aesDecrypt:_aesEncryptor.symmetricKey encryptedContent:encrypt];
+    NSString *decrypt = [self aesDecrypt:_aesEncryptor.key encryptedContent:encrypt];
     XCTAssertTrue([decrypt isEqualToString:testContent]);
 }
 

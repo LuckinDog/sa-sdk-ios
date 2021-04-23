@@ -57,7 +57,7 @@
 }
 
 - (NSString *)encryptSymmetricKeyWithPublicKey:(NSString *)publicKey {
-    NSData *symmetricKey = [_aesEncryptor symmetricKey];
+    NSData *symmetricKey = _aesEncryptor.key;
     return [_eccEncryptor encryptSymmetricKey:symmetricKey publicKey:publicKey];
 }
 

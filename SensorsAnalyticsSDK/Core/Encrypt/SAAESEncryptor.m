@@ -31,15 +31,15 @@ NSString * const kSASymmetricEncryptTypeAES = @"AES";
 
 @interface SAAESEncryptor ()
 
-@property (nonatomic, copy) NSData *symmetricKey;
+@property (nonatomic, copy) NSData *key;
 
 @end
 
 @implementation SAAESEncryptor
 #pragma mark - Public Methods
 
-- (NSData *)symmetricKey {
-    if (!_symmetricKey) {
+- (NSData *)key {
+    if (!_key) {
         // 默认使用 16 位长度随机字符串，RSA 和 ECC 保持一致
         NSUInteger length = 16;
         NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
@@ -47,9 +47,9 @@ NSString * const kSASymmetricEncryptTypeAES = @"AES";
         for (NSUInteger i = 0; i < length; i++) {
             [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
         }
-        _symmetricKey = [randomString dataUsingEncoding:NSUTF8StringEncoding];
+        _key = [randomString dataUsingEncoding:NSUTF8StringEncoding];
     }
-    return _symmetricKey;
+    return _key;
 }
 
 - (nullable NSString *)encryptData:(NSData *)obj {
@@ -58,7 +58,7 @@ NSString * const kSASymmetricEncryptTypeAES = @"AES";
         return nil;
     }
 
-    if (![SAValidator isValidData:self.symmetricKey]) {
+    if (![SAValidator isValidData:self.key]) {
         SALogError(@"Enable AES encryption but the secret key data is invalid!");
         return nil;
     }
@@ -76,7 +76,7 @@ NSString * const kSASymmetricEncryptTypeAES = @"AES";
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
                                           kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
-                                          [self.symmetricKey bytes],
+                                          [self.key bytes],
                                           kCCBlockSizeAES128,
                                           [ivData bytes],
                                           [data bytes],

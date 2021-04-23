@@ -35,7 +35,7 @@ NSString * const kSAAsymmetricEncryptTypeRSA = @"RSA";
 
 @implementation SARSAEncryptor
 
-- (NSString *)configWithPublicKey:(id)publicKey {
+- (NSString *)configWithPublicKey:(NSString *)publicKey {
     if (![SAValidator isValidString:publicKey]) {
         return nil;
     }
@@ -45,23 +45,22 @@ NSString * const kSAAsymmetricEncryptTypeRSA = @"RSA";
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\t" withString:@""];
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@" "  withString:@""];
-    return [publicKeyCopy copy];
+    return publicKeyCopy;
 }
 
-- (NSString *)encryptSymmetricKey:(NSData *)obj publicKey:(NSString *)publicKey {
-    if (![SAValidator isValidData:obj]) {
+- (NSString *)encryptSymmetricKey:(NSData *)data publicKey:(NSString *)publicKey {
+    if (![SAValidator isValidData:data]) {
         SALogError(@"Enable RSA encryption but the input obj is invalid!");
         return nil;
     }
 
-    NSString *aymmetricPublicKey = [self configWithPublicKey:publicKey];
-    if (![SAValidator isValidString:aymmetricPublicKey]) {
+    NSString *asymmetricPublicKey = [self configWithPublicKey:publicKey];
+    if (![SAValidator isValidString:asymmetricPublicKey]) {
         SALogError(@"Enable RSA encryption but the public key is invalid!");
         return nil;
     }
     
-    NSData *data = obj;
-    SecKeyRef keyRef = [self addPublicKey:aymmetricPublicKey];
+    SecKeyRef keyRef = [self addPublicKey:asymmetricPublicKey];
     if (!keyRef) {
         SALogError(@"Enable RSA encryption but init public SecKeyRef failed!");
         return nil;

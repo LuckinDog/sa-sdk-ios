@@ -63,7 +63,7 @@
 /// 返回压缩后的对称密钥数据
 /// @param publicKey 非对称加密算法的公钥，用于加密对称密钥
 - (NSString *)encryptSymmetricKeyWithPublicKey:(NSString *)publicKey {
-    NSData *symmetricKey = [_aesEncryptor symmetricKey];
+    NSData *symmetricKey = _aesEncryptor.key;
     return [_rsaEncryptor encryptSymmetricKey:symmetricKey publicKey:publicKey];
 }
 

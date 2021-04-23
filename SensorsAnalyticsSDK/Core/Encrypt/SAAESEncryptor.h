@@ -25,8 +25,8 @@ extern NSString * const kSASymmetricEncryptTypeAES;
 
 @interface SAAESEncryptor : NSObject
 
-@property (nonatomic, copy, readonly) NSData *symmetricKey;
-- (nullable NSString *)encryptData:(NSData *)obj;
+@property (nonatomic, copy, readonly) NSData *key;
+- (nullable NSString *)encryptData:(NSData *)data;
 
 @end
 
