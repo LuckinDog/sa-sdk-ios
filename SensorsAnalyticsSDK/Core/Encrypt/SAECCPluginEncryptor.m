@@ -45,11 +45,11 @@
 }
 
 - (NSString *)symmetricEncryptType {
-    return kSASymmetricEncryptTypeAES;
+    return [_aesEncryptor algorithm];
 }
 
 - (NSString *)asymmetricEncryptType {
-    return kSAAsymmetricEncryptTypeECC;
+    return [_eccEncryptor algorithm];
 }
 
 - (NSString *)encryptEvent:(NSData *)event {
@@ -57,8 +57,8 @@
 }
 
 - (NSString *)encryptSymmetricKeyWithPublicKey:(NSString *)publicKey {
-    NSData *symmetricKey = _aesEncryptor.key;
-    return [_eccEncryptor encryptSymmetricKey:symmetricKey publicKey:publicKey];
+    _eccEncryptor.key = publicKey;
+    return [_eccEncryptor encryptData:_aesEncryptor.key];
 }
 
 @end

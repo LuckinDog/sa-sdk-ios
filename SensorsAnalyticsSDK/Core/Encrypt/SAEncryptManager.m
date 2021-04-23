@@ -23,11 +23,9 @@
 #endif
 
 #import "SAEncryptManager.h"
-#import "SAConfigOptions.h"
 #import "SAValidator.h"
 #import "SAURLUtils.h"
 #import "SAAlertController.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAFileStore.h"
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
@@ -58,20 +56,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 #pragma mark - SAModuleProtocol
 
-- (void)setEnable:(BOOL)enable {
-    _enable = enable;
-    if (!enable) {
-        return;
-    }
-    NSMutableArray *encryptors = [NSMutableArray array];
-    // 默认支持的加密插件
-    [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
-    [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
-
-    // 手动注册的自定义加密插件
-    [encryptors addObjectsFromArray:self.configOptions.encryptors];
-
-    self.encryptors = encryptors;
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    self.encryptors = configOptions.encryptors;
     [self updateEncryptor];
 }
 
@@ -319,11 +305,11 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
     // 兼容老版本保存的秘钥
     if (!secretKey.symmetricEncryptType) {
-        secretKey.symmetricEncryptType = kSASymmetricEncryptTypeAES;
+        secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
     }
     if (!secretKey.asymmetricEncryptType) {
-        BOOL isECC = [secretKey.key hasPrefix:kSAAsymmetricEncryptTypeECC];
-        secretKey.asymmetricEncryptType = isECC ? kSAAsymmetricEncryptTypeECC : kSAAsymmetricEncryptTypeRSA;
+        BOOL isECC = [secretKey.key hasPrefix:kSAAlgorithmTypeECC];
+        secretKey.asymmetricEncryptType = isECC ? kSAAlgorithmTypeECC : kSAAlgorithmTypeRSA;
     }
     return secretKey;
 }

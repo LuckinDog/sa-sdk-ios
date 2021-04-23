@@ -24,6 +24,7 @@
 
 #import "SASecretKeyFactory.h"
 #import "SAConfigOptions.h"
+#import "SAConfigOptions+Private.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
 #import "SAECCEncryptor.h"
@@ -80,7 +81,7 @@
     SASecretKey *secretKey = [[SASecretKey alloc] init];
     secretKey.version = [pkv integerValue];
     secretKey.asymmetricEncryptType = type;
-    secretKey.symmetricEncryptType = kSASymmetricEncryptTypeAES;
+    secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
     secretKey.key = [NSString stringWithFormat:@"%@:%@", type, publicKey];
     return secretKey;
 }
@@ -97,8 +98,8 @@
     SASecretKey *secretKey = [[SASecretKey alloc] init];
     secretKey.version = [pkv integerValue];
     secretKey.key = publicKey;
-    secretKey.asymmetricEncryptType = kSAAsymmetricEncryptTypeRSA;
-    secretKey.symmetricEncryptType = kSASymmetricEncryptTypeAES;
+    secretKey.asymmetricEncryptType = kSAAlgorithmTypeRSA;
+    secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
     return secretKey;
 }
 

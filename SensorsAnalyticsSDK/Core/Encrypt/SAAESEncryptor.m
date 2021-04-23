@@ -27,11 +27,9 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
-NSString * const kSASymmetricEncryptTypeAES = @"AES";
-
 @interface SAAESEncryptor ()
 
-@property (nonatomic, copy) NSData *key;
+@property (nonatomic, copy, readwrite) NSData *key;
 
 @end
 
@@ -50,6 +48,10 @@ NSString * const kSASymmetricEncryptTypeAES = @"AES";
         _key = [randomString dataUsingEncoding:NSUTF8StringEncoding];
     }
     return _key;
+}
+
+- (NSString *)algorithm {
+    return kSAAlgorithmTypeAES;
 }
 
 - (nullable NSString *)encryptData:(NSData *)obj {

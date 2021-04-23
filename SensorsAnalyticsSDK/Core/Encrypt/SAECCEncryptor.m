@@ -27,8 +27,6 @@
 #import "SALog.h"
 
 NSString * const kSAEncryptECCPrefix = @"EC:";
-NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
-NSString * const kSAAsymmetricEncryptTypeECC = @"EC";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
 
@@ -49,14 +47,14 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 }
 
 #pragma mark - Public Methods
-- (NSString *)encryptSymmetricKey:(NSData *)obj publicKey:(NSString *)publicKey {
+- (NSString *)encryptData:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
         SALogError(@"Enable ECC encryption but the input obj is invalid!");
         return nil;
     }
 
     // 去除非对称秘钥公钥中的前缀内容，返回实际的非对称秘钥公钥内容
-    NSString *asymmetricKey = [self configWithSecretKey:publicKey];
+    NSString *asymmetricKey = [self configWithSecretKey:self.key];
     if (![SAValidator isValidString:asymmetricKey]) {
         SALogError(@"Enable ECC encryption but the public key is invalid!");
         return nil;
@@ -71,6 +69,10 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
     }
     
     return nil;
+}
+
+- (NSString *)algorithm {
+    return kSAAlgorithmTypeECC;
 }
 
 @end

@@ -27,8 +27,6 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
-NSString * const kSAAsymmetricEncryptTypeRSA = @"RSA";
-
 @interface SARSAEncryptor ()
 
 @end
@@ -39,7 +37,6 @@ NSString * const kSAAsymmetricEncryptTypeRSA = @"RSA";
     if (![SAValidator isValidString:publicKey]) {
         return nil;
     }
-
     NSString *publicKeyCopy = [publicKey copy];
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\r" withString:@""];
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\n" withString:@""];
@@ -48,13 +45,17 @@ NSString * const kSAAsymmetricEncryptTypeRSA = @"RSA";
     return publicKeyCopy;
 }
 
-- (NSString *)encryptSymmetricKey:(NSData *)data publicKey:(NSString *)publicKey {
+- (NSString *)algorithm {
+    return kSAAlgorithmTypeRSA;
+}
+
+- (NSString *)encryptData:(NSData *)data {
     if (![SAValidator isValidData:data]) {
         SALogError(@"Enable RSA encryption but the input obj is invalid!");
         return nil;
     }
 
-    NSString *asymmetricPublicKey = [self configWithPublicKey:publicKey];
+    NSString *asymmetricPublicKey = [self configWithPublicKey:self.key];
     if (![SAValidator isValidString:asymmetricPublicKey]) {
         SALogError(@"Enable RSA encryption but the public key is invalid!");
         return nil;

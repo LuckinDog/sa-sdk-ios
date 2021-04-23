@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SAConstants.h"
-#import "SAEncryptProtocol.h"
+
 @class SASecretKey;
 @class SASecurityPolicy;
 
@@ -173,12 +173,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 密钥值
 @property(nonatomic, copy) NSString *key;
-
-/// 对称加密类型
-@property(nonatomic, copy) NSString *symmetricEncryptType;
-
-/// 非对称加密类型
-@property(nonatomic, copy) NSString *asymmetricEncryptType;
 
 @end
 

@@ -18,15 +18,13 @@
 // limitations under the License.
 //
 #import <Foundation/Foundation.h>
-
+#import "SAAlgorithmProtocol.h"
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kSASymmetricEncryptTypeAES;
 
-@interface SAAESEncryptor : NSObject
+@interface SAAESEncryptor : NSObject <SAAlgorithmProtocol>
 
 @property (nonatomic, copy, readonly) NSData *key;
-- (nullable NSString *)encryptData:(NSData *)data;
 
 @end
 

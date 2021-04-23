@@ -19,14 +19,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAAlgorithmProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kSAAsymmetricEncryptTypeRSA;
+@interface SARSAEncryptor : NSObject <SAAlgorithmProtocol>
 
-@interface SARSAEncryptor : NSObject
-
-- (NSString *)encryptSymmetricKey:(NSData *)symmetricKey publicKey:(NSString *)publicKey;
+@property (nonatomic, copy) NSString *key;
 
 @end
 

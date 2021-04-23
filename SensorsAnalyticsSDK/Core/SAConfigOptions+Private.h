@@ -19,11 +19,22 @@
 //
 
 #import "SAEncryptProtocol.h"
+#import "SAConfigOptions.h"
 
 @interface SAConfigOptions (Private)
 
 @property (nonatomic, copy, readonly) NSArray *encryptors;
 
 - (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
+
+@end
+
+@interface SASecretKey (Private)
+
+/// 对称加密类型
+@property(nonatomic, copy) NSString *symmetricEncryptType;
+
+/// 非对称加密类型
+@property(nonatomic, copy) NSString *asymmetricEncryptType;
 
 @end

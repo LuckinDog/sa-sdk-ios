@@ -220,8 +220,10 @@
 		FC002920262C189E00A18FE3 /* SAConfigOptions+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = FC0028EF2629756400A18FE3 /* SAConfigOptions+Private.h */; };
 		FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */; };
 		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
+		FC65A3932632CA8F0095AD5B /* SAAlgorithmProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = FC65A3912632CA8F0095AD5B /* SAAlgorithmProtocol.h */; };
+		FC65A3942632CA8F0095AD5B /* SAAlgorithmProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = FC65A3922632CA8F0095AD5B /* SAAlgorithmProtocol.m */; };
 		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
-		FCE5FA982626D3730084C1F6 /* SAEncryptProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = FCE5FA972626D3730084C1F6 /* SAEncryptProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FCE5FA982626D3730084C1F6 /* SAEncryptProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = FCE5FA972626D3730084C1F6 /* SAEncryptProtocol.h */; };
 		FCE5FAA42626D4020084C1F6 /* SARSAPluginEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = FCE5FAA22626D4020084C1F6 /* SARSAPluginEncryptor.h */; };
 		FCE5FAA52626D4020084C1F6 /* SARSAPluginEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = FCE5FAA32626D4020084C1F6 /* SARSAPluginEncryptor.m */; };
 		FCE5FAB22626F12E0084C1F6 /* SAECCPluginEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = FCE5FAB02626F12E0084C1F6 /* SAECCPluginEncryptor.h */; };
@@ -483,6 +485,8 @@
 		FC0028EF2629756400A18FE3 /* SAConfigOptions+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAConfigOptions+Private.h"; sourceTree = "<group>"; };
 		FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandlerTests.m; sourceTree = "<group>"; };
 		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
+		FC65A3912632CA8F0095AD5B /* SAAlgorithmProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAlgorithmProtocol.h; sourceTree = "<group>"; };
+		FC65A3922632CA8F0095AD5B /* SAAlgorithmProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAlgorithmProtocol.m; sourceTree = "<group>"; };
 		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
 		FCE5FA972626D3730084C1F6 /* SAEncryptProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEncryptProtocol.h; sourceTree = "<group>"; };
 		FCE5FAA22626D4020084C1F6 /* SARSAPluginEncryptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SARSAPluginEncryptor.h; sourceTree = "<group>"; };
@@ -878,6 +882,8 @@
 				FCE7F164262EE4C40018EB14 /* SASecretKeyFactory.m */,
 				A835226E25E5FD75005D69D5 /* SAEncryptManager.h */,
 				A835226A25E5FD75005D69D5 /* SAEncryptManager.m */,
+				FC65A3912632CA8F0095AD5B /* SAAlgorithmProtocol.h */,
+				FC65A3922632CA8F0095AD5B /* SAAlgorithmProtocol.m */,
 				A835226825E5FD75005D69D5 /* SAAESEncryptor.h */,
 				A835226925E5FD75005D69D5 /* SAAESEncryptor.m */,
 				A835226B25E5FD75005D69D5 /* SARSAEncryptor.h */,
@@ -1072,6 +1078,7 @@
 				FCE5FAB22626F12E0084C1F6 /* SAECCPluginEncryptor.h in Headers */,
 				FCE5FA982626D3730084C1F6 /* SAEncryptProtocol.h in Headers */,
 				F277F5C725CF9A43009B5CE6 /* SAApplicationDelegateProxy.h in Headers */,
+				FC65A3932632CA8F0095AD5B /* SAAlgorithmProtocol.h in Headers */,
 				881A41F1253D7B5000854F69 /* SensorsAnalyticsSDK.h in Headers */,
 				453ECA1525DE4B0700E5DFB6 /* SAViewElementInfo.h in Headers */,
 				F277F5D525CFBF38009B5CE6 /* SAScrollViewDelegateProxy.h in Headers */,
@@ -1371,6 +1378,7 @@
 				4D9E5DB725943BCD0095A0D0 /* SAAuxiliaryToolManager.m in Sources */,
 				881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */,
 				4D9E5DB325943BCD0095A0D0 /* SAObjectSerializerContext.m in Sources */,
+				FC65A3942632CA8F0095AD5B /* SAAlgorithmProtocol.m in Sources */,
 				F277F5C225CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.m in Sources */,
 				FCE5FAA52626D4020084C1F6 /* SARSAPluginEncryptor.m in Sources */,
 				FCE7F166262EE4C40018EB14 /* SASecretKeyFactory.m in Sources */,

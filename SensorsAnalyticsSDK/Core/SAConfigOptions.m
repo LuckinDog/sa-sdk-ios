@@ -25,11 +25,12 @@
 #import "SAConfigOptions.h"
 #import "SAConfigOptions+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
-
+#import "SARSAPluginEncryptor.h"
+#import "SAECCPluginEncryptor.h"
 
 @interface SAConfigOptions ()<NSCopying>
 
-@property (nonatomic, copy, readwrite) NSArray *encryptors;
+@property (nonatomic, strong, readwrite) NSMutableArray *encryptors;
 
 @end
 
@@ -123,6 +124,14 @@
     }
 }
 
+- (void)setEnableEncrypt:(BOOL)enableEncrypt {
+    _enableEncrypt = enableEncrypt;
+    if (enableEncrypt) {
+        [self registerEncryptor:[[SAECCPluginEncryptor alloc] init]];
+        [self registerEncryptor:[[SARSAPluginEncryptor alloc] init]];
+    }
+}
+
 - (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor {
     if (![self isValidEncryptor:encryptor]) {
         NSString *format = @"\n 您使用了自定义加密插件 [ %@ ]，但是并没有实现加密协议相关方法。请正确实现自定义加密插件相关功能后再运行项目。\n";
@@ -130,9 +139,10 @@
         NSAssert(NO, message);
         return;
     }
-    NSMutableArray *encryptors = [NSMutableArray arrayWithArray:self.encryptors];
-    [encryptors addObject:encryptor];
-    self.encryptors = [encryptors copy];
+    if (!self.encryptors) {
+        self.encryptors = [[NSMutableArray alloc] init];
+    }
+    [self.encryptors addObject:encryptor];
 }
 
 - (BOOL)isValidEncryptor:(id<SAEncryptProtocol>)encryptor {
@@ -150,6 +160,16 @@
     }
     return YES;
 }
+
+@end
+
+@interface SASecretKey ()
+
+/// 对称加密类型
+@property(nonatomic, copy, readwrite) NSString *symmetricEncryptType;
+
+/// 非对称加密类型
+@property(nonatomic, copy, readwrite) NSString *asymmetricEncryptType;
 
 @end
 

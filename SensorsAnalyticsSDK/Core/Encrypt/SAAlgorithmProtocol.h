@@ -1,8 +1,8 @@
 //
-// SAECCPluginEncryptor.h
+// SAEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2021/4/14.
+// Created by 彭远洋 on 2021/4/23.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,12 +19,18 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAEncryptProtocol.h"
-#import "SAECCEncryptor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAECCPluginEncryptor : NSObject <SAEncryptProtocol>
+extern NSString * const kSAAlgorithmTypeAES;
+extern NSString * const kSAAlgorithmTypeRSA;
+extern NSString * const kSAAlgorithmTypeECC;
+extern NSString * const kSAEncryptECCClassName;
+
+@protocol SAAlgorithmProtocol <NSObject>
+
+- (nullable NSString *)encryptData:(NSData *)data;
+- (NSString *)algorithm;
 
 @end
 

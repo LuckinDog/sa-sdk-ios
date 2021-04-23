@@ -1,8 +1,8 @@
 //
-// SAECCPluginEncryptor.h
+// SAEncryptor.m
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2021/4/14.
+// Created by 彭远洋 on 2021/4/23.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,13 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import "SAEncryptProtocol.h"
-#import "SAECCEncryptor.h"
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
 
-NS_ASSUME_NONNULL_BEGIN
+#import "SAAlgorithmProtocol.h"
 
-@interface SAECCPluginEncryptor : NSObject <SAEncryptProtocol>
-
-@end
-
-NS_ASSUME_NONNULL_END
+NSString * const kSAAlgorithmTypeAES = @"AES";
+NSString * const kSAAlgorithmTypeRSA = @"RSA";
+NSString * const kSAAlgorithmTypeECC = @"EC";
+NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
