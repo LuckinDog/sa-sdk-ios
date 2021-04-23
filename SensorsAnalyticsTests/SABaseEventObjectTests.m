@@ -194,4 +194,131 @@
     XCTAssertTrue(object.properties.count == 0);
 }
 
+- (void)testAddCustomProperties6 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSDictionary *properties = @{@"$project": @"projectName"};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testAddCustomProperties7 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSDictionary *properties = @{@"$token": @"token value"};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testAddCustomPropertiesTime1 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSDictionary *properties = @{@"$time": NSDate.date};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testAddCustomPropertiesTime2 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:(kSAEventCommonOptionalPropertyTimeInt - 2000) / 1000];
+    NSDictionary *properties = @{@"$time": date};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(object.properties.count == 0);
+    XCTAssertTrue(![date isEqualToDate:[NSDate dateWithTimeIntervalSince1970:(object.timeStamp / 1000)]]);
+}
+
+- (void)testAddCustomPropertiesTime3 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:(kSAEventCommonOptionalPropertyTimeInt + 2000) / 1000];
+    NSDictionary *properties = @{@"$time": date};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(object.properties.count == 0);
+    XCTAssertTrue([date isEqualToDate:[NSDate dateWithTimeIntervalSince1970:(object.timeStamp / 1000)]]);
+}
+
+- (void)testAddCustomPropertiesTime4 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSDictionary *properties = @{@"$time": @(11111111)};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testAddCustomPropertiesDeviceId {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSDictionary *properties = @{@"$device_id": @"deviceId"};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testAddReferrerTitle {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    [object addReferrerTitleProperty:@""];
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testAddReferrerTitle2 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    [object addReferrerTitleProperty:@"testTitle"];
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testAddDurationProperty {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSNumber *number = nil;
+    [object addDurationProperty:number];
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testAddDurationProperty2 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    [object addDurationProperty:@(23)];
+    XCTAssertTrue(object.properties.count == 0);
+}
+
+- (void)testSensorsdata_validKey {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSError *error = nil;
+    [object sensorsdata_validKey:@(123) value:@"abc" error:&error];
+    XCTAssertNotNil(error);
+}
+
+- (void)testSensorsdata_validKey2 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSError *error = nil;
+    [object sensorsdata_validKey:@"123" value:@"abc" error:&error];
+    XCTAssertNotNil(error);
+}
+
+- (void)testSensorsdata_validKey3 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSError *error = nil;
+    [object sensorsdata_validKey:@"abc" value:NSDate.date error:&error];
+    XCTAssertNil(error);
+}
+
+- (void)testSensorsdata_validKey4 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSError *error = nil;
+    [object sensorsdata_validKey:@"abc" value:@[@"123"] error:&error];
+    XCTAssertNil(error);
+}
+
+- (void)testSensorsdata_validKey5 {
+    SABaseEventObject *object = [[SABaseEventObject alloc] init];
+    NSError *error = nil;
+    [object sensorsdata_validKey:@"abc" value:@[@(123)] error:&error];
+    XCTAssertNotNil(error);
+}
+
 @end
