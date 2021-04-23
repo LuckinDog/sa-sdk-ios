@@ -29,6 +29,9 @@
 #import "SAAESEncryptor.h"
 #import "SASecretKeyFactory.h"
 #import "SAConfigOptions.h"
+#import "SAConfigOptions+Private.h"
+#import "SARSAPluginEncryptor.h"
+#import "SAECCPluginEncryptor.h"
 
 #pragma mark - 测试 EC 秘钥逻辑使用
 @interface SACryptoppECC : NSObject
@@ -42,6 +45,10 @@
 @interface SAEncryptTests : XCTestCase
 
 @property (nonatomic, strong) SAAESEncryptor *aesEncryptor;
+@property (nonatomic, strong) SARSAEncryptor *rsaEncryptor;
+@property (nonatomic, strong) SAECCEncryptor *eccEncryptor;
+@property (nonatomic, strong) SARSAPluginEncryptor *rsaPlugin;
+@property (nonatomic, strong) SAECCPluginEncryptor *eccPlugin;
 
 @end
 
@@ -53,6 +60,10 @@
     // 在单元测试场景下，使用 RSA 加密会返回错误状态码 errSecMissingEntitlement = -34018
     // 这里只补充 AES 对称加密逻辑，以及下发数据生成秘钥逻辑
     _aesEncryptor = [[SAAESEncryptor alloc] init];
+    _rsaEncryptor = [[SARSAEncryptor alloc] init];
+    _eccEncryptor = [[SAECCEncryptor alloc] init];
+    _rsaPlugin = [[SARSAPluginEncryptor alloc] init];
+    _eccPlugin = [[SAECCPluginEncryptor alloc] init];
 }
 
 // AES 解密测试
@@ -90,6 +101,94 @@
     NSString *encrypt = [_aesEncryptor encryptData:[testContent dataUsingEncoding:NSUTF8StringEncoding]];
     NSString *decrypt = [self aesDecrypt:_aesEncryptor.key encryptedContent:encrypt];
     XCTAssertTrue([decrypt isEqualToString:testContent]);
+}
+
+- (void)testAESAlgorithm {
+    NSString *algorithm = [_aesEncryptor algorithm];
+    XCTAssertTrue([algorithm isEqualToString:@"AES"]);
+}
+
+- (void)testAESKetLength {
+    NSString *key = [[NSString alloc] initWithData:_aesEncryptor.key encoding:NSUTF8StringEncoding];
+    XCTAssertTrue(key.length == 16);
+}
+
+- (void)testRSAEncrypt {
+    NSString *testContent = @"这是一段测试的字符串";
+    NSString *encrypt = [_rsaEncryptor encryptData:[testContent dataUsingEncoding:NSUTF8StringEncoding]];
+    XCTAssertNil(encrypt);
+}
+
+- (void)testRSAAlgorithm {
+    NSString *algorithm = [_rsaEncryptor algorithm];
+    XCTAssertTrue([algorithm isEqualToString:@"RSA"]);
+}
+
+- (void)testRSAKey {
+    NSString *key = @"xxxxx xxxxx\nxxxxx\rxxxxx\t";
+    _rsaEncryptor.key = key;
+    XCTAssertTrue(_rsaEncryptor.key.length == 20);
+}
+
+- (void)testECCEncrypt {
+    NSString *testContent = @"这是一段测试的字符串";
+    NSString *encrypt = [_eccEncryptor encryptData:[testContent dataUsingEncoding:NSUTF8StringEncoding]];
+    XCTAssertNil(encrypt);
+}
+
+- (void)testECCAlgorithm {
+    NSString *algorithm = [_eccEncryptor algorithm];
+    XCTAssertTrue([algorithm isEqualToString:@"EC"]);
+}
+
+- (void)testECCKey {
+    NSString *key = @"EC:xxxxxaaaaaxxxxxxaaaaaa";
+    _eccEncryptor.key = key;
+    XCTAssertTrue(![_eccEncryptor.key hasPrefix:@"EC:"]);
+}
+
+- (void)testRSAPluginSymmetricEncrypt {
+    NSString *testContent = @"这是一段测试的字符串";
+    NSString *encrypt = [_rsaPlugin encryptEvent:[testContent dataUsingEncoding:NSUTF8StringEncoding]];
+    XCTAssertNotNil(encrypt);
+}
+
+- (void)testRSAPluginAsymmetricEncrypt {
+    NSString *publicKey = @"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1DOT9nNVVsarOPakR05Ezku0klcrLi5OrcQTQplnGXmieFDnr9Z316tj/+89VNbOIm7zW8uRiDj6H0zBrqbqFA==";
+    NSString *encrypt = [_rsaPlugin encryptSymmetricKeyWithPublicKey:publicKey];
+    XCTAssertNil(encrypt);
+}
+
+- (void)testRSAPluginSymmetricType {
+    NSString *symmetric = [_rsaPlugin symmetricEncryptType];
+    XCTAssertTrue([symmetric isEqualToString:@"AES"]);
+}
+
+- (void)testRSAPluginAsymmetricType {
+    NSString *asymmetric = [_rsaPlugin asymmetricEncryptType];
+    XCTAssertTrue([asymmetric isEqualToString:@"RSA"]);
+}
+
+- (void)testECCPluginSymmetricEncrypt {
+    NSString *testContent = @"这是一段测试的字符串";
+    NSString *encrypt = [_eccPlugin encryptEvent:[testContent dataUsingEncoding:NSUTF8StringEncoding]];
+    XCTAssertNotNil(encrypt);
+}
+
+- (void)testECCPluginAsymmetricEncrypt {
+    NSString *publicKey = @"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiNrvHsjE1bg7rdrppTZQLwl5hf6wI76Wfv4+9QsdEOKOWNcLTiYYojWMR0rFj95xJJ8QrI2L+3wG47VP6m4WGHITt3mD4VfGga+p78lvw+ltr/WptP9ccf+yfaf9fygEJqJNGLSuPUffhUZOs7gABe3zHPSixLpwcO/5/skw8lFV0PrepaXfN6cBnVnXiAsSF/6YfpPFlb6EJrjaFTUMtQJGFV5k/G56sYmFQP3tO4ZN3g8H0qeBKrHatMl1vKWp0JJe4/Wim3gvF/qSIkie+pivY7E4MgjchCwluxpCHPm2EwAMPT2SDu4ICcbASDhboMFDbn6u0gM8omM7tqJbzwIDAQAB";
+    NSString *encrypt = [_eccPlugin encryptSymmetricKeyWithPublicKey:publicKey];
+    XCTAssertNil(encrypt);
+}
+
+- (void)testECCPluginSymmetricType {
+    NSString *symmetric = [_eccPlugin symmetricEncryptType];
+    XCTAssertTrue([symmetric isEqualToString:@"AES"]);
+}
+
+- (void)testECCPluginAsymmetricType {
+    NSString *asymmetric = [_eccPlugin asymmetricEncryptType];
+    XCTAssertTrue([asymmetric isEqualToString:@"EC"]);
 }
 
 - (void)testGenerateRSASecretKeyForSuccess {

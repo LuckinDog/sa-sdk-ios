@@ -33,16 +33,16 @@
 
 @implementation SARSAEncryptor
 
-- (NSString *)removeUselessCharactors:(NSString *)publicKey {
-    if (![SAValidator isValidString:publicKey]) {
-        return nil;
+- (void)setKey:(NSString *)key {
+    if (![SAValidator isValidString:key]) {
+        return;
     }
-    NSString *publicKeyCopy = [publicKey copy];
+    NSString *publicKeyCopy = [key copy];
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\r" withString:@""];
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@"\t" withString:@""];
     publicKeyCopy = [publicKeyCopy stringByReplacingOccurrencesOfString:@" "  withString:@""];
-    return publicKeyCopy;
+    _key = publicKeyCopy;
 }
 
 - (NSString *)algorithm {
@@ -55,7 +55,7 @@
         return nil;
     }
 
-    NSString *asymmetricPublicKey = [self removeUselessCharactors:self.key];
+    NSString *asymmetricPublicKey = self.key;
     if (![SAValidator isValidString:asymmetricPublicKey]) {
         SALogError(@"Enable RSA encryption but the public key is invalid!");
         return nil;

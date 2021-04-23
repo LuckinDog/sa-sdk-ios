@@ -32,18 +32,17 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 
 @implementation SAECCEncryptor
 
-- (NSString *)removeEncryptTypePrefix:(NSString *)secretKey {
-    if (![SAValidator isValidString:secretKey]) {
+- (void)setKey:(NSString *)key {
+    if (![SAValidator isValidString:key]) {
         SALogError(@"Enable ECC encryption but the secret key is invalid!");
-        return nil;
+        return;
     }
 
-    if (![secretKey hasPrefix:kSAEncryptECCPrefix]) {
+    if (![key hasPrefix:kSAEncryptECCPrefix]) {
         SALogError(@"Enable ECC encryption but the secret key is not ECC key!");
-        return nil;
+        return;
     }
-
-    return [secretKey substringFromIndex:[kSAEncryptECCPrefix length]];
+    _key = [key substringFromIndex:[kSAEncryptECCPrefix length]];
 }
 
 #pragma mark - Public Methods
@@ -54,7 +53,7 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
     }
 
     // 去除非对称秘钥公钥中的前缀内容，返回实际的非对称秘钥公钥内容
-    NSString *asymmetricKey = [self removeEncryptTypePrefix:self.key];
+    NSString *asymmetricKey = self.key;
     if (![SAValidator isValidString:asymmetricKey]) {
         SALogError(@"Enable ECC encryption but the public key is invalid!");
         return nil;
