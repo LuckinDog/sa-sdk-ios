@@ -929,12 +929,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)syncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-    dispatch_sync(self.serialQueue, ^{
-        [self trackEventObject:object properties:properties];
-    });
-}
-
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         SALogDebug(@"【remote config】SDK is disabled");
