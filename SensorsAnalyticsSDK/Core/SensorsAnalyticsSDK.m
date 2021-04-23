@@ -1042,15 +1042,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return event;
 }
 
-/// 自动采集全埋点事件：
-/// $AppStart、$AppEnd、$AppViewScreen、$AppClick
-- (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties {
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:event];
-    dispatch_async(self.serialQueue, ^{
-        [self trackEventObject:object properties:properties];
-    });
-}
-
 /// 采集预置事件
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
 ///  AppCrashed、$AppRemoteConfigChanged 等预置事件
@@ -1420,11 +1411,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 添加 $url 和 $referrer 页面浏览相关属性
     NSDictionary *newProperties = [_referrerManager propertiesWithURL:currentURL eventProperties:eventProperties serialQueue:self.serialQueue];
 
+    SATrackEventObject *eventObject  = nil;
     if (autoTrack) {
-        [self trackAutoEvent:kSAEventNameAppViewScreen properties:newProperties];
+        eventObject = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     } else {
-        [self trackPresetEvent:kSAEventNameAppViewScreen properties:newProperties];
+        eventObject = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     }
+    [self asyncTrackEventObject:eventObject properties:newProperties];
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {

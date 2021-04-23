@@ -185,7 +185,8 @@ static void SAHandleException(NSException *exception) {
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
                 [SACommonUtility performBlockOnMainThread:^{
                     if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
-                        [instance trackAutoEvent:kSAEventNameAppEnd properties:nil];
+                        SAAutoTrackEventObject *eventObject  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppEnd];
+                        [instance asyncTrackEventObject:eventObject properties:nil];
                     }
                 }];
             }

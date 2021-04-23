@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// 自动采集全埋点事件：
+/// $AppStart、$AppEnd、$AppViewScreen、$AppClick
 @interface SAAutoTrackEventObject : SATrackEventObject
 
 @end

@@ -55,8 +55,9 @@
     if (!properties) {
         return;
     }
-    
-    [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:kSAEventNameAppClick properties:properties];
+
+    SAAutoTrackEventObject *eventObject = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:eventObject properties:properties];
 }
 
 @end

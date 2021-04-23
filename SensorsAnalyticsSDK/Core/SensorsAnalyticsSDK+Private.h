@@ -26,7 +26,7 @@
 #import <WebKit/WebKit.h>
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
-
+#import "SATrackEventObject.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -57,13 +57,7 @@
 */
 - (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties;
 
-/**
-自动触发全埋点事件
-
-@param event 事件名
-@param properties 事件的属性
-*/
-- (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties;
+- (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
 /**
  根据 viewController 判断，是否采集事件
