@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SABaseEventObject : NSObject <SAEventBuildStrategyProtocol>
+@interface SABaseEventObject : NSObject <SAEventBuildStrategyProtocol, SAEventPropertyValidatorProtocol>
 
 /// 未登录时: 匿名 ID; 登录后: 登录 ID
 @property (nonatomic, copy) NSString *distinctId;
@@ -72,9 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 校验是否是登录事件
 - (BOOL)isSignUp;
-
-/// object 类型, 用于属性校验
-- (SAEventObjectType)eventObjectType;
 
 /// 生成最终的事件信息
 - (NSMutableDictionary *)jsonObject;

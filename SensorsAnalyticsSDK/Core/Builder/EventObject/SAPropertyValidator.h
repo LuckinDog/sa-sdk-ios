@@ -27,12 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
                         code:errorCode \
                     userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:fromat,##__VA_ARGS__]}] \
 
-typedef NS_ENUM(NSUInteger, SAEventObjectType) {
-    SAEventObjectTypeTrack,
-    SAEventObjectTypeProfileIncrement,
-    SAEventObjectTypeProfileAppend,
-};
-
 @protocol SAPropertyKeyProtocol <NSObject>
 
 - (void)sensorsdata_isValidPropertyKeyWithError:(NSError **)error;
@@ -42,6 +36,12 @@ typedef NS_ENUM(NSUInteger, SAEventObjectType) {
 @protocol SAPropertyValueProtocol <NSObject>
 
 - (id _Nullable)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError **)error;
+
+@end
+
+@protocol SAEventPropertyValidatorProtocol <NSObject>
+
+- (id _Nullable)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError **)error;
 
 @end
 
@@ -63,13 +63,13 @@ typedef NS_ENUM(NSUInteger, SAEventObjectType) {
 @interface NSNull (SAProperty)<SAPropertyValueProtocol>
 @end
 
+@interface NSDictionary (SAProperty) <SAEventPropertyValidatorProtocol>
+@end
+
 @interface SAPropertyValidator : NSObject
 
-/// 属性校验
-/// @param properties 属性
-/// @param type 类型
-/// @param error 错误信息
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties type:(SAEventObjectType)type error:(NSError **)error;
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties validator:(id<SAEventPropertyValidatorProtocol>)validator error:(NSError **)error;
 
 @end
 
