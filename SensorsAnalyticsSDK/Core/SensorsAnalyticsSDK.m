@@ -1020,14 +1020,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     // 校验 properties
     NSError *error = nil;
-    NSMutableDictionary *validProperties = nil;
-    SAEventObjectType objectType = SAEventObjectTypeTrack;
-    if ([type isEqualToString:SA_PROFILE_INCREMENT]) {
-        objectType = SAEventObjectTypeProfileIncrement;
-    } else if ([type isEqualToString:SA_PROFILE_APPEND]) {
-        objectType = SAEventObjectTypeProfileAppend;
-    }
-    validProperties = [SAPropertyValidator validProperties:originProperties type:objectType error:&error];
+    NSMutableDictionary *validProperties = [SAPropertyValidator validProperties:originProperties type:SAEventObjectTypeTrack error:&error];
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         SALogError(@"%@ failed to track event.", self);
