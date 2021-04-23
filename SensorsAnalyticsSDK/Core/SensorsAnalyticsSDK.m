@@ -923,6 +923,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self.eventTracker trackEvent:itemProperties];
 }
 #pragma mark - track event
+- (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    dispatch_async(self.serialQueue, ^{
+        [self trackEventObject:object properties:properties];
+    });
+}
+
+- (void)syncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    dispatch_sync(self.serialQueue, ^{
+        [self trackEventObject:object properties:properties];
+    });
+}
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
@@ -1031,13 +1042,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return event;
 }
 
-- (void)trackCustomEvent:(NSString *)event properties:(NSDictionary *)properties {
-    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
-    dispatch_async(self.serialQueue, ^{
-        [self trackEventObject:object properties:properties];
-    });
-}
-
 /// 自动采集全埋点事件：
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick
 - (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -1069,7 +1073,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
-    [self trackCustomEvent:event properties:propertieDict];
+    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
+    [self asyncTrackEventObject:object properties:propertieDict];
 }
 
 - (void)trackChannelEvent:(NSString *)event {
@@ -1078,7 +1083,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
     if (_configOptions.enableAutoAddChannelCallbackEvent) {
-        [self trackCustomEvent:event properties:propertyDict];
+        SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
+        [self asyncTrackEventObject:object properties:propertyDict];
         return;
     }
     NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
@@ -1146,7 +1152,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
     // trackTimerEnd 事件需要支持新渠道匹配功能，且用户手动调用 trackTimerEnd 应归为手动埋点
-    [self trackCustomEvent:event properties:propertyDict];
+    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
+    [self asyncTrackEventObject:object properties:propertyDict];
 }
 
 - (void)trackTimerPause:(NSString *)event {
@@ -1428,7 +1435,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
         if (eventArray) {
             for (NSDictionary *dict in eventArray) {
-                [self trackCustomEvent:dict[kSAEventName] properties:dict[kSAEventProperties]];
+                SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:dict[kSAEventName]];
+                [self asyncTrackEventObject:object properties:dict[kSAEventProperties]];
             }
             [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
             if (completion) {
