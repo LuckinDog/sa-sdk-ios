@@ -94,6 +94,19 @@
     XCTAssertTrue([(@{}) isEqualToDictionary:result2]);
 }
 
+- (void)testUnregisterSuperProperty2 {
+    [self.superPorperty clearSuperProperties];
+    [self.superPorperty registerSuperProperties:@{@"abc": @"abcValue", @"ABC": @"ABCValue"}];
+    NSString *unregisterKey = nil;
+    [self.superPorperty unregisterSuperProperty:unregisterKey];
+    NSDictionary *result = [self.superPorperty currentSuperProperties];
+    XCTAssertTrue([(@{@"abc": @"abcValue", @"ABC": @"ABCValue"}) isEqualToDictionary:result]);
+
+    [self.superPorperty unregisterSuperProperty:@"abc"];
+    NSDictionary *result2 = [self.superPorperty currentSuperProperties];
+    XCTAssertTrue([(@{@"ABC": @"ABCValue"}) isEqualToDictionary:result2]);
+}
+
 - (void)testRegisterSuperPropertyForInvalidKey {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"123abc": @"123abcValue"}];
@@ -213,6 +226,20 @@
     }];
     NSDictionary *reuslt = [self.superPorperty acquireDynamicSuperProperties];
     XCTAssertTrue([(@{@"hhh": @(123),@"jjj": @[@"j", @"jj", @"jjj"]}) isEqualToDictionary:reuslt]);
+}
+
+- (void)testAcquireDynamicSuperProperties {
+    [self.superPorperty registerDynamicSuperProperties:^NSDictionary<NSString *,id> * _Nonnull{
+        return @{@"aaa": @"aaaValue"};
+    }];
+    NSDictionary *reuslt = [self.superPorperty acquireDynamicSuperProperties];
+    XCTAssertTrue([(@{@"aaa": @"aaaValue"}) isEqualToDictionary:reuslt]);
+}
+
+- (void)testAcquireDynamicSuperProperties2 {
+    NSDictionary<NSString *, id> *(^block)(void) = nil;
+    [self.superPorperty registerDynamicSuperProperties:block];
+    XCTAssertNil([self.superPorperty acquireDynamicSuperProperties]);
 }
 
 - (void)testRegisterDynamicSuperProperties2 {
