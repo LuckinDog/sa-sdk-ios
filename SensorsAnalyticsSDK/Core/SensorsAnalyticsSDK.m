@@ -930,6 +930,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    // 1. 远程控制校验
     if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
         SALogDebug(@"【remote config】SDK is disabled");
         return;
@@ -940,6 +941,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
+    // 2. 事件名校验
     NSError *error = nil;
     [object validateEventWithError:&error];
     if (error) {
@@ -948,12 +950,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
+    // 3. 设置用户关联信息
     NSString *anonymousId = self.anonymousId;
     object.distinctId = self.distinctId;
     object.loginId = self.loginId;
     object.anonymousId = anonymousId;
     object.originalId = anonymousId;
 
+    // 4. 添加属性
     NSDictionary *dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     [object addEventProperties:self.presetProperty.automaticProperties];
     [object addSuperProperties:self.superProperty.currentSuperProperties];
@@ -973,6 +977,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
     }
 
+    // 5. 添加的自定义属性需要校验
     [object addCustomProperties:properties error:&error];
     [object addModuleProperties:[self.presetProperty presetPropertiesOfTrackType]];
 
@@ -982,10 +987,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
+    // 6. trackEventCallback 接口调用
     if (![self willEnqueueWithObject:object]) {
         return;
     }
 
+    // 7. 发送通知 & 事件采集
     NSDictionary *result = [object jsonObject];
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:result];
     SALogDebug(@"\n【track event】:\n%@", result);
