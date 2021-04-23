@@ -979,7 +979,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 5. 添加的自定义属性需要校验
     [object addCustomProperties:properties error:&error];
-    [object addModuleProperties:[self.presetProperty presetPropertiesOfTrackType]];
+    [object addModuleProperties:@{SAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
+    [object addModuleProperties:SAModuleManager.sharedInstance.properties];
 
     if (error) {
         SALogError(@"%@", error.localizedDescription);

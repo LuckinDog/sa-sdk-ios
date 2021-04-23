@@ -164,17 +164,6 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     return self.automaticProperties[kSAEventPresetPropertyDeviceId];
 }
 
-- (NSDictionary *)presetPropertiesOfTrackType {
-    NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
-    // 是否首日访问
-    presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
-
-    // 采集地理位置信息
-    [presetPropertiesOfTrackType addEntriesFromDictionary:SAModuleManager.sharedInstance.properties];
-
-    return presetPropertiesOfTrackType;
-}
-
 #pragma mark – Private Methods
 
 - (void)unarchiveFirstDay {
