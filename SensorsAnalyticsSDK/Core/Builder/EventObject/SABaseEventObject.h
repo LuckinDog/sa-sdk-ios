@@ -37,7 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *anonymousId;
 
 /// 事件名称
-@property (nonatomic, copy) NSString *event;
+@property (nonatomic, copy) NSString *eventId;
+
+/// 通过 eventId 转换的 event
+@property (nonatomic, copy, readonly) NSString *event;
 
 /// 事件类型
 @property (nonatomic, copy) NSString *type;
@@ -66,9 +69,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 校验事件名称
 /// @param error 错误信息
 - (void)validateEventWithError:(NSError **)error;
-
-/// 获取事件名称
-- (NSString *)eventName;
 
 /// 校验是否是登录事件
 - (BOOL)isSignUp;

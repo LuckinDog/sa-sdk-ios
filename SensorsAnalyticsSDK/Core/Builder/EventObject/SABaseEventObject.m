@@ -41,12 +41,12 @@
     return self;
 }
 
-- (NSString *)eventName {
-    if (![self.event hasSuffix:kSAEventIdSuffix]) {
-        return self.event;
+- (NSString *)event {
+    if (![self.eventId hasSuffix:kSAEventIdSuffix]) {
+        return self.eventId;
     }
     //eventId 结构为 {eventName}_D3AC265B_3CC2_4C45_B8F0_3E05A83A9DAE_SATimer，新增后缀长度为 44
-    NSString *eventName = [self.event substringToIndex:(self.event.length - 1) - 44];
+    NSString *eventName = [self.eventId substringToIndex:(self.eventId.length - 1) - 44];
     return eventName;
 }
 
@@ -71,7 +71,7 @@
     eventInfo[kSAEventTime] = @(self.timeStamp);
     eventInfo[kSAEventLib] = [self.lib jsonObject];
     eventInfo[kSAEventTrackId] = self.trackId;
-    eventInfo[kSAEventName] = self.eventName;
+    eventInfo[kSAEventName] = self.event;
     eventInfo[kSAEventProject] = self.project;
     eventInfo[kSAEventToken] = self.token;
     return eventInfo;

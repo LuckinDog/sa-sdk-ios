@@ -33,25 +33,25 @@ static NSSet *presetEventNames;
 
 @implementation SATrackEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
+- (instancetype)initWithEventId:(NSString *)eventId {
     self = [super init];
     if (self) {
-        self.event = event;
+        self.eventId = eventId;
     }
     return self;
 }
 
 - (void)validateEventWithError:(NSError **)error {
-    if (self.event && ![self.event isKindOfClass:NSString.class]) {
-        *error = SAPropertyError(20000, @"Event name must be NSString. got: %@ %@", [self.event class], self.event);
+    if (self.eventId && ![self.eventId isKindOfClass:NSString.class]) {
+        *error = SAPropertyError(20000, @"Event name must be NSString. got: %@ %@", [self.eventId class], self.eventId);
         return;
     }
-    if (self.event == nil || [self.event length] == 0) {
+    if (self.eventId == nil || [self.eventId length] == 0) {
         *error = SAPropertyError(20001, @"Event name should not be empty or nil");
         return;
     }
-    if (![SAValidator isValidKey:self.event]) {
-        *error = SAPropertyError(20002, @"Event name[%@] not valid", self.event);
+    if (![SAValidator isValidKey:self.eventId]) {
+        *error = SAPropertyError(20002, @"Event name[%@] not valid", self.eventId);
         return;
     }
 }
@@ -106,8 +106,8 @@ static NSSet *presetEventNames;
 
 @implementation SASignUpEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super initWithEvent:event];
+- (instancetype)initWithEventId:(NSString *)eventId {
+    self = [super initWithEventId:eventId];
     if (self) {
         self.type = kSAEventTypeSignup;
     }
@@ -132,8 +132,8 @@ static NSSet *presetEventNames;
 
 @implementation SACustomEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super initWithEvent:event];
+- (instancetype)initWithEventId:(NSString *)eventId {
+    self = [super initWithEventId:eventId];
     if (self) {
         self.type = kSAEventTypeTrack;
     }
@@ -162,8 +162,8 @@ static NSSet *presetEventNames;
                             kSAEventNameAppRemoteConfigChanged, nil];
     });
     //事件校验，预置事件提醒
-    if ([presetEventNames containsObject:self.event]) {
-        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", self.event);
+    if ([presetEventNames containsObject:self.eventId]) {
+        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", self.eventId);
     }
 }
 
@@ -171,8 +171,8 @@ static NSSet *presetEventNames;
 
 @implementation SAAutoTrackEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super initWithEvent:event];
+- (instancetype)initWithEventId:(NSString *)eventId {
+    self = [super initWithEventId:eventId];
     if (self) {
         self.type = kSAEventTypeTrack;
     }
@@ -189,8 +189,8 @@ static NSSet *presetEventNames;
 
     // 不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
     // 仅在全埋点的元素点击和页面浏览事件中添加 $lib_detail
-    BOOL isAppClick = [self.event isEqualToString:kSAEventNameAppClick] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
-    BOOL isViewScreen = [self.event isEqualToString:kSAEventNameAppViewScreen] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen];
+    BOOL isAppClick = [self.eventId isEqualToString:kSAEventNameAppClick] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
+    BOOL isViewScreen = [self.eventId isEqualToString:kSAEventNameAppViewScreen] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen];
     if (isAppClick || isViewScreen) {
         self.lib.detail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
     }
@@ -200,8 +200,8 @@ static NSSet *presetEventNames;
 
 @implementation SAPresetEventObject
 
-- (instancetype)initWithEvent:(NSString *)event {
-    self = [super initWithEvent:event];
+- (instancetype)initWithEventId:(NSString *)eventId {
+    self = [super initWithEventId:eventId];
     if (self) {
         self.type = kSAEventTypeTrack;
     }
