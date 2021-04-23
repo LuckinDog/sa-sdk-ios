@@ -36,6 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 匿名 ID
 @property (nonatomic, copy) NSString *anonymousId;
 
+/// 登录事件中的 匿名 ID
+@property (nonatomic, copy) NSString *originalId;
+
 /// 事件名称
 @property (nonatomic, copy) NSString *eventId;
 

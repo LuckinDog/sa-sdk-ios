@@ -116,7 +116,7 @@ static NSSet *presetEventNames;
 
 - (NSMutableDictionary *)jsonObject {
     NSMutableDictionary *jsonObject = [super jsonObject];
-    jsonObject[@"original_id"] = self.anonymousId;
+    jsonObject[@"original_id"] = self.originalId;
     return jsonObject;
 }
 

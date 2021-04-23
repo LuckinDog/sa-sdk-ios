@@ -943,9 +943,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
+    NSString *anonymousId = self.anonymousId;
     object.distinctId = self.distinctId;
     object.loginId = self.loginId;
-    object.anonymousId = self.anonymousId;
+    object.anonymousId = anonymousId;
+    object.originalId = anonymousId;
 
     NSDictionary *dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     [object addEventProperties:self.presetProperty.automaticProperties];
