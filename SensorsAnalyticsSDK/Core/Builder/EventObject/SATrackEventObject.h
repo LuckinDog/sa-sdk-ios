@@ -42,6 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// 采集预置事件
+/// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
+///  AppCrashed、$AppRemoteConfigChanged 等预置事件
 @interface SAPresetEventObject : SATrackEventObject
 
 @end

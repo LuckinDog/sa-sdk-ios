@@ -1042,16 +1042,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return event;
 }
 
-/// 采集预置事件
-/// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
-///  AppCrashed、$AppRemoteConfigChanged 等预置事件
-- (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties {
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:event];
-    dispatch_async(self.serialQueue, ^{
-        [self trackEventObject:object properties:properties];
-    });
-}
-
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
     dispatch_async(self.serialQueue, ^{
@@ -1337,7 +1327,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([SAValidator isValidDictionary:p]) {
             [properties addEntriesFromDictionary:p];
         }
-        [self trackPresetEvent:kSAEventNameAppClick properties:properties];
+        SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppClick];
+        [self asyncTrackEventObject:object properties:properties];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -1549,7 +1540,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf trackPresetEvent:event properties:properties];
+        SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:event];
+        [strongSelf asyncTrackEventObject:object properties:properties];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };
@@ -2041,7 +2033,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
     NSDictionary *eventProperties = [_referrerManager propertiesWithURL:url eventProperties:properties serialQueue:self.serialQueue];
-    [self trackPresetEvent:kSAEventNameAppViewScreen properties:eventProperties];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
+    [self asyncTrackEventObject:object properties:eventProperties];
 }
 
 @end
