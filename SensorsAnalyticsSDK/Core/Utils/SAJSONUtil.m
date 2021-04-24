@@ -105,13 +105,13 @@
 }
 
 + (id)JSONObjectWithData:(NSData *)data {
-    if (!data) {
-        SALogInfo(@"json data is nil");
+    if (!data || data.length == 0) {
+        SALogInfo(@"json data is empty");
         return nil;
     }
-    NSError *jsonError = nil;
     id jsonObject = nil;
     @try {
+        NSError *jsonError = nil;
         jsonObject = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingOptions)0 error:&jsonError];
         if (jsonError) {
             SALogError(@"json serialization error: %@",jsonError);
