@@ -139,10 +139,10 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
     NSString *userAgent = eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT];
     if (userAgent.length == 0) {
-        [[SensorsAnalyticsSDK sharedInstance] loadUserAgentWithCompletion:^(NSString *ua) {
-            eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] = ua;
-            [self trackAppInstallEvent:event properties:eventProps];
-        }];
+        NSString *version = [UIDevice.currentDevice.systemVersion stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+        NSString *format = @"Mozilla/5.0 (iPhone; CPU iPhone OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile";
+        eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] = [NSString stringWithFormat:format, version];
+        [self trackAppInstallEvent:event properties:eventProps];
     } else {
         [self trackAppInstallEvent:event properties:eventProps];
     }
