@@ -70,7 +70,8 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
         //添加 deeplink 相关渠道信息，可能不存在
         [eventProperties addEntriesFromDictionary:properties];
 
-        [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:event properties:eventProperties];
+        SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:event];
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
     }
 
     // 更新首次标记

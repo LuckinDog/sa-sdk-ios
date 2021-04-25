@@ -51,7 +51,8 @@
         return;
     }
 
-    [SensorsAnalyticsSDK.sharedInstance trackAutoEvent:kSAEventNameAppEnd properties:nil];
+    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppEnd];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:nil];
 }
 
 + (NSString *)eventName {

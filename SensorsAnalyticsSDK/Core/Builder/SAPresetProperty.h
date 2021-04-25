@@ -81,9 +81,6 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 /// 当前的预置属性
 - (NSDictionary *)currentPresetProperties;
 
-/// track 类型的预置属性
-- (NSDictionary *)presetPropertiesOfTrackType;
-
 @end
 
 NS_ASSUME_NONNULL_END

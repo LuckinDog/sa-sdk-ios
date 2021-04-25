@@ -54,10 +54,6 @@
     return NO;
 }
 
-- (SAEventObjectType)eventObjectType {
-    return SAEventObjectTypeTrack;
-}
-
 - (void)validateEventWithError:(NSError **)error {
 }
 
@@ -91,7 +87,7 @@
 }
 
 - (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error {
-    NSMutableDictionary *props = [SAPropertyValidator validProperties:properties type:[self eventObjectType] error:error];
+    NSMutableDictionary *props = [SAPropertyValidator validProperties:properties validator:self error:error];
     if (*error) {
         return;
     }
@@ -126,6 +122,21 @@
 }
 
 - (void)addDurationProperty:(NSNumber *)duration {
+}
+
+- (id)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError *__autoreleasing  _Nullable *)error {
+    if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
+        *error = SAPropertyError(10004, @"Property Key should by %@", [key class]);
+        return nil;
+    }
+
+    [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
+    if (*error) {
+        return nil;
+    }
+
+    // value 转换
+    return [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithKey:key error:error];
 }
 
 @end

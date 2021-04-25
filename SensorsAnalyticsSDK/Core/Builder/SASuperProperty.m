@@ -52,7 +52,7 @@ static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
     NSError *error = nil;
-    NSDictionary *validProperty = [SAPropertyValidator validProperties:[propertyDict copy] type:SAEventObjectTypeTrack error:&error];
+    NSDictionary *validProperty = [SAPropertyValidator validProperties:[propertyDict copy] error:&error];
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         SALogError(@"%@ failed to register super properties.", self);
@@ -116,7 +116,7 @@ static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
     if (self.dynamicSuperProperties) {
         NSDictionary *dynamicProperties = self.dynamicSuperProperties();
         NSError *error;
-        NSDictionary *validProperties = [SAPropertyValidator validProperties:dynamicProperties type:SAEventObjectTypeTrack error:&error];
+        NSDictionary *validProperties = [SAPropertyValidator validProperties:dynamicProperties error:&error];
         if (error) {
             SALogError(@"%@", error.localizedDescription);
             [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
