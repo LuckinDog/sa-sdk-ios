@@ -69,6 +69,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 用于统计事件时长
 @property (nonatomic, assign) UInt64 currentSystemUpTime;
 
+/// 用于记录动态公共属性, 动态公共属性需要在 serialQueue 队列外获取
+@property (nonatomic, strong) NSDictionary *dynamicSuperProperties;
+
 /// 校验事件名称
 /// @param error 错误信息
 - (void)validateEventWithError:(NSError **)error;

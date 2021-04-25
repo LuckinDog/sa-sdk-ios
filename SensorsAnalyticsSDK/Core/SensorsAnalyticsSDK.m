@@ -924,6 +924,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 #pragma mark - track event
 - (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
         [self trackEventObject:object properties:properties];
     });
@@ -958,10 +959,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     object.originalId = anonymousId;
 
     // 4. 添加属性
-    NSDictionary *dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     [object addEventProperties:self.presetProperty.automaticProperties];
     [object addSuperProperties:self.superProperty.currentSuperProperties];
-    [object addEventProperties:dynamicSuperProperties];
+    [object addEventProperties:object.dynamicSuperProperties];
     [object addEventProperties:self.presetProperty.currentNetworkProperties];
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.eventId currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];

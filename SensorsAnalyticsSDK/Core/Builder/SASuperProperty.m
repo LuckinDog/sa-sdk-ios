@@ -26,6 +26,7 @@
 #import "SAFileStore.h"
 #import "SAPropertyValidator.h"
 #import "SAModuleManager.h"
+#import "SAReadWriteLock.h"
 #import "SALog.h"
 
 static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
@@ -37,6 +38,7 @@ static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
 
 /// 动态公共属性
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
+@property (nonatomic, strong) SAReadWriteLock *dynamicSuperPropertiesLock;
 
 @end
 
@@ -45,6 +47,8 @@ static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
 - (instancetype)init {
     self = [super init];
     if (self) {
+        NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
+        _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
         [self unarchiveSuperProperties];
     }
     return self;
@@ -109,23 +113,27 @@ static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    self.dynamicSuperProperties = dynamicSuperProperties;
+    [self.dynamicSuperPropertiesLock writeWithBlock:^{
+        self.dynamicSuperProperties = dynamicSuperProperties;
+    }];
 }
 
 - (NSDictionary *)acquireDynamicSuperProperties {
-    if (self.dynamicSuperProperties) {
-        NSDictionary *dynamicProperties = self.dynamicSuperProperties();
-        NSError *error;
-        NSDictionary *validProperties = [SAPropertyValidator validProperties:dynamicProperties error:&error];
-        if (error) {
-            SALogError(@"%@", error.localizedDescription);
-            [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-            return nil;
+    return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
+        if (self.dynamicSuperProperties) {
+            NSDictionary *dynamicProperties = self.dynamicSuperProperties();
+            NSError *error;
+            NSDictionary *validProperties = [SAPropertyValidator validProperties:dynamicProperties error:&error];
+            if (error) {
+                SALogError(@"%@", error.localizedDescription);
+                [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
+                return nil;
+            }
+            [self unregisterSameLetterSuperProperties:validProperties];
+            return validProperties;
         }
-        [self unregisterSameLetterSuperProperties:validProperties];
-        return validProperties;
-    }
-    return nil;
+        return nil;
+    }];
 }
 
 #pragma mark - 缓存
