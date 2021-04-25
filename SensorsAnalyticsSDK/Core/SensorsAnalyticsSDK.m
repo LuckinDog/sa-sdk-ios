@@ -76,7 +76,7 @@
 #import "SAModuleManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.5.4"
+#define VERSION @"2.5.5"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
