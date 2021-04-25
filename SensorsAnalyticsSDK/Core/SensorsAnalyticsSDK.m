@@ -1046,9 +1046,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
-    dispatch_async(self.serialQueue, ^{
-        [self trackEventObject:object properties:properties];
-    });
+    [self asyncTrackEventObject:object properties:properties];
 }
 
 - (void)track:(NSString *)event {
@@ -1843,29 +1841,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
-        SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-        dispatch_async(SensorsAnalyticsSDK.sharedInstance.serialQueue, ^{
-            [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:@{profile: amount}];
-        });
+        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:@{profile: amount}];
     }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
-        SAProfileEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-        dispatch_async(SensorsAnalyticsSDK.sharedInstance.serialQueue, ^{
-            [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:profileDict];
-        });
+        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:profileDict];
     }
 }
 
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-            SAProfileEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
-            dispatch_async(SensorsAnalyticsSDK.sharedInstance.serialQueue, ^{
-                [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:@{profile: content}];
-            });
+            SAProfileAppendEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
+            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:@{profile: content}];
         }
     }
 }
@@ -2003,9 +1995,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
-    dispatch_async(self.serialQueue, ^{
-        [self trackEventObject:object properties:propertieDict];
-    });
+    [self asyncTrackEventObject:object properties:propertieDict];
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId {
