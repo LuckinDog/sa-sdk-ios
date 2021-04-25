@@ -1901,6 +1901,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
+    
+    if (self.previousTrackViewController != controller) {
+        // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
+        self.previousTrackViewController = controller;
+    }
 
     if (self.launchedPassively) {
         if (!self.launchedPassivelyControllers) {

@@ -93,14 +93,10 @@
             [instance autoTrackViewScreen:self];
 #endif
         }
-
-        if (instance.previousTrackViewController != self && UIApplication.sharedApplication.keyWindow == self.view.window) {
-            // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
-            instance.previousTrackViewController = self;
-        }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
     [self sa_autotrack_viewDidAppear:animated];
 }
+
 @end
