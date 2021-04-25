@@ -22,6 +22,7 @@
 		453FC64225EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC63125EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m */; };
 		453FC64425EE3D6300591C47 /* SAGestureTargetActionModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 453FC63325EE3D6300591C47 /* SAGestureTargetActionModel.m */; };
 		453FC64725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */; };
+		454173532635924E00DC504C /* SATrackEventObjectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 454173522635924E00DC504C /* SATrackEventObjectTests.m */; };
 		45720A0026214D13000F41C7 /* SASuperProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 457209FE26214D13000F41C7 /* SASuperProperty.h */; };
 		45720A0126214D13000F41C7 /* SASuperProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 457209FF26214D13000F41C7 /* SASuperProperty.m */; };
 		45720B1C2624500B000F41C7 /* SAPropertyValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 45720B1A2624500B000F41C7 /* SAPropertyValidator.h */; };
@@ -277,6 +278,7 @@
 		453FC63125EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+SAAutoTrack.m"; sourceTree = "<group>"; };
 		453FC63325EE3D6300591C47 /* SAGestureTargetActionModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetActionModel.m; sourceTree = "<group>"; };
 		453FC63725EE3D6300591C47 /* UIGestureRecognizer+SAAutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+SAAutoTrack.h"; sourceTree = "<group>"; };
+		454173522635924E00DC504C /* SATrackEventObjectTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackEventObjectTests.m; sourceTree = "<group>"; };
 		457209FE26214D13000F41C7 /* SASuperProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASuperProperty.h; sourceTree = "<group>"; };
 		457209FF26214D13000F41C7 /* SASuperProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASuperProperty.m; sourceTree = "<group>"; };
 		45720B1A2624500B000F41C7 /* SAPropertyValidator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPropertyValidator.h; sourceTree = "<group>"; };
@@ -1080,6 +1082,7 @@
 				A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */,
 				4521E7752631B2E10035D4F5 /* SASuperPropertyTests.m */,
 				45B5AF7E2632C3B900D66DAC /* SABaseEventObjectTests.m */,
+				454173522635924E00DC504C /* SATrackEventObjectTests.m */,
 				4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */,
 				CB6EBAE7228551EC003CFBA8 /* Info.plist */,
 			);
@@ -1532,6 +1535,7 @@
 				F214CE58249A07DF00A2633D /* SADatabaseUnitTest.m in Sources */,
 				FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */,
 				FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */,
+				454173532635924E00DC504C /* SATrackEventObjectTests.m in Sources */,
 				A87ECB3626317D6D007BE9B0 /* SAAppLifecycleUtilsTest.m in Sources */,
 				4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */,
 			);
