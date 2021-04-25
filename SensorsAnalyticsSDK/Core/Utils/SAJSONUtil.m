@@ -105,10 +105,11 @@
 }
 
 + (id)JSONObjectWithData:(NSData *)data {
-    if (!data || data.length == 0) {
-        SALogInfo(@"json data is empty");
+    if (![data isKindOfClass:NSData.class] || data.length == 0) {
+        SALogDebug(@"json data is invalid");
         return nil;
     }
+
     id jsonObject = nil;
     @try {
         NSError *jsonError = nil;
