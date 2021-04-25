@@ -633,14 +633,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
         NSMutableDictionary *properties = [NSMutableDictionary dictionary];
         properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
         properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
         //添加 deeplink 相关渠道信息，可能不存在
         [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
 
-        [self trackAutoEvent:eventName properties:properties];
+        if ([self isLaunchedPassively]) {
+            [self trackAutoEvent:SA_EVENT_NAME_APP_START_PASSIVELY properties:properties];
+        } else {
+            [self trackAutoEvent:SA_EVENT_NAME_APP_START properties:properties];
+            [self flush];
+        }
     });
 }
 
@@ -2055,6 +2059,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(NO);
             [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
             [self trackAutoEvent:SA_EVENT_NAME_APP_START properties:properties];
+            [self flush];
         }
     }
 
