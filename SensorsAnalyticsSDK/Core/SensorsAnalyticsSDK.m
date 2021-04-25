@@ -77,7 +77,7 @@
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
 
-#define VERSION @"2.5.4"
+#define VERSION @"2.5.5"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
