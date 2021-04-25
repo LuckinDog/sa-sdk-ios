@@ -23,11 +23,25 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAutoTrackManager : NSObject <SAModuleProtocol, SAAutoTrackModuleProtocol>
+@interface SAAutoTrackManager : NSObject <SAModuleProtocol>
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+
++ (SAAutoTrackManager *)sharedInstance;
+
+#pragma mark - Public
+
+/// 是否开启全埋点
+- (BOOL)isAutoTrackEnabled;
+
+/// 是否忽略某些全埋点
+/// @param eventType 全埋点类型
+- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType;
+
+/// 更新全埋点事件类型
+- (void)updateAutoTrackEventType;
 
 @end
 
