@@ -319,26 +319,3 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 }
 
 @end
-
-#pragma mark -
-
-@implementation SAModuleManager (AutoTrack)
-
-- (id<SAAutoTrackModuleProtocol>)autoTrackManager {
-    id<SAAutoTrackModuleProtocol> manager = (id<SAAutoTrackModuleProtocol>)self.modules[kSAAutoTrackModuleName];
-    return manager;
-}
-
-- (void)updateAutoTrackEventType {
-    [self.autoTrackManager updateAutoTrackEventType];
-}
-
-- (BOOL)isAutoTrackEnabled {
-    return [self.autoTrackManager isAutoTrackEnabled];
-}
-
-- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-    return [self.autoTrackManager isAutoTrackEventTypeIgnored:eventType];
-}
-
-@end
