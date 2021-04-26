@@ -57,6 +57,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 #pragma mark - SAModuleProtocol
 
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
     self.encryptors = configOptions.encryptors;
     [self updateEncryptor];
 }
