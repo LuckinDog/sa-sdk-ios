@@ -969,7 +969,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addEventProperties:SAModuleManager.sharedInstance.latestUtmProperties];
 
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
-        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:object.eventId];
+        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:object.event];
         channelInfo[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
         [object addChannelProperties:channelInfo];
     }
@@ -1084,7 +1084,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
         object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
         dispatch_async(self.serialQueue, ^{
-            [object addChannelProperties:[self channelPropertiesWithEvent:event]];
+            [object addChannelProperties:[self channelPropertiesWithEvent:object.event]];
             [self trackEventObject:object properties:properties];
         });
     };
