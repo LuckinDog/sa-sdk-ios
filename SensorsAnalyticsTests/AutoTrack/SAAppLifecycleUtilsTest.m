@@ -44,9 +44,8 @@
 }
 
 - (void)testWillEnterForeground {
-    SAAppLifecycleState oldState = self.appLifecycle.state;
     [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
-    XCTAssertEqual(self.appLifecycle.state, oldState);
+    XCTAssertEqual(self.appLifecycle.state, SAAppLifecycleStateInit);
 }
 
 - (void)testDidBecomeActive {
@@ -55,9 +54,8 @@
 }
 
 - (void)testWillResignActive {
-    SAAppLifecycleState oldState = self.appLifecycle.state;
     [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillResignActiveNotification object:nil];
-    XCTAssertEqual(self.appLifecycle.state, oldState);
+    XCTAssertEqual(self.appLifecycle.state, SAAppLifecycleStateInit);
 }
 
 - (void)testDidEnterBackground {
@@ -72,9 +70,8 @@
 
 - (void)testDidFinishLaunching {
     if (@available(iOS 13.0, *)) {
-        SAAppLifecycleState oldState = self.appLifecycle.state;
         [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidFinishLaunchingNotification object:nil];
-        XCTAssertEqual(self.appLifecycle.state, oldState);
+        XCTAssertEqual(self.appLifecycle.state, SAAppLifecycleStateInit);
     } else {
         [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidFinishLaunchingNotification object:nil];
         XCTAssertEqual(self.appLifecycle.state, SAAppLifecycleStateStart);
