@@ -99,14 +99,14 @@
 
 - (void)testAddModuleProperties {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
-    [object addEventProperties:@{}];
+    [object addModuleProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
 - (void)testAddModuleProperties2 {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ccc": @[@"123"]};
-    [object addEventProperties:properties];
+    [object addModuleProperties:properties];
     XCTAssertTrue([properties isEqualToDictionary:object.properties]);
 }
 
@@ -163,6 +163,24 @@
     XCTAssertNil(error);
     XCTAssertTrue([kSALibMethodAuto isEqualToString:object.properties[kSAEventPresetPropertyLibMethod]]);
     XCTAssertTrue([kSALibMethodAuto isEqualToString:object.lib.method]);
+}
+
+- (void)testAddCustomProperties5 {
+    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: kSALibMethodCode};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue([kSALibMethodCode isEqualToString:object.properties[kSAEventPresetPropertyLibMethod]]);
+    XCTAssertTrue([kSALibMethodCode isEqualToString:object.lib.method]);
+}
+
+- (void)testAddCustomProperties6 {
+    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    NSDictionary *properties = @{@"time": @"abcValue"};
+    NSError *error = nil;
+    [object addCustomProperties:properties error:&error];
+    XCTAssertNotNil(error);
 }
 
 - (void)testAddReferrerTitleProperty {
