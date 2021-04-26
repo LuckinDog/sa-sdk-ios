@@ -366,34 +366,10 @@
     XCTAssertNil(error);
     XCTAssertTrue([kSALibMethodAuto isEqualToString:object.properties[kSAEventPresetPropertyLibMethod]]);
     XCTAssertTrue([kSALibMethodAuto isEqualToString:object.lib.method]);
-    XCTAssertNil(object.lib.detail);
-}
-
-- (void)testAutoTrackEventObjectAddCustomPropertiesWithEnableAppViewScreenLibDetail {
-    [SensorsAnalyticsSDK.sharedInstance enableAutoTrack:SensorsAnalyticsEventTypeAppViewScreen];
-    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
-    NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};
-    NSError *error = nil;
-    [object addCustomProperties:properties error:&error];
-    XCTAssertNil(error);
-    XCTAssertTrue([kSALibMethodAuto isEqualToString:object.properties[kSAEventPresetPropertyLibMethod]]);
-    XCTAssertTrue([kSALibMethodAuto isEqualToString:object.lib.method]);
     XCTAssertNotNil(object.lib.detail);
 }
 
 - (void)testAutoTrackEventObjectAddCustomPropertiesWithAppClickLibDetail {
-    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
-    NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};
-    NSError *error = nil;
-    [object addCustomProperties:properties error:&error];
-    XCTAssertNil(error);
-    XCTAssertTrue([kSALibMethodAuto isEqualToString:object.properties[kSAEventPresetPropertyLibMethod]]);
-    XCTAssertTrue([kSALibMethodAuto isEqualToString:object.lib.method]);
-    XCTAssertNil(object.lib.detail);
-}
-
-- (void)testAutoTrackEventObjectAddCustomPropertiesWithEnableAppClickLibDetail {
-    [SensorsAnalyticsSDK.sharedInstance enableAutoTrack:SensorsAnalyticsEventTypeAppClick];
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
     NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};
     NSError *error = nil;
