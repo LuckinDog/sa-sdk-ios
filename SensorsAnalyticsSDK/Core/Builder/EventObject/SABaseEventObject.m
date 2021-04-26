@@ -135,6 +135,11 @@
         return nil;
     }
 
+    if (![value conformsToProtocol:@protocol(SAPropertyValueProtocol)]) {
+        *error = SAPropertyError(10005, @"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [value class], value);
+        return nil;
+    }
+
     // value 转换
     return [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithKey:key error:error];
 }
