@@ -1210,9 +1210,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    dispatch_async(self.serialQueue, ^{
-        [self.superProperty registerDynamicSuperProperties:dynamicSuperProperties];
-    });
+    [self.superProperty registerDynamicSuperProperties:dynamicSuperProperties];
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
