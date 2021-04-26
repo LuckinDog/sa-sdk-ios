@@ -23,7 +23,6 @@
 #endif
 
 #import "SATrackEventObject.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAPresetProperty.h"
 #import "SAValidator.h"
@@ -189,8 +188,8 @@ static NSSet *presetEventNames;
 
     // 不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
     // 仅在全埋点的元素点击和页面浏览事件中添加 $lib_detail
-    BOOL isAppClick = [self.eventId isEqualToString:kSAEventNameAppClick] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
-    BOOL isViewScreen = [self.eventId isEqualToString:kSAEventNameAppViewScreen] && ![SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen];
+    BOOL isAppClick = [self.eventId isEqualToString:kSAEventNameAppClick];
+    BOOL isViewScreen = [self.eventId isEqualToString:kSAEventNameAppViewScreen];
     if (isAppClick || isViewScreen) {
         self.lib.detail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
     }
