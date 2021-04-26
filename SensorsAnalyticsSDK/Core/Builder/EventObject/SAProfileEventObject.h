@@ -24,7 +24,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAProfileEventObject : SABaseEventObject
 
-- (instancetype)initWithType:(NSString *)type;
+- (instancetype)initWithType:(NSString *)type NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
+
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

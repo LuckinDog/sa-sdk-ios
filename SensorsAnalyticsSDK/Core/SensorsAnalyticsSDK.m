@@ -507,6 +507,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
+    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
@@ -1081,6 +1082,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
         }
         SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
+        object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
         dispatch_async(self.serialQueue, ^{
             [object addChannelProperties:[self channelPropertiesWithEvent:event]];
             [self trackEventObject:object properties:properties];

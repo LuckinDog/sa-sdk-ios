@@ -24,7 +24,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SATrackEventObject : SABaseEventObject
 
-- (instancetype)initWithEventId:(NSString *)eventId;
+- (instancetype)initWithEventId:(NSString *)eventId NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
+
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 
