@@ -75,7 +75,7 @@
     XCTAssertTrue([@{@"ABC": @"ABCValue"} isEqualToDictionary:result]);
 }
 
-- (void)testRepeatRegisterSuperProperties2 {
+- (void)testRepeatRegisterSuperPropertiesWithSameKey {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"abc": @"abcValue", @"ABC": @"ABCValue"}];
     NSDictionary *result = [self.superPorperty currentSuperProperties];
@@ -94,7 +94,7 @@
     XCTAssertTrue([(@{}) isEqualToDictionary:result2]);
 }
 
-- (void)testUnregisterSuperProperty2 {
+- (void)testUnregisterSuperPropertyWithNilKey {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"abc": @"abcValue", @"ABC": @"ABCValue"}];
     NSString *unregisterKey = nil;
@@ -113,13 +113,13 @@
     XCTAssertTrue(self.superPorperty.currentSuperProperties.count == 0);
 }
 
-- (void)testRegisterSuperPropertyForInvalidKey2 {
+- (void)testRegisterSuperPropertyForNumberKey {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@(123): @"123"}];
     XCTAssertTrue(self.superPorperty.currentSuperProperties.count == 0);
 }
 
-- (void)testRegisterSuperPropertyForInvalidKey3 {
+- (void)testRegisterSuperPropertyForReserveKey {
     [self.superPorperty clearSuperProperties];
 
     [self.superPorperty registerSuperProperties:@{@"date": @"date_value",
@@ -189,13 +189,13 @@
 
 }
 
-- (void)testRegisterSuperPropertyForInvalidKey4 {
+- (void)testRegisterSuperPropertyForLongLengthKey {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"_aaaaaaaaaa_aaaaaaaaaa_aaaaaaaaaa_aaaaaaaaaa_aaaaaaaaaa_aaaaaaaaaa_aaaaaaaaaa_aaaaaaaaaa_aaaaaaaaaa_a": @"测试 key 长度"}];
     XCTAssertTrue(self.superPorperty.currentSuperProperties.count == 0);
 }
 
-- (void)testUnregisterSameLetterSuperProperties {
+- (void)testUnregisterSameLetterSuperPropertiesForPart {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"abc": @"abcValue",
                                                   @"BCD": @"BCDValue",
@@ -205,14 +205,14 @@
     XCTAssertTrue([(@{@"BCD": @"BCDValue"}) isEqualToDictionary:self.superPorperty.currentSuperProperties]);
 }
 
-- (void)testUnregisterSameLetterSuperProperties2 {
+- (void)testUnregisterSameLetterSuperPropertiesForAll {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"BCD": @"BCDValue"}];
     [self.superPorperty unregisterSameLetterSuperProperties:@{@"bcd": @"bcdValue"}];
     XCTAssertTrue([(@{}) isEqualToDictionary:self.superPorperty.currentSuperProperties]);
 }
 
-- (void)testUnregisterSameLetterSuperProperties3 {
+- (void)testUnregisterDifferentLetterSuperProperties {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"BCD": @"BCDValue"}];
     [self.superPorperty unregisterSameLetterSuperProperties:@{@"abcd": @"bcdValue"}];
@@ -236,13 +236,13 @@
     XCTAssertTrue([(@{@"aaa": @"aaaValue"}) isEqualToDictionary:reuslt]);
 }
 
-- (void)testAcquireDynamicSuperProperties2 {
+- (void)testAcquireDynamicSuperPropertiesWithNil {
     NSDictionary<NSString *, id> *(^block)(void) = nil;
     [self.superPorperty registerDynamicSuperProperties:block];
     XCTAssertNil([self.superPorperty acquireDynamicSuperProperties]);
 }
 
-- (void)testRegisterDynamicSuperProperties2 {
+- (void)testRegisterDynamicSuperPropertiesWithNumberKey {
     [self.superPorperty registerDynamicSuperProperties:^NSDictionary<NSString *,id> * _Nonnull{
         return @{@"hhh": @(123),
                  @"123jjj": @[@"j", @"jj", @"jjj"]};
@@ -262,7 +262,7 @@
     XCTAssertTrue([(@{@"hhh": @(123),@"jjj": @[@"j", @"jj", @"jjj"]}) isEqualToDictionary:reuslt]);
 }
 
-- (void)testRegisterHybrid2 {
+- (void)testRegisterHybridWithSameKey {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"hhh": @(456)}];
     [self.superPorperty registerDynamicSuperProperties:^NSDictionary<NSString *,id> * _Nonnull{
@@ -274,7 +274,7 @@
     XCTAssertTrue([(@{@"hhh": @(123),@"jjj": @[@"j", @"jj", @"jjj"]}) isEqualToDictionary:reuslt]);
 }
 
-- (void)testRegisterHybrid3 {
+- (void)testRegisterHybridSomeKeyIgnoreCase {
     [self.superPorperty clearSuperProperties];
     [self.superPorperty registerSuperProperties:@{@"HhH": @(456)}];
     [self.superPorperty registerDynamicSuperProperties:^NSDictionary<NSString *,id> * _Nonnull{

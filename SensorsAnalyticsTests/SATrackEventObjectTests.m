@@ -49,61 +49,61 @@
     XCTAssertTrue([@"eventId" isEqualToString:object.event]);
 }
 
-- (void)testValidateEvent {
+- (void)testValidateEventWithString {
     SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@"eventId"];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testValidateEvent2 {
+- (void)testValidateEventWithNumber {
     SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@(123)];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNotNil(error);
 }
 
-- (void)testValidateEvent3 {
+- (void)testValidateEventWithEmpty {
     SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNotNil(error);
 }
 
-- (void)testValidateEvent4 {
+- (void)testValidateEventWithNil {
     SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:nil];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNotNil(error);
 }
 
-- (void)testValidateEvent5 {
+- (void)testValidateEventWithDigital {
     SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@"123abc"];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNotNil(error);
 }
 
-- (void)testAddEventProperties {
+- (void)testAddEventPropertiesWithEmpty {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     [object addEventProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddEventProperties2 {
+- (void)testAddEventProperties {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ccc": @[@"123"]};
     [object addEventProperties:properties];
     XCTAssertTrue([properties isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddModuleProperties {
+- (void)testAddModulePropertiesWithEmpty {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     [object addModuleProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddModuleProperties2 {
+- (void)testAddModuleProperties {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ccc": @[@"123"]};
     [object addModuleProperties:properties];
@@ -117,7 +117,7 @@
     XCTAssertTrue([properties isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddSuperProperties2 {
+- (void)testAddSuperPropertiesWithLibAppVersion {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyAppVersion: @"v2.3.0"};
     [object addSuperProperties:properties];
@@ -125,7 +125,7 @@
     XCTAssertTrue([@"v2.3.0" isEqualToString:object.lib.appVersion]);
 }
 
-- (void)testAddCustomProperties {
+- (void)testAddCustomPropertiesWithLibMethodCode {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue"};
     NSError *error = nil;
@@ -135,7 +135,7 @@
     XCTAssertTrue([kSALibMethodCode isEqualToString:object.lib.method]);
 }
 
-- (void)testAddCustomProperties2 {
+- (void)testAddCustomPropertiesWithNumberLibMethod {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: @(123)};
     NSError *error = nil;
@@ -145,7 +145,7 @@
     XCTAssertTrue([kSALibMethodCode isEqualToString:object.lib.method]);
 }
 
-- (void)testAddCustomProperties3 {
+- (void)testAddCustomPropertiesWithStringLibMethod {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: @"test_lib"};
     NSError *error = nil;
@@ -155,7 +155,7 @@
     XCTAssertTrue([kSALibMethodCode isEqualToString:object.lib.method]);
 }
 
-- (void)testAddCustomProperties4 {
+- (void)testAddCustomPropertiesWithAutoLibMethod {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: kSALibMethodAuto};
     NSError *error = nil;
@@ -165,7 +165,7 @@
     XCTAssertTrue([kSALibMethodAuto isEqualToString:object.lib.method]);
 }
 
-- (void)testAddCustomProperties5 {
+- (void)testAddCustomPropertiesWithCodeLibMethod {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: kSALibMethodCode};
     NSError *error = nil;
@@ -175,7 +175,7 @@
     XCTAssertTrue([kSALibMethodCode isEqualToString:object.lib.method]);
 }
 
-- (void)testAddCustomProperties6 {
+- (void)testAddCustomPropertiesWithTime {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     NSDictionary *properties = @{@"time": @"abcValue"};
     NSError *error = nil;
@@ -195,7 +195,7 @@
     XCTAssertTrue([@(123) isEqualToNumber:object.properties[@"event_duration"]]);
 }
 
-- (void)testAddDurationProperty2 {
+- (void)testAddDurationPropertyWithNil {
     SATrackEventObject *object = [[SATrackEventObject alloc] init];
     [object addDurationProperty:nil];
     XCTAssertNil(object.properties[@"event_duration"]);
@@ -206,112 +206,105 @@
     XCTAssertTrue([object.type isEqualToString:kSAEventTypeTrack]);
 }
 
-- (void)testCustomEventObjectAddChannelProperties {
+- (void)testCustomEventObjectAddChannelPropertiesWithEmpty {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:@"event"];
     [object addChannelProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testCustomEventObjectAddChannelProperties2 {
+- (void)testCustomEventObjectAddChannelProperties {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:@"event"];
     [object addChannelProperties:@{@"jjj": @[@"123"]}];
     XCTAssertTrue([@{@"jjj": @[@"123"]} isEqualToDictionary:object.properties]);
 }
 
-- (void)testCustomEventObjectValidateEventWithError {
+- (void)testCustomEventObjectValidateEventWithErrorForReserveEvent {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:@"event"];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNotNil(error);
 }
 
-- (void)testCustomEventObjectValidateEventWithError2 {
+- (void)testCustomEventObjectValidateEventWithError {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:@"eventName"];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testCustomEventObjectValidateEventWithError3 {
-    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:@"eventName"];
-    NSError *error = nil;
-    [object validateEventWithError:&error];
-    XCTAssertNil(error);
-}
-
-- (void)testCustomEventObjectValidateEventWithError4 {
+- (void)testCustomEventObjectValidateEventWithErrorForAppStart {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:kSAEventNameAppStart];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testCustomEventObjectValidateEventWithError5 {
+- (void)testCustomEventObjectValidateEventWithErrorForAppStartPassively {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:kSAEventNameAppStartPassively];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testCustomEventObjectValidateEventWithError6 {
+- (void)testCustomEventObjectValidateEventWithErrorForAppEnd {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:kSAEventNameAppEnd];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testCustomEventObjectValidateEventWithError7 {
+- (void)testCustomEventObjectValidateEventWithErrorForAppViewScreen {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testCustomEventObjectValidateEventWithError8 {
+- (void)testCustomEventObjectValidateEventWithErrorForAppClick {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:kSAEventNameAppClick];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testCustomEventObjectValidateEventWithError9 {
+- (void)testCustomEventObjectValidateEventWithErrorForSignUp {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:kSAEventNameSignUp];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testCustomEventObjectValidateEventWithError10 {
+- (void)testCustomEventObjectValidateEventWithErrorForAppCrashed {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:kSAEventNameAppCrashed];
     NSError *error = nil;
     [object validateEventWithError:&error];
     XCTAssertNil(error);
 }
 
-- (void)testSignUpEventObject {
+- (void)testSignUpEventObjectForIsSignUp {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
     XCTAssertTrue(object.isSignUp);
 }
 
-- (void)testSignUpEventObject2 {
+- (void)testSignUpEventObjectForEventType {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
     XCTAssertTrue([kSAEventTypeSignup isEqualToString:object.type]);
 }
 
-- (void)testSignUpEventObjectAddModuleProperties {
+- (void)testSignUpEventObjectAddModulePropertiesWithEmpty {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
     [object addModuleProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testSignUpEventObjectAddModuleProperties2 {
+- (void)testSignUpEventObjectAddModuleProperties {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ccc": @[@"123"]};
     [object addModuleProperties:properties];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testSignUpEventObjectJsonObject {
+- (void)testSignUpEventObjectJsonObjectWithOriginalId {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
     object.originalId = @"test_signup_originalId";
     NSDictionary *properties = [object jsonObject];
@@ -323,7 +316,7 @@
     XCTAssertTrue([kSAEventTypeTrack isEqualToString:object.type]);
 }
 
-- (void)testAutoTrackEventObjectAddCustomProperties {
+- (void)testAutoTrackEventObjectAddCustomPropertiesWithNil {
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppStart];
     NSDictionary *properties = nil;
     NSError *error = nil;
@@ -333,7 +326,7 @@
     XCTAssertTrue([kSALibMethodAuto isEqualToString:object.lib.method]);
 }
 
-- (void)testAutoTrackEventObjectAddCustomProperties2 {
+- (void)testAutoTrackEventObjectAddCustomProperties {
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppStart];
     NSDictionary *properties = @{@"abc": @"abcValue"};
     NSError *error = nil;
@@ -343,17 +336,7 @@
     XCTAssertTrue([kSALibMethodAuto isEqualToString:object.lib.method]);
 }
 
-- (void)testAutoTrackEventObjectAddCustomProperties3 {
-    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppStart];
-    NSDictionary *properties = @{@"abc": @"abcValue"};
-    NSError *error = nil;
-    [object addCustomProperties:properties error:&error];
-    XCTAssertNil(error);
-    XCTAssertTrue([kSALibMethodAuto isEqualToString:object.properties[kSAEventPresetPropertyLibMethod]]);
-    XCTAssertTrue([kSALibMethodAuto isEqualToString:object.lib.method]);
-}
-
-- (void)testAutoTrackEventObjectAddCustomProperties4 {
+- (void)testAutoTrackEventObjectAddCustomPropertiesWithAppStartLibDetail {
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppStart];
     NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};
     NSError *error = nil;
@@ -364,7 +347,7 @@
     XCTAssertNil(object.lib.detail);
 }
 
-- (void)testAutoTrackEventObjectAddCustomProperties5 {
+- (void)testAutoTrackEventObjectAddCustomPropertiesWithAppEndLibDetail {
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppEnd];
     NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};
     NSError *error = nil;
@@ -375,7 +358,7 @@
     XCTAssertNil(object.lib.detail);
 }
 
-- (void)testAutoTrackEventObjectAddCustomProperties6 {
+- (void)testAutoTrackEventObjectAddCustomPropertiesWithAppViewScreenLibDetail {
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};
     NSError *error = nil;
@@ -386,7 +369,7 @@
     XCTAssertNil(object.lib.detail);
 }
 
-- (void)testAutoTrackEventObjectAddCustomProperties7 {
+- (void)testAutoTrackEventObjectAddCustomPropertiesWithEnableAppViewScreenLibDetail {
     [SensorsAnalyticsSDK.sharedInstance enableAutoTrack:SensorsAnalyticsEventTypeAppViewScreen];
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};
@@ -398,7 +381,7 @@
     XCTAssertNotNil(object.lib.detail);
 }
 
-- (void)testAutoTrackEventObjectAddCustomProperties8 {
+- (void)testAutoTrackEventObjectAddCustomPropertiesWithAppClickLibDetail {
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
     NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};
     NSError *error = nil;
@@ -409,7 +392,7 @@
     XCTAssertNil(object.lib.detail);
 }
 
-- (void)testAutoTrackEventObjectAddCustomProperties9 {
+- (void)testAutoTrackEventObjectAddCustomPropertiesWithEnableAppClickLibDetail {
     [SensorsAnalyticsSDK.sharedInstance enableAutoTrack:SensorsAnalyticsEventTypeAppClick];
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
     NSDictionary *properties = @{@"abc": @"abcValue", @"$screen_name": @"HomePageViewController"};

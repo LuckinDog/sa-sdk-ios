@@ -52,7 +52,7 @@
     XCTAssertTrue([eventName isEqualToString:object.event]);
 }
 
-- (void)testEvent2 {
+- (void)testEventId {
     // eventId 结构为 {eventName}_D3AC265B_3CC2_4C45_B8F0_3E05A83A9DAE_SATimer，新增后缀长度为 44
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSString *eventName = @"";
@@ -61,12 +61,12 @@
     XCTAssertTrue([eventName isEqualToString:object.event]);
 }
 
-- (void)testEvent3 {
+- (void)testEventNil {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     XCTAssertNil(object.event);
 }
 
-- (void)testEvent4 {
+- (void)testEventEmpty {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     object.eventId = @"";
     XCTAssertTrue([@"" isEqualToString:object.event]);
@@ -90,67 +90,66 @@
     XCTAssertTrue(jsonObject.count > 0);
 }
 
-- (void)testJSONObject2 {
+- (void)testJSONObjectWithLib {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSMutableDictionary *jsonObject = [object jsonObject];
     NSDictionary *lib = jsonObject[kSAEventLib];
     XCTAssertTrue(lib.count > 0);
 }
 
-- (void)testAddEventProperties {
+- (void)testAddEventPropertiesWithEmpty {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     [object addEventProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddEventProperties2 {
+- (void)testAddEventProperties {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ddd": @[@"123"], @"fff": @(999)};
     [object addEventProperties:properties];
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddChannelProperties {
+- (void)testAddChannelPropertiesWithEmpty {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     [object addChannelProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddChannelProperties2 {
+- (void)testAddChannelProperties {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ddd": @[@"123"], @"fff": @(999)};
     [object addChannelProperties:properties];
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddModuleProperties {
+- (void)testAddModulePropertiesWithEmpty {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     [object addModuleProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddModuleProperties2 {
+- (void)testAddModuleProperties {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ddd": @[@"123"], @"fff": @(999)};
     [object addModuleProperties:properties];
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddSuperProperties {
+- (void)testAddSuperPropertiesWithEmpty {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     [object addSuperProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddSuperProperties2 {
+- (void)testAddSuperProperties {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ddd": @[@"123"], @"fff": @(999)};
     [object addSuperProperties:properties];
     XCTAssertTrue(object.properties.count == 0);
 }
 
-
-- (void)testAddCustomProperties {
+- (void)testAddCustomPropertiesWithEmpty {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{};
     NSError *error = nil;
@@ -158,7 +157,7 @@
     XCTAssertNil(error);
 }
 
-- (void)testAddCustomProperties2 {
+- (void)testAddCustomProperties {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ddd": @[@"123"], @"fff": @(999)};
     NSError *error = nil;
@@ -167,7 +166,7 @@
     XCTAssertTrue([properties isEqualToDictionary:object.properties]);
 }
 
-- (void)testAddCustomProperties3 {
+- (void)testAddCustomPropertiesWithNumberKey {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"123abc": @"abcValue", @"ddd": @[@"123"], @"fff": @(999)};
     NSError *error = nil;
@@ -176,7 +175,7 @@
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddCustomProperties4 {
+- (void)testAddCustomPropertiesWithIdKey {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"id": @"abcValue", @"ddd": @[@"123"], @"fff": @(999)};
     NSError *error = nil;
@@ -185,7 +184,7 @@
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddCustomProperties5 {
+- (void)testAddCustomPropertiesWithTimeKey {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"time": @"abcValue", @"ddd": @[@"123"], @"fff": @(999)};
     NSError *error = nil;
@@ -194,7 +193,7 @@
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddCustomProperties6 {
+- (void)testAddCustomPropertiesWithProject {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"$project": @"projectName"};
     NSError *error = nil;
@@ -203,7 +202,7 @@
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddCustomProperties7 {
+- (void)testAddCustomPropertiesWithToken {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"$token": @"token value"};
     NSError *error = nil;
@@ -221,7 +220,7 @@
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddCustomPropertiesTime2 {
+- (void)testAddCustomPropertiesWithInvalidTime {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:(kSAEventCommonOptionalPropertyTimeInt - 2000) / 1000];
     NSDictionary *properties = @{@"$time": date};
@@ -232,7 +231,7 @@
     XCTAssertTrue(![date isEqualToDate:[NSDate dateWithTimeIntervalSince1970:(object.timeStamp / 1000)]]);
 }
 
-- (void)testAddCustomPropertiesTime3 {
+- (void)testAddCustomPropertiesWithValidTime {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:(kSAEventCommonOptionalPropertyTimeInt + 2000) / 1000];
     NSDictionary *properties = @{@"$time": date};
@@ -243,7 +242,7 @@
     XCTAssertTrue([date isEqualToDate:[NSDate dateWithTimeIntervalSince1970:(object.timeStamp / 1000)]]);
 }
 
-- (void)testAddCustomPropertiesTime4 {
+- (void)testAddCustomPropertiesWithNumberTimeValue {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSDictionary *properties = @{@"$time": @(11111111)};
     NSError *error = nil;
@@ -261,60 +260,60 @@
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddReferrerTitle {
+- (void)testAddReferrerTitleWithEmpty {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     [object addReferrerTitleProperty:@""];
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddReferrerTitle2 {
+- (void)testAddReferrerTitle {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     [object addReferrerTitleProperty:@"testTitle"];
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddDurationProperty {
+- (void)testAddDurationPropertyWithNil {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSNumber *number = nil;
     [object addDurationProperty:number];
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testAddDurationProperty2 {
+- (void)testAddDurationProperty {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     [object addDurationProperty:@(23)];
     XCTAssertTrue(object.properties.count == 0);
 }
 
-- (void)testSensorsdata_validKey {
+- (void)testSensorsdata_validKeyWithNumberKey {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSError *error = nil;
     [object sensorsdata_validKey:@(123) value:@"abc" error:&error];
     XCTAssertNotNil(error);
 }
 
-- (void)testSensorsdata_validKey2 {
+- (void)testSensorsdata_validKeyWithDigitalKey {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSError *error = nil;
     [object sensorsdata_validKey:@"123" value:@"abc" error:&error];
     XCTAssertNotNil(error);
 }
 
-- (void)testSensorsdata_validKey3 {
+- (void)testSensorsdata_validKeyWithStringKey {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSError *error = nil;
     [object sensorsdata_validKey:@"abc" value:NSDate.date error:&error];
     XCTAssertNil(error);
 }
 
-- (void)testSensorsdata_validKey4 {
+- (void)testSensorsdata_validKeyWithArrayStringValue {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSError *error = nil;
     [object sensorsdata_validKey:@"abc" value:@[@"123"] error:&error];
     XCTAssertNil(error);
 }
 
-- (void)testSensorsdata_validKey5 {
+- (void)testSensorsdata_validKeyWithArrayNumberValue {
     SABaseEventObject *object = [[SABaseEventObject alloc] init];
     NSError *error = nil;
     [object sensorsdata_validKey:@"abc" value:@[@(123)] error:&error];
