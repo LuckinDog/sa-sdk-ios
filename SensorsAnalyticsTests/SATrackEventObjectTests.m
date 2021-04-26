@@ -85,40 +85,40 @@
 }
 
 - (void)testAddEventPropertiesWithEmpty {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     [object addEventProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
 - (void)testAddEventProperties {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ccc": @[@"123"]};
     [object addEventProperties:properties];
     XCTAssertTrue([properties isEqualToDictionary:object.properties]);
 }
 
 - (void)testAddModulePropertiesWithEmpty {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     [object addModuleProperties:@{}];
     XCTAssertTrue([@{} isEqualToDictionary:object.properties]);
 }
 
 - (void)testAddModuleProperties {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ccc": @[@"123"]};
     [object addModuleProperties:properties];
     XCTAssertTrue([properties isEqualToDictionary:object.properties]);
 }
 
 - (void)testAddSuperProperties {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue", @"ccc": @[@"123"]};
     [object addSuperProperties:properties];
     XCTAssertTrue([properties isEqualToDictionary:object.properties]);
 }
 
 - (void)testAddSuperPropertiesWithLibAppVersion {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyAppVersion: @"v2.3.0"};
     [object addSuperProperties:properties];
     XCTAssertTrue([properties isEqualToDictionary:object.properties]);
@@ -126,7 +126,7 @@
 }
 
 - (void)testAddCustomPropertiesWithLibMethodCode {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue"};
     NSError *error = nil;
     [object addCustomProperties:properties error:&error];
@@ -136,7 +136,7 @@
 }
 
 - (void)testAddCustomPropertiesWithNumberLibMethod {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: @(123)};
     NSError *error = nil;
     [object addCustomProperties:properties error:&error];
@@ -146,7 +146,7 @@
 }
 
 - (void)testAddCustomPropertiesWithStringLibMethod {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: @"test_lib"};
     NSError *error = nil;
     [object addCustomProperties:properties error:&error];
@@ -156,7 +156,7 @@
 }
 
 - (void)testAddCustomPropertiesWithAutoLibMethod {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: kSALibMethodAuto};
     NSError *error = nil;
     [object addCustomProperties:properties error:&error];
@@ -166,7 +166,7 @@
 }
 
 - (void)testAddCustomPropertiesWithCodeLibMethod {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"abc": @"abcValue", kSAEventPresetPropertyLibMethod: kSALibMethodCode};
     NSError *error = nil;
     [object addCustomProperties:properties error:&error];
@@ -176,7 +176,7 @@
 }
 
 - (void)testAddCustomPropertiesWithTime {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     NSDictionary *properties = @{@"time": @"abcValue"};
     NSError *error = nil;
     [object addCustomProperties:properties error:&error];
@@ -184,19 +184,19 @@
 }
 
 - (void)testAddReferrerTitleProperty {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     [object addReferrerTitleProperty:@"test_referrer_title"];
     XCTAssertTrue([@"test_referrer_title" isEqualToString:object.properties[kSAEeventPropertyReferrerTitle]]);
 }
 
 - (void)testAddDurationProperty {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     [object addDurationProperty:@(123)];
     XCTAssertTrue([@(123) isEqualToNumber:object.properties[@"event_duration"]]);
 }
 
 - (void)testAddDurationPropertyWithNil {
-    SATrackEventObject *object = [[SATrackEventObject alloc] init];
+    SATrackEventObject *object = [[SATrackEventObject alloc] initWithEventId:@""];
     [object addDurationProperty:nil];
     XCTAssertNil(object.properties[@"event_duration"]);
 }
