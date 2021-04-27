@@ -66,8 +66,7 @@
 
 + (NSString *)simulateUserAgent {
     NSString *version = [UIDevice.currentDevice.systemVersion stringByReplacingOccurrencesOfString:@"." withString:@"_"];
-    NSString *format = @"Mozilla/5.0 (iPhone; CPU iPhone OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile";
-    return [NSString stringWithFormat:format, version];
+    return [NSString stringWithFormat:@"Mozilla/5.0 (iPhone; CPU iPhone OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile", version];
 }
 
 + (NSString *)currentUserAgent {
