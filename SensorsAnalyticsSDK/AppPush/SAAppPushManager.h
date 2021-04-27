@@ -1,8 +1,8 @@
 //
-// SAReachability.h
+// SANotificationManager.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/1/19.
+// Created by 陈玉国 on 2021/1/18.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,29 +19,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <SystemConfiguration/SystemConfiguration.h>
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAReachability : NSObject
+@interface SAAppPushManager : NSObject <SAAppPushModuleProtocol, SAModuleProtocol>
 
-/// 是否有网络连接
-@property (readonly, nonatomic, assign, getter = isReachable) BOOL reachable;
-
-/// 当前的网络状态是否为 WIFI
-@property (readonly, nonatomic, assign, getter = isReachableViaWiFi) BOOL reachableViaWiFi;
-
-/// 当前的网络状态是否为 WWAN
-@property (readonly, nonatomic, assign, getter = isReachableViaWWAN) BOOL reachableViaWWAN;
-
-/// 获取网络触达类的实例
-+ (instancetype)sharedInstance;
-
-/// 开始监听网络状态
-- (void)startMonitoring;
-
-/// 停止监听网络状态
-- (void)stopMonitoring;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 @end
 

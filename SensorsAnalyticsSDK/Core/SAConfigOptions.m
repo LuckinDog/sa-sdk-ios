@@ -32,7 +32,7 @@
 @implementation SAConfigOptions
 
 #pragma mark - initialize
-- (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(NSDictionary *)launchOptions {
+- (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(id)launchOptions {
     self = [super init];
     if (self) {
         _serverURL = serverURL;
@@ -86,6 +86,7 @@
     options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
 
     options.enableReferrerTitle = self.enableReferrerTitle;
+    options.enableTrackPush = self.enableTrackPush;
     
     return options;
 }
