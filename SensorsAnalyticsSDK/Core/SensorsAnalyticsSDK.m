@@ -184,15 +184,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) NSMutableSet<NSString *> *visualizedAutoTrackViewControllers;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
+
+// 兼容 UA 值打通逻辑，后续废弃 UA 值打通逻辑时可以全部移除
 @property (atomic, copy) NSString *userAgent;
 @property (nonatomic, copy) NSString *addWebViewUserAgent;
+@property (nonatomic, strong) WKWebView *wkWebView;
+@property (nonatomic, strong) dispatch_group_t loadUAGroup;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-
-@property (nonatomic, strong) WKWebView *wkWebView;
-@property (nonatomic, strong) dispatch_group_t loadUAGroup;
 
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
@@ -431,44 +432,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 + (UInt64)getSystemUpTime {
     return NSProcessInfo.processInfo.systemUptime * 1000;
-}
-
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
-    if (self.userAgent) {
-        return completion(self.userAgent);
-    }
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.wkWebView) {
-            dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-                completion(self.userAgent);
-            });
-        } else {
-            self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
-            self.loadUAGroup = dispatch_group_create();
-            dispatch_group_enter(self.loadUAGroup);
-
-            __weak typeof(self) weakSelf = self;
-            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
-                __strong typeof(weakSelf) strongSelf = weakSelf;
-                
-                if (error || !response) {
-                    SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
-                    completion(nil);
-                } else {
-                    strongSelf.userAgent = response;
-                    completion(strongSelf.userAgent);
-                }
-                
-                // 通过 wkWebView 控制 dispatch_group_leave 的次数
-                if (strongSelf.wkWebView) {
-                    dispatch_group_leave(strongSelf.loadUAGroup);
-                }
-                
-                strongSelf.wkWebView = nil;
-            }];
-        }
-    });
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
@@ -1358,36 +1321,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // ua
-    NSString *userAgent = [propertyDict objectForKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-
-    dispatch_block_t trackChannelEventBlock = ^{
-        // idfa
-        NSString *idfa = [SAIdentifier idfa];
-        if (idfa) {
-            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
-        } else {
-            [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
-        }
-
-        BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
-        properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
-        if (isNotContains && event) {
-            [self.trackChannelEventNames addObject:event];
-            dispatch_async(self.serialQueue, ^{
-                [self archiveTrackChannelEventNames];
-            });
-        }
-        [self trackCustomEvent:event properties:properties];
-    };
-
-    if (userAgent.length == 0) {
-        [self loadUserAgentWithCompletion:^(NSString *ua) {
-            [properties setValue:ua forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
-            trackChannelEventBlock();
-        }];
-    } else {
-        trackChannelEventBlock();
+    if ([propertyDict[SA_EVENT_PROPERTY_APP_USER_AGENT] length] == 0) {
+        properties[SA_EVENT_PROPERTY_APP_USER_AGENT] = [SACommonUtility simulateUserAgent];
     }
+    // idfa
+    NSString *idfa = [SAIdentifier idfa];
+    if (idfa) {
+        [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    } else {
+        [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    }
+
+    BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+    properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
+    if (isNotContains && event) {
+        [self.trackChannelEventNames addObject:event];
+        dispatch_async(self.serialQueue, ^{
+            [self archiveTrackChannelEventNames];
+        });
+    }
+    [self trackCustomEvent:event properties:properties];
 }
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
