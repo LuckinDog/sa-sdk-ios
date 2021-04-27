@@ -18,7 +18,7 @@
 // limitations under the License.
 //
 
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+#import "SensorsAnalyticsSDK.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
