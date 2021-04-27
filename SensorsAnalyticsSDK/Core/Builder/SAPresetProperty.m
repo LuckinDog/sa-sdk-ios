@@ -73,11 +73,11 @@ static NSString * const SAEventPresetPropertyTimezoneOffset = @"$timezone_offset
 
 #pragma mark - state
 /// 网络类型
-NSString * const SAEventPresetPropertyNetworkType = @"$network_type";
+NSString * const kSAEventPresetPropertyNetworkType = @"$network_type";
 /// 是否 WI-FI
-NSString * const SAEventPresetPropertyWifi = @"$wifi";
+NSString * const kSAEventPresetPropertyWifi = @"$wifi";
 /// 是否首日
-NSString * const SAEventPresetPropertyIsFirstDay = @"$is_first_day";
+NSString * const kSAEventPresetPropertyIsFirstDay = @"$is_first_day";
 
 #pragma mark - lib
 /// SDK 类型
@@ -143,8 +143,8 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     NSString *networkType = [SANetwork networkTypeString];
 
     NSMutableDictionary *networkProperties = [NSMutableDictionary dictionary];
-    networkProperties[SAEventPresetPropertyNetworkType] = networkType;
-    networkProperties[SAEventPresetPropertyWifi] = @([networkType isEqualToString:@"WIFI"]);
+    networkProperties[kSAEventPresetPropertyNetworkType] = networkType;
+    networkProperties[kSAEventPresetPropertyWifi] = @([networkType isEqualToString:@"WIFI"]);
     return networkProperties;
 }
 
@@ -152,7 +152,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     NSMutableDictionary *presetProperties = [NSMutableDictionary dictionary];
     [presetProperties addEntriesFromDictionary:self.automaticProperties];
     [presetProperties addEntriesFromDictionary:[self currentNetworkProperties]];
-    presetProperties[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
+    presetProperties[kSAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
     return presetProperties;
 }
 

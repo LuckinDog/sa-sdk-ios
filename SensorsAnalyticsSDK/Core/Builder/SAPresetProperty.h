@@ -35,10 +35,10 @@ extern NSString * const kSAEventPresetPropertyLibDetail;
 /// 应用版本
 extern NSString * const kSAEventPresetPropertyAppVersion;
 
-extern NSString * const SAEventPresetPropertyNetworkType;
-extern NSString * const SAEventPresetPropertyWifi;
+extern NSString * const kSAEventPresetPropertyNetworkType;
+extern NSString * const kSAEventPresetPropertyWifi;
 /// 是否首日
-extern NSString * const SAEventPresetPropertyIsFirstDay;
+extern NSString * const kSAEventPresetPropertyIsFirstDay;
 
 #pragma mark -
 @interface SAPresetProperty : NSObject

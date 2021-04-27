@@ -980,7 +980,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 5. 添加的自定义属性需要校验
     [object addCustomProperties:properties error:&error];
-    [object addModuleProperties:@{SAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
+    [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
 
     if (error) {
@@ -1724,7 +1724,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 //  是否首日访问
                 if([type isEqualToString:kSAEventTypeTrack]) {
-                    propertiesDict[SAEventPresetPropertyIsFirstDay] = @([self.presetProperty isFirstDay]);
+                    propertiesDict[kSAEventPresetPropertyIsFirstDay] = @([self.presetProperty isFirstDay]);
                 }
                 [propertiesDict removeObjectForKey:@"_nocache"];
 
