@@ -38,7 +38,6 @@
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAAutoTrackUtils.h"
-#import "SAReadWriteLock.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     #import "SAKeyChainItemWrapper.h"
@@ -164,7 +163,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
-@property (nonatomic, strong) SAReadWriteLock *readWriteLock;
 
 @property (nonatomic, strong) SATrackTimer *trackTimer;
 
@@ -285,9 +283,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _referrerManager =[[SAReferrerManager alloc] init];
             _referrerManager.enableReferrerTitle = configOptions.enableReferrerTitle;
-
-            NSString *readWriteLockLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteLock.%p", self];
-            _readWriteLock = [[SAReadWriteLock alloc] initWithQueueLabel:readWriteLockLabel];
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
