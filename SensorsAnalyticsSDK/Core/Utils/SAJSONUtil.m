@@ -105,7 +105,7 @@
 }
 
 + (id)JSONObjectWithData:(NSData *)data {
-    if (![data isKindOfClass:NSData.class] || data.length == 0) {
+    if (![SAValidator isValidData:data]) {
         SALogDebug(@"json data is invalid");
         return nil;
     }
