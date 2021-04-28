@@ -64,6 +64,12 @@
     }
 }
 
++ (NSString *)simulateUserAgent {
+    NSString *version = [UIDevice.currentDevice.systemVersion stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+    NSString *model = UIDevice.currentDevice.model;
+    return [NSString stringWithFormat:@"Mozilla/5.0 (%@; CPU OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile", model, version];
+}
+
 + (NSString *)currentUserAgent {
     return [[NSUserDefaults standardUserDefaults] objectForKey:@"UserAgent"];
 }

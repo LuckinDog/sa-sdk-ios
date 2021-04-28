@@ -81,13 +81,6 @@
 */
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 
-/**
-获取当前设备的 UserAgent 值
-
-@param completion 获取结果的回调函数
-*/
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
-
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
