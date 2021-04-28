@@ -34,6 +34,7 @@
 #import "SANetwork.h"
 #import "SALog.h"
 #import <WebKit/WebKit.h>
+#import <objc/runtime.h>
 
 static NSString * const kSAJSGetAppInfoScheme = @"sensorsanalytics://getAppInfo";
 static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://trackEvent";
@@ -52,6 +53,24 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
 
 @implementation SensorsAnalyticsSDK (WKWebView)
 
+#pragma mark - setter/getter
+- (void)setWkWebView:(WKWebView *)wkWebView {
+    objc_setAssociatedObject(self, @"wkWebView", wkWebView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (WKWebView *)wkWebView {
+    return objc_getAssociatedObject(self, @"wkWebView");
+}
+
+- (void)setLoadUAGroup:(dispatch_group_t)loadUAGroup {
+    objc_setAssociatedObject(self, @"loadUAGroup", loadUAGroup, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (dispatch_group_t)loadUAGroup {
+    return objc_getAssociatedObject(self, @"loadUAGroup");
+}
+
+#pragma mark -
 - (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
     if (self.userAgent) {
         return completion(self.userAgent);

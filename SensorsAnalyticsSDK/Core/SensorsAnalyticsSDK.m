@@ -188,8 +188,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 // 兼容 UA 值打通逻辑，后续废弃 UA 值打通逻辑时可以全部移除
 @property (atomic, copy) NSString *userAgent;
 @property (nonatomic, copy) NSString *addWebViewUserAgent;
-@property (nonatomic, strong) WKWebView *wkWebView;
-@property (nonatomic, strong) dispatch_group_t loadUAGroup;
 
 @property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
