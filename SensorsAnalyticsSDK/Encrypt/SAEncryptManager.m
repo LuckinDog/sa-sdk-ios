@@ -104,7 +104,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 - (BOOL)hasSecretKey {
     // 当可以获取到秘钥时，不需要强制性触发远程配置请求秘钥
     SASecretKey *sccretKey = [self loadCurrentSecretKey];
-    return (sccretKey != nil);
+    return (sccretKey.key.length > 0);
 }
 
 - (NSDictionary *)encryptJSONObject:(id)obj {
@@ -177,6 +177,10 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     @try {
         SASecretKey *secretKey = [self loadCurrentSecretKey];
         if (![SAValidator isValidString:secretKey.key]) {
+            return;
+        }
+
+        if (secretKey.version <= 0) {
             return;
         }
 
