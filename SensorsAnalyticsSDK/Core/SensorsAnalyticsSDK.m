@@ -35,6 +35,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
+#import "NSObject+DelegateProxy.h"
 #import "SASwizzle.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
@@ -55,7 +56,6 @@
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
-#import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
 #import "SADateFormatter.h"
 #import "SAFileStore.h"
@@ -72,11 +72,10 @@
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
-#import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.5.5"
+#define VERSION @"2.6.0"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -179,9 +178,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //用户设置的不被AutoTrack的Controllers
 @property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
 @property (nonatomic, weak) UIViewController *previousTrackViewController;
-
-@property (nonatomic, strong) NSMutableSet<NSString *> *heatMapViewControllers;
-@property (nonatomic, strong) NSMutableSet<NSString *> *visualizedAutoTrackViewControllers;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
@@ -303,8 +299,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
-            _heatMapViewControllers = [[NSMutableSet alloc] init];
-            _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
             _trackChannelEventNames = [[NSMutableSet alloc] init];
 
              _trackTimer = [[SATrackTimer alloc] init];
@@ -342,10 +336,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             // WKWebView 打通
-            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
+            if (_configOptions.enableJavaScriptBridge) {
                 [self swizzleWebViewMethod];
             }
-            
+
+            // 开启可视化全埋点或点击图
+            if (_configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
+                [self swizzleWebViewMethod];
+            }
             if (_configOptions.enableTrackPush) {
                 [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeAppPush];
                 [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
@@ -711,32 +709,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
-    return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
-    [SAModuleManager.sharedInstance canHandleURL:url] ||
+    return [SAModuleManager.sharedInstance canHandleURL:url] ||
     [[SARemoteConfigManager sharedInstance] canHandleURL:url];
 }
 
-- (BOOL)handleAutoTrackURL:(NSURL *)URL{
-    if (URL == nil) {
-        return NO;
-    }
-    
-    BOOL isWifi = [SAReachability sharedInstance].isReachableViaWiFi;
-    return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
-}
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
     if (!url) {
         return NO;
     }
-
+    
     // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
     [[SAReachability sharedInstance] startMonitoring];
-
-    if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
-        //点击图 & 可视化全埋点
-        return [self handleAutoTrackURL:url];
-    } else if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
+    
+    if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
         [self enableLog:YES];
         [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
         [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
@@ -747,28 +733,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #pragma mark - VisualizedAutoTrack
-- (BOOL)isVisualizedAutoTrackEnabled {
-    return self.configOptions.enableVisualizedAutoTrack;
-}
 
-- (void)addVisualizedAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
-    if (![controllers isKindOfClass:[NSArray class]] || controllers.count == 0) {
-        return;
-    }
-    [_visualizedAutoTrackViewControllers addObjectsFromArray:controllers];
-}
+// 开启可视化模块
+- (void)enableVisualize {
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeVisualized];
 
-- (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController {
-    if (!viewController || !self.configOptions.enableVisualizedAutoTrack) {
-        return NO;
-    }
-
-    if (_visualizedAutoTrackViewControllers.count == 0) {
-        return YES;
-    }
-
-    NSString *screenName = NSStringFromClass([viewController class]);
-    return [_visualizedAutoTrackViewControllers containsObject:screenName];
+    // 开启 WKWebView 和 js 的数据交互
+    [self swizzleWebViewMethod];
 }
 
 #pragma mark - WKWebView 打通
@@ -829,7 +800,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // App 内嵌 H5 数据交互
         if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
             [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
-            if ([SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting) {
+            if ([SAModuleManager sharedInstance].isConnecting) {
                 [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
             }
         }
@@ -860,31 +831,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
-}
-
-#pragma mark - Heat Map
-- (BOOL)isHeatMapEnabled {
-    return self.configOptions.enableHeatMap;
-}
-
-- (void)addHeatMapViewControllers:(NSArray<NSString *> *)controllers {
-    if (![controllers isKindOfClass:[NSArray class]] || controllers.count == 0) {
-        return;
-    }
-    [_heatMapViewControllers addObjectsFromArray:controllers];
-}
-
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController {
-    if (!viewController || !self.configOptions.enableHeatMap) {
-        return NO;
-    }
-
-    if (_heatMapViewControllers.count == 0) {
-        return YES;
-    }
-
-    NSString *screenName = NSStringFromClass([viewController class]);
-    return [_heatMapViewControllers containsObject:screenName];
 }
 
 #pragma mark - Item 操作
@@ -1781,7 +1727,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([SAValidator isValidDictionary:p]) {
             [properties addEntriesFromDictionary:p];
         }
-        [self trackPresetEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+
+        // 添加自定义属性
+        [SAModuleManager.sharedInstance visualPropertiesWithView:view completionHandler:^(NSDictionary * _Nullable visualProperties) {
+            if (visualProperties) {
+                [properties addEntriesFromDictionary:visualProperties];
+            }
+            [self trackPresetEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+        }];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -1847,11 +1800,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
-    if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:controller];
-    }
-
     [self trackViewScreen:controller properties:nil autoTrack:YES];
 }
 
@@ -1897,12 +1845,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 添加 $url 和 $referrer 页面浏览相关属性
     NSDictionary *newProperties = [_referrerManager propertiesWithURL:currentURL eventProperties:eventProperties serialQueue:self.serialQueue];
-
     if (autoTrack) {
         [self trackAutoEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:newProperties];
     } else {
         [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:newProperties];
-    }
+    };
 }
 
 - (void)_enableAutoTrack {    
@@ -2135,6 +2082,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableLog:(BOOL)enableLog {
+    self.configOptions.enableLog = enableLog;
     [SALog sharedLog].enableLog = enableLog;
     if (!enableLog) {
         return;
@@ -2655,23 +2603,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackSignUp:newDistinctId withProperties:nil];
 }
 
-- (BOOL)handleHeatMapUrl:(NSURL *)URL {
-    return [self handleAutoTrackURL:URL];
-}
-
-- (void)enableVisualizedAutoTrack {
-    self.configOptions.enableVisualizedAutoTrack = YES;
-
-    // 开启 WKWebView 和 js 的数据交互
-    [self swizzleWebViewMethod];
-}
-
-- (void)enableHeatMap {
-    self.configOptions.enableHeatMap = YES;
-
-    // 开启 WKWebView 和 js 的数据交互
-    [self swizzleWebViewMethod];
-}
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
     NSDictionary *eventProperties = [_referrerManager propertiesWithURL:url eventProperties:properties serialQueue:self.serialQueue];

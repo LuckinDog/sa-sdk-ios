@@ -81,6 +81,9 @@
 */
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 
+/// 开启可视化模块
+- (void)enableVisualize;
+
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
