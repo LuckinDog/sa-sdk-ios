@@ -88,13 +88,14 @@
 */
 - (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
 
+/// 上一次页面
+@property (nonatomic, weak) UIViewController *previousViewController;
+
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
 
 @property (nonatomic, strong, readonly) SANetwork *network;
-
-@property (nonatomic, weak) UIViewController *previousTrackViewController;
 
 @end
 

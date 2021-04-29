@@ -79,7 +79,9 @@
 
         SensorsAnalyticsSDK *instance = [SensorsAnalyticsSDK sharedInstance];
 
-        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] && instance.previousTrackViewController != self) {
+
+
+        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] && instance.previousViewController != self) {
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
             if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
@@ -92,10 +94,6 @@
 #else
             [instance autoTrackViewScreen:self];
 #endif
-        }
-        if (instance.previousTrackViewController != self) {
-            // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
-            instance.previousTrackViewController = self;
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
