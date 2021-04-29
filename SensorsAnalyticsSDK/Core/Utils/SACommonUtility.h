@@ -19,7 +19,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAConstants.h"
 
 @interface SACommonUtility : NSObject
 
@@ -38,4 +37,6 @@
 /// 保存 UserAgent
 + (void)saveUserAgent:(NSString *)userAgent;
 
+/// 计算 hash
++ (NSString *)hashStringWithData:(NSData *)data;
 @end
