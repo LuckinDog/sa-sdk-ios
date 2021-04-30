@@ -2392,7 +2392,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLib];
             [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLibVersion];
 
-            NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
+            NSMutableDictionary *propertiesDict = [eventDict[SA_EVENT_PROPERTIES] mutableCopy];
             if([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
 
                 // track / track_signup 类型的请求，还是要加上各种公共property
