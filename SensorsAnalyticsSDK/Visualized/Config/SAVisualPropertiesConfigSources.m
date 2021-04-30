@@ -189,7 +189,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
             NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"请求配置异常，statusCode = %ld",(long)statusCode]];
             SALogWarn(@"【request visualProperties config】%@", logMessage);
         } else {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"请求配置出错，error: %@",error]];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"请求配置出错，statusCode = %ld，error: %@", statusCode, error]];
             SALogError(@"【request visualProperties config】%@", logMessage);
         }
         completionHandler(success, config);
