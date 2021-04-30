@@ -1898,7 +1898,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    if (controller.navigationController) {
+    if (controller.navigationController && controller.parentViewController == controller.navigationController) {
         // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
         if (controller.navigationController.previousViewController == controller) {
             return;
