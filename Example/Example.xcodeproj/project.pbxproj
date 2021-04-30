@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		45A56538263C168C00C9C41B /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A56536263C168C00C9C41B /* SensorsAnalyticsExtension.framework */; };
+		45A56539263C168C00C9C41B /* SensorsAnalyticsExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 45A56536263C168C00C9C41B /* SensorsAnalyticsExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		45A5653A263C168C00C9C41B /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45A56537263C168C00C9C41B /* SensorsAnalyticsSDK.framework */; };
+		45A5653B263C168C00C9C41B /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 45A56537263C168C00C9C41B /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4DC0584E232F7C16008D5C7E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC0584D232F7C16008D5C7E /* AdSupport.framework */; };
-		4DCD115B22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
-		4DCD115C22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4DCD115D22927F790091D129 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; };
 		4DCD115E22927F790091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8881569323B2F83900007AD1 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C23A228418000004061D /* MainInterface.storyboard */; };
-		88EA2E85250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88EA2E84250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework */; };
-		88EA2E86250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 88EA2E84250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CB30C204228414420004061D /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D8228414420004061D /* TestViewController.m */; };
 		CB30C205228414420004061D /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D9228414420004061D /* JSCallOCViewController.m */; };
 		CB30C206228414420004061D /* test2.html in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1DC228414420004061D /* test2.html */; };
@@ -67,14 +67,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		CB30C21F228415E40004061D /* Embed Frameworks */ = {
+		45A5653C263C168C00C9C41B /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				88EA2E86250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework in Embed Frameworks */,
-				4DCD115C22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Embed Frameworks */,
+				45A5653B263C168C00C9C41B /* SensorsAnalyticsSDK.framework in Embed Frameworks */,
+				45A56539263C168C00C9C41B /* SensorsAnalyticsExtension.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -104,6 +104,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		45A56536263C168C00C9C41B /* SensorsAnalyticsExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		45A56537263C168C00C9C41B /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DC0584D232F7C16008D5C7E /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		88EA2E84250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C15C228413B20004061D /* SensorsData.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsData.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -178,16 +180,16 @@
 				4DC0584E232F7C16008D5C7E /* AdSupport.framework in Frameworks */,
 				CB30C261228422830004061D /* libsqlite3.tbd in Frameworks */,
 				CB30C25F2284227C0004061D /* libz.tbd in Frameworks */,
-				88EA2E85250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework in Frameworks */,
+				45A5653A263C168C00C9C41B /* SensorsAnalyticsSDK.framework in Frameworks */,
 				CB30C25D228422730004061D /* UIKit.framework in Frameworks */,
 				FCA9E9AF2502399600837A31 /* CoreGraphics.framework in Frameworks */,
 				CB30C25B2284226D0004061D /* SystemConfiguration.framework in Frameworks */,
 				CB30C259228422650004061D /* CoreTelephony.framework in Frameworks */,
 				CB30C2572284225E0004061D /* Security.framework in Frameworks */,
 				CB30C2552284223B0004061D /* CoreLocation.framework in Frameworks */,
+				45A56538263C168C00C9C41B /* SensorsAnalyticsExtension.framework in Frameworks */,
 				CB30C2532284222D0004061D /* CoreMotion.framework in Frameworks */,
 				CB30C251228422210004061D /* CFNetwork.framework in Frameworks */,
-				4DCD115B22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Frameworks */,
 				CB30C24F228422190004061D /* CoreFoundation.framework in Frameworks */,
 				CB30C24B228421F60004061D /* QuartzCore.framework in Frameworks */,
 				CB30C249228421E80004061D /* Foundation.framework in Frameworks */,
@@ -294,6 +296,8 @@
 		CB30C2202284165A0004061D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				45A56536263C168C00C9C41B /* SensorsAnalyticsExtension.framework */,
+				45A56537263C168C00C9C41B /* SensorsAnalyticsSDK.framework */,
 				88EA2E84250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework */,
 				4DC0584D232F7C16008D5C7E /* AdSupport.framework */,
 				CB6EBB5822857161003CFBA8 /* SensorsAnalyticsSDK.framework */,
@@ -345,8 +349,8 @@
 				CB30C158228413B20004061D /* Sources */,
 				CB30C159228413B20004061D /* Frameworks */,
 				CB30C15A228413B20004061D /* Resources */,
-				CB30C21F228415E40004061D /* Embed Frameworks */,
 				CB30C2372284173B0004061D /* Embed App Extensions */,
+				45A5653C263C168C00C9C41B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

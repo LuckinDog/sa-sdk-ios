@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.5.5"
+  s.version      = "2.6.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -22,6 +22,7 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |c|
     c.dependency 'SensorsAnalyticsSDK/Common'
     c.dependency 'SensorsAnalyticsSDK/Gesture'
+    c.dependency 'SensorsAnalyticsSDK/Visualized'
   end
 
   # 支持 CAID 渠道匹配
@@ -36,6 +37,13 @@ Pod::Spec.new do |s|
     g.dependency 'SensorsAnalyticsSDK/Common'
     g.source_files = "SensorsAnalyticsSDK/Gesture/**/*.{h,m}"
     g.private_header_files = 'SensorsAnalyticsSDK/Gesture/**/*.h'
+  end
+
+# 可视化相关功能，包含可视化全埋点和点击图
+  s.subspec 'Visualized' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Common'
+    f.source_files = "SensorsAnalyticsSDK/Visualized/**/*.{h,m}"
+    f.public_header_files = 'SensorsAnalyticsSDK/Visualized/SensorsAnalyticsSDK+Visualized.h'
   end
 
   # 开启 GPS 定位采集
