@@ -31,21 +31,23 @@
 @implementation SAJSONUtil
 
 + (NSData *)dataWithJSONObject:(id)obj {
-    id coercedObj = [self JSONSerializableObjectForObject:obj];
-    NSError *error = nil;
-    NSData *data = nil;
+    id coercedObj = [self JSONSerializableObject:obj];
+
     if (![NSJSONSerialization isValidJSONObject:coercedObj]) {
         SALogError(@"%@ obj is not valid JSON: %@", self, coercedObj);
-        return data;
+        return nil;
     }
+
+    NSData *data = nil;
     @try {
+        NSError *error = nil;
         data = [NSJSONSerialization dataWithJSONObject:coercedObj options:0 error:&error];
+        if (error) {
+            SALogError(@"%@ error encoding api data: %@", self, error);
+        }
     }
     @catch (NSException *exception) {
         SALogError(@"%@ exception encoding api data: %@", self, exception);
-    }
-    if (error) {
-        SALogError(@"%@ error encoding api data: %@", self, error);
     }
     return data;
 }
@@ -53,7 +55,7 @@
 /// 在Json序列化的过程中，对一些不同的类型做一些相应的转换
 /// @param obj 要处理的对象 Object
 /// @return 序列化后的 jsonString
-+ (id)JSONSerializableObjectForObject:(id)obj {
++ (id)JSONSerializableObject:(id)obj {
     // 剔除 null 非法数据
     if ([obj isKindOfClass:[NSNull class]]) {
         return nil;
@@ -76,7 +78,7 @@
     if ([newObj isKindOfClass:[NSArray class]] || [newObj isKindOfClass:[NSSet class]]) {
         NSMutableArray *mutableArray = [NSMutableArray array];
         for (id value in newObj) {
-            id newValue = [self JSONSerializableObjectForObject:value];
+            id newValue = [self JSONSerializableObject:value];
             if (newValue) {
                 [mutableArray addObject:newValue];
             }
@@ -91,7 +93,7 @@
                 stringKey = [key description];
                 SALogWarn(@"property keys should be strings. but property: %@, type: %@, key: %@", newObj, [key class], key);
             }
-            mutableDic[stringKey] = [self JSONSerializableObjectForObject:obj];
+            mutableDic[stringKey] = [self JSONSerializableObject:obj];
         }];
         return [NSDictionary dictionaryWithDictionary:mutableDic];
     }
@@ -114,7 +116,7 @@
     id jsonObject = nil;
     @try {
         NSError *jsonError = nil;
-        jsonObject = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingOptions)0 error:&jsonError];
+        jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
         if (jsonError) {
             SALogError(@"json serialization error: %@",jsonError);
         }
