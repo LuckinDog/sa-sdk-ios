@@ -64,7 +64,7 @@ static long recordIndex = 0;
 }
 
 - (NSString *)content {
-    NSData *data = [SAJSONUtil JSONSerializeObject:self.event];
+    NSData *data = [SAJSONUtil dataWithJSONObject:self.event];
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 

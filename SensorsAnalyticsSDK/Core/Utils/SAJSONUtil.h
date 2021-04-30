@@ -25,7 +25,7 @@
 /// 把一个 Object 序列化成 jsonData
 /// @param obj 要转化的对象 Object
 ///  @return 序列化后的 jsonData
-+ (NSData *)JSONSerializeObject:(id)obj;
++ (NSData *)dataWithJSONObject:(id)obj;
 
 
 /// jsonData 数据解析

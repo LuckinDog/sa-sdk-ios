@@ -29,7 +29,7 @@
 #import "SAJSONUtil.h"
 
 @interface SAScriptMessageHandler ()
- 
+
 @end
 
 @implementation SAScriptMessageHandler
@@ -75,7 +75,7 @@
                 return;
             }
 
-            NSData *trackMessageData = [SAJSONUtil JSONSerializeObject:trackMessageDic];
+            NSData *trackMessageData = [SAJSONUtil dataWithJSONObject:trackMessageDic];
             NSString *trackMessageString = [[NSString alloc] initWithData:trackMessageData encoding:NSUTF8StringEncoding];
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
         } else if ([callType isEqualToString:@"visualized_track"] || [callType isEqualToString:@"app_alert"] || [callType isEqualToString:@"page_info"]) {

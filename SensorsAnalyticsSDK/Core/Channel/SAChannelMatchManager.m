@@ -279,7 +279,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
     params[@"has_active"] = @([self isAppInstalled]);
     params[@"device_code"] = [self appInstallSource];
-    request.HTTPBody = [SAJSONUtil JSONSerializeObject:params];
+    request.HTTPBody = [SAJSONUtil dataWithJSONObject:params];
 
     [self showIndicator];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {

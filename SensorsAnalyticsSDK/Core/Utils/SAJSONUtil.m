@@ -30,11 +30,12 @@
 
 @implementation SAJSONUtil
 
-+ (NSData *)JSONSerializeObject:(id)obj {
++ (NSData *)dataWithJSONObject:(id)obj {
     id coercedObj = [self JSONSerializableObjectForObject:obj];
     NSError *error = nil;
     NSData *data = nil;
     if (![NSJSONSerialization isValidJSONObject:coercedObj]) {
+        SALogError(@"%@ obj is not valid JSON: %@", self, coercedObj);
         return data;
     }
     @try {
@@ -106,7 +107,7 @@
 
 + (id)JSONObjectWithData:(NSData *)data {
     if (![SAValidator isValidData:data]) {
-        SALogDebug(@"json data is invalid");
+        SALogWarn(@"json data is invalid");
         return nil;
     }
 

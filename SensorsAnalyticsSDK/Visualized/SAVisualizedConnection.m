@@ -93,13 +93,7 @@
         return;
     }
 
-    NSData *messageData = [message.body dataUsingEncoding:NSUTF8StringEncoding];
-    if (!messageData) {
-        SALogError(@"Message body is invalid from JS SDK");
-        return;
-    }
-
-    NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
+    NSDictionary *messageDic = [SAJSONUtil JSONObjectWithString:message.body];
     if (![messageDic isKindOfClass:[NSDictionary class]]) {
         SALogError(@"Message body is formatted failure from JS SDK");
         return;

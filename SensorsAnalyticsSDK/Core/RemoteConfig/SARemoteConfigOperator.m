@@ -117,7 +117,7 @@
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
     NSString *eventConfigStr = @"";
-    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:remoteConfig];
+    NSData *eventConfigData = [SAJSONUtil dataWithJSONObject:remoteConfig];
     if (eventConfigData) {
         eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }

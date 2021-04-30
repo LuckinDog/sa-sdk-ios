@@ -149,11 +149,11 @@
     jsonObject[@"config_version"] = [SAVisualizedManager sharedInstance].configSources.configVersion;
 
     if (_payload.count == 0) {
-        return [SAJSONUtil JSONSerializeObject:jsonObject];
+        return [SAJSONUtil dataWithJSONObject:jsonObject];
     }
     // 如果使用 GZip 压缩
     // 1. 序列化 Payload
-    NSData *jsonData = [SAJSONUtil JSONSerializeObject:_payload];
+    NSData *jsonData = [SAJSONUtil dataWithJSONObject:_payload];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
     // 2. 使用 GZip 进行压缩
@@ -164,7 +164,7 @@
     
     jsonObject[@"gzip_payload"] = b64String;
     
-    return [SAJSONUtil JSONSerializeObject:jsonObject];
+    return [SAJSONUtil dataWithJSONObject:jsonObject];
 }
 
 - (NSString *)debugDescription {

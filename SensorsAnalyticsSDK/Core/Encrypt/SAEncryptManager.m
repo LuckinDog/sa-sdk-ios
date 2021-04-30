@@ -173,7 +173,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         }
 
         // 使用 gzip 进行压缩
-        NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
+        NSData *jsonData = [SAJSONUtil dataWithJSONObject:obj];
         NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
         NSData *zippedData = [SAGzipUtility gzipData:encodingData];

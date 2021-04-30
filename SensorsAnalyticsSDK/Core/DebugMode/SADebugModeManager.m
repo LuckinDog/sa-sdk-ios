@@ -219,7 +219,7 @@
     [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
 
     NSDictionary *callData = @{@"distinct_id": distinctId};
-    NSData *jsonData = [SAJSONUtil JSONSerializeObject:callData];
+    NSData *jsonData = [SAJSONUtil dataWithJSONObject:callData];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
 
