@@ -31,6 +31,10 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
+#import "SAWeakPropertyContainer.h"
+#import <objc/runtime.h>
+
+static void *const kSAPreviousViewController = (void *)&kSAPreviousViewController;
 
 @implementation UIViewController (AutoTrack)
 
@@ -79,9 +83,7 @@
 
         SensorsAnalyticsSDK *instance = [SensorsAnalyticsSDK sharedInstance];
 
-
-
-        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] && instance.previousViewController != self) {
+        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
             if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
@@ -99,6 +101,20 @@
         SALogError(@"%@ error: %@", self, exception);
     }
     [self sa_autotrack_viewDidAppear:animated];
+}
+
+@end
+
+@implementation UINavigationController (AutoTrack)
+
+- (void)setPreviousViewController:(UIViewController *)previousViewController {
+    SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:previousViewController];
+    objc_setAssociatedObject(self, kSAPreviousViewController, container, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (UIViewController *)previousViewController {
+    SAWeakPropertyContainer *container = objc_getAssociatedObject(self, kSAPreviousViewController);
+    return container.weakProperty;
 }
 
 @end

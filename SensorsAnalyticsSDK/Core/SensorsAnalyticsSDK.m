@@ -181,9 +181,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //用户设置的不被AutoTrack的Controllers
 @property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
 
-/// 记录当前栈中的 controller，不会持有
-@property (nonatomic, strong) NSPointerArray *controllersStack;
-
 @property (nonatomic, strong) NSMutableSet<NSString *> *heatMapViewControllers;
 @property (nonatomic, strong) NSMutableSet<NSString *> *visualizedAutoTrackViewControllers;
 
@@ -301,7 +298,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _appRelaunched = NO;
             _applicationWillResignActive = NO;
-            _controllersStack = [NSPointerArray weakObjectsPointerArray];
             _referrerManager =[[SAReferrerManager alloc] init];
             _referrerManager.enableReferrerTitle = configOptions.enableReferrerTitle;
             
@@ -1901,10 +1897,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!controller) {
         return;
     }
-    if (self.previousViewController != controller) {
+
+    if (controller.navigationController) {
         // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
-        self.previousViewController = controller;
+        if (controller.navigationController.previousViewController == controller) {
+            return;
+        }
+        controller.navigationController.previousViewController = controller;
     }
+
     //过滤用户设置或黑名单配置的不被 AutoTrack的Controllers
     if (![self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
@@ -1974,43 +1975,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         [self trackPresetEvent:SA_EVENT_NAME_APP_VIEW_SCREEN properties:newProperties];
     }
-}
-
-/// 进入页面
-- (void)setPreviousViewController:(UIViewController *)previousViewController {
-    [self removeAllNullInControllersStack];
-    [self.controllersStack addPointer:(__bridge void * _Nullable)(previousViewController)];
-}
-
-- (UIViewController *)previousViewController {
-    // allObjects 会自动过滤 NULL
-    if (self.controllersStack.allObjects.count == 0) {
-        return nil;
-    }
-    UIViewController *lastVC = [self.controllersStack.allObjects lastObject];
-
-    // 如果 viewController 不在屏幕显示就移除
-    while (lastVC && !lastVC.view.window) {
-        // 如果 count 不等，即 controllersStack 存在 NULL
-        if (self.controllersStack.count > self.controllersStack.allObjects.count) {
-            [self removeAllNullInControllersStack];
-        }
-
-        // 移除最后一个不显示的 viewController
-        [self.controllersStack removePointerAtIndex:self.controllersStack.count - 1];
-        if (self.controllersStack.allObjects.count == 0) {
-            return nil;
-        }
-        lastVC = [self.controllersStack.allObjects lastObject];
-    }
-    return lastVC;
-}
-
-/// 移除 controllersStack 中所有 NULL
-- (void)removeAllNullInControllersStack {
-    // 每次 compact 之前需要添加 NULL，规避系统 Bug（compact 函数有个已经报备的 bug，每次 compact 之前需要添加一个 NULL，否则会 compact 失败）
-    [self.controllersStack addPointer:NULL];
-    [self.controllersStack compact];
 }
 
 #pragma mark -
