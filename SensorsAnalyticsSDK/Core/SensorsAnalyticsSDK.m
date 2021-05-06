@@ -559,13 +559,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
-    // 被动启动
-    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
-        // 远程配置初始化的时候会开启定时器，被动启动的情况下主动关闭
-        [self stopFlushTimer];
-        return;
-    }
-
     // 冷启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
         // 开启定时器
@@ -1196,11 +1189,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)startFlushTimer {
     SALogDebug(@"starting flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([SARemoteConfigManager sharedInstance].isDisableSDK || (self.timer && [self.timer isValid])) {
+        if (self.timer && [self.timer isValid]) {
             return;
         }
 
-        if (self.appLifecycle.state == SAAppLifecycleStateStartPassively) {
+        if (self.appLifecycle.state != SAAppLifecycleStateStart) {
+            return;
+        }
+
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
             return;
         }
         
