@@ -123,11 +123,21 @@
         return;
     }
 
-    // 冷（热）启动
-    if (newState == SAAppLifecycleStateStart) {
+    // 冷启动
+    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        // 启动 AppEnd 事件计时器
+        [self.appEndTracker trackTimerStartAppEnd];
+        // 触发冷启动事件
         self.appStartTracker.passively = NO;
         [self.appStartTracker trackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
+        return;
+    }
 
+    // 热启动
+    if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        // 触发热启动事件
+        self.appStartTracker.passively = NO;
+        [self.appStartTracker trackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
         // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
         return;

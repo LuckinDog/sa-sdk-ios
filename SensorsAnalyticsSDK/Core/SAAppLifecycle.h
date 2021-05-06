@@ -32,6 +32,10 @@ typedef NS_ENUM(NSUInteger, SAAppLifecycleState) {
     SAAppLifecycleStateTerminate,
 };
 
+/// 当生命周期状态即将改变时，会发送这个通知
+/// object：对象为当前的生命周期对象
+/// userInfo：包含 kSAAppLifecycleNewStateKey 和 kSAAppLifecycleOldStateKey 两个 key，分别对应状态改变的前后状态
+extern NSNotificationName const kSAAppLifecycleStateWillChangeNotification;
 /// 当生命周期状态改变后，会发送这个通知
 /// object：对象为当前的生命周期对象
 /// userInfo：包含 kSAAppLifecycleNewStateKey 和 kSAAppLifecycleOldStateKey 两个 key，分别对应状态改变的前后状态

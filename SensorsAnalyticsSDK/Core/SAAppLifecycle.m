@@ -25,6 +25,7 @@
 #import "SAAppLifecycle.h"
 #import "SALog.h"
 
+NSNotificationName const kSAAppLifecycleStateWillChangeNotification = @"com.sensorsdata.SAAppLifecycleStateWillChange";
 NSNotificationName const kSAAppLifecycleStateDidChangeNotification = @"com.sensorsdata.SAAppLifecycleStateDidChange";
 NSString * const kSAAppLifecycleNewStateKey = @"new";
 NSString * const kSAAppLifecycleOldStateKey = @"old";
@@ -92,6 +93,8 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity:2];
     userInfo[kSAAppLifecycleNewStateKey] = @(state);
     userInfo[kSAAppLifecycleOldStateKey] = @(_state);
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSAAppLifecycleStateWillChangeNotification object:self userInfo:userInfo];
 
     _state = state;
 

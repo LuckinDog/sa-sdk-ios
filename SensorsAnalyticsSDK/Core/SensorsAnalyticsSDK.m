@@ -547,42 +547,45 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - AppLifecycle
 
 - (void)startAppLifecycle {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
+    
     _appLifecycle = [[SAAppLifecycle alloc] init];
 }
 
-- (void)appLifecycleStateDidChange:(NSNotification *)sender {
+// 处理事件触发之前的逻辑
+- (void)appLifecycleStateWillChange:(NSNotification *)sender {
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
+    // 被动启动
+    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
+        // 远程配置初始化的时候会开启定时器，被动启动的情况下主动关闭
+        [self stopFlushTimer];
+        return;
+    }
+
     // 冷启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        [self tryToRequestRemoteConfigWhenInitialized];
+        // 开启定时器
+        [self startFlushTimer];
+        // 请求远程配置
+        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
         return;
     }
 
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        // 下次启动 App 的时候重新初始化远程配置，并请求远程配置
+        // 重新初始化远程配置
         [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
+        // 请求远程配置
         [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
-
         // 遍历 trackTimer
         UInt64 currentSysUpTime = [self.class getSystemUpTime];
         dispatch_async(self.serialQueue, ^{
             [self.trackTimer resumeAllEventTimers:currentSysUpTime];
         });
-
-        //track 被动启动的页面浏览
-        if (self.launchedPassivelyControllers) {
-            [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
-                [self trackViewScreen:controller];
-            }];
-            self.launchedPassivelyControllers = nil;
-        }
-
-        [self startFlushTimer];
         return;
     }
 
@@ -590,32 +593,59 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (newState == SAAppLifecycleStateEnd) {
         // 清除本次启动解析的来源渠道信息
         [SAModuleManager.sharedInstance clearUtmProperties];
-
+        // 停止计时器
         [self stopFlushTimer];
-
+        // 删除远程配置请求
         [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
-
-        UIApplication *application = UIApplication.sharedApplication;
-        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-        // 结束后台任务
-        void (^endBackgroundTask)(void) = ^() {
-            [application endBackgroundTask:backgroundTaskIdentifier];
-            backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-        };
-
-        backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:endBackgroundTask];
-
         // 遍历 trackTimer
         UInt64 currentSysUpTime = [self.class getSystemUpTime];
         dispatch_async(self.serialQueue, ^{
             [self.trackTimer pauseAllEventTimers:currentSysUpTime];
         });
-
         // 清除 $referrer
         [_referrerManager clearReferrer];
+    }
+}
+
+// 处理事件触发之后的逻辑
+- (void)appLifecycleStateDidChange:(NSNotification *)sender {
+    NSDictionary *userInfo = sender.userInfo;
+    SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
+    SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
+
+    // 尝试上报启动事件（包括冷启动和热启动）
+    if (newState == SAAppLifecycleStateStart && ![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
+        [self flush];
+    }
+
+    // 热启动
+    if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        // track 被动启动的页面浏览
+        if (self.launchedPassivelyControllers) {
+            [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
+                [self trackViewScreen:controller];
+            }];
+            self.launchedPassivelyControllers = nil;
+        }
+        // 开启定时器
+        [self startFlushTimer];
+        return;
+    }
+
+    // 退出
+    if (newState == SAAppLifecycleStateEnd) {
+        UIApplication *application = UIApplication.sharedApplication;
+        __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+        void (^endBackgroundTask)(void) = ^() {
+            [application endBackgroundTask:backgroundTaskIdentifier];
+            backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+        };
+        backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:endBackgroundTask];
 
         dispatch_async(self.serialQueue, ^{
+            // 上传所有的数据
             [self.eventTracker flushAllEventRecords];
+            // 结束后台任务
             endBackgroundTask();
         });
         return;
@@ -1472,13 +1502,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self startFlushTimer];
     
     [self appendWebViewUserAgent];
-}
-
-- (void)tryToRequestRemoteConfigWhenInitialized {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
-    });
 }
 
 - (void)removeWebViewUserAgent {
