@@ -27,6 +27,7 @@
 
 static void *const kSANSObjectDelegateProxyParasiteKey = (void *)&kSANSObjectDelegateProxyParasiteKey;
 static void *const kSANSObjectDelegateProxyClassNameKey = (void *)&kSANSObjectDelegateProxyClassNameKey;
+static void *const kSANSObjectDelegateProxyOriginalClassNameKey = (void *)&kSANSObjectDelegateProxyOriginalClassNameKey;
 static void *const kSANSObjectDelegateSelectorsKey = (void *)&kSANSObjectDelegateSelectorsKey;
 static void *const kSANSObjectDelegateOptionalSelectorsKey = (void *)&kSANSObjectDelegateOptionalSelectorsKey;
 static void *const kSANSObjectDelegateProxyKey = (void *)&kSANSObjectDelegateProxyKey;
@@ -61,6 +62,14 @@ static void *const kSANSProxyDelegateProxyKey = (void *)&kSANSProxyDelegateProxy
 
 - (void)setSensorsdata_className:(NSString *)sensorsdata_className {
     objc_setAssociatedObject(self, kSANSObjectDelegateProxyClassNameKey, sensorsdata_className, OBJC_ASSOCIATION_COPY);
+}
+
+- (NSString *)sensorsdata_originalClassName {
+    return objc_getAssociatedObject(self, kSANSObjectDelegateProxyOriginalClassNameKey);
+}
+
+- (void)setSensorsdata_originalClassName:(NSString *)sensorsdata_originalClassName {
+    objc_setAssociatedObject(self, kSANSObjectDelegateProxyOriginalClassNameKey, sensorsdata_originalClassName, OBJC_ASSOCIATION_COPY);
 }
 
 - (NSSet<NSString *> *)sensorsdata_selectors {
@@ -115,6 +124,14 @@ static void *const kSANSProxyDelegateProxyKey = (void *)&kSANSProxyDelegateProxy
 
 - (void)setSensorsdata_parasite:(SADelegateProxyParasite *)sensorsdata_parasite {
     objc_setAssociatedObject(self, kSANSProxyDelegateProxyParasiteKey, sensorsdata_parasite, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSString *)sensorsdata_originalClassName {
+    return objc_getAssociatedObject(self, kSANSObjectDelegateProxyOriginalClassNameKey);
+}
+
+- (void)setSensorsdata_originalClassName:(NSString *)sensorsdata_originalClassName {
+    objc_setAssociatedObject(self, kSANSObjectDelegateProxyOriginalClassNameKey, sensorsdata_originalClassName, OBJC_ASSOCIATION_COPY);
 }
 
 - (NSString *)sensorsdata_className {

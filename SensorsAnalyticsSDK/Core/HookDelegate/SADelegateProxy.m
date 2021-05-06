@@ -34,8 +34,8 @@
 
 /// Overridden instance class method
 - (Class)class {
-    if (self.sensorsdata_className) {
-        return NSClassFromString(self.sensorsdata_className);
+    if (self.sensorsdata_originalClassName) {
+        return NSClassFromString(self.sensorsdata_originalClassName);
     }
     return [super class];
 }
@@ -74,6 +74,7 @@
     if ([self isKVOClass:realClass]) {
         // 记录 KVO 的父类(KVO 会重写 class 方法, 返回父类)
         [delegate setSensorsdata_className:NSStringFromClass([delegate class])];
+        [delegate setSensorsdata_originalClassName:NSStringFromClass([delegate class])];
         if ([realClass isKindOfClass:[NSObject class]]) {
             // 在移除所有的 KVO 属性监听时, 系统会重置对象的 isa 指针为原有的类; 因此需要在移除监听时, 重新为代理对象设置新的子类, 来采集点击事件
             [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
@@ -101,6 +102,7 @@
     
     // 记录对象的原始类名 (因为 class 方法需要使用, 所以在重写 class 方法前设置)
     [delegate setSensorsdata_className:NSStringFromClass(realClass)];
+    [delegate setSensorsdata_originalClassName:NSStringFromClass([delegate class])];
     // 重写 - (Class)class 方法，隐藏新添加的子类
     [SAMethodHelper addInstanceMethodWithSelector:@selector(class) fromClass:proxyClass toClass:dynamicClass];
     

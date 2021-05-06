@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 用于记录创建子类时的原始父类名称
 @property (nonatomic, copy, nullable) NSString *sensorsdata_className;
+@property (nonatomic, copy, nullable) NSString *sensorsdata_originalClassName;
 @property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_selectors;
 @property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_optionalSelectors;
 @property (nonatomic, strong, nullable) id sensorsdata_delegateProxy;
@@ -52,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 用于记录创建子类时的原始父类名称
 @property (nonatomic, copy, nullable) NSString *sensorsdata_className;
+@property (nonatomic, copy, nullable) NSString *sensorsdata_originalClassName;
 @property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_selectors;
 @property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_optionalSelectors;
 @property (nonatomic, strong, nullable) id sensorsdata_delegateProxy;
