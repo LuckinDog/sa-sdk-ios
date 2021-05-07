@@ -109,6 +109,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setServerUrl:(NSString *)serverUrl;
 
 /**
+ * @abstract
+ * 获取当前 serverURL
+ *
+ * @discussion
+ * 默认不请求远程配置
+ */
+- (nullable NSString *)serverURL;
+
+/**
 * @abstract
 * 设置当前 serverUrl，并选择是否请求远程配置
 *
