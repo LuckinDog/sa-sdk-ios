@@ -34,8 +34,8 @@
 
 /// Overridden instance class method
 - (Class)class {
-    if (self.sensorsdata_statedClassName) {
-        return NSClassFromString(self.sensorsdata_statedClassName);
+    if (self.sensorsdata_delegateClassName) {
+        return NSClassFromString(self.sensorsdata_delegateClassName);
     }
     return [super class];
 }
@@ -75,7 +75,7 @@
         // KVO 的类, SDK 未新建子类
         [delegate setSensorsdata_superClassName:NSStringFromClass([SAClassHelper realSuperClassWithClass:realClass])];
         // 记录 - class 方法所返回的信息, 用于重写 - class 方法
-        [delegate setSensorsdata_statedClassName:NSStringFromClass([delegate class])];
+        [delegate setSensorsdata_delegateClassName:NSStringFromClass([delegate class])];
         if ([realClass isKindOfClass:[NSObject class]]) {
             // 在移除所有的 KVO 属性监听时, 系统会重置对象的 isa 指针为原有的类; 因此需要在移除监听时, 重新为代理对象设置新的子类, 来采集点击事件
             [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
@@ -104,7 +104,7 @@
     // 记录新建子类所继承的父类信息, 用于向父类发送消息
     [delegate setSensorsdata_superClassName:NSStringFromClass(realClass)];
     // 记录 - class 方法所返回的信息, 用于重写 - class 方法
-    [delegate setSensorsdata_statedClassName:NSStringFromClass([delegate class])];
+    [delegate setSensorsdata_delegateClassName:NSStringFromClass([delegate class])];
     // 重写 - (Class)class 方法，隐藏新添加的子类
     [SAMethodHelper addInstanceMethodWithSelector:@selector(class) fromClass:proxyClass toClass:dynamicClass];
     

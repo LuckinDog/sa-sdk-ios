@@ -27,7 +27,7 @@
 
 static void *const kSANSObjectDelegateProxyParasiteKey = (void *)&kSANSObjectDelegateProxyParasiteKey;
 static void *const kSANSObjectDelegateProxySuperClassNameKey = (void *)&kSANSObjectDelegateProxySuperClassNameKey;
-static void *const kSANSObjectDelegateProxyStatedClassNameKey = (void *)&kSANSObjectDelegateProxyStatedClassNameKey;
+static void *const kSANSObjectDelegateProxyDelegateClassNameKey = (void *)&kSANSObjectDelegateProxyDelegateClassNameKey;
 static void *const kSANSObjectDelegateSelectorsKey = (void *)&kSANSObjectDelegateSelectorsKey;
 static void *const kSANSObjectDelegateOptionalSelectorsKey = (void *)&kSANSObjectDelegateOptionalSelectorsKey;
 static void *const kSANSObjectDelegateProxyKey = (void *)&kSANSObjectDelegateProxyKey;
@@ -64,12 +64,12 @@ static void *const kSANSProxyDelegateProxyKey = (void *)&kSANSProxyDelegateProxy
     objc_setAssociatedObject(self, kSANSObjectDelegateProxySuperClassNameKey, sensorsdata_superClassName, OBJC_ASSOCIATION_COPY);
 }
 
-- (NSString *)sensorsdata_statedClassName {
-    return objc_getAssociatedObject(self, kSANSObjectDelegateProxyStatedClassNameKey);
+- (NSString *)sensorsdata_delegateClassName {
+    return objc_getAssociatedObject(self, kSANSObjectDelegateProxyDelegateClassNameKey);
 }
 
-- (void)setSensorsdata_statedClassName:(NSString *)sensorsdata_statedClassName {
-    objc_setAssociatedObject(self, kSANSObjectDelegateProxyStatedClassNameKey, sensorsdata_statedClassName, OBJC_ASSOCIATION_COPY);
+- (void)setSensorsdata_delegateClassName:(NSString *)sensorsdata_delegateClassName {
+    objc_setAssociatedObject(self, kSANSObjectDelegateProxyDelegateClassNameKey, sensorsdata_delegateClassName, OBJC_ASSOCIATION_COPY);
 }
 
 - (NSSet<NSString *> *)sensorsdata_selectors {
@@ -134,12 +134,12 @@ static void *const kSANSProxyDelegateProxyKey = (void *)&kSANSProxyDelegateProxy
     objc_setAssociatedObject(self, kSANSObjectDelegateProxySuperClassNameKey, sensorsdata_superClassName, OBJC_ASSOCIATION_COPY);
 }
 
-- (NSString *)sensorsdata_statedClassName {
-    return objc_getAssociatedObject(self, kSANSObjectDelegateProxyStatedClassNameKey);
+- (NSString *)sensorsdata_delegateClassName {
+    return objc_getAssociatedObject(self, kSANSObjectDelegateProxyDelegateClassNameKey);
 }
 
-- (void)setSensorsdata_statedClassName:(NSString *)sensorsdata_statedClassName {
-    objc_setAssociatedObject(self, kSANSObjectDelegateProxyStatedClassNameKey, sensorsdata_statedClassName, OBJC_ASSOCIATION_COPY);
+- (void)setSensorsdata_delegateClassName:(NSString *)sensorsdata_delegateClassName {
+    objc_setAssociatedObject(self, kSANSObjectDelegateProxyDelegateClassNameKey, sensorsdata_delegateClassName, OBJC_ASSOCIATION_COPY);
 }
 
 - (NSSet<NSString *> *)sensorsdata_selectors {
