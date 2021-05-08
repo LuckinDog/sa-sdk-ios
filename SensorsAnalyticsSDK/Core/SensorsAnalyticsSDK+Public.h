@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param serverUrl 当前的 serverUrl
  *
  */
-- (void)setServerUrl:(NSString *)serverUrl;
+- (void)setServerUrl:(nullable NSString *)serverUrl;
 
 /**
  * @abstract

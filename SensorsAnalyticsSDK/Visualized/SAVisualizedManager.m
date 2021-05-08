@@ -35,6 +35,7 @@
 #import "SAVisualizedUtils.h"
 #import "SAModuleManager.h"
 #import "SAReachability.h"
+#import "SAValidator.h"
 #import "SAURLUtils.h"
 #import "SASwizzle.h"
 #import "SALog.h"
@@ -280,10 +281,14 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
         return [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 
-    if (![keyPath isEqualToString:kSAVisualizeObserverKeyPath] || [change[NSKeyValueChangeNewKey] isEqualToString:change[NSKeyValueChangeOldKey]]) {
+    NSString *newValue = change[NSKeyValueChangeNewKey];
+    NSString *oldValue = change[NSKeyValueChangeOldKey];
+    if (![SAValidator isValidString:newValue] || ![SAValidator isValidString:oldValue]) {
         return;
     }
-
+    if (![keyPath isEqualToString:kSAVisualizeObserverKeyPath] || [newValue isEqualToString:oldValue]) {
+        return;
+    }
     // 更新配置信息
     [self.configSources reloadConfig];
 }
