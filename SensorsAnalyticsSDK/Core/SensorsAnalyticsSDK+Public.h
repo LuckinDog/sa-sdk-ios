@@ -187,23 +187,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash")));
 
-/**
- * @abstract
- * 忽略某一类型的 View
- *
- * @param aClass View 对应的 Class
- */
-- (void)ignoreViewType:(Class)aClass;
 
-/**
- * @abstract
- * 判断某个 View 类型是否被忽略
- *
- * @param aClass Class View 对应的 Class
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewTypeIgnored:(Class)aClass;
+
+
 
 /**
  * @abstract
@@ -405,29 +391,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @abstract
- * 通过代码触发 UIView 的 $AppClick 事件
- *
- * @param view UIView
- */
-- (void)trackViewAppClick:(nonnull UIView *)view;
-
-/**
- * @abstract
  * 通过代码触发 UIViewController 的 $AppViewScreen 事件
  *
  * @param viewController 当前的 UIViewController
  */
 - (void)trackViewScreen:(UIViewController *)viewController;
 - (void)trackViewScreen:(UIViewController *)viewController properties:(nullable NSDictionary<NSString *,id> *)properties;
-
-/**
- * @abstract
- * 通过代码触发 UIView 的 $AppClick 事件
- *
- * @param view UIView
- * @param properties 自定义属性
- */
-- (void)trackViewAppClick:(nonnull UIView *)view withProperties:(nullable NSDictionary *)properties;
 
 /**
  @abstract

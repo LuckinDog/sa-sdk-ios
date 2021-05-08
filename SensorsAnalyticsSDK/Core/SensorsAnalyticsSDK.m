@@ -503,19 +503,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
 
-- (void)ignoreViewType:(Class)aClass {
-    [_ignoredViewTypeList addObject:aClass];
-}
-
-- (BOOL)isViewTypeIgnored:(Class)aClass {
-    for (Class obj in _ignoredViewTypeList) {
-        if ([aClass isSubclassOfClass:obj]) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
     if (viewController == nil) {
         return NO;
@@ -1236,34 +1223,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (SensorsAnalyticsDebugMode)debugMode {
     return SAModuleManager.sharedInstance.debugMode;
-}
-
-- (void)trackViewAppClick:(UIView *)view {
-    [self trackViewAppClick:view withProperties:nil];
-}
-
-- (void)trackViewAppClick:(UIView *)view withProperties:(NSDictionary *)p {
-    @try {
-        if (view == nil) {
-            return;
-        }
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc]init];
-        [properties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackObject:view isCodeTrack:YES]];
-        if ([SAValidator isValidDictionary:p]) {
-            [properties addEntriesFromDictionary:p];
-        }
-
-        // 添加自定义属性
-        [SAModuleManager.sharedInstance visualPropertiesWithView:view completionHandler:^(NSDictionary * _Nullable visualProperties) {
-            if (visualProperties) {
-                [properties addEntriesFromDictionary:visualProperties];
-            }
-            SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppClick];
-            [self asyncTrackEventObject:object properties:properties];
-        }];
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
 }
 
 - (void)autoTrackViewScreen:(UIViewController *)controller {

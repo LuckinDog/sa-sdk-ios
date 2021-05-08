@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SAModuleProtocol.h"
+#import "SAAppClickTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, strong) SAAppClickTracker *appClickTracker;
+
 
 + (SAAutoTrackManager *)sharedInstance;
 

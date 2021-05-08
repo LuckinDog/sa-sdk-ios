@@ -41,6 +41,24 @@
     return [SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:eventType];
 }
 
+- (void)ignoreViewType:(Class)aClass {
+    [SAAutoTrackManager.sharedInstance.appClickTracker ignoreViewType:aClass];
+}
+
+- (BOOL)isViewTypeIgnored:(Class)aClass {
+    return [SAAutoTrackManager.sharedInstance.appClickTracker isViewTypeIgnored:aClass];
+}
+
+#pragma mark - Track
+
+- (void)trackViewAppClick:(UIView *)view {
+    [self trackViewAppClick:view withProperties:nil];
+}
+
+- (void)trackViewAppClick:(UIView *)view withProperties:(NSDictionary *)p {
+    [SAAutoTrackManager.sharedInstance.appClickTracker trackWithView:view properties:p];
+}
+
 #pragma mark - Deprecated
 
 - (void)enableAutoTrack {

@@ -44,6 +44,43 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType;
 
+/**
+ * @abstract
+ * 忽略某一类型的 View
+ *
+ * @param aClass View 对应的 Class
+ */
+- (void)ignoreViewType:(Class)aClass;
+
+/**
+ * @abstract
+ * 判断某个 View 类型是否被忽略
+ *
+ * @param aClass Class View 对应的 Class
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isViewTypeIgnored:(Class)aClass;
+
+#pragma mark - Track
+
+/**
+ * @abstract
+ * 通过代码触发 UIView 的 $AppClick 事件
+ *
+ * @param view UIView
+ */
+- (void)trackViewAppClick:(nonnull UIView *)view;
+
+/**
+ * @abstract
+ * 通过代码触发 UIView 的 $AppClick 事件
+ *
+ * @param view UIView
+ * @param properties 自定义属性
+ */
+- (void)trackViewAppClick:(nonnull UIView *)view withProperties:(nullable NSDictionary *)properties;
+
 #pragma mark - Deprecated
 
 /**

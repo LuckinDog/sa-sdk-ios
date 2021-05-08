@@ -55,6 +55,7 @@
     if (self) {
         _appStartTracker = [[SAAppStartTracker alloc] init];
         _appEndTracker = [[SAAppEndTracker alloc] init];
+        _appClickTracker = [[SAAppClickTracker alloc] init];
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
