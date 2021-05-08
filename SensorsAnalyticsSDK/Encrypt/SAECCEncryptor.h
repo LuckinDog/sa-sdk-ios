@@ -1,8 +1,8 @@
 //
-// SAAbstractEncryptor.m
+// SAECCEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/14.
+// Created by wenquan on 2020/12/2.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,30 +18,15 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
+#import <Foundation/Foundation.h>
+#import "SAAlgorithmProtocol.h"
 
-#import "SAAbstractEncryptor.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation SAAbstractEncryptor
+@interface SAECCEncryptor : NSObject <SAAlgorithmProtocol>
 
-- (instancetype)initWithSecretKey:(id)secretKey {
-    self = [super init];
-    if (self) {
-        // base implementation
-    }
-    return self;
-}
-
-- (nullable NSString *)encryptObject:(NSData *)obj {
-    // base implementation
-    return nil;
-}
-
-- (NSData *)random16ByteData {
-    // base implementation
-    return nil;
-}
+@property (nonatomic, copy) NSString *key;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -28,6 +28,11 @@
 + (NSData *)dataWithJSONObject:(id)obj;
 
 
+/// 把一个 Object 序列化成 jsonString
+/// @param obj 要转化的对象 Object
+///  @return 序列化后的 jsonString
++ (NSString *)stringWithJSONObject:(id)obj;
+
 /// jsonData 数据解析
 /// @param data 需要解析的 jsonData
 ///  @return 解析后的对象 Object

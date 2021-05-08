@@ -52,6 +52,15 @@
     return data;
 }
 
++ (NSString *)stringWithJSONObject:(id)obj {
+    NSData *jsonData = [self dataWithJSONObject:obj];
+    if (![SAValidator isValidData:jsonData]) {
+        SALogWarn(@"json data is invalid");
+        return nil;
+    }
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
 /// 在Json序列化的过程中，对一些不同的类型做一些相应的转换
 /// @param obj 要处理的对象 Object
 /// @return 序列化后的 jsonString

@@ -154,10 +154,9 @@
     // 如果使用 GZip 压缩
     // 1. 序列化 Payload
     NSData *jsonData = [SAJSONUtil dataWithJSONObject:_payload];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
     // 2. 使用 GZip 进行压缩
-    NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+    NSData *zippedData = [SAGzipUtility gzipData:jsonData];
     
     // 3. Base64 Encode
     NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];

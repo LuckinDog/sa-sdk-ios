@@ -1,8 +1,8 @@
 //
-// SAAbstractEncryptor.h
+// SAAESEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/14.
+// Created by wenquan on 2020/12/12.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,30 +17,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-
 #import <Foundation/Foundation.h>
-
+#import "SAAlgorithmProtocol.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAbstractEncryptor : NSObject
 
-/// 指定初始化方法，初始化加密器
-/// @param secretKey 初始化使用的密钥（非对称加密时为公钥）
-/// @return 加密器
-- (instancetype)initWithSecretKey:(id)secretKey NS_DESIGNATED_INITIALIZER;
+@interface SAAESEncryptor : NSObject <SAAlgorithmProtocol>
 
-/// 禁用 init 初始化
-- (instancetype)init NS_UNAVAILABLE;
-
-/// 禁用 new 初始化
-+ (instancetype)new NS_UNAVAILABLE;
-
-/// 加密对象
-/// @param obj 需要加密的对象
-- (nullable NSString *)encryptObject:(NSData *)obj;
-
-/// 生成 16 位随机数
-- (NSData *)random16ByteData;
+@property (nonatomic, copy, readonly) NSData *key;
 
 @end
 

@@ -75,8 +75,7 @@
                 return;
             }
 
-            NSData *trackMessageData = [SAJSONUtil dataWithJSONObject:trackMessageDic];
-            NSString *trackMessageString = [[NSString alloc] initWithData:trackMessageData encoding:NSUTF8StringEncoding];
+            NSString *trackMessageString = [SAJSONUtil stringWithJSONObject:trackMessageDic];
             [[SensorsAnalyticsSDK sharedInstance] trackFromH5WithEvent:trackMessageString];
         } else if ([callType isEqualToString:@"visualized_track"] || [callType isEqualToString:@"app_alert"] || [callType isEqualToString:@"page_info"]) {
             /* 缓存 H5 页面信息

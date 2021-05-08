@@ -89,10 +89,7 @@
                 config = [SAJSONUtil JSONObjectWithData:data];
             }
             
-            // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completion(success, config);
-            });
+            completion(success, config);
         }];
         [task resume];
     } @catch (NSException *e) {
@@ -116,11 +113,7 @@
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
-    NSString *eventConfigStr = @"";
-    NSData *eventConfigData = [SAJSONUtil dataWithJSONObject:remoteConfig];
-    if (eventConfigData) {
-        eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
-    }
+    NSString *eventConfigStr = [SAJSONUtil stringWithJSONObject:remoteConfig];
     self.options.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
 }
 
