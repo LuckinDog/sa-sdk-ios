@@ -21,6 +21,7 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |c|
     c.dependency 'SensorsAnalyticsSDK/Common'
     c.dependency 'SensorsAnalyticsSDK/Gesture'
+    c.dependency 'SensorsAnalyticsSDK/Encrypt'
     c.dependency 'SensorsAnalyticsSDK/Visualized'
   end
 
@@ -29,6 +30,13 @@ Pod::Spec.new do |s|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/CAID/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
+  end
+
+  # 加密
+    s.subspec 'Encrypt' do |g|
+    g.dependency 'SensorsAnalyticsSDK/Common'
+    g.source_files = "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}"
+    g.private_header_files = 'SensorsAnalyticsSDK/Encrypt/**/*.h'
   end
 
   # 手势采集

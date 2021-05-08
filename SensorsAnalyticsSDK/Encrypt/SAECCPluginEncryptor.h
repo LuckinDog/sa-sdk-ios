@@ -1,9 +1,9 @@
 //
-// SAAESEncryptor.h
+// SAECCPluginEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/12.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 彭远洋 on 2021/4/14.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@
 // limitations under the License.
 //
 
-#import "SAAbstractEncryptor.h"
+#import <Foundation/Foundation.h>
+#import "SAEncryptProtocol.h"
+#import "SAECCEncryptor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAESEncryptor : SAAbstractEncryptor
+@interface SAECCPluginEncryptor : NSObject <SAEncryptProtocol>
 
 @end
 
