@@ -111,9 +111,6 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @abstract
  * 获取当前 serverURL
- *
- * @discussion
- * 默认不请求远程配置
  */
 - (nullable NSString *)serverURL;
 
