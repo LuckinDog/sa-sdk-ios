@@ -25,18 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SensorsAnalyticsSDK (SAAutoTrack)
 
 /**
- * @property
- *
- * @abstract
- * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面、元素点击
- * @discussion
- * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
- *   https://sensorsdata.cn/manual/ios_sdk.html
- * 该功能默认关闭
- */
-- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
-
-/**
  * @abstract
  * 是否开启 AutoTrack
  *
@@ -70,6 +58,18 @@ NS_ASSUME_NONNULL_BEGIN
  * 该功能默认关闭
  */
 - (void)enableAutoTrack __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
+
+/**
+ * @property
+ *
+ * @abstract
+ * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面、元素点击
+ * @discussion
+ * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
+ *   https://sensorsdata.cn/manual/ios_sdk.html
+ * 该功能默认关闭
+ */
+- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
 
 /**
  * @abstract

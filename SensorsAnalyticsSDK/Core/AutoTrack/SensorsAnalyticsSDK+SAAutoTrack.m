@@ -31,16 +31,6 @@
 
 @implementation SensorsAnalyticsSDK (SAAutoTrack)
 
-- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if (self.configOptions.autoTrackEventType != eventType) {
-        self.configOptions.autoTrackEventType = eventType;
-
-        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
-
-        [SAAutoTrackManager.sharedInstance updateAutoTrackEventType];
-    }
-}
-
 - (BOOL)isAutoTrackEnabled {
     return [SAAutoTrackManager.sharedInstance isAutoTrackEnabled];
 }
@@ -55,6 +45,16 @@
 
 - (void)enableAutoTrack {
     [self enableAutoTrack:SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppViewScreen];
+}
+
+- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
+    if (self.configOptions.autoTrackEventType != eventType) {
+        self.configOptions.autoTrackEventType = eventType;
+
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+        
+        [SAAutoTrackManager.sharedInstance updateAutoTrackEventType];
+    }
 }
 
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
