@@ -127,6 +127,12 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 
 #if TARGET_OS_IPHONE
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    SALogDebug(@"%@ application did finish launching", self);
+
+    if (![notification.object isKindOfClass:[UIApplication class]]) {
+        return;
+    }
+
     BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
     self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
 }
@@ -134,17 +140,29 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SALogDebug(@"%@ application did become active", self);
 
+    if (![notification.object isKindOfClass:[UIApplication class]]) {
+        return;
+    }
+
     self.state = SAAppLifecycleStateStart;
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SALogDebug(@"%@ application did enter background", self);
 
+    if (![notification.object isKindOfClass:[UIApplication class]]) {
+        return;
+    }
+
     self.state = SAAppLifecycleStateEnd;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
     SALogDebug(@"applicationWillTerminateNotification");
+
+    if (![notification.object isKindOfClass:[UIApplication class]]) {
+        return;
+    }
 
     self.state = SAAppLifecycleStateTerminate;
 }
