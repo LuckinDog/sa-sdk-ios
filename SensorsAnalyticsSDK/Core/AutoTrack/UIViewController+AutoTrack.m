@@ -91,12 +91,12 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
 
 @implementation UINavigationController (AutoTrack)
 
-- (void)setPreviousViewController:(UIViewController *)previousViewController {
-    SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:previousViewController];
+- (void)setSensorsdata_previousViewController:(UIViewController *)sensorsdata_previousViewController {
+    SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:sensorsdata_previousViewController];
     objc_setAssociatedObject(self, kSAPreviousViewController, container, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (UIViewController *)previousViewController {
+- (UIViewController *)sensorsdata_previousViewController {
     SAWeakPropertyContainer *container = objc_getAssociatedObject(self, kSAPreviousViewController);
     return container.weakProperty;
 }

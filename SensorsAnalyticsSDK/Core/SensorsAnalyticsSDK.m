@@ -1790,10 +1790,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if (controller.navigationController && controller.parentViewController == controller.navigationController) {
         // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
-        if (controller.navigationController.previousViewController == controller) {
+        if (controller.navigationController.sensorsdata_previousViewController == controller) {
             return;
         }
-        controller.navigationController.previousViewController = controller;
+        controller.navigationController.sensorsdata_previousViewController = controller;
     }
 
     //过滤用户设置或黑名单配置的不被 AutoTrack的Controllers
