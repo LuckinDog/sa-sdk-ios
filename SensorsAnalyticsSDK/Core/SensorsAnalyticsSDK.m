@@ -616,7 +616,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // track 被动启动的页面浏览
         if (self.launchedPassivelyControllers) {
             [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
-                [self trackViewScreen:controller];
+                [self trackViewScreen:controller properties:nil autoTrack:YES];
             }];
             self.launchedPassivelyControllers = nil;
         }
