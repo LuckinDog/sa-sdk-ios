@@ -282,11 +282,10 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     }
 
     NSString *newValue = change[NSKeyValueChangeNewKey];
-    NSString *oldValue = change[NSKeyValueChangeOldKey];
-    if (![SAValidator isValidString:newValue] || ![SAValidator isValidString:oldValue]) {
+    if (![SAValidator isValidString:newValue]) {
         return;
     }
-    if (![keyPath isEqualToString:kSAVisualizeObserverKeyPath] || [newValue isEqualToString:oldValue]) {
+    if (![keyPath isEqualToString:kSAVisualizeObserverKeyPath] || [newValue isEqualToString:change[NSKeyValueChangeOldKey]]) {
         return;
     }
     // 更新配置信息

@@ -470,7 +470,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self setServerUrl:serverUrl isRequestRemoteConfig:NO];
 }
 
-- (nullable NSString *)serverURL {
+- (nullable NSString *)serverUrl {
     return self.network.serverURL.absoluteString;
 }
 

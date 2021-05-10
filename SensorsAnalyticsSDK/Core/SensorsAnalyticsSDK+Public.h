@@ -110,9 +110,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @abstract
- * 获取当前 serverURL
+ * 获取当前 serverUrl
  */
-- (nullable NSString *)serverURL;
+- (nullable NSString *)serverUrl;
 
 /**
 * @abstract
