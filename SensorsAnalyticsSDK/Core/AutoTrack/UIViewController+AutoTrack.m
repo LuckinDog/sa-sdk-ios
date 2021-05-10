@@ -30,11 +30,13 @@
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIView+AutoTrack.h"
+#import "SAAutoTrackManager.h"
 
 @implementation UIViewController (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
-    return ![[SensorsAnalyticsSDK sharedInstance] shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppClick];
+    //    TODO: 点击的忽略是否可以放在 SAAppClickTracker 中
+    return ![[SAAutoTrackManager sharedInstance].appViewScreenTracker shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppClick];
 }
 
 - (NSString *)sensorsdata_screenName {
@@ -61,20 +63,20 @@
 
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
-
-        SensorsAnalyticsSDK *instance = [SensorsAnalyticsSDK sharedInstance];
+        SAAutoTrackManager *instance = [SAAutoTrackManager sharedInstance];
 
         if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] && instance.previousTrackViewController != self) {
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
-            if (!viewController.parentViewController || [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
+            if (!viewController.parentViewController ||
+                [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
                 [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
                 [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
-                [instance autoTrackViewScreen:viewController];
+                [instance.appViewScreenTracker autoTrackWithViewController:viewController];
             }
 #else
-            [instance autoTrackViewScreen:self];
+            [instance.appViewScreenTracker autoTrackWithViewController:self];
 #endif
         }
 

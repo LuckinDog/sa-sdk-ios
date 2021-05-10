@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "SAModuleProtocol.h"
 #import "SAAppClickTracker.h"
+#import "SAAppViewScreenTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 @property (nonatomic, strong) SAAppClickTracker *appClickTracker;
+@property (nonatomic, strong) SAAppViewScreenTracker *appViewScreenTracker;
 
+@property (nonatomic, weak) UIViewController *previousTrackViewController;
 
 + (SAAutoTrackManager *)sharedInstance;
 

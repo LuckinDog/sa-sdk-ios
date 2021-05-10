@@ -55,6 +55,7 @@
     if (self) {
         _appStartTracker = [[SAAppStartTracker alloc] init];
         _appEndTracker = [[SAAppEndTracker alloc] init];
+        _appViewScreenTracker = [[SAAppViewScreenTracker alloc] init];
         _appClickTracker = [[SAAppClickTracker alloc] init];
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
@@ -217,6 +218,8 @@
 - (void)updateAutoTrackEventType {
     self.appStartTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart];
     self.appEndTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
+    self.appViewScreenTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen];
+    self.appClickTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
 }
 
 @end

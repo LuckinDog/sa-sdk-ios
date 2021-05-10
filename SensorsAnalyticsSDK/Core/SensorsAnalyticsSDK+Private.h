@@ -43,7 +43,6 @@
 + (SensorsAnalyticsSDK *)sdkInstance;
 
 #pragma mark - method
-- (void)autoTrackViewScreen:(UIViewController *)viewController;
 
 /// 事件采集: 切换到 serialQueue 中执行
 /// @param object 事件对象

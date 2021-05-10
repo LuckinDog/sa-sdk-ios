@@ -22,7 +22,65 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol SAUIViewAutoTrackDelegate <NSObject>
+
+//UITableView
+@optional
+- (NSDictionary *)sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
+
+//UICollectionView
+@optional
+- (NSDictionary *)sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
+@end
+
+@interface UIImage (SensorsAnalytics)
+@property (nonatomic, copy) NSString* sensorsAnalyticsImageName;
+@end
+
+@interface UIView (SensorsAnalytics)
+- (nullable UIViewController *)sensorsAnalyticsViewController __attribute__((deprecated("已过时")));
+
+/// viewID
+@property (nonatomic, copy) NSString* sensorsAnalyticsViewID;
+
+/// AutoTrack 时，是否忽略该 View
+@property (nonatomic, assign) BOOL sensorsAnalyticsIgnoreView;
+
+/// AutoTrack 发生在 SendAction 之前还是之后，默认是 SendAction 之前
+@property (nonatomic, assign) BOOL sensorsAnalyticsAutoTrackAfterSendAction;
+
+/// AutoTrack 时，View 的扩展属性
+@property (nonatomic, strong) NSDictionary* sensorsAnalyticsViewProperties;
+
+@property (nonatomic, weak, nullable) id<SAUIViewAutoTrackDelegate> sensorsAnalyticsDelegate;
+@end
+
+/**
+ * @abstract
+ * 自动追踪 (AutoTrack) 中，实现该 Protocal 的 Controller 对象可以通过接口向自动采集的事件中加入属性
+ *
+ * @discussion
+ * 属性的约束请参考 track:withProperties:
+ */
+@protocol SAAutoTracker <NSObject>
+
+@required
+- (NSDictionary *)getTrackProperties;
+
+@end
+
+@protocol SAScreenAutoTracker <SAAutoTracker>
+
+@required
+- (NSString *)getScreenUrl;
+
+@end
+
+#pragma mark -
+
 @interface SensorsAnalyticsSDK (SAAutoTrack)
+
+- (UIViewController *_Nullable)currentViewController;
 
 /**
  * @abstract
@@ -62,6 +120,24 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isViewTypeIgnored:(Class)aClass;
 
+/**
+ * @abstract
+ * 在 AutoTrack 时，用户可以设置哪些 controllers 不被 AutoTrack
+ *
+ * @param controllers   controller ‘字符串’数组
+ */
+- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
+
+/**
+ * @abstract
+ * 判断某个 ViewController 是否被忽略
+ *
+ * @param viewController UIViewController
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isViewControllerIgnored:(UIViewController *)viewController;
+
 #pragma mark - Track
 
 /**
@@ -80,6 +156,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @param properties 自定义属性
  */
 - (void)trackViewAppClick:(nonnull UIView *)view withProperties:(nullable NSDictionary *)properties;
+
+/**
+ * @abstract
+ * 通过代码触发 UIViewController 的 $AppViewScreen 事件
+ *
+ * @param viewController 当前的 UIViewController
+ */
+- (void)trackViewScreen:(UIViewController *)viewController;
+- (void)trackViewScreen:(UIViewController *)viewController properties:(nullable NSDictionary<NSString *,id> *)properties;
 
 #pragma mark - Deprecated
 
@@ -115,6 +200,25 @@ NS_ASSUME_NONNULL_BEGIN
  * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
  */
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+
+/**
+ * @abstract
+ * 判断某个 ViewController 是否被忽略
+ *
+ * @param viewControllerClassName UIViewController 类名
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName __attribute__((deprecated("已过时，请参考 -(BOOL)isViewControllerIgnored:(UIViewController *)viewController")));
+
+/**
+ * @abstract
+ * Track $AppViewScreen事件
+ *
+ * @param url 当前页面url
+ * @param properties 用户扩展属性
+ */
+- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties __attribute__((deprecated("已过时，请参考 trackViewScreen: properties:")));
 
 @end
 
