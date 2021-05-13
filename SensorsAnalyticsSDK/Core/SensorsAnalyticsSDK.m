@@ -1789,13 +1789,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     if (controller.navigationController && controller.parentViewController == controller.navigationController) {
-        // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
+        // 全埋点中，忽略由于侧滑部分返回原页面，重复触发 $AppViewScreen 事件
         if (controller.navigationController.sensorsdata_previousViewController == controller) {
             return;
         }
         controller.navigationController.sensorsdata_previousViewController = controller;
     }
 
+    // present 弹出页面
+    if (controller.presentingViewController) {
+        // 忽略下滑部分再返回原页面，重复触发 $AppViewScreen 事件
+        if (controller.sensorsdata_previousViewController == controller) {
+            return;
+        }
+        controller.sensorsdata_previousViewController = controller;
+    }
+    
     //过滤用户设置或黑名单配置的不被 AutoTrack的Controllers
     if (![self shouldTrackViewController:controller ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;

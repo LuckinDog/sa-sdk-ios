@@ -87,10 +87,6 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
     [self sa_autotrack_viewDidAppear:animated];
 }
 
-@end
-
-@implementation UINavigationController (AutoTrack)
-
 - (void)setSensorsdata_previousViewController:(UIViewController *)sensorsdata_previousViewController {
     SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:sensorsdata_previousViewController];
     objc_setAssociatedObject(self, kSAPreviousViewController, container, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
