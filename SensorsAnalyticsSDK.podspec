@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.6.0"
+  s.version      = "2.6.3"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -13,15 +13,15 @@ Pod::Spec.new do |s|
 
   s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
+    auto_track_dir = "SensorsAnalyticsSDK/Core/AutoTrack/"
     c.source_files = core_dir + "**/*.{h,m}"
-    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
+    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", auto_track_dir + "SensorsAnalyticsSDK+SAAutoTrack.h" 
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
   
   s.subspec 'Core' do |c|
     c.dependency 'SensorsAnalyticsSDK/Common'
     c.dependency 'SensorsAnalyticsSDK/Gesture'
-    c.dependency 'SensorsAnalyticsSDK/Encrypt'
     c.dependency 'SensorsAnalyticsSDK/Visualized'
   end
 
@@ -30,13 +30,6 @@ Pod::Spec.new do |s|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/CAID/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
-  end
-
-  # 加密
-    s.subspec 'Encrypt' do |g|
-    g.dependency 'SensorsAnalyticsSDK/Common'
-    g.source_files = "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}"
-    g.private_header_files = 'SensorsAnalyticsSDK/Encrypt/**/*.h'
   end
 
   # 手势采集

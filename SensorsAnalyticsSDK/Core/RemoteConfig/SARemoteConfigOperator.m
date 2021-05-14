@@ -113,8 +113,9 @@
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
-    NSString *eventConfigStr = [SAJSONUtil stringWithJSONObject:remoteConfig];
-    self.options.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
+    NSString *eventConfigStr = [SAJSONUtil stringWithJSONObject:remoteConfig]
+    ?: @"";
+    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
 }
 
 - (void)enableRemoteConfig:(NSDictionary *)config {
