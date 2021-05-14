@@ -1,9 +1,9 @@
 //
-// SAAbstractEncryptor.h
+// SAProfileEventObject.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/14.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by yuqiang on 2021/4/13.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,29 +18,25 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "SABaseEventObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAbstractEncryptor : NSObject
+@interface SAProfileEventObject : SABaseEventObject
 
-/// 指定初始化方法，初始化加密器
-/// @param secretKey 初始化使用的密钥（非对称加密时为公钥）
-/// @return 加密器
-- (instancetype)initWithSecretKey:(id)secretKey NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithType:(NSString *)type NS_DESIGNATED_INITIALIZER;
 
-/// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
 
-/// 禁用 new 初始化
 + (instancetype)new NS_UNAVAILABLE;
 
-/// 加密对象
-/// @param obj 需要加密的对象
-- (nullable NSString *)encryptObject:(NSData *)obj;
+@end
 
-/// 生成 16 位随机数
-- (NSData *)random16ByteData;
+@interface SAProfileIncrementEventObject : SAProfileEventObject
+
+@end
+
+@interface SAProfileAppendEventObject : SAProfileEventObject
 
 @end
 

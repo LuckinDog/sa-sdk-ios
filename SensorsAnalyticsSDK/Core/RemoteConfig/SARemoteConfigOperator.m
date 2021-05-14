@@ -94,10 +94,7 @@
                 success = NO;
             }
             
-            // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completion(success, config);
-            });
+            completion(success, config);
         }];
         [task resume];
     } @catch (NSException *e) {
@@ -126,7 +123,7 @@
     if (eventConfigData) {
         eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }
-    self.options.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
+    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
 }
 
 - (void)enableRemoteConfig:(NSDictionary *)config {
