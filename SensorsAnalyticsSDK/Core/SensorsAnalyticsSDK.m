@@ -1123,7 +1123,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![self.identifier identify:anonymousId]) {
             return;
         }
-        // SensorsFocus SDK 接收匿名 ID 修改通知
+        // 其他 SDK 接收匿名 ID 修改通知，例如 AB，SF
         if (!self.loginId) {
             [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_IDENTIFY_NOTIFICATION object:nil];
         }
