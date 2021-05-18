@@ -166,6 +166,10 @@
 }
 
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
+    if ([SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:eventType]) {
+        return;
+    }
+
     self.configOptions.autoTrackEventType = self.configOptions.autoTrackEventType ^ eventType;
 
     [SAAutoTrackManager.sharedInstance updateAutoTrackEventType];
