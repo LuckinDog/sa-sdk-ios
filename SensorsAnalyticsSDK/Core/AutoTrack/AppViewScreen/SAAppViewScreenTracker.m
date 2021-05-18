@@ -31,6 +31,9 @@
 #import "SAValidator.h"
 #import "SAAutoTrackUtils.h"
 #import "SALog.h"
+#import "SAReferrerManager.h"
+// TODO:wq 这里引用了 SAModuleManager
+#import "SAModuleManager.h"
 
 @interface SAAppViewScreenTracker ()
 
@@ -40,6 +43,8 @@
 @property (nonatomic, strong) NSMutableArray<NSString *> *ignoredViewControllers;
 
 @end
+
+// TODO:wq 这里处理协议中的警告
 
 @implementation SAAppViewScreenTracker
 
@@ -71,26 +76,34 @@
 
 #pragma mark - Private
 
-- (NSDictionary *)buildWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties {
+- (NSDictionary *)buildWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties autoTrack:(BOOL)autoTrack {
     NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
 
     NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
     [eventProperties addEntriesFromDictionary:autoTrackProperties];
 
+    if (autoTrack) {
+        // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
+        // 只需要处理全埋点的页面浏览事件
+        [eventProperties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
+        [SAModuleManager.sharedInstance clearUtmProperties];
+    }
+
     if ([SAValidator isValidDictionary:properties]) {
         [eventProperties addEntriesFromDictionary:properties];
     }
 
-//    if (!eventProperties[kSAEventPropertyScreenURL] &&
-//        [viewController conformsToProtocol:@protocol(SAScreenAutoTracker)] &&
-//        [viewController respondsToSelector:@selector(getScreenUrl)]) {
-//        NSString *currentURL = [(UIViewController<SAScreenAutoTracker> *)viewController getScreenUrl];
-//        eventProperties[kSAEventPropertyScreenURL] = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(viewController.class);
-//    }
-//    eventProperties[kSAEventPropertyScreenRefferrerURL] = eventProperties[kSAEventPropertyScreenRefferrerURL] ?: self.referrer.url;
-//    [self setupRefferrerWithProperties:eventProperties];
+    NSString *currentURL;
+    if ([viewController conformsToProtocol:@protocol(SAScreenAutoTracker)] && [viewController respondsToSelector:@selector(getScreenUrl)]) {
+        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)viewController;
+        currentURL = [screenAutoTrackerController getScreenUrl];
+    }
+    currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(viewController.class);
 
-    return eventProperties;
+    // 添加 $url 和 $referrer 页面浏览相关属性
+    NSDictionary *newProperties = [SAReferrerManager.sharedInstance propertiesWithURL:currentURL eventProperties:eventProperties];
+
+    return newProperties;
 }
 
 #pragma mark - Track
@@ -109,7 +122,7 @@
         return;
     }
 
-    NSDictionary *eventProperties = [self buildWithViewController:viewController properties:nil];
+    NSDictionary *eventProperties = [self buildWithViewController:viewController properties:nil autoTrack:YES];
     SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
 }
@@ -123,16 +136,13 @@
         return;
     }
 
-    NSDictionary *eventProperties = [self buildWithViewController:viewController properties:properties];
+    NSDictionary *eventProperties = [self buildWithViewController:viewController properties:properties autoTrack:NO];
     SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
 }
 
 - (void)trackWithURL:(NSString *)url properties:(NSDictionary<NSString *,id> *)properties {
-    NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] initWithDictionary:properties];
-//    eventProperties[kSAEventPropertyScreenURL] = url;
-
-//    [self setupRefferrerWithProperties:eventProperties];
+    NSDictionary *eventProperties = [[SAReferrerManager sharedInstance] propertiesWithURL:url eventProperties:properties];
 
     SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];

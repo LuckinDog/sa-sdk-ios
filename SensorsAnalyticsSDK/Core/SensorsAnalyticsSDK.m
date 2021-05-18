@@ -80,11 +80,6 @@
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 static dispatch_once_t sdkInitializeOnceToken;
-
-
-
-
-
 static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @interface SensorsAnalyticsSDK()
@@ -129,8 +124,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, strong) SAConsoleLogger *consoleLogger;
 
 @property (nonatomic, strong) SAAppLifecycle *appLifecycle;
-
-@property (nonatomic, strong) SAReferrerManager *referrerManager;
 
 @end
 
@@ -209,8 +202,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
-            _referrerManager =[[SAReferrerManager alloc] init];
-            _referrerManager.enableReferrerTitle = configOptions.enableReferrerTitle;
+            [SAReferrerManager startWithSerialQueue:_serialQueue enableReferrerTitle:configOptions.enableReferrerTitle];
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
@@ -500,7 +492,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self.trackTimer pauseAllEventTimers:currentSysUpTime];
         });
         // 清除 $referrer
-        [_referrerManager clearReferrer];
+        [[SAReferrerManager sharedInstance] clearReferrer];
     }
 }
 
@@ -797,7 +789,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (self.configOptions.enableReferrerTitle) {
-        [object addReferrerTitleProperty:self.referrerManager.referrerTitle];
+        [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
     }
 
     // 5. 添加的自定义属性需要校验
@@ -1105,15 +1097,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSString *)getLastScreenUrl {
-    return _referrerManager.referrerURL;
+    return [SAReferrerManager sharedInstance].referrerURL;
 }
 
 - (void)clearReferrerWhenAppEnd {
-    _referrerManager.isClearReferrer = YES;
+    [SAReferrerManager sharedInstance].isClearReferrer = YES;
 }
 
 - (NSDictionary *)getLastScreenTrackProperties {
-    return _referrerManager.referrerProperties;
+    return [SAReferrerManager sharedInstance].referrerProperties;
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {

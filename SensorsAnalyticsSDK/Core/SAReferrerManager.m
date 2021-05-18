@@ -27,6 +27,9 @@
 
 @interface SAReferrerManager ()
 
+@property (nonatomic, strong) dispatch_queue_t serialQueue;
+@property (nonatomic, assign) BOOL enableReferrerTitle;
+
 @property (atomic, copy, readwrite) NSDictionary *referrerProperties;
 @property (atomic, copy, readwrite) NSString *referrerURL;
 @property (nonatomic, copy, readwrite) NSString *referrerTitle;
@@ -36,7 +39,21 @@
 
 @implementation SAReferrerManager
 
-- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties serialQueue:(dispatch_queue_t)serialQueue {
++ (void)startWithSerialQueue:(dispatch_queue_t)serialQueue enableReferrerTitle:(BOOL)enableReferrerTitle {
+    SAReferrerManager.sharedInstance.serialQueue = serialQueue;
+    SAReferrerManager.sharedInstance.enableReferrerTitle = enableReferrerTitle;
+}
+
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    static SAReferrerManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAReferrerManager alloc] init];
+    });
+    return manager;
+}
+
+- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties {
     NSString *referrerURL = self.referrerURL;
     NSMutableDictionary *newProperties = [NSMutableDictionary dictionaryWithDictionary:eventProperties];
 
@@ -52,16 +69,16 @@
     self.referrerURL = newProperties[SA_EVENT_PROPERTY_SCREEN_URL];
     self.referrerProperties = newProperties;
 
-    dispatch_async(serialQueue, ^{
-        [self cacheReferrerTitle:newProperties];
-    });
+    if (self.enableReferrerTitle) {
+        dispatch_async(self.serialQueue, ^{
+            [self cacheReferrerTitle:newProperties];
+        });
+    }
+
     return newProperties;
 }
 
 - (void)cacheReferrerTitle:(NSDictionary *)properties {
-    if (!self.enableReferrerTitle) {
-        return;
-    }
     self.referrerTitle = self.currentTitle;
     self.currentTitle = properties[SA_EVENT_PROPERTY_TITLE];
 }
