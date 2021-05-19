@@ -667,6 +667,7 @@
 		45A56575263C176700C9C41B /* AutoTrack */ = {
 			isa = PBXGroup;
 			children = (
+				4D41571C26048448009A9879 /* Gesture */,
 				A8F37FFE2646892000A8C92C /* AppViewScreen */,
 				A8F37FF9264687C600A8C92C /* AppClick */,
 				45A5657B263C176700C9C41B /* AppEnd */,
@@ -816,7 +817,7 @@
 				4D41572726048448009A9879 /* UIGestureRecognizer+SAAutoTrack.m */,
 			);
 			name = Gesture;
-			path = SensorsAnalyticsSDK/Gesture;
+			path = SensorsAnalyticsSDK/Core/AutoTrack/Gesture;
 			sourceTree = SOURCE_ROOT;
 		};
 		4D41571D26048448009A9879 /* Target */ = {
@@ -1181,7 +1182,6 @@
 				881A40D2253D7B4F00854F69 /* Core */,
 				881A4224253D7B5E00854F69 /* Location */,
 				4D9B536426382F0000318B1D /* DeviceOrientation */,
-				4D41571C26048448009A9879 /* Gesture */,
 				4D0571A525A2FC46007F7B72 /* Visualized */,
 				CB30C0AB22840F1B0004061D /* Resources */,
 			);
