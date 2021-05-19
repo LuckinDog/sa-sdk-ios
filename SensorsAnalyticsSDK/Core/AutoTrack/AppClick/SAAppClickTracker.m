@@ -31,6 +31,9 @@
 #import "SAAutoTrackUtils.h"
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
+#import "SALog.h"
+// TODO:wq 这里引用了 SAModuleManager
+#import "SAModuleManager.h"
 
 static NSString * const kSAEventPropertyElementID = @"$element_id";
 static NSString * const kSAEventPropertyElementType = @"$element_type";
@@ -101,24 +104,27 @@ static NSString * const kSAEventPropertyElementPosition = @"$element_position";
 }
 
 - (void)trackWithView:(UIView *)view properties:(NSDictionary<NSString *,id> *)properties {
-//    UIViewController *viewController = view.sensorsdata_viewController;
-//
-//    NSMutableDictionary *viewProperties = [self buildPropertiesWithView:view viewController:viewController];
-//
-//    if ([SAValidator isValidDictionary:properties]) {
-//        [viewProperties addEntriesFromDictionary:properties];
-//    }
-//#warning 添加可是话全埋点的属性
-    NSMutableDictionary *viewProperties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view isCodeTrack:NO];
-    if (!viewProperties) {
-        return;
-    }
+    @try {
+        if (view == nil) {
+            return;
+        }
+        NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc]init];
+        [eventProperties addEntriesFromDictionary:[SAAutoTrackUtils propertiesWithAutoTrackObject:view isCodeTrack:YES]];
+        if ([SAValidator isValidDictionary:properties]) {
+            [eventProperties addEntriesFromDictionary:properties];
+        }
 
-    if ([SAValidator isValidDictionary:properties]) {
-        [viewProperties addEntriesFromDictionary:properties];
+        // 添加自定义属性
+        [SAModuleManager.sharedInstance visualPropertiesWithView:view completionHandler:^(NSDictionary * _Nullable visualProperties) {
+            if (visualProperties) {
+                [eventProperties addEntriesFromDictionary:visualProperties];
+            }
+            SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppClick];
+            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+        }];
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
     }
-    SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:viewProperties];
 }
 
 #pragma mark - Ignore

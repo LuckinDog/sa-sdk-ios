@@ -703,9 +703,9 @@
 		45A56581263C176700C9C41B /* Cell */ = {
 			isa = PBXGroup;
 			children = (
+				45A56584263C176700C9C41B /* SAScrollViewDelegateProxy.h */,
 				45A56582263C176700C9C41B /* SAScrollViewDelegateProxy.m */,
 				45A56583263C176700C9C41B /* UIScrollView+AutoTrack.h */,
-				45A56584263C176700C9C41B /* SAScrollViewDelegateProxy.h */,
 				45A56585263C176700C9C41B /* UIScrollView+AutoTrack.m */,
 			);
 			path = Cell;
@@ -809,11 +809,11 @@
 				4D41571D26048448009A9879 /* Target */,
 				4D41572026048448009A9879 /* Processor */,
 				4D41572526048448009A9879 /* SAGestureManager.h */,
-				4D41572626048448009A9879 /* SAGestureTargetActionModel.m */,
-				4D41572726048448009A9879 /* UIGestureRecognizer+SAAutoTrack.m */,
-				4D41572826048448009A9879 /* SAGestureTargetActionModel.h */,
 				4D41572926048448009A9879 /* SAGestureManager.m */,
+				4D41572826048448009A9879 /* SAGestureTargetActionModel.h */,
+				4D41572626048448009A9879 /* SAGestureTargetActionModel.m */,
 				4D41572A26048448009A9879 /* UIGestureRecognizer+SAAutoTrack.h */,
+				4D41572726048448009A9879 /* UIGestureRecognizer+SAAutoTrack.m */,
 			);
 			name = Gesture;
 			path = SensorsAnalyticsSDK/Gesture;
@@ -831,9 +831,9 @@
 		4D41572026048448009A9879 /* Processor */ = {
 			isa = PBXGroup;
 			children = (
+				4D41572326048448009A9879 /* SAGestureViewProcessorFactory.h */,
 				4D41572126048448009A9879 /* SAGestureViewProcessorFactory.m */,
 				4D41572226048448009A9879 /* SAGeneralGestureViewProcessor.h */,
-				4D41572326048448009A9879 /* SAGestureViewProcessorFactory.h */,
 				4D41572426048448009A9879 /* SAGeneralGestureViewProcessor.m */,
 			);
 			path = Processor;
@@ -1334,7 +1334,6 @@
 				4D14F13F25FC5BF200113EA2 /* SAVisualizedUtils.h in Headers */,
 				45A565BF263C17E400C9C41B /* SAAppLifecycle.h in Headers */,
 				FCD838722646A40900559F5E /* SASecretKeyFactory.h in Headers */,
-				F277F5D525CFBF38009B5CE6 /* SAScrollViewDelegateProxy.h in Headers */,
 				4D41572F26048448009A9879 /* SAGestureViewProcessorFactory.h in Headers */,
 				F277F5C525CF9A43009B5CE6 /* SAAppPushConstants.h in Headers */,
 				4DA89BC325C2BC1E003ABA43 /* SANetwork.h in Headers */,

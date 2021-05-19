@@ -100,11 +100,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSTimer *timer;
 
-//用户设置的不被AutoTrack的Controllers
-@property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
-
-@property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
-
 // 兼容 UA 值打通逻辑，后续废弃 UA 值打通逻辑时可以全部移除
 @property (atomic, copy) NSString *userAgent;
 @property (nonatomic, copy) NSString *addWebViewUserAgent;
@@ -204,8 +199,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             [SAReferrerManager startWithSerialQueue:_serialQueue enableReferrerTitle:configOptions.enableReferrerTitle];
             
-            _ignoredViewControllers = [[NSMutableArray alloc] init];
-            _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _trackChannelEventNames = [[NSMutableSet alloc] init];
             
             _trackTimer = [[SATrackTimer alloc] init];

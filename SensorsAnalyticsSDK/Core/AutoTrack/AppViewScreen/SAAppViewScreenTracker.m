@@ -38,7 +38,7 @@
 @interface SAAppViewScreenTracker ()
 
 @property (nonatomic, strong) NSMutableArray<UIViewController *> *launchedPassivelyControllers;
-
+// 用户设置的不被 AutoTrack 的 Controllers
 @property (nonatomic, strong) NSMutableArray<NSString *> *ignoredViewControllers;
 
 @end
