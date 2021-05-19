@@ -142,7 +142,7 @@
     for (UIViewController *vc in self.launchedPassivelyControllers) {
         [self autoTrackWithViewController:vc];
     }
-    [self.launchedPassivelyControllers removeAllObjects];
+    self.launchedPassivelyControllers = [NSMutableArray array];
 }
 
 #pragma mark - Ignore
