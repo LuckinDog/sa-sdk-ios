@@ -689,7 +689,8 @@
 				45A5658A263C176700C9C41B /* UIViewController+AutoTrack.h */,
 				45A56579263C176700C9C41B /* UIViewController+AutoTrack.m */,
 			);
-			path = AutoTrack;
+			name = AutoTrack;
+			path = Core/AutoTrack;
 			sourceTree = "<group>";
 		};
 		45A5657B263C176700C9C41B /* AppEnd */ = {
@@ -961,7 +962,6 @@
 		881A40D2253D7B4F00854F69 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				45A56575263C176700C9C41B /* AutoTrack */,
 				45A56547263C174300C9C41B /* Builder */,
 				FCD838572646A40900559F5E /* Encrypt */,
 				881A414E253D7B4F00854F69 /* Channel */,
@@ -1179,6 +1179,7 @@
 			isa = PBXGroup;
 			children = (
 				F277F5B025CF9A43009B5CE6 /* AppPush */,
+				45A56575263C176700C9C41B /* AutoTrack */,
 				881A40D2253D7B4F00854F69 /* Core */,
 				881A4224253D7B5E00854F69 /* Location */,
 				4D9B536426382F0000318B1D /* DeviceOrientation */,
