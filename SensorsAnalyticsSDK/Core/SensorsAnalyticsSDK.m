@@ -466,11 +466,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [NSDictionary dictionaryWithDictionary:[self.presetProperty currentPresetProperties]];
 }
 
-- (void)setServerUrl:(nullable NSString *)serverUrl {
+- (void)setServerUrl:(NSString *)serverUrl {
     [self setServerUrl:serverUrl isRequestRemoteConfig:NO];
 }
 
-- (nullable NSString *)serverUrl {
+- (NSString *)serverUrl {
     return self.network.serverURL.absoluteString;
 }
 
