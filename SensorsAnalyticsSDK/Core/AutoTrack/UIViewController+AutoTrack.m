@@ -60,7 +60,6 @@
     return nil;
 }
 
-
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
         SAAutoTrackManager *instance = [SAAutoTrackManager sharedInstance];

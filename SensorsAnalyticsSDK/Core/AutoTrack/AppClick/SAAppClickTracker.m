@@ -55,7 +55,9 @@ static NSString * const kSAEventPropertyElementPosition = @"$element_position";
     return self;
 }
 
-+ (nonnull NSString *)eventName {
+#pragma mark - SAAppTrackerProtocol
+
++ (NSString *)eventName {
     return kSAEventNameAppClick;
 }
 

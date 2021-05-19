@@ -204,11 +204,11 @@
                     break;
 
                 case SensorsAnalyticsEventTypeAppClick:
-                    ignoredEvent = kSAEventNameAppClick;
+                    ignoredEvent = [SAAppClickTracker eventName];
                     break;
 
                 case SensorsAnalyticsEventTypeAppViewScreen:
-                    ignoredEvent = kSAEventNameAppViewScreen;
+                    ignoredEvent = [SAAppViewScreenTracker eventName];
                     break;
 
                 default:

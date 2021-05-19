@@ -56,6 +56,8 @@
     return self;
 }
 
+#pragma mark - SAAppTrackerProtocol
+
 + (NSString *)eventName {
     return kSAEventNameAppViewScreen;
 }

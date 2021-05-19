@@ -34,12 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackLaunchedPassivelyViewScreen;
 
 #pragma mark - Ignore
+
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController;
 - (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName;
-
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type;
-
 
 @end
 
