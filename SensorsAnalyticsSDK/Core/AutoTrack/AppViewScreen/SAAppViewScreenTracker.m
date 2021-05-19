@@ -43,8 +43,6 @@
 
 @end
 
-// TODO:wq 这里处理协议中的警告
-
 @implementation SAAppViewScreenTracker
 
 - (instancetype)init {

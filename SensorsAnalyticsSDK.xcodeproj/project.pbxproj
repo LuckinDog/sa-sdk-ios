@@ -696,8 +696,8 @@
 		45A5657B263C176700C9C41B /* AppEnd */ = {
 			isa = PBXGroup;
 			children = (
-				45A5657C263C176700C9C41B /* SAAppEndTracker.m */,
 				45A5657D263C176700C9C41B /* SAAppEndTracker.h */,
+				45A5657C263C176700C9C41B /* SAAppEndTracker.m */,
 			);
 			path = AppEnd;
 			sourceTree = "<group>";

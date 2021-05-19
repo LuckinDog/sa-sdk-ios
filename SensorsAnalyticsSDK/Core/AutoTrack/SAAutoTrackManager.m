@@ -136,7 +136,6 @@
         if (oldState != SAAppLifecycleStateInit) {
             [self.appViewScreenTracker trackLaunchedPassivelyViewScreen];
         }
-
         return;
     }
 
