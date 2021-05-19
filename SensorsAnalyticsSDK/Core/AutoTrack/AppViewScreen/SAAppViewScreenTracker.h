@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)autoTrackWithViewController:(UIViewController *)viewController;
 - (void)trackWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> * _Nullable)properties;
 - (void)trackWithURL:(NSString *)url properties:(NSDictionary<NSString *, id> * _Nullable)properties;
+- (void)trackLaunchedPassivelyViewScreen;
 
 #pragma mark - Ignore
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;

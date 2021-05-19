@@ -27,6 +27,7 @@
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
 #import "SATrackEventObject.h"
+#import "SAAppLifecycle.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -71,14 +72,10 @@
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
-
 @property (nonatomic, strong, readonly) SANetwork *network;
-
-@property (nonatomic, weak) UIViewController *previousTrackViewController;
+@property (nonatomic, assign, readonly) SAAppLifecycleState lifecycleState;
 
 @end
-
-
 
 /**
  SAConfigOptions 实现

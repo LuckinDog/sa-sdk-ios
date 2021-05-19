@@ -132,6 +132,11 @@
         // 触发启动事件
         self.appStartTracker.passively = NO;
         [self.appStartTracker trackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
+        // 热启动时触发被动启动的页面浏览事件
+        if (oldState != SAAppLifecycleStateInit) {
+            [self.appViewScreenTracker trackLaunchedPassivelyViewScreen];
+        }
+
         return;
     }
 

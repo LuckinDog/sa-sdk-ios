@@ -37,7 +37,6 @@
 
 @interface SAAppViewScreenTracker ()
 
-@property (nonatomic, assign) SAAppLifecycleState appLifecycleState;
 @property (nonatomic, strong) NSMutableArray<UIViewController *> *launchedPassivelyControllers;
 
 @property (nonatomic, strong) NSMutableArray<NSString *> *ignoredViewControllers;
@@ -53,25 +52,12 @@
     if (self) {
         _launchedPassivelyControllers = [NSMutableArray array];
         _ignoredViewControllers = [NSMutableArray array];
-
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
     }
     return self;
 }
 
 + (NSString *)eventName {
     return kSAEventNameAppViewScreen;
-}
-
-- (void)appLifecycleStateDidChange:(NSNotification *)sender {
-    self.appLifecycleState = [sender.userInfo[kSAAppLifecycleNewStateKey] integerValue];
-
-    if (self.appLifecycleState == SAAppLifecycleStateStart && self.launchedPassivelyControllers) {
-        for (UIViewController *vc in self.launchedPassivelyControllers) {
-            [self autoTrackWithViewController:vc];
-        }
-        self.launchedPassivelyControllers = nil;
-    }
 }
 
 #pragma mark - Private
@@ -117,13 +103,13 @@
         return;
     }
 
-    if (self.appLifecycleState == SAAppLifecycleStateStartPassively) {
+    if (SensorsAnalyticsSDK.sharedInstance.lifecycleState == SAAppLifecycleStateStartPassively) {
         [self.launchedPassivelyControllers addObject:viewController];
         return;
     }
 
     NSDictionary *eventProperties = [self buildWithViewController:viewController properties:nil autoTrack:YES];
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
+    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
 }
 
@@ -146,6 +132,17 @@
 
     SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+}
+
+- (void)trackLaunchedPassivelyViewScreen {
+    if (self.launchedPassivelyControllers.count == 0) {
+        return;
+    }
+
+    for (UIViewController *vc in self.launchedPassivelyControllers) {
+        [self autoTrackWithViewController:vc];
+    }
+    [self.launchedPassivelyControllers removeAllObjects];
 }
 
 #pragma mark - Ignore

@@ -539,12 +539,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (SAAppLifecycleState)lifecycleState {
+    return self.appLifecycle.state;
+}
+
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
     return [SAModuleManager.sharedInstance canHandleURL:url] ||
     [[SARemoteConfigManager sharedInstance] canHandleURL:url];
 }
-
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
     if (!url) {
