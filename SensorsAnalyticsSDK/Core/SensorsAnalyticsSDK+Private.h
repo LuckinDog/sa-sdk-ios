@@ -51,15 +51,6 @@
 - (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
 /**
- 根据 viewController 判断，是否采集事件
-
- @param controller 事件采集时的控制器
- @param type 事件类型
- @return 是否采集
- */
-- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type;
-
-/**
 向 WKWebView 注入 Message Handler
 
 @param webView 需要注入的 wkwebView

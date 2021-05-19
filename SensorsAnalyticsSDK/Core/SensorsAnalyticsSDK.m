@@ -298,38 +298,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return NSProcessInfo.processInfo.systemUptime * 1000;
 }
 
-- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
-    if ([self isViewControllerIgnored:controller]) {
-        return NO;
-    }
-
-    return ![self isBlackListViewController:controller ofType:type];
-}
-
-- (BOOL)isBlackListViewController:(UIViewController *)viewController ofType:(SensorsAnalyticsAutoTrackEventType)type {
-    static dispatch_once_t onceToken;
-    static NSDictionary *allClasses = nil;
-    dispatch_once(&onceToken, ^{
-        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-        //文件路径
-        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
-        NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-        @try {
-            allClasses = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
-        } @catch(NSException *exception) {  // json加载和解析可能失败
-            SALogError(@"%@ error: %@", self, exception);
-        }
-    });
-
-    NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[kSAEventNameAppViewScreen] : allClasses[kSAEventNameAppClick];
-    for (NSString *publicClass in dictonary[@"public"]) {
-        if ([viewController isKindOfClass:NSClassFromString(publicClass)]) {
-            return YES;
-        }
-    }
-    return [(NSArray *)dictonary[@"private"] containsObject:NSStringFromClass(viewController.class)];
-}
-
 - (NSDictionary *)getPresetProperties {
     return [NSDictionary dictionaryWithDictionary:[self.presetProperty currentPresetProperties]];
 }
