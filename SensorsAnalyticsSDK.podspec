@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
   s.subspec 'AutoTrack' do |g|
     g.dependency 'SensorsAnalyticsSDK/Common'
     g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}"
-    g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+AutoTrack.h'
+    g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h'
   end
 
 # 可视化相关功能，包含可视化全埋点和点击图
