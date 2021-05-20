@@ -34,13 +34,6 @@
 #import "SALog.h"
 #import "SAModuleManager.h"
 
-static NSString * const kSAEventPropertyElementID = @"$element_id";
-static NSString * const kSAEventPropertyElementType = @"$element_type";
-static NSString * const kSAEventPropertyElementContent = @"$element_content";
-static NSString * const kSAEventPropertyElementPosition = @"$element_position";
-
-//static NSString * const kSAEventNameAppClick = @"$AppClick";
-
 @interface SAAppClickTracker ()
 
 @property (nonatomic, strong) NSMutableArray<Class> *ignoredViewTypeList;

@@ -58,15 +58,15 @@
     NSMutableDictionary *newProperties = [NSMutableDictionary dictionaryWithDictionary:eventProperties];
 
     // 客户自定义属性中包含 $url 时，以客户自定义内容为准
-    if (!newProperties[SA_EVENT_PROPERTY_SCREEN_URL]) {
-        newProperties[SA_EVENT_PROPERTY_SCREEN_URL] = currentURL;
+    if (!newProperties[kSAEventPropertyScreenUrl]) {
+        newProperties[kSAEventPropertyScreenUrl] = currentURL;
     }
     // 客户自定义属性中包含 $referrer 时，以客户自定义内容为准
-    if (referrerURL && !newProperties[SA_EVENT_PROPERTY_SCREEN_REFERRER_URL]) {
-        newProperties[SA_EVENT_PROPERTY_SCREEN_REFERRER_URL] = referrerURL;
+    if (referrerURL && !newProperties[kSAEventPropertyScreenReferrerUrl]) {
+        newProperties[kSAEventPropertyScreenReferrerUrl] = referrerURL;
     }
     // $referrer 内容以最终页面浏览事件中的 $url 为准
-    self.referrerURL = newProperties[SA_EVENT_PROPERTY_SCREEN_URL];
+    self.referrerURL = newProperties[kSAEventPropertyScreenUrl];
     self.referrerProperties = newProperties;
 
     if (self.enableReferrerTitle) {
@@ -80,7 +80,7 @@
 
 - (void)cacheReferrerTitle:(NSDictionary *)properties {
     self.referrerTitle = self.currentTitle;
-    self.currentTitle = properties[SA_EVENT_PROPERTY_TITLE];
+    self.currentTitle = properties[kSAEventPropertyTitle];
 }
 
 - (void)clearReferrer {
