@@ -19,19 +19,18 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAAppTrackerProtocol.h"
+#import "SAAppTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAppStartTracker : NSObject <SAAppTrackerProtocol>
+@interface SAAppStartTracker : SAAppTracker
 
-@property (nonatomic, assign, getter=isIgnored) BOOL ignored;
 /// 是否被动启动
 @property (nonatomic, assign, getter=isPassively) BOOL passively;
 
-/// 触发启动事件
+/// 触发全埋点启动事件
 /// @param properties 事件属性
-- (void)trackEventWithProperties:(nullable NSDictionary *)properties;
+- (void)trackAutoTrackEventWithProperties:(nullable NSDictionary *)properties;
 
 @end
 

@@ -32,7 +32,6 @@
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SALog.h"
-// TODO:wq 这里引用了 SAModuleManager
 #import "SAModuleManager.h"
 
 static NSString * const kSAEventPropertyElementID = @"$element_id";
@@ -50,6 +49,8 @@ static NSString * const kSAEventPropertyElementPosition = @"$element_position";
 
 @implementation SAAppClickTracker
 
+#pragma mark - Life Cycle
+
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -58,50 +59,13 @@ static NSString * const kSAEventPropertyElementPosition = @"$element_position";
     return self;
 }
 
-#pragma mark - SAAppTrackerProtocol
+#pragma mark - Override
 
 + (NSString *)eventName {
     return kSAEventNameAppClick;
 }
 
-#pragma mark - Property
-
-- (NSMutableDictionary *)buildPropertiesWithView:(UIView *)view viewController:(UIViewController *)viewController {
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    // ViewID
-    properties[kSAEventPropertyElementID] = view.sensorsdata_elementId;
-
-    properties[kSAEventPropertyElementType] = view.sensorsdata_elementType;
-    properties[kSAEventPropertyElementContent] = view.sensorsdata_elementContent;
-    properties[kSAEventPropertyElementPosition] = view.sensorsdata_elementPosition;
-
-    NSDictionary *dic = [SAAutoTrackUtils propertiesWithViewController:viewController];
-    [properties addEntriesFromDictionary:dic];
-
-    return properties;
-}
-
-#pragma mark - Track
-
-- (void)autoTrackWithView:(UIView *)view {
-//    UIViewController *viewController = view.sensorsdata_viewController;
-//    if (viewController.sensorsdata_isIgnored) {
-//        return;
-//    }
-//
-//    NSDictionary *viewProperties = [self buildPropertiesWithView:view viewController:viewController];
-//    if (!viewProperties) {
-//        return;
-//    }
-//#warning 添加可是话全埋点的属性
-    NSDictionary *viewProperties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view isCodeTrack:NO];
-    if (!viewProperties) {
-        return;
-    }
-
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:viewProperties];
-}
+#pragma mark - Public Methods
 
 - (void)trackWithView:(UIView *)view properties:(NSDictionary<NSString *,id> *)properties {
     @try {
@@ -126,8 +90,6 @@ static NSString * const kSAEventPropertyElementPosition = @"$element_position";
         SALogError(@"%@: %@", self, exception);
     }
 }
-
-#pragma mark - Ignore
 
 - (void)ignoreViewType:(Class)aClass {
     [self.ignoredViewTypeList addObject:aClass];

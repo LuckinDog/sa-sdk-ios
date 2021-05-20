@@ -23,7 +23,6 @@
 #endif
 
 #import "SAAppViewScreenTracker.h"
-#import "SensorsAnalyticsSDK+SAAutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAAppLifecycle.h"
@@ -32,14 +31,11 @@
 #import "SAAutoTrackUtils.h"
 #import "SALog.h"
 #import "SAReferrerManager.h"
-// TODO:wq 这里引用了 SAModuleManager
 #import "SAModuleManager.h"
 
 @interface SAAppViewScreenTracker ()
 
 @property (nonatomic, strong) NSMutableArray<UIViewController *> *launchedPassivelyControllers;
-// 用户设置的不被 AutoTrack 的 Controllers
-@property (nonatomic, strong) NSMutableArray<NSString *> *ignoredViewControllers;
 
 @end
 
@@ -49,50 +45,17 @@
     self = [super init];
     if (self) {
         _launchedPassivelyControllers = [NSMutableArray array];
-        _ignoredViewControllers = [NSMutableArray array];
     }
     return self;
 }
 
-#pragma mark - SAAppTrackerProtocol
+#pragma mark - Override
 
 + (NSString *)eventName {
     return kSAEventNameAppViewScreen;
 }
 
-#pragma mark - Private
-
-- (NSDictionary *)buildWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties autoTrack:(BOOL)autoTrack {
-    NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
-
-    NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
-    [eventProperties addEntriesFromDictionary:autoTrackProperties];
-
-    if (autoTrack) {
-        // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
-        // 只需要处理全埋点的页面浏览事件
-        [eventProperties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
-        [SAModuleManager.sharedInstance clearUtmProperties];
-    }
-
-    if ([SAValidator isValidDictionary:properties]) {
-        [eventProperties addEntriesFromDictionary:properties];
-    }
-
-    NSString *currentURL;
-    if ([viewController conformsToProtocol:@protocol(SAScreenAutoTracker)] && [viewController respondsToSelector:@selector(getScreenUrl)]) {
-        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)viewController;
-        currentURL = [screenAutoTrackerController getScreenUrl];
-    }
-    currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(viewController.class);
-
-    // 添加 $url 和 $referrer 页面浏览相关属性
-    NSDictionary *newProperties = [SAReferrerManager.sharedInstance propertiesWithURL:currentURL eventProperties:eventProperties];
-
-    return newProperties;
-}
-
-#pragma mark - Track
+#pragma mark - Public Methods
 
 - (void)autoTrackWithViewController:(UIViewController *)viewController {
     if (!viewController) {
@@ -145,73 +108,36 @@
     self.launchedPassivelyControllers = [NSMutableArray array];
 }
 
-#pragma mark - Ignore
+#pragma mark – Private Methods
 
-- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
-    if (controllers == nil || controllers.count == 0) {
-        return;
-    }
-    [_ignoredViewControllers addObjectsFromArray:controllers];
+- (NSDictionary *)buildWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties autoTrack:(BOOL)autoTrack {
+    NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
 
-    //去重
-    NSSet *set = [NSSet setWithArray:_ignoredViewControllers];
-    if (set != nil) {
-        _ignoredViewControllers = [NSMutableArray arrayWithArray:[set allObjects]];
-    } else {
-        _ignoredViewControllers = [[NSMutableArray alloc] init];
+    NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
+    [eventProperties addEntriesFromDictionary:autoTrackProperties];
+
+    if (autoTrack) {
+        // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
+        // 只需要处理全埋点的页面浏览事件
+        [eventProperties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
+        [SAModuleManager.sharedInstance clearUtmProperties];
     }
+
+    if ([SAValidator isValidDictionary:properties]) {
+        [eventProperties addEntriesFromDictionary:properties];
+    }
+
+    NSString *currentURL;
+    if ([viewController conformsToProtocol:@protocol(SAScreenAutoTracker)] && [viewController respondsToSelector:@selector(getScreenUrl)]) {
+        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)viewController;
+        currentURL = [screenAutoTrackerController getScreenUrl];
+    }
+    currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(viewController.class);
+
+    // 添加 $url 和 $referrer 页面浏览相关属性
+    NSDictionary *newProperties = [SAReferrerManager.sharedInstance propertiesWithURL:currentURL eventProperties:eventProperties];
+
+    return newProperties;
 }
-
-- (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
-    if (viewController == nil) {
-        return NO;
-    }
-
-    NSString *screenName = NSStringFromClass([viewController class]);
-    return [self.ignoredViewControllers containsObject:screenName];
-}
-
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
-    if (viewControllerClassName == nil) {
-        return NO;
-    }
-
-    return [self.ignoredViewControllers containsObject:viewControllerClassName];
-}
-
-#pragma mark - Private
-
-- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
-    if ([self isViewControllerIgnored:controller]) {
-        return NO;
-    }
-
-    return ![self isBlackListViewController:controller ofType:type];
-}
-
-- (BOOL)isBlackListViewController:(UIViewController *)viewController ofType:(SensorsAnalyticsAutoTrackEventType)type {
-    static dispatch_once_t onceToken;
-    static NSDictionary *allClasses = nil;
-    dispatch_once(&onceToken, ^{
-        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-        //文件路径
-        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
-        NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-        @try {
-            allClasses = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
-        } @catch(NSException *exception) {  // json加载和解析可能失败
-            SALogError(@"%@ error: %@", self, exception);
-        }
-    });
-
-    NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[kSAEventNameAppViewScreen] : allClasses[kSAEventNameAppClick];
-    for (NSString *publicClass in dictonary[@"public"]) {
-        if ([viewController isKindOfClass:NSClassFromString(publicClass)]) {
-            return YES;
-        }
-    }
-    return [(NSArray *)dictonary[@"private"] containsObject:NSStringFromClass(viewController.class)];
-}
-
 
 @end

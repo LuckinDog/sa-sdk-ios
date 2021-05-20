@@ -23,7 +23,6 @@
 #endif
 
 #import "SAAppStartTracker.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 
 // App 启动标记
@@ -47,16 +46,21 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _ignored = NO;
         _passively = NO;
         _relaunch = NO;
     }
     return self;
 }
 
-#pragma mark - SAAppTrackerProtocol
+#pragma mark - Override
 
-- (void)trackEventWithProperties:(NSDictionary *)properties {
++ (NSString *)eventName {
+    return kSAEventNameAppStart;
+}
+
+#pragma mark - Public Methods
+
+- (void)trackAutoTrackEventWithProperties:(NSDictionary *)properties {
     if (!self.isIgnored) {
         NSString *event = self.isPassively ? kSAEventNameAppStartPassively : kSAEventNameAppStart;
         NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
@@ -70,8 +74,7 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
         //添加 deeplink 相关渠道信息，可能不存在
         [eventProperties addEntriesFromDictionary:properties];
 
-        SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:event];
-        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+        [self trackAutoTrackEventWithEventId:event properties:eventProperties];
     }
 
     // 更新首次标记
@@ -79,10 +82,6 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 
     // 触发过启动事件，下次为热启动
     self.relaunch = YES;
-}
-
-+ (NSString *)eventName {
-    return kSAEventNameAppStart;
 }
 
 #pragma mark – Private Methods

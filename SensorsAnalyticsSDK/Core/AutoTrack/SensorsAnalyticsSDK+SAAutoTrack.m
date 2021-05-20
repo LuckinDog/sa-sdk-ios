@@ -124,11 +124,15 @@
 }
 
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
+    [SAAutoTrackManager.sharedInstance.appClickTracker ignoreAutoTrackViewControllers:controllers];
     [SAAutoTrackManager.sharedInstance.appViewScreenTracker ignoreAutoTrackViewControllers:controllers];
 }
 
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
-    return [SAAutoTrackManager.sharedInstance.appViewScreenTracker isViewControllerIgnored:viewController];
+    BOOL isIgnoreAppClick = [SAAutoTrackManager.sharedInstance.appClickTracker isViewControllerIgnored:viewController];
+    BOOL isIgnoreAppViewScreen = [SAAutoTrackManager.sharedInstance.appViewScreenTracker isViewControllerIgnored:viewController];
+
+    return isIgnoreAppClick || isIgnoreAppViewScreen;
 }
 
 #pragma mark - Track
@@ -176,7 +180,10 @@
 }
 
 - (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
-    return [SAAutoTrackManager.sharedInstance.appViewScreenTracker isViewControllerStringIgnored:viewControllerClassName];
+    BOOL isIgnoreAppClick = [SAAutoTrackManager.sharedInstance.appClickTracker isViewControllerStringIgnored:viewControllerClassName];
+    BOOL isIgnoreAppViewScreen = [SAAutoTrackManager.sharedInstance.appViewScreenTracker isViewControllerStringIgnored:viewControllerClassName];
+
+    return isIgnoreAppClick || isIgnoreAppViewScreen;
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {

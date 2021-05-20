@@ -19,20 +19,23 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SAAppTrackerProtocol.h"
+#import "SAAppTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAppClickTracker : NSObject <SAAppTrackerProtocol>
+@interface SAAppClickTracker : SAAppTracker
 
-@property (nonatomic, assign, getter=isIgnored) BOOL ignored;
-
-- (void)autoTrackWithView:(UIView *)view;
+/// 通过代码触发 UIView 的 $AppClick 事件
+/// @param view UIView
+/// @param properties 自定义属性
 - (void)trackWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties;
 
-#pragma mark - Ignore
-
+/// 忽略某一类型的 View
+/// @param aClass View 对应的 Class
 - (void)ignoreViewType:(Class)aClass;
+
+/// 判断某个 View 类型是否被忽略
+/// @param aClass Class View 对应的 Class
 - (BOOL)isViewTypeIgnored:(Class)aClass;
 
 @end

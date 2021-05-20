@@ -35,8 +35,7 @@
 @implementation UIViewController (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
-    //    TODO: 点击的忽略是否可以放在 SAAppClickTracker 中
-    return ![[SAAutoTrackManager sharedInstance].appViewScreenTracker shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppClick];
+    return ![[SAAutoTrackManager sharedInstance].appClickTracker shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppClick];
 }
 
 - (NSString *)sensorsdata_screenName {

@@ -19,17 +19,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAAppTrackerProtocol.h"
+#import "SAAppTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAppEndTracker : NSObject <SAAppTrackerProtocol>
+@interface SAAppEndTracker : SAAppTracker
 
-@property (nonatomic, assign, getter=isIgnored) BOOL ignored;
-
-/// 触发退出事件
-/// @param properties 事件属性
-- (void)trackEventWithProperties:(nullable NSDictionary *)properties;
+/// 触发全埋点退出事件
+- (void)trackAutoTrackEvent;
 
 /// 开始退出事件计时
 - (void)trackTimerStartAppEnd;
