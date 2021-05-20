@@ -35,7 +35,7 @@
 @implementation UIViewController (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
-    return ![[SAAutoTrackManager sharedInstance].appClickTracker shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppClick];
+    return ![[SAAutoTrackManager sharedInstance].appClickTracker shouldTrackViewController:self];
 }
 
 - (NSString *)sensorsdata_screenName {
@@ -71,10 +71,10 @@
                 [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
                 [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
-                [instance.appViewScreenTracker autoTrackWithViewController:viewController];
+                [instance.appViewScreenTracker autoTrackEventWithViewController:viewController];
             }
 #else
-            [instance.appViewScreenTracker autoTrackWithViewController:self];
+            [instance.appViewScreenTracker autoTrackEventWithViewController:self];
 #endif
         }
 

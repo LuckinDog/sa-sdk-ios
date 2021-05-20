@@ -51,18 +51,18 @@
 
 #pragma mark - Override
 
-+ (NSString *)eventName {
+- (NSString *)eventName {
     return kSAEventNameAppViewScreen;
 }
 
 #pragma mark - Public Methods
 
-- (void)autoTrackWithViewController:(UIViewController *)viewController {
+- (void)autoTrackEventWithViewController:(UIViewController *)viewController {
     if (!viewController) {
         return;
     }
     //过滤用户设置的不被AutoTrack的Controllers
-    if (![self shouldTrackViewController:viewController ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
+    if (![self shouldTrackViewController:viewController]) {
         return;
     }
 
@@ -72,15 +72,15 @@
     }
 
     NSDictionary *eventProperties = [self buildWithViewController:viewController properties:nil autoTrack:YES];
-    [self trackAutoTrackEventWithEventId:kSAEventNameAppViewScreen properties:eventProperties];
+    [self trackAutoTrackEventWithProperties:eventProperties];
 }
 
-- (void)trackWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties {
+- (void)trackEventWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties {
     if (!viewController) {
         return;
     }
 
-    if ([self isBlackListViewController:viewController ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
+    if ([self isBlackListViewController:viewController]) {
         return;
     }
 
@@ -89,20 +89,20 @@
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
 }
 
-- (void)trackWithURL:(NSString *)url properties:(NSDictionary<NSString *,id> *)properties {
+- (void)trackEventWithURL:(NSString *)url properties:(NSDictionary<NSString *,id> *)properties {
     NSDictionary *eventProperties = [[SAReferrerManager sharedInstance] propertiesWithURL:url eventProperties:properties];
 
     SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
 }
 
-- (void)trackLaunchedPassivelyViewScreen {
+- (void)trackEventOfLaunchedPassively {
     if (self.launchedPassivelyControllers.count == 0) {
         return;
     }
 
     for (UIViewController *vc in self.launchedPassivelyControllers) {
-        [self autoTrackWithViewController:vc];
+        [self autoTrackEventWithViewController:vc];
     }
     self.launchedPassivelyControllers = [NSMutableArray array];
 }

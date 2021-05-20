@@ -99,7 +99,7 @@
         // 保存当前触发时间
         object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
 
-        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackWithView:(UIView *)object properties:properties];
+        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:(UIView *)object properties:properties];
         return;
     }
 
@@ -107,7 +107,7 @@
         // 保存当前触发时间
         object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
 
-        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackWithView:(UIView *)object properties:properties];
+        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:(UIView *)object properties:properties];
         return;
     }
 }

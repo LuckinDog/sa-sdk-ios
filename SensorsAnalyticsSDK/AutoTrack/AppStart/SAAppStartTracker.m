@@ -54,15 +54,14 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 
 #pragma mark - Override
 
-+ (NSString *)eventName {
-    return kSAEventNameAppStart;
+- (NSString *)eventName {
+    return self.isPassively ? kSAEventNameAppStartPassively : kSAEventNameAppStart;
 }
 
 #pragma mark - Public Methods
 
-- (void)trackAutoTrackEventWithProperties:(NSDictionary *)properties {
+- (void)autoTrackEventWithProperties:(NSDictionary *)properties {
     if (!self.isIgnored) {
-        NSString *event = self.isPassively ? kSAEventNameAppStartPassively : kSAEventNameAppStart;
         NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
         if (self.isPassively) {
             eventProperties[kSAEventPropertyAppFirstStart] = @([self isFirstAppStart]);
@@ -74,7 +73,7 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
         //添加 deeplink 相关渠道信息，可能不存在
         [eventProperties addEntriesFromDictionary:properties];
 
-        [self trackAutoTrackEventWithEventId:event properties:eventProperties];
+        [self trackAutoTrackEventWithProperties:eventProperties];
     }
 
     // 更新首次标记

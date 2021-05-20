@@ -57,7 +57,7 @@
         return;
     }
 
-    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackWithView:processor.trackableView properties:properties];
+    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:processor.trackableView properties:properties];
 }
 
 @end

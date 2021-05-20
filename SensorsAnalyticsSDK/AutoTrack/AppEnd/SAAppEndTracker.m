@@ -30,22 +30,22 @@
 
 #pragma mark - Override
 
-+ (NSString *)eventName {
+- (NSString *)eventName {
     return kSAEventNameAppEnd;
 }
 
 #pragma mark - Public Methods
 
-- (void)trackTimerStartAppEnd {
-    [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
-}
-
-- (void)trackAutoTrackEvent {
+- (void)autoTrackEvent {
     if (self.ignored) {
         return;
     }
 
-    [self trackAutoTrackEventWithEventId:kSAEventNameAppEnd properties:nil];
+    [self trackAutoTrackEventWithProperties:nil];
+}
+
+- (void)trackTimerStartAppEnd {
+    [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
 }
 
 @end

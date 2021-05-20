@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAAppEndTracker : SAAppTracker
 
 /// 触发全埋点退出事件
-- (void)trackAutoTrackEvent;
+- (void)autoTrackEvent;
 
 /// 开始退出事件计时
 - (void)trackTimerStartAppEnd;

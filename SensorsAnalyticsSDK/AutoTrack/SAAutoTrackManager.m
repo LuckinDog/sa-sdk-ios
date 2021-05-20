@@ -121,7 +121,7 @@
     // 被动启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
         self.appStartTracker.passively = YES;
-        [self.appStartTracker trackAutoTrackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
+        [self.appStartTracker autoTrackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
         return;
     }
 
@@ -131,17 +131,17 @@
         [self.appEndTracker trackTimerStartAppEnd];
         // 触发启动事件
         self.appStartTracker.passively = NO;
-        [self.appStartTracker trackAutoTrackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
+        [self.appStartTracker autoTrackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
         // 热启动时触发被动启动的页面浏览事件
         if (oldState != SAAppLifecycleStateInit) {
-            [self.appViewScreenTracker trackLaunchedPassivelyViewScreen];
+            [self.appViewScreenTracker trackEventOfLaunchedPassively];
         }
         return;
     }
 
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
-        [self.appEndTracker trackAutoTrackEvent];
+        [self.appEndTracker autoTrackEvent];
     }
 }
 
@@ -195,19 +195,19 @@
             NSString *ignoredEvent = @"None";
             switch (eventType) {
                 case SensorsAnalyticsEventTypeAppStart:
-                    ignoredEvent = [SAAppStartTracker eventName];
+                    ignoredEvent = [self.appStartTracker eventName];
                     break;
 
                 case SensorsAnalyticsEventTypeAppEnd:
-                    ignoredEvent = [SAAppEndTracker eventName];
+                    ignoredEvent = [self.appEndTracker eventName];
                     break;
 
                 case SensorsAnalyticsEventTypeAppClick:
-                    ignoredEvent = [SAAppClickTracker eventName];
+                    ignoredEvent = [self.appClickTracker eventName];
                     break;
 
                 case SensorsAnalyticsEventTypeAppViewScreen:
-                    ignoredEvent = [SAAppViewScreenTracker eventName];
+                    ignoredEvent = [self.appViewScreenTracker eventName];
                     break;
 
                 default:

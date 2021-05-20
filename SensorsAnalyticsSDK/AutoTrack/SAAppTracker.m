@@ -43,21 +43,21 @@
 
 #pragma mark - Public Methods
 
-+ (NSString *)eventName {
+- (NSString *)eventName {
     return nil;
 }
 
-- (void)trackAutoTrackEventWithEventId:(NSString *)eventId properties:(NSDictionary *)properties {
-    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:eventId];
+- (void)trackAutoTrackEventWithProperties:(NSDictionary *)properties {
+    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:[self eventName]];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
-- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
+- (BOOL)shouldTrackViewController:(UIViewController *)controller {
     if ([self isViewControllerIgnored:controller]) {
         return NO;
     }
 
-    return ![self isBlackListViewController:controller ofType:type];
+    return ![self isBlackListViewController:controller];
 }
 
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
@@ -92,7 +92,7 @@
     return [self.ignoredViewControllers containsObject:viewControllerClassName];
 }
 
-- (BOOL)isBlackListViewController:(UIViewController *)viewController ofType:(SensorsAnalyticsAutoTrackEventType)type {
+- (BOOL)isBlackListViewController:(UIViewController *)viewController {
     static dispatch_once_t onceToken;
     static NSDictionary *allClasses = nil;
     dispatch_once(&onceToken, ^{
@@ -107,7 +107,8 @@
         }
     });
 
-    NSDictionary *dictonary = (type == SensorsAnalyticsEventTypeAppViewScreen) ? allClasses[kSAEventNameAppViewScreen] : allClasses[kSAEventNameAppClick];
+    NSString *eventName = [self eventName];
+    NSDictionary *dictonary = allClasses[eventName];
     for (NSString *publicClass in dictonary[@"public"]) {
         if ([viewController isKindOfClass:NSClassFromString(publicClass)]) {
             return YES;

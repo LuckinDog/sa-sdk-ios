@@ -64,7 +64,7 @@
         return;
     }
 
-    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackWithView:cell properties:properties];
+    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:cell properties:properties];
 }
 
 @end

@@ -28,12 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// 触发全埋点点击事件
 /// @param view UIView
 /// @param properties 自定义属性
-- (void)autoTrackWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties;
+- (void)autoTrackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties;
 
 /// 通过代码触发 UIView 的 $AppClick 事件
 /// @param view UIView
 /// @param properties 自定义属性
-- (void)trackWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties;
+- (void)trackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties;
 
 /// 忽略某一类型的 View
 /// @param aClass View 对应的 Class

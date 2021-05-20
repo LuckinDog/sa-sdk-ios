@@ -142,7 +142,7 @@
 }
 
 - (void)trackViewAppClick:(UIView *)view withProperties:(NSDictionary *)p {
-    [SAAutoTrackManager.sharedInstance.appClickTracker trackWithView:view properties:p];
+    [SAAutoTrackManager.sharedInstance.appClickTracker trackEventWithView:view properties:p];
 }
 
 - (void)trackViewScreen:(UIViewController *)controller {
@@ -150,7 +150,7 @@
 }
 
 - (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties {
-    [SAAutoTrackManager.sharedInstance.appViewScreenTracker trackWithViewController:controller properties:properties];
+    [SAAutoTrackManager.sharedInstance.appViewScreenTracker trackEventWithViewController:controller properties:properties];
 }
 
 #pragma mark - Deprecated
@@ -187,7 +187,7 @@
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
-    [SAAutoTrackManager.sharedInstance.appViewScreenTracker trackWithURL:url properties:properties];
+    [SAAutoTrackManager.sharedInstance.appViewScreenTracker trackEventWithURL:url properties:properties];
 }
 
 @end

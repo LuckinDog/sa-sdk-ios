@@ -31,17 +31,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableArray<NSString *> *ignoredViewControllers;
 
 /// 获取 tracker 对应的事件名
-+ (NSString *)eventName;
+- (NSString *)eventName;
 
 /// 触发全埋点事件
-/// @param eventId 事件名称
 /// @param properties 事件属性
-- (void)trackAutoTrackEventWithEventId:(NSString *)eventId properties:(nullable NSDictionary *)properties;
+- (void)trackAutoTrackEventWithProperties:(nullable NSDictionary *)properties;
 
 /// 根据 UIViewController 判断，是否采集事件
 /// @param controller 事件采集时的控制器
-/// @param type 事件类型
-- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type;
+- (BOOL)shouldTrackViewController:(UIViewController *)controller;
 
 /// 在 AutoTrack 时，用户可以设置哪些 controllers 不被 AutoTrack
 /// @param controllers controller ‘字符串’数组
@@ -57,8 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 判断某个 ViewController 是否处于黑名单
 /// @param viewController UIViewController
-/// @param type 事件类型
-- (BOOL)isBlackListViewController:(UIViewController *)viewController ofType:(SensorsAnalyticsAutoTrackEventType)type;
+- (BOOL)isBlackListViewController:(UIViewController *)viewController;
 
 
 @end

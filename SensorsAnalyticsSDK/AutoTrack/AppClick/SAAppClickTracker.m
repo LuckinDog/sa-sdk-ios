@@ -54,25 +54,25 @@
 
 #pragma mark - Override
 
-+ (NSString *)eventName {
+- (NSString *)eventName {
     return kSAEventNameAppClick;
 }
 
 #pragma mark - Public Methods
 
-- (void)autoTrackWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties {
+- (void)autoTrackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties {
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
     
     [SAModuleManager.sharedInstance visualPropertiesWithView:view completionHandler:^(NSDictionary * _Nullable visualProperties) {
         if (visualProperties) {
             [eventProperties addEntriesFromDictionary:visualProperties];
         }
-        
-        [self trackAutoTrackEventWithEventId:kSAEventNameAppClick properties:eventProperties];
+
+        [self trackAutoTrackEventWithProperties:eventProperties];
     }];
 }
 
-- (void)trackWithView:(UIView *)view properties:(NSDictionary<NSString *,id> *)properties {
+- (void)trackEventWithView:(UIView *)view properties:(NSDictionary<NSString *,id> *)properties {
     @try {
         if (view == nil) {
             return;
