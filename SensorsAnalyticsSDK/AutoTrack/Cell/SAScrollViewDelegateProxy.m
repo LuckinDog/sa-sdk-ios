@@ -26,7 +26,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import "SAModuleManager.h"
+#import "SAAutoTrackManager.h"
 #import <objc/message.h>
 
 @implementation SAScrollViewDelegateProxy
@@ -64,14 +64,7 @@
         return;
     }
 
-    // 获取自定义属性
-    [SAModuleManager.sharedInstance visualPropertiesWithView:cell completionHandler:^(NSDictionary * _Nullable visualProperties) {
-        if (visualProperties) {
-            [properties addEntriesFromDictionary:visualProperties];
-        }
-        SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
-        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
-    }];
+    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackWithView:cell properties:properties];
 }
 
 @end

@@ -30,7 +30,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
-#import "SAModuleManager.h"
+#import "SAAutoTrackManager.h"
 
 @implementation UIApplication (AutoTrack)
 
@@ -99,13 +99,7 @@
         // 保存当前触发时间
         object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
 
-        [SAModuleManager.sharedInstance visualPropertiesWithView:(UIView *)object completionHandler:^(NSDictionary * _Nullable visualProperties) {
-            if (visualProperties) {
-                [properties addEntriesFromDictionary:visualProperties];
-            }
-            SAAutoTrackEventObject *eventObject  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
-            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:eventObject properties:properties];
-        }];
+        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackWithView:(UIView *)object properties:properties];
         return;
     }
 
@@ -113,13 +107,7 @@
         // 保存当前触发时间
         object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
 
-        [SAModuleManager.sharedInstance visualPropertiesWithView:(UIView *)object completionHandler:^(NSDictionary * _Nullable visualProperties) {
-            if (visualProperties) {
-                [properties addEntriesFromDictionary:visualProperties];
-            }
-            SAAutoTrackEventObject *eventObject  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
-            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:eventObject properties:properties];
-        }];
+        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackWithView:(UIView *)object properties:properties];
         return;
     }
 }

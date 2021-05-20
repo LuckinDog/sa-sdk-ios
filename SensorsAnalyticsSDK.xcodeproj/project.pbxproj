@@ -190,7 +190,7 @@
 		A8356DBF2656459A00FD64AA /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356D8B2656459A00FD64AA /* UIViewController+AutoTrack.m */; };
 		A8356DC02656459A00FD64AA /* SAAppEndTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356D8D2656459A00FD64AA /* SAAppEndTracker.m */; };
 		A8356DC12656459A00FD64AA /* SAAppEndTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D8E2656459A00FD64AA /* SAAppEndTracker.h */; };
-		A8356DC22656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D8F2656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.h */; };
+		A8356DC22656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D8F2656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A8356DC32656459A00FD64AA /* SAAutoTrackProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D902656459A00FD64AA /* SAAutoTrackProperty.h */; };
 		A8356DC42656459A00FD64AA /* UIApplication+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356D912656459A00FD64AA /* UIApplication+AutoTrack.m */; };
 		A8356DC52656459A00FD64AA /* SAAppTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D922656459A00FD64AA /* SAAppTracker.h */; };

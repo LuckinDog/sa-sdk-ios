@@ -72,8 +72,7 @@
     }
 
     NSDictionary *eventProperties = [self buildWithViewController:viewController properties:nil autoTrack:YES];
-    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+    [self trackAutoTrackEventWithEventId:kSAEventNameAppViewScreen properties:eventProperties];
 }
 
 - (void)trackWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties {

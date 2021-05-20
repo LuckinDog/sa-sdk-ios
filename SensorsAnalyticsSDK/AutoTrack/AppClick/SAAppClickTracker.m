@@ -67,6 +67,18 @@ static NSString * const kSAEventPropertyElementPosition = @"$element_position";
 
 #pragma mark - Public Methods
 
+- (void)autoTrackWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties {
+    NSMutableDictionary *eventProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
+    
+    [SAModuleManager.sharedInstance visualPropertiesWithView:view completionHandler:^(NSDictionary * _Nullable visualProperties) {
+        if (visualProperties) {
+            [eventProperties addEntriesFromDictionary:visualProperties];
+        }
+        
+        [self trackAutoTrackEventWithEventId:kSAEventNameAppClick properties:eventProperties];
+    }];
+}
+
 - (void)trackWithView:(UIView *)view properties:(NSDictionary<NSString *,id> *)properties {
     @try {
         if (view == nil) {

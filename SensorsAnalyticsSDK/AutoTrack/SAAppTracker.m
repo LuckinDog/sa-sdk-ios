@@ -48,8 +48,8 @@
 }
 
 - (void)trackAutoTrackEventWithEventId:(NSString *)eventId properties:(NSDictionary *)properties {
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:eventId];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:nil];
+    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:eventId];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
