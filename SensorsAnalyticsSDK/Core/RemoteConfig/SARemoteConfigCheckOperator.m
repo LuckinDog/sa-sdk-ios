@@ -180,7 +180,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
 - (void)requestRemoteConfigWithURLVersion:(NSString *)urlVersion {
     [self showIndicator];
-    
+
     __weak typeof(self) weakSelf = self;
     [self requestRemoteConfigWithForceUpdate:YES completion:^(BOOL success, NSDictionary<NSString *,id> * _Nullable config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -204,21 +204,23 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 }
 
 - (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withURLVersion:(NSString *)urlVersion {
-    NSString *currentVersion = remoteConfig[@"configs"][@"nv"];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *currentVersion = remoteConfig[@"configs"][@"nv"];
 
-    [self showVersionCheckAlertWithCurrentVersion:currentVersion urlVersion:urlVersion];
+        [self showVersionCheckAlertWithCurrentVersion:currentVersion urlVersion:urlVersion];
 
-    if (![self currentVersion:currentVersion isEqualToURLVersion:urlVersion]) {
-        return;
-    }
+        if (![self currentVersion:currentVersion isEqualToURLVersion:urlVersion]) {
+            return;
+        }
 
-    NSMutableDictionary<NSString *, id> *eventMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-    eventMDic[@"debug"] = @YES;
-    [self trackAppRemoteConfigChanged:eventMDic];
-    
-    NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-    enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
-    [self enableRemoteConfig:enableMDic];
+        NSMutableDictionary<NSString *, id> *eventMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+        eventMDic[@"debug"] = @YES;
+        [self trackAppRemoteConfigChanged:eventMDic];
+
+        NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+        enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
+        [self enableRemoteConfig:enableMDic];
+    });
 }
 
 - (BOOL)currentVersion:(nullable NSString *)currentVersion isEqualToURLVersion:(NSString *)urlVersion {
@@ -228,21 +230,25 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 #pragma mark UI
 
 - (void)showIndicator {
-    _window = [self alertWindow];
-    _window.windowLevel = UIWindowLevelAlert + 1;
-    UIViewController *controller = [[SAAlertController alloc] init];
-    _window.rootViewController = controller;
-    _window.hidden = NO;
-    _indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    _indicator.center = CGPointMake(_window.center.x, _window.center.y);
-    [_window.rootViewController.view addSubview:_indicator];
-    [_indicator startAnimating];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.window = [self alertWindow];
+        self.window.windowLevel = UIWindowLevelAlert + 1;
+        UIViewController *controller = [[SAAlertController alloc] init];
+        self.window.rootViewController = controller;
+        self.window.hidden = NO;
+        self.indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        self.indicator.center = CGPointMake(self.window.center.x, self.window.center.y);
+        [self.window.rootViewController.view addSubview:self.indicator];
+        [self.indicator startAnimating];
+    });
 }
 
 - (void)hideIndicator {
-    [_indicator stopAnimating];
-    _indicator = nil;
-    _window = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.indicator stopAnimating];
+        self.indicator = nil;
+        self.window = nil;
+    });
 }
 
 - (UIWindow *)alertWindow {
