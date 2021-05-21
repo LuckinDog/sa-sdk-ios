@@ -37,7 +37,7 @@
 #pragma mark - Public Methods
 
 - (void)autoTrackEvent {
-    if (self.ignored) {
+    if (self.isIgnored) {
         return;
     }
 
@@ -45,7 +45,7 @@
 }
 
 - (void)trackTimerStartAppEnd {
-    [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
+    [SensorsAnalyticsSDK.sharedInstance trackTimerStart:[self eventName]];
 }
 
 @end

@@ -29,7 +29,6 @@
 #import "SAConstants+Private.h"
 #import "SAValidator.h"
 #import "SAAutoTrackUtils.h"
-#import "SALog.h"
 #import "SAReferrerManager.h"
 #import "SAModuleManager.h"
 
@@ -58,6 +57,10 @@
 #pragma mark - Public Methods
 
 - (void)autoTrackEventWithViewController:(UIViewController *)viewController {
+    if (self.isIgnored) {
+        return;
+    }
+
     if (!viewController) {
         return;
     }
@@ -85,14 +88,14 @@
     }
 
     NSDictionary *eventProperties = [self buildWithViewController:viewController properties:properties autoTrack:NO];
-    SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:[self eventName]];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
 }
 
 - (void)trackEventWithURL:(NSString *)url properties:(NSDictionary<NSString *,id> *)properties {
     NSDictionary *eventProperties = [[SAReferrerManager sharedInstance] propertiesWithURL:url eventProperties:properties];
 
-    SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppViewScreen];
+    SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:[self eventName]];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
 }
 
@@ -104,7 +107,7 @@
     for (UIViewController *vc in self.launchedPassivelyControllers) {
         [self autoTrackEventWithViewController:vc];
     }
-    self.launchedPassivelyControllers = [NSMutableArray array];
+    [self.launchedPassivelyControllers removeAllObjects];
 }
 
 #pragma mark – Private Methods

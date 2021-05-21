@@ -34,8 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SAAppClickTracker *appClickTracker;
 @property (nonatomic, strong) SAAppViewScreenTracker *appViewScreenTracker;
 
-@property (nonatomic, weak) UIViewController *previousTrackViewController;
-
 + (SAAutoTrackManager *)sharedInstance;
 
 #pragma mark - Public

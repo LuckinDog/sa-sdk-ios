@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否忽略事件
 @property (nonatomic, assign, getter=isIgnored) BOOL ignored;
 /// 用户设置的不被 AutoTrack 的 Controllers
-@property (nonatomic, strong) NSMutableArray<NSString *> *ignoredViewControllers;
+@property (nonatomic, strong) NSMutableSet<NSString *> *ignoredViewControllers;
 
 /// 获取 tracker 对应的事件名
 - (NSString *)eventName;

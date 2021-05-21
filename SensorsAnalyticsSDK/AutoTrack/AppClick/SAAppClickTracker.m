@@ -61,8 +61,11 @@
 #pragma mark - Public Methods
 
 - (void)autoTrackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties {
+    if (self.isIgnored) {
+        return;
+    }
+
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
-    
     [SAModuleManager.sharedInstance visualPropertiesWithView:view completionHandler:^(NSDictionary * _Nullable visualProperties) {
         if (visualProperties) {
             [eventProperties addEntriesFromDictionary:visualProperties];
@@ -88,7 +91,7 @@
             if (visualProperties) {
                 [eventProperties addEntriesFromDictionary:visualProperties];
             }
-            SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppClick];
+            SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:[self eventName]];
             [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
         }];
     } @catch (NSException *exception) {
@@ -97,10 +100,16 @@
 }
 
 - (void)ignoreViewType:(Class)aClass {
-    [self.ignoredViewTypeList addObject:aClass];
+    if (aClass) {
+        [self.ignoredViewTypeList addObject:aClass];
+    }
 }
 
 - (BOOL)isViewTypeIgnored:(Class)aClass {
+    if (![aClass respondsToSelector:@selector(isSubclassOfClass:)]) {
+        return NO;
+    }
+
     for (Class obj in self.ignoredViewTypeList) {
         if ([aClass isSubclassOfClass:obj]) {
             return YES;

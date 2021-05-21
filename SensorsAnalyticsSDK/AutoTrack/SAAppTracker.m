@@ -36,7 +36,7 @@
     self = [super init];
     if (self) {
         _ignored = NO;
-        _ignoredViewControllers = [NSMutableArray array];
+        _ignoredViewControllers = [NSMutableSet set];
     }
     return self;
 }
@@ -64,15 +64,7 @@
     if (controllers == nil || controllers.count == 0) {
         return;
     }
-    [_ignoredViewControllers addObjectsFromArray:controllers];
-
-    //去重
-    NSSet *set = [NSSet setWithArray:_ignoredViewControllers];
-    if (set != nil) {
-        _ignoredViewControllers = [NSMutableArray arrayWithArray:[set allObjects]];
-    } else {
-        _ignoredViewControllers = [[NSMutableArray alloc] init];
-    }
+    [self.ignoredViewControllers addObjectsFromArray:controllers];
 }
 
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController {

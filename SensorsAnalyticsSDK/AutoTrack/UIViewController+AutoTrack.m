@@ -61,9 +61,9 @@
 
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
-        SAAutoTrackManager *instance = [SAAutoTrackManager sharedInstance];
+        SAAppViewScreenTracker *appViewScreenTracker = SAAutoTrackManager.sharedInstance.appViewScreenTracker;
 
-        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] && instance.previousTrackViewController != self) {
+        if (!appViewScreenTracker.ignored && appViewScreenTracker.previousTrackViewController != self) {
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
             if (!viewController.parentViewController ||
@@ -71,16 +71,16 @@
                 [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
                 [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
-                [instance.appViewScreenTracker autoTrackEventWithViewController:viewController];
+                [appViewScreenTracker autoTrackEventWithViewController:viewController];
             }
 #else
-            [instance.appViewScreenTracker autoTrackEventWithViewController:self];
+            [appViewScreenTracker autoTrackEventWithViewController:self];
 #endif
         }
 
-        if (instance.previousTrackViewController != self && UIApplication.sharedApplication.keyWindow == self.view.window) {
+        if (appViewScreenTracker.previousTrackViewController != self && UIApplication.sharedApplication.keyWindow == self.view.window) {
             // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
-            instance.previousTrackViewController = self;
+            appViewScreenTracker.previousTrackViewController = self;
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);

@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAppViewScreenTracker : SAAppTracker
 
+@property (nonatomic, weak) UIViewController *previousTrackViewController;
+
 /// 触发全埋点页面浏览事件
 /// @param viewController 触发页面浏览的 UIViewController
 - (void)autoTrackEventWithViewController:(UIViewController *)viewController;
