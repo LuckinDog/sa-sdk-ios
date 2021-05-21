@@ -36,7 +36,7 @@
 
 @interface SAAppClickTracker ()
 
-@property (nonatomic, strong) NSMutableArray<Class> *ignoredViewTypeList;
+@property (nonatomic, strong) NSMutableSet<Class> *ignoredViewTypeList;
 
 @end
 
@@ -47,7 +47,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _ignoredViewTypeList = [NSMutableArray array];
+        _ignoredViewTypeList = [NSMutableSet set];
     }
     return self;
 }
