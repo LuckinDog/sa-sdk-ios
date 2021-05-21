@@ -31,6 +31,10 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackManager.h"
+#import "SAWeakPropertyContainer.h"
+#import <objc/runtime.h>
+
+static void *const kSAPreviousViewController = (void *)&kSAPreviousViewController;
 
 @implementation UIViewController (AutoTrack)
 
@@ -63,7 +67,7 @@
     @try {
         SAAppViewScreenTracker *appViewScreenTracker = SAAutoTrackManager.sharedInstance.appViewScreenTracker;
 
-        if (!appViewScreenTracker.ignored && appViewScreenTracker.previousTrackViewController != self) {
+        if (!appViewScreenTracker.ignored) {
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
             if (!viewController.parentViewController ||
@@ -77,14 +81,20 @@
             [appViewScreenTracker autoTrackEventWithViewController:self];
 #endif
         }
-
-        if (appViewScreenTracker.previousTrackViewController != self && UIApplication.sharedApplication.keyWindow == self.view.window) {
-            // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
-            appViewScreenTracker.previousTrackViewController = self;
-        }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
     [self sa_autotrack_viewDidAppear:animated];
 }
+
+- (void)setSensorsdata_previousViewController:(UIViewController *)sensorsdata_previousViewController {
+    SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:sensorsdata_previousViewController];
+    objc_setAssociatedObject(self, kSAPreviousViewController, container, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (UIViewController *)sensorsdata_previousViewController {
+    SAWeakPropertyContainer *container = objc_getAssociatedObject(self, kSAPreviousViewController);
+    return container.weakProperty;
+}
+
 @end

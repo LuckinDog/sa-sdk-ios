@@ -25,4 +25,7 @@
 
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated;
 
+/// 上一次页面，防止侧滑/下滑重复采集 $AppViewScreen 事件
+@property (nonatomic, strong) UIViewController *sensorsdata_previousViewController;
+
 @end
