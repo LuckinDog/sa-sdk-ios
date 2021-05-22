@@ -157,7 +157,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 }
 
 - (void)showVersionCheckAlertWithCurrentVersion:(nullable NSString *)currentVersion urlVersion:(NSString *)urlVersion {
-    BOOL isEqual = [self currentVersion:currentVersion isEqualToURLVersion:urlVersion];
+    BOOL isEqual = [currentVersion isEqualToString:urlVersion];
     
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
     model.title = isEqual ? @"提示" : @"信息版本不一致";
@@ -209,7 +209,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
         [self showVersionCheckAlertWithCurrentVersion:currentVersion urlVersion:urlVersion];
 
-        if (![self currentVersion:currentVersion isEqualToURLVersion:urlVersion]) {
+        if (![currentVersion isEqualToString:urlVersion]) {
             return;
         }
 
@@ -221,10 +221,6 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
         enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
         [self enableRemoteConfig:enableMDic];
     });
-}
-
-- (BOOL)currentVersion:(nullable NSString *)currentVersion isEqualToURLVersion:(NSString *)urlVersion {
-    return [currentVersion isEqualToString:urlVersion];
 }
 
 #pragma mark UI
