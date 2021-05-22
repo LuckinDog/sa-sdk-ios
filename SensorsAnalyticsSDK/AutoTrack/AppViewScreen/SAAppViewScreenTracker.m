@@ -88,7 +88,7 @@
         return;
     }
 
-    if (SensorsAnalyticsSDK.sharedInstance.lifecycleState == SAAppLifecycleStateStartPassively) {
+    if (self.isPassively) {
         [self.launchedPassivelyControllers addObject:viewController];
         return;
     }

@@ -27,9 +27,6 @@
 
 @interface SAReferrerManager ()
 
-@property (nonatomic, strong) dispatch_queue_t serialQueue;
-@property (nonatomic, assign) BOOL enableReferrerTitle;
-
 @property (atomic, copy, readwrite) NSDictionary *referrerProperties;
 @property (atomic, copy, readwrite) NSString *referrerURL;
 @property (nonatomic, copy, readwrite) NSString *referrerTitle;
@@ -38,11 +35,6 @@
 @end
 
 @implementation SAReferrerManager
-
-+ (void)startWithSerialQueue:(dispatch_queue_t)serialQueue enableReferrerTitle:(BOOL)enableReferrerTitle {
-    SAReferrerManager.sharedInstance.serialQueue = serialQueue;
-    SAReferrerManager.sharedInstance.enableReferrerTitle = enableReferrerTitle;
-}
 
 + (instancetype)sharedInstance {
     static dispatch_once_t onceToken;

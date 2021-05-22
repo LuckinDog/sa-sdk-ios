@@ -46,7 +46,6 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _passively = NO;
         _relaunch = NO;
     }
     return self;

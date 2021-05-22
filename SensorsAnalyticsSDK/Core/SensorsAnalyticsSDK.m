@@ -197,8 +197,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
-            [SAReferrerManager startWithSerialQueue:_serialQueue enableReferrerTitle:configOptions.enableReferrerTitle];
-            
+            [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
+            [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
+
             _trackChannelEventNames = [[NSMutableSet alloc] init];
             
             _trackTimer = [[SATrackTimer alloc] init];
@@ -507,10 +508,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (newState == SAAppLifecycleStateTerminate) {
         dispatch_sync(self.serialQueue, ^{});
     }
-}
-
-- (SAAppLifecycleState)lifecycleState {
-    return self.appLifecycle.state;
 }
 
 #pragma mark - HandleURL

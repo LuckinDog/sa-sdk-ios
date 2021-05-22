@@ -64,7 +64,6 @@
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SANetwork *network;
-@property (nonatomic, assign, readonly) SAAppLifecycleState lifecycleState;
 
 @end
 

@@ -36,6 +36,7 @@
     self = [super init];
     if (self) {
         _ignored = NO;
+        _passively = NO;
         _ignoredViewControllers = [NSMutableSet set];
     }
     return self;

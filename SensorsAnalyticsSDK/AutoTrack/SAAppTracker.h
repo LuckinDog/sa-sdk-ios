@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否忽略事件
 @property (nonatomic, assign, getter=isIgnored) BOOL ignored;
+/// 是否被动启动
+@property (nonatomic, assign, getter=isPassively) BOOL passively;
 /// 用户设置的不被 AutoTrack 的 Controllers
 @property (nonatomic, strong) NSMutableSet<NSString *> *ignoredViewControllers;
 

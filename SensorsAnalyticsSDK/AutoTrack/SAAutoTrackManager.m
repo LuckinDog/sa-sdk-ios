@@ -118,9 +118,14 @@
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
+    self.appStartTracker.passively = NO;
+    self.appViewScreenTracker.passively = NO;
+
     // 被动启动
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStartPassively) {
         self.appStartTracker.passively = YES;
+        self.appViewScreenTracker.passively = YES;
+        
         [self.appStartTracker autoTrackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
         return;
     }
@@ -130,7 +135,6 @@
         // 启动 AppEnd 事件计时器
         [self.appEndTracker trackTimerStartAppEnd];
         // 触发启动事件
-        self.appStartTracker.passively = NO;
         [self.appStartTracker autoTrackEventWithProperties:SAModuleManager.sharedInstance.utmProperties];
         // 热启动时触发被动启动的页面浏览事件
         if (oldState == SAAppLifecycleStateStartPassively) {
