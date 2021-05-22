@@ -1037,12 +1037,6 @@
 			children = (
 				A8356D8F2656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.h */,
 				A8356DB12656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.m */,
-				A8356DBB2656459A00FD64AA /* UIApplication+AutoTrack.h */,
-				A8356D912656459A00FD64AA /* UIApplication+AutoTrack.m */,
-				A8356DAE2656459A00FD64AA /* UIViewController+AutoTrack.h */,
-				A8356D8B2656459A00FD64AA /* UIViewController+AutoTrack.m */,
-				A8356D8A2656459A00FD64AA /* UIView+AutoTrack.h */,
-				A8356DAF2656459A00FD64AA /* UIView+AutoTrack.m */,
 				A8356D902656459A00FD64AA /* SAAutoTrackProperty.h */,
 				A8356D982656459A00FD64AA /* SAAutoTrackManager.h */,
 				A8356D882656459A00FD64AA /* SAAutoTrackManager.m */,
@@ -1054,9 +1048,7 @@
 				A8356D8C2656459A00FD64AA /* AppEnd */,
 				A8356DAB2656459A00FD64AA /* AppStart */,
 				A8356DB82656459A00FD64AA /* AppViewScreen */,
-				A8356D932656459A00FD64AA /* Cell */,
 				A8356DB22656459A00FD64AA /* ElementInfo */,
-				A8356D992656459A00FD64AA /* Gesture */,
 			);
 			path = AutoTrack;
 			sourceTree = "<group>";
@@ -1119,6 +1111,12 @@
 		A8356DA82656459A00FD64AA /* AppClick */ = {
 			isa = PBXGroup;
 			children = (
+				A8356D992656459A00FD64AA /* Gesture */,
+				A8356D932656459A00FD64AA /* Cell */,
+				A8356DBB2656459A00FD64AA /* UIApplication+AutoTrack.h */,
+				A8356D912656459A00FD64AA /* UIApplication+AutoTrack.m */,
+				A8356D8A2656459A00FD64AA /* UIView+AutoTrack.h */,
+				A8356DAF2656459A00FD64AA /* UIView+AutoTrack.m */,
 				A8356DAA2656459A00FD64AA /* SAAppClickTracker.h */,
 				A8356DA92656459A00FD64AA /* SAAppClickTracker.m */,
 			);
@@ -1148,6 +1146,8 @@
 		A8356DB82656459A00FD64AA /* AppViewScreen */ = {
 			isa = PBXGroup;
 			children = (
+				A8356DAE2656459A00FD64AA /* UIViewController+AutoTrack.h */,
+				A8356D8B2656459A00FD64AA /* UIViewController+AutoTrack.m */,
 				A8356DB92656459A00FD64AA /* SAAppViewScreenTracker.h */,
 				A8356DBA2656459A00FD64AA /* SAAppViewScreenTracker.m */,
 			);
