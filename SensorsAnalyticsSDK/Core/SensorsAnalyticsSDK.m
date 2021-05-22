@@ -413,6 +413,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self setServerUrl:serverUrl isRequestRemoteConfig:NO];
 }
 
+- (NSString *)serverUrl {
+    return self.network.serverURL.absoluteString;
+}
+
 - (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig {
     if (serverUrl && ![serverUrl isKindOfClass:[NSString class]]) {
         SALogError(@"%@ serverUrl must be NSString, please check the value!", self);
