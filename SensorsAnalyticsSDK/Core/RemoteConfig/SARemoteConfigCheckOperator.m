@@ -184,43 +184,41 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     __weak typeof(self) weakSelf = self;
     [self requestRemoteConfigWithForceUpdate:YES completion:^(BOOL success, NSDictionary<NSString *,id> * _Nullable config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-
         [strongSelf hideIndicator];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @try {
+                SALogDebug(@"【remote config】The request result: success is %d, config is %@", success, config);
 
-        @try {
-            SALogDebug(@"【remote config】The request result: success is %d, config is %@", success, config);
-
-            if (success && config) {
-                // 远程配置
-                NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
-                [strongSelf handleRemoteConfig:remoteConfig withURLVersion:urlVersion];
-            } else {
-                [strongSelf showRequestRemoteConfigFailedAlert];
+                if (success && config) {
+                    // 远程配置
+                    NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
+                    [strongSelf handleRemoteConfig:remoteConfig withURLVersion:urlVersion];
+                } else {
+                    [strongSelf showRequestRemoteConfigFailedAlert];
+                }
+            } @catch (NSException *exception) {
+                SALogError(@"【remote config】%@ error: %@", strongSelf, exception);
             }
-        } @catch (NSException *exception) {
-            SALogError(@"【remote config】%@ error: %@", strongSelf, exception);
-        }
+        });
     }];
 }
 
 - (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig withURLVersion:(NSString *)urlVersion {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *currentVersion = remoteConfig[@"configs"][@"nv"];
+    NSString *currentVersion = remoteConfig[@"configs"][@"nv"];
 
-        [self showVersionCheckAlertWithCurrentVersion:currentVersion urlVersion:urlVersion];
+    [self showVersionCheckAlertWithCurrentVersion:currentVersion urlVersion:urlVersion];
 
-        if (![currentVersion isEqualToString:urlVersion]) {
-            return;
-        }
+    if (![currentVersion isEqualToString:urlVersion]) {
+        return;
+    }
 
-        NSMutableDictionary<NSString *, id> *eventMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-        eventMDic[@"debug"] = @YES;
-        [self trackAppRemoteConfigChanged:eventMDic];
+    NSMutableDictionary<NSString *, id> *eventMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+    eventMDic[@"debug"] = @YES;
+    [self trackAppRemoteConfigChanged:eventMDic];
 
-        NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-        enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
-        [self enableRemoteConfig:enableMDic];
-    });
+    NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
+    enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
+    [self enableRemoteConfig:enableMDic];
 }
 
 #pragma mark UI
