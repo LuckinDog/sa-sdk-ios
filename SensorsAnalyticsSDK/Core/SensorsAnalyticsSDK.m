@@ -475,6 +475,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)logout {
     dispatch_async(self.serialQueue, ^{
+        if (!self.loginId) {
+            return;
+        }
         [self.identifier logout];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGOUT_NOTIFICATION object:nil];
     });
@@ -494,10 +497,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)resetAnonymousId {
     dispatch_async(self.serialQueue, ^{
+        NSString *previousAnonymousId = [self.anonymousId copy];
         [self.identifier resetAnonymousId];
-        if (!self.loginId) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
+        if (self.loginId || [previousAnonymousId isEqualToString:self.anonymousId]) {
+            return;
         }
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
     });
 }
 
@@ -1122,7 +1127,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![self.identifier identify:anonymousId]) {
             return;
         }
-        // SensorsFocus SDK 接收匿名 ID 修改通知
+        // 其他 SDK 接收匿名 ID 修改通知，例如 AB，SF
         if (!self.loginId) {
             [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_IDENTIFY_NOTIFICATION object:nil];
         }
