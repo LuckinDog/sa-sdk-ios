@@ -651,17 +651,17 @@
 		45A5654E263C174300C9C41B /* EventObject */ = {
 			isa = PBXGroup;
 			children = (
-				45A5654F263C174300C9C41B /* SAEventBuildStrategyProtocol.h */,
-				45A56550263C174300C9C41B /* SAPropertyValidator.h */,
-				45A56551263C174300C9C41B /* SATrackEventObject.h */,
-				45A56552263C174300C9C41B /* SAEventLibObject.m */,
-				45A56553263C174300C9C41B /* SAProfileEventObject.m */,
 				45A56554263C174300C9C41B /* SABaseEventObject.h */,
-				45A56555263C174300C9C41B /* SAPropertyValidator.m */,
-				45A56556263C174300C9C41B /* SAProfileEventObject.h */,
-				45A56557263C174300C9C41B /* SAEventLibObject.h */,
-				45A56558263C174300C9C41B /* SATrackEventObject.m */,
 				45A56559263C174300C9C41B /* SABaseEventObject.m */,
+				45A5654F263C174300C9C41B /* SAEventBuildStrategyProtocol.h */,
+				45A56557263C174300C9C41B /* SAEventLibObject.h */,
+				45A56552263C174300C9C41B /* SAEventLibObject.m */,
+				45A56556263C174300C9C41B /* SAProfileEventObject.h */,
+				45A56553263C174300C9C41B /* SAProfileEventObject.m */,
+				45A56550263C174300C9C41B /* SAPropertyValidator.h */,
+				45A56555263C174300C9C41B /* SAPropertyValidator.m */,
+				45A56551263C174300C9C41B /* SATrackEventObject.h */,
+				45A56558263C174300C9C41B /* SATrackEventObject.m */,
 			);
 			path = EventObject;
 			sourceTree = "<group>";
