@@ -107,15 +107,12 @@
     }
 
     NSDictionary *eventProperties = [self buildWithViewController:viewController properties:properties autoTrack:NO];
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:[self eventName]];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+    [self trackPresetEventWithProperties:eventProperties];
 }
 
 - (void)trackEventWithURL:(NSString *)url properties:(NSDictionary<NSString *,id> *)properties {
     NSDictionary *eventProperties = [[SAReferrerManager sharedInstance] propertiesWithURL:url eventProperties:properties];
-
-    SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:[self eventName]];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+    [self trackPresetEventWithProperties:eventProperties];
 }
 
 - (void)trackEventOfLaunchedPassively {

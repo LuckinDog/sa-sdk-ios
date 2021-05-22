@@ -91,8 +91,8 @@
             if (visualProperties) {
                 [eventProperties addEntriesFromDictionary:visualProperties];
             }
-            SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:[self eventName]];
-            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+
+            [self trackPresetEventWithProperties:eventProperties];
         }];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);

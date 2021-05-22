@@ -59,8 +59,6 @@
     // 解析 Cell
     UIView *cell = [SAAutoTrackUtils cellWithScrollView:scrollView selectedAtIndexPath:indexPath];
     if (!cell) {
-        SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
-        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
         return;
     }
 

@@ -39,6 +39,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties 事件属性
 - (void)trackAutoTrackEventWithProperties:(nullable NSDictionary *)properties;
 
+/// 触发手动采集预置事件
+/// @param properties 事件属性
+- (void)trackPresetEventWithProperties:(nullable NSDictionary *)properties;
+
 /// 根据 UIViewController 判断，是否采集事件
 /// @param controller 事件采集时的控制器
 - (BOOL)shouldTrackViewController:(UIViewController *)controller;

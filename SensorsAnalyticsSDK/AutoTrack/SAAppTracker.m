@@ -53,6 +53,11 @@
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
+- (void)trackPresetEventWithProperties:(NSDictionary *)properties {
+    SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:[self eventName]];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
+}
+
 - (BOOL)shouldTrackViewController:(UIViewController *)controller {
     if ([self isViewControllerIgnored:controller]) {
         return NO;
