@@ -35,6 +35,8 @@
 #import "SAAppStartTracker.h"
 #import "SAAppEndTracker.h"
 #import "SAConstants+Private.h"
+#import "UIGestureRecognizer+SAAutoTrack.h"
+#import "SAGestureViewProcessorFactory.h"
 
 @interface SAAutoTrackManager ()
 
@@ -76,33 +78,25 @@
     }
 }
 
-- (void)enableAutoTrack {
-    // 监听所有 UIViewController 显示事件
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        //$AppViewScreen
-        [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sa_autotrack_viewDidAppear:) error:NULL];
-        NSError *error = NULL;
-        //$AppClick
-        // Actions & Events
-        [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-                             withMethod:@selector(sa_sendAction:to:from:forEvent:)
-                                  error:&error];
-        if (error) {
-            SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
-            error = NULL;
-        }
+#pragma mark - SAAutoTrackModuleProtocol
 
-        SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
-        [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-        [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
-        [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-
-        //React Native
-        if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
-            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
+- (BOOL)isGestureVisualView:(id)obj {
+    if (!self.enable) {
+        return NO;
+    }
+    if (![obj isKindOfClass:UIView.class]) {
+        return NO;
+    }
+    UIView *view = (UIView *)obj;
+    for (UIGestureRecognizer *gesture in view.gestureRecognizers) {
+        if (gesture.sensorsdata_gestureTarget) {
+            SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
+            if (processor.isTrackable && processor.trackableView == gesture.view) {
+                return YES;
+            }
         }
-    });
+    }
+    return NO;
 }
 
 #pragma mark - Instance
@@ -228,6 +222,58 @@
     self.appEndTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
     self.appViewScreenTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen];
     self.appClickTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
+}
+
+#pragma mark – Private Methods
+
+- (void)enableAutoTrack {
+    // 监听所有 UIViewController 显示事件
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [self enableAppViewScreenAutoTrack];
+        [self enableAppClickAutoTrack];
+        [self enableReactNativeAutoTrack];
+    });
+}
+
+- (void)enableAppViewScreenAutoTrack {
+    [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sa_autotrack_viewDidAppear:) error:NULL];
+}
+
+- (void)enableAppClickAutoTrack {
+    // Actions & Events
+    NSError *error = NULL;
+    [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
+                         withMethod:@selector(sa_sendAction:to:from:forEvent:)
+                              error:&error];
+    if (error) {
+        SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
+        error = NULL;
+    }
+
+    // Cell
+    SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
+    [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+    [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
+    [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+
+    // Gesture
+    [UIGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
+                               withMethod:@selector(sensorsdata_initWithTarget:action:)
+                                    error:NULL];
+    [UIGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
+                               withMethod:@selector(sensorsdata_addTarget:action:)
+                                    error:NULL];
+    [UIGestureRecognizer sa_swizzleMethod:@selector(removeTarget:action:)
+                               withMethod:@selector(sensorsdata_removeTarget:action:)
+                                    error:NULL];
+
+}
+
+- (void)enableReactNativeAutoTrack {
+    if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
+    }
 }
 
 @end

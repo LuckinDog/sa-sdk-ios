@@ -78,7 +78,7 @@
 }
 
 - (BOOL)isVisualView {
-    if (SAModuleManager.sharedInstance.gestureManager) {
+    if (SAModuleManager.sharedInstance.autoTrackManager) {
         return YES;
     }
     return [super isVisualView];
@@ -102,7 +102,7 @@
     if ([self.view.superview isKindOfClass:UICollectionViewCell.class]) {
         return NO;
     }
-    if (SAModuleManager.sharedInstance.gestureManager) {
+    if (SAModuleManager.sharedInstance.autoTrackManager) {
         return YES;
     }
     return [super isVisualView];

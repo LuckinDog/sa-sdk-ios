@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAutoTrackManager : NSObject <SAModuleProtocol>
+@interface SAAutoTrackManager : NSObject <SAModuleProtocol, SAAutoTrackModuleProtocol>
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 

@@ -205,11 +205,9 @@
 		A8356DCE2656459A00FD64AA /* SAGeneralGestureViewProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D9F2656459A00FD64AA /* SAGeneralGestureViewProcessor.h */; };
 		A8356DCF2656459A00FD64AA /* SAGestureViewProcessorFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356DA02656459A00FD64AA /* SAGestureViewProcessorFactory.h */; };
 		A8356DD02656459A00FD64AA /* SAGeneralGestureViewProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356DA12656459A00FD64AA /* SAGeneralGestureViewProcessor.m */; };
-		A8356DD12656459A00FD64AA /* SAGestureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356DA22656459A00FD64AA /* SAGestureManager.h */; };
 		A8356DD22656459A00FD64AA /* SAGestureTargetActionModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356DA32656459A00FD64AA /* SAGestureTargetActionModel.m */; };
 		A8356DD32656459A00FD64AA /* UIGestureRecognizer+SAAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356DA42656459A00FD64AA /* UIGestureRecognizer+SAAutoTrack.m */; };
 		A8356DD42656459A00FD64AA /* SAGestureTargetActionModel.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356DA52656459A00FD64AA /* SAGestureTargetActionModel.h */; };
-		A8356DD52656459A00FD64AA /* SAGestureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356DA62656459A00FD64AA /* SAGestureManager.m */; };
 		A8356DD62656459A00FD64AA /* UIGestureRecognizer+SAAutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356DA72656459A00FD64AA /* UIGestureRecognizer+SAAutoTrack.h */; };
 		A8356DD72656459A00FD64AA /* SAAppClickTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356DA92656459A00FD64AA /* SAAppClickTracker.m */; };
 		A8356DD82656459A00FD64AA /* SAAppClickTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356DAA2656459A00FD64AA /* SAAppClickTracker.h */; };
@@ -522,11 +520,9 @@
 		A8356D9F2656459A00FD64AA /* SAGeneralGestureViewProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGeneralGestureViewProcessor.h; sourceTree = "<group>"; };
 		A8356DA02656459A00FD64AA /* SAGestureViewProcessorFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGestureViewProcessorFactory.h; sourceTree = "<group>"; };
 		A8356DA12656459A00FD64AA /* SAGeneralGestureViewProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGeneralGestureViewProcessor.m; sourceTree = "<group>"; };
-		A8356DA22656459A00FD64AA /* SAGestureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGestureManager.h; sourceTree = "<group>"; };
 		A8356DA32656459A00FD64AA /* SAGestureTargetActionModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGestureTargetActionModel.m; sourceTree = "<group>"; };
 		A8356DA42656459A00FD64AA /* UIGestureRecognizer+SAAutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+SAAutoTrack.m"; sourceTree = "<group>"; };
 		A8356DA52656459A00FD64AA /* SAGestureTargetActionModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAGestureTargetActionModel.h; sourceTree = "<group>"; };
-		A8356DA62656459A00FD64AA /* SAGestureManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGestureManager.m; sourceTree = "<group>"; };
 		A8356DA72656459A00FD64AA /* UIGestureRecognizer+SAAutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+SAAutoTrack.h"; sourceTree = "<group>"; };
 		A8356DA92656459A00FD64AA /* SAAppClickTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppClickTracker.m; sourceTree = "<group>"; };
 		A8356DAA2656459A00FD64AA /* SAAppClickTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppClickTracker.h; sourceTree = "<group>"; };
@@ -1078,8 +1074,6 @@
 			children = (
 				A8356D9D2656459A00FD64AA /* Processor */,
 				A8356D9A2656459A00FD64AA /* Target */,
-				A8356DA22656459A00FD64AA /* SAGestureManager.h */,
-				A8356DA62656459A00FD64AA /* SAGestureManager.m */,
 				A8356DA52656459A00FD64AA /* SAGestureTargetActionModel.h */,
 				A8356DA32656459A00FD64AA /* SAGestureTargetActionModel.m */,
 				A8356DA72656459A00FD64AA /* UIGestureRecognizer+SAAutoTrack.h */,
@@ -1398,7 +1392,6 @@
 				A8356DE12656459A00FD64AA /* SAViewElementInfo.h in Headers */,
 				881A4196253D7B4F00854F69 /* SAConstants.h in Headers */,
 				4DD1286425F872A4008C0B1E /* SAVisualizedAutoTrackObjectSerializer.h in Headers */,
-				A8356DD12656459A00FD64AA /* SAGestureManager.h in Headers */,
 				881A419C253D7B4F00854F69 /* SAConstants+Private.h in Headers */,
 				881A419F253D7B4F00854F69 /* SAHTTPSession.h in Headers */,
 				F2E9723125E637820009A2B9 /* SAAppPushManager.h in Headers */,
@@ -1590,7 +1583,6 @@
 				4D4DB30725B7D52700938842 /* SAGzipUtility.m in Sources */,
 				A8356DE32656459A00FD64AA /* SAAppTracker.m in Sources */,
 				4DD1285625F872A4008C0B1E /* SAObjectIdentityProvider.m in Sources */,
-				A8356DD52656459A00FD64AA /* SAGestureManager.m in Sources */,
 				4D4DB30325B7D52000938842 /* SAAbstractLogger.m in Sources */,
 				4DD128C725F8A003008C0B1E /* SAVisualPropertiesTracker.m in Sources */,
 				4D4DB2FF25B7D51600938842 /* SALoggerConsoleFormatter.m in Sources */,
