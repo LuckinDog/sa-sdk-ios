@@ -60,19 +60,47 @@
 
 #pragma mark - Public Methods
 
-- (void)autoTrackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties {
-    if (self.isIgnored) {
+- (void)autoTrackApplicationEventWithView:(UIView *)view {
+    // 判断时间间隔
+    if (![SAAutoTrackUtils isValidAppClickForObject:view]) {
         return;
     }
 
-    NSMutableDictionary *eventProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
-    [SAModuleManager.sharedInstance visualPropertiesWithView:view completionHandler:^(NSDictionary * _Nullable visualProperties) {
-        if (visualProperties) {
-            [eventProperties addEntriesFromDictionary:visualProperties];
-        }
+    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:view viewController:nil];
+    if (!properties) {
+        return;
+    }
 
-        [self trackAutoTrackEventWithProperties:eventProperties];
-    }];
+    // 保存当前触发时间
+    view.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
+
+    [self autoTrackEventWithView:view properties:properties];
+}
+
+- (void)autoTrackCellEventWithScrollView:(UIScrollView *)scrollView atIndexPath:(NSIndexPath *)indexPath {
+    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)scrollView didSelectedAtIndexPath:indexPath];
+    if (!properties) {
+        return;
+    }
+    NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:scrollView didSelectedAtIndexPath:indexPath];
+    [properties addEntriesFromDictionary:dic];
+
+    // 解析 Cell
+    UIView *cell = [SAAutoTrackUtils cellWithScrollView:scrollView selectedAtIndexPath:indexPath];
+    if (!cell) {
+        return;
+    }
+
+    [self autoTrackEventWithView:cell properties:properties];
+}
+
+- (void)autoTrackGestureEventWithView:(UIView *)view {
+    NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:view] mutableCopy];
+    if (properties.count == 0) {
+        return;
+    }
+
+    [self autoTrackEventWithView:view properties:properties];
 }
 
 - (void)trackEventWithView:(UIView *)view properties:(NSDictionary<NSString *,id> *)properties {
@@ -116,6 +144,23 @@
         }
     }
     return NO;
+}
+
+#pragma mark – Private Methods
+
+- (void)autoTrackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties {
+    if (self.isIgnored) {
+        return;
+    }
+
+    NSMutableDictionary *eventProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
+    [SAModuleManager.sharedInstance visualPropertiesWithView:view completionHandler:^(NSDictionary * _Nullable visualProperties) {
+        if (visualProperties) {
+            [eventProperties addEntriesFromDictionary:visualProperties];
+        }
+
+        [self trackAutoTrackEventWithProperties:eventProperties];
+    }];
 }
 
 @end

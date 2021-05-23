@@ -25,10 +25,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAppClickTracker : SAAppTracker
 
-/// 触发全埋点点击事件
+/// 触发 UIApplication 全埋点点击事件
 /// @param view UIView
-/// @param properties 自定义属性
-- (void)autoTrackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties;
+- (void)autoTrackApplicationEventWithView:(UIView *)view;
+
+/// 触发 Cell 全埋点点击事件
+/// @param scrollView cell 所在的视图
+/// @param indexPath cell 位置
+- (void)autoTrackCellEventWithScrollView:(UIScrollView *)scrollView atIndexPath:(NSIndexPath *)indexPath;
+
+/// 触发 Gesture 全埋点点击事件
+/// @param view UIView
+- (void)autoTrackGestureEventWithView:(UIView *)view;
 
 /// 通过代码触发 UIView 的 $AppClick 事件
 /// @param view UIView

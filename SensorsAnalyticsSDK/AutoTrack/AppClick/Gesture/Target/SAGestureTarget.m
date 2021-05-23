@@ -51,13 +51,8 @@
     if (!processor.isTrackable) {
         return;
     }
-    
-    NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:processor.trackableView] mutableCopy];
-    if (properties.count == 0) {
-        return;
-    }
 
-    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:processor.trackableView properties:properties];
+    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackGestureEventWithView:processor.trackableView];
 }
 
 @end

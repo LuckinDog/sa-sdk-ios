@@ -48,21 +48,8 @@
     if (target != scrollView.delegate) {
         return;
     }
-    
-    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)scrollView didSelectedAtIndexPath:indexPath];
-    if (!properties) {
-        return;
-    }
-    NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:scrollView didSelectedAtIndexPath:indexPath];
-    [properties addEntriesFromDictionary:dic];
 
-    // 解析 Cell
-    UIView *cell = [SAAutoTrackUtils cellWithScrollView:scrollView selectedAtIndexPath:indexPath];
-    if (!cell) {
-        return;
-    }
-
-    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:cell properties:properties];
+    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackCellEventWithScrollView:scrollView atIndexPath:indexPath];
 }
 
 @end

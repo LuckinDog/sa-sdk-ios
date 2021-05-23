@@ -81,34 +81,16 @@
     }
 
     NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)from;
-    // 判断时间间隔
-    if (![SAAutoTrackUtils isValidAppClickForObject:object]) {
-        return;
-    }
-    
-    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:nil];
-
-    if (!properties) {
-        return;
-    }
-
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
         [object isKindOfClass:[UIPageControl class]]) {
-        // 保存当前触发时间
-        object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
-
-        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:(UIView *)object properties:properties];
+        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackApplicationEventWithView:(UIView *)object];
         return;
     }
 
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
-        // 保存当前触发时间
-        object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
-
-        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:(UIView *)object properties:properties];
-        return;
+        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackApplicationEventWithView:(UIView *)object];
     }
 }
 
