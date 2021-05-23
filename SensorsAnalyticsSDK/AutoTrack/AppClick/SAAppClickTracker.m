@@ -146,6 +146,10 @@
     return NO;
 }
 
+- (BOOL)isIgnoreEventWithView:(UIView *)view {
+    return self.ignored || [self isViewTypeIgnored:[view class]];
+}
+
 #pragma mark – Private Methods
 
 - (void)autoTrackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties {

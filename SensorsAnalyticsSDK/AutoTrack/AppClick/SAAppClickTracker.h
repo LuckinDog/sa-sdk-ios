@@ -51,6 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param aClass Class View 对应的 Class
 - (BOOL)isViewTypeIgnored:(Class)aClass;
 
+/// 是否忽略视图的点击事件
+/// @param view UIView
+- (BOOL)isIgnoreEventWithView:(UIView *)view;
+
 @end
 
 NS_ASSUME_NONNULL_END
