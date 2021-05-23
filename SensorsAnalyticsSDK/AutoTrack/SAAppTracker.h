@@ -61,8 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 判断某个 ViewController 是否处于黑名单
 /// @param viewController UIViewController
-- (BOOL)isBlackListViewController:(UIViewController *)viewController;
-
+- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController;
 
 @end
 

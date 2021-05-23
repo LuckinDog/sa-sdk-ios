@@ -63,7 +63,7 @@
         return NO;
     }
 
-    return ![self isBlackListViewController:controller];
+    return ![self isBlackListContainsViewController:controller];
 }
 
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
@@ -90,7 +90,7 @@
     return [self.ignoredViewControllers containsObject:viewControllerClassName];
 }
 
-- (BOOL)isBlackListViewController:(UIViewController *)viewController {
+- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
     static dispatch_once_t onceToken;
     static NSDictionary *allClasses = nil;
     dispatch_once(&onceToken, ^{

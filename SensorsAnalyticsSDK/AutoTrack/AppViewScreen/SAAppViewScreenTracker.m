@@ -102,7 +102,7 @@
         return;
     }
 
-    if ([self isBlackListViewController:viewController]) {
+    if ([self isBlackListContainsViewController:viewController]) {
         return;
     }
 
