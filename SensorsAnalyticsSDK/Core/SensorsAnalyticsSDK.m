@@ -30,7 +30,6 @@
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "SensorsAnalyticsSDK.h"
-#import "UIViewController+AutoTrack.h"
 #import "NSObject+DelegateProxy.h"
 #import "SASwizzle.h"
 #import "NSString+HashCode.h"
@@ -45,7 +44,6 @@
 #import <WebKit/WebKit.h>
 
 #import "SARemoteConfigManager.h"
-#import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
