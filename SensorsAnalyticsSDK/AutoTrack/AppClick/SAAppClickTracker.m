@@ -147,7 +147,7 @@
 }
 
 - (BOOL)isIgnoreEventWithView:(UIView *)view {
-    return self.ignored || [self isViewTypeIgnored:[view class]];
+    return self.isIgnored || [self isViewTypeIgnored:[view class]];
 }
 
 #pragma mark – Private Methods
