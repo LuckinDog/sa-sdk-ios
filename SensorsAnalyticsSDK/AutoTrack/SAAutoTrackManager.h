@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAutoTrackManager : NSObject <SAModuleProtocol, SAAutoTrackModuleProtocol>
+@interface SAAutoTrackManager : NSObject <SAModuleProtocol>
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
@@ -47,6 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 更新全埋点事件类型
 - (void)updateAutoTrackEventType;
+
+/// 校验可视化全埋点元素能否选中
+/// @param obj 控件元素
+/// @return 返回校验结果
+- (BOOL)isGestureVisualView:(id)obj;
 
 @end
 

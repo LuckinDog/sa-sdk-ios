@@ -329,21 +329,6 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 #pragma mark -
 
-@implementation SAModuleManager (AutoTrack)
-
-- (id<SAAutoTrackModuleProtocol>)autoTrackManager {
-    id<SAAutoTrackModuleProtocol, SAModuleProtocol> manager = (id<SAAutoTrackModuleProtocol, SAModuleProtocol>)self.modules[kSAAutoTrackModuleName];
-    return manager.isEnable ? manager : nil;
-}
-
-- (BOOL)isGestureVisualView:(id)obj {
-    return [self.autoTrackManager isGestureVisualView:obj];
-}
-
-@end
-
-#pragma mark -
-
 @implementation SAModuleManager (Deeplink)
 
 - (id<SADeeplinkModuleProtocol>)deeplinkManager {

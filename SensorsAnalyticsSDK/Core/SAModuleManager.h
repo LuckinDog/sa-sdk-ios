@@ -102,12 +102,4 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @end
 
-#pragma mark -
-
-@interface SAModuleManager (AutoTrack) <SAAutoTrackModuleProtocol>
-
-@property (nonatomic, strong, readonly) id<SAAutoTrackModuleProtocol> autoTrackManager;
-
-@end
-
 NS_ASSUME_NONNULL_END

@@ -164,15 +164,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark -
-
-@protocol SAAutoTrackModuleProtocol <NSObject>
-
-/// 校验可视化全埋点元素能否选中
-/// @param obj 控件元素
-/// @return 返回校验结果
-- (BOOL)isGestureVisualView:(id)obj;
-
-@end
-
 NS_ASSUME_NONNULL_END

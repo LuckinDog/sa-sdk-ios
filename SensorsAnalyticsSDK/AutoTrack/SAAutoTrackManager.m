@@ -78,27 +78,6 @@
     }
 }
 
-#pragma mark - SAAutoTrackModuleProtocol
-
-- (BOOL)isGestureVisualView:(id)obj {
-    if (!self.enable) {
-        return NO;
-    }
-    if (![obj isKindOfClass:UIView.class]) {
-        return NO;
-    }
-    UIView *view = (UIView *)obj;
-    for (UIGestureRecognizer *gesture in view.gestureRecognizers) {
-        if (gesture.sensorsdata_gestureTarget) {
-            SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
-            if (processor.isTrackable && processor.trackableView == gesture.view) {
-                return YES;
-            }
-        }
-    }
-    return NO;
-}
-
 #pragma mark - Instance
 
 + (SAAutoTrackManager *)sharedInstance {
@@ -222,6 +201,25 @@
     self.appEndTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd];
     self.appViewScreenTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen];
     self.appClickTracker.ignored = [self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
+}
+
+- (BOOL)isGestureVisualView:(id)obj {
+    if (!self.enable) {
+        return NO;
+    }
+    if (![obj isKindOfClass:UIView.class]) {
+        return NO;
+    }
+    UIView *view = (UIView *)obj;
+    for (UIGestureRecognizer *gesture in view.gestureRecognizers) {
+        if (gesture.sensorsdata_gestureTarget) {
+            SAGeneralGestureViewProcessor *processor = [SAGestureViewProcessorFactory processorWithGesture:gesture];
+            if (processor.isTrackable && processor.trackableView == gesture.view) {
+                return YES;
+            }
+        }
+    }
+    return NO;
 }
 
 #pragma mark – Private Methods
