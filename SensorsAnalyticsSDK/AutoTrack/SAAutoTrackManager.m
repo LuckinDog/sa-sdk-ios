@@ -254,7 +254,9 @@
 }
 
 - (void)enableAppViewScreenAutoTrack {
-    [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sa_autotrack_viewDidAppear:) error:NULL];
+    [UIViewController sa_swizzleMethod:@selector(viewDidAppear:)
+                            withMethod:@selector(sa_autotrack_viewDidAppear:)
+                                 error:NULL];
 }
 
 - (void)enableAppClickAutoTrack {
@@ -270,9 +272,15 @@
 
     // Cell
     SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
-    [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-    [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
-    [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+    [UITableView sa_swizzleMethod:@selector(setDelegate:)
+                       withMethod:selector
+                            error:NULL];
+    [NSObject sa_swizzleMethod:@selector(respondsToSelector:)
+                    withMethod:@selector(sensorsdata_respondsToSelector:)
+                         error:NULL];
+    [UICollectionView sa_swizzleMethod:@selector(setDelegate:)
+                            withMethod:selector
+                                 error:NULL];
 
     // Gesture
     [UIGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
