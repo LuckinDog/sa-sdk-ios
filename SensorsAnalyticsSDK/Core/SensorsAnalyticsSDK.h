@@ -25,7 +25,10 @@
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
+
+#if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
+#endif
 
 #if __has_include("SensorsAnalyticsSDK+WKWebView.h")
 #import "SensorsAnalyticsSDK+WKWebView.h"
