@@ -30,7 +30,6 @@
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "SensorsAnalyticsSDK.h"
-#import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "NSObject+DelegateProxy.h"
 #import "SASwizzle.h"
@@ -38,7 +37,6 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
-#import "SAAutoTrackUtils.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     #import "SAKeyChainItemWrapper.h"
