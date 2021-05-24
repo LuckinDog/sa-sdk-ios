@@ -39,7 +39,6 @@ static NSString * const kSAVisualizedModuleName = @"Visualized";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
-static NSString * const kSAGestureModuleName = @"Gesture";
 static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @interface SAModuleManager ()
@@ -350,6 +349,21 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 - (void)clearUtmProperties {
     [self.deeplinkManager clearUtmProperties];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (AutoTrack)
+
+- (id<SAAutoTrackModuleProtocol>)autoTrackManager {
+    id<SAAutoTrackModuleProtocol, SAModuleProtocol> manager = (id<SAAutoTrackModuleProtocol, SAModuleProtocol>)self.modules[kSAAutoTrackModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
+- (void)trackAppEndWhenCrashed {
+    [self.autoTrackManager trackAppEndWhenCrashed];
 }
 
 @end

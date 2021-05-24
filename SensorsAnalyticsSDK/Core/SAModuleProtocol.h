@@ -164,4 +164,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark -
+
+@protocol SAAutoTrackModuleProtocol <NSObject>
+
+/// 触发 App 崩溃时的退出事件
+- (void)trackAppEndWhenCrashed;
+
+@end
+
 NS_ASSUME_NONNULL_END

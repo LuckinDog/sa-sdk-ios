@@ -37,6 +37,7 @@
 #import "SAConstants+Private.h"
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewProcessorFactory.h"
+#import "SACommonUtility.h"
 
 @interface SAAutoTrackManager ()
 
@@ -86,6 +87,20 @@
 
 + (SAAutoTrackManager *)sharedInstance {
     return (SAAutoTrackManager *)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeAutoTrack];
+}
+
+#pragma mark - SAAutoTrackModuleProtocol
+
+- (void)trackAppEndWhenCrashed {
+    if (self.appEndTracker.isIgnored) {
+        return;
+    }
+
+    [SACommonUtility performBlockOnMainThread:^{
+        if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
+            [self.appEndTracker autoTrackEvent];
+        }
+    }];
 }
 
 #pragma mark - Notification
