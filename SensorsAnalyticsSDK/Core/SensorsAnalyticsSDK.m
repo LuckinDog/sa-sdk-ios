@@ -473,11 +473,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
-    // 尝试上报启动事件（包括冷启动和热启动）
-    if (newState == SAAppLifecycleStateStart && ![self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
-        [self flush];
-    }
-
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
         // 开启定时器

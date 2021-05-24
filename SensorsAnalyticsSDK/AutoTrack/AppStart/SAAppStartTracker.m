@@ -24,6 +24,7 @@
 
 #import "SAAppStartTracker.h"
 #import "SAConstants+Private.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 // App 启动标记
 static NSString * const kSAHasLaunchedOnce = @"HasLaunchedOnce";
@@ -73,6 +74,11 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
         [eventProperties addEntriesFromDictionary:properties];
 
         [self trackAutoTrackEventWithProperties:eventProperties];
+
+        // 上报启动事件（包括冷启动和热启动）
+        if (!self.passively) {
+            [SensorsAnalyticsSDK.sharedInstance flush];
+        }
     }
 
     // 更新首次标记
