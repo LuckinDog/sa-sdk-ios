@@ -60,6 +60,10 @@
         _appViewScreenTracker = [[SAAppViewScreenTracker alloc] init];
         _appClickTracker = [[SAAppClickTracker alloc] init];
 
+        _disableSDK = NO;
+        _autoTrackMode = kSAAutoTrackModeDefault;
+        [self updateAutoTrackEventType];
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
     }
