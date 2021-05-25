@@ -60,7 +60,7 @@
 
 #pragma mark - Public Methods
 
-- (void)autoTrackApplicationEventWithView:(UIView *)view {
+- (void)autoTrackEventWithView:(UIView *)view {
     // 判断时间间隔
     if (![SAAutoTrackUtils isValidAppClickForObject:view]) {
         return;
@@ -77,7 +77,7 @@
     [self autoTrackEventWithView:view properties:properties];
 }
 
-- (void)autoTrackCellEventWithScrollView:(UIScrollView *)scrollView atIndexPath:(NSIndexPath *)indexPath {
+- (void)autoTrackEventWithScrollView:(UIScrollView *)scrollView atIndexPath:(NSIndexPath *)indexPath {
     NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)scrollView didSelectedAtIndexPath:indexPath];
     if (!properties) {
         return;
@@ -94,7 +94,7 @@
     [self autoTrackEventWithView:cell properties:properties];
 }
 
-- (void)autoTrackGestureEventWithView:(UIView *)view {
+- (void)autoTrackEventWithGestureView:(UIView *)view {
     NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:view] mutableCopy];
     if (properties.count == 0) {
         return;

@@ -27,16 +27,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 触发 UIApplication 全埋点点击事件
 /// @param view UIView
-- (void)autoTrackApplicationEventWithView:(UIView *)view;
+- (void)autoTrackEventWithView:(UIView *)view;
 
 /// 触发 Cell 全埋点点击事件
 /// @param scrollView cell 所在的视图
 /// @param indexPath cell 位置
-- (void)autoTrackCellEventWithScrollView:(UIScrollView *)scrollView atIndexPath:(NSIndexPath *)indexPath;
+- (void)autoTrackEventWithScrollView:(UIScrollView *)scrollView atIndexPath:(NSIndexPath *)indexPath;
 
 /// 触发 Gesture 全埋点点击事件
 /// @param view UIView
-- (void)autoTrackGestureEventWithView:(UIView *)view;
+- (void)autoTrackEventWithGestureView:(UIView *)view;
 
 /// 通过代码触发 UIView 的 $AppClick 事件
 /// @param view UIView
