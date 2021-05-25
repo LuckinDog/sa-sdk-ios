@@ -68,7 +68,8 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
 
         // 防止 tabbar 切换，可能漏采 $AppViewScreen 全埋点
         if ([self isKindOfClass:UINavigationController.class]) {
-            self.sensorsdata_previousViewController = nil;
+            UINavigationController *nav = (UINavigationController *)self;
+            nav.sensorsdata_previousViewController = nil;
         }
 
         SAAppViewScreenTracker *appViewScreenTracker = SAAutoTrackManager.sharedInstance.appViewScreenTracker;
@@ -92,6 +93,10 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
     }
     [self sa_autotrack_viewDidAppear:animated];
 }
+
+@end
+
+@implementation UINavigationController (AutoTrack)
 
 - (void)setSensorsdata_previousViewController:(UIViewController *)sensorsdata_previousViewController {
     SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:sensorsdata_previousViewController];

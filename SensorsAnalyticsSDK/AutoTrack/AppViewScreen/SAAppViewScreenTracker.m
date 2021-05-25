@@ -74,15 +74,6 @@
         viewController.navigationController.sensorsdata_previousViewController = viewController;
     }
 
-    // present 弹出页面
-    if (viewController.presentingViewController) {
-        // 忽略下滑部分再返回原页面，重复触发 $AppViewScreen 事件
-        if (viewController.sensorsdata_previousViewController == viewController) {
-            return;
-        }
-        viewController.sensorsdata_previousViewController = viewController;
-    }
-
     //过滤用户设置的不被AutoTrack的Controllers
     if (![self shouldTrackViewController:viewController]) {
         return;
