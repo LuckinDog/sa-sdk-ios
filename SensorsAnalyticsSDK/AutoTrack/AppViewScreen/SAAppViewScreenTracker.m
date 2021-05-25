@@ -120,6 +120,10 @@
         return;
     }
 
+    if (self.isIgnored) {
+        return;
+    }
+
     for (UIViewController *vc in self.launchedPassivelyControllers) {
         [self autoTrackEventWithViewController:vc];
     }
