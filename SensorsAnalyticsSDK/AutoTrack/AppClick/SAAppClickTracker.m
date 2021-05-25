@@ -128,17 +128,11 @@
 }
 
 - (void)ignoreViewType:(Class)aClass {
-    if (aClass) {
-        [self.ignoredViewTypeList addObject:aClass];
-    }
+    [_ignoredViewTypeList addObject:aClass];
 }
 
 - (BOOL)isViewTypeIgnored:(Class)aClass {
-    if (![aClass respondsToSelector:@selector(isSubclassOfClass:)]) {
-        return NO;
-    }
-
-    for (Class obj in self.ignoredViewTypeList) {
+    for (Class obj in _ignoredViewTypeList) {
         if ([aClass isSubclassOfClass:obj]) {
             return YES;
         }
