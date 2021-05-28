@@ -27,6 +27,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SALog.h"
 #import "SAConstants+Private.h"
+#import "SAValidator.h"
 
 @implementation SAAppTracker
 
@@ -58,12 +59,8 @@
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
-- (BOOL)shouldTrackViewController:(UIViewController *)controller {
-    if ([self isViewControllerIgnored:controller]) {
-        return NO;
-    }
-
-    return ![self isBlackListContainsViewController:controller];
+- (BOOL)shouldTrackViewController:(UIViewController *)viewController {
+    return YES;
 }
 
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
@@ -90,7 +87,7 @@
     return [self.ignoredViewControllers containsObject:viewControllerClassName];
 }
 
-- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
+- (NSDictionary *)autoTrackViewControllerBlackList {
     static dispatch_once_t onceToken;
     static NSDictionary *allClasses = nil;
     dispatch_once(&onceToken, ^{
@@ -104,15 +101,20 @@
             SALogError(@"%@ error: %@", self, exception);
         }
     });
+    return allClasses;
+}
 
-    NSString *eventId = [self eventId];
-    NSDictionary *dictonary = allClasses[eventId];
-    for (NSString *publicClass in dictonary[@"public"]) {
+- (BOOL)isViewController:(UIViewController *)viewController onBlackList:(NSDictionary *)blackList {
+    if (!viewController || ![SAValidator isValidDictionary:blackList]) {
+        return NO;
+    }
+
+    for (NSString *publicClass in blackList[@"public"]) {
         if ([viewController isKindOfClass:NSClassFromString(publicClass)]) {
             return YES;
         }
     }
-    return [(NSArray *)dictonary[@"private"] containsObject:NSStringFromClass(viewController.class)];
+    return [(NSArray *)blackList[@"private"] containsObject:NSStringFromClass(viewController.class)];
 }
 
 @end

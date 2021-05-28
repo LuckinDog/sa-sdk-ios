@@ -54,6 +54,14 @@
     return kSAEventNameAppViewScreen;
 }
 
+- (BOOL)shouldTrackViewController:(UIViewController *)viewController {
+    if ([self isViewControllerIgnored:viewController]) {
+        return NO;
+    }
+
+    return [self isBlackListContainsViewController:viewController];
+}
+
 #pragma mark - Public Methods
 
 - (void)autoTrackEventWithViewController:(UIViewController *)viewController {
@@ -122,6 +130,12 @@
 }
 
 #pragma mark – Private Methods
+
+- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
+    NSDictionary *autoTrackBlackList = [self autoTrackViewControllerBlackList];
+    NSDictionary *appViewScreenBlackList = autoTrackBlackList[kSAEventNameAppViewScreen];
+    return [self isViewController:viewController onBlackList:appViewScreenBlackList];
+}
 
 - (NSDictionary *)buildWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties autoTrack:(BOOL)autoTrack {
     NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];

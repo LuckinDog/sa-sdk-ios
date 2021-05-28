@@ -58,6 +58,16 @@
     return kSAEventNameAppClick;
 }
 
+- (BOOL)shouldTrackViewController:(UIViewController *)viewController {
+    if ([self isViewControllerIgnored:viewController]) {
+        return NO;
+    }
+
+    NSDictionary *autoTrackBlackList = [self autoTrackViewControllerBlackList];
+    NSDictionary *appClickBlackList = autoTrackBlackList[kSAEventNameAppClick];
+    return [self isViewController:viewController onBlackList:appClickBlackList];
+}
+
 #pragma mark - Public Methods
 
 - (void)autoTrackEventWithView:(UIView *)view {

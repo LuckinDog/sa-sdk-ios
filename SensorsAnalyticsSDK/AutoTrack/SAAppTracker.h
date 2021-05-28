@@ -44,8 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackPresetEventWithProperties:(nullable NSDictionary *)properties;
 
 /// 根据 UIViewController 判断，是否采集事件
-/// @param controller 事件采集时的控制器
-- (BOOL)shouldTrackViewController:(UIViewController *)controller;
+/// @param viewController 事件采集时的控制器
+- (BOOL)shouldTrackViewController:(UIViewController *)viewController;
 
 /// 在 AutoTrack 时，用户可以设置哪些 controllers 不被 AutoTrack
 /// @param controllers controller ‘字符串’数组
@@ -59,9 +59,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param viewControllerClassName UIViewController 类名
 - (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName;
 
+/// ViewController 的黑名单
+- (NSDictionary *)autoTrackViewControllerBlackList;
+
 /// 判断某个 ViewController 是否处于黑名单
 /// @param viewController UIViewController
-- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController;
+/// @param blackList 黑名单
+- (BOOL)isViewController:(UIViewController *)viewController onBlackList:(NSDictionary *)blackList;
 
 @end
 
