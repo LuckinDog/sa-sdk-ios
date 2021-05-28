@@ -63,9 +63,7 @@
         return NO;
     }
 
-    NSDictionary *autoTrackBlackList = [self autoTrackViewControllerBlackList];
-    NSDictionary *appClickBlackList = autoTrackBlackList[kSAEventNameAppClick];
-    return [self isViewController:viewController inBlackList:appClickBlackList];
+    return [self isBlackListContainsViewController:viewController];
 }
 
 #pragma mark - Public Methods
@@ -155,6 +153,12 @@
 }
 
 #pragma mark – Private Methods
+
+- (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
+    NSDictionary *autoTrackBlackList = [self autoTrackViewControllerBlackList];
+    NSDictionary *appClickBlackList = autoTrackBlackList[kSAEventNameAppClick];
+    return [self isViewController:viewController inBlackList:appClickBlackList];
+}
 
 - (void)autoTrackEventWithView:(UIView *)view properties:(NSDictionary<NSString *, id> * _Nullable)properties {
     if (self.isIgnored) {
