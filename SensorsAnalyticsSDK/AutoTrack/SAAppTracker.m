@@ -104,7 +104,7 @@
     return allClasses;
 }
 
-- (BOOL)isViewController:(UIViewController *)viewController onBlackList:(NSDictionary *)blackList {
+- (BOOL)isViewController:(UIViewController *)viewController inBlackList:(NSDictionary *)blackList {
     if (!viewController || ![SAValidator isValidDictionary:blackList]) {
         return NO;
     }

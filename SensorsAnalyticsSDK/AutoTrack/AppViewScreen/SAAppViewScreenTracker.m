@@ -134,7 +134,7 @@
 - (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
     NSDictionary *autoTrackBlackList = [self autoTrackViewControllerBlackList];
     NSDictionary *appViewScreenBlackList = autoTrackBlackList[kSAEventNameAppViewScreen];
-    return [self isViewController:viewController onBlackList:appViewScreenBlackList];
+    return [self isViewController:viewController inBlackList:appViewScreenBlackList];
 }
 
 - (NSDictionary *)buildWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties autoTrack:(BOOL)autoTrack {

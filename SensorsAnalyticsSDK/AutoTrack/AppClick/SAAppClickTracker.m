@@ -65,7 +65,7 @@
 
     NSDictionary *autoTrackBlackList = [self autoTrackViewControllerBlackList];
     NSDictionary *appClickBlackList = autoTrackBlackList[kSAEventNameAppClick];
-    return [self isViewController:viewController onBlackList:appClickBlackList];
+    return [self isViewController:viewController inBlackList:appClickBlackList];
 }
 
 #pragma mark - Public Methods
