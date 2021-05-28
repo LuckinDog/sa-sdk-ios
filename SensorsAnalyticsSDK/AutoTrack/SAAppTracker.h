@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 用户设置的不被 AutoTrack 的 Controllers
 @property (nonatomic, strong) NSMutableSet<NSString *> *ignoredViewControllers;
 
-/// 获取 tracker 对应的事件名
-- (NSString *)eventName;
+/// 获取 tracker 对应的事件 ID
+- (NSString *)eventId;
 
 /// 触发全埋点事件
 /// @param properties 事件属性

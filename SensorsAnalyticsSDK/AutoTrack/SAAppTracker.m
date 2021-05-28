@@ -44,17 +44,17 @@
 
 #pragma mark - Public Methods
 
-- (NSString *)eventName {
+- (NSString *)eventId {
     return nil;
 }
 
 - (void)trackAutoTrackEventWithProperties:(NSDictionary *)properties {
-    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:[self eventName]];
+    SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:[self eventId]];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
 - (void)trackPresetEventWithProperties:(NSDictionary *)properties {
-    SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:[self eventName]];
+    SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:[self eventId]];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
@@ -105,8 +105,8 @@
         }
     });
 
-    NSString *eventName = [self eventName];
-    NSDictionary *dictonary = allClasses[eventName];
+    NSString *eventId = [self eventId];
+    NSDictionary *dictonary = allClasses[eventId];
     for (NSString *publicClass in dictonary[@"public"]) {
         if ([viewController isKindOfClass:NSClassFromString(publicClass)]) {
             return YES;

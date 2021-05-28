@@ -50,7 +50,7 @@
 
 #pragma mark - Override
 
-- (NSString *)eventName {
+- (NSString *)eventId {
     return kSAEventNameAppViewScreen;
 }
 
