@@ -59,7 +59,7 @@
         return NO;
     }
 
-    return [self isBlackListContainsViewController:viewController];
+    return ![self isBlackListContainsViewController:viewController];
 }
 
 #pragma mark - Public Methods
