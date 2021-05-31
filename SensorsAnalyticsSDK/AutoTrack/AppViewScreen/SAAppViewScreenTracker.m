@@ -73,6 +73,15 @@
         return;
     }
 
+    // parentViewController 判断，防止开启子页面采集时候的侧滑多采集父页面 $AppViewScreen 事件
+    if (viewController.navigationController && viewController.parentViewController == viewController.navigationController) {
+        // 全埋点中，忽略由于侧滑部分返回原页面，重复触发 $AppViewScreen 事件
+        if (viewController.navigationController.sensorsdata_previousViewController == viewController) {
+            return;
+        }
+        viewController.navigationController.sensorsdata_previousViewController = viewController;
+    }
+
     //过滤用户设置的不被AutoTrack的Controllers
     if (![self shouldTrackViewController:viewController]) {
         return;
@@ -81,15 +90,6 @@
     if (self.isPassively) {
         [self.launchedPassivelyControllers addObject:viewController];
         return;
-    }
-
-    // parentViewController 判断，防止开启子页面采集时候的侧滑多采集父页面 $AppViewScreen 事件
-    if (viewController.navigationController && viewController.parentViewController == viewController.navigationController) {
-        // 全埋点中，忽略由于侧滑部分返回原页面，重复触发 $AppViewScreen 事件
-        if (viewController.navigationController.sensorsdata_previousViewController == viewController) {
-            return;
-        }
-        viewController.navigationController.sensorsdata_previousViewController = viewController;
     }
     
     NSDictionary *eventProperties = [self buildWithViewController:viewController properties:nil autoTrack:YES];
@@ -124,7 +124,8 @@
     }
 
     for (UIViewController *vc in self.launchedPassivelyControllers) {
-        [self autoTrackEventWithViewController:vc];
+        NSDictionary *eventProperties = [self buildWithViewController:vc properties:nil autoTrack:YES];
+        [self trackAutoTrackEventWithProperties:eventProperties];
     }
     [self.launchedPassivelyControllers removeAllObjects];
 }
