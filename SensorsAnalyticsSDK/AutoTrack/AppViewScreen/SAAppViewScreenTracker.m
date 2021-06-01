@@ -65,10 +65,6 @@
 #pragma mark - Public Methods
 
 - (void)autoTrackEventWithViewController:(UIViewController *)viewController {
-    if (self.isIgnored) {
-        return;
-    }
-
     if (!viewController) {
         return;
     }
@@ -82,6 +78,10 @@
         viewController.navigationController.sensorsdata_previousViewController = viewController;
     }
 
+    if (self.isIgnored) {
+        return;
+    }
+    
     //过滤用户设置的不被AutoTrack的Controllers
     if (![self shouldTrackViewController:viewController]) {
         return;
