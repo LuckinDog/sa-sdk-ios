@@ -124,8 +124,10 @@
     }
 
     for (UIViewController *vc in self.launchedPassivelyControllers) {
-        NSDictionary *eventProperties = [self buildWithViewController:vc properties:nil autoTrack:YES];
-        [self trackAutoTrackEventWithProperties:eventProperties];
+        if ([self shouldTrackViewController:vc]) {
+            NSDictionary *eventProperties = [self buildWithViewController:vc properties:nil autoTrack:YES];
+            [self trackAutoTrackEventWithProperties:eventProperties];
+        }
     }
     [self.launchedPassivelyControllers removeAllObjects];
 }
