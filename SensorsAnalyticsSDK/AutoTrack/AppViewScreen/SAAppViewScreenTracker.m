@@ -68,16 +68,7 @@
     if (!viewController) {
         return;
     }
-
-    // parentViewController 判断，防止开启子页面采集时候的侧滑多采集父页面 $AppViewScreen 事件
-    if (viewController.navigationController && viewController.parentViewController == viewController.navigationController) {
-        // 全埋点中，忽略由于侧滑部分返回原页面，重复触发 $AppViewScreen 事件
-        if (viewController.navigationController.sensorsdata_previousViewController == viewController) {
-            return;
-        }
-        viewController.navigationController.sensorsdata_previousViewController = viewController;
-    }
-
+    
     if (self.isIgnored) {
         return;
     }
