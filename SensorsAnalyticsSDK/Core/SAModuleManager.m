@@ -40,6 +40,7 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
+static NSString * const kSAExceptionModuleName = @"Exception";
 
 @interface SAModuleManager ()
 
@@ -80,6 +81,15 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
+
+    // 默认加载全埋点模块，没有判断是否开启全埋点，原因如下：
+    // 1. 同之前的逻辑保持一致
+    // 2. 保证添加对于生命周期的监听在生命周期类的实例化之前
+    if ([SAModuleManager.sharedInstance contains:SAModuleTypeAutoTrack] || configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+    }
+
+    [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
 }
 
 + (instancetype)sharedInstance {
@@ -106,12 +116,8 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
             return kSANotificationModuleName;
         case SAModuleTypeAutoTrack:
             return kSAAutoTrackModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
         case SAModuleTypeVisualized:
             return kSAVisualizedModuleName;
-        case SAModuleTypeEncrypt:
-            return kSAEncryptModuleName;
         default:
             return nil;
     }
