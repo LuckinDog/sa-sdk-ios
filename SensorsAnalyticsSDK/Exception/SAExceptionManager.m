@@ -67,6 +67,10 @@ static NSString * const kSAAppCrashedReason = @"app_crashed_reason";
     return self;
 }
 
+- (void)dealloc {
+    free(_prev_signal_handlers);
+}
+
 + (instancetype)sharedInstance {
     return (SAExceptionManager *)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeException];
 }

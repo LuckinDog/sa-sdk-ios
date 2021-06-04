@@ -67,6 +67,13 @@ Pod::Spec.new do |s|
     f.private_header_files = 'SensorsAnalyticsSDK/AppPush/**/*.h'
   end
 
+  # 使用崩溃事件采集
+  s.subspec 'Exception' do |e|
+    e.dependency 'SensorsAnalyticsSDK/Core'
+    e.source_files  =  "SensorsAnalyticsSDK/Exception/**/*.{h,m}"
+    e.private_header_files = 'SensorsAnalyticsSDK/Exception/**/*.h'
+  end
+
   # 使用 UIWebView 或者 WKWebView 进行打通
   s.subspec 'WebView' do |w|
     w.dependency 'SensorsAnalyticsSDK/Core'

@@ -82,7 +82,9 @@ static NSString * const kSAExceptionModuleName = @"Exception";
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
     }
 
-    [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
+    if (configOptions.enableTrackAppCrash) {
+        [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
+    }
 }
 
 + (instancetype)sharedInstance {
@@ -111,6 +113,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
             return kSAAutoTrackModuleName;
         case SAModuleTypeVisualized:
             return kSAVisualizedModuleName;
+        case SAModuleTypeException:
+            return kSAExceptionModuleName;
         default:
             return nil;
     }
