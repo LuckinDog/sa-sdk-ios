@@ -26,13 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
-    SAModuleTypeChannelMatch,
     SAModuleTypeVisualized,
-    SAModuleTypeEncrypt,
     SAModuleTypeDeviceOrientation,
     SAModuleTypeReactNative,
     SAModuleTypeAppPush,
     SAModuleTypeAutoTrack,
+    SAModuleTypeException,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>

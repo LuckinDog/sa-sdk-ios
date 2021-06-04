@@ -40,6 +40,7 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
+static NSString * const kSAExceptionModuleName = @"Exception";
 
 @interface SAModuleManager ()
 
@@ -80,6 +81,8 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
     if ([SAModuleManager.sharedInstance contains:SAModuleTypeAutoTrack] || configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
     }
+
+    [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
 }
 
 + (instancetype)sharedInstance {
@@ -106,12 +109,8 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
             return kSANotificationModuleName;
         case SAModuleTypeAutoTrack:
             return kSAAutoTrackModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
         case SAModuleTypeVisualized:
             return kSAVisualizedModuleName;
-        case SAModuleTypeEncrypt:
-            return kSAEncryptModuleName;
         default:
             return nil;
     }
