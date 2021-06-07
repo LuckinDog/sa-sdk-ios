@@ -47,7 +47,7 @@
 #pragma mark - Override
 
 - (NSString *)eventId {
-    return self.timerEventID;
+    return self.timerEventID ?: kSAEventNameAppEnd;
 }
 
 #pragma mark - Public Methods
@@ -61,7 +61,7 @@
 }
 
 - (void)trackTimerStartAppEnd {
-    self.timerEventID = [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
+    self.timerEventID = [SensorsAnalyticsSDK.sdkInstance trackTimerStart:kSAEventNameAppEnd];
 }
 
 @end
