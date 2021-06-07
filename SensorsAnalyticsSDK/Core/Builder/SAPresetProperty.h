@@ -20,29 +20,25 @@
 
 #import <Foundation/Foundation.h>
 
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-@class SADeviceOrientationConfig;
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const SAEventPresetPropertyDeviceID;
+extern NSString * const kSAEventPresetPropertyDeviceId;
 
 /// SDK 类型
-extern NSString * const SAEventPresetPropertyLib;
+extern NSString * const kSAEventPresetPropertyLib;
 /// SDK 方法
-extern NSString * const SAEventPresetPropertyLibMethod;
+extern NSString * const kSAEventPresetPropertyLibMethod;
 /// SDK 版本
-extern NSString * const SAEventPresetPropertyLibVersion;
+extern NSString * const kSAEventPresetPropertyLibVersion;
 /// SDK 调用栈
-extern NSString * const SAEventPresetPropertyLibDetail;
+extern NSString * const kSAEventPresetPropertyLibDetail;
 /// 应用版本
-extern NSString * const SAEventPresetPropertyAppVersion;
+extern NSString * const kSAEventPresetPropertyAppVersion;
 
-extern NSString * const SAEventPresetPropertyNetworkType;
-extern NSString * const SAEventPresetPropertyWifi;
+extern NSString * const kSAEventPresetPropertyNetworkType;
+extern NSString * const kSAEventPresetPropertyWifi;
 /// 是否首日
-extern NSString * const SAEventPresetPropertyIsFirstDay;
+extern NSString * const kSAEventPresetPropertyIsFirstDay;
 
 #pragma mark -
 @interface SAPresetProperty : NSObject
@@ -84,20 +80,6 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 
 /// 当前的预置属性
 - (NSDictionary *)currentPresetProperties;
-
-/**
- track 类型特有的预置属性
-
- @param isLaunchedPassively 是否是被动启动
- @param orientationConfig 方向信息
-
- @return 当前的预置属性
-*/
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
-#endif
-;
 
 @end
 

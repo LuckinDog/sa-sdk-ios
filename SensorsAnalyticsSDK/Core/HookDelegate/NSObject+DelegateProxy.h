@@ -22,13 +22,44 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SADelegateProxyParasite : NSObject
+
+@property (nonatomic, copy) void(^deallocBlock)(void);
+
+@end
+
 @interface NSObject (DelegateProxy)
 
-/// 用于记录创建子类时的原始父类名称
-@property (nonatomic, copy, nullable) NSString *sensorsdata_className;
+/// 用于记录创建子类所继承的父类信息
+@property (nonatomic, copy, nullable) NSString *sensorsdata_superClassName;
+/// 用于记录 - class 方法需要返回的信息
+@property (nonatomic, copy, nullable) NSString *sensorsdata_delegateClassName;
 @property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_selectors;
 @property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_optionalSelectors;
 @property (nonatomic, strong, nullable) id sensorsdata_delegateProxy;
+@property (nonatomic, strong, nullable) SADelegateProxyParasite *sensorsdata_parasite;
+
+/// 注册一个操作,在对象释放时调用; 重复调用该方法时,只有第一次调用时的 block 生效
+/// @param deallocBlock 操作
+- (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock;
+
+
+/// hook respondsToSelector to resolve optional selectors
+/// @param aSelector selector
+- (BOOL)sensorsdata_respondsToSelector:(SEL)aSelector;
+
+@end
+
+@interface NSProxy (DelegateProxy)
+
+/// 用于记录创建子类所继承的父类信息
+@property (nonatomic, copy, nullable) NSString *sensorsdata_superClassName;
+/// 用于记录 - class 方法需要返回的信息
+@property (nonatomic, copy, nullable) NSString *sensorsdata_delegateClassName;
+@property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_selectors;
+@property (nonatomic, copy, nullable) NSSet<NSString *> *sensorsdata_optionalSelectors;
+@property (nonatomic, strong, nullable) id sensorsdata_delegateProxy;
+@property (nonatomic, strong, nullable) SADelegateProxyParasite *sensorsdata_parasite;
 
 /// 注册一个操作,在对象释放时调用; 重复调用该方法时,只有第一次调用时的 block 生效
 /// @param deallocBlock 操作

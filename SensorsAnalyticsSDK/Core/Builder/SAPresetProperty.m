@@ -35,7 +35,6 @@
 #import "SALog.h"
 #import "SAFileStore.h"
 #import "SADateFormatter.h"
-#import "SADeviceOrientationManager.h"
 #import "SAValidator.h"
 #import "SAModuleManager.h"
 
@@ -44,7 +43,7 @@ static NSString* const SACarrierChinaMCC = @"460";
 
 #pragma mark - device
 /// 设备 ID
-NSString * const SAEventPresetPropertyDeviceID = @"$device_id";
+NSString * const kSAEventPresetPropertyDeviceId = @"$device_id";
 /// 运营商
 static NSString * const SAEventPresetPropertyCarrier = @"$carrier";
 /// 型号
@@ -64,7 +63,7 @@ static NSString * const SAEventPresetPropertyOSVersion = @"$os_version";
 
 #pragma mark - app
 /// 应用版本
-NSString * const SAEventPresetPropertyAppVersion = @"$app_version";
+NSString * const kSAEventPresetPropertyAppVersion = @"$app_version";
 /// 应用 ID
 static NSString * const SAEventPresetPropertyAppID = @"$app_id";
 /// 应用名称
@@ -74,25 +73,21 @@ static NSString * const SAEventPresetPropertyTimezoneOffset = @"$timezone_offset
 
 #pragma mark - state
 /// 网络类型
-NSString * const SAEventPresetPropertyNetworkType = @"$network_type";
+NSString * const kSAEventPresetPropertyNetworkType = @"$network_type";
 /// 是否 WI-FI
-NSString * const SAEventPresetPropertyWifi = @"$wifi";
+NSString * const kSAEventPresetPropertyWifi = @"$wifi";
 /// 是否首日
-NSString * const SAEventPresetPropertyIsFirstDay = @"$is_first_day";
+NSString * const kSAEventPresetPropertyIsFirstDay = @"$is_first_day";
 
 #pragma mark - lib
 /// SDK 类型
-NSString * const SAEventPresetPropertyLib = @"$lib";
+NSString * const kSAEventPresetPropertyLib = @"$lib";
 /// SDK 方法
-NSString * const SAEventPresetPropertyLibMethod = @"$lib_method";
+NSString * const kSAEventPresetPropertyLibMethod = @"$lib_method";
 /// SDK 版本
-NSString * const SAEventPresetPropertyLibVersion = @"$lib_version";
+NSString * const kSAEventPresetPropertyLibVersion = @"$lib_version";
 /// SDK 版本
-NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
-
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orientation";
-#endif
+NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 
 #pragma mark -
 
@@ -126,11 +121,11 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
 
 - (NSDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod {
     NSMutableDictionary *libProperties = [NSMutableDictionary dictionary];
-    libProperties[SAEventPresetPropertyLib] = self.automaticProperties[SAEventPresetPropertyLib];
-    libProperties[SAEventPresetPropertyLibVersion] = self.automaticProperties[SAEventPresetPropertyLibVersion];
-    libProperties[SAEventPresetPropertyAppVersion] = self.automaticProperties[SAEventPresetPropertyAppVersion];
+    libProperties[kSAEventPresetPropertyLib] = self.automaticProperties[kSAEventPresetPropertyLib];
+    libProperties[kSAEventPresetPropertyLibVersion] = self.automaticProperties[kSAEventPresetPropertyLibVersion];
+    libProperties[kSAEventPresetPropertyAppVersion] = self.automaticProperties[kSAEventPresetPropertyAppVersion];
     NSString *method = [SAValidator isValidString:libMethod] ? libMethod : kSALibMethodCode;
-    libProperties[SAEventPresetPropertyLibMethod] = method;
+    libProperties[kSAEventPresetPropertyLibMethod] = method;
     return libProperties;
 }
 
@@ -148,8 +143,8 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     NSString *networkType = [SANetwork networkTypeString];
 
     NSMutableDictionary *networkProperties = [NSMutableDictionary dictionary];
-    networkProperties[SAEventPresetPropertyNetworkType] = networkType;
-    networkProperties[SAEventPresetPropertyWifi] = @([networkType isEqualToString:@"WIFI"]);
+    networkProperties[kSAEventPresetPropertyNetworkType] = networkType;
+    networkProperties[kSAEventPresetPropertyWifi] = @([networkType isEqualToString:@"WIFI"]);
     return networkProperties;
 }
 
@@ -157,37 +152,16 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
     NSMutableDictionary *presetProperties = [NSMutableDictionary dictionary];
     [presetProperties addEntriesFromDictionary:self.automaticProperties];
     [presetProperties addEntriesFromDictionary:[self currentNetworkProperties]];
-    presetProperties[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
+    presetProperties[kSAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
     return presetProperties;
 }
 
 - (NSString *)appVersion {
-    return self.automaticProperties[SAEventPresetPropertyAppVersion];
+    return self.automaticProperties[kSAEventPresetPropertyAppVersion];
 }
 
 - (NSString *)deviceID {
-    return self.automaticProperties[SAEventPresetPropertyDeviceID];
-}
-
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
-#endif
-{
-    NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
-    // 是否首日访问
-    presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
-    
-    // 采集设备方向
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-    if (orientationConfig.enableTrackScreenOrientation && [SAValidator isValidString:orientationConfig.deviceOrientation]) {
-        presetPropertiesOfTrackType[SAEventPresetPropertyScreenOrientation] = orientationConfig.deviceOrientation;
-    }
-#endif
-    // 采集地理位置信息
-    [presetPropertiesOfTrackType addEntriesFromDictionary:SAModuleManager.sharedInstance.properties];
-
-    return presetPropertiesOfTrackType;
+    return self.automaticProperties[kSAEventPresetPropertyDeviceId];
 }
 
 #pragma mark – Private Methods
@@ -311,7 +285,7 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
         if (!_automaticProperties) {
             _automaticProperties = [NSMutableDictionary dictionary];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-            _automaticProperties[SAEventPresetPropertyDeviceID] = [SAIdentifier uniqueHardwareId];
+            _automaticProperties[kSAEventPresetPropertyDeviceId] = [SAIdentifier uniqueHardwareId];
 #endif
             _automaticProperties[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
             _automaticProperties[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
@@ -323,9 +297,9 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
             _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
             _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
             _automaticProperties[SAEventPresetPropertyAppName] = [SAPresetProperty appName];
-            _automaticProperties[SAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-            _automaticProperties[SAEventPresetPropertyLib] = @"iOS";
-            _automaticProperties[SAEventPresetPropertyLibVersion] = self.libVersion;
+            _automaticProperties[kSAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+            _automaticProperties[kSAEventPresetPropertyLib] = @"iOS";
+            _automaticProperties[kSAEventPresetPropertyLibVersion] = self.libVersion;
             // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
             NSInteger minutesOffsetGMT = - ([[NSTimeZone defaultTimeZone] secondsFromGMT] / 60);
             _automaticProperties[SAEventPresetPropertyTimezoneOffset] = @(minutesOffsetGMT);

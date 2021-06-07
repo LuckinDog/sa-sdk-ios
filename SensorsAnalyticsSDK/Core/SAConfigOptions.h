@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param serverURL 数据接收地址
  @return 配置对象
  */
-- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable id)launchOptions NS_DESIGNATED_INITIALIZER;
 
 /// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
@@ -119,6 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 开启可视化全埋点
 @property (nonatomic, assign) BOOL enableVisualizedAutoTrack;
+
 #pragma mark - 请求远程配置策略
 /// 请求远程配置地址，默认从 serverURL 解析
 @property (nonatomic, copy) NSString *remoteConfigURL;
@@ -147,10 +148,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否开启加密
 @property (nonatomic, assign) BOOL enableEncrypt;
 
-/// 存储公钥的回调
+/// 存储公钥的回调。务必保存秘钥所有字段信息
 @property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey);
 
-/// 获取公钥的回调
+/// 获取公钥的回调。务必回传秘钥所有字段信息
 @property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void);
 
 /// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once

@@ -31,6 +31,7 @@
 #import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAModuleManager.h"
 
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
 #import <mach-o/dyld.h>
@@ -168,7 +169,7 @@ static void SAHandleException(NSException *exception) {
             if (instance.configOptions.enableTrackAppCrash) {
                 NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
                 if ([exception callStackSymbols]) {
-                   NSString *exceptionStack = [[exception callStackSymbols] componentsJoinedByString:@"\n"];
+                    NSString *exceptionStack = [[exception callStackSymbols] componentsJoinedByString:@"\n"];
                     
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
                     long slide_address = [SensorsAnalyticsExceptionHandler sa_computeImageSlide];
@@ -180,15 +181,13 @@ static void SAHandleException(NSException *exception) {
                     NSString *exceptionStack = [[NSThread callStackSymbols] componentsJoinedByString:@"\n"];
                     [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], exceptionStack] forKey:@"app_crashed_reason"];
                 }
-                [instance trackPresetEvent:SA_EVENT_NAME_APP_CRASHED properties:properties];
+                SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppCrashed];
+                [instance asyncTrackEventObject:object properties:properties];
             }
-            if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                [SACommonUtility performBlockOnMainThread:^{
-                    if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
-                        [instance trackAutoEvent:SA_EVENT_NAME_APP_END properties:nil];
-                    }
-                }];
-            }
+
+            // 触发退出事件
+            [SAModuleManager.sharedInstance trackAppEndWhenCrashed];
+
             // 阻塞当前线程，完成 serialQueue 中数据相关的任务
             sensorsdata_dispatch_safe_sync(instance.serialQueue, ^{});
         }

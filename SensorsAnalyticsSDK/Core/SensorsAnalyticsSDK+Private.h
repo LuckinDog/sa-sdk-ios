@@ -26,7 +26,8 @@
 #import <WebKit/WebKit.h>
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
-
+#import "SATrackEventObject.h"
+#import "SAAppLifecycle.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -43,39 +44,11 @@
 + (SensorsAnalyticsSDK *)sdkInstance;
 
 #pragma mark - method
-- (void)autoTrackViewScreen:(UIViewController *)viewController;
 
-/**
- * @abstract
- * 触发预置事件
- * @discussion
- * 调用此方法触发 SDK 除自动采集全埋点之外的所有预置事件。
- * 例如：AppCrashed、$AppInstall、$AppRemoteConfigChanged 等
-
-@param event 事件名
-@param properties 事件的属性
-*/
-- (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties;
-
-/**
-自动触发全埋点事件
-
-@param event 事件名
-@param properties 事件的属性
-*/
-- (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties;
-
-- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
-
-
-/**
- 根据 viewController 判断，是否采集事件
-
- @param controller 事件采集时的控制器
- @param type 事件类型
- @return 是否采集
- */
-- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type;
+/// 事件采集: 切换到 serialQueue 中执行
+/// @param object 事件对象
+/// @param properties 事件属性
+- (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
 /**
 向 WKWebView 注入 Message Handler
@@ -84,24 +57,15 @@
 */
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 
-/**
-获取当前设备的 UserAgent 值
-
-@param completion 获取结果的回调函数
-*/
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
+/// 开启可视化模块
+- (void)enableVisualize;
 
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
-
 @property (nonatomic, strong, readonly) SANetwork *network;
 
-@property (nonatomic, weak) UIViewController *previousTrackViewController;
-
 @end
-
-
 
 /**
  SAConfigOptions 实现
@@ -113,7 +77,7 @@
 @property(atomic, copy) NSString *serverURL;
 
 /// App 启动的 launchOptions
-@property(nonatomic, copy) NSDictionary *launchOptions;
+@property(nonatomic, strong) id launchOptions;
 
 @end
 

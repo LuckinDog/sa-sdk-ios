@@ -19,6 +19,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAPropertyModuleProtocol <SAModuleProtocol>
 
+@optional
 @property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
 
 @end
@@ -71,6 +74,52 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #pragma mark -
+@protocol SAVisualizedModuleProtocol <NSObject>
+
+/// 是否正在连接
+@property (nonatomic, assign, readonly, getter=isConnecting) BOOL connecting;
+
+/// 元素相关属性
+/// @param view 需要采集的 view
+- (nullable NSDictionary *)propertiesWithView:(UIView *)view;
+
+/// 指定页面开启可视化
+/// @param controllers  需要开启可视化 ViewController 的类名
+- (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers;
+
+/// 判断某个页面是否开启可视化
+/// @param viewController 当前页面 viewController
+- (BOOL)isVisualizeWithViewController:(UIViewController *)viewController;
+
+#pragma mark visualProperties
+
+/// 采集元素自定义属性
+/// @param view 触发事件的元素
+/// @param completionHandler 采集完成回调
+- (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
+
+@end
+
+@protocol SADebugModeModuleProtocol <NSObject>
+
+/// Debug Mode 属性，设置或获取 Debug 模式
+@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
+
+/// 设置在 Debug 模式下，是否弹窗显示错误信息
+/// @param isShow 是否显示
+- (void)setShowDebugAlertView:(BOOL)isShow;
+
+/// 设置 SDK 的 DebugMode 在 Debug 模式时弹窗警告
+/// @param mode Debug 模式
+- (void)handleDebugMode:(SensorsAnalyticsDebugMode)mode;
+
+/// Debug 模式下，弹窗显示错误信息
+/// @param message 错误信息
+- (void)showDebugModeWarning:(NSString *)message;
+
+@end
+
+#pragma mark -
 
 @protocol SAEncryptModuleProtocol <NSObject>
 
@@ -95,12 +144,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
-@protocol SAGestureModuleProtocol <NSObject>
+@protocol SADeeplinkModuleProtocol <NSObject>
 
-/// 校验可视化全埋点元素能否选中
-/// @param obj 控件元素
-/// @return 返回校验结果
-- (BOOL)isGestureVisualView:(id)obj;
+/// DeepLink 回调函数
+/// @param linkHandlerCallback  callback 请求成功后的回调函数
+///     - params：创建渠道链接时填写的 App 内参数
+///     - succes：deeplink 唤起结果
+///     - appAwakePassedTime：获取渠道信息所用时间
+- (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback;
+
+/// 最新的来源渠道信息
+@property (nonatomic, copy, nullable, readonly) NSDictionary *latestUtmProperties;
+
+/// 当前 DeepLink 启动时的来源渠道信息
+@property (nonatomic, copy, readonly) NSDictionary *utmProperties;
+
+/// 清除本次 DeepLink 解析到的 utm 信息
+- (void)clearUtmProperties;
+
+@end
+
+#pragma mark -
+
+@protocol SAAutoTrackModuleProtocol <NSObject>
+
+/// 触发 App 崩溃时的退出事件
+- (void)trackAppEndWhenCrashed;
 
 @end
 

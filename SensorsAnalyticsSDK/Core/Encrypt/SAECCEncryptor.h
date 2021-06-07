@@ -18,14 +18,14 @@
 // limitations under the License.
 //
 
-#import "SAAbstractEncryptor.h"
-
-extern NSString * const kSAEncryptECCPrefix;
-extern NSString * const kSAEncryptECCClassName;
+#import <Foundation/Foundation.h>
+#import "SAAlgorithmProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAECCEncryptor : SAAbstractEncryptor
+@interface SAECCEncryptor : NSObject <SAAlgorithmProtocol>
+
+@property (nonatomic, copy) NSString *key;
 
 @end
 
