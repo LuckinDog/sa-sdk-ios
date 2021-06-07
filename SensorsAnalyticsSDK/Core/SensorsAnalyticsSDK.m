@@ -348,7 +348,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-        [self trackEventObject:object properties:properties];
+        [self trackEventObject:object properties:properties isRemoteConfigValid:YES];
     });
 }
 
@@ -702,20 +702,31 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
     object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
-        [self trackEventObject:object properties:properties];
+        [self trackEventObject:object properties:properties isRemoteConfigValid:YES];
     });
 }
 
-- (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-    // 1. 远程控制校验
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return;
-    }
+- (void)asyncTrackRemoteConfigInvalidEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
+    dispatch_async(self.serialQueue, ^{
+        [self trackEventObject:object properties:properties isRemoteConfigValid:NO];
+    });
+}
 
-    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:object.event]) {
-        SALogDebug(@"【remote config】 %@ is ignored by remote config", object.event);
-        return;
+- (void)trackEventObject:(SABaseEventObject *)object
+              properties:(NSDictionary *)properties
+     isRemoteConfigValid:(BOOL)isRemoteConfigValid {
+    // 1. 远程控制校验
+    if (isRemoteConfigValid) {
+        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+            SALogDebug(@"【remote config】SDK is disabled");
+            return;
+        }
+
+        if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:object.event]) {
+            SALogDebug(@"【remote config】 %@ is ignored by remote config", object.event);
+            return;
+        }
     }
 
     // 2. 事件名校验
@@ -869,7 +880,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
         [object addChannelProperties:[self channelPropertiesWithEvent:object.event]];
-        [self trackEventObject:object properties:properties];
+        [self trackEventObject:object properties:properties isRemoteConfigValid:YES];
     });
 }
 
@@ -1204,7 +1215,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:event];
-        [strongSelf asyncTrackEventObject:object properties:properties];
+        [strongSelf asyncTrackRemoteConfigInvalidEventObject:object properties:properties];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
     };
