@@ -28,10 +28,8 @@
 #import "SAFileStore.h"
 #import "SAValidator.h"
 #import "SALog.h"
+#import "SAKeyChainItemWrapper.h"
 
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-    #import "SAKeyChainItemWrapper.h"
-#endif
 
 @interface SAIdentifier ()
 
@@ -84,9 +82,7 @@
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
     [SAFileStore archiveWithFileName:kSAEventDistinctId value:anonymousId];
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper saveUdid:anonymousId];
-#endif
 }
 
 - (void)resetAnonymousId {
@@ -171,7 +167,6 @@
 - (NSString *)unarchiveAnonymousId {
     NSString *anonymousId = [SAFileStore unarchiveWithFileName:kSAEventDistinctId];
 
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
@@ -180,16 +175,13 @@
         }
         anonymousId = distinctIdInKeychain;
     } else {
-#endif
         if (anonymousId.length == 0) {
             anonymousId = [SAIdentifier uniqueHardwareId];
             [self archiveAnonymousId:anonymousId];
         } else {
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
             //保存 KeyChain
             [SAKeyChainItemWrapper saveUdid:anonymousId];
         }
-#endif
     }
     return anonymousId;
 }

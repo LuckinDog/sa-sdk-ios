@@ -165,7 +165,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     return super.sensorsdata_elementContent;
 }
 
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
 - (NSString *)sensorsdata_elementPosition {
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
@@ -173,7 +172,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     }
     return [super sensorsdata_elementPosition];
 }
-#endif
 
 @end
 
@@ -210,7 +208,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 
 @implementation UIControl (AutoTrack)
 
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
 - (BOOL)sensorsdata_isIgnored {
     // 忽略 UITabBarItem
     BOOL ignoredUITabBarItem = [[SensorsAnalyticsSDK sdkInstance] isViewTypeIgnored:UITabBarItem.class] && [NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"];
@@ -247,7 +244,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 
     return super.sensorsdata_elementPosition;
 }
-#endif
 
 @end
 

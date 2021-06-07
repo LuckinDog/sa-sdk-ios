@@ -52,6 +52,10 @@
         _maxRequestHourInterval = 48;
 
         _flushBeforeEnterBackground = YES;
+
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
+        _enableTrackChildViewScreen = YES;
+#endif
     }
     return self;
 }
@@ -63,6 +67,7 @@
     options.launchOptions = self.launchOptions;
 
     options.autoTrackEventType = self.autoTrackEventType;
+    options.enableTrackChildViewScreen = self.enableTrackChildViewScreen;
     options.enableJavaScriptBridge = self.enableJavaScriptBridge;
     options.enableTrackAppCrash = self.enableTrackAppCrash;
     options.flushInterval = self.flushInterval;

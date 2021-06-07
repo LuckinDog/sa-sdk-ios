@@ -35,10 +35,7 @@
 #import "NSString+HashCode.h"
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
-
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-    #import "SAKeyChainItemWrapper.h"
-#endif
+#import "SAKeyChainItemWrapper.h"
 
 #import <WebKit/WebKit.h>
 
