@@ -176,7 +176,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SensorsAnalyticsNetworkType5G |
 #endif
                 SensorsAnalyticsNetworkTypeWIFI;
-
+            
             _people = [[SensorsAnalyticsPeople alloc] init];
 
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
@@ -187,7 +187,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
             [[SAReachability sharedInstance] startMonitoring];
-
+            
             _network = [[SANetwork alloc] init];
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
@@ -197,18 +197,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
 
             _trackChannelEventNames = [[NSMutableSet alloc] init];
-
+            
             _trackTimer = [[SATrackTimer alloc] init];
 
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
 
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
-
+            
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
-
+            
             _superProperty = [[SASuperProperty alloc] init];
-
+            
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchiveTrackChannelEvents];
 
@@ -216,11 +216,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
-
+            
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
             }
-
+            
             // WKWebView 打通
             if (_configOptions.enableJavaScriptBridge) {
                 [self swizzleWebViewMethod];
@@ -235,11 +235,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
             }
         }
-
+        
     } @catch(NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
-
+    
     return self;
 }
 
@@ -248,7 +248,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!securityPolicy) {
         return;
     }
-
+    
 #ifdef DEBUG
     NSURL *serverURL = [NSURL URLWithString:options.serverURL];
     if (securityPolicy.SSLPinningMode != SASSLPinningModeNone && ![serverURL.scheme isEqualToString:@"https"]) {
@@ -268,7 +268,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         @throw [NSException exceptionWithName:@"Invalid Security Policy" reason:reason userInfo:nil];
     }
 #endif
-
+    
     SAHTTPSession.sharedInstance.securityPolicy = securityPolicy;
 }
 
@@ -412,7 +412,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)startAppLifecycle {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
-
+    
     _appLifecycle = [[SAAppLifecycle alloc] init];
 }
 
@@ -511,10 +511,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!url) {
         return NO;
     }
-
+    
     // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
     [[SAReachability sharedInstance] startMonitoring];
-
+    
     if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
         [self enableLog:YES];
         [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
@@ -643,7 +643,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     itemDict[kSAEventType] = SA_EVENT_ITEM_DELETE;
     itemDict[SA_EVENT_ITEM_TYPE] = itemType;
     itemDict[SA_EVENT_ITEM_ID] = itemId;
-
+    
     dispatch_async(self.serialQueue, ^{
         [self trackItems:itemDict properties:nil];
     });
@@ -664,7 +664,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SALogError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
         return;
     }
-
+    
     // 校验 properties
     NSError *error = nil;
     propertyDict = [SAPropertyValidator validProperties:[propertyDict copy] error:&error];
@@ -674,9 +674,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
         return;
     }
-
+    
     NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
-
+    
     // 处理 $project
     NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     id project = propertyMDict[kSAEventCommonOptionalPropertyProject];
@@ -684,11 +684,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         itemProperties[kSAEventProject] = project;
         [propertyMDict removeObjectForKey:kSAEventCommonOptionalPropertyProject];
     }
-
+    
     if (propertyMDict.count > 0) {
         itemProperties[kSAEventProperties] = propertyMDict;
     }
-
+    
     itemProperties[kSAEventLib] = [self.presetProperty libPropertiesWithLibMethod:kSALibMethodCode];
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
@@ -748,7 +748,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         channelInfo[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
         [object addChannelProperties:channelInfo];
     }
-
+    
     if (self.configOptions.enableReferrerTitle) {
         [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
     }
@@ -1035,7 +1035,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
             return;
         }
-
+        
         if (self.configOptions.flushInterval > 0) {
             double interval = self.configOptions.flushInterval > 100 ? (double)self.configOptions.flushInterval / 1000.0 : 0.1f;
             self.timer = [NSTimer scheduledTimerWithTimeInterval:interval
@@ -1193,7 +1193,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SARemoteConfigOptions *options = [[SARemoteConfigOptions alloc] init];
     options.configOptions = _configOptions;
     options.currentLibVersion = [self libVersion];
-
+    
     __weak typeof(self) weakSelf = self;
     options.createEncryptorResultBlock = ^BOOL{
         return SAModuleManager.sharedInstance.hasSecretKey;
@@ -1214,16 +1214,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
             [strongSelf enableLog:NO];
         }
-
+        
         isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
     };
-
+    
     [SARemoteConfigManager startWithRemoteConfigOptions:options];
 }
 
 - (void)performDisableSDKTask {
     [self stopFlushTimer];
-
+    
     [self removeWebViewUserAgent];
 
     // 停止采集数据之后 flush 本地数据
@@ -1232,7 +1232,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)performEnableSDKTask {
     [self startFlushTimer];
-
+    
     [self appendWebViewUserAgent];
 }
 
@@ -1241,12 +1241,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 没有开启老版打通
         return;
     }
-
+    
     NSString *currentUserAgent = [SACommonUtility currentUserAgent];
     if (![currentUserAgent containsString:self.addWebViewUserAgent]) {
         return;
     }
-
+    
     NSString *newUserAgent = [currentUserAgent stringByReplacingOccurrencesOfString:self.addWebViewUserAgent withString:@""];
     self.userAgent = newUserAgent;
     [SACommonUtility saveUserAgent:self.userAgent];
@@ -1257,12 +1257,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 没有开启老版打通
         return;
     }
-
+    
     NSString *currentUserAgent = [SACommonUtility currentUserAgent];
     if ([currentUserAgent containsString:self.addWebViewUserAgent]) {
         return;
     }
-
+    
     NSMutableString *newUserAgent = [NSMutableString string];
     if (currentUserAgent) {
         [newUserAgent appendString:currentUserAgent];
@@ -1322,7 +1322,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
     __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
-
+    
     dispatch_async(self.serialQueue, ^{
         @try {
             if (!eventInfo) {
