@@ -118,12 +118,12 @@
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
-    NSString *eventConfigStr = @"";
+    NSString *eventConfigString = nil;
     NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:remoteConfig];
     if (eventConfigData) {
-        eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
+        eventConfigString = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }
-    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
+    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigString ?: @""});
 }
 
 - (void)enableRemoteConfig:(NSDictionary *)config {
