@@ -35,8 +35,8 @@
 static NSString * const kSASignalExceptionName = @"UncaughtExceptionHandlerSignalExceptionName";
 static NSString * const kSASignalKey = @"UncaughtExceptionHandlerSignalKey";
 
-static volatile int32_t kSACount = 0;
-static const int32_t kSAMaximum = 10;
+static volatile int32_t kSAExceptionCount = 0;
+static const int32_t kSAExceptionMaximum = 10;
 
 static NSString * const kSAAppCrashedReason = @"app_crashed_reason";
 
@@ -96,8 +96,8 @@ static NSString * const kSAAppCrashedReason = @"app_crashed_reason";
 #pragma mark - Handler
 
 static void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
-    int32_t exceptionCount = OSAtomicIncrement32(&kSACount);
-    if (exceptionCount <= kSAMaximum) {
+    int32_t exceptionCount = OSAtomicIncrement32(&kSAExceptionCount);
+    if (exceptionCount <= kSAExceptionMaximum) {
         NSDictionary *userInfo = @{kSASignalKey: @(crashSignal)};
         NSString *reason;
         @try {
@@ -130,8 +130,8 @@ static void SASignalHandler(int crashSignal, struct __siginfo *info, void *conte
 }
 
 static void SAHandleException(NSException *exception) {
-    int32_t exceptionCount = OSAtomicIncrement32(&kSACount);
-    if (exceptionCount <= kSAMaximum) {
+    int32_t exceptionCount = OSAtomicIncrement32(&kSAExceptionCount);
+    if (exceptionCount <= kSAExceptionMaximum) {
         [SAExceptionManager.sharedInstance handleUncaughtException:exception];
     }
 
