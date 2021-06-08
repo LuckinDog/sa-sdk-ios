@@ -88,10 +88,4 @@ Pod::Spec.new do |s|
     w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
   end
 
-  # 采集 crash slideAdress 信息，需要打开 enableTrackAppCrash 才生效
-  s.subspec 'CRASH_SLIDEADDRESS' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_CRASH_SLIDEADDRESS=1'}
-  end
-
 end
