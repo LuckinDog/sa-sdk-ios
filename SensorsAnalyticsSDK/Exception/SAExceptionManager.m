@@ -32,10 +32,6 @@
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
 
-#ifdef SENSORS_ANALYTICS_CRASH_SLIDEADDRESS
-#import <mach-o/dyld.h>
-#endif
-
 static NSString * const kSASignalExceptionName = @"UncaughtExceptionHandlerSignalExceptionName";
 static NSString * const kSASignalKey = @"UncaughtExceptionHandlerSignalKey";
 
@@ -150,13 +146,7 @@ static void SAHandleException(NSException *exception) {
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         if ([exception callStackSymbols]) {
             NSString *exceptionStack = [[exception callStackSymbols] componentsJoinedByString:@"\n"];
-
-#ifdef SENSORS_ANALYTICS_CRASH_SLIDEADDRESS
-            long slide_address = [SAExceptionManager computeImageSlide];
-            properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address, exceptionStack];
-#else
             properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], exceptionStack];
-#endif
         } else {
             NSString *exceptionStack = [[NSThread callStackSymbols] componentsJoinedByString:@"\n"];
             properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"%@ %@", [exception reason], exceptionStack];
@@ -181,21 +171,5 @@ static void SAHandleException(NSException *exception) {
     signal(SIGFPE, SIG_DFL);
     signal(SIGBUS, SIG_DFL);
 }
-
-#ifdef SENSORS_ANALYTICS_CRASH_SLIDEADDRESS
-/** 增加 crash slideAdress 采集支持
- *  @return the slide of this binary image
- */
-+ (long)computeImageSlide {
-    long slide = -1;
-    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
-        if (_dyld_get_image_header(i)->filetype == MH_EXECUTE) {
-            slide = _dyld_get_image_vmaddr_slide(i);
-            break;
-        }
-    }
-    return slide;
-}
-#endif
 
 @end
