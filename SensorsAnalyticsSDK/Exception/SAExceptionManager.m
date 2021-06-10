@@ -99,12 +99,7 @@ static void SASignalHandler(int crashSignal, struct __siginfo *info, void *conte
     int32_t exceptionCount = OSAtomicIncrement32(&kSAExceptionCount);
     if (exceptionCount <= kSAExceptionMaximum) {
         NSDictionary *userInfo = @{kSASignalKey: @(crashSignal)};
-        NSString *reason;
-        @try {
-            reason = [NSString stringWithFormat:@"Signal %d was raised.", crashSignal];
-        } @catch(NSException *exception) {
-            //ignored
-        }
+        NSString *reason = [NSString stringWithFormat:@"Signal %d was raised.", crashSignal];
 
         @try {
             NSException *exception = [NSException exceptionWithName:kSASignalExceptionName
