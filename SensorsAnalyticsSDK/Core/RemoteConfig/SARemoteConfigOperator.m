@@ -104,13 +104,18 @@
 }
 
 - (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config {
-    NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionaryWithDictionary:config[@"configs"]];
-    [configs removeObjectForKey:@"key"];
-    
-    NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:config];
-    remoteConfig[@"configs"] = configs;
-    
-    return remoteConfig;
+    @try {
+        NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionaryWithDictionary:config[@"configs"]];
+        [configs removeObjectForKey:@"key"];
+
+        NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:config];
+        remoteConfig[@"configs"] = configs;
+
+        return remoteConfig;
+    } @catch (NSException *exception) {
+        SALogError(@"【remote config】%@ error: %@", self, exception);
+        return nil;
+    }
 }
 
 - (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
@@ -123,7 +128,7 @@
     if (eventConfigData) {
         eventConfigString = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }
-    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigString ?: @""});
+    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{kSAEventPropertyAppRemoteConfig : eventConfigString ?: @""});
 }
 
 - (void)enableRemoteConfig:(NSDictionary *)config {
