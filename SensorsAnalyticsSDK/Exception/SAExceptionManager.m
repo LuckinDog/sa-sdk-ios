@@ -100,16 +100,11 @@ static void SASignalHandler(int crashSignal, struct __siginfo *info, void *conte
     if (exceptionCount <= kSAExceptionMaximum) {
         NSDictionary *userInfo = @{kSASignalKey: @(crashSignal)};
         NSString *reason = [NSString stringWithFormat:@"Signal %d was raised.", crashSignal];
+        NSException *exception = [NSException exceptionWithName:kSASignalExceptionName
+                                                         reason:reason
+                                                       userInfo:userInfo];
 
-        @try {
-            NSException *exception = [NSException exceptionWithName:kSASignalExceptionName
-                                                             reason:reason
-                                                           userInfo:userInfo];
-
-            [SAExceptionManager.sharedInstance handleUncaughtException:exception];
-        } @catch(NSException *exception) {
-
-        }
+        [SAExceptionManager.sharedInstance handleUncaughtException:exception];
     }
 
     struct sigaction prev_action = SAExceptionManager.sharedInstance.prev_signal_handlers[crashSignal];
@@ -139,13 +134,8 @@ static void SAHandleException(NSException *exception) {
     // Archive the values for each SensorsAnalytics instance
     @try {
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        if ([exception callStackSymbols]) {
-            NSString *exceptionStack = [[exception callStackSymbols] componentsJoinedByString:@"\n"];
-            properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], exceptionStack];
-        } else {
-            NSString *exceptionStack = [[NSThread callStackSymbols] componentsJoinedByString:@"\n"];
-            properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"%@ %@", [exception reason], exceptionStack];
-        }
+        NSArray<NSString *> *callStackSymbols = [exception callStackSymbols] ?: [NSThread callStackSymbols];
+        properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [callStackSymbols componentsJoinedByString:@"\n"]];
         SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppCrashed];
         [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 

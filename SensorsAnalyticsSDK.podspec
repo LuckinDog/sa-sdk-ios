@@ -69,7 +69,7 @@ Pod::Spec.new do |s|
 
   # 使用崩溃事件采集
   s.subspec 'Exception' do |e|
-    e.dependency 'SensorsAnalyticsSDK/Core'
+    e.dependency 'SensorsAnalyticsSDK/Common'
     e.source_files  =  "SensorsAnalyticsSDK/Exception/**/*.{h,m}"
     e.private_header_files = 'SensorsAnalyticsSDK/Exception/**/*.h'
   end
