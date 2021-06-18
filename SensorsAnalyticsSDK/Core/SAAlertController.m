@@ -260,8 +260,4 @@
 
 @end
 
-#elif TARGET_OS_MAC
-
-#else
-
 #endif

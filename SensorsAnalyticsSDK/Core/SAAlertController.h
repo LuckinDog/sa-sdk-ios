@@ -18,12 +18,10 @@
 //  limitations under the License.
 //
 
+#import <Foundation/Foundation.h>
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
-#elif TARGET_OS_MAC
-
-#else
-
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -88,10 +86,6 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
 - (void)show;
 
 @end
-
-#elif TARGET_OS_MAC
-
-#else
 
 #endif
 

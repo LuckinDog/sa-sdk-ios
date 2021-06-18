@@ -19,6 +19,11 @@
 //
 
 #import <Foundation/Foundation.h>
+
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
 #import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -73,6 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #pragma mark -
+
+#if TARGET_OS_IPHONE
 @protocol SAVisualizedModuleProtocol <NSObject>
 
 /// 是否正在连接
@@ -98,6 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
 
 @end
+#endif
 
 @protocol SADebugModeModuleProtocol <NSObject>
 

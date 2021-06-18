@@ -22,7 +22,6 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import <Foundation/Foundation.h>
 #import "SAIdentifier.h"
 #import "SAConstants+Private.h"
 #import "SAFileStore.h"
@@ -30,7 +29,11 @@
 #import "SALog.h"
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-    #import "SAKeyChainItemWrapper.h"
+#import "SAKeyChainItemWrapper.h"
+#endif
+
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
 #endif
 
 @interface SAIdentifier ()
@@ -147,7 +150,10 @@
 }
 
 + (NSString *)idfv {
-    return [UIDevice currentDevice].identifierForVendor.UUIDString;;
+#if TARGET_OS_IPHONE
+    return [UIDevice currentDevice].identifierForVendor.UUIDString;
+#endif
+    return nil;
 }
 
 + (NSString *)uniqueHardwareId {
