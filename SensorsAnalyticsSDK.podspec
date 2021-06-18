@@ -7,8 +7,9 @@ Pod::Spec.new do |s|
   s.license = { :type => "Apache License, Version 2.0" }
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.platform = :ios, "8.0"
+  s.platform = :osx, "10.10"
   s.default_subspec = 'Core'
-  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
+  s.frameworks = 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'Common' do |c|
@@ -20,6 +21,13 @@ Pod::Spec.new do |s|
   
   s.subspec 'Core' do |c|
     c.dependency 'SensorsAnalyticsSDK/Visualized'
+  end
+
+  # 渠道匹配
+  s.subspec 'ChannelMatch' do |c|
+    c.dependency 'SensorsAnalyticsSDK/Core'
+    c.source_files = "SensorsAnalyticsSDK/Channel/**/*.{h,m}"
+    c.private_header_files = 'SensorsAnalyticsSDK/Channel/**/*.h'
   end
 
   # 支持 CAID 渠道匹配
@@ -34,6 +42,8 @@ Pod::Spec.new do |s|
     g.dependency 'SensorsAnalyticsSDK/Common'
     g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}"
     g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h'
+    g.frameworks = 'UIKit'
+
   end
 
 # 可视化相关功能，包含可视化全埋点和点击图

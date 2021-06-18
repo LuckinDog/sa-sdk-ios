@@ -70,6 +70,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
 @end
 
+#if TARGET_OS_IPHONE
 #pragma mark -
 @interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
 
@@ -77,6 +78,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @property (nonatomic, assign, readonly, getter=isConnecting) BOOL connecting;
 
 @end
+#endif
 
 @interface SAModuleManager (DebugMode) <SADebugModeModuleProtocol>
 

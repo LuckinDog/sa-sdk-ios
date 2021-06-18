@@ -229,6 +229,7 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @end
 
+#if TARGET_OS_IPHONE
 #pragma mark -
 @implementation SAModuleManager (Visualized)
 
@@ -264,6 +265,7 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 }
 
 @end
+#endif
 
 @implementation SAModuleManager (DebugMode)
 
