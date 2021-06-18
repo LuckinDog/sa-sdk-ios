@@ -22,7 +22,6 @@
 #define SensorsAnalyticsSDK_Private_h
 #import "SensorsAnalyticsSDK.h"
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 #import "SANetwork.h"
 #import "SAHTTPSession.h"

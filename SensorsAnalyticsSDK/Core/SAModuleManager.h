@@ -19,7 +19,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN

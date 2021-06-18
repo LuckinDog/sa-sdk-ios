@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #import "SAIdentifier.h"
 #import "SAConstants+Private.h"
 #import "SAFileStore.h"

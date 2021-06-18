@@ -25,7 +25,10 @@
 #import "SACommonUtility.h" 
 #import "SAValidator.h"
 #import <CommonCrypto/CommonDigest.h>
+
+#if TARGET_OS_IPHONE
 #import <UIKit/UIDevice.h>
+#endif
 
 @implementation SACommonUtility
 
@@ -64,9 +67,13 @@
 }
 
 + (NSString *)simulateUserAgent {
+#if TARGET_OS_IPHONE
     NSString *version = [UIDevice.currentDevice.systemVersion stringByReplacingOccurrencesOfString:@"." withString:@"_"];
     NSString *model = UIDevice.currentDevice.model;
     return [NSString stringWithFormat:@"Mozilla/5.0 (%@; CPU OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile", model, version];
+#else
+    return nil;
+#endif
 }
 
 + (NSString *)currentUserAgent {

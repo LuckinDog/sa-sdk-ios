@@ -24,6 +24,8 @@
 
 #import "SAAlertController.h"
 
+#if TARGET_OS_IPHONE
+
 #pragma mark - SAAlertAction
 @interface SAAlertAction ()
 @property (nonatomic) NSInteger tag;
@@ -62,7 +64,7 @@
         _alertMessage = message;
         _preferredStyle = preferredStyle;
         _actions = [NSMutableArray arrayWithCapacity:4];
-        
+
         if (NSClassFromString(@"UIAlertController")) {
             UIWindow *alertWindow = [self currentAlertWindow];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
@@ -129,7 +131,7 @@
     self.view.frame = CGRectZero;
     [self.alertWindow.rootViewController.view addSubview:self.view];
     [self.alertWindow.rootViewController addChildViewController:self];
-    
+
     __block NSString *cancelButtonTitle = nil;
     __block NSString *otherButtonTitle1 = nil;
     __block NSString *otherButtonTitle2 = nil;
@@ -166,14 +168,14 @@
     self.view.frame = CGRectZero;
     [self.alertWindow.rootViewController.view addSubview:self.view];
     [self.alertWindow.rootViewController addChildViewController:self];
-    
+
     NSString *cancelButtonTitle = nil;
     NSString *destructiveButtonTitle = nil;
     __block NSString *otherButtonTitle1 = nil;
     __block NSString *otherButtonTitle2 = nil;
     __block NSString *otherButtonTitle3 = nil;
     __block NSString *otherButtonTitle4 = nil;
-    
+
     NSInteger startTag = 0;
     for (SAAlertAction *obj in self.actions) {
         if (obj.style == SAAlertActionStyleCancel) {
@@ -236,7 +238,7 @@
     }
     [self.actions removeAllObjects];
     self.actions = nil;
-    
+
     [self.view removeFromSuperview];
     [self removeFromParentViewController];
 }
@@ -251,9 +253,15 @@
     }
     [self.actions removeAllObjects];
     self.actions = nil;
-    
+
     [self.view removeFromSuperview];
     [self removeFromParentViewController];
 }
 
 @end
+
+#elif TARGET_OS_MAC
+
+#else
+
+#endif

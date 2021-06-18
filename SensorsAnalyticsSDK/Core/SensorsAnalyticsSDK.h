@@ -18,8 +18,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <UIKit/UIApplication.h>
 
 #import "SensorsAnalyticsSDK+Public.h"
 #import "SASecurityPolicy.h"
