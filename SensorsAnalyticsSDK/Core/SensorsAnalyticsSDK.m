@@ -1171,10 +1171,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)clearKeychainData {
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
-#endif
-
 }
 
 #pragma mark - RemoteConfig
