@@ -54,7 +54,7 @@
         _flushBeforeEnterBackground = YES;
 
 #ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
-        _enableTrackChildViewScreen = YES;
+        _enableAutoTrackChildViewScreen = YES;
 #endif
     }
     return self;
