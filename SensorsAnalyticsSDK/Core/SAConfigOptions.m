@@ -67,7 +67,7 @@
     options.launchOptions = self.launchOptions;
 
     options.autoTrackEventType = self.autoTrackEventType;
-    options.enableTrackChildViewScreen = self.enableTrackChildViewScreen;
+    options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
     options.enableJavaScriptBridge = self.enableJavaScriptBridge;
     options.enableTrackAppCrash = self.enableTrackAppCrash;
     options.flushInterval = self.flushInterval;

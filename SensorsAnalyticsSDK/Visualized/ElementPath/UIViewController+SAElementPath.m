@@ -86,7 +86,7 @@
 }
 
 - (void)sensorsdata_visualize_viewDidAppear:(BOOL)animated {
-    if (SAAutoTrackManager.sharedInstance.configOptions.enableTrackChildViewScreen ||
+    if (SAAutoTrackManager.sharedInstance.configOptions.enableAutoTrackChildViewScreen ||
         !self.parentViewController ||
         [self.parentViewController isKindOfClass:[UITabBarController class]] ||
         [self.parentViewController isKindOfClass:[UINavigationController class]] ||

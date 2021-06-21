@@ -80,7 +80,7 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
             }
         }
 
-        if (SAAutoTrackManager.sharedInstance.configOptions.enableTrackChildViewScreen ||
+        if (SAAutoTrackManager.sharedInstance.configOptions.enableAutoTrackChildViewScreen ||
             !self.parentViewController ||
             [self.parentViewController isKindOfClass:[UITabBarController class]] ||
             [self.parentViewController isKindOfClass:[UINavigationController class]] ||
