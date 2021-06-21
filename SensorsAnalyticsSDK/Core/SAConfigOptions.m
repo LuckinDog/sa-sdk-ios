@@ -51,7 +51,7 @@
         _minRequestHourInterval = 24;
         _maxRequestHourInterval = 48;
 
-        _flushBeforeEnterBackground = YES;
+        _flushBeforeEnterBackground = NO;
     }
     return self;
 }
