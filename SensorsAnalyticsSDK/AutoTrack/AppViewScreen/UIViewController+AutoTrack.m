@@ -78,8 +78,7 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
         if (self.navigationController && self.parentViewController == self.navigationController) {
             // 全埋点中，忽略由于侧滑部分返回原页面，重复触发 $AppViewScreen 事件
             if (self.navigationController.sensorsdata_previousViewController == self) {
-                [self sa_autotrack_viewDidAppear:animated];
-                return;
+                return [self sa_autotrack_viewDidAppear:animated];
             }
         }
         
