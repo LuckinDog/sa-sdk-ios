@@ -822,7 +822,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event {
-    [self track:event withProperties:nil];;
+    [self track:event withProperties:nil];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
