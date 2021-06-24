@@ -73,7 +73,7 @@
 #import "SARemoteConfigEventObject.h"
 #import "SABaseEventObject+RemoteConfig.h"
 
-#define VERSION @"2.6.6"
+#define VERSION @"2.6.7"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
