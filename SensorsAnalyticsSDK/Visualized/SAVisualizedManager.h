@@ -33,7 +33,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsVisualizedType) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAVisualizedManager : NSObject<SAModuleProtocol, SAOpenURLProtocol, SAVisualizedModuleProtocol>
+@interface SAVisualizedManager : NSObject<SAModuleProtocol, SAOpenURLProtocol, SAVisualizedModuleProtocol, SAJavaScriptBridgeModuleProtocol>
 
 @property (class,nonatomic, strong, readonly)SAVisualizedManager *sharedInstance;
 

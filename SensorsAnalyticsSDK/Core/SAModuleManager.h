@@ -25,13 +25,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
-    SAModuleTypeChannelMatch,
     SAModuleTypeVisualized,
-    SAModuleTypeEncrypt,
     SAModuleTypeDeviceOrientation,
     SAModuleTypeReactNative,
     SAModuleTypeAppPush,
     SAModuleTypeAutoTrack,
+    SAModuleTypeJavaScriptBridge,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -74,9 +73,6 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 #pragma mark -
 @interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
 
-/// 是否正在连接
-@property (nonatomic, assign, readonly, getter=isConnecting) BOOL connecting;
-
 @end
 #endif
 
@@ -106,6 +102,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 #pragma mark -
 
 @interface SAModuleManager (AutoTrack) <SAAutoTrackModuleProtocol>
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (JavaScriptBridge) <SAJavaScriptBridgeModuleProtocol>
 
 @end
 
