@@ -18,7 +18,6 @@
 // limitations under the License.
 //
 
-#import "SAEncryptProtocol.h"
 #import "SAConfigOptions.h"
 
 @interface SAConfigOptions (Private)
