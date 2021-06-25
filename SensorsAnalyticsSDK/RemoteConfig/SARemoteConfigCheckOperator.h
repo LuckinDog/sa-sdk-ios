@@ -1,8 +1,8 @@
 //
-// SARemoteConfigCommonOperator.h
+// SARemoteConfigCheckOperator.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/7/20.
+// Created by wenquan on 2020/11/1.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,13 +22,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// 远程配置普通模式处理类
-@interface SARemoteConfigCommonOperator : SARemoteConfigOperator
+/// 远程配置校验模式处理类
+@interface SARemoteConfigCheckOperator : SARemoteConfigOperator
 
-/// 初始化远程配置普通模式处理类
-/// @param options 输入的远程配置参数
-/// @return 远程配置普通模式处理类的实例
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
+/// 初始化远程配置校验模式处理类
+/// @param model 输入的远程配置模型
+/// @return 远程配置校验模式处理类的实例
+- (instancetype)initWithRemoteConfigModel:(SARemoteConfigModel *)model;
 
 @end
 

@@ -40,6 +40,7 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
+static NSString * const kSARemoteConfigModuleName = @"RemoteConfig";
 
 static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
 
@@ -87,6 +88,9 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
     if (configOptions.enableJavaScriptBridge) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     }
+
+    // 开启远程配置模块（因为部分模块依赖于远程配置，所以远程配置模块的初始化放到最后）
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSARemoteConfigModuleName];
 }
 
 + (instancetype)sharedInstance {
@@ -115,6 +119,8 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
             return kSAVisualizedModuleName;
         case SAModuleTypeJavaScriptBridge:
             return kSAJavaScriptBridgeModuleName;
+        case SAModuleTypeRemoteConfig:
+            return kSARemoteConfigModuleName;
         default:
             return nil;
     }
@@ -385,6 +391,43 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
         }
     }];
     return source;
+}
+
+@end
+
+@implementation SAModuleManager (RemoteConfig)
+
+- (id<SARemoteConfigModuleProtocol>)remoteConfigManager {
+    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)self.modules[kSARemoteConfigModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
+- (BOOL)isRemoteConfigURL:(NSURL *)url {
+    return [self.remoteConfigManager isRemoteConfigURL:url];
+}
+
+- (void)cancelRequestRemoteConfig {
+    [self.remoteConfigManager cancelRequestRemoteConfig];
+}
+
+- (void)enableLocalRemoteConfig {
+    [self.remoteConfigManager enableLocalRemoteConfig];
+}
+
+- (void)tryToRequestRemoteConfig {
+    [self.remoteConfigManager tryToRequestRemoteConfig];
+}
+
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
+    [self.remoteConfigManager retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
+}
+
+- (BOOL)isBlackListContainsEvent:(NSString *)event {
+    return [self.remoteConfigManager isBlackListContainsEvent:event];
+}
+
+- (BOOL)isDisableSDK {
+    return [self.remoteConfigManager isDisableSDK];
 }
 
 @end

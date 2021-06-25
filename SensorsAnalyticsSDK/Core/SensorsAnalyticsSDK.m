@@ -132,14 +132,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance startRemoteConfig];
         [sharedInstance startAppLifecycle];
     });
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
     NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+    if ([SAModuleManager.sharedInstance isDisableSDK]) {
         SALogDebug(@"【remote config】SDK is disabled");
         return nil;
     }
@@ -300,7 +299,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         self.configOptions.serverURL = serverUrl;
         if (isRequestRemoteConfig) {
-            [[SARemoteConfigManager sharedInstance] retryRequestRemoteConfigWithForceUpdateFlag:YES];
+            [SAModuleManager.sharedInstance retryRequestRemoteConfigWithForceUpdateFlag:YES];
         }
     });
 }
@@ -418,16 +417,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 开启定时器
         [self startFlushTimer];
         // 请求远程配置
-        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
+        [SAModuleManager.sharedInstance tryToRequestRemoteConfig];
         return;
     }
 
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
         // 重新初始化远程配置
-        [[SARemoteConfigManager sharedInstance] enableLocalRemoteConfig];
+        [SAModuleManager.sharedInstance enableLocalRemoteConfig];
         // 请求远程配置
-        [[SARemoteConfigManager sharedInstance] tryToRequestRemoteConfig];
+        [SAModuleManager.sharedInstance tryToRequestRemoteConfig];
         // 遍历 trackTimer
         UInt64 currentSysUpTime = [self.class getSystemUpTime];
         dispatch_async(self.serialQueue, ^{
@@ -443,7 +442,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 停止计时器
         [self stopFlushTimer];
         // 删除远程配置请求
-        [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
+        [SAModuleManager.sharedInstance cancelRequestRemoteConfig];
         // 遍历 trackTimer
         UInt64 currentSysUpTime = [self.class getSystemUpTime];
         dispatch_async(self.serialQueue, ^{
@@ -469,6 +468,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
+
+#if TARGET_OS_IPHONE
         UIApplication *application = UIApplication.sharedApplication;
         __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
         void (^endBackgroundTask)(void) = ^() {
@@ -484,6 +485,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             endBackgroundTask();
         });
         return;
+#endif
     }
 
     // 终止
@@ -494,8 +496,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
-    return [SAModuleManager.sharedInstance canHandleURL:url] ||
-    [[SARemoteConfigManager sharedInstance] canHandleURL:url];
+    return [SAModuleManager.sharedInstance canHandleURL:url];
 }
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
@@ -506,14 +507,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
     [[SAReachability sharedInstance] startMonitoring];
     
-    if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
+    if ([SAModuleManager.sharedInstance isRemoteConfigURL:url]) {
         [self enableLog:YES];
-        [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
-        [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
-        return YES;
-    } else {
-        return [SAModuleManager.sharedInstance handleURL:url];
+        [SAModuleManager.sharedInstance cancelRequestRemoteConfig];
     }
+
+    return [SAModuleManager.sharedInstance handleURL:url];
 }
 
 #pragma mark - VisualizedAutoTrack
@@ -926,7 +925,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        if ([SAModuleManager.sharedInstance isDisableSDK]) {
             return;
         }
         
@@ -1081,54 +1080,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #pragma mark - RemoteConfig
-
-- (void)startRemoteConfig {
-    // 初始化远程配置类
-    SARemoteConfigOptions *options = [[SARemoteConfigOptions alloc] init];
-    options.configOptions = _configOptions;
-    options.currentLibVersion = [self libVersion];
-    
-    __weak typeof(self) weakSelf = self;
-    options.createEncryptorResultBlock = ^BOOL{
-        return SAModuleManager.sharedInstance.hasSecretKey;
-    };
-    options.handleEncryptBlock = ^(NSDictionary * _Nonnull encryptConfig) {
-        [SAModuleManager.sharedInstance handleEncryptWithConfig:encryptConfig];
-    };
-    options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        SARemoteConfigEventObject *object = [[SARemoteConfigEventObject alloc] initWithEventId:event];
-        [strongSelf asyncTrackEventObject:object properties:properties];
-        // 触发 $AppRemoteConfigChanged 时 flush 一次
-        [strongSelf flush];
-    };
-    options.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (isDisableDebugMode) {
-            SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
-            [strongSelf enableLog:NO];
-        }
-        
-        isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
-    };
-    
-    [SARemoteConfigManager startWithRemoteConfigOptions:options];
-}
-
-- (void)performDisableSDKTask {
-    [self stopFlushTimer];
-    
-    [self removeWebViewUserAgent];
-
-    // 停止采集数据之后 flush 本地数据
-    [self flush];
-}
-
-- (void)performEnableSDKTask {
-    [self startFlushTimer];
-    
-    [self appendWebViewUserAgent];
-}
 
 - (void)removeWebViewUserAgent {
     if (!self.addWebViewUserAgent) {
@@ -1444,7 +1395,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
-        [sharedInstance startRemoteConfig];
         [sharedInstance startAppLifecycle];
     });
     return sharedInstance;
@@ -1458,7 +1408,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance startRemoteConfig];
         [sharedInstance startAppLifecycle];
     });
     return sharedInstance;

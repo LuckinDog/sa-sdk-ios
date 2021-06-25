@@ -287,9 +287,11 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
             _automaticProperties[kSAEventPresetPropertyDeviceId] = [SAIdentifier uniqueHardwareId];
 #endif
-            _automaticProperties[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
             _automaticProperties[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
             _automaticProperties[SAEventPresetPropertyManufacturer] = @"Apple";
+
+#if TARGET_OS_IPHONE
+            _automaticProperties[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
             CGSize size = [UIScreen mainScreen].bounds.size;
             _automaticProperties[SAEventPresetPropertyScreenHeight] = @((NSInteger)size.height);
             _automaticProperties[SAEventPresetPropertyScreenWidth] = @((NSInteger)size.width);
@@ -299,6 +301,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
             _automaticProperties[SAEventPresetPropertyAppName] = [SAPresetProperty appName];
             _automaticProperties[kSAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             _automaticProperties[kSAEventPresetPropertyLib] = @"iOS";
+#endif
             _automaticProperties[kSAEventPresetPropertyLibVersion] = self.libVersion;
             // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
             NSInteger minutesOffsetGMT = - ([[NSTimeZone defaultTimeZone] secondsFromGMT] / 60);

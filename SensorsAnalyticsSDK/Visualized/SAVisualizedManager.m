@@ -264,9 +264,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 
 
 #pragma mark - Visualize
-- (BOOL)isConnecting {
-    return self.visualizedConnection.isVisualizedConnecting;
-}
 
 - (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers {
     if (![controllers isKindOfClass:[NSArray class]] || controllers.count == 0) {

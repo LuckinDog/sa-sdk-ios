@@ -185,4 +185,36 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@protocol SARemoteConfigModuleProtocol <NSObject>
+
+/// 是否为远程控制的 URL
+/// @param url 输入的 URL
+- (BOOL)isRemoteConfigURL:(NSURL *)url;
+
+/// 删除远程配置请求
+- (void)cancelRequestRemoteConfig;
+
+/// 生效本地远程配置
+- (void)enableLocalRemoteConfig;
+
+/// 请求远程配置
+- (void)tryToRequestRemoteConfig;
+
+/// 重试远程配置请求
+/// @param isForceUpdate 是否强制请求最新的远程配置
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
+
+/// 是否在事件黑名单中
+/// @param event 输入的事件名
+/// @return 是否在事件黑名单中
+- (BOOL)isBlackListContainsEvent:(nullable NSString *)event;
+
+/// 是否禁用 SDK
+- (BOOL)isDisableSDK;
+
+/// 控制 AutoTrack 采集方式（-1 表示不修改现有的 AutoTrack 方式；0 代表禁用所有的 AutoTrack；其他 1～15 为合法数据）
+- (NSInteger)autoTrackMode;
+
+@end
+
 NS_ASSUME_NONNULL_END

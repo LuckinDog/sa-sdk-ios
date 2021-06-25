@@ -24,6 +24,8 @@
 
 #import "SARemoteConfigManager.h"
 #import "SAConstants+Private.h"
+#import "SensorsAnalyticsSDK+Private.h"
+#import "SAModuleManager.h"
 
 @interface SARemoteConfigManager ()
 
@@ -33,22 +35,57 @@
 
 @implementation SARemoteConfigManager
 
-#pragma mark - Life Cycle
+#pragma mark - SAModuleProtocol
 
-+ (void)startWithRemoteConfigOptions:(SARemoteConfigOptions *)options {
-    [SARemoteConfigManager sharedInstance].operator = [[SARemoteConfigCommonOperator alloc] initWithRemoteConfigOptions:options];
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _operator = [[SARemoteConfigCommonOperator alloc] init];
+    }
+    return self;
 }
 
-+ (instancetype)sharedInstance {
-    static SARemoteConfigManager *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[SARemoteConfigManager alloc] init];
-    });
-    return sharedInstance;
+- (void)setEnable:(BOOL)enable {
+    _enable = enable;
+
+    if (enable) {
+        self.operator = [[SARemoteConfigCommonOperator alloc] init];
+        self.operator.configOptions = self.configOptions;
+    } else {
+        self.operator = nil;
+    }
 }
 
-#pragma mark - Public
+#pragma mark - SAOpenURLProtocol
+
+- (BOOL)canHandleURL:(NSURL *)url {
+    return [self isRemoteConfigURL:url];
+}
+
+- (BOOL)handleURL:(NSURL *)url {
+    if (![self.operator isKindOfClass:[SARemoteConfigCheckOperator class]]) {
+        SARemoteConfigModel *model = self.operator.model;
+        self.operator = [[SARemoteConfigCheckOperator alloc] initWithRemoteConfigModel:model];
+    }
+
+    if ([self.operator respondsToSelector:@selector(handleRemoteConfigURL:)]) {
+        return [self.operator handleRemoteConfigURL:url];
+    }
+
+    return NO;
+}
+
+#pragma mark - SARemoteConfigModuleProtocol
+
+- (BOOL)isRemoteConfigURL:(NSURL *)url {
+    return [url.host isEqualToString:@"sensorsdataremoteconfig"];
+}
+
+- (void)cancelRequestRemoteConfig {
+    if ([self.operator respondsToSelector:@selector(cancelRequestRemoteConfig)]) {
+        [self.operator cancelRequestRemoteConfig];
+    }
+}
 
 - (void)enableLocalRemoteConfig {
     if ([self.operator respondsToSelector:@selector(enableLocalRemoteConfig)]) {
@@ -62,12 +99,6 @@
     }
 }
 
-- (void)cancelRequestRemoteConfig {
-    if ([self.operator respondsToSelector:@selector(cancelRequestRemoteConfig)]) {
-        [self.operator cancelRequestRemoteConfig];
-    }
-}
-
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
     if ([self.operator respondsToSelector:@selector(retryRequestRemoteConfigWithForceUpdateFlag:)]) {
         [self.operator retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
@@ -77,27 +108,6 @@
 - (BOOL)isBlackListContainsEvent:(nullable NSString *)event {
     return [self.operator isBlackListContainsEvent:event];
 }
-
-- (void)handleRemoteConfigURL:(NSURL *)url {
-    SARemoteConfigOptions *options = self.operator.options;
-    SARemoteConfigModel *model = self.operator.model;
-    
-    self.operator = [[SARemoteConfigCheckOperator alloc] initWithRemoteConfigOptions:options remoteConfigModel:model];
-    
-    if ([self.operator respondsToSelector:@selector(handleRemoteConfigURL:)]) {
-        [self.operator handleRemoteConfigURL:url];
-    }
-}
-
-- (BOOL)isRemoteConfigURL:(NSURL *)url {
-    return [url.host isEqualToString:kSASchemeHostRemoteConfig];
-}
-
-- (BOOL)canHandleURL:(NSURL *)url {
-    return [self isRemoteConfigURL:url];
-}
-
-#pragma mark - Getters and Setters
 
 - (BOOL)isDisableSDK {
     return self.operator.isDisableSDK;

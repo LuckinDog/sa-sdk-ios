@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   # 全埋点
   s.subspec 'AutoTrack' do |g|
     g.dependency 'SensorsAnalyticsSDK/Common'
-    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}"
+    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}", "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}"
     g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h'
     g.frameworks = 'UIKit'
 

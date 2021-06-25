@@ -31,6 +31,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeAppPush,
     SAModuleTypeAutoTrack,
     SAModuleTypeJavaScriptBridge,
+    SAModuleTypeRemoteConfig,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -69,12 +70,10 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
 @end
 
-#if TARGET_OS_IPHONE
 #pragma mark -
 @interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
 
 @end
-#endif
 
 @interface SAModuleManager (DebugMode) <SADebugModeModuleProtocol>
 
@@ -108,6 +107,10 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 #pragma mark -
 
 @interface SAModuleManager (JavaScriptBridge) <SAJavaScriptBridgeModuleProtocol>
+
+@end
+
+@interface SAModuleManager (RemoteConfig) <SARemoteConfigModuleProtocol>
 
 @end
 

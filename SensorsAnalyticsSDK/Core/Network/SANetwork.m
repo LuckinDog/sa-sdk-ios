@@ -160,6 +160,7 @@
             return @"WIFI";
         }
 
+#if TARGET_OS_IPHONE
         if ([SAReachability sharedInstance].isReachableViaWWAN) {
             static CTTelephonyNetworkInfo *networkInfo = nil;
             static dispatch_once_t onceToken;
@@ -180,6 +181,7 @@
 
             return [SANetwork networkStatusWithRadioAccessTechnology:currentRadioAccessTechnology];
         }
+#endif
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }

@@ -23,18 +23,18 @@
 #endif
 
 #import "SABaseEventObject+RemoteConfig.h"
-#import "SARemoteConfigManager.h"
+#import "SAModuleManager.h"
 #import "SALog.h"
 
 @implementation SABaseEventObject (RemoteConfig)
 
 - (BOOL)isIgnoredByRemoteConfig {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+    if ([SAModuleManager.sharedInstance isDisableSDK]) {
         SALogDebug(@"【remote config】SDK is disabled");
         return YES;
     }
 
-    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:self.event]) {
+    if ([SAModuleManager.sharedInstance isBlackListContainsEvent:self.event]) {
         SALogDebug(@"【remote config】 %@ is ignored by remote config", self.event);
         return YES;
     }

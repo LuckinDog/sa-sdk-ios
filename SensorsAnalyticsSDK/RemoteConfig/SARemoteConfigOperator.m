@@ -28,9 +28,9 @@
 #import "SAConstants+Private.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
-
-@implementation SARemoteConfigOptions
-@end
+#import "SAModuleManager.h"
+#import "SARemoteConfigEventObject.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 @interface SARemoteConfigOperator ()
 
@@ -44,16 +44,6 @@
 @end
 
 @implementation SARemoteConfigOperator
-
-#pragma mark - Life Cycle
-
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options {
-    self = [super init];
-    if (self) {
-        _options = options;
-    }
-    return self;
-}
 
 #pragma mark - Public
 
@@ -128,7 +118,11 @@
     if (eventConfigData) {
         eventConfigString = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }
-    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{kSAEventPropertyAppRemoteConfig : eventConfigString ?: @""});
+
+    SARemoteConfigEventObject *object = [[SARemoteConfigEventObject alloc] initWithEventId:kSAEventNameAppRemoteConfigChanged];
+    [SensorsAnalyticsSDK.sdkInstance asyncTrackEventObject:object properties:@{kSAEventPropertyAppRemoteConfig : eventConfigString ?: @""}];
+    // 触发 $AppRemoteConfigChanged 时 flush 一次
+    [SensorsAnalyticsSDK.sdkInstance flush];
 }
 
 - (void)enableRemoteConfig:(NSDictionary *)config {
@@ -139,23 +133,44 @@
     
     BOOL isDisableSDK = self.isDisableSDK;
     BOOL isDisableDebugMode = self.isDisableDebugMode;
-    self.options.triggerEffectBlock(isDisableSDK, isDisableDebugMode);
+
+    if (isDisableDebugMode) {
+        SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
+        [SensorsAnalyticsSDK.sdkInstance enableLog:NO];
+    }
+
+    isDisableSDK ? [self performDisableSDKTask] : [self performEnableSDKTask];
 }
 
 #pragma mark - Private
 
+- (void)performDisableSDKTask {
+    [SensorsAnalyticsSDK.sdkInstance stopFlushTimer];
+
+    [SensorsAnalyticsSDK.sdkInstance removeWebViewUserAgent];
+
+    // 停止采集数据之后 flush 本地数据
+    [SensorsAnalyticsSDK.sdkInstance flush];
+}
+
+- (void)performEnableSDKTask {
+    [SensorsAnalyticsSDK.sdkInstance startFlushTimer];
+
+    [SensorsAnalyticsSDK.sdkInstance appendWebViewUserAgent];
+}
+
 #pragma mark Network
 
 - (BOOL)isLibVersionUnchanged {
-    return [self.model.localLibVersion isEqualToString:self.options.currentLibVersion];
+    return [self.model.localLibVersion isEqualToString:SensorsAnalyticsSDK.sdkInstance.libVersion];
 }
 
 - (BOOL)shouldAddVersionOnEnableEncrypt {
-    if (!self.options.configOptions.enableEncrypt) {
+    if (!self.configOptions.enableEncrypt) {
         return YES;
     }
-    
-    return self.options.createEncryptorResultBlock();
+
+    return SAModuleManager.sharedInstance.hasSecretKey;
 }
 
 - (NSURLRequest *)buildURLRequestWithOriginalVersion:(nullable NSString *)originalVersion latestVersion:(nullable NSString *)latestVersion {
@@ -220,11 +235,11 @@
 }
 
 - (NSURL *)remoteConfigURL {
-    return [NSURL URLWithString:self.options.configOptions.remoteConfigURL];
+    return [NSURL URLWithString:self.configOptions.remoteConfigURL];
 }
 
 - (NSURL *)serverURL {
-    return [NSURL URLWithString:self.options.configOptions.serverURL];
+    return [NSURL URLWithString:self.configOptions.serverURL];
 }
 
 - (NSString *)project {

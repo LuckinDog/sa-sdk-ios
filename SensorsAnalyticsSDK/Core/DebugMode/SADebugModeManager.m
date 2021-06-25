@@ -23,7 +23,8 @@
 #endif
 
 #import "SADebugModeManager.h"
-#import "SARemoteConfigManager.h"
+#import "SAModuleManager.h"
+#import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
 #import "SAURLUtils.h"
 #import "SAJSONUtil.h"
@@ -155,7 +156,7 @@
 
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        if ([SAModuleManager.sharedInstance isDisableSDK]) {
             return;
         }
 
