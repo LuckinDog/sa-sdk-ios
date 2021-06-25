@@ -71,9 +71,6 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @end
 
 #pragma mark -
-@interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
-
-@end
 
 @interface SAModuleManager (DebugMode) <SADebugModeModuleProtocol>
 

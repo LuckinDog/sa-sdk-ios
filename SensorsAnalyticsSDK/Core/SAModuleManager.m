@@ -238,38 +238,7 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
 
 @end
 
-#if TARGET_OS_IPHONE
 #pragma mark -
-@implementation SAModuleManager (Visualized)
-
-- (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    [manager addVisualizeWithViewControllers:controllers];
-}
-
-- (BOOL)isVisualizeWithViewController:(UIViewController *)viewController {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    return [manager isVisualizeWithViewController:viewController];
-}
-
-#pragma mark properties
-// 采集元素属性
-- (nullable NSDictionary *)propertiesWithView:(UIView *)view {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    return [manager propertiesWithView:view];
-}
-
-// 采集元素自定义属性
-- (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable))completionHandler {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    if (!manager) {
-        completionHandler(nil);
-    }
-    [manager visualPropertiesWithView:view completionHandler:completionHandler];
-}
-
-@end
-#endif
 
 @implementation SAModuleManager (DebugMode)
 

@@ -179,6 +179,8 @@
 		881A4231253D7B8600854F69 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A422F253D7B8600854F69 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881A4232253D7B8600854F69 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4230253D7B8600854F69 /* SAAppExtensionDataManager.m */; };
 		884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */ = {isa = PBXBuildFile; fileRef = 884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		887602D42685E0AA00C5EA51 /* SAModuleManager+Visualized.h in Headers */ = {isa = PBXBuildFile; fileRef = 887602D22685E0AA00C5EA51 /* SAModuleManager+Visualized.h */; };
+		887602D52685E0AA00C5EA51 /* SAModuleManager+Visualized.m in Sources */ = {isa = PBXBuildFile; fileRef = 887602D32685E0AA00C5EA51 /* SAModuleManager+Visualized.m */; };
 		888D7A0D2567B3C30052FCF7 /* SADebugModeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */; };
 		888D7A0E2567B3C30052FCF7 /* SADebugModeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */; };
 		A82AAD8F267CB0950019E8D5 /* SAChannelMatchManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A82AAD8D267CB0950019E8D5 /* SAChannelMatchManager.h */; };
@@ -498,6 +500,8 @@
 		881A422F253D7B8600854F69 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAAppExtensionDataManager.h; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.h; sourceTree = SOURCE_ROOT; };
 		881A4230253D7B8600854F69 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAAppExtensionDataManager.m; path = SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.m; sourceTree = SOURCE_ROOT; };
 		884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+Public.h"; sourceTree = "<group>"; };
+		887602D22685E0AA00C5EA51 /* SAModuleManager+Visualized.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAModuleManager+Visualized.h"; sourceTree = "<group>"; };
+		887602D32685E0AA00C5EA51 /* SAModuleManager+Visualized.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SAModuleManager+Visualized.m"; sourceTree = "<group>"; };
 		888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADebugModeManager.h; sourceTree = "<group>"; };
 		888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADebugModeManager.m; sourceTree = "<group>"; };
 		A82AAD8D267CB0950019E8D5 /* SAChannelMatchManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAChannelMatchManager.h; sourceTree = "<group>"; };
@@ -1045,6 +1049,8 @@
 			children = (
 				A8356D8F2656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.h */,
 				A8356DB12656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.m */,
+				887602D22685E0AA00C5EA51 /* SAModuleManager+Visualized.h */,
+				887602D32685E0AA00C5EA51 /* SAModuleManager+Visualized.m */,
 				A8356D902656459A00FD64AA /* SAAutoTrackProperty.h */,
 				A8356D982656459A00FD64AA /* SAAutoTrackManager.h */,
 				A8356D882656459A00FD64AA /* SAAutoTrackManager.m */,
@@ -1429,6 +1435,7 @@
 				45A56560263C174300C9C41B /* SAIDFAHelper.h in Headers */,
 				4DD1281925F8721A008C0B1E /* UIView+SAElementSelector.h in Headers */,
 				A82E8953267D918100475757 /* SAECCEncryptor.h in Headers */,
+				887602D42685E0AA00C5EA51 /* SAModuleManager+Visualized.h in Headers */,
 				A8356DDB2656459A00FD64AA /* UIViewController+AutoTrack.h in Headers */,
 				4D6AE7FC26086E9300A9CB08 /* SAVisualizedEventCheck.h in Headers */,
 				45A56563263C174300C9C41B /* SAPropertyValidator.h in Headers */,
@@ -1720,6 +1727,7 @@
 				A8CC223A2685E50C00E96A03 /* SARemoteConfigOperator.m in Sources */,
 				A8356DCC2656459A00FD64AA /* SAGestureTarget.m in Sources */,
 				4D6AE7FD26086E9300A9CB08 /* SAVisualizedEventCheck.m in Sources */,
+				887602D52685E0AA00C5EA51 /* SAModuleManager+Visualized.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
