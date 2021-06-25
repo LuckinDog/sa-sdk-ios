@@ -6,8 +6,8 @@ Pod::Spec.new do |s|
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
   s.license = { :type => "Apache License, Version 2.0" }
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
-  s.platform = :ios, "8.0"
-  s.platform = :osx, "10.10"
+  s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.10'
   s.default_subspec = 'Core'
   s.frameworks = 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
   s.libraries = 'icucore', 'sqlite3', 'z'

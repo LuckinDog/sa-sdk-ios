@@ -41,6 +41,8 @@ static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
+static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
+
 @interface SAModuleManager ()
 
 /// 已开启的模块
@@ -66,6 +68,7 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
     // 可视化全埋点和点击分析
     if (configOptions.enableHeatMap || configOptions.enableVisualizedAutoTrack) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAVisualizedModuleName];
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     } else if (NSClassFromString(@"SAVisualizedManager")) {
         // 注册 handleURL
         [SAModuleManager.sharedInstance setEnable:NO forModule:kSAVisualizedModuleName];
@@ -79,6 +82,10 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
     // 2. 保证添加对于生命周期的监听在生命周期类的实例化之前
     if ([SAModuleManager.sharedInstance contains:SAModuleTypeAutoTrack] || configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+    }
+
+    if (configOptions.enableJavaScriptBridge) {
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     }
 }
 
@@ -100,18 +107,14 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
             return kSALocationModuleName;
         case SAModuleTypeDeviceOrientation:
             return kSADeviceOrientationModuleName;
-        case SAModuleTypeReactNative:
-            return kSAReactNativeModuleName;
         case SAModuleTypeAppPush:
             return kSANotificationModuleName;
         case SAModuleTypeAutoTrack:
             return kSAAutoTrackModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
         case SAModuleTypeVisualized:
             return kSAVisualizedModuleName;
-        case SAModuleTypeEncrypt:
-            return kSAEncryptModuleName;
+        case SAModuleTypeJavaScriptBridge:
+            return kSAJavaScriptBridgeModuleName;
         default:
             return nil;
     }
@@ -232,11 +235,6 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 #if TARGET_OS_IPHONE
 #pragma mark -
 @implementation SAModuleManager (Visualized)
-
-- (BOOL)isConnecting {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    return manager.isConnecting;
-}
 
 - (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers {
     id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
@@ -366,6 +364,27 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 - (void)trackAppEndWhenCrashed {
     [self.autoTrackManager trackAppEndWhenCrashed];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (JavaScriptBridge)
+
+- (NSString *)javaScriptSource {
+    NSMutableString *source = [NSMutableString string];
+    // 兼容使用宏定义的方式源码集成 SDK
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+        if (!([obj conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [obj respondsToSelector:@selector(javaScriptSource)]) || !obj.isEnable) {
+            return;
+        }
+        NSString *javaScriptSource = [(id<SAJavaScriptBridgeModuleProtocol>)obj javaScriptSource];
+        if (javaScriptSource.length > 0) {
+            [source appendString:javaScriptSource];
+        }
+    }];
+    return source;
 }
 
 @end

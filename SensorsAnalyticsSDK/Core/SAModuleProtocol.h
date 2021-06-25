@@ -82,9 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
 #if TARGET_OS_IPHONE
 @protocol SAVisualizedModuleProtocol <NSObject>
 
-/// 是否正在连接
-@property (nonatomic, assign, readonly, getter=isConnecting) BOOL connecting;
-
 /// 元素相关属性
 /// @param view 需要采集的 view
 - (nullable NSDictionary *)propertiesWithView:(UIView *)view;
@@ -177,6 +174,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 触发 App 崩溃时的退出事件
 - (void)trackAppEndWhenCrashed;
+
+@end
+
+#pragma mark -
+
+@protocol SAJavaScriptBridgeModuleProtocol <NSObject>
+
+- (nullable NSString *)javaScriptSource;
 
 @end
 

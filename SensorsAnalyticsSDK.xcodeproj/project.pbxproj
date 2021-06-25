@@ -153,9 +153,9 @@
 		881A41A2253D7B4F00854F69 /* SAModuleManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40F6253D7B4F00854F69 /* SAModuleManager.h */; };
 		881A41A8253D7B4F00854F69 /* SAFileStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40FD253D7B4F00854F69 /* SAFileStore.h */; };
 		881A41A9253D7B4F00854F69 /* WKWebView+SABridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A40FF253D7B4F00854F69 /* WKWebView+SABridge.h */; };
-		881A41AA253D7B4F00854F69 /* SAScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4100253D7B4F00854F69 /* SAScriptMessageHandler.m */; };
+		881A41AA253D7B4F00854F69 /* SAJavaScriptBridgeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4100253D7B4F00854F69 /* SAJavaScriptBridgeManager.m */; };
 		881A41AB253D7B4F00854F69 /* WKWebView+SABridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4101253D7B4F00854F69 /* WKWebView+SABridge.m */; };
-		881A41AC253D7B4F00854F69 /* SAScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A4102253D7B4F00854F69 /* SAScriptMessageHandler.h */; };
+		881A41AC253D7B4F00854F69 /* SAJavaScriptBridgeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A4102253D7B4F00854F69 /* SAJavaScriptBridgeManager.h */; };
 		881A41E4253D7B5000854F69 /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A413D253D7B4F00854F69 /* SAKeyChainItemWrapper.m */; };
 		881A41F1253D7B5000854F69 /* SensorsAnalyticsSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		881A41F2253D7B5000854F69 /* SAModuleProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A414C253D7B4F00854F69 /* SAModuleProtocol.h */; };
@@ -472,9 +472,9 @@
 		881A40F6253D7B4F00854F69 /* SAModuleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAModuleManager.h; sourceTree = "<group>"; };
 		881A40FD253D7B4F00854F69 /* SAFileStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAFileStore.h; sourceTree = "<group>"; };
 		881A40FF253D7B4F00854F69 /* WKWebView+SABridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+SABridge.h"; sourceTree = "<group>"; };
-		881A4100253D7B4F00854F69 /* SAScriptMessageHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAScriptMessageHandler.m; sourceTree = "<group>"; };
+		881A4100253D7B4F00854F69 /* SAJavaScriptBridgeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAJavaScriptBridgeManager.m; sourceTree = "<group>"; };
 		881A4101253D7B4F00854F69 /* WKWebView+SABridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+SABridge.m"; sourceTree = "<group>"; };
-		881A4102253D7B4F00854F69 /* SAScriptMessageHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAScriptMessageHandler.h; sourceTree = "<group>"; };
+		881A4102253D7B4F00854F69 /* SAJavaScriptBridgeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAJavaScriptBridgeManager.h; sourceTree = "<group>"; };
 		881A413D253D7B4F00854F69 /* SAKeyChainItemWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAKeyChainItemWrapper.m; sourceTree = "<group>"; };
 		881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsSDK.h; sourceTree = "<group>"; };
 		881A414C253D7B4F00854F69 /* SAModuleProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAModuleProtocol.h; sourceTree = "<group>"; };
@@ -963,8 +963,8 @@
 		881A40FE253D7B4F00854F69 /* JSBridge */ = {
 			isa = PBXGroup;
 			children = (
-				881A4102253D7B4F00854F69 /* SAScriptMessageHandler.h */,
-				881A4100253D7B4F00854F69 /* SAScriptMessageHandler.m */,
+				881A4102253D7B4F00854F69 /* SAJavaScriptBridgeManager.h */,
+				881A4100253D7B4F00854F69 /* SAJavaScriptBridgeManager.m */,
 				881A40FF253D7B4F00854F69 /* WKWebView+SABridge.h */,
 				881A4101253D7B4F00854F69 /* WKWebView+SABridge.m */,
 			);
@@ -1320,7 +1320,7 @@
 				881A4227253D7B5E00854F69 /* SALocationManager.h in Headers */,
 				881A41F7253D7B5000854F69 /* SASecurityPolicy.h in Headers */,
 				FC002920262C189E00A18FE3 /* SAConfigOptions+Private.h in Headers */,
-				881A41AC253D7B4F00854F69 /* SAScriptMessageHandler.h in Headers */,
+				881A41AC253D7B4F00854F69 /* SAJavaScriptBridgeManager.h in Headers */,
 				881A41FB253D7B5000854F69 /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				45A565BC263C17E400C9C41B /* SAReferrerManager.h in Headers */,
 				A8A87E4C2568EBD500E16895 /* SARemoteConfigCheckOperator.h in Headers */,
@@ -1626,7 +1626,7 @@
 				4DD1296925F8E451008C0B1E /* UIView+SAVisualProperties.m in Sources */,
 				881A41E4253D7B5000854F69 /* SAKeyChainItemWrapper.m in Sources */,
 				4D41D9D425FF7E9300D856F4 /* UIViewController+SAElementPath.m in Sources */,
-				881A41AA253D7B4F00854F69 /* SAScriptMessageHandler.m in Sources */,
+				881A41AA253D7B4F00854F69 /* SAJavaScriptBridgeManager.m in Sources */,
 				4DD1286F25F872A4008C0B1E /* SAVisualizedSnapshotMessage.m in Sources */,
 				A82E895C267D918100475757 /* SAECCEncryptor.m in Sources */,
 				A8356DD02656459A00FD64AA /* SAGeneralGestureViewProcessor.m in Sources */,

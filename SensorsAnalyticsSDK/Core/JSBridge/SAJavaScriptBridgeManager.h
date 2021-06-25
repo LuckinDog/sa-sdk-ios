@@ -1,5 +1,5 @@
 //
-// SAScriptMessageHandler.h
+// SAJavaScriptBridgeManager.h
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/3/18.
@@ -19,14 +19,20 @@
 //
 
 #import <Foundation/Foundation.h>
-
 #import <WebKit/WebKit.h>
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAScriptMessageHandler : NSObject <WKScriptMessageHandler>
+@interface SAJavaScriptBridgeManager : NSObject <WKScriptMessageHandler, SAModuleProtocol, SAJavaScriptBridgeModuleProtocol>
+
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 + (instancetype)sharedInstance;
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 
 @end
 
