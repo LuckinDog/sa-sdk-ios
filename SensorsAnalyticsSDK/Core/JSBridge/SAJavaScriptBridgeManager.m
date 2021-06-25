@@ -39,7 +39,7 @@
 #pragma mark - Life Cycle
 
 + (instancetype)sharedInstance {
-    return [SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeJavaScriptBridge];
+    return (SAJavaScriptBridgeManager *)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeJavaScriptBridge];
 }
 
 #pragma mark - SAModuleProtocol
@@ -107,7 +107,7 @@
         [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
         [contentController addScriptMessageHandler:[SAJavaScriptBridgeManager sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
 
-        NSMutableString *javaScriptSource = [SAModuleManager.sharedInstance javaScriptSource];
+        NSString *javaScriptSource = [SAModuleManager.sharedInstance javaScriptSource];
         if (javaScriptSource.length == 0) {
             return;
         }

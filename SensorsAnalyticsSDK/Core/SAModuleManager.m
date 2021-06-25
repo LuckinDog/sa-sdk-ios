@@ -113,6 +113,8 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
             return kSAAutoTrackModuleName;
         case SAModuleTypeVisualized:
             return kSAVisualizedModuleName;
+        case SAModuleTypeJavaScriptBridge:
+            return kSAJavaScriptBridgeModuleName;
         default:
             return nil;
     }
@@ -374,7 +376,7 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
     NSMutableString *source = [NSMutableString string];
     // 兼容使用宏定义的方式源码集成 SDK
     [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
-        if (!([obj conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [obj respondsToSelector:@selector(properties)]) || !obj.isEnable) {
+        if (!([obj conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [obj respondsToSelector:@selector(javaScriptSource)]) || !obj.isEnable) {
             return;
         }
         NSString *javaScriptSource = [(id<SAJavaScriptBridgeModuleProtocol>)obj javaScriptSource];

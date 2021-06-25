@@ -49,13 +49,6 @@
 /// @param properties 事件属性
 - (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
-/**
-向 WKWebView 注入 Message Handler
-
-@param webView 需要注入的 wkwebView
-*/
-- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
-
 /// 开启可视化模块
 - (void)enableVisualize;
 
