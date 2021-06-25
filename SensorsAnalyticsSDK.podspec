@@ -23,13 +23,6 @@ Pod::Spec.new do |s|
     c.dependency 'SensorsAnalyticsSDK/Visualized'
   end
 
-  # 渠道匹配
-  s.subspec 'ChannelMatch' do |c|
-    c.dependency 'SensorsAnalyticsSDK/Core'
-    c.source_files = "SensorsAnalyticsSDK/Channel/**/*.{h,m}"
-    c.private_header_files = 'SensorsAnalyticsSDK/Channel/**/*.h'
-  end
-
   # 支持 CAID 渠道匹配
   s.subspec 'CAID' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
@@ -40,7 +33,7 @@ Pod::Spec.new do |s|
   # 全埋点
   s.subspec 'AutoTrack' do |g|
     g.dependency 'SensorsAnalyticsSDK/Common'
-    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}", "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}"
+    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}", "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}", "SensorsAnalyticsSDK/Channel/**/*.{h,m}"
     g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h'
     g.frameworks = 'UIKit'
 
