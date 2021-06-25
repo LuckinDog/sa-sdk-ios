@@ -19,6 +19,7 @@
 //
 
 #import "SAConfigOptions.h"
+#import "SAEncryptProtocol.h"
 
 @interface SAConfigOptions (Private)
 
