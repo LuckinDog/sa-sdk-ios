@@ -20,7 +20,8 @@ Pod::Spec.new do |s|
   end
   
   s.subspec 'Core' do |c|
-    c.dependency 'SensorsAnalyticsSDK/Visualized'
+    c.ios.dependency 'SensorsAnalyticsSDK/Visualized'
+    c.osx.dependency 'SensorsAnalyticsSDK/Common'
   end
 
   # 支持 CAID 渠道匹配

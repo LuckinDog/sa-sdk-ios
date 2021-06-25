@@ -43,7 +43,6 @@
 
 #import <WebKit/WebKit.h>
 
-#import "SARemoteConfigManager.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
@@ -68,7 +67,6 @@
 #import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
-#import "SARemoteConfigEventObject.h"
 #import "SABaseEventObject+RemoteConfig.h"
 
 #define VERSION @"2.6.7"
