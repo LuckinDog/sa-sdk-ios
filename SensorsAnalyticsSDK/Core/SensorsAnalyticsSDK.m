@@ -36,9 +36,7 @@
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
-
 #import <WebKit/WebKit.h>
-
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
@@ -63,6 +61,10 @@
 #import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
+
+#if TARGET_OS_IPHONE
+#import "SABaseEventObject+RemoteConfig.h"
+#endif
 
 #define VERSION @"2.6.7"
 
