@@ -600,11 +600,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
 
-#warning 远程控制 模块化 待修改
     // 1. 远程控制校验
-//    if (object.isIgnoredByRemoteConfig) {
-//        return;
-//    }
+#if TARGET_OS_IPHONE
+    if (object.isIgnoredByRemoteConfig) {
+        return;
+    }
+#endif
 
     // 2. 事件名校验
     NSError *error = nil;
