@@ -176,21 +176,33 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 }
 
 + (NSString *)deviceModel {
-    NSString *results = nil;
+    NSString *result = @"Unknown";
     @try {
+#if TARGET_OS_IPHONE
         size_t size;
         sysctlbyname("hw.machine", NULL, &size, NULL, 0);
         char answer[size];
         sysctlbyname("hw.machine", answer, &size, NULL, 0);
         if (size) {
-            results = @(answer);
+            result = @(answer);
         } else {
             SALogError(@"Failed fetch hw.machine from sysctl.");
         }
+#else
+        size_t len=0;
+        sysctlbyname("hw.model", NULL, &len, NULL, 0);
+        if (len) {
+            NSMutableData *data=[NSMutableData dataWithLength:len];
+            sysctlbyname("hw.model", [data mutableBytes], &len, NULL, 0);
+            result = [NSString stringWithUTF8String:[data bytes]];
+        } else {
+            SALogError(@"Failed fetch hw.model from sysctl.");
+        }
+#endif
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
-    return results;
+    return result;
 }
 
 + (NSString *)carrierName {
@@ -201,7 +213,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
         CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
         CTCarrier *carrier = nil;
         
-#ifdef __IPHONE_12_0
+    #ifdef __IPHONE_12_0
         if (@available(iOS 12.1, *)) {
             // 排序
             NSArray *carrierKeysArray = [telephonyInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
@@ -210,7 +222,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
                 carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
             }
         }
-#endif
+    #endif
         if (!carrier) {
             carrier = telephonyInfo.subscriberCellularProvider;
         }
@@ -295,16 +307,29 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 
 #if TARGET_OS_IPHONE
             _automaticProperties[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
-            CGSize size = [UIScreen mainScreen].bounds.size;
-            _automaticProperties[SAEventPresetPropertyScreenHeight] = @((NSInteger)size.height);
-            _automaticProperties[SAEventPresetPropertyScreenWidth] = @((NSInteger)size.width);
             _automaticProperties[SAEventPresetPropertyOS] = @"iOS";
             _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];
+            _automaticProperties[kSAEventPresetPropertyLib] = @"iOS";
+
+            CGSize size = [UIScreen mainScreen].bounds.size;
+#else
+
+            _automaticProperties[SAEventPresetPropertyOS] = @"macOS";
+            _automaticProperties[kSAEventPresetPropertyLib] = @"macOS";
+
+            NSDictionary *systemVersion = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
+            _automaticProperties[SAEventPresetPropertyOSVersion] = systemVersion[@"ProductVersion"];
+
+            CGSize size = [NSScreen mainScreen].frame.size;
+#endif
+
             _automaticProperties[SAEventPresetPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
             _automaticProperties[SAEventPresetPropertyAppName] = [SAPresetProperty appName];
             _automaticProperties[kSAEventPresetPropertyAppVersion] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-            _automaticProperties[kSAEventPresetPropertyLib] = @"iOS";
-#endif
+
+            _automaticProperties[SAEventPresetPropertyScreenHeight] = @((NSInteger)size.height);
+            _automaticProperties[SAEventPresetPropertyScreenWidth] = @((NSInteger)size.width);
+
             _automaticProperties[kSAEventPresetPropertyLibVersion] = self.libVersion;
             // 计算时区偏移（保持和 JS 获取时区偏移的计算结果一致，这里首先获取分钟数，然后取反）
             NSInteger minutesOffsetGMT = - ([[NSTimeZone defaultTimeZone] secondsFromGMT] / 60);

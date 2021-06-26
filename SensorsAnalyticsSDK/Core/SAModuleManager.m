@@ -58,10 +58,12 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
+#if TARGET_OS_IPHONE
     // 渠道联调诊断功能获取多渠道匹配开关
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSAChannelMatchModuleName];
     // 初始化 LinkHandler 处理 deepLink 相关操作
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
+
     // 初始化 Debug 模块
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
     [SAModuleManager.sharedInstance handleDebugMode:debugMode];
@@ -85,12 +87,13 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
 
+    // 开启远程配置模块（因为部分模块依赖于远程配置，所以远程配置模块的初始化放到最后）
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSARemoteConfigModuleName];
+#endif
+
     if (configOptions.enableJavaScriptBridge) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     }
-
-    // 开启远程配置模块（因为部分模块依赖于远程配置，所以远程配置模块的初始化放到最后）
-    [SAModuleManager.sharedInstance setEnable:YES forModule:kSARemoteConfigModuleName];
 }
 
 + (instancetype)sharedInstance {

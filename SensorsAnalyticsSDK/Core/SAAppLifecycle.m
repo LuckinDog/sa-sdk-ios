@@ -104,10 +104,10 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 #pragma mark - Listener
 
 - (void)setupListeners {
-#if TARGET_OS_IPHONE
+
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-
+#if TARGET_OS_IPHONE
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive:)
                                name:UIApplicationDidBecomeActiveNotification
@@ -121,21 +121,40 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillTerminate:)
                                name:UIApplicationWillTerminateNotification
-                             object:nil];
+                        object:nil];
+
+#else
+
+    [notificationCenter addObserver:self selector:@selector(applicationDidFinishLaunching:) name:NSApplicationDidFinishLaunchingNotification object:nil];
+
+    // 聚焦活动状态，和其他 App 之前切换聚焦，和 DidResignActive 通知会频繁调用
+    [notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive:) name:NSApplicationDidBecomeActiveNotification object:nil];
+    // 失焦状态
+    [notificationCenter addObserver:self selector:@selector(applicationDidEnterBackground:) name:NSApplicationDidResignActiveNotification object:nil];
+
+    // 显示桌面
+    [notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive:) name:NSApplicationDidUnhideNotification object:nil];
+    // 隐藏桌面
+    [notificationCenter addObserver:self selector:@selector(applicationDidEnterBackground:) name:NSApplicationDidHideNotification object:nil];
+
+    [notificationCenter addObserver:self selector:@selector(applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
 #endif
 }
 
-#if TARGET_OS_IPHONE
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     SALogDebug(@"%@ application did finish launching", self);
-    
+
+#if TARGET_OS_IPHONE
     BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
     self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
+#else
+    self.state = SAAppLifecycleStateStart;
+#endif
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SALogDebug(@"%@ application did become active", self);
-
+#if TARGET_OS_IPHONE
     // 防止主动触发 UIApplicationDidBecomeActiveNotification
     if (![notification.object isKindOfClass:[UIApplication class]]) {
         return;
@@ -145,6 +164,17 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     if (application.applicationState != UIApplicationStateActive) {
         return;
     }
+#else
+    // 防止主动触发 UIApplicationDidBecomeActiveNotification
+    if (![notification.object isKindOfClass:[NSApplication class]]) {
+        return;
+    }
+
+    NSApplication *application = (NSApplication *)notification.object;
+    if (application.isHidden || !application.isActive) {
+        return;
+    }
+#endif
 
     self.state = SAAppLifecycleStateStart;
 }
@@ -152,6 +182,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SALogDebug(@"%@ application did enter background", self);
 
+#if TARGET_OS_IPHONE
     // 防止主动触发 UIApplicationDidEnterBackgroundNotification
     if (![notification.object isKindOfClass:[UIApplication class]]) {
         return;
@@ -161,7 +192,16 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     if (application.applicationState != UIApplicationStateBackground) {
         return;
     }
+#else
+    if (![notification.object isKindOfClass:[NSApplication class]]) {
+        return;
+    }
 
+    NSApplication *application = (NSApplication *)notification.object;
+    if (!application.isHidden && application.isActive) {
+        return;
+    }
+#endif
     self.state = SAAppLifecycleStateEnd;
 }
 
@@ -170,7 +210,6 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 
     self.state = SAAppLifecycleStateTerminate;
 }
-#endif
 
 @end
 

@@ -20,6 +20,8 @@
 
 #import <Foundation/Foundation.h>
 
+#warning macOS 使用对应平台弹框实现
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif

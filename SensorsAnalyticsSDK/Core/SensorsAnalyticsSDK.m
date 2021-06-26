@@ -482,6 +482,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             endBackgroundTask();
         });
         return;
+#else
+        dispatch_async(self.serialQueue, ^{
+            // 上传所有的数据
+            [self.eventTracker flushAllEventRecords];
+        });
 #endif
     }
 
@@ -726,6 +731,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self asyncTrackEventObject:object properties:propertieDict];
 }
 
+#if TARGET_OS_IPHONE
 - (void)trackChannelEvent:(NSString *)event {
     [self trackChannelEvent:event properties:nil];
 }
@@ -764,6 +770,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self trackEventObject:object properties:properties];
     });
 }
+#endif
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
     [_network setCookie:cookie isEncoded:encode];
