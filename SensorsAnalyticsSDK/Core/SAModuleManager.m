@@ -78,7 +78,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     if (configOptions.enableHeatMap || configOptions.enableVisualizedAutoTrack) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAVisualizedModuleName];
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
-    } else if (NSClassFromString(@"SAVisualizedManager")) {
+    } else if ([SAModuleManager.sharedInstance contains:SAModuleTypeVisualized]) {
         // 注册 handleURL
         [SAModuleManager.sharedInstance setEnable:NO forModule:kSAVisualizedModuleName];
     }
@@ -89,7 +89,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     if (configOptions.enableJavaScriptBridge) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     }
-    
+
     if (configOptions.enableTrackAppCrash) {
         [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
     }
