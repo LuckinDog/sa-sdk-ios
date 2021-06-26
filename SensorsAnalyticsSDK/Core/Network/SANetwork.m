@@ -181,7 +181,7 @@
 
             return [SANetwork networkStatusWithRadioAccessTechnology:currentRadioAccessTechnology];
         }
-#else
+#elif TARGET_OS_OSX
 #warning macOS 上拨号网络，如何采集？
         if ([SAReachability sharedInstance].isReachable) {
             return @"UNKNOWN";
@@ -212,7 +212,7 @@
     } else if ([value isEqualToString:CTRadioAccessTechnologyLTE]) {
         return @"4G";
     }
-#ifdef __IPHONE_14_1
+    #ifdef __IPHONE_14_1
     else if (@available(iOS 14.1, *)) {
         if ([value isEqualToString:CTRadioAccessTechnologyNRNSA] ||
             [value isEqualToString:CTRadioAccessTechnologyNR]
@@ -220,7 +220,7 @@
             return @"5G";
         }
     }
-#endif
+    #endif
     return @"UNKNOWN";
 }
 #endif

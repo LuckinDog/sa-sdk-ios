@@ -149,7 +149,7 @@
 + (NSString *)idfv {
     return [UIDevice currentDevice].identifierForVendor.UUIDString;
 }
-#else
+#elif TARGET_OS_OSX
 /// mac SerialNumber（序列号）作为设备标识
 + (NSString *)getMacHardwareSerialNumber {
     io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,IOServiceMatching("IOPlatformExpertDevice"));
@@ -176,7 +176,7 @@
     if (!distinctId) {
         distinctId = [self idfv];
     }
-#else
+#elif TARGET_OS_OSX
     distinctId = [self getMacHardwareSerialNumber];
 #endif
 

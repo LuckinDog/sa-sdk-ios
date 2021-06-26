@@ -35,7 +35,7 @@
     if (self) {
 #if TARGET_OS_IPHONE
         _lib = @"iOS";
-#else
+#elif TARGET_OS_OSX
         _lib = @"macOS";
 #endif
         _method = kSALibMethodCode;

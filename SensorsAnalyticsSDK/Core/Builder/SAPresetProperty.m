@@ -188,7 +188,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
         } else {
             SALogError(@"Failed fetch hw.machine from sysctl.");
         }
-#else
+#elif TARGET_OS_OSX
         size_t len=0;
         sysctlbyname("hw.model", NULL, &len, NULL, 0);
         if (len) {
@@ -310,7 +310,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
             _automaticProperties[kSAEventPresetPropertyLib] = @"iOS";
 
             CGSize size = [UIScreen mainScreen].bounds.size;
-#else
+#elif TARGET_OS_OSX
 
             _automaticProperties[SAEventPresetPropertyOS] = @"macOS";
             _automaticProperties[kSAEventPresetPropertyLib] = @"macOS";

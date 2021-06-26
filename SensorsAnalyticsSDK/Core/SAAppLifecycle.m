@@ -123,7 +123,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
                                name:UIApplicationWillTerminateNotification
                         object:nil];
 
-#else
+#elif TARGET_OS_OSX
 
     [notificationCenter addObserver:self selector:@selector(applicationDidFinishLaunching:) name:NSApplicationDidFinishLaunchingNotification object:nil];
 
@@ -164,7 +164,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     if (application.applicationState != UIApplicationStateActive) {
         return;
     }
-#else
+#elif TARGET_OS_OSX
     // 防止主动触发 UIApplicationDidBecomeActiveNotification
     if (![notification.object isKindOfClass:[NSApplication class]]) {
         return;
@@ -192,7 +192,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     if (application.applicationState != UIApplicationStateBackground) {
         return;
     }
-#else
+#elif TARGET_OS_OSX
     if (![notification.object isKindOfClass:[NSApplication class]]) {
         return;
     }
