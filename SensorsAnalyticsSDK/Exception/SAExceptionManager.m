@@ -134,7 +134,6 @@ static void SAHandleException(NSException *exception) {
     if (!self.enable) {
         return;
     }
-
     @try {
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         NSArray<NSString *> *callStackSymbols = [exception callStackSymbols] ?: [NSThread callStackSymbols];
