@@ -53,14 +53,14 @@ static NSString * const kSAAppCrashedReason = @"app_crashed_reason";
 
 @implementation SAExceptionManager
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
+- (void)setEnable:(BOOL)enable {
+    _enable = enable;
+
+    if (enable) {
         _prev_signal_handlers = calloc(NSIG, sizeof(struct sigaction));
 
         [self setupExceptionHandler];
     }
-    return self;
 }
 
 - (void)dealloc {
@@ -131,7 +131,10 @@ static void SAHandleException(NSException *exception) {
 }
 
 - (void)handleUncaughtException:(NSException *)exception {
-    // Archive the values for each SensorsAnalytics instance
+    if (!self.enable) {
+        return;
+    }
+
     @try {
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         NSArray<NSString *> *callStackSymbols = [exception callStackSymbols] ?: [NSThread callStackSymbols];
