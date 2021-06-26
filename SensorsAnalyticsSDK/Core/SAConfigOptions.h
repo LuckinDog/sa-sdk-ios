@@ -58,6 +58,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType;
 
+/// 是否自动采集子页面的页面浏览事件
+///
+/// 开启页面浏览事件采集时，有效。默认为不采集
+@property (nonatomic) BOOL enableAutoTrackChildViewScreen;
+
 /// 是否开启 WKWebView 的 H5 打通功能，该功能默认是关闭的
 @property (nonatomic) BOOL enableJavaScriptBridge;
 
@@ -162,18 +167,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 ///开启自动采集通知
 @property (nonatomic, assign) BOOL enableTrackPush;
-
-@end
-
-
-/// 密钥信息
-@interface SASecretKey : NSObject <NSCoding>
-
-/// 密钥版本
-@property(nonatomic, assign) NSInteger version;
-
-/// 密钥值
-@property(nonatomic, copy) NSString *key;
 
 @end
 

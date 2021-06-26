@@ -43,6 +43,7 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 static NSString * const kSARemoteConfigModuleName = @"RemoteConfig";
 
 static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
+static NSString * const kSAExceptionModuleName = @"Exception";
 
 @interface SAModuleManager ()
 
@@ -57,6 +58,10 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
 
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
+
+    if (configOptions.enableJavaScriptBridge) {
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
+    }
 
 #if TARGET_OS_IPHONE
     // 渠道联调诊断功能获取多渠道匹配开关
@@ -79,7 +84,7 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
     if (configOptions.enableHeatMap || configOptions.enableVisualizedAutoTrack) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAVisualizedModuleName];
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
-    } else if (NSClassFromString(@"SAVisualizedManager")) {
+    } else if ([SAModuleManager.sharedInstance contains:SAModuleTypeVisualized]) {
         // 注册 handleURL
         [SAModuleManager.sharedInstance setEnable:NO forModule:kSAVisualizedModuleName];
     }
@@ -87,13 +92,15 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
 
+    if (configOptions.enableTrackAppCrash) {
+        [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
+    }
+
     // 开启远程配置模块（因为部分模块依赖于远程配置，所以远程配置模块的初始化放到最后）
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSARemoteConfigModuleName];
+
 #endif
 
-    if (configOptions.enableJavaScriptBridge) {
-        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
-    }
 }
 
 + (instancetype)sharedInstance {
@@ -124,6 +131,8 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
             return kSAJavaScriptBridgeModuleName;
         case SAModuleTypeRemoteConfig:
             return kSARemoteConfigModuleName;
+        case SAModuleTypeException:
+            return kSAExceptionModuleName;
         default:
             return nil;
     }

@@ -1,8 +1,8 @@
 //
-// SAModuleManager+Visualized.h
+// SASecretKey.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2021/6/25.
+// Created by wenquan on 2021/6/26.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,27 +18,18 @@
 // limitations under the License.
 //
 
-#import "SAModuleManager.h"
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAVisualizedModuleProtocol <NSObject>
+/// 密钥信息
+@interface SASecretKey : NSObject <NSCoding>
 
-/// 元素相关属性
-/// @param view 需要采集的 view
-- (nullable NSDictionary *)propertiesWithView:(UIView *)view;
+/// 密钥版本
+@property (nonatomic, assign) NSInteger version;
 
-#pragma mark visualProperties
-
-/// 采集元素自定义属性
-/// @param view 触发事件的元素
-/// @param completionHandler 采集完成回调
-- (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
-
-@end
-
-@interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
+/// 密钥值
+@property (nonatomic, copy) NSString *key;
 
 @end
 

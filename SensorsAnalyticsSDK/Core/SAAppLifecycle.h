@@ -18,8 +18,11 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
 #import "SAModuleProtocol.h"
+
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,8 +1,8 @@
 //
-// SAModuleManager+Visualized.h
+// SAExceptionManager.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2021/6/25.
+// Created by 张敏超🍎 on 2021/6/4.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,27 +18,14 @@
 // limitations under the License.
 //
 
-#import "SAModuleManager.h"
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAVisualizedModuleProtocol <NSObject>
+@interface SAExceptionManager : NSObject <SAPropertyModuleProtocol>
 
-/// 元素相关属性
-/// @param view 需要采集的 view
-- (nullable NSDictionary *)propertiesWithView:(UIView *)view;
-
-#pragma mark visualProperties
-
-/// 采集元素自定义属性
-/// @param view 触发事件的元素
-/// @param completionHandler 采集完成回调
-- (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
-
-@end
-
-@interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 @end
 

@@ -32,6 +32,7 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeAutoTrack,
     SAModuleTypeJavaScriptBridge,
     SAModuleTypeRemoteConfig,
+    SAModuleTypeException,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>

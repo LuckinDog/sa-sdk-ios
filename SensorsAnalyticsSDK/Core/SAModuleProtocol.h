@@ -19,11 +19,6 @@
 //
 
 #import <Foundation/Foundation.h>
-
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
-
 #import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN

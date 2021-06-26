@@ -43,3 +43,7 @@
 #if __has_include("SensorsAnalyticsSDK+Visualized.h")
 #import "SensorsAnalyticsSDK+Visualized.h"
 #endif
+
+#if __has_include("SASecretKey.h")
+#import "SASecretKey.h"
+#endif
