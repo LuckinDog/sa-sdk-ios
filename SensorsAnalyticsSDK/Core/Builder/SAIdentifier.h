@@ -75,6 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)logout;
 
+#if TARGET_OS_IPHONE
 /**
  获取设备的 IDFA
 
@@ -88,6 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return idfv
  */
 + (NSString *)idfv;
+#endif
 
 /**
  生成匿名 Id（设备 Id）：IDFA -> IDFV -> UUID

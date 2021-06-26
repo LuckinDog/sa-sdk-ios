@@ -36,9 +36,7 @@
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
-
 #import <WebKit/WebKit.h>
-
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
@@ -63,7 +61,10 @@
 #import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
+
+#if TARGET_OS_IPHONE
 #import "SABaseEventObject+RemoteConfig.h"
+#endif
 
 #define VERSION @"2.6.7"
 
@@ -474,6 +475,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             endBackgroundTask();
         });
         return;
+#else
+        dispatch_async(self.serialQueue, ^{
+            // 上传所有的数据
+            [self.eventTracker flushAllEventRecords];
+        });
 #endif
     }
 
@@ -595,10 +601,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+
     // 1. 远程控制校验
+#if TARGET_OS_IPHONE
     if (object.isIgnoredByRemoteConfig) {
         return;
     }
+#endif
 
     // 2. 事件名校验
     NSError *error = nil;
@@ -716,6 +725,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self asyncTrackEventObject:object properties:propertieDict];
 }
 
+#if TARGET_OS_IPHONE
 - (void)trackChannelEvent:(NSString *)event {
     [self trackChannelEvent:event properties:nil];
 }
@@ -754,6 +764,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self trackEventObject:object properties:properties];
     });
 }
+#endif
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
     [_network setCookie:cookie isEncoded:encode];

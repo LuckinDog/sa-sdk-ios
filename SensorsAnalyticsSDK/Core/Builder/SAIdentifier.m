@@ -132,6 +132,8 @@
     });
 }
 
+
+#if TARGET_OS_IPHONE
 + (NSString *)idfa {
     Class cla = NSClassFromString(@"SAIDFAHelper");
     SEL sel = NSSelectorFromString(@"idfa");
@@ -145,21 +147,40 @@
 }
 
 + (NSString *)idfv {
-#if TARGET_OS_IPHONE
     return [UIDevice currentDevice].identifierForVendor.UUIDString;
-#endif
-    return nil;
 }
+#elif TARGET_OS_OSX
+/// mac SerialNumber（序列号）作为设备标识
++ (NSString *)getMacHardwareSerialNumber {
+    io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,IOServiceMatching("IOPlatformExpertDevice"));
+    CFStringRef serialNumberAsCFString = NULL;
+    if (platformExpert) {
+        serialNumberAsCFString = IORegistryEntryCreateCFProperty(platformExpert,CFSTR(kIOPlatformSerialNumberKey),kCFAllocatorDefault, 0);
+        IOObjectRelease(platformExpert);
+    }
+    NSString *serialNumberAsNSString = nil;
+    if (serialNumberAsCFString) {
+        serialNumberAsNSString = [NSString stringWithString:(__bridge NSString *)serialNumberAsCFString];
+        CFRelease(serialNumberAsCFString);
+    }
+    return serialNumberAsNSString;
+}
+#endif
+
 
 + (NSString *)uniqueHardwareId {
-    NSString *distinctId = [self idfa];
-
+    NSString *distinctId = nil;
+#if TARGET_OS_IPHONE
+    distinctId = [self idfa];
     // 没有IDFA，则使用IDFV
     if (!distinctId) {
         distinctId = [self idfv];
     }
+#elif TARGET_OS_OSX
+    distinctId = [self getMacHardwareSerialNumber];
+#endif
 
-    // 没有IDFV，则使用UUID
+    // 如果都没取到，则使用UUID
     if (!distinctId) {
         SALogDebug(@"%@ error getting device identifier: falling back to uuid", self);
         distinctId = [NSUUID UUID].UUIDString;
