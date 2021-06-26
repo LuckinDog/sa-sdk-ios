@@ -43,6 +43,7 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 static NSString * const kSARemoteConfigModuleName = @"RemoteConfig";
 
 static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
+static NSString * const kSAExceptionModuleName = @"Exception";
 
 @interface SAModuleManager ()
 
@@ -88,6 +89,10 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
     if (configOptions.enableJavaScriptBridge) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     }
+    
+    if (configOptions.enableTrackAppCrash) {
+        [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
+    }
 
     // 开启远程配置模块（因为部分模块依赖于远程配置，所以远程配置模块的初始化放到最后）
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSARemoteConfigModuleName];
@@ -121,6 +126,8 @@ static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
             return kSAJavaScriptBridgeModuleName;
         case SAModuleTypeRemoteConfig:
             return kSARemoteConfigModuleName;
+        case SAModuleTypeException:
+            return kSAExceptionModuleName;
         default:
             return nil;
     }

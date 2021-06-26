@@ -33,13 +33,9 @@
 #import "NSObject+DelegateProxy.h"
 #import "SASwizzle.h"
 #import "NSString+HashCode.h"
-#import "SensorsAnalyticsExceptionHandler.h"
 #import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
-
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-    #import "SAKeyChainItemWrapper.h"
-#endif
+#import "SAKeyChainItemWrapper.h"
 
 #import <WebKit/WebKit.h>
 
@@ -208,11 +204,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchiveTrackChannelEvents];
-
-            if (_configOptions.enableTrackAppCrash) {
-                // Install uncaught exception handlers first
-                [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
-            }
             
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
@@ -376,7 +367,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackAppCrash {
     _configOptions.enableTrackAppCrash = YES;
     // Install uncaught exception handlers first
-    [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeException];
 }
 
 - (void)showDebugInfoView:(BOOL)show {
@@ -1071,10 +1062,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)clearKeychainData {
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
-#endif
-
 }
 
 #pragma mark - RemoteConfig
