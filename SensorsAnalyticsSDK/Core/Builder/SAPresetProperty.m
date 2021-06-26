@@ -195,6 +195,8 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 
 + (NSString *)carrierName {
     NSString *carrierName = nil;
+
+#if TARGET_OS_IPHONE
     @try {
         CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
         CTCarrier *carrier = nil;
@@ -256,6 +258,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
+#endif
     return carrierName;
 }
 

@@ -181,14 +181,19 @@
 
             return [SANetwork networkStatusWithRadioAccessTechnology:currentRadioAccessTechnology];
         }
+#else
+#warning macOS 上拨号网络，如何采集？
+        if ([SAReachability sharedInstance].isReachable) {
+            return @"UNKNOWN";
+        }
 #endif
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
-
     return @"NULL";
 }
 
+#if TARGET_OS_IPHONE
 + (NSString *)networkStatusWithRadioAccessTechnology:(NSString *)value {
     if ([value isEqualToString:CTRadioAccessTechnologyGPRS] ||
         [value isEqualToString:CTRadioAccessTechnologyEdge]
@@ -218,5 +223,6 @@
 #endif
     return @"UNKNOWN";
 }
+#endif
 
 @end

@@ -23,10 +23,7 @@
 #endif
 
 #import "SAConfigOptions.h"
-#import "SAConfigOptions+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SARSAPluginEncryptor.h"
-#import "SAECCPluginEncryptor.h"
 
 @interface SAConfigOptions ()<NSCopying>
 
@@ -124,6 +121,7 @@
     }
 }
 
+#if TARGET_OS_IPHONE
 - (void)setEnableEncrypt:(BOOL)enableEncrypt {
     _enableEncrypt = enableEncrypt;
     if (enableEncrypt) {
@@ -163,6 +161,7 @@
 
 @end
 
+
 @interface SASecretKey ()
 
 /// 对称加密类型
@@ -192,6 +191,9 @@
     }
     return self;
 }
+#endif
 
 @end
+
+
 

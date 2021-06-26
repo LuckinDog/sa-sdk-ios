@@ -67,7 +67,6 @@
 #import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
-#import "SABaseEventObject+RemoteConfig.h"
 
 #define VERSION @"2.6.7"
 
@@ -604,10 +603,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+
+#warning 远程控制 模块化 待修改
     // 1. 远程控制校验
-    if (object.isIgnoredByRemoteConfig) {
-        return;
-    }
+//    if (object.isIgnoredByRemoteConfig) {
+//        return;
+//    }
 
     // 2. 事件名校验
     NSError *error = nil;
