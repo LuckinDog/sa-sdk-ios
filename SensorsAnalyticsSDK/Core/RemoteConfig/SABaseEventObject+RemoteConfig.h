@@ -1,8 +1,8 @@
 //
-// SAVisualizedLogger.h
+// SABaseEventObject+RemoteConfig.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2021/4/2.
+// Created by wenquan on 2021/6/7.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,35 +18,14 @@
 // limitations under the License.
 //
 
-#import "SAAbstractLogger.h"
+#import "SABaseEventObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SAVisualizedLoggerDelegate <NSObject>
+@interface SABaseEventObject (RemoteConfig)
 
-- (void)loggerMessage:(NSDictionary *)messageDic;
-
-@end
-
-@interface SALoggerVisualizedFormatter : NSObject <SALogMessageFormatter>
-
-@end
-
-
-/// 自定义属性日志打印
-@interface SAVisualizedLogger : SAAbstractLogger
-
-@property (weak, nonatomic, nullable) id<SAVisualizedLoggerDelegate> delegate;
-
-@end
-
-#pragma mark -
-@interface SAVisualizedLogger(Build)
-
-/// 构建 log 日志
-/// @param title 日志标题
-/// @param format 日志详情拼接
-+ (NSString *)buildLoggerMessageWithTitle:(NSString *)title message:(NSString *)format, ...;
+/// 是否被远程配置忽略
+@property (nonatomic, assign, readonly, getter=isIgnoredByRemoteConfig) BOOL ignoredByRemoteConfig;
 
 @end
 

@@ -28,7 +28,8 @@
 #import "UIView+SAElementPath.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import "SAVisualizedObjectSerializerManger.h"
+#import "SAVisualizedObjectSerializerManager.h"
+#import "SAVisualizedManager.h"
 #import "SAAutoTrackManager.h"
 
 @implementation UIViewController (SAElementPath)
@@ -86,6 +87,8 @@
 }
 
 - (void)sensorsdata_visualize_viewDidAppear:(BOOL)animated {
+    [self sensorsdata_visualize_viewDidAppear:animated];
+
     if (SAAutoTrackManager.sharedInstance.configOptions.enableAutoTrackChildViewScreen ||
         !self.parentViewController ||
         [self.parentViewController isKindOfClass:[UITabBarController class]] ||
@@ -95,7 +98,10 @@
         [self sensorsdata_readyEnterViewController];
     }
 
-    [self sensorsdata_visualize_viewDidAppear:animated];
+    // 跳转进入 RN 自定义页面，需更新节点的页面名称
+    if ([SAVisualizedUtils isRNCustomViewController:self]) {
+        [SAVisualizedManager.sharedInstance.visualPropertiesTracker enterRNViewController:self];
+    }
 }
 
 - (void)sensorsdata_readyEnterViewController {
@@ -103,7 +109,7 @@
         return;
     }
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
-    [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:self];
+    [[SAVisualizedObjectSerializerManager sharedInstance] enterViewController:self];
 }
 
 @end

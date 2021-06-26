@@ -143,7 +143,7 @@
 }
 
 + (NSString *)idfv {
-    return [UIDevice currentDevice].identifierForVendor.UUIDString;;
+    return [UIDevice currentDevice].identifierForVendor.UUIDString;
 }
 
 + (NSString *)uniqueHardwareId {

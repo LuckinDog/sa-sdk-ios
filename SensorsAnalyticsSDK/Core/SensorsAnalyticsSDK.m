@@ -66,8 +66,10 @@
 #import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
+#import "SARemoteConfigEventObject.h"
+#import "SABaseEventObject+RemoteConfig.h"
 
-#define VERSION @"2.6.5"
+#define VERSION @"2.6.7"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -699,13 +701,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
     // 1. 远程控制校验
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return;
-    }
-
-    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:object.event]) {
-        SALogDebug(@"【remote config】 %@ is ignored by remote config", object.event);
+    if (object.isIgnoredByRemoteConfig) {
         return;
     }
 
@@ -817,7 +813,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event {
-    [self track:event withProperties:nil];;
+    [self track:event withProperties:nil];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
@@ -1191,7 +1187,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:event];
+        SARemoteConfigEventObject *object = [[SARemoteConfigEventObject alloc] initWithEventId:event];
         [strongSelf asyncTrackEventObject:object properties:properties];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];
@@ -1356,7 +1352,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLib];
             [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLibVersion];
 
-            NSMutableDictionary *propertiesDict = eventDict[kSAEventProperties];
+            // 校验 properties
+            NSError *validError = nil;
+            NSMutableDictionary *propertiesDict = [SAPropertyValidator validProperties:eventDict[kSAEventProperties] error:&validError];
+            if (validError) {
+                SALogError(@"%@", validError.localizedDescription);
+                SALogError(@"%@ failed to track event from H5.", self);
+                [SAModuleManager.sharedInstance showDebugModeWarning:validError.localizedDescription];
+                return;
+            }
+
             if([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
