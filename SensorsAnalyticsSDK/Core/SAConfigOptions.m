@@ -23,10 +23,7 @@
 #endif
 
 #import "SAConfigOptions.h"
-#import "SAConfigOptions+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SARSAPluginEncryptor.h"
-#import "SAECCPluginEncryptor.h"
 
 @interface SAConfigOptions ()<NSCopying>
 
@@ -127,75 +124,6 @@
     if (maxRequestHourInterval > 0) {
         _maxRequestHourInterval = MIN(maxRequestHourInterval, 7*24);
     }
-}
-
-- (void)setEnableEncrypt:(BOOL)enableEncrypt {
-    _enableEncrypt = enableEncrypt;
-    if (enableEncrypt) {
-        [self registerEncryptor:[[SAECCPluginEncryptor alloc] init]];
-        [self registerEncryptor:[[SARSAPluginEncryptor alloc] init]];
-    }
-}
-
-- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor {
-    if (![self isValidEncryptor:encryptor]) {
-        NSString *format = @"\n 您使用了自定义加密插件 [ %@ ]，但是并没有实现加密协议相关方法。请正确实现自定义加密插件相关功能后再运行项目。\n";
-        NSString *message = [NSString stringWithFormat:format, NSStringFromClass(encryptor.class)];
-        NSAssert(NO, message);
-        return;
-    }
-    if (!self.encryptors) {
-        self.encryptors = [[NSMutableArray alloc] init];
-    }
-    [self.encryptors addObject:encryptor];
-}
-
-- (BOOL)isValidEncryptor:(id<SAEncryptProtocol>)encryptor {
-    if (![encryptor respondsToSelector:@selector(symmetricEncryptType)]) {
-        return NO;
-    }
-    if (![encryptor respondsToSelector:@selector(asymmetricEncryptType)]) {
-        return NO;
-    }
-    if (![encryptor respondsToSelector:@selector(encryptEvent:)]) {
-        return NO;
-    }
-    if (![encryptor respondsToSelector:@selector(encryptSymmetricKeyWithPublicKey:)]) {
-        return NO;
-    }
-    return YES;
-}
-
-@end
-
-@interface SASecretKey ()
-
-/// 对称加密类型
-@property(nonatomic, copy, readwrite) NSString *symmetricEncryptType;
-
-/// 非对称加密类型
-@property(nonatomic, copy, readwrite) NSString *asymmetricEncryptType;
-
-@end
-
-@implementation SASecretKey
-
-- (void)encodeWithCoder:(NSCoder *)coder {
-    [coder encodeInteger:self.version forKey:@"version"];
-    [coder encodeObject:self.key forKey:@"key"];
-    [coder encodeObject:self.symmetricEncryptType forKey:@"symmetricEncryptType"];
-    [coder encodeObject:self.asymmetricEncryptType forKey:@"asymmetricEncryptType"];
-}
-
-- (instancetype)initWithCoder:(NSCoder *)coder {
-    self = [super init];
-    if (self) {
-        self.version = [coder decodeIntegerForKey:@"version"];
-        self.key = [coder decodeObjectForKey:@"key"];
-        self.symmetricEncryptType = [coder decodeObjectForKey:@"symmetricEncryptType"];
-        self.asymmetricEncryptType = [coder decodeObjectForKey:@"asymmetricEncryptType"];
-    }
-    return self;
 }
 
 @end

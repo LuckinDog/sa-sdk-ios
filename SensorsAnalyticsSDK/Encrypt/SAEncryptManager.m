@@ -32,7 +32,7 @@
 #import "SALog.h"
 #import "SARSAPluginEncryptor.h"
 #import "SAECCPluginEncryptor.h"
-#import "SAConfigOptions+Private.h"
+#import "SAConfigOptions+Encrypt.h"
 #import "SASecretKeyFactory.h"
 
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
@@ -56,10 +56,18 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 #pragma mark - SAModuleProtocol
 
-- (void)setConfigOptions:(SAConfigOptions *)configOptions {
-    _configOptions = configOptions;
-    self.encryptors = configOptions.encryptors;
-    [self updateEncryptor];
+- (void)setEnable:(BOOL)enable {
+    _enable = enable;
+
+    if (enable) {
+        NSMutableArray *encryptors = [NSMutableArray array];
+        [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
+        [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
+        [encryptors addObjectsFromArray:self.configOptions.encryptors];
+
+        self.encryptors = encryptors;
+        [self updateEncryptor];
+    }
 }
 
 #pragma mark - SAOpenURLProtocol

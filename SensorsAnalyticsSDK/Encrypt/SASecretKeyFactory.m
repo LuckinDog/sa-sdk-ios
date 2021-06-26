@@ -24,7 +24,7 @@
 
 #import "SASecretKeyFactory.h"
 #import "SAConfigOptions.h"
-#import "SAConfigOptions+Private.h"
+#import "SAConfigOptions+Encrypt.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
 #import "SAECCEncryptor.h"

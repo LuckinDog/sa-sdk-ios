@@ -170,16 +170,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-
-/// 密钥信息
-@interface SASecretKey : NSObject <NSCoding>
-
-/// 密钥版本
-@property(nonatomic, assign) NSInteger version;
-
-/// 密钥值
-@property(nonatomic, copy) NSString *key;
-
-@end
-
 NS_ASSUME_NONNULL_END
