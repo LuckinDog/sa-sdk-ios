@@ -15,7 +15,6 @@ Pod::Spec.new do |s|
   s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
     c.source_files = core_dir + "**/*.{h,m}"
-    c.osx.exclude_files = core_dir + "Deeplink/**/*.{h,m}", core_dir + "DebugMode/**/*.{h,m}"
     c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h" 
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
@@ -35,7 +34,7 @@ Pod::Spec.new do |s|
   # 全埋点
   s.subspec 'AutoTrack' do |g|
     g.dependency 'SensorsAnalyticsSDK/Common'
-    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}", "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}", "SensorsAnalyticsSDK/Channel/**/*.{h,m}", "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}"
+    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}", "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}", "SensorsAnalyticsSDK/Channel/**/*.{h,m}", "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}", "SensorsAnalyticsSDK/Deeplink/**/*.{h,m}", "SensorsAnalyticsSDK/DebugMode/**/*.{h,m}"
     g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h', 'SensorsAnalyticsSDK/Encrypt/SASecretKey.h'
     g.frameworks = 'UIKit'
 
