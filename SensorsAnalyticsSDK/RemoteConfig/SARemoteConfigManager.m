@@ -24,6 +24,7 @@
 
 #import "SARemoteConfigManager.h"
 #import "SAConstants+Private.h"
+#import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAModuleManager.h"
 
@@ -41,6 +42,8 @@
     self = [super init];
     if (self) {
         _operator = [[SARemoteConfigCommonOperator alloc] init];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
     }
     return self;
 }
@@ -56,13 +59,44 @@
     }
 }
 
+#pragma mark - AppLifecycle
+
+- (void)appLifecycleStateWillChange:(NSNotification *)sender {
+    NSDictionary *userInfo = sender.userInfo;
+    SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
+    SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
+
+    // 冷启动
+    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        [self tryToRequestRemoteConfig];
+        return;
+    }
+
+    // 热启动
+    if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+        [self enableLocalRemoteConfig];
+        [self tryToRequestRemoteConfig];
+        return;
+    }
+
+    // 退出
+    if (newState == SAAppLifecycleStateEnd) {
+        [self.operator cancelRequestRemoteConfig];
+    }
+}
+
 #pragma mark - SAOpenURLProtocol
 
 - (BOOL)canHandleURL:(NSURL *)url {
-    return [self isRemoteConfigURL:url];
+    return [url.host isEqualToString:@"sensorsdataremoteconfig"];
 }
 
 - (BOOL)handleURL:(NSURL *)url {
+    // 打开 log 用于调试
+    [SensorsAnalyticsSDK.sdkInstance enableLog:YES];
+
+    [self cancelRequestRemoteConfig];
+
     if (![self.operator isKindOfClass:[SARemoteConfigCheckOperator class]]) {
         SARemoteConfigModel *model = self.operator.model;
         self.operator = [[SARemoteConfigCheckOperator alloc] initWithRemoteConfigModel:model];
@@ -76,10 +110,6 @@
 }
 
 #pragma mark - SARemoteConfigModuleProtocol
-
-- (BOOL)isRemoteConfigURL:(NSURL *)url {
-    return [url.host isEqualToString:@"sensorsdataremoteconfig"];
-}
 
 - (void)cancelRequestRemoteConfig {
     if ([self.operator respondsToSelector:@selector(cancelRequestRemoteConfig)]) {
@@ -111,10 +141,6 @@
 
 - (BOOL)isDisableSDK {
     return self.operator.isDisableSDK;
-}
-
-- (NSInteger)autoTrackMode {
-    return self.operator.autoTrackMode;
 }
 
 @end

@@ -383,22 +383,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     return manager.isEnable ? manager : nil;
 }
 
-- (BOOL)isRemoteConfigURL:(NSURL *)url {
-    return [self.remoteConfigManager isRemoteConfigURL:url];
-}
-
-- (void)cancelRequestRemoteConfig {
-    [self.remoteConfigManager cancelRequestRemoteConfig];
-}
-
-- (void)enableLocalRemoteConfig {
-    [self.remoteConfigManager enableLocalRemoteConfig];
-}
-
-- (void)tryToRequestRemoteConfig {
-    [self.remoteConfigManager tryToRequestRemoteConfig];
-}
-
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
     [self.remoteConfigManager retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
 }

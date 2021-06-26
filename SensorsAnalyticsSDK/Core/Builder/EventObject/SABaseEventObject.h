@@ -79,6 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 校验是否是登录事件
 - (BOOL)isSignUp;
 
+- (BOOL)isIgnoredByDisableSDK;
+
 /// 生成最终的事件信息
 - (NSMutableDictionary *)jsonObject;
 

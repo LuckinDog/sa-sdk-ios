@@ -214,10 +214,6 @@
     return self.model.disableSDK;
 }
 
-- (NSInteger)autoTrackMode {
-    return self.model.autoTrackMode;
-}
-
 - (NSArray<NSString *> *)eventBlackList {
     return self.model.eventBlackList;
 }

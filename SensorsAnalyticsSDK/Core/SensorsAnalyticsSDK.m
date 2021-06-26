@@ -406,17 +406,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
         // 开启定时器
         [self startFlushTimer];
-        // 请求远程配置
-        [SAModuleManager.sharedInstance tryToRequestRemoteConfig];
         return;
     }
 
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        // 重新初始化远程配置
-        [SAModuleManager.sharedInstance enableLocalRemoteConfig];
-        // 请求远程配置
-        [SAModuleManager.sharedInstance tryToRequestRemoteConfig];
         // 遍历 trackTimer
         UInt64 currentSysUpTime = [self.class getSystemUpTime];
         dispatch_async(self.serialQueue, ^{
@@ -431,8 +425,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [SAModuleManager.sharedInstance clearUtmProperties];
         // 停止计时器
         [self stopFlushTimer];
-        // 删除远程配置请求
-        [SAModuleManager.sharedInstance cancelRequestRemoteConfig];
         // 遍历 trackTimer
         UInt64 currentSysUpTime = [self.class getSystemUpTime];
         dispatch_async(self.serialQueue, ^{
@@ -501,11 +493,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
     [[SAReachability sharedInstance] startMonitoring];
-    
-    if ([SAModuleManager.sharedInstance isRemoteConfigURL:url]) {
-        [self enableLog:YES];
-        [SAModuleManager.sharedInstance cancelRequestRemoteConfig];
-    }
 
     return [SAModuleManager.sharedInstance handleURL:url];
 }
