@@ -121,6 +121,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
             return kSALocationModuleName;
         case SAModuleTypeDeviceOrientation:
             return kSADeviceOrientationModuleName;
+        case SAModuleTypeReactNative:
+            return kSAReactNativeModuleName;
         case SAModuleTypeAppPush:
             return kSANotificationModuleName;
         case SAModuleTypeAutoTrack:
