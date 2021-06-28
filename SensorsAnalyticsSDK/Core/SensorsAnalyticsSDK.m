@@ -62,10 +62,6 @@
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
 
-#if TARGET_OS_IPHONE
-#import "SABaseEventObject+RemoteConfig.h"
-#endif
-
 #define VERSION @"2.6.7"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
@@ -590,11 +586,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
 
     // 1. 远程控制校验
-#if TARGET_OS_IPHONE
-    if (object.isIgnoredByRemoteConfig) {
+    if ([SAModuleManager.sharedInstance isIgnoreEventObject:object]) {
         return;
     }
-#endif
 
     // 2. 事件名校验
     NSError *error = nil;

@@ -387,8 +387,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     [self.remoteConfigManager retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
 }
 
-- (BOOL)isBlackListContainsEvent:(NSString *)event {
-    return [self.remoteConfigManager isBlackListContainsEvent:event];
+- (BOOL)isIgnoreEventObject:(SABaseEventObject *)obj {
+    return [self.remoteConfigManager isIgnoreEventObject:obj];
 }
 
 - (BOOL)isDisableSDK {

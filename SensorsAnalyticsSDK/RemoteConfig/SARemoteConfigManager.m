@@ -27,6 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAModuleManager.h"
+#import "SALog.h"
 
 @interface SARemoteConfigManager ()
 
@@ -109,8 +110,6 @@
     return NO;
 }
 
-#pragma mark - SARemoteConfigModuleProtocol
-
 - (void)cancelRequestRemoteConfig {
     if ([self.operator respondsToSelector:@selector(cancelRequestRemoteConfig)]) {
         [self.operator cancelRequestRemoteConfig];
@@ -129,18 +128,34 @@
     }
 }
 
+#pragma mark - SARemoteConfigModuleProtocol
+
+- (BOOL)isDisableSDK {
+    return self.operator.isDisableSDK;
+}
+
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
     if ([self.operator respondsToSelector:@selector(retryRequestRemoteConfigWithForceUpdateFlag:)]) {
         [self.operator retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
     }
 }
 
-- (BOOL)isBlackListContainsEvent:(nullable NSString *)event {
-    return [self.operator isBlackListContainsEvent:event];
-}
+- (BOOL)isIgnoreEventObject:(SABaseEventObject *)obj {
+    if (obj.isIgnoreRemoteConfig) {
+        return NO;
+    }
 
-- (BOOL)isDisableSDK {
-    return self.operator.isDisableSDK;
+    if (self.operator.isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
+        return YES;
+    }
+
+    if ([self.operator isBlackListContainsEvent:obj.event]) {
+        SALogDebug(@"【remote config】 %@ is ignored by remote config", obj.event);
+        return YES;
+    }
+
+    return NO;
 }
 
 @end

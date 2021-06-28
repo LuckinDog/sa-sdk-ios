@@ -26,8 +26,12 @@
 
 @implementation SARemoteConfigEventObject
 
-- (BOOL)isIgnoredByRemoteConfig {
-    return NO;
+- (instancetype)initWithEventId:(NSString *)eventId {
+    self = [super initWithEventId:eventId];
+    if (self) {
+        self.ignoreRemoteConfig = YES;
+    }
+    return self;
 }
 
 @end

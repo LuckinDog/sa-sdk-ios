@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SASecretKey;
 @class SAConfigOptions;
+@class SABaseEventObject;
 
 @protocol SAModuleProtocol <NSObject>
 
@@ -161,10 +162,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param isForceUpdate 是否强制请求最新的远程配置
 - (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate;
 
-/// 是否在事件黑名单中
-/// @param event 输入的事件名
-/// @return 是否在事件黑名单中
-- (BOOL)isBlackListContainsEvent:(nullable NSString *)event;
+/// 事件对象是否被远程控制忽略
+/// @param obj 事件对象
+- (BOOL)isIgnoreEventObject:(SABaseEventObject *)obj;
 
 /// 是否禁用 SDK
 - (BOOL)isDisableSDK;
