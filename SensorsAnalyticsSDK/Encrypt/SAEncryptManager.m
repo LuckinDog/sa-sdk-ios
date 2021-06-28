@@ -60,14 +60,18 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     _enable = enable;
 
     if (enable) {
-        NSMutableArray *encryptors = [NSMutableArray array];
-        [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
-        [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
-        [encryptors addObjectsFromArray:self.configOptions.encryptors];
-
-        self.encryptors = encryptors;
         [self updateEncryptor];
     }
+}
+
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
+
+    NSMutableArray *encryptors = [NSMutableArray array];
+    [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
+    [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
+    [encryptors addObjectsFromArray:self.configOptions.encryptors];
+    self.encryptors = encryptors;
 }
 
 #pragma mark - SAOpenURLProtocol
