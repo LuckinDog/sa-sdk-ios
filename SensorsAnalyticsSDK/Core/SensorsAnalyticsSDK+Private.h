@@ -27,6 +27,7 @@
 #import "SAHTTPSession.h"
 #import "SATrackEventObject.h"
 #import "SAAppLifecycle.h"
+#import "SASuperProperty.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -49,6 +50,11 @@
 /// @param properties 事件属性
 - (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
+/// 触发事件
+/// @param object 事件对象
+/// @param properties 事件属性
+- (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
+
 /// 开启可视化模块
 - (void)enableVisualize;
 
@@ -68,6 +74,8 @@
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SANetwork *network;
+@property (nonatomic, strong, readonly) SASuperProperty *superProperty;
+@property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
 
 @end
 

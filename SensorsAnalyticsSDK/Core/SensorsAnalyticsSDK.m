@@ -91,8 +91,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, copy) NSString *userAgent;
 @property (nonatomic, copy) NSString *addWebViewUserAgent;
 
-@property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
-
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
@@ -186,8 +184,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
             [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
 
-            _trackChannelEventNames = [[NSMutableSet alloc] init];
-            
             _trackTimer = [[SATrackTimer alloc] init];
 
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
@@ -198,9 +194,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
             
             _superProperty = [[SASuperProperty alloc] init];
-            
-            // 取上一次进程退出时保存的distinctId、loginId、superProperties
-            [self unarchiveTrackChannelEvents];
             
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
@@ -610,11 +603,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addDurationProperty:eventDuration];
     [object addEventProperties:SAModuleManager.sharedInstance.latestUtmProperties];
 
-    if (self.configOptions.enableAutoAddChannelCallbackEvent) {
-        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:object.event];
-        channelInfo[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
-        [object addChannelProperties:channelInfo];
-    }
+    [object addChannelProperties:[SAModuleManager.sharedInstance channelInfoWithEvent:object.event]];
     
     if (self.configOptions.enableReferrerTitle) {
         [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
@@ -707,38 +696,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
-    if (_configOptions.enableAutoAddChannelCallbackEvent) {
-        SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
-        [self asyncTrackEventObject:object properties:propertyDict];
-        return;
-    }
-    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
-    // ua
-    if ([propertyDict[SA_EVENT_PROPERTY_APP_USER_AGENT] length] == 0) {
-        properties[SA_EVENT_PROPERTY_APP_USER_AGENT] = [SACommonUtility simulateUserAgent];
-    }
-    // idfa
-    NSString *idfa = [SAIdentifier idfa];
-    if (idfa) {
-        [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    } else {
-        [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    }
-
-    BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
-    properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
-    if (isNotContains && event) {
-        [self.trackChannelEventNames addObject:event];
-        dispatch_async(self.serialQueue, ^{
-            [self archiveTrackChannelEventNames];
-        });
-    }
-    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
-    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
-    dispatch_async(self.serialQueue, ^{
-        [object addChannelProperties:[self channelPropertiesWithEvent:object.event]];
-        [self trackEventObject:object properties:properties];
-    });
+    [SAModuleManager.sharedInstance trackChannelEvent:event properties:propertyDict];
 }
 #endif
 
@@ -870,25 +828,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #pragma mark - Local caches
-- (void)unarchiveTrackChannelEvents {
-    dispatch_async(self.serialQueue, ^{
-        NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
-        [self.trackChannelEventNames unionSet:trackChannelEvents];
-    });
-}
-
-- (void)archiveTrackChannelEventNames {
-    [SAFileStore archiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO value:self.trackChannelEventNames];
-}
-
-- (NSMutableDictionary *)channelPropertiesWithEvent:(NSString *)event {
-    BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
-    if (isNotContains && event) {
-        [self.trackChannelEventNames addObject:event];
-        [self archiveTrackChannelEventNames];
-    }
-    return [NSMutableDictionary dictionaryWithObject:@(isNotContains) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
-}
 
 - (void)startFlushTimer {
     SALogDebug(@"starting flush timer.");

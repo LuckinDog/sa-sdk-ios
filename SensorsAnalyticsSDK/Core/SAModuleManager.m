@@ -253,9 +253,21 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 @implementation SAModuleManager (ChannelMatch)
 
+- (id<SAChannelMatchModuleProtocol>)channelMatchManager {
+    id<SAChannelMatchModuleProtocol, SAModuleProtocol> manager = (id<SAChannelMatchModuleProtocol, SAModuleProtocol>)self.modules[kSAChannelMatchModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)self.modules[kSAChannelMatchModuleName];
-    [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
+    [self.channelMatchManager trackAppInstall:event properties:properties disableCallback:disableCallback];
+}
+
+- (void)trackChannelEvent:(NSString *)event properties:(NSDictionary *)propertyDict {
+    [self.channelMatchManager trackChannelEvent:event properties:propertyDict];
+}
+
+- (NSDictionary *)channelInfoWithEvent:(NSString *)event {
+    return [self.channelMatchManager channelInfoWithEvent:event];
 }
 
 @end

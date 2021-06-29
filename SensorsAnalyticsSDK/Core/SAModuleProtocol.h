@@ -71,6 +71,15 @@ NS_ASSUME_NONNULL_BEGIN
 */
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback;
 
+/// 调用 track 接口并附加渠道信息
+/// @param event 事件名称
+/// @param propertyDict 事件属性
+- (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict;
+
+/// 获取事件的渠道信息
+/// @param event 事件名
+- (NSDictionary *)channelInfoWithEvent:(NSString *)event;
+
 @end
 
 #pragma mark -

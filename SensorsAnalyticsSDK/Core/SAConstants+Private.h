@@ -69,7 +69,6 @@ extern NSString * const kSAEventNameAppInstall;
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
-extern NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;
 
 #pragma mark--autoTrack property
@@ -85,9 +84,6 @@ extern NSString * const kSAEventPropertyElementSelector;
 extern NSString * const kSAEventPropertyElementPath;
 extern NSString * const kSAEventPropertyElementContent;
 extern NSString * const kSAEventPropertyElementType;
-extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
-extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
-
 extern NSString * const kSAEeventPropertyReferrerTitle;
 
 // 远程控制配置信息

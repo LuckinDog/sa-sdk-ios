@@ -30,20 +30,45 @@
 #import "SAAlertController.h"
 #import "SAURLUtils.h"
 #import "SAReachability.h"
-#import "SACommonUtility.h"
 #import "SALog.h"
+#import "SAFileStore.h"
 
-NSString * const SAIsValidForChannelDebugKey = @"com.sensorsdata.channeldebug.flag";
-NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
+NSString * const kSAIsValidForChannelDebugKey = @"com.sensorsdata.channeldebug.flag";
+NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";
+NSString * const kSAEventPropertyChannelDeviceInfo = @"$channel_device_info";
+NSString * const kSAEventPropertyUserAgent = @"$user_agent";
+NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_event";
 
 @interface SAChannelMatchManager ()
 
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) UIActivityIndicatorView *indicator;
+@property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
 @end
 
 @implementation SAChannelMatchManager
+
+#pragma mark - SAModuleProtocol
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _trackChannelEventNames = [[NSMutableSet alloc] init];
+    }
+    return self;
+}
+
+- (void)setEnable:(BOOL)enable {
+    _enable = enable;
+
+    if (enable) {
+        // 取上一次进程退出时保存的distinctId、loginId、superProperties
+        dispatch_async(SensorsAnalyticsSDK.sdkInstance.serialQueue, ^{
+            NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:kSAEventPropertyChannelDeviceInfo];
+            [self.trackChannelEventNames unionSet:trackChannelEvents];
+        });
+    }
+}
 
 #pragma mark - indicator view
 - (void)showIndicator {
@@ -95,7 +120,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
         // 当未触发过激活事件时，可以使用联调诊断功能
         return YES;
     }
-    return [[NSUserDefaults standardUserDefaults] boolForKey:SAIsValidForChannelDebugKey];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kSAIsValidForChannelDebugKey];
 }
 
 /// 当前获取到的设备 ID 为有效值
@@ -114,7 +139,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     }
 
     // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
-    [userDefault setBool:[self isValidOfDeviceInfo] forKey:SAIsValidForChannelDebugKey];
+    [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAIsValidForChannelDebugKey];
 
     // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
     [userDefault setBool:YES forKey:userDefaultsKey];
@@ -131,15 +156,15 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 }
 
 - (void)trackChannelDebugInstallEvent {
-    [self handleAppInstallEvent:SAChannelDebugInstallEventName properties:nil];
+    [self handleAppInstallEvent:kSAChannelDebugInstallEventName properties:nil];
 }
 
 - (void)handleAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
     NSMutableDictionary *eventProps = [NSMutableDictionary dictionaryWithDictionary:properties];
     eventProps[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
 
-    if ([eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] length] == 0) {
-        eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] = [SACommonUtility simulateUserAgent];
+    if ([eventProps[kSAEventPropertyUserAgent] length] == 0) {
+        eventProps[kSAEventPropertyUserAgent] = [self simulateUserAgent];
     }
     [self trackAppInstallEvent:event properties:eventProps];
 }
@@ -183,6 +208,70 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
         [sdk setOnce:profileProps];
     }
     [sdk flush];
+}
+
+#pragma mark - 附加渠道信息
+- (void)trackChannelEvent:(NSString *)event properties:(NSDictionary *)propertyDict {
+    if (self.configOptions.enableAutoAddChannelCallbackEvent) {
+        SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:propertyDict];
+        return;
+    }
+    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
+    // ua
+    if ([propertyDict[kSAEventPropertyUserAgent] length] == 0) {
+        properties[kSAEventPropertyUserAgent] = [self simulateUserAgent];
+    }
+    // idfa
+    NSString *idfa = [SAIdentifier idfa];
+    if (idfa) {
+        [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:kSAEventPropertyChannelDeviceInfo];
+    } else {
+        [properties setValue:@"" forKey:kSAEventPropertyChannelDeviceInfo];
+    }
+
+    BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+    properties[kSAEventPropertyChannelCallbackEvent] = @(isNotContains);
+    if (isNotContains && event) {
+        [self.trackChannelEventNames addObject:event];
+        dispatch_async(SensorsAnalyticsSDK.sdkInstance.serialQueue, ^{
+            [self archiveTrackChannelEventNames];
+        });
+    }
+    SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
+    object.dynamicSuperProperties = [SensorsAnalyticsSDK.sharedInstance.superProperty acquireDynamicSuperProperties];
+    dispatch_async(SensorsAnalyticsSDK.sdkInstance.serialQueue, ^{
+        [object addChannelProperties:[self channelPropertiesWithEvent:object.event]];
+        [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:properties];
+    });
+}
+
+- (NSMutableDictionary *)channelPropertiesWithEvent:(NSString *)event {
+    BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+    if (isNotContains && event) {
+        [self.trackChannelEventNames addObject:event];
+        [self archiveTrackChannelEventNames];
+    }
+    return [NSMutableDictionary dictionaryWithObject:@(isNotContains) forKey:kSAEventPropertyChannelCallbackEvent];
+}
+
+- (void)archiveTrackChannelEventNames {
+    [SAFileStore archiveWithFileName:kSAEventPropertyChannelDeviceInfo value:self.trackChannelEventNames];
+}
+
+- (NSDictionary *)channelInfoWithEvent:(NSString *)event {
+    if (self.configOptions.enableAutoAddChannelCallbackEvent) {
+        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:event];
+        channelInfo[kSAEventPropertyChannelDeviceInfo] = @"1";
+        return channelInfo;
+    }
+    return nil;
+}
+
+- (NSString *)simulateUserAgent {
+    NSString *version = [UIDevice.currentDevice.systemVersion stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+    NSString *model = UIDevice.currentDevice.model;
+    return [NSString stringWithFormat:@"Mozilla/5.0 (%@; CPU OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile", model, version];
 }
 
 #pragma mark - handle URL
