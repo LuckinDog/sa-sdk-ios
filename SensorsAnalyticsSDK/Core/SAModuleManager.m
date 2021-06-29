@@ -59,13 +59,20 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
+    // H5 打通模块
     if (configOptions.enableJavaScriptBridge) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     }
 
 #if TARGET_OS_IPHONE
+    // 推送点击模块
+    if (configOptions.enableTrackPush) {
+        [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackPush forModule:kSANotificationModuleName];
+    }
+
     // 渠道联调诊断功能获取多渠道匹配开关
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSAChannelMatchModuleName];
+
     // 初始化 LinkHandler 处理 deepLink 相关操作
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
 
@@ -92,6 +99,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
 
+    // crash 采集
     if (configOptions.enableTrackAppCrash) {
         [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
     }
@@ -300,17 +308,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
     [self.encryptManager handleEncryptWithConfig:encryptConfig];
-}
-
-@end
-
-#pragma mark -
-
-@implementation SAModuleManager (PushClick)
-
-- (void)setLaunchOptions:(NSDictionary *)launchOptions {
-    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)[[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeAppPush];
-    [manager setLaunchOptions:launchOptions];
 }
 
 @end

@@ -205,11 +205,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
             }
-            
-            if (_configOptions.enableTrackPush) {
-                [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeAppPush];
-                [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
-            }
         }
         
     } @catch(NSException *exception) {

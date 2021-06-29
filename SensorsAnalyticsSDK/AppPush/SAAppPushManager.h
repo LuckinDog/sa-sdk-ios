@@ -23,9 +23,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAppPushManager : NSObject <SAAppPushModuleProtocol, SAModuleProtocol>
+@interface SAAppPushManager : NSObject <SAModuleProtocol>
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 

@@ -111,12 +111,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@protocol SAAppPushModuleProtocol <NSObject>
-
-- (void)setLaunchOptions:(NSDictionary *)launchOptions;
-
-@end
-
 #pragma mark -
 
 @protocol SADeeplinkModuleProtocol <NSObject>

@@ -86,12 +86,6 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 #pragma mark -
 
-@interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
-
-@end
-
-#pragma mark -
-
 @interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
 
 @end
