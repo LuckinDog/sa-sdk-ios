@@ -73,7 +73,7 @@
 
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
-        [self.operator cancelRequestRemoteConfig];
+        [self cancelRequestRemoteConfig];
     }
 }
 
