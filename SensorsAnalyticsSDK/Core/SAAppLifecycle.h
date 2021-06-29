@@ -20,10 +20,6 @@
 
 #import "SAModuleProtocol.h"
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// SDK 生命周期状态
@@ -48,9 +44,7 @@ extern NSString * const kSAAppLifecycleNewStateKey;
 /// 在状态改变通知回调中，获取之前的状态
 extern NSString * const kSAAppLifecycleOldStateKey;
 
-@interface SAAppLifecycle : NSObject <SAModuleProtocol>
-
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
+@interface SAAppLifecycle : NSObject
 
 @property (nonatomic, assign, readonly) SAAppLifecycleState state;
 

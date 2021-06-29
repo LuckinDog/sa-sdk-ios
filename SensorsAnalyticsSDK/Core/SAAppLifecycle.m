@@ -25,6 +25,10 @@
 #import "SAAppLifecycle.h"
 #import "SALog.h"
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
 NSNotificationName const kSAAppLifecycleStateWillChangeNotification = @"com.sensorsdata.SAAppLifecycleStateWillChange";
 NSNotificationName const kSAAppLifecycleStateDidChangeNotification = @"com.sensorsdata.SAAppLifecycleStateDidChange";
 NSString * const kSAAppLifecycleNewStateKey = @"new";
