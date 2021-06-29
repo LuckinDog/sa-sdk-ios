@@ -24,7 +24,6 @@
 
 #import "SARemoteConfigManager.h"
 #import "SAConstants+Private.h"
-#import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAModuleManager.h"
 #import "SALog.h"
@@ -39,24 +38,16 @@
 
 #pragma mark - SAModuleProtocol
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _operator = [[SARemoteConfigCommonOperator alloc] init];
-
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
-    }
-    return self;
-}
-
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
 
     if (enable) {
         self.operator = [[SARemoteConfigCommonOperator alloc] init];
         self.operator.configOptions = self.configOptions;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
     } else {
         self.operator = nil;
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
     }
 }
 

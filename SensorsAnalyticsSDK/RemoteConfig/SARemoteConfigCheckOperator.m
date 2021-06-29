@@ -29,7 +29,6 @@
 #import "SACommonUtility.h"
 #import "SAReachability.h"
 #import "SALog.h"
-#import "SensorsAnalyticsSDK+Private.h"
 
 typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
