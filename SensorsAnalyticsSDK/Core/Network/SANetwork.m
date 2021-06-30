@@ -138,7 +138,9 @@
         return SensorsAnalyticsNetworkTypeNONE;
     } else if ([@"WIFI" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkTypeWIFI;
-    } else if ([@"2G" isEqualToString:networkTypeString]) {
+    }
+#if TARGET_OS_IPHONE
+    else if ([@"2G" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkType2G;
     } else if ([@"3G" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkType3G;
@@ -151,6 +153,7 @@
     } else if ([@"UNKNOWN" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkType4G;
     }
+#endif
     return SensorsAnalyticsNetworkTypeNONE;
 }
 

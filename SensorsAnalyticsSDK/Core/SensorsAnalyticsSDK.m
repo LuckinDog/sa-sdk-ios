@@ -161,12 +161,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (self) {
             _configOptions = [configOptions copy];
 
-            _networkTypePolicy = SensorsAnalyticsNetworkType3G |
-                SensorsAnalyticsNetworkType4G |
+            _networkTypePolicy =
+#if TARGET_OS_IPHONE
+            SensorsAnalyticsNetworkType3G |
+            SensorsAnalyticsNetworkType4G |
+            
 #ifdef __IPHONE_14_1
-                SensorsAnalyticsNetworkType5G |
+            SensorsAnalyticsNetworkType5G |
 #endif
-                SensorsAnalyticsNetworkTypeWIFI;
+#endif
+            SensorsAnalyticsNetworkTypeWIFI;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
 
