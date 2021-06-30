@@ -67,7 +67,7 @@ static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFl
         }
     }
     
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN) {
         /*
          ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.

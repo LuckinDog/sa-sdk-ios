@@ -25,7 +25,7 @@
 #import "SAAppLifecycle.h"
 #import "SALog.h"
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
 #endif
 
@@ -59,7 +59,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 
 - (void)setupLaunchedState {
     dispatch_block_t mainThreadBlock = ^(){
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
         BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
 #else
         BOOL isAppStateBackground = NO;
@@ -76,7 +76,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
         // iOS 13 以下通过监听 UIApplicationDidFinishLaunchingNotification 的通知来处理被动启动和冷启动（非延迟初始化）的情况:
         // 1. iOS 13 以下被动启动时异步主队列的 block 不会执行
         // 2. iOS 13 以下不会含有 SceneDelegate
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationDidFinishLaunching:)
                                                      name:UIApplicationDidFinishLaunchingNotification
@@ -111,7 +111,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive:)
                                name:UIApplicationDidBecomeActiveNotification
@@ -143,7 +143,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     SALogDebug(@"%@ application did finish launching", self);
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
     self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
 #else
@@ -153,7 +153,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SALogDebug(@"%@ application did become active", self);
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     // 防止主动触发 UIApplicationDidBecomeActiveNotification
     if (![notification.object isKindOfClass:[UIApplication class]]) {
         return;
@@ -181,7 +181,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SALogDebug(@"%@ application did enter background", self);
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     // 防止主动触发 UIApplicationDidEnterBackgroundNotification
     if (![notification.object isKindOfClass:[UIApplication class]]) {
         return;

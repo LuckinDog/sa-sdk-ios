@@ -200,7 +200,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 + (NSString *)carrierName {
     NSString *carrierName = nil;
     
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     @try {
         CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
         CTCarrier *carrier = nil;
@@ -295,7 +295,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
             _automaticProperties[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
             _automaticProperties[SAEventPresetPropertyManufacturer] = @"Apple";
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
             _automaticProperties[SAEventPresetPropertyCarrier] = [SAPresetProperty carrierName];
             _automaticProperties[SAEventPresetPropertyOS] = @"iOS";
             _automaticProperties[SAEventPresetPropertyOSVersion] = [[UIDevice currentDevice] systemVersion];

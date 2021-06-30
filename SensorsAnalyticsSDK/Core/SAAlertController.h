@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
 #endif
 
@@ -50,7 +50,7 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
 
 @end
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 /**
  神策弹框的 SAAlertController，添加到黑名单。
  防止 $AppViewScreen 事件误采

@@ -114,7 +114,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     if (configOptions.enableEncrypt) {
         NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) ||
                  (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
@@ -162,7 +162,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _configOptions = [configOptions copy];
 
             _networkTypePolicy =
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
             SensorsAnalyticsNetworkType3G |
             SensorsAnalyticsNetworkType4G |
             
@@ -189,7 +189,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
             [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
 #endif
 
@@ -444,7 +444,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
         UIApplication *application = UIApplication.sharedApplication;
         __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
         void (^endBackgroundTask)(void) = ^() {
@@ -614,7 +614,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     [object addChannelProperties:[SAModuleManager.sharedInstance channelInfoWithEvent:object.event]];
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     if (self.configOptions.enableReferrerTitle) {
         [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
     }
@@ -701,7 +701,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self asyncTrackEventObject:object properties:propertieDict];
 }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 - (void)trackChannelEvent:(NSString *)event {
     [self trackChannelEvent:event properties:nil];
 }

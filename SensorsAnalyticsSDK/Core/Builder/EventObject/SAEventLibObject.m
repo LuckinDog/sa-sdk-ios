@@ -33,7 +33,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
         _lib = @"iOS";
 #elif TARGET_OS_OSX
         _lib = @"macOS";

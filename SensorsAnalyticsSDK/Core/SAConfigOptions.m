@@ -39,7 +39,7 @@
     if (self) {
         _serverURL = serverURL;
         _launchOptions = launchOptions;
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
         _autoTrackEventType = SensorsAnalyticsEventTypeNone;
 #endif
         
@@ -74,7 +74,7 @@
 
     options.enableLog = self.enableLog;
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     options.minRequestHourInterval = self.minRequestHourInterval;
     options.maxRequestHourInterval = self.maxRequestHourInterval;
 

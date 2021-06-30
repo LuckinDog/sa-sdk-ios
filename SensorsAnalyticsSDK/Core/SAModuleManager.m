@@ -64,7 +64,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     // 推送点击模块
     if (configOptions.enableTrackPush) {
         [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackPush forModule:kSANotificationModuleName];

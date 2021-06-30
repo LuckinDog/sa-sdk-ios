@@ -29,7 +29,7 @@
 #import "SALog.h"
 #import "SAKeyChainItemWrapper.h"
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
 #endif
 
@@ -84,7 +84,7 @@
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
     [SAFileStore archiveWithFileName:kSAEventDistinctId value:anonymousId];
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     [SAKeyChainItemWrapper saveUdid:anonymousId];
 #endif
 }
@@ -135,7 +135,7 @@
 }
 
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 + (NSString *)idfa {
     Class cla = NSClassFromString(@"SAIDFAHelper");
     SEL sel = NSSelectorFromString(@"idfa");
@@ -172,7 +172,7 @@
 
 + (NSString *)uniqueHardwareId {
     NSString *distinctId = nil;
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     distinctId = [self idfa];
     // 没有IDFA，则使用IDFV
     if (!distinctId) {
@@ -195,7 +195,7 @@
 - (NSString *)unarchiveAnonymousId {
     NSString *anonymousId = [SAFileStore unarchiveWithFileName:kSAEventDistinctId];
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {

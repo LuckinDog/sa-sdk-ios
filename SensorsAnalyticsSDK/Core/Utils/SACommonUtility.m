@@ -26,7 +26,7 @@
 #import "SAValidator.h"
 #import <CommonCrypto/CommonDigest.h>
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 #import <UIKit/UIDevice.h>
 #endif
 

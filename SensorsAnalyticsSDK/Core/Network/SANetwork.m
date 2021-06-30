@@ -139,7 +139,7 @@
     } else if ([@"WIFI" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkTypeWIFI;
     }
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     else if ([@"2G" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkType2G;
     } else if ([@"3G" isEqualToString:networkTypeString]) {
@@ -163,7 +163,7 @@
             return @"WIFI";
         }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
         if ([SAReachability sharedInstance].isReachableViaWWAN) {
             static CTTelephonyNetworkInfo *networkInfo = nil;
             static dispatch_once_t onceToken;
@@ -191,7 +191,7 @@
     return @"NULL";
 }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 + (NSString *)networkStatusWithRadioAccessTechnology:(NSString *)value {
     if ([value isEqualToString:CTRadioAccessTechnologyGPRS] ||
         [value isEqualToString:CTRadioAccessTechnologyEdge]
