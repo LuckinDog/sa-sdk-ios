@@ -62,7 +62,7 @@
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
 
-#define VERSION @"2.6.7"
+#define VERSION @"2.6.8"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -1202,6 +1202,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyTime];
             }
 
+            eventDict[kSAEventProperties] = propertiesDict;
             eventDict[kSAEventTime] = timeStamp;
 
             //JS SDK Data add _hybrid_h5 flag
