@@ -20,15 +20,12 @@
 
 #import <Foundation/Foundation.h>
 
-#warning macOS 使用对应平台弹框实现
-
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if TARGET_OS_IPHONE
 
 typedef NS_ENUM(NSUInteger, SAAlertActionStyle) {
     SAAlertActionStyleDefault,
@@ -53,6 +50,7 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
 
 @end
 
+#if TARGET_OS_IPHONE
 /**
  神策弹框的 SAAlertController，添加到黑名单。
  防止 $AppViewScreen 事件误采

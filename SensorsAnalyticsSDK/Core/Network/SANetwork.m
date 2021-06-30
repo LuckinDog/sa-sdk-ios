@@ -181,11 +181,6 @@
 
             return [SANetwork networkStatusWithRadioAccessTechnology:currentRadioAccessTechnology];
         }
-#elif TARGET_OS_OSX
-#warning macOS 上拨号网络，如何采集？
-        if ([SAReachability sharedInstance].isReachable) {
-            return @"UNKNOWN";
-        }
 #endif
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
