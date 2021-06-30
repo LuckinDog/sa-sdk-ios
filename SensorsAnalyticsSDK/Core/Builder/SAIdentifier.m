@@ -84,7 +84,9 @@
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
     [SAFileStore archiveWithFileName:kSAEventDistinctId value:anonymousId];
+#if TARGET_OS_IPHONE
     [SAKeyChainItemWrapper saveUdid:anonymousId];
+#endif
 }
 
 - (void)resetAnonymousId {
@@ -151,7 +153,7 @@
 }
 #elif TARGET_OS_OSX
 /// mac SerialNumber（序列号）作为设备标识
-+ (NSString *)getMacHardwareSerialNumber {
++ (NSString *)uniqueHardwareMacSerialNumber {
     io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,IOServiceMatching("IOPlatformExpertDevice"));
     CFStringRef serialNumberAsCFString = NULL;
     if (platformExpert) {
@@ -177,7 +179,7 @@
         distinctId = [self idfv];
     }
 #elif TARGET_OS_OSX
-    distinctId = [self getMacHardwareSerialNumber];
+    distinctId = [self uniqueHardwareMacSerialNumber];
 #endif
 
     // 如果都没取到，则使用UUID
@@ -193,6 +195,7 @@
 - (NSString *)unarchiveAnonymousId {
     NSString *anonymousId = [SAFileStore unarchiveWithFileName:kSAEventDistinctId];
 
+#if TARGET_OS_IPHONE
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
@@ -209,6 +212,13 @@
             [SAKeyChainItemWrapper saveUdid:anonymousId];
         }
     }
+#else
+    if (anonymousId.length == 0) {
+        anonymousId = [SAIdentifier uniqueHardwareId];
+        [self archiveAnonymousId:anonymousId];
+    }
+#endif
+
     return anonymousId;
 }
 

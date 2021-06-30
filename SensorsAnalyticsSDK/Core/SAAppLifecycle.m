@@ -136,11 +136,6 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     // 失焦状态
     [notificationCenter addObserver:self selector:@selector(applicationDidEnterBackground:) name:NSApplicationDidResignActiveNotification object:nil];
 
-    // 显示桌面
-    [notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive:) name:NSApplicationDidUnhideNotification object:nil];
-    // 隐藏桌面
-    [notificationCenter addObserver:self selector:@selector(applicationDidEnterBackground:) name:NSApplicationDidHideNotification object:nil];
-
     [notificationCenter addObserver:self selector:@selector(applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
 #endif
 }
@@ -175,7 +170,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     }
 
     NSApplication *application = (NSApplication *)notification.object;
-    if (application.isHidden || !application.isActive) {
+    if (!application.isActive) {
         return;
     }
 #endif
@@ -202,7 +197,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     }
 
     NSApplication *application = (NSApplication *)notification.object;
-    if (!application.isHidden && application.isActive) {
+    if (application.isActive) {
         return;
     }
 #endif
