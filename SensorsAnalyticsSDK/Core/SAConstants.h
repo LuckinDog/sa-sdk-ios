@@ -100,6 +100,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
     SensorsAnalyticsNetworkTypeWIFI     = 1 << 3,
     SensorsAnalyticsNetworkTypeALL      = 0xFF,
 #ifdef __IPHONE_14_1
-    SensorsAnalyticsNetworkType5G NS_ENUM_AVAILABLE_IOS(14_0)   = 1 << 4
+    SensorsAnalyticsNetworkType5G NS_ENUM_AVAILABLE_IOS(8_0)   = 1 << 4
 #endif
 };
