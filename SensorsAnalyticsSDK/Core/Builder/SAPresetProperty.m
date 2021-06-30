@@ -176,29 +176,21 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 }
 
 + (NSString *)deviceModel {
-    NSString *result = @"Unknown";
+    NSString *result = nil;
     @try {
-#if TARGET_OS_IPHONE
+        NSString *hwName = @"hw.machine";
+#if TARGET_OS_OSX
+        hwName = @"hw.model";
+#endif
         size_t size;
-        sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+        sysctlbyname([hwName UTF8String], NULL, &size, NULL, 0);
         char answer[size];
-        sysctlbyname("hw.machine", answer, &size, NULL, 0);
+        sysctlbyname([hwName UTF8String], answer, &size, NULL, 0);
         if (size) {
             result = @(answer);
         } else {
-            SALogError(@"Failed fetch hw.machine from sysctl.");
+            SALogError(@"Failed fetch %@ from sysctl.", hwName);
         }
-#elif TARGET_OS_OSX
-        size_t len=0;
-        sysctlbyname("hw.model", NULL, &len, NULL, 0);
-        if (len) {
-            NSMutableData *data=[NSMutableData dataWithLength:len];
-            sysctlbyname("hw.model", [data mutableBytes], &len, NULL, 0);
-            result = [NSString stringWithUTF8String:[data bytes]];
-        } else {
-            SALogError(@"Failed fetch hw.model from sysctl.");
-        }
-#endif
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
@@ -207,13 +199,13 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 
 + (NSString *)carrierName {
     NSString *carrierName = nil;
-
+    
 #if TARGET_OS_IPHONE
     @try {
         CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
         CTCarrier *carrier = nil;
         
-    #ifdef __IPHONE_12_0
+#ifdef __IPHONE_12_0
         if (@available(iOS 12.1, *)) {
             // 排序
             NSArray *carrierKeysArray = [telephonyInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
@@ -222,7 +214,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
                 carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
             }
         }
-    #endif
+#endif
         if (!carrier) {
             carrier = telephonyInfo.subscriberCellularProvider;
         }
@@ -276,12 +268,12 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
 
 + (NSString *)appName {
     NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
-    if (displayName) {
+    if (displayName.length > 0) {
         return displayName;
     }
     
     NSString *bundleName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-    if (bundleName) {
+    if (bundleName.length > 0) {
         return bundleName;
     }
     

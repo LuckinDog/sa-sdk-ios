@@ -128,7 +128,9 @@
 - (void)enableRemoteConfig:(NSDictionary *)config {
     self.model = [[SARemoteConfigModel alloc] initWithDictionary:config];
     
-    // 发送远程配置模块 Model 变化通知
+    /* 发送远程配置模块 Model 变化通知
+     定位和设备方向采集（Location 和 DeviceOrientation 模块），依赖这个通知，如果使用相关功能，必须开启远程控制功能
+    */
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:self.model];
     
     BOOL isDisableSDK = self.isDisableSDK;

@@ -39,8 +39,10 @@
     if (self) {
         _serverURL = serverURL;
         _launchOptions = launchOptions;
-
+#if TARGET_OS_IPHONE
         _autoTrackEventType = SensorsAnalyticsEventTypeNone;
+#endif
+        
         _flushInterval = 15 * 1000;
         _flushBulkSize = 100;
         _maxCacheSize = 10000;
@@ -63,39 +65,47 @@
     options.serverURL = self.serverURL;
     options.launchOptions = self.launchOptions;
 
-    options.autoTrackEventType = self.autoTrackEventType;
-    options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
     options.enableJavaScriptBridge = self.enableJavaScriptBridge;
-    options.enableTrackAppCrash = self.enableTrackAppCrash;
     options.flushInterval = self.flushInterval;
     options.flushBulkSize = self.flushBulkSize;
     options.maxCacheSize = self.maxCacheSize;
+
+
+
+    options.enableLog = self.enableLog;
+
+#if TARGET_OS_IPHONE
+    options.minRequestHourInterval = self.minRequestHourInterval;
+    options.maxRequestHourInterval = self.maxRequestHourInterval;
+
+    options.autoTrackEventType = self.autoTrackEventType;
+
+    options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
+    options.enableTrackAppCrash = self.enableTrackAppCrash;
     options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
     options.sourceChannels = self.sourceChannels;
     options.remoteConfigURL = self.remoteConfigURL;
 
     options.disableRandomTimeRequestRemoteConfig = self.disableRandomTimeRequestRemoteConfig;
-    
-    options.minRequestHourInterval = self.minRequestHourInterval;
-    options.maxRequestHourInterval = self.maxRequestHourInterval;
-    options.enableLog = self.enableLog;
+
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
 
-    options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
-    options.securityPolicy = [self.securityPolicy copy];
-    
     options.enableEncrypt = self.enableEncrypt;
     options.saveSecretKey = self.saveSecretKey;
     options.loadSecretKey = self.loadSecretKey;
-    
+
     options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
 
     options.enableReferrerTitle = self.enableReferrerTitle;
     options.enableTrackPush = self.enableTrackPush;
 
     options.encryptors = self.encryptors;
+#endif
+
+    options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
+    options.securityPolicy = [self.securityPolicy copy];
     
     return options;
 }

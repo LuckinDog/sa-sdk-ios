@@ -26,6 +26,7 @@ Pod::Spec.new do |s|
 
   # 支持 CAID 渠道匹配
   s.subspec 'CAID' do |f|
+    f.ios.deployment_target = '8.0'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/CAID/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
@@ -33,6 +34,7 @@ Pod::Spec.new do |s|
 
   # 全埋点
   s.subspec 'AutoTrack' do |g|
+    g.ios.deployment_target = '8.0'
     g.dependency 'SensorsAnalyticsSDK/Common'
     g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}", "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}", "SensorsAnalyticsSDK/Channel/**/*.{h,m}", "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}", "SensorsAnalyticsSDK/Deeplink/**/*.{h,m}", "SensorsAnalyticsSDK/DebugMode/**/*.{h,m}"
     g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h', 'SensorsAnalyticsSDK/Encrypt/SASecretKey.h'
@@ -42,6 +44,7 @@ Pod::Spec.new do |s|
 
 # 可视化相关功能，包含可视化全埋点和点击图
   s.subspec 'Visualized' do |f|
+    f.ios.deployment_target = '8.0'
     f.dependency 'SensorsAnalyticsSDK/AutoTrack'
     f.source_files = "SensorsAnalyticsSDK/Visualized/**/*.{h,m}"
     f.public_header_files = 'SensorsAnalyticsSDK/Visualized/SensorsAnalyticsSDK+Visualized.h'
@@ -49,6 +52,7 @@ Pod::Spec.new do |s|
 
   # 开启 GPS 定位采集
   s.subspec 'Location' do |f|
+    f.ios.deployment_target = '8.0'
     f.frameworks = 'CoreLocation'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
@@ -58,6 +62,7 @@ Pod::Spec.new do |s|
 
   # 开启设备方向采集
   s.subspec 'DeviceOrientation' do |f|
+    f.ios.deployment_target = '8.0'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.{h,m}'
     f.private_header_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.h'
@@ -66,6 +71,7 @@ Pod::Spec.new do |s|
 
   # 推送点击
   s.subspec 'AppPush' do |f|
+    f.ios.deployment_target = '8.0'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/AppPush/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/AppPush/**/*.h'
@@ -73,20 +79,23 @@ Pod::Spec.new do |s|
 
   # 使用崩溃事件采集
   s.subspec 'Exception' do |e|
+    e.ios.deployment_target = '8.0'
     e.dependency 'SensorsAnalyticsSDK/Common'
     e.source_files  =  "SensorsAnalyticsSDK/Exception/**/*.{h,m}"
     e.private_header_files = 'SensorsAnalyticsSDK/Exception/**/*.h'
   end
 
-  # 使用 UIWebView 或者 WKWebView 进行打通
+  # 基于 UA，使用 UIWebView 或者 WKWebView 进行打通
   s.subspec 'WebView' do |w|
+    w.ios.deployment_target = '8.0'
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WebView/**/*.{h,m}"
     w.public_header_files = 'SensorsAnalyticsSDK/WebView/SensorsAnalyticsSDK+WebView.h'
   end
 
-  # 使用 WKWebView 进行打通
+  # 基于 UA，使用 WKWebView 进行打通
   s.subspec 'WKWebView' do |w|
+    w.ios.deployment_target = '8.0'
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
     w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'

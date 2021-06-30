@@ -114,10 +114,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
+#if TARGET_OS_IPHONE
     if (configOptions.enableEncrypt) {
         NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) ||
                  (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
     }
+#endif
+
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
@@ -182,7 +185,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
+#if TARGET_OS_IPHONE
             [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
+#endif
 
             _trackTimer = [[SATrackTimer alloc] init];
 
@@ -604,10 +609,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addEventProperties:SAModuleManager.sharedInstance.latestUtmProperties];
 
     [object addChannelProperties:[SAModuleManager.sharedInstance channelInfoWithEvent:object.event]];
-    
+
+#if TARGET_OS_IPHONE
     if (self.configOptions.enableReferrerTitle) {
         [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
     }
+#endif
 
     // 5. 添加的自定义属性需要校验
     [object addCustomProperties:properties error:&error];
