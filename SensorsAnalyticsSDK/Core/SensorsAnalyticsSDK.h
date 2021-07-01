@@ -19,10 +19,6 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS
-#import <UIKit/UIKit.h>
-#endif
-
 #import "SensorsAnalyticsSDK+Public.h"
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"

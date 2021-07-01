@@ -21,33 +21,13 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-
-#import <Availability.h>
-#import <objc/runtime.h>
-#include <sys/sysctl.h>
-#include <stdlib.h>
-
-#import "SAJSONUtil.h"
-#import "SAGzipUtility.h"
 #import "SensorsAnalyticsSDK.h"
-#import "NSObject+DelegateProxy.h"
-#import "SASwizzle.h"
-#import "NSString+HashCode.h"
-#import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
-#import <WebKit/WebKit.h>
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SAAlertController.h"
-#import "SAWeakPropertyContainer.h"
-#import "SADateFormatter.h"
-#import "SAFileStore.h"
 #import "SATrackTimer.h"
-#import "SAEventStore.h"
-#import "SAHTTPSession.h"
-#import "SANetwork.h"
 #import "SAReachability.h"
 #import "SAEventTracker.h"
 #import "SAIdentifier.h"
@@ -58,9 +38,7 @@
 #import "SAModuleManager.h"
 #import "SAAppLifecycle.h"
 #import "SAReferrerManager.h"
-#import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
-#import "SASuperProperty.h"
 
 #define VERSION @"2.6.8"
 
