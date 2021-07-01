@@ -37,7 +37,7 @@
 - (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable))completionHandler {
     id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
     if (!manager) {
-        completionHandler(nil);
+        return completionHandler(nil);
     }
     [manager visualPropertiesWithView:view completionHandler:completionHandler];
 }

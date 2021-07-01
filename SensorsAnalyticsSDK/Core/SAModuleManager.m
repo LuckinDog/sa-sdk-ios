@@ -67,7 +67,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 #if TARGET_OS_IOS
     // 推送点击模块
     if (configOptions.enableTrackPush) {
-        [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackPush forModule:kSANotificationModuleName];
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSANotificationModuleName];
     }
 
     // 渠道联调诊断功能获取多渠道匹配开关
