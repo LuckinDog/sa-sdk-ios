@@ -77,7 +77,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsAutoTrackEventType) {
     SensorsAnalyticsEventTypeAppEnd        = 1 << 1,
     SensorsAnalyticsEventTypeAppClick      = 1 << 2,
     SensorsAnalyticsEventTypeAppViewScreen = 1 << 3,
-} NS_ENUM_AVAILABLE_IOS(8_0);
+};
 
 /**
  * @abstract

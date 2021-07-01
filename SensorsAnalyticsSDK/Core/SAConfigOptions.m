@@ -39,9 +39,7 @@
     if (self) {
         _serverURL = serverURL;
         _launchOptions = launchOptions;
-#if TARGET_OS_IOS
         _autoTrackEventType = SensorsAnalyticsEventTypeNone;
-#endif
         
         _flushInterval = 15 * 1000;
         _flushBulkSize = 100;
@@ -79,7 +77,6 @@
     options.maxRequestHourInterval = self.maxRequestHourInterval;
 
     options.autoTrackEventType = self.autoTrackEventType;
-
     options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
     options.enableTrackAppCrash = self.enableTrackAppCrash;
     options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
