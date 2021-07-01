@@ -14,8 +14,15 @@ Pod::Spec.new do |s|
 
   s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
-    c.source_files = core_dir + "**/*.{h,m}"
-    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h" 
+    remote_config_dir = "SensorsAnalyticsSDK/RemoteConfig/"
+    channel_dir = "SensorsAnalyticsSDK/Channel/"
+    encrypt_dir = "SensorsAnalyticsSDK/Encrypt/"
+    deeplink_dir = "SensorsAnalyticsSDK/Deeplink/"
+    debug_mode_dir = "SensorsAnalyticsSDK/DebugMode/"
+    c.osx.source_files = core_dir + "**/*.{h,m}"
+    c.osx.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
+    c.ios.source_files = core_dir + "**/*.{h,m}", remote_config_dir + "**/*.{h,m}", channel_dir + "**/*.{h,m}", encrypt_dir + "**/*.{h,m}", deeplink_dir + "**/*.{h,m}", debug_mode_dir + "**/*.{h,m}"
+    c.ios.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", encrypt_dir + "SASecretKey.h" 
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
   
@@ -36,8 +43,8 @@ Pod::Spec.new do |s|
   s.subspec 'AutoTrack' do |g|
     g.ios.deployment_target = '8.0'
     g.dependency 'SensorsAnalyticsSDK/Common'
-    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}", "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}", "SensorsAnalyticsSDK/Channel/**/*.{h,m}", "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}", "SensorsAnalyticsSDK/Deeplink/**/*.{h,m}", "SensorsAnalyticsSDK/DebugMode/**/*.{h,m}"
-    g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h', 'SensorsAnalyticsSDK/Encrypt/SASecretKey.h'
+    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}"
+    g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h'
     g.frameworks = 'UIKit'
 
   end
