@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.10'
   s.default_subspec = 'Core'
-  s.frameworks = 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
+  s.frameworks = 'Foundation', 'SystemConfiguration', 'CoreTelephony'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'Common' do |c|
