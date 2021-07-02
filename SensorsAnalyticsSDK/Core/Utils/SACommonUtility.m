@@ -26,12 +26,7 @@
 #import "SAValidator.h"
 #import <CommonCrypto/CommonDigest.h>
 
-#if TARGET_OS_IOS
-#import <UIKit/UIDevice.h>
-#endif
-
 @implementation SACommonUtility
-
 
 ///按字节截取指定长度字符，包括汉字
 + (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )length {

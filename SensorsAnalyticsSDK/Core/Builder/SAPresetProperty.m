@@ -291,7 +291,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         if (!_automaticProperties) {
             _automaticProperties = [NSMutableDictionary dictionary];
-            _automaticProperties[kSAEventPresetPropertyDeviceId] = [SAIdentifier uniqueHardwareId];
+            _automaticProperties[kSAEventPresetPropertyDeviceId] = [SAIdentifier hardwareID];
             _automaticProperties[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
             _automaticProperties[SAEventPresetPropertyManufacturer] = @"Apple";
 

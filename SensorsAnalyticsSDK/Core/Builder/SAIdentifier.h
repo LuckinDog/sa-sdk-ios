@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return 匿名 Id（设备 Id）
  */
-+ (NSString *)uniqueHardwareId;
++ (NSString *)hardwareID;
 
 @end
 

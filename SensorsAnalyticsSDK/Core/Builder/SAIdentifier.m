@@ -91,7 +91,7 @@
 
 - (void)resetAnonymousId {
     dispatch_async(self.queue, ^{
-        NSString *anonymousId = [SAIdentifier uniqueHardwareId];
+        NSString *anonymousId = [SAIdentifier hardwareID];
         self.anonymousId = anonymousId;
         [self archiveAnonymousId:anonymousId];
     });
@@ -170,7 +170,7 @@
 #endif
 
 
-+ (NSString *)uniqueHardwareId {
++ (NSString *)hardwareID {
     NSString *distinctId = nil;
 #if TARGET_OS_IOS
     distinctId = [self idfa];
@@ -205,7 +205,7 @@
         anonymousId = distinctIdInKeychain;
     } else {
         if (anonymousId.length == 0) {
-            anonymousId = [SAIdentifier uniqueHardwareId];
+            anonymousId = [SAIdentifier hardwareID];
             [self archiveAnonymousId:anonymousId];
         } else {
             //保存 KeyChain
@@ -214,7 +214,7 @@
     }
 #else
     if (anonymousId.length == 0) {
-        anonymousId = [SAIdentifier uniqueHardwareId];
+        anonymousId = [SAIdentifier hardwareID];
         [self archiveAnonymousId:anonymousId];
     }
 #endif
