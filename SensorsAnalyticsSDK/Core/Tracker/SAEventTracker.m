@@ -125,7 +125,7 @@ static NSInteger kSAFlushMaxRepeatCount = 100;
 
 - (void)flushAllEventRecordsCompletion:(void(^)(void))completion {
     if (![self canFlush]) {
-        return;
+        return !completion ?: completion();
     }
     [self flushRecordsWithSize:self.isDebugMode ? 1 : 50 repeatCount:kSAFlushMaxRepeatCount completion:completion];
 }
