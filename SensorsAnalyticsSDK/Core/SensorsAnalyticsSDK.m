@@ -185,6 +185,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
             }
+
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
         }
         
     } @catch(NSException *exception) {
@@ -981,6 +983,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #pragma mark - RemoteConfig
+
+- (void)remoteConfigManagerModelChanged:(NSNotification *)sender {
+    @try {
+        BOOL isDisableDebugMode = [[sender.object valueForKey:@"disableDebugMode"] boolValue];
+        if (isDisableDebugMode) {
+            SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
+            [self enableLog:NO];
+        }
+
+        BOOL isDisableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
+        isDisableSDK ? [self performDisableSDKTask] : [self performEnableSDKTask];
+    } @catch(NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    }
+}
+
+- (void)performDisableSDKTask {
+    [self stopFlushTimer];
+    [self removeWebViewUserAgent];
+    // 停止采集数据之后 flush 本地数据
+    [self flush];
+}
+
+- (void)performEnableSDKTask {
+    [self startFlushTimer];
+    [self appendWebViewUserAgent];
+}
 
 - (void)removeWebViewUserAgent {
     if (!self.addWebViewUserAgent) {

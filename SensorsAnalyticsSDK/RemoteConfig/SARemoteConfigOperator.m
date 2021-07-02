@@ -132,33 +132,6 @@
      定位和设备方向采集（Location 和 DeviceOrientation 模块），依赖这个通知，如果使用相关功能，必须开启远程控制功能
     */
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:self.model];
-    
-    BOOL isDisableSDK = self.isDisableSDK;
-    BOOL isDisableDebugMode = self.isDisableDebugMode;
-
-    if (isDisableDebugMode) {
-        SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
-        [SensorsAnalyticsSDK.sdkInstance enableLog:NO];
-    }
-
-    isDisableSDK ? [self performDisableSDKTask] : [self performEnableSDKTask];
-}
-
-#pragma mark - Private
-
-- (void)performDisableSDKTask {
-    [SensorsAnalyticsSDK.sdkInstance stopFlushTimer];
-
-    [SensorsAnalyticsSDK.sdkInstance removeWebViewUserAgent];
-
-    // 停止采集数据之后 flush 本地数据
-    [SensorsAnalyticsSDK.sdkInstance flush];
-}
-
-- (void)performEnableSDKTask {
-    [SensorsAnalyticsSDK.sdkInstance startFlushTimer];
-
-    [SensorsAnalyticsSDK.sdkInstance appendWebViewUserAgent];
 }
 
 #pragma mark Network
