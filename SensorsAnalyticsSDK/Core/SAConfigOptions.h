@@ -142,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否在手动埋点事件中自动添加渠道匹配信息
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
-/// 当 App 进入后台时，是否尽可能的上传所有数据，默认为 NO。
+/// 当 App 进入后台强杀时，是否上传数据，默认为 NO。
 @property (nonatomic, assign) BOOL flushBeforeEnterBackground;
 
 /// 是否开启加密
