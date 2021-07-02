@@ -490,7 +490,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         dispatch_async(self.serialQueue, ^{
             // 上传所有的数据
-            [self.eventTracker flushAllEventRecordsCompletion:^{
+            [self.eventTracker flushAllEventRecordsWithCompletion:^{
                 // 结束后台任务
                 endBackgroundTask();
             }];

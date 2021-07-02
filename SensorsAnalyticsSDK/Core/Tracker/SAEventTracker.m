@@ -120,10 +120,10 @@ static NSInteger kSAFlushMaxRepeatCount = 100;
 }
 
 - (void)flushAllEventRecords {
-    [self flushAllEventRecordsCompletion:nil];
+    [self flushAllEventRecordsWithCompletion:nil];
 }
 
-- (void)flushAllEventRecordsCompletion:(void(^)(void))completion {
+- (void)flushAllEventRecordsWithCompletion:(void(^)(void))completion {
     if (![self canFlush]) {
         !completion ?: completion();
         return;
