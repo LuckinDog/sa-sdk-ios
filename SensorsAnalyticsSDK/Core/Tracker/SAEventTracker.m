@@ -125,7 +125,9 @@ static NSInteger kSAFlushMaxRepeatCount = 100;
 
 - (void)flushAllEventRecordsWithCompletion:(void(^)(void))completion {
     if (![self canFlush]) {
-        !completion ?: completion();
+        if (completion) {
+            completion();
+        }
         return;
     }
     [self flushRecordsWithSize:self.isDebugMode ? 1 : 50 repeatCount:kSAFlushMaxRepeatCount completion:completion];
@@ -134,13 +136,17 @@ static NSInteger kSAFlushMaxRepeatCount = 100;
 - (void)flushRecordsWithSize:(NSUInteger)size repeatCount:(NSInteger)repeatCount completion:(void(^)(void))completion {
     // 防止在数据量过大时, 递归 flush, 导致堆栈溢出崩溃; 因此需要限制递归次数
     if (repeatCount <= 0) {
-        !completion ?: completion();
+        if (completion) {
+            completion();
+        }
         return;
     }
     // 从数据库中查询数据
     NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:size];
     if (records.count == 0) {
-        !completion ?: completion();
+        if (completion) {
+            completion();
+        }
         return;
     }
 
@@ -163,7 +169,10 @@ static NSInteger kSAFlushMaxRepeatCount = 100;
         void(^block)(void) = ^ {
             if (!success) {
                 [strongSelf.eventStore updateRecords:recordIDs status:SAEventRecordStatusNone];
-                return !completion ?: completion();
+                if (completion) {
+                    completion();
+                }
+                return;
             }
             // 5. 删除数据
             if ([strongSelf.eventStore deleteRecords:recordIDs]) {
