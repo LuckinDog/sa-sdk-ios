@@ -24,27 +24,15 @@
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
 
-#if __has_include(<SensorsAnalyticsSDK/SensorsAnalyticsSDK+SAChannelMatch.h>)
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK+SAChannelMatch.h>
-#elif __has_include("SensorsAnalyticsSDK+SAChannelMatch.h")
-#import "SensorsAnalyticsSDK+SAChannelMatch.h"
-#endif
-
-#if __has_include(<SensorsAnalyticsSDK/SensorsAnalyticsSDK+SAAutoTrack.h>)
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK+SAAutoTrack.h>
-#elif __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
+#if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
 #endif
 
 #if __has_include("SensorsAnalyticsSDK+WKWebView.h")
 #import "SensorsAnalyticsSDK+WKWebView.h"
-#elif __has_include("SensorsAnalyticsSDK+WKWebView.h")
-#import "SensorsAnalyticsSDK+WKWebView.h"
 #endif
 
 #if __has_include("SensorsAnalyticsSDK+WebView.h")
-#import "SensorsAnalyticsSDK+WebView.h"
-#elif __has_include("SensorsAnalyticsSDK+WebView.h")
 #import "SensorsAnalyticsSDK+WebView.h"
 #endif
 
@@ -54,22 +42,4 @@
 
 #if __has_include("SASecretKey.h")
 #import "SASecretKey.h"
-#endif
-
-
-
-#if __has_include("SensorsAnalyticsSDK+WKWebView.h")
-#import "SensorsAnalyticsSDK+WKWebView.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+WebView.h")
-#import "SensorsAnalyticsSDK+WebView.h"
-#endif
-
-#if __has_include(<SensorsAnalyticsSDK/SensorsAnalyticsSDK+Visualized.h>)
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK+Visualized.h>
-#endif
-
-#if __has_include(<SensorsAnalyticsSDK/SASecretKey.h>)
-#import <SensorsAnalyticsSDK/SASecretKey.h>
 #endif
