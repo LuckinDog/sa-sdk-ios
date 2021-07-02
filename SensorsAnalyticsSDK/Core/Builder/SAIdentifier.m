@@ -27,9 +27,9 @@
 #import "SAFileStore.h"
 #import "SAValidator.h"
 #import "SALog.h"
-#import "SAKeyChainItemWrapper.h"
 
 #if TARGET_OS_IOS
+#import "SAKeyChainItemWrapper.h"
 #import <UIKit/UIKit.h>
 #endif
 

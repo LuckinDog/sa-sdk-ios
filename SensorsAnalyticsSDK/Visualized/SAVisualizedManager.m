@@ -329,7 +329,7 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 
 - (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
     if (!self.visualPropertiesTracker) {
-        completionHandler(nil);
+        return completionHandler(nil);
     }
 
     @try {

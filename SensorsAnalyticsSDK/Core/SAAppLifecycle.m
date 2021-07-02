@@ -129,14 +129,26 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 
 #elif TARGET_OS_OSX
 
-    [notificationCenter addObserver:self selector:@selector(applicationDidFinishLaunching:) name:NSApplicationDidFinishLaunchingNotification object:nil];
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationDidFinishLaunching:)
+                               name:NSApplicationDidFinishLaunchingNotification
+                             object:nil];
 
     // 聚焦活动状态，和其他 App 之前切换聚焦，和 DidResignActive 通知会频繁调用
-    [notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive:) name:NSApplicationDidBecomeActiveNotification object:nil];
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationDidBecomeActive:)
+                               name:NSApplicationDidBecomeActiveNotification
+                             object:nil];
     // 失焦状态
-    [notificationCenter addObserver:self selector:@selector(applicationDidEnterBackground:) name:NSApplicationDidResignActiveNotification object:nil];
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationDidEnterBackground:)
+                               name:NSApplicationDidResignActiveNotification
+                             object:nil];
 
-    [notificationCenter addObserver:self selector:@selector(applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationWillTerminate:)
+                               name:NSApplicationWillTerminateNotification
+                             object:nil];
 #endif
 }
 
@@ -164,7 +176,6 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
         return;
     }
 #elif TARGET_OS_OSX
-    // 防止主动触发 UIApplicationDidBecomeActiveNotification
     if (![notification.object isKindOfClass:[NSApplication class]]) {
         return;
     }

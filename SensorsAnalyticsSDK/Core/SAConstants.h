@@ -94,12 +94,12 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsAutoTrackEventType) {
  */
 typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
     SensorsAnalyticsNetworkTypeNONE         = 0,
-    SensorsAnalyticsNetworkType2G NS_ENUM_AVAILABLE_IOS(8_0)    = 1 << 0,
-    SensorsAnalyticsNetworkType3G NS_ENUM_AVAILABLE_IOS(8_0)    = 1 << 1,
-    SensorsAnalyticsNetworkType4G NS_ENUM_AVAILABLE_IOS(8_0)    = 1 << 2,
+    SensorsAnalyticsNetworkType2G API_UNAVAILABLE(macos)    = 1 << 0,
+    SensorsAnalyticsNetworkType3G API_UNAVAILABLE(macos)    = 1 << 1,
+    SensorsAnalyticsNetworkType4G API_UNAVAILABLE(macos)    = 1 << 2,
     SensorsAnalyticsNetworkTypeWIFI     = 1 << 3,
     SensorsAnalyticsNetworkTypeALL      = 0xFF,
 #ifdef __IPHONE_14_1
-    SensorsAnalyticsNetworkType5G NS_ENUM_AVAILABLE_IOS(8_0)   = 1 << 4
+    SensorsAnalyticsNetworkType5G API_UNAVAILABLE(macos)   = 1 << 4
 #endif
 };

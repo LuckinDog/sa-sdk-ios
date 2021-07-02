@@ -54,7 +54,7 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
 /**
  神策弹框的 SAAlertController，添加到黑名单。
  防止 $AppViewScreen 事件误采
- 当系统版本低于 8.0 时，会使用 UIAlertView 或者 UIActionSheet，此时最多支持 4 个其他按钮
+ 内部使用 UIAlertController 实现
  */
 @interface SAAlertController : UIViewController
 

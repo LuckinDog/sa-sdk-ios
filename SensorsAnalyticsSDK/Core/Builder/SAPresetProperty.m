@@ -197,10 +197,9 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     return result;
 }
 
-+ (NSString *)carrierName {
++ (NSString *)carrierName API_UNAVAILABLE(macos) {
     NSString *carrierName = nil;
-    
-#if TARGET_OS_IOS
+
     @try {
         CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
         CTCarrier *carrier = nil;
@@ -262,7 +261,6 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
-#endif
     return carrierName;
 }
 
