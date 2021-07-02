@@ -135,6 +135,8 @@
 		4DD1296B25F8E451008C0B1E /* SAViewNodeFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1296225F8E451008C0B1E /* SAViewNodeFactory.h */; };
 		4DD1296D25F8E451008C0B1E /* SAViewNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1296425F8E451008C0B1E /* SAViewNode.m */; };
 		880F37DA24AC34A4005AC8A0 /* SAEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 880F37D924AC34A4005AC8A0 /* SAEventStoreTests.m */; };
+		8817CBC1268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817CBBF268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8817CBC2268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 8817CBC0268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m */; };
 		881A4180253D7B4F00854F69 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */; };
 		881A4181253D7B4F00854F69 /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40D4253D7B4F00854F69 /* NSString+HashCode.m */; };
 		881A4193253D7B4F00854F69 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */; };
@@ -452,6 +454,8 @@
 		4DD1296225F8E451008C0B1E /* SAViewNodeFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAViewNodeFactory.h; sourceTree = "<group>"; };
 		4DD1296425F8E451008C0B1E /* SAViewNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAViewNode.m; sourceTree = "<group>"; };
 		880F37D924AC34A4005AC8A0 /* SAEventStoreTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventStoreTests.m; sourceTree = "<group>"; };
+		8817CBBF268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+SAChannelMatch.h"; sourceTree = "<group>"; };
+		8817CBC0268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SensorsAnalyticsSDK+SAChannelMatch.m"; sourceTree = "<group>"; };
 		881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		881A40D4253D7B4F00854F69 /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
 		881A40D6253D7B4F00854F69 /* SALogMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogMessage.h; sourceTree = "<group>"; };
@@ -1012,6 +1016,8 @@
 			children = (
 				A82AAD8D267CB0950019E8D5 /* SAChannelMatchManager.h */,
 				A82AAD8E267CB0950019E8D5 /* SAChannelMatchManager.m */,
+				8817CBBF268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h */,
+				8817CBC0268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m */,
 			);
 			path = Channel;
 			sourceTree = "<group>";
@@ -1361,6 +1367,7 @@
 				A82E895B267D918100475757 /* SARSAEncryptor.h in Headers */,
 				A8356DCA2656459A00FD64AA /* SAAutoTrackManager.h in Headers */,
 				884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */,
+				8817CBC1268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h in Headers */,
 				A8356DD42656459A00FD64AA /* SAGestureTargetActionModel.h in Headers */,
 				F277F5C725CF9A43009B5CE6 /* SAApplicationDelegateProxy.h in Headers */,
 				A8356DC72656459A00FD64AA /* UIScrollView+AutoTrack.h in Headers */,
@@ -1652,6 +1659,7 @@
 				4D41D9D425FF7E9300D856F4 /* UIViewController+SAElementPath.m in Sources */,
 				881A41AA253D7B4F00854F69 /* SAJavaScriptBridgeManager.m in Sources */,
 				4DD1286F25F872A4008C0B1E /* SAVisualizedSnapshotMessage.m in Sources */,
+				8817CBC2268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m in Sources */,
 				A8BCC4AC2686C42D00B72040 /* SASecretKey.m in Sources */,
 				A82E895C267D918100475757 /* SAECCEncryptor.m in Sources */,
 				A8356DD02656459A00FD64AA /* SAGeneralGestureViewProcessor.m in Sources */,

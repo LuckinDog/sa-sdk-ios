@@ -24,6 +24,10 @@
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
 
+#if __has_include("SensorsAnalyticsSDK+SAChannelMatch.h")
+#import "SensorsAnalyticsSDK+SAChannelMatch.h"
+#endif
+
 #if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
 #endif
