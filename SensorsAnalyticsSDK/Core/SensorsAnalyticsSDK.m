@@ -681,16 +681,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self asyncTrackEventObject:object properties:propertieDict];
 }
 
-#if TARGET_OS_IOS
-- (void)trackChannelEvent:(NSString *)event {
-    [self trackChannelEvent:event properties:nil];
-}
-
-- (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict {
-    [SAModuleManager.sharedInstance trackChannelEvent:event properties:propertyDict];
-}
-#endif
-
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
     [_network setCookie:cookie isEncoded:encode];
 }
@@ -1045,35 +1035,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [newUserAgent appendString:self.addWebViewUserAgent];
     self.userAgent = newUserAgent;
     [SACommonUtility saveUserAgent:self.userAgent];
-}
-
-@end
-
-#pragma mark - $AppInstall
-@implementation SensorsAnalyticsSDK (AppInstall)
-
-- (void)trackAppInstall {
-    [self trackAppInstallWithProperties:nil];
-}
-
-- (void)trackAppInstallWithProperties:(NSDictionary *)properties {
-    [self trackAppInstallWithProperties:properties disableCallback:NO];
-}
-
-- (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    [SAModuleManager.sharedInstance trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
-}
-
-- (void)trackInstallation:(NSString *)event {
-    [self trackInstallation:event withProperties:nil disableCallback:NO];
-}
-
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
-}
-
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    [SAModuleManager.sharedInstance trackAppInstall:event properties:properties disableCallback:disableCallback];
 }
 
 @end

@@ -63,9 +63,6 @@ extern NSString * const kSAEventNameAppCrashed;
 
 extern NSString * const kSAEventNameAppRemoteConfigChanged;
 
-// 激活事件
-extern NSString * const kSAEventNameAppInstall;
-
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;

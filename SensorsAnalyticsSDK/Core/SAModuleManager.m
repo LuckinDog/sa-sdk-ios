@@ -262,8 +262,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     [self.channelMatchManager trackAppInstall:event properties:properties disableCallback:disableCallback];
 }
 
-- (void)trackChannelEvent:(NSString *)event properties:(NSDictionary *)propertyDict {
-    [self.channelMatchManager trackChannelEvent:event properties:propertyDict];
+- (void)trackChannelWithEventObject:(SABaseEventObject *)obj properties:(NSDictionary *)properties {
+    [self.channelMatchManager trackChannelWithEventObject:obj properties:properties];
 }
 
 - (NSDictionary *)channelInfoWithEvent:(NSString *)event {
