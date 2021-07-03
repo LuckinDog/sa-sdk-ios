@@ -153,19 +153,19 @@
 }
 #elif TARGET_OS_OSX
 /// mac SerialNumber（序列号）作为设备标识
-+ (NSString *)uniqueHardwareMacSerialNumber {
++ (NSString *)serialNumber {
     io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,IOServiceMatching("IOPlatformExpertDevice"));
-    CFStringRef serialNumberAsCFString = NULL;
+    CFStringRef serialNumberRef = NULL;
     if (platformExpert) {
-        serialNumberAsCFString = IORegistryEntryCreateCFProperty(platformExpert,CFSTR(kIOPlatformSerialNumberKey),kCFAllocatorDefault, 0);
+        serialNumberRef = IORegistryEntryCreateCFProperty(platformExpert,CFSTR(kIOPlatformSerialNumberKey),kCFAllocatorDefault, 0);
         IOObjectRelease(platformExpert);
     }
-    NSString *serialNumberAsNSString = nil;
-    if (serialNumberAsCFString) {
-        serialNumberAsNSString = [NSString stringWithString:(__bridge NSString *)serialNumberAsCFString];
-        CFRelease(serialNumberAsCFString);
+    NSString *serialNumberString = nil;
+    if (serialNumberRef) {
+        serialNumberString = [NSString stringWithString:(__bridge NSString *)serialNumberRef];
+        CFRelease(serialNumberRef);
     }
-    return serialNumberAsNSString;
+    return serialNumberString;
 }
 #endif
 
@@ -179,7 +179,7 @@
         distinctId = [self idfv];
     }
 #elif TARGET_OS_OSX
-    distinctId = [self uniqueHardwareMacSerialNumber];
+    distinctId = [self serialNumber];
 #endif
 
     // 如果都没取到，则使用UUID
