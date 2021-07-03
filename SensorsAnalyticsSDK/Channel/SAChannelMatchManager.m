@@ -56,7 +56,9 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     if (!_trackChannelEventNames) {
         _trackChannelEventNames = [[NSMutableSet alloc] init];
         NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:kSAEventPropertyChannelDeviceInfo];
-        [_trackChannelEventNames unionSet:trackChannelEvents];
+        if (trackChannelEvents) {
+            [_trackChannelEventNames unionSet:trackChannelEvents];
+        }
     }
     return _trackChannelEventNames;
 }
