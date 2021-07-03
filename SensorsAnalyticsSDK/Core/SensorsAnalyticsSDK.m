@@ -375,13 +375,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
-    // 冷启动
-    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        // 开启定时器
-        [self startFlushTimer];
-        return;
-    }
-
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
         // 遍历 trackTimer
@@ -412,10 +405,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)appLifecycleStateDidChange:(NSNotification *)sender {
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
-    SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
 
-    // 热启动
-    if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
+    // 冷（热）启动
+    if (newState == SAAppLifecycleStateStart) {
         // 开启定时器
         [self startFlushTimer];
         return;
