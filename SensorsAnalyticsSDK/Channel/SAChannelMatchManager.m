@@ -34,7 +34,7 @@
 #import "SAFileStore.h"
 #import "SAModuleManager.h"
 
-NSString * const kSAIsValidForChannelDebugKey = @"com.sensorsdata.channeldebug.flag";
+NSString * const kSAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
 NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 NSString * const kSAEventPropertyChannelDeviceInfo = @"$channel_device_info";
 NSString * const kSAEventPropertyUserAgent = @"$user_agent";
@@ -113,7 +113,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
         // 当未触发过激活事件时，可以使用联调诊断功能
         return YES;
     }
-    return [[NSUserDefaults standardUserDefaults] boolForKey:kSAIsValidForChannelDebugKey];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kSAChannelDebugFlagKey];
 }
 
 /// 当前获取到的设备 ID 为有效值
@@ -132,7 +132,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     }
 
     // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
-    [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAIsValidForChannelDebugKey];
+    [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAChannelDebugFlagKey];
 
     // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
     [userDefault setBool:YES forKey:userDefaultsKey];
