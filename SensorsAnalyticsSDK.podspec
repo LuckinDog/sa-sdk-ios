@@ -41,7 +41,6 @@ Pod::Spec.new do |s|
     g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}"
     g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h'
     g.frameworks = 'UIKit'
-
   end
 
 # 可视化相关功能，包含可视化全埋点和点击图
@@ -59,7 +58,6 @@ Pod::Spec.new do |s|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/Location/**/*.h'
-#    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
   end
 
   # 开启设备方向采集
