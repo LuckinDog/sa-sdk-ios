@@ -372,7 +372,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (NSString *)javaScriptSource {
     NSMutableString *source = [NSMutableString string];
-    // 兼容使用宏定义的方式源码集成 SDK
     [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
         if (!([obj conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [obj respondsToSelector:@selector(javaScriptSource)]) || !obj.isEnable) {
             return;
