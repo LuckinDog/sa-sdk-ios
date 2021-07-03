@@ -14,15 +14,10 @@ Pod::Spec.new do |s|
 
   s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
-    remote_config_dir = "SensorsAnalyticsSDK/RemoteConfig/"
-    channel_dir = "SensorsAnalyticsSDK/Channel/"
-    encrypt_dir = "SensorsAnalyticsSDK/Encrypt/"
-    deeplink_dir = "SensorsAnalyticsSDK/Deeplink/"
-    debug_mode_dir = "SensorsAnalyticsSDK/DebugMode/"
-    c.osx.source_files = core_dir + "**/*.{h,m}"
-    c.osx.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
-    c.ios.source_files = core_dir + "**/*.{h,m}", remote_config_dir + "**/*.{h,m}", channel_dir + "**/*.{h,m}", encrypt_dir + "**/*.{h,m}", deeplink_dir + "**/*.{h,m}", debug_mode_dir + "**/*.{h,m}"
-    c.ios.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", encrypt_dir + "SASecretKey.h", channel_dir + "SensorsAnalyticsSDK*.h"
+    c.source_files = core_dir + "**/*.{h,m}"
+    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
+    c.ios.source_files = "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}", "SensorsAnalyticsSDK/Channel/**/*.{h,m}", "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}", "SensorsAnalyticsSDK/Deeplink/**/*.{h,m}", "SensorsAnalyticsSDK/DebugMode/**/*.{h,m}"
+    c.ios.public_header_files = "SensorsAnalyticsSDK/Encrypt/SASecretKey.h" + "SensorsAnalyticsSDK/Channel/SensorsAnalyticsSDK*.h"
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
   
