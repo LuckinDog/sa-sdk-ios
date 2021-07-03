@@ -58,18 +58,6 @@
 /// 开启可视化模块
 - (void)enableVisualize;
 
-/// 开启数据上报计时器
-- (void)startFlushTimer;
-
-/// 停止数据上报计时器
-- (void)stopFlushTimer;
-
-/// 移除老版打通的 UA 值
-- (void)removeWebViewUserAgent;
-
-/// 添加老版打通的 UA 值
-- (void)appendWebViewUserAgent;
-
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
