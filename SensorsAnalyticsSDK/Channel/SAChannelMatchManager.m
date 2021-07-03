@@ -205,6 +205,9 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 
 #pragma mark - 附加渠道信息
 - (void)trackChannelWithEventObject:(SABaseEventObject *)obj properties:(nullable NSDictionary *)propertyDict {
+    if (self.configOptions.enableAutoAddChannelCallbackEvent) {
+        return [SensorsAnalyticsSDK.sharedInstance trackEventObject:obj properties:propertyDict];
+    }
     NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     // ua
     if ([propertyDict[kSAEventPropertyUserAgent] length] == 0) {
