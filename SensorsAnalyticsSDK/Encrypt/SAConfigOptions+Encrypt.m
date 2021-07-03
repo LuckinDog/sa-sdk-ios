@@ -46,19 +46,14 @@
 }
 
 - (BOOL)isValidEncryptor:(id<SAEncryptProtocol>)encryptor {
-    if (![encryptor respondsToSelector:@selector(symmetricEncryptType)]) {
-        return NO;
+    if ([encryptor respondsToSelector:@selector(symmetricEncryptType)] &&
+        [encryptor respondsToSelector:@selector(asymmetricEncryptType)] &&
+        [encryptor respondsToSelector:@selector(encryptEvent:)] &&
+        [encryptor respondsToSelector:@selector(encryptSymmetricKeyWithPublicKey:)]) {
+        return YES;
     }
-    if (![encryptor respondsToSelector:@selector(asymmetricEncryptType)]) {
-        return NO;
-    }
-    if (![encryptor respondsToSelector:@selector(encryptEvent:)]) {
-        return NO;
-    }
-    if (![encryptor respondsToSelector:@selector(encryptSymmetricKeyWithPublicKey:)]) {
-        return NO;
-    }
-    return YES;
+    
+    return NO;
 }
 
 @end
