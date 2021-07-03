@@ -135,8 +135,6 @@
 		4DD1296B25F8E451008C0B1E /* SAViewNodeFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1296225F8E451008C0B1E /* SAViewNodeFactory.h */; };
 		4DD1296D25F8E451008C0B1E /* SAViewNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1296425F8E451008C0B1E /* SAViewNode.m */; };
 		880F37DA24AC34A4005AC8A0 /* SAEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 880F37D924AC34A4005AC8A0 /* SAEventStoreTests.m */; };
-		8817CBC1268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817CBBF268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		8817CBC2268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 8817CBC0268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m */; };
 		881A4180253D7B4F00854F69 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */; };
 		881A4181253D7B4F00854F69 /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40D4253D7B4F00854F69 /* NSString+HashCode.m */; };
 		881A4193253D7B4F00854F69 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */; };
@@ -181,8 +179,10 @@
 		884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */ = {isa = PBXBuildFile; fileRef = 884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		887602D42685E0AA00C5EA51 /* SAModuleManager+Visualized.h in Headers */ = {isa = PBXBuildFile; fileRef = 887602D22685E0AA00C5EA51 /* SAModuleManager+Visualized.h */; };
 		887602D52685E0AA00C5EA51 /* SAModuleManager+Visualized.m in Sources */ = {isa = PBXBuildFile; fileRef = 887602D32685E0AA00C5EA51 /* SAModuleManager+Visualized.m */; };
-		A82AAD8F267CB0950019E8D5 /* SAChannelMatchManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A82AAD8D267CB0950019E8D5 /* SAChannelMatchManager.h */; };
-		A82AAD90267CB0950019E8D5 /* SAChannelMatchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A82AAD8E267CB0950019E8D5 /* SAChannelMatchManager.m */; };
+		A806642A26905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.m in Sources */ = {isa = PBXBuildFile; fileRef = A806642626905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.m */; };
+		A806642B26905F6C00FFDEBA /* SAChannelMatchManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A806642726905F6C00FFDEBA /* SAChannelMatchManager.h */; };
+		A806642C26905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.h in Headers */ = {isa = PBXBuildFile; fileRef = A806642826905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A806642D26905F6C00FFDEBA /* SAChannelMatchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A806642926905F6C00FFDEBA /* SAChannelMatchManager.m */; };
 		A82E894E267D918100475757 /* SASecretKeyFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E893D267D918100475757 /* SASecretKeyFactory.m */; };
 		A82E894F267D918100475757 /* SAEncryptManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E893E267D918100475757 /* SAEncryptManager.m */; };
 		A82E8950267D918100475757 /* SAAESEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = A82E893F267D918100475757 /* SAAESEncryptor.h */; };
@@ -454,8 +454,6 @@
 		4DD1296225F8E451008C0B1E /* SAViewNodeFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAViewNodeFactory.h; sourceTree = "<group>"; };
 		4DD1296425F8E451008C0B1E /* SAViewNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAViewNode.m; sourceTree = "<group>"; };
 		880F37D924AC34A4005AC8A0 /* SAEventStoreTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventStoreTests.m; sourceTree = "<group>"; };
-		8817CBBF268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+SAChannelMatch.h"; sourceTree = "<group>"; };
-		8817CBC0268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SensorsAnalyticsSDK+SAChannelMatch.m"; sourceTree = "<group>"; };
 		881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		881A40D4253D7B4F00854F69 /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
 		881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDK.m; sourceTree = "<group>"; };
@@ -500,8 +498,10 @@
 		884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+Public.h"; sourceTree = "<group>"; };
 		887602D22685E0AA00C5EA51 /* SAModuleManager+Visualized.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAModuleManager+Visualized.h"; sourceTree = "<group>"; };
 		887602D32685E0AA00C5EA51 /* SAModuleManager+Visualized.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SAModuleManager+Visualized.m"; sourceTree = "<group>"; };
-		A82AAD8D267CB0950019E8D5 /* SAChannelMatchManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAChannelMatchManager.h; sourceTree = "<group>"; };
-		A82AAD8E267CB0950019E8D5 /* SAChannelMatchManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAChannelMatchManager.m; sourceTree = "<group>"; };
+		A806642626905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SensorsAnalyticsSDK+SAChannelMatch.m"; sourceTree = "<group>"; };
+		A806642726905F6C00FFDEBA /* SAChannelMatchManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAChannelMatchManager.h; sourceTree = "<group>"; };
+		A806642826905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+SAChannelMatch.h"; sourceTree = "<group>"; };
+		A806642926905F6C00FFDEBA /* SAChannelMatchManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAChannelMatchManager.m; sourceTree = "<group>"; };
 		A82E893D267D918100475757 /* SASecretKeyFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecretKeyFactory.m; sourceTree = "<group>"; };
 		A82E893E267D918100475757 /* SAEncryptManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAEncryptManager.m; sourceTree = "<group>"; };
 		A82E893F267D918100475757 /* SAAESEncryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAESEncryptor.h; sourceTree = "<group>"; };
@@ -994,15 +994,15 @@
 			path = Exception;
 			sourceTree = "<group>";
 		};
-		A82AAD8C267CB0950019E8D5 /* Channel */ = {
+		A806642526905F6C00FFDEBA /* ChannelMatch */ = {
 			isa = PBXGroup;
 			children = (
-				A82AAD8D267CB0950019E8D5 /* SAChannelMatchManager.h */,
-				A82AAD8E267CB0950019E8D5 /* SAChannelMatchManager.m */,
-				8817CBBF268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h */,
-				8817CBC0268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m */,
+				A806642726905F6C00FFDEBA /* SAChannelMatchManager.h */,
+				A806642926905F6C00FFDEBA /* SAChannelMatchManager.m */,
+				A806642826905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.h */,
+				A806642626905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.m */,
 			);
-			path = Channel;
+			path = ChannelMatch;
 			sourceTree = "<group>";
 		};
 		A82E893C267D918100475757 /* Encrypt */ = {
@@ -1216,11 +1216,11 @@
 		CB30BFD122840EBF0004061D /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				A806642526905F6C00FFDEBA /* ChannelMatch */,
 				A8BCC4DB26872B6600B72040 /* DebugMode */,
 				A8BCC4D626872A3F00B72040 /* Deeplink */,
 				A8CC22222685E50C00E96A03 /* RemoteConfig */,
 				A82E893C267D918100475757 /* Encrypt */,
-				A82AAD8C267CB0950019E8D5 /* Channel */,
 				F277F5B025CF9A43009B5CE6 /* AppPush */,
 				A8356D872656459A00FD64AA /* AutoTrack */,
 				881A40D2253D7B4F00854F69 /* Core */,
@@ -1335,6 +1335,7 @@
 				881A4227253D7B5E00854F69 /* SALocationManager.h in Headers */,
 				881A41F7253D7B5000854F69 /* SASecurityPolicy.h in Headers */,
 				FC002920262C189E00A18FE3 /* SAConfigOptions+Encrypt.h in Headers */,
+				A806642B26905F6C00FFDEBA /* SAChannelMatchManager.h in Headers */,
 				A8BCC4DE26872B6600B72040 /* SADebugModeManager.h in Headers */,
 				881A41AC253D7B4F00854F69 /* SAJavaScriptBridgeManager.h in Headers */,
 				45A565BC263C17E400C9C41B /* SAReferrerManager.h in Headers */,
@@ -1348,8 +1349,8 @@
 				45A56561263C174300C9C41B /* SAIdentifier.h in Headers */,
 				A82E895B267D918100475757 /* SARSAEncryptor.h in Headers */,
 				A8356DCA2656459A00FD64AA /* SAAutoTrackManager.h in Headers */,
+				A806642C26905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.h in Headers */,
 				884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */,
-				8817CBC1268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.h in Headers */,
 				A8356DD42656459A00FD64AA /* SAGestureTargetActionModel.h in Headers */,
 				F277F5C725CF9A43009B5CE6 /* SAApplicationDelegateProxy.h in Headers */,
 				A8356DC72656459A00FD64AA /* UIScrollView+AutoTrack.h in Headers */,
@@ -1451,7 +1452,6 @@
 				4DD1282025F87225008C0B1E /* UIView+SAElementPath.h in Headers */,
 				A82E895A267D918100475757 /* SAAlgorithmProtocol.h in Headers */,
 				881A419B253D7B4F00854F69 /* SAConfigOptions.h in Headers */,
-				A82AAD8F267CB0950019E8D5 /* SAChannelMatchManager.h in Headers */,
 				4D6AE7EF26086ABE00A9CB08 /* SAVisualizedDebugLogTracker.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1599,6 +1599,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4DD1285225F872A4008C0B1E /* SAApplicationStateSerializer.m in Sources */,
+				A806642A26905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.m in Sources */,
 				4D4DB31B25B7D58C00938842 /* SAEventStore.m in Sources */,
 				A82E894E267D918100475757 /* SASecretKeyFactory.m in Sources */,
 				4D4DB31725B7D58300938842 /* SADateFormatter.m in Sources */,
@@ -1612,6 +1613,7 @@
 				4DD1285625F872A4008C0B1E /* SAObjectIdentityProvider.m in Sources */,
 				4D4DB30325B7D52000938842 /* SAAbstractLogger.m in Sources */,
 				4DD128C725F8A003008C0B1E /* SAVisualPropertiesTracker.m in Sources */,
+				A806642D26905F6C00FFDEBA /* SAChannelMatchManager.m in Sources */,
 				4D4DB2FF25B7D51600938842 /* SALoggerConsoleFormatter.m in Sources */,
 				4DD1296725F8E451008C0B1E /* SAViewNodeFactory.m in Sources */,
 				A82E8954267D918100475757 /* SARSAEncryptor.m in Sources */,
@@ -1641,7 +1643,6 @@
 				4D41D9D425FF7E9300D856F4 /* UIViewController+SAElementPath.m in Sources */,
 				881A41AA253D7B4F00854F69 /* SAJavaScriptBridgeManager.m in Sources */,
 				4DD1286F25F872A4008C0B1E /* SAVisualizedSnapshotMessage.m in Sources */,
-				8817CBC2268EEEDC00FA89D5 /* SensorsAnalyticsSDK+SAChannelMatch.m in Sources */,
 				A8BCC4AC2686C42D00B72040 /* SASecretKey.m in Sources */,
 				A82E895C267D918100475757 /* SAECCEncryptor.m in Sources */,
 				A8356DD02656459A00FD64AA /* SAGeneralGestureViewProcessor.m in Sources */,
@@ -1664,7 +1665,6 @@
 				A8CC22342685E50C00E96A03 /* SARemoteConfigCheckOperator.m in Sources */,
 				4D79695B2609D8FE001B0A6C /* SAEventIdentifier.m in Sources */,
 				A8BCC4DF26872B6600B72040 /* SADebugModeManager.m in Sources */,
-				A82AAD90267CB0950019E8D5 /* SAChannelMatchManager.m in Sources */,
 				A8356DBF2656459A00FD64AA /* UIViewController+AutoTrack.m in Sources */,
 				45A5656B263C174300C9C41B /* SATrackEventObject.m in Sources */,
 				A8356DC42656459A00FD64AA /* UIApplication+AutoTrack.m in Sources */,
