@@ -153,7 +153,7 @@
 }
 #elif TARGET_OS_OSX
 /// mac SerialNumber（序列号）作为设备标识
-+ (NSString *)uniqueHardwareMacSerialNumber {
++ (NSString *)serialNumber {
     io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,IOServiceMatching("IOPlatformExpertDevice"));
     CFStringRef serialNumberRef = NULL;
     if (platformExpert) {
@@ -179,7 +179,7 @@
         distinctId = [self idfv];
     }
 #elif TARGET_OS_OSX
-    distinctId = [self uniqueHardwareMacSerialNumber];
+    distinctId = [self serialNumber];
 #endif
 
     // 如果都没取到，则使用UUID
