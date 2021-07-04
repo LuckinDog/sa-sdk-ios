@@ -141,7 +141,7 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
                              object:nil];
     // 失焦状态
     [notificationCenter addObserver:self
-                           selector:@selector(applicationDidEnterBackground:)
+                           selector:@selector(applicationDidResignActive:)
                                name:NSApplicationDidResignActiveNotification
                              object:nil];
 
@@ -190,10 +190,10 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     self.state = SAAppLifecycleStateStart;
 }
 
+#if TARGET_OS_IOS
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SALogDebug(@"application did enter background");
 
-#if TARGET_OS_IOS
     // 防止主动触发 UIApplicationDidEnterBackgroundNotification
     if (![notification.object isKindOfClass:[UIApplication class]]) {
         return;
@@ -203,7 +203,14 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     if (application.applicationState != UIApplicationStateBackground) {
         return;
     }
+
+    self.state = SAAppLifecycleStateEnd;
+}
+
 #elif TARGET_OS_OSX
+- (void)applicationDidResignActive:(NSNotification *)notification {
+    SALogDebug(@"application did resignActive");
+
     if (![notification.object isKindOfClass:[NSApplication class]]) {
         return;
     }
@@ -212,9 +219,9 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     if (application.isActive) {
         return;
     }
-#endif
     self.state = SAAppLifecycleStateEnd;
 }
+#endif
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
     SALogDebug(@"applicationWillTerminateNotification");

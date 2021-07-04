@@ -657,7 +657,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param enable YES/NO
  */
-- (void)enableTrackGPSLocation:(BOOL)enable;
+- (void)enableTrackGPSLocation:(BOOL)enable API_UNAVAILABLE(macos);
 
 /**
  * @abstract
