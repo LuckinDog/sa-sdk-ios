@@ -437,13 +437,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 结束后台任务
             endBackgroundTask();
         });
-        return;
 #else
         dispatch_async(self.serialQueue, ^{
             // 上传所有的数据
             [self.eventTracker flushAllEventRecords];
         });
 #endif
+
+        return;
     }
 
     // 终止
@@ -977,7 +978,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (isDisableDebugMode) {
             SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
         }
-        
+
         BOOL isDisableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
         if (isDisableSDK) {
             [self stopFlushTimer];
