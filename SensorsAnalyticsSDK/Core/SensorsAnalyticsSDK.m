@@ -977,24 +977,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (isDisableDebugMode) {
             SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
         }
-
+        
         BOOL isDisableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
-        isDisableSDK ? [self performDisableSDKTask] : [self performEnableSDKTask];
+        if (isDisableSDK) {
+            [self stopFlushTimer];
+            [self removeWebViewUserAgent];
+            // 停止采集数据之后 flush 本地数据
+            [self flush];
+        } else {
+            [self startFlushTimer];
+            [self appendWebViewUserAgent];
+        }
     } @catch(NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
-}
-
-- (void)performDisableSDKTask {
-    [self stopFlushTimer];
-    [self removeWebViewUserAgent];
-    // 停止采集数据之后 flush 本地数据
-    [self flush];
-}
-
-- (void)performEnableSDKTask {
-    [self startFlushTimer];
-    [self appendWebViewUserAgent];
 }
 
 - (void)removeWebViewUserAgent {
