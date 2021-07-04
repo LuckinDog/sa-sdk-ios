@@ -861,7 +861,7 @@ DeepLink 回调函数
  * @discussion
  * 默认值为 YES
  */
-@property (atomic) BOOL flushBeforeEnterBackground __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBeforeEnterBackground"))) API_UNAVAILABLE(macos);
+@property (atomic) BOOL flushBeforeEnterBackground __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBeforeEnterBackground")));
 
 /**
  * @abstract
