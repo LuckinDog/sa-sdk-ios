@@ -186,7 +186,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self enableLog:YES];
             }
 
+#if TARGET_OS_IOS
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
+#endif
         }
         
     } @catch(NSException *exception) {
@@ -194,6 +196,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
