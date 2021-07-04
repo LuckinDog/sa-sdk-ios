@@ -644,15 +644,15 @@
 		45A56547263C174300C9C41B /* Builder */ = {
 			isa = PBXGroup;
 			children = (
-				45A56548263C174300C9C41B /* SAIDFAHelper.m */,
-				45A56549263C174300C9C41B /* SAIdentifier.m */,
-				45A5654A263C174300C9C41B /* SASuperProperty.m */,
-				45A5654B263C174300C9C41B /* SAPresetProperty.h */,
-				45A5654C263C174300C9C41B /* SAIDFAHelper.h */,
-				45A5654D263C174300C9C41B /* SAIdentifier.h */,
 				45A5654E263C174300C9C41B /* EventObject */,
+				45A5654D263C174300C9C41B /* SAIdentifier.h */,
+				45A56549263C174300C9C41B /* SAIdentifier.m */,
+				45A5654C263C174300C9C41B /* SAIDFAHelper.h */,
+				45A56548263C174300C9C41B /* SAIDFAHelper.m */,
+				45A5654B263C174300C9C41B /* SAPresetProperty.h */,
 				45A5655A263C174300C9C41B /* SAPresetProperty.m */,
 				45A5655B263C174300C9C41B /* SASuperProperty.h */,
+				45A5654A263C174300C9C41B /* SASuperProperty.m */,
 			);
 			path = Builder;
 			sourceTree = "<group>";

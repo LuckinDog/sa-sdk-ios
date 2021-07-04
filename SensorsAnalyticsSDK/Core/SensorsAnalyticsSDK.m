@@ -437,13 +437,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 结束后台任务
             endBackgroundTask();
         });
-        return;
 #else
         dispatch_async(self.serialQueue, ^{
             // 上传所有的数据
             [self.eventTracker flushAllEventRecords];
         });
 #endif
+
+        return;
     }
 
     // 终止
@@ -979,22 +980,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         BOOL isDisableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
-        isDisableSDK ? [self performDisableSDKTask] : [self performEnableSDKTask];
+        if (isDisableSDK) {
+            [self stopFlushTimer];
+            [self removeWebViewUserAgent];
+            // 停止采集数据之后 flush 本地数据
+            [self flush];
+        } else {
+            [self startFlushTimer];
+            [self appendWebViewUserAgent];
+        }
     } @catch(NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
     }
-}
-
-- (void)performDisableSDKTask {
-    [self stopFlushTimer];
-    [self removeWebViewUserAgent];
-    // 停止采集数据之后 flush 本地数据
-    [self flush];
-}
-
-- (void)performEnableSDKTask {
-    [self startFlushTimer];
-    [self appendWebViewUserAgent];
 }
 
 - (void)removeWebViewUserAgent {
