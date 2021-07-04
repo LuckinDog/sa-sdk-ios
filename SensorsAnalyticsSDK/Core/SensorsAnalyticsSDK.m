@@ -553,7 +553,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-
     // 1. 远程控制校验
     if ([SAModuleManager.sharedInstance isIgnoreEventObject:object]) {
         return;
@@ -971,7 +970,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         BOOL isDisableDebugMode = [[sender.object valueForKey:@"disableDebugMode"] boolValue];
         if (isDisableDebugMode) {
             SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
-            [self enableLog:NO];
         }
 
         BOOL isDisableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
