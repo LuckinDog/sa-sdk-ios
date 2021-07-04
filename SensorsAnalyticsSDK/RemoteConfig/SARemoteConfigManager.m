@@ -36,18 +36,22 @@
 
 @implementation SARemoteConfigManager
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 #pragma mark - SAModuleProtocol
 
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
 
+    self.operator = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kSAAppLifecycleStateWillChangeNotification object:nil];
+
     if (enable) {
         self.operator = [[SARemoteConfigCommonOperator alloc] init];
         self.operator.configOptions = self.configOptions;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
-    } else {
-        self.operator = nil;
-        [[NSNotificationCenter defaultCenter] removeObserver:self];
     }
 }
 
