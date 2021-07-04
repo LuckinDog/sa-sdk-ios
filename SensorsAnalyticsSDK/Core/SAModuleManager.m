@@ -101,7 +101,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
     // crash 采集
     if (configOptions.enableTrackAppCrash) {
-        [SAModuleManager.sharedInstance setEnable:configOptions.enableTrackAppCrash forModule:kSAExceptionModuleName];
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAExceptionModuleName];
     }
 
     // 开启远程配置模块（因为部分模块依赖于远程配置，所以远程配置模块的初始化放到最后）
