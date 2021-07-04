@@ -62,47 +62,41 @@
     SAConfigOptions *options = [[[self class] allocWithZone:zone] init];
     options.serverURL = self.serverURL;
     options.launchOptions = self.launchOptions;
-
     options.enableJavaScriptBridge = self.enableJavaScriptBridge;
     options.flushInterval = self.flushInterval;
     options.flushBulkSize = self.flushBulkSize;
     options.maxCacheSize = self.maxCacheSize;
-
-
-
     options.enableLog = self.enableLog;
+    options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
+    options.securityPolicy = [self.securityPolicy copy];
 
 #if TARGET_OS_IOS
+    // 远程控制
     options.minRequestHourInterval = self.minRequestHourInterval;
     options.maxRequestHourInterval = self.maxRequestHourInterval;
-
-    options.autoTrackEventType = self.autoTrackEventType;
-    options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
-    options.enableTrackAppCrash = self.enableTrackAppCrash;
-    options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
-    options.sourceChannels = self.sourceChannels;
     options.remoteConfigURL = self.remoteConfigURL;
-
     options.disableRandomTimeRequestRemoteConfig = self.disableRandomTimeRequestRemoteConfig;
-
-    options.enableHeatMap = self.enableHeatMap;
-    options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
-    options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
-
+    // 加密
+    options.encryptors = self.encryptors;
     options.enableEncrypt = self.enableEncrypt;
     options.saveSecretKey = self.saveSecretKey;
     options.loadSecretKey = self.loadSecretKey;
-
-    options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
-
+    // 全埋点
+    options.autoTrackEventType = self.autoTrackEventType;
+    options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
     options.enableReferrerTitle = self.enableReferrerTitle;
+    options.enableHeatMap = self.enableHeatMap;
+    options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
+    // Crash 采集
+    options.enableTrackAppCrash = self.enableTrackAppCrash;
+    // 渠道相关
+    options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
+    options.sourceChannels = self.sourceChannels;
+    options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
+    options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
+    // 推送点击
     options.enableTrackPush = self.enableTrackPush;
-
-    options.encryptors = self.encryptors;
 #endif
-
-    options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
-    options.securityPolicy = [self.securityPolicy copy];
     
     return options;
 }
