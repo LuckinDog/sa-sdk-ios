@@ -60,7 +60,7 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
 
 
 /**
- SAAlertController 初始化
+ SAAlertController 初始化，⚠️ 注意 ActionSheet 样式不支持 iPad❗️❗️❗️
 
  @param title 标题
  @param message 提示信息
