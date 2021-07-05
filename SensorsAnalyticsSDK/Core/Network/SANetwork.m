@@ -153,9 +153,10 @@
         if ([SAReachability sharedInstance].isReachableViaWiFi) {
             networkTypeString = @"WIFI";
         }
-
 #if TARGET_OS_IOS
-        networkTypeString = [self networkTypeWWANString];
+        else {
+            networkTypeString = [self networkTypeWWANString];
+        }
 #endif
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
