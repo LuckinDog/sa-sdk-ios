@@ -36,6 +36,14 @@
 
 @implementation SARemoteConfigManager
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
+    }
+    return self;
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -45,19 +53,21 @@
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
 
-    self.operator = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kSAAppLifecycleStateWillChangeNotification object:nil];
-
     if (enable) {
         self.operator = [[SARemoteConfigCommonOperator alloc] init];
         self.operator.configOptions = self.configOptions;
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
+    } else {
+        self.operator = nil;
     }
 }
 
 #pragma mark - AppLifecycle
 
 - (void)appLifecycleStateWillChange:(NSNotification *)sender {
+    if (!self.isEnable) {
+        return;
+    }
+
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
@@ -84,7 +94,7 @@
 #pragma mark - SAOpenURLProtocol
 
 - (BOOL)canHandleURL:(NSURL *)url {
-    return [url.host isEqualToString:@"sensorsdataremoteconfig"];
+    return self.isEnable && [url.host isEqualToString:@"sensorsdataremoteconfig"];
 }
 
 - (BOOL)handleURL:(NSURL *)url {
