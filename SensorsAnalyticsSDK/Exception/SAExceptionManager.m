@@ -40,10 +40,6 @@ static const int32_t kSAExceptionMaximum = 10;
 
 static NSString * const kSAAppCrashedReason = @"app_crashed_reason";
 
-@interface SensorsAnalyticsSDK()
-@property (nonatomic, strong) dispatch_queue_t serialQueue;
-@end
-
 @interface SAExceptionManager ()
 
 @property (nonatomic) NSUncaughtExceptionHandler *defaultExceptionHandler;
@@ -145,7 +141,7 @@ static void SAHandleException(NSException *exception) {
         [SAModuleManager.sharedInstance trackAppEndWhenCrashed];
 
         // 阻塞当前线程，完成 serialQueue 中数据相关的任务
-        sensorsdata_dispatch_safe_sync(SensorsAnalyticsSDK.sharedInstance.serialQueue, ^{});
+        sensorsdata_dispatch_safe_sync(SensorsAnalyticsSDK.sdkInstance.serialQueue, ^{});
         SALogError(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
     } @catch(NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
