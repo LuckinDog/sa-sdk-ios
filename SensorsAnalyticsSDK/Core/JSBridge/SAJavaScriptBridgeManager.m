@@ -54,6 +54,9 @@
 #pragma mark - SAJavaScriptBridgeModuleProtocol
 
 - (NSString *)javaScriptSource {
+    if (!self.configOptions.enableJavaScriptBridge) {
+        return nil;
+    }
     if (self.configOptions.serverURL) {
         NSString *initSource = @"window.SensorsData_iOS_JS_Bridge = {};";
         NSString *setServerURLSource = [NSString stringWithFormat:@"window.SensorsData_iOS_JS_Bridge.sensorsdata_app_server_url = '%@';", self.configOptions.serverURL];
