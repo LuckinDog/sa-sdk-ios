@@ -70,7 +70,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     NSMutableArray *encryptors = [NSMutableArray array];
     [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
-    [encryptors addObjectsFromArray:self.configOptions.encryptors];
+    [encryptors addObjectsFromArray:configOptions.encryptors];
     self.encryptors = encryptors;
 }
 

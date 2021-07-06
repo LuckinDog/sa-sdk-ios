@@ -220,17 +220,13 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     } else {
         [properties setValue:@"" forKey:kSAEventPropertyChannelDeviceInfo];
     }
+    // callback
+    [properties addEntriesFromDictionary:[self channelPropertiesWithEvent:obj.event]];
 
-    BOOL isNotContains = ![self.trackChannelEventNames containsObject:obj.event];
-    properties[kSAEventPropertyChannelCallbackEvent] = @(isNotContains);
-    if (isNotContains && obj.event) {
-        [self.trackChannelEventNames addObject:obj.event];
-        [self archiveTrackChannelEventNames];
-    }
     [SensorsAnalyticsSDK.sharedInstance trackEventObject:obj properties:properties];
 }
 
-- (NSMutableDictionary *)channelPropertiesWithEvent:(NSString *)event {
+- (NSDictionary *)channelPropertiesWithEvent:(NSString *)event {
     BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
     if (isNotContains && event) {
         [self.trackChannelEventNames addObject:event];
@@ -245,7 +241,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 
 - (NSDictionary *)channelInfoWithEvent:(NSString *)event {
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
-        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:event];
+        NSMutableDictionary *channelInfo = [NSMutableDictionary dictionaryWithDictionary:[self channelPropertiesWithEvent:event]];
         channelInfo[kSAEventPropertyChannelDeviceInfo] = @"1";
         return channelInfo;
     }
