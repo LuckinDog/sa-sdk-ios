@@ -28,6 +28,7 @@
 #import "SAURLUtils.h"
 #import "SAFileStore.h"
 #import "SALog.h"
+#import "SAIdentifier.h"
 
 static NSString *const kSAAppDeeplinkLaunchEvent = @"$AppDeeplinkLaunch";
 static NSString *const kSADeeplinkMatchedResultEvent = @"$AppDeeplinkMatchedResult";
@@ -243,15 +244,26 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
     if ([self isValidURLForServerMode:url]) {
         // ServerMode 先触发 Launch 事件再请求接口，Launch 事件中只新增 $deeplink_url 属性
-        [self trackAppDeepLinkLaunchEvent:url];
+        [self trackAppDeepLinkLaunchEvent:url extraProps:@{SA_EVENT_PROPERTY_APP_INSTALL_SOURCE: [self appInstallSource]}];
         [self requestDeepLinkInfo:url];
     } else {
         // LocalMode 先解析 Query 参数后再触发 Launch 事件，Launch 事件中有 utm_* 属性信息
         NSDictionary *dictionary = [SAURLUtils queryItemsWithURL:url];
         [self acquireCurrentDeepLinkInfo:dictionary];
-        [self trackAppDeepLinkLaunchEvent:url];
+        [self trackAppDeepLinkLaunchEvent:url extraProps:nil];
     }
     return YES;
+}
+
+- (NSString *)appInstallSource {
+    NSMutableDictionary *sources = [NSMutableDictionary dictionary];
+    sources[@"idfa"] = [SAIdentifier idfa];
+    sources[@"idfv"] = [SAIdentifier idfv];
+    NSMutableArray *result = [NSMutableArray array];
+    for (NSString *key in sources.allKeys) {
+        [result addObject:[NSString stringWithFormat:@"%@=%@", key, sources[key]]];
+    }
+    return [result componentsJoinedByString:@"##"];
 }
 
 /// 通过 URL 的 Query 获取本次的 utm_* 属性
@@ -358,8 +370,9 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 #pragma mark - deeplink event
-- (void)trackAppDeepLinkLaunchEvent:(NSURL *)url {
+- (void)trackAppDeepLinkLaunchEvent:(NSURL *)url extraProps:(NSDictionary *)extraProps {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
+    [props addEntriesFromDictionary:extraProps];
     [props addEntriesFromDictionary:self.utms];
     [props addEntriesFromDictionary:self.latestUtms];
     props[@"$deeplink_url"] = url.absoluteString;
