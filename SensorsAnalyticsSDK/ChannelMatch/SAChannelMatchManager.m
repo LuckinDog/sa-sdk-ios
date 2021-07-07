@@ -232,7 +232,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
         [self.trackChannelEventNames addObject:event];
         [self archiveTrackChannelEventNames];
     }
-    return [NSMutableDictionary dictionaryWithObject:@(isNotContains) forKey:kSAEventPropertyChannelCallbackEvent];
+    return @{kSAEventPropertyChannelCallbackEvent : @(isNotContains)};
 }
 
 - (void)archiveTrackChannelEventNames {

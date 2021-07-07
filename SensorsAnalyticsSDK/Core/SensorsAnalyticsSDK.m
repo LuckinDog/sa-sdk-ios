@@ -589,7 +589,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.eventId currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
     [object addEventProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-
     [object addChannelProperties:[SAModuleManager.sharedInstance channelInfoWithEvent:object.event]];
 
 #if TARGET_OS_IOS
