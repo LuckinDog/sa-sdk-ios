@@ -329,6 +329,8 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (sqlite3_exec(_database, sql.UTF8String, NULL, NULL, NULL) != SQLITE_OK) {
         SALogError(@"Failed to delete all records");
         return NO;
+    } else {
+        SALogDebug(@"deleteAllRecords success");
     }
     self.count = 0;
     return YES;
