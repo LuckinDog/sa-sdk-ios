@@ -85,9 +85,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @end
 
-@implementation SensorsAnalyticsSDK {
-    SensorsAnalyticsNetworkType _networkTypePolicy;
-}
+@implementation SensorsAnalyticsSDK
 
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
@@ -182,17 +180,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (self) {
             _configOptions = [configOptions copy];
             _appLifecycle = [[SAAppLifecycle alloc] init];
-
-            _networkTypePolicy =
-#if TARGET_OS_IOS
-            SensorsAnalyticsNetworkType3G |
-            SensorsAnalyticsNetworkType4G |
-            
-#ifdef __IPHONE_14_1
-            SensorsAnalyticsNetworkType5G |
-#endif
-#endif
-            SensorsAnalyticsNetworkTypeWIFI;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
 
@@ -330,26 +317,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType {
-    @synchronized (self) {
-        _networkTypePolicy = networkType;
-    }
-}
-
-- (void)setMaxCacheSize:(UInt64)maxCacheSize {
-    @synchronized(self) {
-        //防止设置的值太小导致事件丢失
-        UInt64 temMaxCacheSize = maxCacheSize > 10000 ? maxCacheSize : 10000;
-        self.configOptions.maxCacheSize = (NSInteger)temMaxCacheSize;
-    };
-}
-
-- (UInt64)getMaxCacheSize {
-    @synchronized(self) {
-        return (UInt64)self.configOptions.maxCacheSize;
-    };
-}
-
 - (void)login:(NSString *)loginId {
     [self login:loginId withProperties:nil];
 }
@@ -399,12 +366,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
     });
-}
-
-- (void)trackAppCrash {
-    _configOptions.enableTrackAppCrash = YES;
-    // Install uncaught exception handlers first
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeException];
 }
 
 - (void)showDebugInfoView:(BOOL)show {
@@ -1397,6 +1358,32 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @synchronized(self) {
         self.configOptions.flushBeforeEnterBackground = flushBeforeEnterBackground;
     }
+}
+
+- (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType {
+    @synchronized (self) {
+        self.configOptions.flushNetworkPolicy = networkType;
+    }
+}
+
+- (void)setMaxCacheSize:(UInt64)maxCacheSize {
+    @synchronized(self) {
+        //防止设置的值太小导致事件丢失
+        UInt64 temMaxCacheSize = maxCacheSize > 10000 ? maxCacheSize : 10000;
+        self.configOptions.maxCacheSize = (NSInteger)temMaxCacheSize;
+    };
+}
+
+- (UInt64)getMaxCacheSize {
+    @synchronized(self) {
+        return (UInt64)self.configOptions.maxCacheSize;
+    };
+}
+
+- (void)trackAppCrash {
+    _configOptions.enableTrackAppCrash = YES;
+    // Install uncaught exception handlers first
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeException];
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {

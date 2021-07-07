@@ -79,6 +79,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 
 /**
+ * @abstract
+ * 设置 flush 时网络发送策略
+ *
+ * @discussion
+ * 默认 3G、4G、WI-FI 环境下都会尝试 flush
+ */
+@property (nonatomic) SensorsAnalyticsNetworkType flushNetworkPolicy;
+
+/**
  * @property
  *
  * @abstract

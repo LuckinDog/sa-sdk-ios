@@ -416,8 +416,4 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     return [self.remoteConfigManager isIgnoreEventObject:obj];
 }
 
-- (BOOL)isDisableSDK {
-    return [self.remoteConfigManager isDisableSDK];
-}
-
 @end
