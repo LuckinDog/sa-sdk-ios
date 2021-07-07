@@ -181,9 +181,9 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 }
 
 - (void)disableAllModules {
-    for (id<SAModuleProtocol> module in self.modules) {
-        module.enable = NO;
-    }
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+        obj.enable = NO;
+    }];
     [self.modules removeAllObjects];
 }
 
