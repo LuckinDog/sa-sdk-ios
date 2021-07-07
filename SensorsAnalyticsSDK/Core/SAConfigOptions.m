@@ -69,6 +69,7 @@
     options.enableLog = self.enableLog;
     options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
     options.securityPolicy = [self.securityPolicy copy];
+    options.disableSDK = self.disableSDK;
 
 #if TARGET_OS_IOS
     // 远程控制
