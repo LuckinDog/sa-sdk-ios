@@ -41,6 +41,11 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 + (instancetype)sharedInstance;
 
+- (BOOL)isDisableSDK;
+
+/// 关闭所有的模块功能
+- (void)disableAllModules;
+
 /// 当前 SDK 中是否包含特定类型的模块
 /// @param type 需要判断的模块类型
 /// @return 是否包含

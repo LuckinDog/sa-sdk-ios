@@ -102,14 +102,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance startAppLifecycle];
+        [sharedInstance addObservers];
     });
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
     NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
     if ([SAModuleManager.sharedInstance isDisableSDK]) {
-        SALogDebug(@"【remote config】SDK is disabled");
+        SALogDebug(@"SDK is disabled");
         return nil;
     }
     return sharedInstance;
@@ -118,6 +118,50 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (SensorsAnalyticsSDK *)sdkInstance {
     NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
     return sharedInstance;
+}
+
++ (void)disableSDK {
+    SensorsAnalyticsSDK *instance = SensorsAnalyticsSDK.sdkInstance;
+    if (instance.configOptions.disableSDK) {
+        return;
+    }
+    [instance track:@"$AppDataTrackingClose"];
+    [instance flush];
+
+    [instance clearTrackTimer];
+    [instance stopFlushTimer];
+    [instance removeObservers];
+    [instance removeWebViewUserAgent];
+
+    [SAReachability.sharedInstance stopMonitoring];
+
+    [SAModuleManager.sharedInstance disableAllModules];
+
+    instance.configOptions.disableSDK = YES;
+
+    SALogWarn(@"SensorsAnalyticsSDK disabled");
+    [SALog sharedLog].enableLog = NO;
+}
+
++ (void)enableSDK {
+    SensorsAnalyticsSDK *instance = SensorsAnalyticsSDK.sdkInstance;
+    if (!instance.configOptions.disableSDK) {
+        return;
+    }
+    instance.configOptions.disableSDK = NO;
+
+    if (instance.configOptions.enableLog) {
+        [instance enableLog:YES];
+    }
+
+    [SAModuleManager startWithConfigOptions:instance.configOptions debugMode:SensorsAnalyticsDebugOff];
+
+    [SAReachability.sharedInstance startMonitoring];
+
+    [instance appendWebViewUserAgent];
+    [instance addObservers];
+    [instance startFlushTimer];
+    SALogInfo(@"SensorsAnalyticsSDK enabled");
 }
 
 - (instancetype)initWithServerURL:(NSString *)serverURL
@@ -138,6 +182,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self = [super init];
         if (self) {
             _configOptions = [configOptions copy];
+            _appLifecycle = [[SAAppLifecycle alloc] init];
 
             _networkTypePolicy =
 #if TARGET_OS_IOS
@@ -159,8 +204,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
-            [[SAReachability sharedInstance] startMonitoring];
-            
             _network = [[SANetwork alloc] init];
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
@@ -181,14 +224,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
             
             _superProperty = [[SASuperProperty alloc] init];
-            
-            if (_configOptions.enableLog) {
-                [self enableLog:YES];
-            }
-
-#if TARGET_OS_IOS
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
-#endif
         }
         
     } @catch(NSException *exception) {
@@ -199,6 +234,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)addObservers {
+    // 先移出所有通知监听，再添加监听，防止重复监听通知
+    [self removeObservers];
+
+#if TARGET_OS_IOS
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
+#endif
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
+}
+
+- (void)removeObservers {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -367,13 +417,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #pragma mark - AppLifecycle
-
-- (void)startAppLifecycle {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
-    
-    _appLifecycle = [[SAAppLifecycle alloc] init];
-}
 
 // 处理事件触发之前的逻辑
 - (void)appLifecycleStateWillChange:(NSNotification *)sender {
@@ -1289,7 +1332,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
-        [sharedInstance startAppLifecycle];
+        [sharedInstance addObservers];
     });
     return sharedInstance;
 }
@@ -1302,7 +1345,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance startAppLifecycle];
+        [sharedInstance addObservers];
     });
     return sharedInstance;
 }

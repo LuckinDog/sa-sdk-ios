@@ -172,6 +172,21 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 #pragma mark - Public
 
+- (BOOL)isDisableSDK {
+    if (self.configOptions.disableSDK) {
+        return YES;
+    }
+    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)self.modules[kSARemoteConfigModuleName];
+    return manager.isEnable ? manager.isDisableSDK : NO;
+}
+
+- (void)disableAllModules {
+    for (id<SAModuleProtocol> module in self.modules) {
+        module.enable = NO;
+    }
+    [self.modules removeAllObjects];
+}
+
 - (BOOL)contains:(SAModuleType)type {
     NSString *moduleName = [self moduleNameForType:type];
     NSString *className = [self classNameForModule:moduleName];

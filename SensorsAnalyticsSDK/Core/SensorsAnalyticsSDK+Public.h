@@ -88,6 +88,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SensorsAnalyticsSDK * _Nullable)sharedInstance;
 
+/// 禁用 SDK。调用后，SDK 将不采集事件，不发送网络请求
++ (void)disableSDK;
+
+/// 开启 SDK。如果之前 SDK 是禁止状态，调用后将恢复数据采集功能
++ (void)enableSDK;
+
 /**
  * @abstract
  * 返回预置的属性
