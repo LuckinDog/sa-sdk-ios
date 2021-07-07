@@ -102,7 +102,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance addObservers];
     });
 }
 
@@ -224,6 +223,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
             
             _superProperty = [[SASuperProperty alloc] init];
+
+            if (!_configOptions.disableSDK) {
+                if (_configOptions.enableLog) {
+                    [self enableLog:_configOptions.enableLog];
+                }
+                [[SAReachability sharedInstance] startMonitoring];
+                [self addObservers];
+            }
         }
         
     } @catch(NSException *exception) {
@@ -1332,7 +1339,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
-        [sharedInstance addObservers];
     });
     return sharedInstance;
 }
@@ -1345,7 +1351,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance addObservers];
     });
     return sharedInstance;
 }
