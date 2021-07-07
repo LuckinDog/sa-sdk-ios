@@ -54,8 +54,7 @@
     _enable = enable;
 
     if (enable) {
-        self.operator = [[SARemoteConfigCommonOperator alloc] init];
-        self.operator.configOptions = self.configOptions;
+        self.operator = [[SARemoteConfigCommonOperator alloc] initWithConfigOptions:self.configOptions];
     } else {
         self.operator = nil;
     }
@@ -104,8 +103,10 @@
     [self cancelRequestRemoteConfig];
 
     if (![self.operator isKindOfClass:[SARemoteConfigCheckOperator class]]) {
+        SAConfigOptions *configOptions = self.operator.configOptions;
         SARemoteConfigModel *model = self.operator.model;
-        self.operator = [[SARemoteConfigCheckOperator alloc] initWithRemoteConfigModel:model];
+
+        self.operator = [[SARemoteConfigCheckOperator alloc] initWithConfigOptions:configOptions remoteConfigModel:model];
     }
 
     if ([self.operator respondsToSelector:@selector(handleRemoteConfigURL:)]) {

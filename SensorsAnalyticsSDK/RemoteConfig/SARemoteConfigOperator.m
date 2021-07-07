@@ -45,6 +45,16 @@
 
 @implementation SARemoteConfigOperator
 
+#pragma mark - Life Cycle
+
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions {
+    self = [super init];
+    if (self) {
+        _configOptions = configOptions;
+    }
+    return self;
+}
+
 #pragma mark - Public
 
 - (BOOL)isBlackListContainsEvent:(nullable NSString *)event {

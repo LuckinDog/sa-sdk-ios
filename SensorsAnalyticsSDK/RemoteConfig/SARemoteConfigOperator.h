@@ -57,6 +57,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readonly) NSInteger autoTrackMode;
 @property (nonatomic, copy, readonly) NSString *project;
 
+/// 初始化远程配置处理基类
+/// @param configOptions 初始化 SDK 的配置参数
+/// @return 远程配置处理基类的实例
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions;
+
 /// 是否在事件黑名单中
 /// @param event 输入的事件名
 /// @return 是否在事件黑名单中
