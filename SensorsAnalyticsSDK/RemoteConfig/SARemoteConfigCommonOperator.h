@@ -25,11 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 远程配置普通模式处理类
 @interface SARemoteConfigCommonOperator : SARemoteConfigOperator
 
-/// 初始化远程配置普通模式处理类
-/// @param configOptions 初始化 SDK 的配置参数
-/// @return 远程配置普通模式处理类的实例
-- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions;
-
 @end
 
 NS_ASSUME_NONNULL_END

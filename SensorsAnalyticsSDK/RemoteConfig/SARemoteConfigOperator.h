@@ -59,8 +59,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 初始化远程配置处理基类
 /// @param configOptions 初始化 SDK 的配置参数
+/// @param model 输入的远程配置模型
 /// @return 远程配置处理基类的实例
-- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions;
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions remoteConfigModel:(nullable SARemoteConfigModel *)model;
 
 /// 是否在事件黑名单中
 /// @param event 输入的事件名

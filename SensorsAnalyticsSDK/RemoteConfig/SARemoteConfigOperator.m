@@ -47,10 +47,11 @@
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions {
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions remoteConfigModel:(SARemoteConfigModel *)model {
     self = [super init];
     if (self) {
         _configOptions = configOptions;
+        _model = model;
     }
     return self;
 }

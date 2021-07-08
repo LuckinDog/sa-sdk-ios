@@ -54,7 +54,7 @@
     _enable = enable;
 
     if (enable) {
-        self.operator = [[SARemoteConfigCommonOperator alloc] initWithConfigOptions:self.configOptions];
+        self.operator = [[SARemoteConfigCommonOperator alloc] initWithConfigOptions:self.configOptions remoteConfigModel:nil];
     } else {
         self.operator = nil;
     }
@@ -105,7 +105,6 @@
     if (![self.operator isKindOfClass:[SARemoteConfigCheckOperator class]]) {
         SAConfigOptions *configOptions = self.operator.configOptions;
         SARemoteConfigModel *model = self.operator.model;
-
         self.operator = [[SARemoteConfigCheckOperator alloc] initWithConfigOptions:configOptions remoteConfigModel:model];
     }
 

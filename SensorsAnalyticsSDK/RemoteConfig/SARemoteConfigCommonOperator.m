@@ -49,8 +49,8 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions {
-    self = [super initWithConfigOptions:configOptions];
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions remoteConfigModel:(SARemoteConfigModel *)model {
+    self = [super initWithConfigOptions:configOptions remoteConfigModel:model];
     if (self) {
         _requestRemoteConfigRetryMaxCount = 3;
         [self enableLocalRemoteConfig];
