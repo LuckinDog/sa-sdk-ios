@@ -244,13 +244,13 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
     if ([self isValidURLForServerMode:url]) {
         // ServerMode 先触发 Launch 事件再请求接口，Launch 事件中只新增 $deeplink_url 属性
-        [self trackAppDeepLinkLaunchEvent:url extraProps:@{SA_EVENT_PROPERTY_APP_INSTALL_SOURCE: [self appInstallSource]}];
+        [self trackAppDeepLinkLaunchEvent:url properties:@{SA_EVENT_PROPERTY_APP_INSTALL_SOURCE: [self appInstallSource]}];
         [self requestDeepLinkInfo:url];
     } else {
         // LocalMode 先解析 Query 参数后再触发 Launch 事件，Launch 事件中有 utm_* 属性信息
         NSDictionary *dictionary = [SAURLUtils queryItemsWithURL:url];
         [self acquireCurrentDeepLinkInfo:dictionary];
-        [self trackAppDeepLinkLaunchEvent:url extraProps:nil];
+        [self trackAppDeepLinkLaunchEvent:url properties:nil];
     }
     return YES;
 }
@@ -370,9 +370,11 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 #pragma mark - deeplink event
-- (void)trackAppDeepLinkLaunchEvent:(NSURL *)url extraProps:(NSDictionary *)extraProps {
+- (void)trackAppDeepLinkLaunchEvent:(NSURL *)url properties:(NSDictionary *)properties {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
-    [props addEntriesFromDictionary:extraProps];
+    if (properties) {
+        [props addEntriesFromDictionary:properties];
+    }
     [props addEntriesFromDictionary:self.utms];
     [props addEntriesFromDictionary:self.latestUtms];
     props[@"$deeplink_url"] = url.absoluteString;
