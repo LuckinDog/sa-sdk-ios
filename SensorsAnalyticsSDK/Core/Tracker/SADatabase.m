@@ -330,7 +330,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         SALogError(@"Failed to delete all records");
         return NO;
     } else {
-        SALogDebug(@"deleteAllRecords success");
+        SALogDebug(@"Delete all records successfully");
     }
     self.count = 0;
     return YES;

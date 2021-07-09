@@ -165,12 +165,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
-
-            [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
-#if TARGET_OS_IOS
-            [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
-#endif
-
             _trackTimer = [[SATrackTimer alloc] init];
 
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
@@ -187,6 +181,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
 #if TARGET_OS_IOS
+            [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
+            [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
+
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
 #endif
         }
