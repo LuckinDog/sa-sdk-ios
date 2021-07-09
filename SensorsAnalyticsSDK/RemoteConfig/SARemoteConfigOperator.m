@@ -86,13 +86,8 @@
             NSInteger statusCode = response.statusCode;
             BOOL success = statusCode == 200 || statusCode == 304;
             NSDictionary<NSString *, id> *config = nil;
-            @try{
-                if (statusCode == 200 && data.length) {
-                    config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-                }
-            } @catch (NSException *e) {
-                SALogError(@"【remote config】%@ error: %@", self, e);
-                success = NO;
+            if (statusCode == 200 && data.length) {
+                config = [SAJSONUtil JSONObjectWithData:data];
             }
             
             completion(success, config);
@@ -124,12 +119,7 @@
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
-    NSString *eventConfigString = nil;
-    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:remoteConfig];
-    if (eventConfigData) {
-        eventConfigString = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
-    }
-
+    NSString *eventConfigString = [SAJSONUtil stringWithJSONObject:remoteConfig];
     SARemoteConfigEventObject *object = [[SARemoteConfigEventObject alloc] initWithEventId:kSAEventNameAppRemoteConfigChanged];
     [SensorsAnalyticsSDK.sdkInstance asyncTrackEventObject:object properties:@{kSAEventPropertyAppRemoteConfig : eventConfigString ?: @""}];
     // 触发 $AppRemoteConfigChanged 时 flush 一次

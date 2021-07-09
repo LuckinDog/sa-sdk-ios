@@ -39,6 +39,7 @@
 #import "SAAppLifecycle.h"
 #import "SAReferrerManager.h"
 #import "SAProfileEventObject.h"
+#import "SAJSONUtil.h"
 
 #define VERSION @"2.6.8"
 
@@ -1054,12 +1055,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return;
             }
 
-            NSData *jsonData = [eventInfo dataUsingEncoding:NSUTF8StringEncoding];
-            NSError *error;
-            NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                                             options:NSJSONReadingMutableContainers
-                                                                               error:&error];
-            if(error || !eventDict) {
+            NSMutableDictionary *eventDict = [[SAJSONUtil JSONObjectWithString:eventInfo] mutableCopy];
+            if(!eventDict) {
                 return;
             }
 
@@ -1081,7 +1078,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             eventDict[kSAEventTrackId] = @(arc4random());
 
-            NSMutableDictionary *libMDic = eventDict[kSAEventLib];
+            NSMutableDictionary *libMDic = [eventDict[kSAEventLib] mutableCopy];
             //update lib $app_version from super properties
             NSDictionary *superProperties = [self.superProperty currentSuperProperties];
             id appVersion = superProperties[kSAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;
@@ -1104,6 +1101,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             if([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
+
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];

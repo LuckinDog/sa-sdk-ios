@@ -121,7 +121,7 @@
     
     NSData *jsonData = nil;
     @try {
-        jsonData = [SAJSONUtil JSONSerializeObject:obj];
+        jsonData = [SAJSONUtil dataWithJSONObject:obj];
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }

@@ -37,6 +37,7 @@
 #import "SADateFormatter.h"
 #import "SAValidator.h"
 #import "SAModuleManager.h"
+#import "SAJSONUtil.h"
 
 //中国运营商 mcc 标识
 static NSString* const SACarrierChinaMCC = @"460";
@@ -203,7 +204,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     @try {
         CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
         CTCarrier *carrier = nil;
-        
+
 #ifdef __IPHONE_12_0
         if (@available(iOS 12.1, *)) {
             // 排序
@@ -220,28 +221,28 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
         if (carrier != nil) {
             NSString *networkCode = [carrier mobileNetworkCode];
             NSString *countryCode = [carrier mobileCountryCode];
-            
+
             //中国运营商
             if (countryCode && [countryCode isEqualToString:SACarrierChinaMCC] && networkCode) {
                 //中国移动
                 if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
-                    carrierName= @"中国移动";
+                    carrierName = @"中国移动";
                 }
                 //中国联通
                 if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
-                    carrierName= @"中国联通";
+                    carrierName = @"中国联通";
                 }
                 //中国电信
                 if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
-                    carrierName= @"中国电信";
+                    carrierName = @"中国电信";
                 }
                 //中国卫通
                 if ([networkCode isEqualToString:@"04"]) {
-                    carrierName= @"中国卫通";
+                    carrierName = @"中国卫通";
                 }
                 //中国铁通
                 if ([networkCode isEqualToString:@"20"]) {
-                    carrierName= @"中国铁通";
+                    carrierName = @"中国铁通";
                 }
             } else if (countryCode && networkCode) { //国外运营商解析
                 //加载当前 bundle
@@ -249,12 +250,10 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
                 //文件路径
                 NSString *jsonPath = [sensorsBundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
                 NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-                if (jsonData) {
-                    NSDictionary *dicAllMcc =  [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableLeaves error:nil];
-                    if (dicAllMcc) {
-                        NSString *mccMncKey = [NSString stringWithFormat:@"%@%@", countryCode, networkCode];
-                        carrierName = dicAllMcc[mccMncKey];
-                    }
+                NSDictionary *dicAllMcc = [SAJSONUtil JSONObjectWithData:jsonData];
+                if (dicAllMcc) {
+                    NSString *mccMncKey = [NSString stringWithFormat:@"%@%@", countryCode, networkCode];
+                    carrierName = dicAllMcc[mccMncKey];
                 }
             }
         }

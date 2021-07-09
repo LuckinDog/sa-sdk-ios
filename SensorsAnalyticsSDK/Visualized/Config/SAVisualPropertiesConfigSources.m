@@ -31,6 +31,7 @@
 #import "SAFileStore.h"
 #import "SAURLUtils.h"
 #import "SAVisualizedLogger.h"
+#import "SAJSONUtil.h"
 #import "SALog.h"
 
 static NSString * kSAConfigFileName = @"SAVisualPropertiesConfig";
@@ -156,7 +157,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
         
         if (statusCode == 200) {
             @try {
-                NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:(NSJSONReadingOptions)0 error:nil];
+                NSDictionary *dic = [SAJSONUtil JSONObjectWithData:data];
                 if (dic) {
                     NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"获取可视化全埋点配置成功 %@", dic];
                     SALogInfo(@"【request visualProperties config】%@", logMessage);
