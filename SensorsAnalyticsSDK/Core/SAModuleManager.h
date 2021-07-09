@@ -61,6 +61,9 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 /// @param type 模块类型
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
 
+/// 更新数据接收地址
+/// @param serverURL 新的数据接收地址
+- (void)updateServerURL:(NSString *)serverURL;
 @end
 
 #pragma mark -

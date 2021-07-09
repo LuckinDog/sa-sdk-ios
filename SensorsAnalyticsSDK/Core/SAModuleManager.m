@@ -203,6 +203,15 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     [self setEnable:enable forModule:name];
 }
 
+- (void)updateServerURL:(NSString *)serverURL {
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+        if (!([obj conformsToProtocol:@protocol(SAModuleProtocol)] && [obj respondsToSelector:@selector(updateServerURL:)]) || !obj.isEnable) {
+            return;
+        }
+        [obj updateServerURL:serverURL];
+    }];
+}
+
 #pragma mark - Open URL
 
 - (BOOL)canHandleURL:(NSURL *)url {

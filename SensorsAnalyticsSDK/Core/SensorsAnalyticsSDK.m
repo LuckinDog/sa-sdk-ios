@@ -310,6 +310,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     dispatch_async(self.serialQueue, ^{
+        // 更新数据接收地址
+        [SAModuleManager.sharedInstance updateServerURL:serverUrl];
+
         self.configOptions.serverURL = serverUrl;
         if (isRequestRemoteConfig) {
             [SAModuleManager.sharedInstance retryRequestRemoteConfigWithForceUpdateFlag:YES];
