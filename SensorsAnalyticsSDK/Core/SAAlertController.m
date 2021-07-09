@@ -165,24 +165,27 @@
     for (SAAlertAction *action in self.actions) {
         [alert addButtonWithTitle:action.title];
     }
-    
+
     //弹框标题
     alert.messageText = self.alertTitle;
     //弹框详细内容
     alert.informativeText = self.alertMessage;
     // 弹框类型，
     alert.alertStyle = NSAlertStyleInformational;
-    
-    //显示
-    NSModalResponse returnCode = [alert runModal];
-    NSInteger index = returnCode >= 1000 ? returnCode - 1000 : returnCode;
-    if (index >= self.actions.count) {
-        return;
-    }
-    SAAlertAction *action = self.actions[index];
-    if (action.handler) {
-        action.handler(action);
-    }
+
+    //开始显示
+    [alert beginSheetModalForWindow:self.alertWindow
+                  completionHandler:^(NSModalResponse returnCode) {
+
+        NSInteger index = returnCode >= 1000 ? returnCode - 1000 : returnCode;
+        if (index >= self.actions.count) {
+            return;
+        }
+        SAAlertAction *action = self.actions[index];
+        if (action.handler) {
+            action.handler(action);
+        }
+    }];
 }
 
 #endif
