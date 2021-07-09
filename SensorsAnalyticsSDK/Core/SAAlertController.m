@@ -40,20 +40,16 @@
 
 @end
 
+#if TARGET_OS_IOS
 
 #pragma mark - SAAlertController
-@interface SAAlertController ()
+@interface SAAlertController () <UIAlertViewDelegate, UIActionSheetDelegate>
 
-#if TARGET_OS_IOS
 @property (nonatomic, strong) UIWindow *alertWindow;
-@property (nonatomic) SAAlertControllerStyle preferredStyle;
-
-#elif TARGET_OS_OSX
-@property (nonatomic, strong) NSWindow *alertWindow;
-#endif
 
 @property (nonatomic, copy) NSString *alertTitle;
 @property (nonatomic, copy) NSString *alertMessage;
+@property (nonatomic) SAAlertControllerStyle preferredStyle;
 
 @property (nonatomic, strong) NSMutableArray<SAAlertAction *> *actions;
 
@@ -61,23 +57,19 @@
 
 @implementation SAAlertController
 
-
 - (instancetype)initWithTitle:(nullable NSString *)title message:(nullable NSString *)message preferredStyle:(SAAlertControllerStyle)preferredStyle {
     self = [super init];
     if (self) {
         _alertTitle = title;
         _alertMessage = message;
-        _actions = [NSMutableArray arrayWithCapacity:4];
-#if TARGET_OS_IOS
         _preferredStyle = preferredStyle;
+        _actions = [NSMutableArray arrayWithCapacity:4];
+
         UIWindow *alertWindow = [self currentAlertWindow];
         alertWindow.windowLevel = UIWindowLevelAlert + 1;
         alertWindow.rootViewController = self;
         alertWindow.hidden = NO;
         _alertWindow = alertWindow;
-#elif TARGET_OS_OSX
-        _alertWindow = [self currentAlertWindow];
-#endif
     }
     return self;
 }
@@ -88,15 +80,9 @@
 }
 
 - (void)show {
-#if TARGET_OS_IOS
     [self showAlertController];
-#elif TARGET_OS_OSX
-    [self showAlert];
-#endif
 }
 
-
-#if TARGET_OS_IOS
 - (void)showAlertController {
     UIAlertControllerStyle style = self.preferredStyle == SAAlertControllerStyleAlert ? UIAlertControllerStyleAlert : UIAlertControllerStyleActionSheet;
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:self.alertTitle message:self.alertMessage preferredStyle:style];
@@ -146,49 +132,6 @@
     return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 }
 
-#elif TARGET_OS_OSX
-- (NSWindow *)currentAlertWindow {
-    NSWindow *keywindow = [NSApplication sharedApplication].keyWindow;
-    CGRect rect = keywindow.frame;
-    if (!keywindow) {
-        rect = CGRectMake(0, 0, 400, 400);
-    }
-    NSUInteger style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
-    NSWindow *alertWindow = [[NSWindow alloc] initWithContentRect:rect styleMask:style backing:NSBackingStoreBuffered defer:YES];
-    alertWindow.movableByWindowBackground = YES;//点击背景，可移动
-    [self.alertWindow center];
-    return alertWindow;
-
-}
-- (void)showAlert {
-    NSAlert *alert = [[NSAlert alloc] init];
-    for (SAAlertAction *action in self.actions) {
-        [alert addButtonWithTitle:action.title];
-    }
-
-    //弹框标题
-    alert.messageText = self.alertTitle;
-    //弹框详细内容
-    alert.informativeText = self.alertMessage;
-    // 弹框类型，
-    alert.alertStyle = NSAlertStyleInformational;
-
-    //开始显示
-    [alert beginSheetModalForWindow:self.alertWindow
-                  completionHandler:^(NSModalResponse returnCode) {
-
-        NSInteger index = returnCode >= 1000 ? returnCode - 1000 : returnCode;
-        if (index >= self.actions.count) {
-            return;
-        }
-        SAAlertAction *action = self.actions[index];
-        if (action.handler) {
-            action.handler(action);
-        }
-    }];
-}
-
-#endif
 @end
 
-
+#endif

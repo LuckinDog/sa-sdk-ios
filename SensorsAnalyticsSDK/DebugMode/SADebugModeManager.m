@@ -50,11 +50,11 @@
 
 #pragma mark - SAOpenURLProtocol
 
-- (BOOL)canHandleURL:(nonnull NSURL *)url API_UNAVAILABLE(macos) {
+- (BOOL)canHandleURL:(nonnull NSURL *)url {
     return [url.host isEqualToString:@"debugmode"];
 }
 
-- (BOOL)handleURL:(nonnull NSURL *)url API_UNAVAILABLE(macos) {
+- (BOOL)handleURL:(nonnull NSURL *)url {
     // url query 解析
     NSDictionary *paramDic = [SAURLUtils queryItemsWithURL:url];
 
@@ -86,7 +86,7 @@
     [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
 }
 
-- (void)showDebugModeWarning:(NSString *)message API_UNAVAILABLE(macos) {
+- (void)showDebugModeWarning:(NSString *)message {
     [self showDebugModeWarning:message withNoMoreButton:YES];
 }
 

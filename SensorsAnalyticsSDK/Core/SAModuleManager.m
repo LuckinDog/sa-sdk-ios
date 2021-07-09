@@ -64,10 +64,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     }
 
-    // 初始化 Debug 模块
-    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
-    [SAModuleManager.sharedInstance handleDebugMode:debugMode];
-    
 #if TARGET_OS_IOS
     // 推送点击模块
     if (configOptions.enableTrackPush) {
@@ -79,6 +75,10 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
     // 初始化 LinkHandler 处理 deepLink 相关操作
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
+
+    // 初始化 Debug 模块
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
+    [SAModuleManager.sharedInstance handleDebugMode:debugMode];
 
     // 默认加载全埋点模块，没有判断是否开启全埋点，原因如下：
     // 1. 同之前的逻辑保持一致

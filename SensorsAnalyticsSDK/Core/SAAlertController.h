@@ -58,20 +58,13 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
  */
 @interface SAAlertController : UIViewController
 
-#elif TARGET_OS_OSX
-/**
- 神策弹框的 SAAlertController
- 内部使用 NSAlert 实现
- */
-@interface SAAlertController : NSAlert
-#endif
 
 /**
  SAAlertController 初始化，⚠️ 注意 ActionSheet 样式不支持 iPad❗️❗️❗️
 
  @param title 标题
  @param message 提示信息
- @param preferredStyle 弹框类型，不支持 macOS
+ @param preferredStyle 弹框类型
  @return SAAlertController
  */
 - (instancetype)initWithTitle:(nullable NSString *)title message:(nullable NSString *)message preferredStyle:(SAAlertControllerStyle)preferredStyle;
@@ -86,11 +79,14 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
  */
 - (void)addActionWithTitle:(NSString *_Nullable)title style:(SAAlertActionStyle)style handler:(void (^ __nullable)(SAAlertAction *))handler;
 
+
 /**
  显示 SAAlertController
  */
 - (void)show;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END
