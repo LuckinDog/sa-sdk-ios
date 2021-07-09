@@ -881,7 +881,7 @@ DeepLink 回调函数
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:"))) API_UNAVAILABLE(macos);
 
 /**
  * @abstract
@@ -895,7 +895,7 @@ DeepLink 回调函数
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
                                     andLaunchOptions:(NSDictionary * _Nullable)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:"))) API_UNAVAILABLE(macos);
 /**
  * @abstract
  * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
@@ -913,7 +913,7 @@ DeepLink 回调函数
  目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  @param debugMode 调试模式
  */
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式")));
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式"))) API_UNAVAILABLE(macos);
 
 /**
  * @abstract
