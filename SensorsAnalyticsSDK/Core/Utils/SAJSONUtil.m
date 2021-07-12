@@ -124,22 +124,14 @@
         SALogWarn(@"json data is invalid");
         return nil;
     }
-
-    id jsonObject = nil;
-    @try {
-        NSError *jsonError = nil;
-        jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-        if (jsonError) {
-            SALogError(@"json serialization error: %@",jsonError);
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@", exception);
-    } @finally {
-        return jsonObject;
-    }
+    return [self JSONObjectWithData:data options:0];
 }
 
 + (id)JSONObjectWithString:(NSString *)string {
+    return [self JSONObjectWithString:string options:0];
+}
+
++ (id)JSONObjectWithString:(NSString *)string options:(NSJSONReadingOptions)options {
     if (![SAValidator isValidString:string]) {
         SALogWarn(@"string verify failure: %@", string);
         return nil;
@@ -149,7 +141,22 @@
         SALogError(@"string dataUsingEncoding failure: %@",string);
         return nil;
     }
-    return [self JSONObjectWithData:data];
+    return [self JSONObjectWithData:data options:options];
+}
+
++ (id)JSONObjectWithData:(NSData *)data options:(NSJSONReadingOptions)options {
+    id jsonObject = nil;
+    @try {
+        NSError *jsonError = nil;
+        jsonObject = [NSJSONSerialization JSONObjectWithData:data options:options error:&jsonError];
+        if (jsonError) {
+            SALogError(@"json serialization error: %@",jsonError);
+        }
+    } @catch (NSException *exception) {
+        SALogError(@"%@", exception);
+    } @finally {
+        return jsonObject;
+    }
 }
 
 @end

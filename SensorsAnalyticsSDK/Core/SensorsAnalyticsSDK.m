@@ -1054,8 +1054,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (!eventInfo) {
                 return;
             }
-
-            NSMutableDictionary *eventDict = [[SAJSONUtil JSONObjectWithString:eventInfo] mutableCopy];
+            
+            NSMutableDictionary *eventDict = [SAJSONUtil JSONObjectWithString:eventInfo options:NSJSONReadingMutableContainers];
             if(!eventDict) {
                 return;
             }
@@ -1078,7 +1078,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             eventDict[kSAEventTrackId] = @(arc4random());
 
-            NSMutableDictionary *libMDic = [eventDict[kSAEventLib] mutableCopy];
+            NSMutableDictionary *libMDic = eventDict[kSAEventLib];
             //update lib $app_version from super properties
             NSDictionary *superProperties = [self.superProperty currentSuperProperties];
             id appVersion = superProperties[kSAEventPresetPropertyAppVersion] ?: self.presetProperty.appVersion;

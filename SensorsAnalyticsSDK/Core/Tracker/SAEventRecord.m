@@ -54,9 +54,9 @@ static long recordIndex = 0;
     if (self = [super init]) {
         _recordID = recordID;
 
-        NSDictionary *eventDic = [SAJSONUtil JSONObjectWithString:content];
+        NSMutableDictionary *eventDic = [SAJSONUtil JSONObjectWithString:content options:NSJSONReadingMutableContainers];
         if (eventDic) {
-            _event = [eventDic mutableCopy];
+            _event = eventDic;
             _encrypted = _event[SAEncryptRecordKeyEKey] != nil;
         }
     }

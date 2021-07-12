@@ -43,4 +43,16 @@
 ///  @return 解析后的对象 Object
 + (id)JSONObjectWithString:(NSString *)string;
 
+/// jsonString 数据解析
+/// @param string 需要解析的 jsonString
+/// @param options NSJSONReadingOptions 配置
+/// @return 解析后的对象 Object
++ (id)JSONObjectWithString:(NSString *)string options:(NSJSONReadingOptions)options;
+
+/// jsonData 数据解析
+/// @param data 需要解析的 jsonData
+/// @param options NSJSONReadingOptions 配置
+/// @return 解析后的对象 Object
++ (id)JSONObjectWithData:(NSData *)data options:(NSJSONReadingOptions)options;
+
 @end
