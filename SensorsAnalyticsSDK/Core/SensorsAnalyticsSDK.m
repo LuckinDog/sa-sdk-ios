@@ -146,6 +146,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     instance.configOptions.disableSDK = NO;
+    // 优先添加监听
+    [instance addObservers];
 
     if (instance.configOptions.enableLog) {
         [instance enableLog:YES];
@@ -156,7 +158,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [SAReachability.sharedInstance startMonitoring];
 
     [instance appendWebViewUserAgent];
-    [instance addObservers];
     [instance startFlushTimer];
     SALogInfo(@"SensorsAnalyticsSDK enabled");
 }
@@ -1029,7 +1030,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 没有开启老版打通
         return;
     }
-    
+
+    if ([SAModuleManager.sharedInstance isDisableSDK]) {
+        return;
+    }
+
     NSString *currentUserAgent = [SACommonUtility currentUserAgent];
     if ([currentUserAgent containsString:self.addWebViewUserAgent]) {
         return;
