@@ -181,10 +181,14 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 }
 
 - (void)disableAllModules {
-    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
-        obj.enable = NO;
-    }];
-    [self.modules removeAllObjects];
+    NSArray<NSString *> *allKeys = self.modules.allKeys;
+    for (NSString *key in allKeys) {
+        // 这两个模块是使用接口开启，所以在 SAConfigOptions 中不存在标记，无法重新开启
+        // 当定位弹窗出现时，如果关闭了定位模块，会导致弹窗消失
+        if (![key isEqualToString:kSALocationModuleName] && ![key isEqualToString:kSADeviceOrientationModuleName]) {
+            [self.modules removeObjectForKey:key];
+        }
+    }
 }
 
 - (BOOL)contains:(SAModuleType)type {
