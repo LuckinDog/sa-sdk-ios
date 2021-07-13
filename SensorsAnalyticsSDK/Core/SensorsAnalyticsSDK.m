@@ -61,8 +61,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) SATrackTimer *trackTimer;
 
-@property (nonatomic, strong) NSRegularExpression *propertiesRegex;
-
 @property (nonatomic, strong) NSTimer *timer;
 
 // 兼容 UA 值打通逻辑，后续废弃 UA 值打通逻辑时可以全部移除
@@ -202,9 +200,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 
             _trackTimer = [[SATrackTimer alloc] init];
-
-            NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
-            _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
 
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
             
