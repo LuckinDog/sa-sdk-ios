@@ -103,9 +103,8 @@
     [self cancelRequestRemoteConfig];
 
     if (![self.operator isKindOfClass:[SARemoteConfigCheckOperator class]]) {
-        SAConfigOptions *configOptions = self.operator.configOptions;
         SARemoteConfigModel *model = self.operator.model;
-        self.operator = [[SARemoteConfigCheckOperator alloc] initWithConfigOptions:configOptions remoteConfigModel:model];
+        self.operator = [[SARemoteConfigCheckOperator alloc] initWithConfigOptions:self.configOptions remoteConfigModel:model];
     }
 
     if ([self.operator respondsToSelector:@selector(handleRemoteConfigURL:)]) {
