@@ -393,7 +393,7 @@ static NSString * const kSARNManagerScreenPropertiesKeyPath = @"screenProperties
 }
 
 - (void)dealloc {
-    // 释放 rootNode 的绑定在 view 上的子节点
+    // 释放 rootNode 绑定在 view 上的子节点
     for (SAViewNode *node in self.rootNode.subNodes) {
         node.view.sensorsdata_viewNode = nil;
     }
