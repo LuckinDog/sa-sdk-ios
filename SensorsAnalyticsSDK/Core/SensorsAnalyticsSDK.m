@@ -754,11 +754,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
 
-    // 纠正 $device_id
-    // 1. 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id
-    // 2. trackEventCallback 可以修改 $device_id
-    [object addEventProperties:@{kSAEventPresetPropertyDeviceId: SAIdentifier.uniqueHardwareId}];
-
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];

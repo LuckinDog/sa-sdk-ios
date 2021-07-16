@@ -25,6 +25,7 @@
 #import "SABaseEventObject.h"
 #import "SAConstants+Private.h"
 #import "SAPresetProperty.h"
+#import "SAIdentifier.h"
 #import "SALog.h"
 
 @implementation SABaseEventObject
@@ -93,6 +94,14 @@
     }
 
     [self.properties addEntriesFromDictionary:props];
+
+    // 修正 $device_id
+    // 1. 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id
+    // 2. trackEventCallback 可以修改 $device_id
+    // 3. profile 操作中若传入 $device_id, 也需要进行修正
+    if (self.properties[kSAEventPresetPropertyDeviceId]) {
+        self.properties[kSAEventPresetPropertyDeviceId] = [SAIdentifier uniqueHardwareId];
+    }
     
     // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
     self.project = (NSString *)self.properties[kSAEventCommonOptionalPropertyProject];
