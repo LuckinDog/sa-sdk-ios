@@ -753,6 +753,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addCustomProperties:properties error:&error];
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
+    [object correctionDeviceID:self.presetProperty.deviceID];
 
     if (error) {
         SALogError(@"%@", error.localizedDescription);
