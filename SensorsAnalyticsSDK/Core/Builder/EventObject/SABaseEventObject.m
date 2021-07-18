@@ -123,7 +123,7 @@
 - (void)addDurationProperty:(NSNumber *)duration {
 }
 
-- (void)correctionDeviceID:(NSString *)deviceID {
+- (void)correctDeviceID:(NSString *)deviceID {
     // 修正 $device_id
     // 1. 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id
     // 2. trackEventCallback 可以修改 $device_id

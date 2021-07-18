@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 修正 $device_id
 /// @param deviceID device id
-- (void)correctionDeviceID:(NSString *)deviceID;
+- (void)correctDeviceID:(NSString *)deviceID;
 
 @end
 
