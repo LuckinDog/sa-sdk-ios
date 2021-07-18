@@ -32,6 +32,7 @@
 
 static NSString *const kSAAppDeeplinkLaunchEvent = @"$AppDeeplinkLaunch";
 static NSString *const kSADeeplinkMatchedResultEvent = @"$AppDeeplinkMatchedResult";
+static NSString *const kSAEventPropertyDeepLinkURL = @"$deeplink_url";
 
 static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
@@ -189,7 +190,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     [self clearLatestUtmProperties];
     // 删除本地保存的 DeepLink 信息
     [self saveDeepLinkInfo:nil];
-    self.utms[@"$deeplink_url"] = url.absoluteString;
+    self.utms[kSAEventPropertyDeepLinkURL] = url.absoluteString;
 }
 
 #pragma mark - save latest utms in local file
@@ -377,8 +378,16 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     }
     [props addEntriesFromDictionary:self.utms];
     [props addEntriesFromDictionary:self.latestUtms];
-    props[@"$deeplink_url"] = url.absoluteString;
+    props[kSAEventPropertyDeepLinkURL] = url.absoluteString;
     [[SensorsAnalyticsSDK sharedInstance] track:kSAAppDeeplinkLaunchEvent withProperties:props];
+}
+
+- (void)trackDeepLinkLauchWithURL:(NSString *)url {
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAAppDeeplinkLaunchEvent];
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    properties[kSAEventPropertyDeepLinkURL] = url;
+    properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
 - (void)trackDeeplinkMatchedResult:(NSURL *)url result:(NSDictionary *)result interval:(NSTimeInterval)interval errorMsg:(NSString *)errorMsg {
@@ -386,7 +395,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     props[@"$event_duration"] = [NSString stringWithFormat:@"%.3f", interval];
     props[@"$deeplink_options"] = result[@"page_params"];
     props[@"$deeplink_match_fail_reason"] = errorMsg.length ? errorMsg : nil;
-    props[@"$deeplink_url"] = url.absoluteString;
+    props[kSAEventPropertyDeepLinkURL] = url.absoluteString;
     NSDictionary *utms = [self acquireUtmProperties:result[@"channel_params"]];
     [props addEntriesFromDictionary:utms];
     [[SensorsAnalyticsSDK sharedInstance] track:kSADeeplinkMatchedResultEvent withProperties:props];

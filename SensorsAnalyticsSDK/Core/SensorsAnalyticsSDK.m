@@ -1306,6 +1306,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAModuleManager.sharedInstance.linkHandlerCallback = callback;
 }
 
+- (void)trackDeepLinkLauchWithURL:(NSString *)url {
+    [SAModuleManager.sharedInstance trackDeepLinkLauchWithURL:url];
+}
+
 @end
 
 #pragma mark - JSCall
