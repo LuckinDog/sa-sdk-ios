@@ -67,7 +67,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 - (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
     NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
-    return [dateFormatter stringFromDate:self];;
+    return [dateFormatter stringFromDate:self];
 }
 
 @end
