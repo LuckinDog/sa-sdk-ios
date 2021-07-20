@@ -257,7 +257,9 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
     if ([self isValidURLForServerMode:url]) {
         // ServerMode 先触发 Launch 事件再请求接口，Launch 事件中只新增 $deeplink_url 属性
-        [self trackAppDeepLinkLaunchEvent:url properties:@{SA_EVENT_PROPERTY_APP_INSTALL_SOURCE: [self appInstallSource]}];
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+        [self trackAppDeepLinkLaunchEvent:url properties:properties];
         [self requestDeepLinkInfo:url];
     } else {
         // LocalMode 先解析 Query 参数后再触发 Launch 事件，Launch 事件中有 utm_* 属性信息
@@ -269,14 +271,14 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 - (NSString *)appInstallSource {
-    NSMutableDictionary *sources = [NSMutableDictionary dictionary];
+    NSMutableDictionary <NSString *, NSString *>*sources = [NSMutableDictionary dictionary];
     sources[@"idfa"] = [SAIdentifier idfa];
     sources[@"idfv"] = [SAIdentifier idfv];
-    NSMutableArray *result = [NSMutableArray array];
-    for (NSString *key in sources.allKeys) {
-        [result addObject:[NSString stringWithFormat:@"%@=%@", key, sources[key]]];
-    }
-    return [result componentsJoinedByString:@"##"];
+    NSMutableArray <NSString *>*result = [NSMutableArray array];
+    [sources enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        [result addObject:[NSString stringWithFormat:@"%@=%@", key, obj]];
+    }];
+    return result.count > 0 ? [result componentsJoinedByString:@"##"] : nil;
 }
 
 /// 通过 URL 的 Query 获取本次的 utm_* 属性
@@ -383,6 +385,10 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 #pragma mark - deeplink event
+
+/// SDK 自动采集 $AppDeeplinkLaunch 事件
+/// @param url $deeplink_url
+/// @param properties 额外属性($ios_install_source)
 - (void)trackAppDeepLinkLaunchEvent:(NSURL *)url properties:(NSDictionary *)properties {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
     if (properties) {
@@ -394,6 +400,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     [[SensorsAnalyticsSDK sharedInstance] track:kSAAppDeeplinkLaunchEvent withProperties:props];
 }
 
+/// 对外接口, 用于客户手动调用采集 $AppDeeplinkLaunch 事件
+/// @param url $deeplink_url
 - (void)trackDeepLinkLauchWithURL:(NSString *)url {
     SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] initWithEventId:kSAAppDeeplinkLaunchEvent];
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
