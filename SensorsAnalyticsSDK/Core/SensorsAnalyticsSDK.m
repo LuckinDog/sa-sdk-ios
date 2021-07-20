@@ -41,7 +41,7 @@
 #import "SAProfileEventObject.h"
 #import "SAJSONUtil.h"
 
-#define VERSION @"2.6.8"
+#define VERSION @"2.6.9"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -599,6 +599,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addCustomProperties:properties error:&error];
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
+    // 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id 属性, 因此需要将修正逻操作放在所有属性添加后
+    [object correctDeviceID:self.presetProperty.deviceID];
 
     if (error) {
         SALogError(@"%@", error.localizedDescription);
