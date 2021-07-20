@@ -36,6 +36,18 @@ static NSString *const kSAEventPropertyDeepLinkURL = @"$deeplink_url";
 
 static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
+@interface SADeepLinkLaunchEventObject : SAPresetEventObject
+
+@end
+
+@implementation SADeepLinkLaunchEventObject
+
+// 手动调用接口采集 $AppDeeplinkLaunch 事件, 不需要添加 $latest_utm_xxx 属性
+- (void)addLatestUtmProperties:(NSDictionary *)properties {
+}
+
+@end
+
 @interface SADeeplinkManager ()
 
 /// 包含 SDK 预置属性和用户自定义属性
@@ -383,7 +395,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 - (void)trackDeepLinkLauchWithURL:(NSString *)url {
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAAppDeeplinkLaunchEvent];
+    SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] initWithEventId:kSAAppDeeplinkLaunchEvent];
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     properties[kSAEventPropertyDeepLinkURL] = url;
     properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
