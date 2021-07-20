@@ -193,8 +193,9 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 - (NSDictionary *)properties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    NSDictionary *dictionary = [self.modules copy];
     // 兼容使用宏定义的方式源码集成 SDK
-    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
         if (!([obj conformsToProtocol:@protocol(SAPropertyModuleProtocol)] && [obj respondsToSelector:@selector(properties)]) || !obj.isEnable) {
             return;
         }
