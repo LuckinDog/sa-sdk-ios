@@ -397,7 +397,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     [props addEntriesFromDictionary:self.utms];
     [props addEntriesFromDictionary:self.latestUtms];
     props[kSAEventPropertyDeepLinkURL] = url.absoluteString;
-    [[SensorsAnalyticsSDK sharedInstance] track:kSAAppDeeplinkLaunchEvent withProperties:props];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAAppDeeplinkLaunchEvent];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:props];
 }
 
 /// 对外接口, 用于客户手动调用采集 $AppDeeplinkLaunch 事件
@@ -418,7 +419,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     props[kSAEventPropertyDeepLinkURL] = url.absoluteString;
     NSDictionary *utms = [self acquireUtmProperties:result[@"channel_params"]];
     [props addEntriesFromDictionary:utms];
-    [[SensorsAnalyticsSDK sharedInstance] track:kSADeeplinkMatchedResultEvent withProperties:props];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSADeeplinkMatchedResultEvent];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:props];
 }
 
 @end
