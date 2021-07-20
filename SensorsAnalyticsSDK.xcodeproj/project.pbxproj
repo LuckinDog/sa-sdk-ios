@@ -268,6 +268,10 @@
 		CB6EBAF522855222003CFBA8 /* ca.der.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB6EBAF122855222003CFBA8 /* ca.der.cer */; };
 		CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBAF222855222003CFBA8 /* SANetworkTests.m */; };
 		F214CE58249A07DF00A2633D /* SADatabaseUnitTest.m in Sources */ = {isa = PBXBuildFile; fileRef = F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */; };
+		F22E1B1B26A55C8A0033A748 /* SAAppPageLeaveTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = F22E1B1926A55C8A0033A748 /* SAAppPageLeaveTracker.h */; };
+		F22E1B1C26A55C8A0033A748 /* SAAppPageLeaveTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = F22E1B1A26A55C8A0033A748 /* SAAppPageLeaveTracker.m */; };
+		F22E1B1F26A560D60033A748 /* UIViewController+PageView.h in Headers */ = {isa = PBXBuildFile; fileRef = F22E1B1D26A560D60033A748 /* UIViewController+PageView.h */; };
+		F22E1B2026A560D60033A748 /* UIViewController+PageView.m in Sources */ = {isa = PBXBuildFile; fileRef = F22E1B1E26A560D60033A748 /* UIViewController+PageView.m */; };
 		F277F5BF25CF9A43009B5CE6 /* SAApplicationDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5B125CF9A43009B5CE6 /* SAApplicationDelegateProxy.m */; };
 		F277F5C025CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5B225CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h */; };
 		F277F5C125CF9A43009B5CE6 /* SANotificationUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5B325CF9A43009B5CE6 /* SANotificationUtil.m */; };
@@ -590,6 +594,10 @@
 		CB6EBAF122855222003CFBA8 /* ca.der.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = ca.der.cer; sourceTree = "<group>"; };
 		CB6EBAF222855222003CFBA8 /* SANetworkTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetworkTests.m; sourceTree = "<group>"; };
 		F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SADatabaseUnitTest.m; path = SensorsAnalyticsTests/Tracker/SADatabaseUnitTest.m; sourceTree = SOURCE_ROOT; };
+		F22E1B1926A55C8A0033A748 /* SAAppPageLeaveTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAppPageLeaveTracker.h; sourceTree = "<group>"; };
+		F22E1B1A26A55C8A0033A748 /* SAAppPageLeaveTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAppPageLeaveTracker.m; sourceTree = "<group>"; };
+		F22E1B1D26A560D60033A748 /* UIViewController+PageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+PageView.h"; sourceTree = "<group>"; };
+		F22E1B1E26A560D60033A748 /* UIViewController+PageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+PageView.m"; sourceTree = "<group>"; };
 		F277F5B125CF9A43009B5CE6 /* SAApplicationDelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAApplicationDelegateProxy.m; sourceTree = "<group>"; };
 		F277F5B225CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAUNUserNotificationCenterDelegateProxy.h; sourceTree = "<group>"; };
 		F277F5B325CF9A43009B5CE6 /* SANotificationUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANotificationUtil.m; sourceTree = "<group>"; };
@@ -1047,6 +1055,7 @@
 				A8356DB72656459A00FD64AA /* SAAppTracker.m */,
 				A8356DA82656459A00FD64AA /* AppClick */,
 				A8356D8C2656459A00FD64AA /* AppEnd */,
+				F22E1B1826A559DE0033A748 /* AppPageLeave */,
 				A8356DAB2656459A00FD64AA /* AppStart */,
 				A8356DB82656459A00FD64AA /* AppViewScreen */,
 				A8356DB22656459A00FD64AA /* ElementInfo */,
@@ -1278,6 +1287,17 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		F22E1B1826A559DE0033A748 /* AppPageLeave */ = {
+			isa = PBXGroup;
+			children = (
+				F22E1B1926A55C8A0033A748 /* SAAppPageLeaveTracker.h */,
+				F22E1B1A26A55C8A0033A748 /* SAAppPageLeaveTracker.m */,
+				F22E1B1D26A560D60033A748 /* UIViewController+PageView.h */,
+				F22E1B1E26A560D60033A748 /* UIViewController+PageView.m */,
+			);
+			path = AppPageLeave;
+			sourceTree = "<group>";
+		};
 		F2346B7D25E0AE5600AA3684 /* HookDelegate */ = {
 			isa = PBXGroup;
 			children = (
@@ -1331,6 +1351,7 @@
 				A8CC22322685E50C00E96A03 /* SARemoteConfigOperator.h in Headers */,
 				A8CC223B2685E50C00E96A03 /* SARemoteConfigManager.h in Headers */,
 				881A4227253D7B5E00854F69 /* SALocationManager.h in Headers */,
+				F22E1B1F26A560D60033A748 /* UIViewController+PageView.h in Headers */,
 				881A41F7253D7B5000854F69 /* SASecurityPolicy.h in Headers */,
 				FC002920262C189E00A18FE3 /* SAConfigOptions+Encrypt.h in Headers */,
 				A806642B26905F6C00FFDEBA /* SAChannelMatchManager.h in Headers */,
@@ -1399,6 +1420,8 @@
 				4DD1296A25F8E451008C0B1E /* SAViewNode.h in Headers */,
 				A8356DC52656459A00FD64AA /* SAAppTracker.h in Headers */,
 				883BAAB02669CD18008105D2 /* SAExceptionManager.h in Headers */,
+				F22E1B1B26A55C8A0033A748 /* SAAppPageLeaveTracker.h in Headers */,
+				881A41FF253D7B5000854F69 /* SATrackTimer.h in Headers */,
 				4DD1285925F872A4008C0B1E /* SAEnumDescription.h in Headers */,
 				4DD1285D25F872A4008C0B1E /* SAVisualizedConnection.h in Headers */,
 				A8356DCF2656459A00FD64AA /* SAGestureViewProcessorFactory.h in Headers */,
@@ -1640,11 +1663,13 @@
 				A8BCC4AC2686C42D00B72040 /* SASecretKey.m in Sources */,
 				A82E895C267D918100475757 /* SAECCEncryptor.m in Sources */,
 				A8356DD02656459A00FD64AA /* SAGeneralGestureViewProcessor.m in Sources */,
+				F22E1B1C26A55C8A0033A748 /* SAAppPageLeaveTracker.m in Sources */,
 				881A4194253D7B4F00854F69 /* SATrackTimer.m in Sources */,
 				A82E895D267D918100475757 /* SAECCPluginEncryptor.m in Sources */,
 				A8CC22352685E50C00E96A03 /* SARemoteConfigCommonOperator.m in Sources */,
 				4D9B536826382F0100318B1D /* SADeviceOrientationManager.m in Sources */,
 				4DD1285425F872A4008C0B1E /* SAEnumDescription.m in Sources */,
+				F22E1B2026A560D60033A748 /* UIViewController+PageView.m in Sources */,
 				4D2D53BE2591EB3A00805141 /* SAJSONUtil.m in Sources */,
 				A82E895E267D918100475757 /* SARSAPluginEncryptor.m in Sources */,
 				4DD1284C25F872A4008C0B1E /* NSInvocation+SAHelpers.m in Sources */,
