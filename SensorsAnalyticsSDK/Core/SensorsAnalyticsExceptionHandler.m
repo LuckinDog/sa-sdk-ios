@@ -187,8 +187,8 @@ static void SAHandleException(NSException *exception) {
 
             // 触发退出事件
             [SAModuleManager.sharedInstance trackAppEndWhenCrashed];
-
-
+            //触发页面浏览时长事件
+            [SAModuleManager.sharedInstance trackPageLeaveWhenCrashed];
             // 阻塞当前线程，完成 serialQueue 中数据相关的任务
             sensorsdata_dispatch_safe_sync(instance.serialQueue, ^{});
         }
