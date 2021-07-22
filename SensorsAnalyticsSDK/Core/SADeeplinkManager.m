@@ -257,9 +257,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
     if ([self isValidURLForServerMode:url]) {
         // ServerMode 先触发 Launch 事件再请求接口，Launch 事件中只新增 $deeplink_url 属性
-        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-        properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
-        [self trackAppDeepLinkLaunchEvent:url properties:properties];
+        [self trackAppDeepLinkLaunchEvent:url properties:@{SA_EVENT_PROPERTY_APP_INSTALL_SOURCE: [self appInstallSource]}];
         [self requestDeepLinkInfo:url];
     } else {
         // LocalMode 先解析 Query 参数后再触发 Launch 事件，Launch 事件中有 utm_* 属性信息
@@ -278,7 +276,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     [sources enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
         [result addObject:[NSString stringWithFormat:@"%@=%@", key, obj]];
     }];
-    return result.count > 0 ? [result componentsJoinedByString:@"##"] : nil;
+    return result.count > 0 ? [result componentsJoinedByString:@"##"] : @"";
 }
 
 /// 通过 URL 的 Query 获取本次的 utm_* 属性
@@ -397,13 +395,13 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     [props addEntriesFromDictionary:self.utms];
     [props addEntriesFromDictionary:self.latestUtms];
     props[kSAEventPropertyDeepLinkURL] = url.absoluteString;
-    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAAppDeeplinkLaunchEvent];
+    SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] initWithEventId:kSAAppDeeplinkLaunchEvent];
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:props];
 }
 
 /// 对外接口, 用于客户手动调用采集 $AppDeeplinkLaunch 事件
 /// @param url $deeplink_url
-- (void)trackDeepLinkLauchWithURL:(NSString *)url {
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
     SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] initWithEventId:kSAAppDeeplinkLaunchEvent];
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     properties[kSAEventPropertyDeepLinkURL] = url;

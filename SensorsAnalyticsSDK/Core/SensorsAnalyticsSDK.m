@@ -737,7 +737,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addEventProperties:self.presetProperty.currentNetworkProperties];
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.eventId currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
-    [object addEventProperties:SAModuleManager.sharedInstance.latestUtmProperties];
+    [object addLatestUtmProperties:SAModuleManager.sharedInstance.latestUtmProperties];
 
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
         NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:object.event];
@@ -1306,8 +1306,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAModuleManager.sharedInstance.linkHandlerCallback = callback;
 }
 
-- (void)trackDeepLinkLauchWithURL:(NSString *)url {
-    [SAModuleManager.sharedInstance trackDeepLinkLauchWithURL:url];
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
+    [SAModuleManager.sharedInstance trackDeepLinkLaunchWithURL:url];
 }
 
 @end

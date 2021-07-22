@@ -351,8 +351,8 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
     [self.deeplinkManager clearUtmProperties];
 }
 
-- (void)trackDeepLinkLauchWithURL:(NSString *)url {
-    [self.deeplinkManager trackDeepLinkLauchWithURL:url];
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
+    [self.deeplinkManager trackDeepLinkLaunchWithURL:url];
 }
 
 @end

@@ -164,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 触发 $AppDeepLinkLaunch 事件
 /// @param url 唤起 App 的 DeepLink url
-- (void)trackDeepLinkLauchWithURL:(NSString *)url;
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url;
 
 @end
 
