@@ -270,7 +270,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         [properties addEntriesFromDictionary:self.utms];
         [properties addEntriesFromDictionary:self.latestUtms];
         properties[kSAEventPropertyDeepLinkURL] = url.absoluteString;
-        [self trackDeepLinkLaunchWithObject:object properties:properties];
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
         [self requestDeepLinkInfo:url];
     } else {
         // LocalMode 先解析 Query 参数后再触发 Launch 事件，Launch 事件中有 utm_* 属性信息
@@ -281,7 +281,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         [properties addEntriesFromDictionary:self.utms];
         [properties addEntriesFromDictionary:self.latestUtms];
         properties[kSAEventPropertyDeepLinkURL] = url.absoluteString;
-        [self trackDeepLinkLaunchWithObject:object properties:properties];
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
     }
     return YES;
 }
@@ -401,11 +401,6 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 #pragma mark - deeplink event
-
-- (void)trackDeepLinkLaunchWithObject:(SADeepLinkLaunchEventObject *)object properties:(NSDictionary *)properties {
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
-}
-
 /// 对外接口, 用于客户手动调用采集 $AppDeeplinkLaunch 事件
 /// @param url $deeplink_url
 - (void)trackDeepLinkLaunchWithURL:(NSString *)url {
@@ -417,7 +412,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     properties[kSAEventPropertyDeepLinkURL] = url;
     properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
-    [self trackDeepLinkLaunchWithObject:object properties:properties];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
 - (void)trackDeeplinkMatchedResult:(NSURL *)url result:(NSDictionary *)result interval:(NSTimeInterval)interval errorMsg:(NSString *)errorMsg {
