@@ -163,7 +163,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [[SAReachability sharedInstance] startMonitoring];
             
             _network = [[SANetwork alloc] init];
-            [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
             _trackTimer = [[SATrackTimer alloc] init];
@@ -182,6 +181,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
 #if TARGET_OS_IOS
+            [self setupSecurityPolicyWithConfigOptions:_configOptions];
+            
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
             [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
 
@@ -200,6 +201,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+#if TARGET_OS_IOS
 - (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
     SASecurityPolicy *securityPolicy = options.securityPolicy;
     if (!securityPolicy) {
@@ -228,6 +230,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     SAHTTPSession.sharedInstance.securityPolicy = securityPolicy;
 }
+#endif
 
 - (void)enableLoggers {
     if (!self.consoleLogger) {
