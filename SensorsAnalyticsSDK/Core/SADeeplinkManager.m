@@ -38,8 +38,6 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
 @interface SADeepLinkLaunchEventObject : SAPresetEventObject
 
-@property (nonatomic, strong) NSMutableDictionary *utmProperties;
-
 - (instancetype)init;
 
 @end
@@ -48,14 +46,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
 - (instancetype)init {
     self = [super initWithEventId:kSAAppDeeplinkLaunchEvent];
-    if (self) {
-        _utmProperties = [NSMutableDictionary dictionary];
-    }
     return self;
-}
-
-- (void)addUtmProperties:(NSDictionary *)properties {
-    [self.utmProperties addEntriesFromDictionary:properties];
 }
 
 // 手动调用接口采集 $AppDeeplinkLaunch 事件, 不需要添加 $latest_utm_xxx 属性
@@ -274,21 +265,23 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     if ([self isValidURLForServerMode:url]) {
         // ServerMode 先触发 Launch 事件再请求接口，Launch 事件中只新增 $deeplink_url 属性
         SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] init];
-        [object addUtmProperties:@{SA_EVENT_PROPERTY_APP_INSTALL_SOURCE: [self appInstallSource]}];
-        [object addUtmProperties:self.utms];
-        [object addUtmProperties:self.latestUtms];
-        [object addUtmProperties:@{kSAEventPropertyDeepLinkURL: url.absoluteString}];
-        [self trackDeepLinkLaunchWithObject:object];
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+        [properties addEntriesFromDictionary:self.utms];
+        [properties addEntriesFromDictionary:self.latestUtms];
+        properties[kSAEventPropertyDeepLinkURL] = url.absoluteString;
+        [self trackDeepLinkLaunchWithObject:object properties:properties];
         [self requestDeepLinkInfo:url];
     } else {
         // LocalMode 先解析 Query 参数后再触发 Launch 事件，Launch 事件中有 utm_* 属性信息
         NSDictionary *dictionary = [SAURLUtils queryItemsWithURL:url];
         [self acquireCurrentDeepLinkInfo:dictionary];
         SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] init];
-        [object addUtmProperties:self.utms];
-        [object addUtmProperties:self.latestUtms];
-        [object addUtmProperties:@{kSAEventPropertyDeepLinkURL: url.absoluteString}];
-        [self trackDeepLinkLaunchWithObject:object];
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        [properties addEntriesFromDictionary:self.utms];
+        [properties addEntriesFromDictionary:self.latestUtms];
+        properties[kSAEventPropertyDeepLinkURL] = url.absoluteString;
+        [self trackDeepLinkLaunchWithObject:object properties:properties];
     }
     return YES;
 }
@@ -409,8 +402,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
 #pragma mark - deeplink event
 
-- (void)trackDeepLinkLaunchWithObject:(SADeepLinkLaunchEventObject *)object {
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:object.utmProperties];
+- (void)trackDeepLinkLaunchWithObject:(SADeepLinkLaunchEventObject *)object properties:(NSDictionary *)properties {
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
 /// 对外接口, 用于客户手动调用采集 $AppDeeplinkLaunch 事件
@@ -424,8 +417,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     properties[kSAEventPropertyDeepLinkURL] = url;
     properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
-    [object addUtmProperties:properties];
-    [self trackDeepLinkLaunchWithObject:object];
+    [self trackDeepLinkLaunchWithObject:object properties:properties];
 }
 
 - (void)trackDeeplinkMatchedResult:(NSURL *)url result:(NSDictionary *)result interval:(NSTimeInterval)interval errorMsg:(NSString *)errorMsg {
