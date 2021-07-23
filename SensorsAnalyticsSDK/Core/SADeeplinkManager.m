@@ -416,8 +416,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 /// 对外接口, 用于客户手动调用采集 $AppDeeplinkLaunch 事件
 /// @param url $deeplink_url
 - (void)trackDeepLinkLaunchWithURL:(NSString *)url {
-    if (![url isKindOfClass:NSString.class]) {
-        SALogError(@"url must be NSString. got: %@ %@", url.class, url);
+    if (url && ![url isKindOfClass:NSString.class]) {
+        SALogError(@"deeplink url must be NSString. got: %@ %@", url.class, url);
         return;
     }
     SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] init];
