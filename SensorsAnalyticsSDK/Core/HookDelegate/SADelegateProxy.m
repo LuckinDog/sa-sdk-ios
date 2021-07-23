@@ -161,6 +161,10 @@
 }
 
 + (void)resolveOptionalSelectorsForDelegate:(id)delegate {
+    if (object_isClass(delegate)) {
+        return;
+    }
+
     NSSet *currentOptionalSelectors = ((NSObject *)delegate).sensorsdata_optionalSelectors;
     NSMutableSet *optionalSelectors = [[NSMutableSet alloc] init];
     if (currentOptionalSelectors) {
