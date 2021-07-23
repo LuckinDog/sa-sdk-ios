@@ -40,6 +40,10 @@
 }
 
 + (void)proxyDelegate:(id)delegate selectors:(NSSet<NSString *> *)selectors {
+    if (object_isClass(delegate)) {
+        return;
+    }
+
     if (selectors.count < 1) {
         return;
     }
