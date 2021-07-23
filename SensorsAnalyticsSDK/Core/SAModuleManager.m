@@ -374,7 +374,9 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (NSString *)javaScriptSource {
     NSMutableString *source = [NSMutableString string];
-    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+    // 这里需要做一次 copy 操作，避免多线程中同时操作 modules 导致崩溃
+    NSDictionary *dictionary = [self.modules copy];
+    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
         if (!([obj conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [obj respondsToSelector:@selector(javaScriptSource)]) || !obj.isEnable) {
             return;
         }
