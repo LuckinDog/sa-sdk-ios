@@ -45,6 +45,21 @@ static dispatch_group_t logGroup;
 static NSDateFormatter *dateFormatter;
 static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueIdentityKey;
 
++ (BOOL)isLogAvailable {
+    //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
+#ifndef DEBUG
+    if (@available(iOS 10.0, *)) {
+        if (@available(iOS 11.0, *)) {
+
+        } else {
+            return NO;
+        }
+    }
+#endif
+
+    return YES;
+}
+
 + (instancetype)sharedLog {
     static SALog *sharedInstance = nil;
     static dispatch_once_t onceToken;
@@ -69,12 +84,9 @@ static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueId
         return;
     }
     
-    //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
-#ifndef DEBUG
-    if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {
+    if (![SALog isLogAvailable]) {
         return;
     }
-#endif
 
     if (!format) {
         return;
@@ -122,13 +134,10 @@ static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueId
     if (!self.enableLog) {
         return;
     }
-    
-    //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
-#ifndef DEBUG
-    if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {
+
+    if (![SALog isLogAvailable]) {
         return;
     }
-#endif
 
     if (!format) {
         return;
