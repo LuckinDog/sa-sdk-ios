@@ -73,11 +73,13 @@ static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueId
         return;
     }
 
-#if TARGET_OS_IOS && !DEBUG
+#if TARGET_OS_IOS
+#ifndef DEBUG
     //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
     if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {
         return;
     }
+#endif
 #endif
 
     if (!format) {
@@ -127,11 +129,13 @@ static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueId
         return;
     }
 
-#if TARGET_OS_IOS && !DEBUG
+#if TARGET_OS_IOS
+#ifndef DEBUG
     //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
     if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {
         return;
     }
+#endif
 #endif
 
     if (!format) {
