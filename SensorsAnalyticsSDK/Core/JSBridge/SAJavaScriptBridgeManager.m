@@ -101,6 +101,10 @@
 }
 
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
+    if ([SAModuleManager.sharedInstance isDisableSDK]) {
+        return;
+    }
+
     NSAssert([webView isKindOfClass:[WKWebView class]], @"此注入方案只支持 WKWebView！❌");
     if (![webView isKindOfClass:[WKWebView class]]) {
         return;
