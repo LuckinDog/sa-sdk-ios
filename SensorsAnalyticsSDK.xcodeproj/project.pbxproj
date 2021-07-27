@@ -52,7 +52,6 @@
 		4D41D9D425FF7E9300D856F4 /* UIViewController+SAElementPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D41D9D225FF7E9300D856F4 /* UIViewController+SAElementPath.m */; };
 		4D4DB2C725B7D19C00938842 /* SAClassHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */; };
 		4D4DB2C825B7D19C00938842 /* SADelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2BE25B7D19B00938842 /* SADelegateProxy.h */; };
-		4D4DB2CB25B7D19C00938842 /* SAMethodHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2C125B7D19B00938842 /* SAMethodHelper.h */; };
 		4D4DB2CD25B7D19C00938842 /* SAMethodHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C325B7D19B00938842 /* SAMethodHelper.m */; };
 		4D4DB2CE25B7D19C00938842 /* SAClassHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C425B7D19B00938842 /* SAClassHelper.m */; };
 		4D4DB2D025B7D19C00938842 /* SADelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */; };
@@ -163,7 +162,6 @@
 		881A41FC253D7B5000854F69 /* SASwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4157253D7B4F00854F69 /* SASwizzle.m */; };
 		881A41FD253D7B5000854F69 /* SAObject+SAConfigOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A4158253D7B4F00854F69 /* SAObject+SAConfigOptions.h */; };
 		881A41FE253D7B5000854F69 /* SAConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4159253D7B4F00854F69 /* SAConstants.m */; };
-		881A41FF253D7B5000854F69 /* SATrackTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A415A253D7B4F00854F69 /* SATrackTimer.h */; };
 		881A4201253D7B5000854F69 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 881A415C253D7B4F00854F69 /* SAAppExtensionDataManager.h */; };
 		881A4202253D7B5000854F69 /* SAModuleManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A415D253D7B4F00854F69 /* SAModuleManager.m */; };
 		881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 881A4163253D7B4F00854F69 /* SAHTTPSession.m */; };
@@ -1394,17 +1392,13 @@
 				881A4197253D7B4F00854F69 /* SASwizzle.h in Headers */,
 				4D2D537E2591EB0600805141 /* SALoggerPrePostFixFormatter.h in Headers */,
 				881A41FD253D7B5000854F69 /* SAObject+SAConfigOptions.h in Headers */,
-				4D4DB2CB25B7D19C00938842 /* SAMethodHelper.h in Headers */,
-				881A41FF253D7B5000854F69 /* SATrackTimer.h in Headers */,
 				A82E8959267D918100475757 /* SAEncryptManager.h in Headers */,
 				4DD1284E25F872A4008C0B1E /* SATypeDescription.h in Headers */,
 				A8356DE62656459A00FD64AA /* UIApplication+AutoTrack.h in Headers */,
-				4D4DB2CB25B7D19C00938842 /* SAMethodHelper.h in Headers */,
 				4DD1286825F872A4008C0B1E /* SAObjectSerializerContext.h in Headers */,
 				4DD1296A25F8E451008C0B1E /* SAViewNode.h in Headers */,
 				A8356DC52656459A00FD64AA /* SAAppTracker.h in Headers */,
 				883BAAB02669CD18008105D2 /* SAExceptionManager.h in Headers */,
-				881A41FF253D7B5000854F69 /* SATrackTimer.h in Headers */,
 				4DD1285925F872A4008C0B1E /* SAEnumDescription.h in Headers */,
 				4DD1285D25F872A4008C0B1E /* SAVisualizedConnection.h in Headers */,
 				A8356DCF2656459A00FD64AA /* SAGestureViewProcessorFactory.h in Headers */,

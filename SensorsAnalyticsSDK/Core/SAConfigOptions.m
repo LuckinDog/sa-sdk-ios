@@ -83,6 +83,9 @@
     options.disableSDK = self.disableSDK;
 
 #if TARGET_OS_IOS
+    // 支持 https 自签证书
+    options.securityPolicy = [self.securityPolicy copy];
+
     // 远程控制
     options.minRequestHourInterval = self.minRequestHourInterval;
     options.maxRequestHourInterval = self.maxRequestHourInterval;

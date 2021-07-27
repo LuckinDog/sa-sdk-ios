@@ -69,15 +69,6 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
 @implementation SARemoteConfigCheckOperator
 
-#pragma mark - Life Cycle
-- (instancetype)initWithRemoteConfigModel:(SARemoteConfigModel *)model {
-    self = [super init];
-    if (self) {
-        self.model = model;
-    }
-    return self;
-}
-
 #pragma mark - Protocol
 
 - (BOOL)handleRemoteConfigURL:(NSURL *)url {

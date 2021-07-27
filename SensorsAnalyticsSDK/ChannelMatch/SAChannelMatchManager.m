@@ -32,7 +32,7 @@
 #import "SAReachability.h"
 #import "SALog.h"
 #import "SAFileStore.h"
-#import "SAModuleManager.h"
+#import "SAJSONUtil.h"
 
 NSString * const kSAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
 NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";
@@ -220,23 +220,19 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     } else {
         [properties setValue:@"" forKey:kSAEventPropertyChannelDeviceInfo];
     }
+    // callback
+    [properties addEntriesFromDictionary:[self channelPropertiesWithEvent:obj.event]];
 
-    BOOL isNotContains = ![self.trackChannelEventNames containsObject:obj.event];
-    properties[kSAEventPropertyChannelCallbackEvent] = @(isNotContains);
-    if (isNotContains && obj.event) {
-        [self.trackChannelEventNames addObject:obj.event];
-        [self archiveTrackChannelEventNames];
-    }
     [SensorsAnalyticsSDK.sharedInstance trackEventObject:obj properties:properties];
 }
 
-- (NSMutableDictionary *)channelPropertiesWithEvent:(NSString *)event {
+- (NSDictionary *)channelPropertiesWithEvent:(NSString *)event {
     BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
     if (isNotContains && event) {
         [self.trackChannelEventNames addObject:event];
         [self archiveTrackChannelEventNames];
     }
-    return [NSMutableDictionary dictionaryWithObject:@(isNotContains) forKey:kSAEventPropertyChannelCallbackEvent];
+    return @{kSAEventPropertyChannelCallbackEvent : @(isNotContains)};
 }
 
 - (void)archiveTrackChannelEventNames {
@@ -245,7 +241,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 
 - (NSDictionary *)channelInfoWithEvent:(NSString *)event {
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
-        NSMutableDictionary *channelInfo = [self channelPropertiesWithEvent:event];
+        NSMutableDictionary *channelInfo = [NSMutableDictionary dictionaryWithDictionary:[self channelPropertiesWithEvent:event]];
         channelInfo[kSAEventPropertyChannelDeviceInfo] = @"1";
         return channelInfo;
     }
@@ -352,13 +348,13 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
     params[@"has_active"] = @([self isAppInstalled]);
     params[@"device_code"] = [self appInstallSource];
-    request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
+    request.HTTPBody = [SAJSONUtil dataWithJSONObject:params];
 
     [self showIndicator];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSDictionary *dict;
         if (data) {
-            dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            dict = [SAJSONUtil JSONObjectWithData:data];
         }
         NSInteger code = [dict[@"code"] integerValue];
         dispatch_async(dispatch_get_main_queue(), ^{

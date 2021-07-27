@@ -132,8 +132,11 @@ static void SAHandleException(NSException *exception) {
     }
     @try {
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        NSArray<NSString *> *callStackSymbols = [exception callStackSymbols] ?: [NSThread callStackSymbols];
-        properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [callStackSymbols componentsJoinedByString:@"\n"]];
+        if (exception.callStackSymbols) {
+            properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", exception.reason, [exception.callStackSymbols componentsJoinedByString:@"\n"]];
+        } else {
+            properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"%@ %@", exception.reason, [NSThread.callStackSymbols componentsJoinedByString:@"\n"]];
+        }
         SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppCrashed];
         [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 

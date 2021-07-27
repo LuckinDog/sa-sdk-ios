@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion
  默认使用 defaultPolicy
  */
-@property (nonatomic, strong) SASecurityPolicy *securityPolicy;
+@property (nonatomic, strong) SASecurityPolicy *securityPolicy API_UNAVAILABLE(macos);
 
 /**
  * @abstract

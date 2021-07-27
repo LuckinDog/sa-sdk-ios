@@ -70,7 +70,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     NSMutableArray *encryptors = [NSMutableArray array];
     [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
-    [encryptors addObjectsFromArray:self.configOptions.encryptors];
+    [encryptors addObjectsFromArray:configOptions.encryptors];
     self.encryptors = encryptors;
 }
 
@@ -137,10 +137,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         }
 
         // 使用 gzip 进行压缩
-        NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
-        NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
-        NSData *zippedData = [SAGzipUtility gzipData:encodingData];
+        NSData *jsonData = [SAJSONUtil dataWithJSONObject:obj];
+        NSData *zippedData = [SAGzipUtility gzipData:jsonData];
 
         // 加密数据
         NSString *encryptedString =  [self.encryptor encryptEvent:zippedData];

@@ -39,8 +39,9 @@
 #import "SAAppLifecycle.h"
 #import "SAReferrerManager.h"
 #import "SAProfileEventObject.h"
+#import "SAJSONUtil.h"
 
-#define VERSION @"2.6.8"
+#define VERSION @"3.0.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -190,15 +191,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
             _network = [[SANetwork alloc] init];
-            [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
-
-            [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
-#if TARGET_OS_IOS
-            [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
-#endif
-
             _trackTimer = [[SATrackTimer alloc] init];
 
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
@@ -214,6 +208,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [[SAReachability sharedInstance] startMonitoring];
                 [self addObservers];
             }
+
+#if TARGET_OS_IOS
+            [self setupSecurityPolicyWithConfigOptions:_configOptions];
+            
+            [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
+            [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
+#endif
         }
         
     } @catch(NSException *exception) {
@@ -242,6 +243,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+#if TARGET_OS_IOS
 - (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
     SASecurityPolicy *securityPolicy = options.securityPolicy;
     if (!securityPolicy) {
@@ -270,6 +272,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     SAHTTPSession.sharedInstance.securityPolicy = securityPolicy;
 }
+#endif
 
 - (void)enableLoggers {
     if (!self.consoleLogger) {
@@ -599,7 +602,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.eventId currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
     [object addEventProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-
     [object addChannelProperties:[SAModuleManager.sharedInstance channelInfoWithEvent:object.event]];
 
 #if TARGET_OS_IOS
@@ -612,6 +614,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addCustomProperties:properties error:&error];
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
+    // 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id 属性, 因此需要将修正逻操作放在所有属性添加后
+    [object correctDeviceID:self.presetProperty.deviceID];
 
     if (error) {
         SALogError(@"%@", error.localizedDescription);
@@ -1071,13 +1075,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (!eventInfo) {
                 return;
             }
-
-            NSData *jsonData = [eventInfo dataUsingEncoding:NSUTF8StringEncoding];
-            NSError *error;
-            NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                                             options:NSJSONReadingMutableContainers
-                                                                               error:&error];
-            if(error || !eventDict) {
+            
+            NSMutableDictionary *eventDict = [SAJSONUtil JSONObjectWithString:eventInfo options:NSJSONReadingMutableContainers];
+            if(!eventDict) {
                 return;
             }
 
@@ -1122,6 +1122,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             if([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
+
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];

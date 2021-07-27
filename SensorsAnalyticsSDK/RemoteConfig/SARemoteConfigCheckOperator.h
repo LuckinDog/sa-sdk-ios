@@ -25,11 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 远程配置校验模式处理类
 @interface SARemoteConfigCheckOperator : SARemoteConfigOperator
 
-/// 初始化远程配置校验模式处理类
-/// @param model 输入的远程配置模型
-/// @return 远程配置校验模式处理类的实例
-- (instancetype)initWithRemoteConfigModel:(SARemoteConfigModel *)model;
-
 @end
 
 NS_ASSUME_NONNULL_END
