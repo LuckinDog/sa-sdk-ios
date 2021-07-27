@@ -327,4 +327,9 @@
     }
 }
 
+- (void)dealloc {
+    // 断开连接，防止 visualizedConnection 内 timer 导致无法释放
+    [self.visualizedConnection close];
+}
+
 @end
