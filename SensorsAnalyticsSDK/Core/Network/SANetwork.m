@@ -224,6 +224,8 @@
     } else if ([value isEqualToString:CTRadioAccessTechnologyLTE]) {
         return @"4G";
     }
+
+#if TARGET_OS_IOS
 #ifdef __IPHONE_14_1
     else if (@available(iOS 14.1, *)) {
         if ([value isEqualToString:CTRadioAccessTechnologyNRNSA] ||
@@ -232,6 +234,7 @@
             return @"5G";
         }
     }
+#endif
 #endif
     return @"UNKNOWN";
 }
