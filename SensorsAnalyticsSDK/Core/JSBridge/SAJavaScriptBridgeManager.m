@@ -102,7 +102,6 @@
 
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
     if ([SAModuleManager.sharedInstance isDisableSDK]) {
-        SALogDebug(@"【remote config】SDK is disabled, do not add script message handler to WKWebView");
         return;
     }
 
