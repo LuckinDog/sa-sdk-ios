@@ -32,6 +32,7 @@
 #import "SALog.h"
 #import "SARSAPluginEncryptor.h"
 #import "SAECCPluginEncryptor.h"
+#import "SASMPluginEncryptor.h"
 #import "SAConfigOptions+Encrypt.h"
 #import "SASecretKeyFactory.h"
 
@@ -70,6 +71,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     NSMutableArray *encryptors = [NSMutableArray array];
     [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
+    [encryptors addObject:[[SASMPluginEncryptor alloc] init]];
     [encryptors addObjectsFromArray:configOptions.encryptors];
     self.encryptors = encryptors;
 }
@@ -241,6 +243,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件并增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
         return nil;
     }
+
+    // FIXME: 这里是否需要处理 SM2 的逻辑
     return encryptor;
 }
 

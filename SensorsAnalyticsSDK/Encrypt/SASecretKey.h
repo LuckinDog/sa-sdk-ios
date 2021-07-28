@@ -25,11 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 密钥信息
 @interface SASecretKey : NSObject <NSCoding>
 
-/// 密钥版本
-@property (nonatomic, assign) NSInteger version;
-
-/// 密钥值
-@property (nonatomic, copy) NSString *key;
+- (instancetype)initWithKey:(NSString *)key
+                    version:(NSInteger)version
+       symmetricEncryptType:(NSString *)symmetricEncryptType
+      asymmetricEncryptType:(NSString *)asymmetricEncryptType;
 
 @end
 

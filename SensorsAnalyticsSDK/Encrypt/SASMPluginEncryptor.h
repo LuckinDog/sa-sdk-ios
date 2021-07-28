@@ -1,8 +1,8 @@
 //
-// SAConfigOptions+Encrypt.h
+// SASMPluginEncryptor.h
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2021/4/16.
+// Created by 彭远洋 on 2021/7/21.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,30 +18,17 @@
 // limitations under the License.
 //
 
-#import "SAConfigOptions.h"
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
+#import <Foundation/Foundation.h>
 #import "SAEncryptProtocol.h"
-#import "SASecretKey.h"
 
-@interface SAConfigOptions (Encrypt)
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, copy, readonly) NSArray *encryptors;
-
-- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
+@interface SASMPluginEncryptor : NSObject <SAEncryptProtocol>
 
 @end
 
-@interface SASecretKey (Private)
-
-/// 密钥版本
-@property (nonatomic, assign) NSInteger version;
-
-/// 密钥值
-@property (nonatomic, copy) NSString *key;
-
-/// 对称加密类型
-@property (nonatomic, copy) NSString *symmetricEncryptType;
-
-/// 非对称加密类型
-@property (nonatomic, copy) NSString *asymmetricEncryptType;
-
-@end
+NS_ASSUME_NONNULL_END

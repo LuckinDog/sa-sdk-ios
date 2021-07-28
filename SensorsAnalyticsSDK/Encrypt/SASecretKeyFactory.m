@@ -37,37 +37,68 @@
     if (!remoteConfig) {
         return nil;
     }
-    NSString *customContent = remoteConfig[@"key_custom_placeholder"];
-    if ([SAValidator isValidString:customContent]) {
-        // 当自定义插件秘钥字段存在时，不再使用其他加密插件
-        // 不论秘钥是否创建成功，都不再切换使用其他加密插件
-        NSDictionary *config = [SAJSONUtil JSONObjectWithString:customContent];
-        SASecretKey *secretKey = [self createCustomSecretKey:config];
-        return secretKey;
+
+    // 加密插件化 3.0 逻辑，只处理 key_v2 逻辑，当 type 不匹配时走 2.0 逻辑
+    NSDictionary *newVersionKey = remoteConfig[@"key_v2"];
+    SASecretKey *secKey = [SASecretKeyFactory createSecretKey:newVersionKey];
+    if (secKey) {
+        return secKey;
     }
 
-    NSString *eccContent = remoteConfig[@"key_ec"];
+    // 历史版本逻辑，只处理 key 字段中内容
+    NSDictionary *oldKey = remoteConfig[@"key"];
+    NSString *eccContent = oldKey[@"key_ec"];
     if (eccContent && NSClassFromString(kSAEncryptECCClassName)) {
         // 当 key_ec 存在且加密库存在时，使用 ECC 加密插件
         // 不论秘钥是否创建成功，都不再切换使用其他加密插件
         NSDictionary *config = [SAJSONUtil JSONObjectWithString:eccContent];
-        SASecretKey *secretKey = [self createECCSecretKey:config];
+        SASecretKey *secretKey = [SASecretKeyFactory createECCSecretKey:config];
         return secretKey;
     }
 
     // 当远程配置不包含自定义秘钥且 ECC 不可用时，使用 RSA 秘钥
-    return [self createRSASecretKey:remoteConfig];
+    return [SASecretKeyFactory createRSASecretKey:oldKey];
 }
 
-+ (SASecretKey *)createCustomSecretKey:(NSDictionary *)config {
-    if (![SAValidator isValidDictionary:config]) {
+#pragma mark - Encryptor Plgin 3.0
++ (SASecretKey *)createSecretKey:(NSDictionary *)config {
+    NSString *type = config[@"type"];
+    NSString *publicKey = config[@"public_key"];
+    NSNumber *pkv = config[@"pkv"];
+    if (![SASecretKeyFactory isAvailableForEncryptKeyType:type]) {
         return nil;
     }
-    // 暂不支持自定义秘钥类型
-    SASecretKey *secretKey = [[SASecretKey alloc] init];
-    return secretKey;
+
+    if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
+        return nil;
+    }
+
+    NSArray *types = [type componentsSeparatedByString:@"+"];
+    // 当 type 分隔数组个数小于 2 时，不处理
+    if (types.count < 2) {
+        return nil;
+    }
+    NSString *asymmetricEncryptType = types[0];
+    NSString *symmetricEncryptType = types[1];
+
+    return [[SASecretKey alloc] initWithKey:publicKey version:[pkv integerValue] symmetricEncryptType:symmetricEncryptType asymmetricEncryptType:asymmetricEncryptType];
 }
 
++ (BOOL)isAvailableForEncryptKeyType:(NSString *)type {
+    NSString *SMClassName = @"SASM2Encryptor";
+    if ([type isEqualToString:@"SM2+SM4"] && NSClassFromString(SMClassName)) {
+        return YES;
+    }
+    if ([type isEqualToString:@"EC+AES"] && NSClassFromString(kSAEncryptECCClassName)) {
+        return YES;
+    }
+    if ([type isEqualToString:@"RSA+AES"]) {
+        return YES;
+    }
+    return NO;
+}
+
+#pragma mark - Encryptor Plgin 2.0
 + (SASecretKey *)createECCSecretKey:(NSDictionary *)config {
     if (![SAValidator isValidDictionary:config]) {
         return nil;
@@ -78,12 +109,8 @@
     if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
         return nil;
     }
-    SASecretKey *secretKey = [[SASecretKey alloc] init];
-    secretKey.version = [pkv integerValue];
-    secretKey.asymmetricEncryptType = type;
-    secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
-    secretKey.key = [NSString stringWithFormat:@"%@:%@", type, publicKey];
-    return secretKey;
+    NSString *key = [NSString stringWithFormat:@"%@:%@", type, publicKey];
+    return [[SASecretKey alloc] initWithKey:key version:[pkv integerValue] symmetricEncryptType:kSAAlgorithmTypeAES asymmetricEncryptType:type];
 }
 
 + (SASecretKey *)createRSASecretKey:(NSDictionary *)config {
@@ -95,12 +122,7 @@
     if (!pkv || ![SAValidator isValidString:publicKey]) {
         return nil;
     }
-    SASecretKey *secretKey = [[SASecretKey alloc] init];
-    secretKey.version = [pkv integerValue];
-    secretKey.key = publicKey;
-    secretKey.asymmetricEncryptType = kSAAlgorithmTypeRSA;
-    secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
-    return secretKey;
+    return [[SASecretKey alloc] initWithKey:publicKey version:[pkv integerValue] symmetricEncryptType:kSAAlgorithmTypeAES asymmetricEncryptType:kSAAlgorithmTypeRSA];
 }
 
 @end

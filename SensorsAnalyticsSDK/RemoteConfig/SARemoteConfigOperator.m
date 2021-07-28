@@ -115,7 +115,10 @@
 }
 
 - (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
-    return config[@"configs"][@"key"];
+    NSMutableDictionary *encryptKey = [NSMutableDictionary dictionary];
+    encryptKey[@"key"] = config[@"configs"][@"key"];
+    encryptKey[@"key_v2"] = config[@"configs"][@"key_v2"];
+    return encryptKey;
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {

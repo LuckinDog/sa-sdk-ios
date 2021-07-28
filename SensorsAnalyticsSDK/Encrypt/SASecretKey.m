@@ -26,6 +26,12 @@
 
 @interface SASecretKey ()
 
+/// 密钥版本
+@property (nonatomic, assign) NSInteger version;
+
+/// 密钥值
+@property (nonatomic, copy) NSString *key;
+
 /// 对称加密类型
 @property (nonatomic, copy) NSString *symmetricEncryptType;
 
@@ -35,6 +41,17 @@
 @end
 
 @implementation SASecretKey
+
+- (instancetype)initWithKey:(NSString *)key version:(NSInteger)version symmetricEncryptType:(NSString *)symmetricEncryptType asymmetricEncryptType:(NSString *)asymmetricEncryptType {
+    self = [super init];
+    if (self) {
+        self.version = version;
+        self.key = key;
+        self.asymmetricEncryptType = asymmetricEncryptType;
+        self.symmetricEncryptType = symmetricEncryptType;
+    }
+    return self;
+}
 
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeInteger:self.version forKey:@"version"];
