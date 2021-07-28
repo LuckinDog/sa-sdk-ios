@@ -29,6 +29,7 @@
 #import "SAConstants+Private.h"
 #import "SAConstants+Private.h"
 #import "SAAppLifecycle.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 @implementation SAAppPageLeaveTracker
 
@@ -51,7 +52,7 @@
         NSTimeInterval startTimestamp = [timestamp doubleValue];
         NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:obj[kSAPageLeaveAutoTrackProperties]];
         tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", currentTimestamp - startTimestamp] floatValue]);
-        [self trackAutoTrackEventWithProperties:[tempProperties copy]];
+        [self trackWithProperties:[tempProperties copy]];
     }];
 }
 
@@ -81,11 +82,16 @@
         NSTimeInterval startTimestamp = [timestamp doubleValue];
         NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:properties[kSAPageLeaveAutoTrackProperties]];
         tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", currentTimestamp - startTimestamp] floatValue]);
-        [self trackAutoTrackEventWithProperties:[tempProperties copy]];
+        [self trackWithProperties:[tempProperties copy]];
         self.timestamp[address] = nil;
     } else {
-        [self trackAutoTrackEventWithProperties:[self propertiesWithViewController:viewController]];
+        [self trackWithProperties:[self propertiesWithViewController:viewController]];
     }
+}
+
+- (void)trackWithProperties:(NSDictionary *)properties {
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppPageLeave];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
 - (void)appLifecycleStateDidChange:(NSNotification *)notification {
