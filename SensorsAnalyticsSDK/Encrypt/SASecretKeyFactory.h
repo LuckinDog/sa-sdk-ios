@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SASecretKeyFactory : NSObject
 
-+ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig;
++ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig checker:(BOOL(^)(NSString *type))checker;
 
 @end
 

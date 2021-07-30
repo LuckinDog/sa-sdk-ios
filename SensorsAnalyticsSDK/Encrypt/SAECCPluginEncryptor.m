@@ -25,6 +25,7 @@
 #import "SAECCPluginEncryptor.h"
 #import "SAAESEncryptor.h"
 #import "SAECCEncryptor.h"
+#import "SAAlgorithmProtocol.h"
 
 @interface SAECCPluginEncryptor ()
 
@@ -36,6 +37,11 @@
 @implementation SAECCPluginEncryptor
 
 - (instancetype)init {
+    // 当未集成 EC 库时，EC 加密插件无法正常使用
+    if (!NSClassFromString(kSAEncryptECCClassName)) {
+        return nil;
+    }
+
     self = [super init];
     if (self) {
         _aesEncryptor = [[SAAESEncryptor alloc] init];

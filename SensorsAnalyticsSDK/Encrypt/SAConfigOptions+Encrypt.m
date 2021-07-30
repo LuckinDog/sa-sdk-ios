@@ -1,8 +1,8 @@
 //
-// SAConfigOptions+Encrypt.m
+//  SAConfigOptions+Encrypt.m
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/6/26.
+// Created by 彭远洋 on 2021/7/30.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
 
 #import "SAConfigOptions+Encrypt.h"
 

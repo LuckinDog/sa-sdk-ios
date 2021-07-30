@@ -32,11 +32,17 @@
 #import "SALog.h"
 #import "SARSAPluginEncryptor.h"
 #import "SAECCPluginEncryptor.h"
-#import "SASMPluginEncryptor.h"
 #import "SAConfigOptions+Encrypt.h"
+#import "SASecretKey+Private.h"
 #import "SASecretKeyFactory.h"
 
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
+
+@interface SAConfigOptions (Private)
+
+@property (nonatomic, strong, readonly) NSMutableArray *encryptors;
+
+@end
 
 @interface SAEncryptManager ()
 
@@ -69,9 +75,11 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     _configOptions = configOptions;
 
     NSMutableArray *encryptors = [NSMutableArray array];
-    [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
+    SAECCPluginEncryptor *ecPlugin = [[SAECCPluginEncryptor alloc] init];
+    if (ecPlugin) {
+        [encryptors addObject:ecPlugin];
+    }
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
-    [encryptors addObject:[[SASMPluginEncryptor alloc] init]];
     [encryptors addObjectsFromArray:configOptions.encryptors];
     self.encryptors = encryptors;
 }
@@ -174,7 +182,13 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     if (!encryptConfig) {
         return;
     }
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:encryptConfig];
+    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:encryptConfig checker:^BOOL(NSString *type) {
+        NSArray *types = [type componentsSeparatedByString:@"+"];
+        if (types.count < 2) {
+            return NO;
+        }
+        return [self checkSymmetricType:types[0] asymmetricType:types[1]];
+    }];
     if (![self encryptorWithSecretKey:secretKey]) {
         //当前秘钥没有对应的加密器
         return;
@@ -270,6 +284,21 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         return NO;
     }
     return YES;
+}
+
+- (BOOL)checkSymmetricType:(NSString *)symmetricType asymmetricType:(NSString *)asymmetricType {
+    if (symmetricType.length < 1 || asymmetricType.length < 1) {
+        return NO;
+    }
+
+    __block BOOL valid = NO;
+    [self.encryptors enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id<SAEncryptProtocol>  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([[obj symmetricEncryptType] isEqualToString:symmetricType] && [[obj asymmetricEncryptType] isEqualToString:asymmetricType]) {
+            valid = YES;
+            *stop = YES;
+        }
+    }];
+    return valid;
 }
 
 #pragma mark - archive/unarchive secretKey

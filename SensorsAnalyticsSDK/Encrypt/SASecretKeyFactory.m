@@ -24,7 +24,7 @@
 
 #import "SASecretKeyFactory.h"
 #import "SAConfigOptions.h"
-#import "SAConfigOptions+Encrypt.h"
+#import "SASecretKey+Private.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
 #import "SAECCEncryptor.h"
@@ -33,14 +33,14 @@
 
 @implementation SASecretKeyFactory
 
-+ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig {
++ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig checker:(BOOL(^)(NSString *type))checker {
     if (!remoteConfig) {
         return nil;
     }
 
     // 加密插件化 3.0 逻辑，只处理 key_v2 逻辑，当 type 不匹配时走 2.0 逻辑
     NSDictionary *newVersionKey = remoteConfig[@"key_v2"];
-    SASecretKey *secKey = [SASecretKeyFactory createSecretKey:newVersionKey];
+    SASecretKey *secKey = [SASecretKeyFactory createSecretKey:newVersionKey checker:checker];
     if (secKey) {
         return secKey;
     }
@@ -48,7 +48,8 @@
     // 历史版本逻辑，只处理 key 字段中内容
     NSDictionary *oldKey = remoteConfig[@"key"];
     NSString *eccContent = oldKey[@"key_ec"];
-    if (eccContent && NSClassFromString(kSAEncryptECCClassName)) {
+    NSString *ecType = @"EC+AES";
+    if (eccContent && checker(ecType)) {
         // 当 key_ec 存在且加密库存在时，使用 ECC 加密插件
         // 不论秘钥是否创建成功，都不再切换使用其他加密插件
         NSDictionary *config = [SAJSONUtil JSONObjectWithString:eccContent];
@@ -61,11 +62,11 @@
 }
 
 #pragma mark - Encryptor Plgin 3.0
-+ (SASecretKey *)createSecretKey:(NSDictionary *)config {
++ (SASecretKey *)createSecretKey:(NSDictionary *)config checker:(BOOL(^)(NSString *type))checker {
     NSString *type = config[@"type"];
     NSString *publicKey = config[@"public_key"];
     NSNumber *pkv = config[@"pkv"];
-    if (![SASecretKeyFactory isAvailableForEncryptKeyType:type]) {
+    if (!checker(type)) {
         return nil;
     }
 
@@ -82,20 +83,6 @@
     NSString *symmetricEncryptType = types[1];
 
     return [[SASecretKey alloc] initWithKey:publicKey version:[pkv integerValue] symmetricEncryptType:symmetricEncryptType asymmetricEncryptType:asymmetricEncryptType];
-}
-
-+ (BOOL)isAvailableForEncryptKeyType:(NSString *)type {
-    NSString *SMClassName = @"SASM2Encryptor";
-    if ([type isEqualToString:@"SM2+SM4"] && NSClassFromString(SMClassName)) {
-        return YES;
-    }
-    if ([type isEqualToString:@"EC+AES"] && NSClassFromString(kSAEncryptECCClassName)) {
-        return YES;
-    }
-    if ([type isEqualToString:@"RSA+AES"]) {
-        return YES;
-    }
-    return NO;
 }
 
 #pragma mark - Encryptor Plgin 2.0
