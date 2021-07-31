@@ -23,6 +23,7 @@
 #endif
 
 #import "SASecretKey.h"
+#import "SAAlgorithmProtocol.h"
 
 @interface SASecretKey ()
 
@@ -42,7 +43,10 @@
 
 @implementation SASecretKey
 
-- (instancetype)initWithKey:(NSString *)key version:(NSInteger)version symmetricEncryptType:(NSString *)symmetricEncryptType asymmetricEncryptType:(NSString *)asymmetricEncryptType {
+- (instancetype)initWithKey:(NSString *)key
+                    version:(NSInteger)version
+      asymmetricEncryptType:(NSString *)asymmetricEncryptType
+       symmetricEncryptType:(NSString *)symmetricEncryptType {
     self = [super init];
     if (self) {
         self.version = version;
@@ -69,6 +73,10 @@
         self.asymmetricEncryptType = [coder decodeObjectForKey:@"asymmetricEncryptType"];
     }
     return self;
+}
+
++ (SASecretKey *)ecSimulatorSecretKey {
+    return [[SASecretKey alloc] initWithKey:@"" version:@(0) asymmetricEncryptType:kSAAlgorithmTypeEC symmetricEncryptType:kSAAlgorithmTypeAES];
 }
 
 @end

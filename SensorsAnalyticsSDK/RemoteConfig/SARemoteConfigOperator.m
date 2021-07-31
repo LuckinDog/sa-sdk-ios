@@ -115,10 +115,8 @@
 }
 
 - (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
-    NSMutableDictionary *encryptKey = [NSMutableDictionary dictionary];
-    encryptKey[@"key"] = config[@"configs"][@"key"];
-    encryptKey[@"key_v2"] = config[@"configs"][@"key_v2"];
-    return encryptKey;
+    // 远程配置中新增 key_v2，传递给加密模块时不做处理直接传递整个远程配置信息
+    return [config[@"configs"] copy];
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {

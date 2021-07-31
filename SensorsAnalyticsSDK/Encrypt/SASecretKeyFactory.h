@@ -26,7 +26,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SASecretKeyFactory : NSObject
 
-+ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig checker:(BOOL(^)(NSString *type))checker;
+typedef BOOL(^EncryptorChecker)(SASecretKey *secretKey);
+
+/// 根据远程配置下发内容，返回可用的秘钥信息
+/// @param remoteConfig 远程配置下发内容，格式为
+/// {  "key_v2": { "pkv": 27, "public_key": "<公钥>", "type": "SM2+SM4"} ,
+///  "key ": { " pkv": 23, "public_key": "<公钥>", "key_ec":  "{ \"pkv\":26,\"type\":\"EC\",\"public_key\":\<公钥>\" }" } }
+/// @param encryptorChecker 检查是否包含当前 type 对应加密器
+/// @return 返回可用秘钥对象
++ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig
+                                  encryptorChecker:(EncryptorChecker)encryptorChecker;
 
 @end
 

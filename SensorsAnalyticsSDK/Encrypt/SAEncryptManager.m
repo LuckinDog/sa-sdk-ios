@@ -31,7 +31,7 @@
 #import "SAGzipUtility.h"
 #import "SALog.h"
 #import "SARSAPluginEncryptor.h"
-#import "SAECCPluginEncryptor.h"
+#import "SAECPluginEncryptor.h"
 #import "SAConfigOptions+Encrypt.h"
 #import "SASecretKey+Private.h"
 #import "SASecretKeyFactory.h"
@@ -52,9 +52,10 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 /// 当前支持的加密插件列表
 @property (nonatomic, copy) NSArray<id<SAEncryptProtocol>> *encryptors;
 
+/// 已加密过的对称秘钥内容
 @property (nonatomic, copy) NSString *encryptedSymmetricKey;
 
-/// 非对称密钥加密器的公钥（RSA/ECC 的公钥）
+/// 非对称加密器的公钥（RSA/EC 的公钥）
 @property (nonatomic, strong) SASecretKey *secretKey;
 
 @end
@@ -75,7 +76,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     _configOptions = configOptions;
 
     NSMutableArray *encryptors = [NSMutableArray array];
-    SAECCPluginEncryptor *ecPlugin = [[SAECCPluginEncryptor alloc] init];
+
+    // 当 EC 加密库未集成时，EC 加密插件返回为 Nil
+    SAECPluginEncryptor *ecPlugin = [[SAECPluginEncryptor alloc] init];
     if (ecPlugin) {
         [encryptors addObject:ecPlugin];
     }
@@ -182,15 +185,12 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     if (!encryptConfig) {
         return;
     }
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:encryptConfig checker:^BOOL(NSString *type) {
-        NSArray *types = [type componentsSeparatedByString:@"+"];
-        if (types.count < 2) {
-            return NO;
-        }
-        return [self checkSymmetricType:types[0] asymmetricType:types[1]];
+    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:encryptConfig encryptorChecker:^BOOL(SASecretKey *checkSecretKey) {
+        return [self encryptorWithSecretKey:checkSecretKey] != nil;
     }];
+
+    //当前秘钥没有对应的加密器
     if (![self encryptorWithSecretKey:secretKey]) {
-        //当前秘钥没有对应的加密器
         return;
     }
     // 存储请求的公钥
@@ -252,13 +252,13 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 - (id<SAEncryptProtocol>)filterEncrptor:(SASecretKey *)secretKey {
     id<SAEncryptProtocol> encryptor = [self encryptorWithSecretKey:secretKey];
-    // 特殊处理，当秘钥类型为 ECC 且未集成 ECC 加密库时，进行断言提示
-    if ((!NSClassFromString(kSAEncryptECCClassName) && [encryptor isKindOfClass:SAECCPluginEncryptor.class])) {
-        NSAssert(NO, @"\n您使用了 ECC 密钥，但是并没有集成 ECC 加密库。\n • 如果使用源码集成 ECC 加密库，请检查是否包含名为 SAECCEncrypt 的文件? \n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件并增加 ECC 模块，例如：pod 'SensorsAnalyticsEncrypt'。\n");
+    if (!encryptor) {
+        NSString *format = @"\n您使用了 [%@]  密钥，但是并没有注册对应加密插件。\n • 若您使用的是 EC+AES 或 SM2+SM4 加密方式，请检查是否正确集成 'SensorsAnalyticsEncrypt' 模块，且已注册对应加密插件。\n";
+        NSString *type = [NSString stringWithFormat:@"%@+%@", secretKey.asymmetricEncryptType, secretKey.symmetricEncryptType];
+        NSString *message = [NSString stringWithFormat:format, type];
+        NSAssert(NO, message);
         return nil;
     }
-
-    // FIXME: 这里是否需要处理 SM2 的逻辑
     return encryptor;
 }
 
@@ -268,37 +268,15 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     }
     __block id<SAEncryptProtocol> encryptor;
     [self.encryptors enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id<SAEncryptProtocol> obj, NSUInteger idx, BOOL *stop) {
-        if ([self checkEncryptType:obj secretKey:secretKey]) {
+        BOOL isSameAsymmetricType = [[obj asymmetricEncryptType] isEqualToString:secretKey.asymmetricEncryptType];
+        BOOL isSameSymmetricType = [[obj symmetricEncryptType] isEqualToString:secretKey.symmetricEncryptType];
+        // 当非对称加密类型和对称加密类型都匹配一致时，返回对应加密器
+        if (isSameAsymmetricType && isSameSymmetricType) {
             encryptor = obj;
             *stop = YES;
         }
     }];
     return encryptor;
-}
-
-- (BOOL)checkEncryptType:(id<SAEncryptProtocol>)encryptor secretKey:(SASecretKey *)secretKey {
-    if (![[encryptor symmetricEncryptType] isEqualToString:secretKey.symmetricEncryptType]) {
-        return NO;
-    }
-    if (![[encryptor asymmetricEncryptType] isEqualToString:secretKey.asymmetricEncryptType]) {
-        return NO;
-    }
-    return YES;
-}
-
-- (BOOL)checkSymmetricType:(NSString *)symmetricType asymmetricType:(NSString *)asymmetricType {
-    if (symmetricType.length < 1 || asymmetricType.length < 1) {
-        return NO;
-    }
-
-    __block BOOL valid = NO;
-    [self.encryptors enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id<SAEncryptProtocol>  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([[obj symmetricEncryptType] isEqualToString:symmetricType] && [[obj asymmetricEncryptType] isEqualToString:asymmetricType]) {
-            valid = YES;
-            *stop = YES;
-        }
-    }];
-    return valid;
 }
 
 #pragma mark - archive/unarchive secretKey
@@ -356,8 +334,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
     }
     if (!secretKey.asymmetricEncryptType) {
-        BOOL isECC = [secretKey.key hasPrefix:kSAAlgorithmTypeECC];
-        secretKey.asymmetricEncryptType = isECC ? kSAAlgorithmTypeECC : kSAAlgorithmTypeRSA;
+        BOOL isEC = [secretKey.key hasPrefix:kSAAlgorithmTypeEC];
+        secretKey.asymmetricEncryptType = isEC ? kSAAlgorithmTypeEC : kSAAlgorithmTypeRSA;
     }
     return secretKey;
 }

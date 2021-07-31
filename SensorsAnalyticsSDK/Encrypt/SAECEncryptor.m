@@ -1,5 +1,5 @@
 //
-// SAECCEncryptor.m
+// SAECEncryptor.m
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/12/2.
@@ -22,27 +22,33 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAECCEncryptor.h"
+#import "SAECEncryptor.h"
 #import "SAValidator.h"
 #import "SALog.h"
 
-NSString * const kSAEncryptECCPrefix = @"EC:";
+NSString * const kSAEncryptECClassName = @"SACryptoppECC";
+NSString * const kSAEncryptECPrefix = @"EC:";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
 
-@implementation SAECCEncryptor
+@implementation SAECEncryptor
+
++ (BOOL)isAvailable {
+    return NSClassFromString(kSAEncryptECClassName) != nil;
+}
 
 - (void)setKey:(NSString *)key {
     if (![SAValidator isValidString:key]) {
-        SALogError(@"Enable ECC encryption but the secret key is invalid!");
+        SALogError(@"Enable EC encryption but the secret key is invalid!");
         return;
     }
 
-    if (![key hasPrefix:kSAEncryptECCPrefix]) {
-        SALogError(@"Enable ECC encryption but the secret key is not ECC key!");
-        return;
+    // FIXME: 新版本是否需要添加 EC 前缀
+    if ([key hasPrefix:kSAEncryptECPrefix]) {
+        _key = [key substringFromIndex:[kSAEncryptECPrefix length]];
+    } else {
+        _key = key;
     }
-    _key = [key substringFromIndex:[kSAEncryptECCPrefix length]];
 }
 
 #pragma mark - Public Methods
@@ -59,7 +65,7 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
         return nil;
     }
     
-    Class class = NSClassFromString(kSAEncryptECCClassName);
+    Class class = NSClassFromString(kSAEncryptECClassName);
     SEL selector = NSSelectorFromString(@"encrypt:withPublicKey:");
     IMP methodIMP = [class methodForSelector:selector];
     if (methodIMP) {
@@ -71,7 +77,7 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 }
 
 - (NSString *)algorithm {
-    return kSAAlgorithmTypeECC;
+    return kSAAlgorithmTypeEC;
 }
 
 @end
