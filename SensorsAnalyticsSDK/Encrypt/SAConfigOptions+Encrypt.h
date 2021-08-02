@@ -1,8 +1,8 @@
 //
-//  SAConfigOptions+Encrypt.h
+// SAConfigOptions+Encrypt.h
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2021/7/30.
+// Created by wenquan on 2021/6/26.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

@@ -26,7 +26,7 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
-NSString * const kSAEncryptECClassName = @"SACryptoppECC";
+NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
 NSString * const kSAEncryptECPrefix = @"EC:";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
@@ -34,16 +34,16 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 @implementation SAECCEncryptor
 
 + (BOOL)isAvailable {
-    return NSClassFromString(kSAEncryptECClassName) != nil;
+    return NSClassFromString(kSAEncryptECCClassName) != nil;
 }
 
 - (void)setKey:(NSString *)key {
     if (![SAValidator isValidString:key]) {
-        SALogError(@"Enable EC encryption but the secret key is invalid!");
+        SALogError(@"Enable ECC encryption but the secret key is invalid!");
         return;
     }
 
-    // FIXME: 新版本是否需要添加 EC 前缀
+    // 兼容老版本逻辑，当前缀包含 EC: 时删除前缀信息
     if ([key hasPrefix:kSAEncryptECPrefix]) {
         _key = [key substringFromIndex:[kSAEncryptECPrefix length]];
     } else {
@@ -65,7 +65,7 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
         return nil;
     }
     
-    Class class = NSClassFromString(kSAEncryptECClassName);
+    Class class = NSClassFromString(kSAEncryptECCClassName);
     SEL selector = NSSelectorFromString(@"encrypt:withPublicKey:");
     IMP methodIMP = [class methodForSelector:selector];
     if (methodIMP) {

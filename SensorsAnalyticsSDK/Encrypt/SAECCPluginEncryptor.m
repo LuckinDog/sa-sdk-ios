@@ -25,7 +25,6 @@
 #import "SAECCPluginEncryptor.h"
 #import "SAAESEncryptor.h"
 #import "SAECCEncryptor.h"
-#import "SAAlgorithmProtocol.h"
 
 @interface SAECCPluginEncryptor ()
 

@@ -56,15 +56,15 @@
         if (!symmetricEncryptType) {
             self.symmetricEncryptType = kSAAlgorithmTypeAES;
         } else {
-            self.symmetricEncryptType = asymmetricEncryptType;
+            self.symmetricEncryptType = symmetricEncryptType;
         }
 
         // 兼容老版本保存的秘钥
         if (!asymmetricEncryptType) {
-            BOOL isEC = [key hasPrefix:kSAAlgorithmTypeECC];
-            self.asymmetricEncryptType = isEC ? kSAAlgorithmTypeECC : kSAAlgorithmTypeRSA;
+            BOOL isECC = [key hasPrefix:kSAAlgorithmTypeECC];
+            self.asymmetricEncryptType = isECC ? kSAAlgorithmTypeECC : kSAAlgorithmTypeRSA;
         } else {
-            self.symmetricEncryptType = symmetricEncryptType;
+            self.asymmetricEncryptType = asymmetricEncryptType;
         }
     }
     return self;
