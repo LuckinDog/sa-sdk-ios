@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithKey:(NSString *)key
                     version:(NSInteger)version
       asymmetricEncryptType:(NSString *)asymmetricEncryptType
-       symmetricEncryptType:(NSString *)symmetricEncryptType NS_DESIGNATED_INITIALIZER;
+       symmetricEncryptType:(NSString *)symmetricEncryptType;
 
 /// 禁用 init 初始化方法
 - (instancetype)init NS_UNAVAILABLE;

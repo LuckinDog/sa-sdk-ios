@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern NSString * const kSAAlgorithmTypeAES;
 extern NSString * const kSAAlgorithmTypeRSA;
-extern NSString * const kSAAlgorithmTypeEC;
+extern NSString * const kSAAlgorithmTypeECC;
 
 @protocol SAAlgorithmProtocol <NSObject>
 

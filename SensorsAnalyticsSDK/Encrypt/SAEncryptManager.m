@@ -31,7 +31,7 @@
 #import "SAGzipUtility.h"
 #import "SALog.h"
 #import "SARSAPluginEncryptor.h"
-#import "SAECPluginEncryptor.h"
+#import "SAECCPluginEncryptor.h"
 #import "SAConfigOptions+Encrypt.h"
 #import "SASecretKey.h"
 #import "SASecretKeyFactory.h"
@@ -55,7 +55,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 /// 已加密过的对称秘钥内容
 @property (nonatomic, copy) NSString *encryptedSymmetricKey;
 
-/// 非对称加密器的公钥（RSA/EC 的公钥）
+/// 非对称加密器的公钥（RSA/ECC 的公钥）
 @property (nonatomic, strong) SASecretKey *secretKey;
 
 @end
@@ -77,10 +77,10 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
     NSMutableArray *encryptors = [NSMutableArray array];
 
-    // 当 EC 加密库未集成时，EC 加密插件返回为 Nil
-    SAECPluginEncryptor *ecPlugin = [[SAECPluginEncryptor alloc] init];
-    if (ecPlugin) {
-        [encryptors addObject:ecPlugin];
+    // 当 ECC 加密库未集成时，ECC 加密插件返回为 Nil
+    SAECCPluginEncryptor *eccPlugin = [[SAECCPluginEncryptor alloc] init];
+    if (eccPlugin) {
+        [encryptors addObject:eccPlugin];
     }
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
     [encryptors addObjectsFromArray:configOptions.encryptors];

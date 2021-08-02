@@ -1,5 +1,5 @@
 //
-// SAECPluginEncryptor.m
+// SAECCPluginEncryptor.m
 // SensorsAnalyticsSDK
 //
 // Created by 彭远洋 on 2021/4/14.
@@ -22,30 +22,30 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAECPluginEncryptor.h"
+#import "SAECCPluginEncryptor.h"
 #import "SAAESEncryptor.h"
-#import "SAECEncryptor.h"
+#import "SAECCEncryptor.h"
 #import "SAAlgorithmProtocol.h"
 
-@interface SAECPluginEncryptor ()
+@interface SAECCPluginEncryptor ()
 
 @property (nonatomic, strong) SAAESEncryptor *aesEncryptor;
-@property (nonatomic, strong) SAECEncryptor *ecEncryptor;
+@property (nonatomic, strong) SAECCEncryptor *eccEncryptor;
 
 @end
 
-@implementation SAECPluginEncryptor
+@implementation SAECCPluginEncryptor
 
 - (instancetype)init {
-    // 当未集成 EC 库时，EC 加密插件无法正常使用
-    if (![SAECEncryptor isAvailable]) {
+    // 当未集成 ECC 库时，ECC 加密插件无法正常使用
+    if (![SAECCEncryptor isAvailable]) {
         return nil;
     }
 
     self = [super init];
     if (self) {
         _aesEncryptor = [[SAAESEncryptor alloc] init];
-        _ecEncryptor = [[SAECEncryptor alloc] init];
+        _eccEncryptor = [[SAECCEncryptor alloc] init];
     }
     return self;
 }
@@ -55,7 +55,7 @@
 }
 
 - (NSString *)asymmetricEncryptType {
-    return [_ecEncryptor algorithm];
+    return [_eccEncryptor algorithm];
 }
 
 - (NSString *)encryptEvent:(NSData *)event {
@@ -63,8 +63,8 @@
 }
 
 - (NSString *)encryptSymmetricKeyWithPublicKey:(NSString *)publicKey {
-    _ecEncryptor.key = publicKey;
-    return [_ecEncryptor encryptData:_aesEncryptor.key];
+    _eccEncryptor.key = publicKey;
+    return [_eccEncryptor encryptData:_aesEncryptor.key];
 }
 
 @end

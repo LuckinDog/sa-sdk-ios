@@ -61,8 +61,8 @@
 
         // 兼容老版本保存的秘钥
         if (!asymmetricEncryptType) {
-            BOOL isEC = [key hasPrefix:kSAAlgorithmTypeEC];
-            self.asymmetricEncryptType = isEC ? kSAAlgorithmTypeEC : kSAAlgorithmTypeRSA;
+            BOOL isEC = [key hasPrefix:kSAAlgorithmTypeECC];
+            self.asymmetricEncryptType = isEC ? kSAAlgorithmTypeECC : kSAAlgorithmTypeRSA;
         } else {
             self.symmetricEncryptType = symmetricEncryptType;
         }
@@ -78,11 +78,14 @@
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
-    NSInteger version = [coder decodeIntegerForKey:@"version"];
-    NSString *key = [coder decodeObjectForKey:@"key"];
-    NSString *symmetricEncryptType = [coder decodeObjectForKey:@"symmetricEncryptType"];
-    NSString *asymmetricEncryptType = [coder decodeObjectForKey:@"asymmetricEncryptType"];
-    return [self initWithKey:key version:version asymmetricEncryptType:asymmetricEncryptType symmetricEncryptType:symmetricEncryptType];
+    self = [super init];
+    if (self) {
+        self.version = [coder decodeIntegerForKey:@"version"];
+        self.key = [coder decodeObjectForKey:@"key"];
+        self.symmetricEncryptType = [coder decodeObjectForKey:@"symmetricEncryptType"];
+        self.asymmetricEncryptType = [coder decodeObjectForKey:@"asymmetricEncryptType"];
+    }
+    return self;
 }
 
 @end

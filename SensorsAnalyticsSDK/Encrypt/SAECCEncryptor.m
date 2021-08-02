@@ -1,5 +1,5 @@
 //
-// SAECEncryptor.m
+// SAECCEncryptor.m
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/12/2.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAECEncryptor.h"
+#import "SAECCEncryptor.h"
 #import "SAValidator.h"
 #import "SALog.h"
 
@@ -31,7 +31,7 @@ NSString * const kSAEncryptECPrefix = @"EC:";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
 
-@implementation SAECEncryptor
+@implementation SAECCEncryptor
 
 + (BOOL)isAvailable {
     return NSClassFromString(kSAEncryptECClassName) != nil;
@@ -77,7 +77,7 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 }
 
 - (NSString *)algorithm {
-    return kSAAlgorithmTypeEC;
+    return kSAAlgorithmTypeECC;
 }
 
 @end

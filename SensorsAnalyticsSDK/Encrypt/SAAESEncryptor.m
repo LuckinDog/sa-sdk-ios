@@ -38,7 +38,7 @@
 
 - (NSData *)key {
     if (!_key) {
-        // 默认使用 16 位长度随机字符串，RSA 和 EC 保持一致
+        // 默认使用 16 位长度随机字符串，RSA 和 ECC 保持一致
         NSUInteger length = 16;
         NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
         NSMutableString *randomString = [NSMutableString stringWithCapacity:length];

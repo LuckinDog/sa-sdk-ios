@@ -26,4 +26,4 @@
 
 NSString * const kSAAlgorithmTypeAES = @"AES";
 NSString * const kSAAlgorithmTypeRSA = @"RSA";
-NSString * const kSAAlgorithmTypeEC = @"EC";
+NSString * const kSAAlgorithmTypeECC = @"EC";
