@@ -24,7 +24,7 @@
 
 #import "SASecretKeyFactory.h"
 #import "SAConfigOptions.h"
-#import "SASecretKey+Private.h"
+#import "SASecretKey.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
 #import "SAECEncryptor.h"
@@ -56,7 +56,10 @@ static NSString *const kSAEncryptTypeSeparate = @"+";
 
     // 当 key_ec 存在且加密库存在时，使用 EC 加密插件
     // 不论秘钥是否创建成功，都不再切换使用其他加密插件
-    if (ecContent && encryptorChecker([SASecretKey ecSimulatorSecretKey])) {
+
+    // 这里为了检查 EC 插件是否存在，手动生成 EC 模拟秘钥
+    SASecretKey *ecSimulator = [[SASecretKey alloc] initWithKey:@"" version:0 asymmetricEncryptType:kSAAlgorithmTypeEC symmetricEncryptType:kSAAlgorithmTypeAES];
+    if (ecContent && encryptorChecker(ecSimulator)) {
         NSDictionary *config = [SAJSONUtil JSONObjectWithString:ecContent];
         return [SASecretKeyFactory createECSecretKey:config];
     }

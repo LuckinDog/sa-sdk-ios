@@ -33,7 +33,7 @@
 #import "SARSAPluginEncryptor.h"
 #import "SAECPluginEncryptor.h"
 #import "SAConfigOptions+Encrypt.h"
-#import "SASecretKey+Private.h"
+#import "SASecretKey.h"
 #import "SASecretKeyFactory.h"
 
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
@@ -327,15 +327,6 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         } else {
             SALogDebug(@"Load secret key from localSecretKey failed!");
         }
-    }
-
-    // 兼容老版本保存的秘钥
-    if (!secretKey.symmetricEncryptType) {
-        secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
-    }
-    if (!secretKey.asymmetricEncryptType) {
-        BOOL isEC = [secretKey.key hasPrefix:kSAAlgorithmTypeEC];
-        secretKey.asymmetricEncryptType = isEC ? kSAAlgorithmTypeEC : kSAAlgorithmTypeRSA;
     }
     return secretKey;
 }

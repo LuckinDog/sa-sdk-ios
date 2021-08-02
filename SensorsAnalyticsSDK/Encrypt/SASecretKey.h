@@ -34,9 +34,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithKey:(NSString *)key
                     version:(NSInteger)version
       asymmetricEncryptType:(NSString *)asymmetricEncryptType
-       symmetricEncryptType:(NSString *)symmetricEncryptType;
+       symmetricEncryptType:(NSString *)symmetricEncryptType NS_DESIGNATED_INITIALIZER;
 
-+ (SASecretKey *)ecSimulatorSecretKey;
+/// 禁用 init 初始化方法
+- (instancetype)init NS_UNAVAILABLE;
 
 /// 密钥版本
 @property (nonatomic, assign, readonly) NSInteger version;
@@ -49,7 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 非对称加密类型
 @property (nonatomic, copy, readonly) NSString *asymmetricEncryptType;
-
 
 @end
 
