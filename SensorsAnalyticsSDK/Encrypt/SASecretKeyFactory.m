@@ -27,9 +27,7 @@
 #import "SASecretKey.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
-#import "SAECCEncryptor.h"
-#import "SAAESEncryptor.h"
-#import "SARSAEncryptor.h"
+#import "SAAlgorithmProtocol.h"
 
 static NSString *const kSAEncryptVersion = @"pkv";
 static NSString *const kSAEncryptPublicKey = @"public_key";

@@ -23,11 +23,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString * const kSAEncryptECCClassName;
+
 @interface SAECCEncryptor : NSObject <SAAlgorithmProtocol>
 
 @property (nonatomic, copy) NSString *key;
-
-+ (BOOL)isAvailable;
 
 @end
 

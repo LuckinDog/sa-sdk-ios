@@ -33,10 +33,6 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
 
 @implementation SAECCEncryptor
 
-+ (BOOL)isAvailable {
-    return NSClassFromString(kSAEncryptECCClassName) != nil;
-}
-
 - (void)setKey:(NSString *)key {
     if (![SAValidator isValidString:key]) {
         SALogError(@"Enable ECC encryption but the secret key is invalid!");

@@ -35,12 +35,11 @@
 
 @implementation SAECCPluginEncryptor
 
-- (instancetype)init {
-    // 当未集成 ECC 库时，ECC 加密插件无法正常使用
-    if (![SAECCEncryptor isAvailable]) {
-        return nil;
-    }
++ (BOOL)isAvaliable {
+    return NSClassFromString(kSAEncryptECCClassName) != nil;
+}
 
+- (instancetype)init {
     self = [super init];
     if (self) {
         _aesEncryptor = [[SAAESEncryptor alloc] init];
@@ -62,7 +61,9 @@
 }
 
 - (NSString *)encryptSymmetricKeyWithPublicKey:(NSString *)publicKey {
-    _eccEncryptor.key = publicKey;
+    if (![_eccEncryptor.key isEqualToString:publicKey]) {
+        _eccEncryptor.key = publicKey;
+    }
     return [_eccEncryptor encryptData:_aesEncryptor.key];
 }
 

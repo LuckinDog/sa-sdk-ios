@@ -40,7 +40,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 @interface SAConfigOptions (Private)
 
-@property (nonatomic, strong, readonly) NSMutableArray *encryptors;
+@property (atomic, strong, readonly) NSMutableArray *encryptors;
 
 @end
 
@@ -77,10 +77,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
     NSMutableArray *encryptors = [NSMutableArray array];
 
-    // 当 ECC 加密库未集成时，ECC 加密插件返回为 Nil
-    SAECCPluginEncryptor *eccPlugin = [[SAECCPluginEncryptor alloc] init];
-    if (eccPlugin) {
-        [encryptors addObject:eccPlugin];
+    // 当 ECC 加密库未集成时，不注册 ECC 加密插件
+    if ([SAECCPluginEncryptor isAvaliable]) {
+        [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
     }
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
     [encryptors addObjectsFromArray:configOptions.encryptors];
