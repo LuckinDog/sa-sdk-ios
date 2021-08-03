@@ -98,17 +98,21 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     if (self.enable) {
         NSDictionary *paramDic = [SAURLUtils queryItemsWithURL:url];
         NSString *urlVersion = paramDic[@"v"];
-        NSString *urlKey = paramDic[@"key"];
+
+        // url 中的 key 为 encode 之后的，这里做 decode
+        NSString *urlKey = [paramDic[@"key"] stringByRemovingPercentEncoding];
 
         if ([SAValidator isValidString:urlVersion] && [SAValidator isValidString:urlKey]) {
             SASecretKey *secretKey = [self loadCurrentSecretKey];
             NSString *loadVersion = [@(secretKey.version) stringValue];
-            // url 中的 key 为 encode 之后的
-            NSString *loadKey = [secretKey.key stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
 
-            if ([loadVersion isEqualToString:urlVersion] && [loadKey isEqualToString:urlKey]) {
+            // 这里为了兼容新老版本下发的 EC 秘钥中 URL key 前缀和本地保存的 EC 秘钥前缀不一致的问题，都统一删除 EC 前缀后比较内容
+            NSString *currentKey = [secretKey.key hasPrefix:kSAEncryptECCPrefix] ? [secretKey.key substringFromIndex:kSAEncryptECCPrefix.length] : secretKey.key;
+            NSString *decodeKey = [urlKey hasPrefix:kSAEncryptECCPrefix] ? [urlKey substringFromIndex:kSAEncryptECCPrefix.length] : urlKey;
+
+            if ([loadVersion isEqualToString:urlVersion] && [currentKey isEqualToString:decodeKey]) {
                 message = @"密钥验证通过，所选密钥与 App 端密钥相同";
-            } else if (![SAValidator isValidString:loadKey]) {
+            } else if (![SAValidator isValidString:currentKey]) {
                 message = @"密钥验证不通过，App 端密钥为空";
             } else {
                 message = [NSString stringWithFormat:@"密钥验证不通过，所选密钥与 App 端密钥不相同。所选密钥版本:%@，App 端密钥版本:%@", urlVersion, loadVersion];

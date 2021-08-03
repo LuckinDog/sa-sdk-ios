@@ -24,6 +24,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString * const kSAEncryptECCClassName;
+extern NSString * const kSAEncryptECCPrefix;
 
 @interface SAECCEncryptor : NSObject <SAAlgorithmProtocol>
 
