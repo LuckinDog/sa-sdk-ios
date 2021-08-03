@@ -51,21 +51,8 @@
     if (self) {
         self.version = version;
         self.key = key;
+        [self updateAsymmetricType:asymmetricEncryptType symmetricType:symmetricEncryptType];
 
-        // 兼容老版本保存的秘钥
-        if (!symmetricEncryptType) {
-            self.symmetricEncryptType = kSAAlgorithmTypeAES;
-        } else {
-            self.symmetricEncryptType = symmetricEncryptType;
-        }
-
-        // 兼容老版本保存的秘钥
-        if (!asymmetricEncryptType) {
-            BOOL isECC = [key hasPrefix:kSAAlgorithmTypeECC];
-            self.asymmetricEncryptType = isECC ? kSAAlgorithmTypeECC : kSAAlgorithmTypeRSA;
-        } else {
-            self.asymmetricEncryptType = asymmetricEncryptType;
-        }
     }
     return self;
 }
@@ -82,10 +69,29 @@
     if (self) {
         self.version = [coder decodeIntegerForKey:@"version"];
         self.key = [coder decodeObjectForKey:@"key"];
-        self.symmetricEncryptType = [coder decodeObjectForKey:@"symmetricEncryptType"];
-        self.asymmetricEncryptType = [coder decodeObjectForKey:@"asymmetricEncryptType"];
+
+        NSString *symmetricType = [coder decodeObjectForKey:@"symmetricEncryptType"];
+        NSString *asymmetricType = [coder decodeObjectForKey:@"asymmetricEncryptType"];
+        [self updateAsymmetricType:asymmetricType symmetricType:symmetricType];
     }
     return self;
+}
+
+- (void)updateAsymmetricType:(NSString *)asymmetricType symmetricType:(NSString *)symmetricType {
+    // 兼容老版本保存的秘钥
+    if (!symmetricType) {
+        self.symmetricEncryptType = kSAAlgorithmTypeAES;
+    } else {
+        self.symmetricEncryptType = symmetricType;
+    }
+
+    // 兼容老版本保存的秘钥
+    if (!asymmetricType) {
+        BOOL isECC = [self.key hasPrefix:kSAAlgorithmTypeECC];
+        self.asymmetricEncryptType = isECC ? kSAAlgorithmTypeECC : kSAAlgorithmTypeRSA;
+    } else {
+        self.asymmetricEncryptType = asymmetricType;
+    }
 }
 
 @end

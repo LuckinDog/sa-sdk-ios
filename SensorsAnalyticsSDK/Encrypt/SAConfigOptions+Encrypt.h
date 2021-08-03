@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAConfigOptions (Encrypt)
 
-- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
+- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor API_UNAVAILABLE(macos);
 
 @end
 
