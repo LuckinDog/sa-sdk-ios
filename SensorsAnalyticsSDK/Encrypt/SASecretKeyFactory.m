@@ -28,6 +28,7 @@
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
 #import "SAAlgorithmProtocol.h"
+#import "SAECCPluginEncryptor.h"
 
 static NSString *const kSAEncryptVersion = @"pkv";
 static NSString *const kSAEncryptPublicKey = @"public_key";
@@ -36,46 +37,16 @@ static NSString *const kSAEncryptTypeSeparate = @"+";
 
 @implementation SASecretKeyFactory
 
-+ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig encryptorChecker:(EncryptorChecker)encryptorChecker {
-    if (!remoteConfig) {
-        return nil;
-    }
-
-    // 国密插件化新增逻辑，只处理 key_v2 参数，当 type 不匹配时走老逻辑
-    NSDictionary *newVersionKey = remoteConfig[@"key_v2"];
-    SASecretKey *secKey = [SASecretKeyFactory createSecretKey:newVersionKey encryptorChecker:encryptorChecker];
-    if (secKey) {
-        return secKey;
-    }
-
-    // 1.0 历史版本逻辑，只处理 key 字段中内容
-    NSDictionary *oldKey = remoteConfig[@"key"];
-    NSString *eccContent = oldKey[@"key_ec"];
-
-    // 当 key_ec 存在且加密库存在时，使用 EC 加密插件
-    // 不论秘钥是否创建成功，都不再切换使用其他加密插件
-
-    // 这里为了检查 ECC 插件是否存在，手动生成 ECC 模拟秘钥
-    SASecretKey *eccSimulator = [[SASecretKey alloc] initWithKey:@"" version:0 asymmetricEncryptType:kSAAlgorithmTypeECC symmetricEncryptType:kSAAlgorithmTypeAES];
-    if (eccContent && encryptorChecker(eccSimulator)) {
-        NSDictionary *config = [SAJSONUtil JSONObjectWithString:eccContent];
-        return [SASecretKeyFactory createECCSecretKey:config];
-    }
-
-    // 当远程配置不包含自定义秘钥且 EC 不可用时，使用 RSA 秘钥
-    return [SASecretKeyFactory createRSASecretKey:oldKey];
-}
-
 #pragma mark - Encryptor Plugin 2.0
-+ (SASecretKey *)createSecretKey:(NSDictionary *)config encryptorChecker:(EncryptorChecker)encryptorChecker {
++ (SASecretKey *)createSecretKeyByVersion2:(NSDictionary *)version2 {
     // key_v2 不存在时直接跳过 2.0 逻辑
-    if (!config) {
+    if (!version2) {
         return nil;
     }
 
-    NSNumber *pkv = config[kSAEncryptVersion];
-    NSString *type = config[kSAEncryptType];
-    NSString *publicKey = config[kSAEncryptPublicKey];
+    NSNumber *pkv = version2[kSAEncryptVersion];
+    NSString *type = version2[kSAEncryptType];
+    NSString *publicKey = version2[kSAEncryptPublicKey];
 
     // 检查相关参数是否有效
     if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
@@ -94,14 +65,27 @@ static NSString *const kSAEncryptTypeSeparate = @"+";
     // 对称加密类型，例如: SM4
     NSString *symmetricType = types[1];
 
-    SASecretKey *secretKey = [[SASecretKey alloc] initWithKey:publicKey version:[pkv integerValue] asymmetricEncryptType:asymmetricType symmetricEncryptType:symmetricType];
+    return [[SASecretKey alloc] initWithKey:publicKey version:[pkv integerValue] asymmetricEncryptType:asymmetricType symmetricEncryptType:symmetricType];
+}
 
-    // 检查秘钥是否存在对应加密器
-    if (!encryptorChecker(secretKey)) {
++ (SASecretKey *)createSecretKeyByVersion1:(NSDictionary *)version1 {
+    if (!version1) {
         return nil;
     }
+    // 1.0 历史版本逻辑，只处理 key 字段中内容
+    NSString *eccContent = version1[@"key_ec"];
 
-    return secretKey;
+    // 当 key_ec 存在且加密库存在时，使用 EC 加密插件
+    // 不论秘钥是否创建成功，都不再切换使用其他加密插件
+
+    // 这里为了检查 ECC 插件是否存在，手动生成 ECC 模拟秘钥
+    if (eccContent && [SAECCPluginEncryptor isAvaliable]) {
+        NSDictionary *config = [SAJSONUtil JSONObjectWithString:eccContent];
+        return [SASecretKeyFactory createECCSecretKey:config];
+    }
+
+    // 当远程配置不包含自定义秘钥且 EC 不可用时，使用 RSA 秘钥
+    return [SASecretKeyFactory createRSASecretKey:version1];
 }
 
 #pragma mark - Encryptor Plugin 1.0

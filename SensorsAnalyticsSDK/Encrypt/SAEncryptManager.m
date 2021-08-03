@@ -188,9 +188,13 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     if (!encryptConfig) {
         return;
     }
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:encryptConfig encryptorChecker:^BOOL(SASecretKey *checkSecretKey) {
-        return [self encryptorWithSecretKey:checkSecretKey] != nil;
-    }];
+
+    // 加密插件化 2.0 新增字段，下发秘钥信息不可用时，继续走 1.0 逻辑
+    SASecretKey *secretKey = [SASecretKeyFactory createSecretKeyByVersion2:encryptConfig[@"key_v2"]];
+    if (![self encryptorWithSecretKey:secretKey]) {
+        // 加密插件化 1.0 秘钥信息
+        secretKey = [SASecretKeyFactory createSecretKeyByVersion1:encryptConfig[@"key"]];
+    }
 
     //当前秘钥没有对应的加密器
     if (![self encryptorWithSecretKey:secretKey]) {

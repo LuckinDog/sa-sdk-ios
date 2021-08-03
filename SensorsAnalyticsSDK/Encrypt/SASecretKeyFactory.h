@@ -28,14 +28,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef BOOL(^EncryptorChecker)(SASecretKey *secretKey);
 
-/// 根据远程配置下发内容，返回可用的秘钥信息
-/// @param remoteConfig 远程配置下发内容，格式为
 /// {  "key_v2": { "pkv": 27, "public_key": "<公钥>", "type": "SM2+SM4"} ,
 ///  "key ": { " pkv": 23, "public_key": "<公钥>", "key_ec":  "{ \"pkv\":26,\"type\":\"EC\",\"public_key\":\<公钥>\" }" } }
-/// @param encryptorChecker 检查是否包含当前 type 对应加密器
+
+/// 根据 key_v2 秘钥信息生成对应的秘钥实例对象，加密插件化 2.0 逻辑
+/// @param version2 key_v2 秘钥信息
 /// @return 返回可用秘钥对象
-+ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig
-                                  encryptorChecker:(EncryptorChecker)encryptorChecker;
++ (SASecretKey *)createSecretKeyByVersion2:(NSDictionary *)version2;
+
+/// 根据 key 秘钥信息生成对应的秘钥实例对象，加密插件化 1.0 逻辑
+/// @param version1 key 版本秘钥信息
+/// @return 返回可用秘钥对象
++ (SASecretKey *)createSecretKeyByVersion1:(NSDictionary *)version1;
 
 @end
 
