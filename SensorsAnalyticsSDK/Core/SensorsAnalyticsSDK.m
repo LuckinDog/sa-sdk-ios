@@ -41,7 +41,7 @@
 #import "SAProfileEventObject.h"
 #import "SAJSONUtil.h"
 
-#define VERSION @"3.0.0"
+#define VERSION @"3.0.2"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -601,7 +601,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addEventProperties:self.presetProperty.currentNetworkProperties];
     NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.eventId currentSysUpTime:object.currentSystemUpTime];
     [object addDurationProperty:eventDuration];
-    [object addEventProperties:SAModuleManager.sharedInstance.latestUtmProperties];
+    [object addLatestUtmProperties:SAModuleManager.sharedInstance.latestUtmProperties];
     [object addChannelProperties:[SAModuleManager.sharedInstance channelInfoWithEvent:object.event]];
 
 #if TARGET_OS_IOS
@@ -1055,6 +1055,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback {
     SAModuleManager.sharedInstance.linkHandlerCallback = callback;
+}
+
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
+    [SAModuleManager.sharedInstance trackDeepLinkLaunchWithURL:url];
 }
 
 @end
