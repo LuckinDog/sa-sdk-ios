@@ -79,7 +79,6 @@
     options.enableLog = self.enableLog;
     options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
     options.flushNetworkPolicy = self.flushNetworkPolicy;
-    options.securityPolicy = [self.securityPolicy copy];
     options.disableSDK = self.disableSDK;
 
 #if TARGET_OS_IOS
