@@ -99,6 +99,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance addAppLifecycleObservers];
     });
 }
 
@@ -145,14 +146,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     instance.configOptions.disableSDK = NO;
-    // 优先添加监听
-    [instance addObservers];
+    // 优先添加远程控制监听，防止热启动时关闭 SDK 的情况下
+    [instance addRemoteConfigObservers];
 
     if (instance.configOptions.enableLog) {
         [instance enableLog:YES];
     }
 
     [SAModuleManager startWithConfigOptions:instance.configOptions debugMode:SensorsAnalyticsDebugOff];
+    // 需要在模块加载完成之后添加监听，如果过早会导致退到后台后，$AppEnd 事件无法立即上报
+    [instance addAppLifecycleObservers];
 
     [SAReachability.sharedInstance startMonitoring];
 
@@ -206,7 +209,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [self enableLog:_configOptions.enableLog];
                 }
                 [[SAReachability sharedInstance] startMonitoring];
-                [self addObservers];
+                [self addRemoteConfigObservers];
             }
 
 #if TARGET_OS_IOS
@@ -226,17 +229,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)addObservers {
-    // 先移出所有通知监听，再添加监听，防止重复监听通知
-    [self removeObservers];
-
-#if TARGET_OS_IOS
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
-#endif
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
 }
 
 - (void)removeObservers {
@@ -387,6 +379,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #pragma mark - AppLifecycle
+
+/// 在所有模块加载完成之后调用，添加通知
+/// 注意⚠️：不要随意调整通知添加顺序
+- (void)addAppLifecycleObservers {
+    if (self.configOptions.disableSDK) {
+        return;
+    }
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
+}
 
 // 处理事件触发之前的逻辑
 - (void)appLifecycleStateWillChange:(NSNotification *)sender {
@@ -986,6 +988,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - RemoteConfig
 
+/// 远程控制通知回调需要在所有其他通知之前调用
+/// 注意⚠️：不要随意调整通知添加顺序
+- (void)addRemoteConfigObservers {
+    if (self.configOptions.disableSDK) {
+        return;
+    }
+#if TARGET_OS_IOS
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
+#endif
+}
+
 - (void)remoteConfigManagerModelChanged:(NSNotification *)sender {
     @try {
         BOOL isDisableDebugMode = [[sender.object valueForKey:@"disableDebugMode"] boolValue];
@@ -1308,6 +1321,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
+        [sharedInstance addAppLifecycleObservers];
     });
     return sharedInstance;
 }
@@ -1320,6 +1334,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance addAppLifecycleObservers];
     });
     return sharedInstance;
 }
