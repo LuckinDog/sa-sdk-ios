@@ -253,7 +253,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
+#if TARGET_OS_OSX
+    if (serverUrl && ![serverUrl isKindOfClass:[NSString class]]) {
+        SALogError(@"%@ serverUrl must be NSString, please check the value!", self);
+        return;
+    }
+    // macOS 暂不支持远程控制，即不支持 setServerUrl: isRequestRemoteConfig: 接口
+    dispatch_async(self.serialQueue, ^{
+        self.configOptions.serverURL = serverUrl;
+    });
+#else
     [self setServerUrl:serverUrl isRequestRemoteConfig:NO];
+#endif
 }
 
 - (NSString *)serverUrl {
