@@ -624,12 +624,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)willEnqueueWithObject:(SABaseEventObject *)obj {
-    if (!self.trackEventCallback || !obj.eventId) {
+    NSString *eventName = obj.event;
+    if (!self.trackEventCallback || !eventName) {
         return YES;
     }
-    BOOL willEnque = self.trackEventCallback(obj.eventId, obj.properties);
+    BOOL willEnque = self.trackEventCallback(eventName, obj.properties);
     if (!willEnque) {
-        SALogDebug(@"\n【track event】: %@ can not enter database.", obj.eventId);
+        SALogDebug(@"\n【track event】: %@ can not enter database.", eventName);
         return NO;
     }
     // 校验 properties
