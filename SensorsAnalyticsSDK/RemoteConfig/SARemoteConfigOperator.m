@@ -101,10 +101,17 @@
 
 - (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config {
     @try {
-        NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionaryWithDictionary:config[@"configs"]];
-        [configs removeObjectForKey:@"key"];
+        // 只读取远程配置信息中的开关状态，不处理加密等其他逻辑字段
+        NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionary];
+        configs[@"disableDebugMode"] = config[@"configs"][@"disableDebugMode"];
+        configs[@"disableSDK"] = config[@"configs"][@"disableSDK"];
+        configs[@"autoTrackMode"] = config[@"configs"][@"autoTrackMode"];
+        configs[@"event_blacklist"] = config[@"configs"][@"event_blacklist"];
+        configs[@"effect_mode"] = config[@"configs"][@"effect_mode"];
 
-        NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:config];
+        // 读取远程配置信息中的版本信息
+        NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionary];
+        remoteConfig[@"v"] = config[@"v"];
         remoteConfig[@"configs"] = configs;
 
         return remoteConfig;
