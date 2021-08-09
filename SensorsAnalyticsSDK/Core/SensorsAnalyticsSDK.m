@@ -98,8 +98,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance addAppLifecycleObservers];
+        if (!sharedInstance.configOptions.disableSDK) {
+            [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+            [sharedInstance addAppLifecycleObservers];
+        }
     });
 }
 
@@ -146,6 +148,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
     instance.configOptions.disableSDK = NO;
+    // 部分模块和监听依赖网络状态，所以需要优先开启
+    [SAReachability.sharedInstance startMonitoring];
+
     // 优先添加远程控制监听，防止热启动时关闭 SDK 的情况下
     [instance addRemoteConfigObservers];
 
@@ -156,8 +161,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [SAModuleManager startWithConfigOptions:instance.configOptions debugMode:SensorsAnalyticsDebugOff];
     // 需要在模块加载完成之后添加监听，如果过早会导致退到后台后，$AppEnd 事件无法立即上报
     [instance addAppLifecycleObservers];
-
-    [SAReachability.sharedInstance startMonitoring];
 
     [instance appendWebViewUserAgent];
     [instance startFlushTimer];
