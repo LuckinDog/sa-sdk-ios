@@ -108,6 +108,7 @@
         configs[@"autoTrackMode"] = config[@"configs"][@"autoTrackMode"];
         configs[@"event_blacklist"] = config[@"configs"][@"event_blacklist"];
         configs[@"effect_mode"] = config[@"configs"][@"effect_mode"];
+        configs[@"nv"] = config[@"configs"][@"nv"];
 
         // 读取远程配置信息中的版本信息
         NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionary];
