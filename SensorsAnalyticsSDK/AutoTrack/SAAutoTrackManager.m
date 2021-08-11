@@ -319,8 +319,8 @@
     if (!self.configOptions.enableTrackPageLeave) {
         return;
     }
-    [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sa_pageLeave_viewDidAppear:) error:NULL];
-    [UIViewController sa_swizzleMethod:@selector(viewDidDisappear:) withMethod:@selector(sa_pageLeave_viewDidDisappear:) error:NULL];
+    [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sensorsdata_pageLeave_viewDidAppear:) error:NULL];
+    [UIViewController sa_swizzleMethod:@selector(viewDidDisappear:) withMethod:@selector(sensorsdata_pageLeave_viewDidDisappear:) error:NULL];
 }
 
 @end

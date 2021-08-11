@@ -28,8 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableDictionary *> *timestamp;
 
 - (void)trackEvents;
-- (void)trackPageStart:(UIViewController *)viewController;
-- (void)trackPageEnd:(UIViewController *)viewController;
+- (void)trackPageEnter:(UIViewController *)viewController;
+- (void)trackPageLeave:(UIViewController *)viewController;
 - (NSDictionary *)propertiesWithViewController:(UIViewController *)viewController;
 - (BOOL)shouldTrackViewController:(UIViewController *)viewController;
 

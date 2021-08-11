@@ -24,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIViewController (PageLeave)
 
-- (void)sa_pageLeave_viewDidAppear:(BOOL)animated;
+- (void)sensorsdata_pageLeave_viewDidAppear:(BOOL)animated;
 
-- (void)sa_pageLeave_viewDidDisappear:(BOOL)animated;
+- (void)sensorsdata_pageLeave_viewDidDisappear:(BOOL)animated;
 
 @end
 

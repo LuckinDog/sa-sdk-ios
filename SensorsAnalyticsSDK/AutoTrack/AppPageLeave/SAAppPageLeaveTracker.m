@@ -36,7 +36,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateDidChange:) name:kSAAppLifecycleStateDidChangeNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
     }
     return self;
 }
@@ -56,7 +56,7 @@
     }];
 }
 
-- (void)trackPageStart:(UIViewController *)viewController {
+- (void)trackPageEnter:(UIViewController *)viewController {
     if (![self shouldTrackViewController:viewController]) {
         return;
     }
@@ -70,23 +70,22 @@
     self.timestamp[address] = properties;
 }
 
-- (void)trackPageEnd:(UIViewController *)viewController {
+- (void)trackPageLeave:(UIViewController *)viewController {
     if (![self shouldTrackViewController:viewController]) {
         return;
     }
     NSString *address = [NSString stringWithFormat:@"%p", viewController];
-    if (self.timestamp[address]) {
-        NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
-        NSMutableDictionary *properties = self.timestamp[address];
-        NSNumber *timestamp = properties[kSAPageLeaveTimestamp];
-        NSTimeInterval startTimestamp = [timestamp doubleValue];
-        NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:properties[kSAPageLeaveAutoTrackProperties]];
-        tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", currentTimestamp - startTimestamp] floatValue]);
-        [self trackWithProperties:[tempProperties copy]];
-        self.timestamp[address] = nil;
-    } else {
-        [self trackWithProperties:[self propertiesWithViewController:viewController]];
+    if (!self.timestamp[address]) {
+        return;
     }
+    NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
+    NSMutableDictionary *properties = self.timestamp[address];
+    NSNumber *timestamp = properties[kSAPageLeaveTimestamp];
+    NSTimeInterval startTimestamp = [timestamp doubleValue];
+    NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:properties[kSAPageLeaveAutoTrackProperties]];
+    tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", currentTimestamp - startTimestamp] floatValue]);
+    [self trackWithProperties:tempProperties];
+    self.timestamp[address] = nil;
 }
 
 - (void)trackWithProperties:(NSDictionary *)properties {
@@ -94,7 +93,7 @@
     [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
-- (void)appLifecycleStateDidChange:(NSNotification *)notification {
+- (void)appLifecycleStateWillChange:(NSNotification *)notification {
     NSDictionary *userInfo = notification.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     // 冷（热）启动
