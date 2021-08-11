@@ -98,10 +98,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
-        if (!sharedInstance.configOptions.disableSDK) {
-            [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-            [sharedInstance addAppLifecycleObservers];
-        }
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+        [sharedInstance addAppLifecycleObservers];
     });
 }
 

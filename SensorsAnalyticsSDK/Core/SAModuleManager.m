@@ -58,6 +58,10 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
+    // 禁止 SDK 时，不开启其他模块
+    if (configOptions.disableSDK) {
+        return;
+    }
 
     // H5 打通模块
     if (configOptions.enableJavaScriptBridge) {
