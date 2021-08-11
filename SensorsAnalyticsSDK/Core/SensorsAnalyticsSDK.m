@@ -156,7 +156,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [instance enableLog:YES];
     }
 
-    [SAModuleManager startWithConfigOptions:instance.configOptions debugMode:SensorsAnalyticsDebugOff];
+    // Debug 模块做了特殊处理，未移除，可以使用 Debug 模块获取 DebugMode
+    SensorsAnalyticsDebugMode mode = SAModuleManager.sharedInstance.debugMode;
+    [SAModuleManager startWithConfigOptions:instance.configOptions debugMode:mode];
+
     // 需要在模块加载完成之后添加监听，如果过早会导致退到后台后，$AppEnd 事件无法立即上报
     [instance addAppLifecycleObservers];
 
