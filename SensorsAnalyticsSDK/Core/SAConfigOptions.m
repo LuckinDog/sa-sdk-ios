@@ -27,7 +27,7 @@
 
 @interface SAConfigOptions ()<NSCopying>
 
-@property (nonatomic, strong, readwrite) NSMutableArray *encryptors;
+@property (atomic, strong, readwrite) NSMutableArray *encryptors;
 
 @end
 
