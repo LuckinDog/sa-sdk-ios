@@ -111,8 +111,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
             NSString *decodeKey = [urlKey hasPrefix:kSAEncryptECCPrefix] ? [urlKey substringFromIndex:kSAEncryptECCPrefix.length] : urlKey;
 
             if ([loadVersion isEqualToString:urlVersion] && [currentKey isEqualToString:decodeKey]) {
-                NSString *asymmetricType = paramDic[@"asymmetricEncryptType"];
-                NSString *symmetricType = paramDic[@"symmetricEncryptType"];
+                NSString *asymmetricType = [paramDic[@"asymmetricEncryptType"] stringByRemovingPercentEncoding];
+                NSString *symmetricType = [paramDic[@"symmetricEncryptType"] stringByRemovingPercentEncoding];
                 BOOL typeMatched = [secretKey.asymmetricEncryptType isEqualToString:asymmetricType] &&
                 [secretKey.symmetricEncryptType isEqualToString:symmetricType];
                 // 这里为了兼容老版本 SA 未下发秘钥类型，当某一个类型不存在时即当做老版本 SA 处理
