@@ -51,7 +51,8 @@
         NSNumber *timestamp = obj[kSAPageLeaveTimestamp];
         NSTimeInterval startTimestamp = [timestamp doubleValue];
         NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:obj[kSAPageLeaveAutoTrackProperties]];
-        tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", currentTimestamp - startTimestamp] floatValue]);
+        NSTimeInterval duration = (currentTimestamp - startTimestamp) < 24 * 60 * 60 * 1000 ? (currentTimestamp - startTimestamp) : 0;
+        tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", duration] floatValue]);
         [self trackWithProperties:[tempProperties copy]];
     }];
 }
@@ -83,7 +84,8 @@
     NSNumber *timestamp = properties[kSAPageLeaveTimestamp];
     NSTimeInterval startTimestamp = [timestamp doubleValue];
     NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:properties[kSAPageLeaveAutoTrackProperties]];
-    tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", currentTimestamp - startTimestamp] floatValue]);
+    NSTimeInterval duration = (currentTimestamp - startTimestamp) < 24 * 60 * 60 * 1000 ? (currentTimestamp - startTimestamp) : 0;
+    tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", duration] floatValue]);
     [self trackWithProperties:tempProperties];
     self.timestamp[address] = nil;
 }
