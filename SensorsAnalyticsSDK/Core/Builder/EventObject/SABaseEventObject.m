@@ -105,7 +105,7 @@
     id originalTime = self.properties[kSAEventCommonOptionalPropertyTime];
     if ([originalTime isKindOfClass:NSDate.class]) {
         NSDate *customTime = (NSDate *)originalTime;
-        long long customTimeInt = [customTime timeIntervalSince1970] * 1000;
+        UInt64 customTimeInt = [customTime timeIntervalSince1970] * 1000;
         if (customTimeInt >= kSAEventCommonOptionalPropertyTimeInt) {
             self.timeStamp = customTimeInt;
         } else {
