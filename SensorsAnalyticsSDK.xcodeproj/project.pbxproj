@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		459157D626D7304300E482DD /* SASelectorSwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 459157D426D7304300E482DD /* SASelectorSwizzle.h */; };
-		459157D726D7304400E482DD /* SASelectorSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 459157D526D7304300E482DD /* SASelectorSwizzle.m */; };
 		45A5655C263C174300C9C41B /* SAIDFAHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A56548263C174300C9C41B /* SAIDFAHelper.m */; };
 		45A5655D263C174300C9C41B /* SAIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A56549263C174300C9C41B /* SAIdentifier.m */; };
 		45A5655E263C174300C9C41B /* SASuperProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A5654A263C174300C9C41B /* SASuperProperty.m */; };
@@ -304,8 +302,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		459157D426D7304300E482DD /* SASelectorSwizzle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASelectorSwizzle.h; sourceTree = "<group>"; };
-		459157D526D7304300E482DD /* SASelectorSwizzle.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASelectorSwizzle.m; sourceTree = "<group>"; };
 		45A56548263C174300C9C41B /* SAIDFAHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAIDFAHelper.m; sourceTree = "<group>"; };
 		45A56549263C174300C9C41B /* SAIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAIdentifier.m; sourceTree = "<group>"; };
 		45A5654A263C174300C9C41B /* SASuperProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASuperProperty.m; sourceTree = "<group>"; };
@@ -1293,8 +1289,6 @@
 				4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */,
 				4D4DB2C125B7D19B00938842 /* SAMethodHelper.h */,
 				4D4DB2C325B7D19B00938842 /* SAMethodHelper.m */,
-				459157D426D7304300E482DD /* SASelectorSwizzle.h */,
-				459157D526D7304300E482DD /* SASelectorSwizzle.m */,
 			);
 			path = HookDelegate;
 			sourceTree = "<group>";
@@ -1429,7 +1423,6 @@
 				4DD128B925F8A003008C0B1E /* SensorsAnalyticsSDK+Visualized.h in Headers */,
 				A8356DCE2656459A00FD64AA /* SAGeneralGestureViewProcessor.h in Headers */,
 				4DD1286525F872A4008C0B1E /* SAObjectSerializerConfig.h in Headers */,
-				459157D626D7304300E482DD /* SASelectorSwizzle.h in Headers */,
 				4DD1286C25F872A4008C0B1E /* SAClassDescription.h in Headers */,
 				A8356DC82656459A00FD64AA /* SAScrollViewDelegateProxy.h in Headers */,
 				A8356DBE2656459A00FD64AA /* UIView+AutoTrack.h in Headers */,
@@ -1712,7 +1705,6 @@
 				A82E8955267D918100475757 /* SAAlgorithmProtocol.m in Sources */,
 				4DD1285C25F872A4008C0B1E /* SAObjectSerializerConfig.m in Sources */,
 				A8CC22332685E50C00E96A03 /* SARemoteConfigEventObject.m in Sources */,
-				459157D726D7304400E482DD /* SASelectorSwizzle.m in Sources */,
 				45A5656D263C174300C9C41B /* SAPresetProperty.m in Sources */,
 				4DD1285E25F872A4008C0B1E /* SAVisualizedObjectSerializerManager.m in Sources */,
 				45A5655E263C174300C9C41B /* SASuperProperty.m in Sources */,

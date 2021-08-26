@@ -28,7 +28,7 @@
 #import "SALog.h"
 #import "UIApplication+PushClick.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SASelectorSwizzle.h"
+#import "SAMethodHelper.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import "SAUNUserNotificationCenterDelegateProxy.h"
@@ -51,7 +51,7 @@
 
 - (void)proxyNotifications {
     //处理未实现代理方法也能采集事件的逻辑
-    [SASelectorSwizzle swizzleRespondsToSelector];
+    [SAMethodHelper swizzleRespondsToSelector];
     
     //UIApplicationDelegate proxy
     [SAApplicationDelegateProxy resolveOptionalSelectorsForDelegate:[UIApplication sharedApplication].delegate];
