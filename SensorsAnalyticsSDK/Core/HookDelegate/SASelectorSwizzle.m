@@ -1,5 +1,5 @@
 //
-// SAProxySwizzle.h
+// SASelectorSwizzle.m
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/8/26.
@@ -18,15 +18,23 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import "SAProxySwizzle.h"
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
 
-NS_ASSUME_NONNULL_BEGIN
+#import "SASelectorSwizzle.h"
+#import "SASwizzle.h"
+#import "NSObject+DelegateProxy.h"
 
-@interface SAProxySwizzle : NSObject
+@implementation SASelectorSwizzle
 
-+ (void)swizzleRespondsToSelector;
++ (void)swizzleRespondsToSelector {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [NSObject sa_swizzleMethod:@selector(respondsToSelector:)
+                        withMethod:@selector(sensorsdata_respondsToSelector:)
+                             error:NULL];
+    });
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
