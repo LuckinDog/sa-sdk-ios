@@ -24,12 +24,18 @@
 
 #import "SAAppPageLeaveTracker.h"
 #import "SAAutoTrackUtils.h"
-#import "SAReferrerManager.h"
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
 #import "SAConstants+Private.h"
 #import "SAConstants+Private.h"
 #import "SAAppLifecycle.h"
 #import "SensorsAnalyticsSDK+Private.h"
+
+@interface SAAppPageLeaveTracker ()
+
+@property (nonatomic, copy, readwrite) NSDictionary *referrerProperties;
+@property (nonatomic, copy, readwrite) NSString *referrerURL;
+
+@end
 
 @implementation SAAppPageLeaveTracker
 
@@ -125,7 +131,26 @@
     currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(viewController.class);
 
     // 添加 $url 和 $referrer 页面浏览相关属性
-    NSDictionary *newProperties = [SAReferrerManager.sharedInstance propertiesWithURL:currentURL eventProperties:eventProperties];
+    NSDictionary *newProperties = [self propertiesWithURL:currentURL eventProperties:eventProperties];
+
+    return newProperties;
+}
+
+- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties {
+    NSString *referrerURL = self.referrerURL;
+    NSMutableDictionary *newProperties = [NSMutableDictionary dictionaryWithDictionary:eventProperties];
+
+    // 客户自定义属性中包含 $url 时，以客户自定义内容为准
+    if (!newProperties[kSAEventPropertyScreenUrl]) {
+        newProperties[kSAEventPropertyScreenUrl] = currentURL;
+    }
+    // 客户自定义属性中包含 $referrer 时，以客户自定义内容为准
+    if (referrerURL && !newProperties[kSAEventPropertyScreenReferrerUrl]) {
+        newProperties[kSAEventPropertyScreenReferrerUrl] = referrerURL;
+    }
+    // $referrer 内容以最终页面浏览事件中的 $url 为准
+    self.referrerURL = newProperties[kSAEventPropertyScreenUrl];
+    self.referrerProperties = newProperties;
 
     return newProperties;
 }
