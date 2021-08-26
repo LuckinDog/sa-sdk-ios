@@ -28,7 +28,7 @@
 #import "SALog.h"
 #import "UIApplication+PushClick.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "NSObject+DelegateProxy.h"
+#import "SAProxySwizzle.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import "SAUNUserNotificationCenterDelegateProxy.h"
@@ -51,9 +51,8 @@
 
 - (void)proxyNotifications {
     //处理未实现代理方法也能采集事件的逻辑
-    [NSObject sa_swizzleMethod:@selector(respondsToSelector:)
-                    withMethod:@selector(sensorsdata_respondsToSelector:)
-                         error:NULL];
+    [SAProxySwizzle swizzleRespondsToSelector];
+    
     //UIApplicationDelegate proxy
     [SAApplicationDelegateProxy resolveOptionalSelectorsForDelegate:[UIApplication sharedApplication].delegate];
     [SAApplicationDelegateProxy proxyDelegate:[UIApplication sharedApplication].delegate selectors:[NSSet setWithArray:@[@"application:didReceiveLocalNotification:", @"application:didReceiveRemoteNotification:fetchCompletionHandler:"]]];
