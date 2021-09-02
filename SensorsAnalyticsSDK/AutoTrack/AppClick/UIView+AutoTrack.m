@@ -89,7 +89,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
         NSString *content = [self.accessibilityValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (content.length > 0) {
             return content;
-        }s
+        }
     }
 
     if ([[self nextResponder] isKindOfClass:UITextField.class] && ![self isKindOfClass:UIButton.class]) {
