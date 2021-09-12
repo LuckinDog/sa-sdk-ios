@@ -71,7 +71,7 @@ static long recordIndex = 0;
     return self.event.count > 0;
 }
 
-- (NSString *)buildFlushContent {
+- (NSString *)flushContent {
     if (![self isValid]) {
         return nil;
     }

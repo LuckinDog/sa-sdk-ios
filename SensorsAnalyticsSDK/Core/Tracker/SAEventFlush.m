@@ -52,7 +52,7 @@
 - (NSString *)buildFlushJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
-        NSString *flushContent = [record buildFlushContent];
+        NSString *flushContent = [record flushContent];
         if (flushContent) {
             [contents addObject:flushContent];
         }

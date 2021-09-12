@@ -58,7 +58,7 @@ typedef NS_ENUM(int, SAEventRecordStatus) {
 
 - (BOOL)isValid;
 
-- (nullable NSString *)buildFlushContent;
+- (nullable NSString *)flushContent;
 
 @property (nonatomic, copy, readonly) NSString *ekey;
 
