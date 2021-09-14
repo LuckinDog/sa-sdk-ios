@@ -49,7 +49,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 /// 已开启的模块
 @property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
-@property (nonatomic, strong) NSLock *modulesLock;
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
@@ -122,7 +121,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     dispatch_once(&onceToken, ^{
         manager = [[SAModuleManager alloc] init];
         manager.modules = [NSMutableDictionary dictionary];
-        manager.modulesLock = [[NSLock alloc] init];
     });
     return manager;
 }
@@ -159,9 +157,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 }
 
 - (void)setEnable:(BOOL)enable forModule:(NSString *)moduleName {
-    id<SAModuleProtocol> module = [self moduleForKey:moduleName];
-    if (module) {
-        module.enable = enable;
+    if (self.modules[moduleName]) {
+        self.modules[moduleName].enable = enable;
     } else {
         NSString *className = [self classNameForModule:moduleName];
         Class<SAModuleProtocol> cla = NSClassFromString(className);
@@ -172,7 +169,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
                 object.configOptions = self.configOptions;
             }
             object.enable = enable;
-            [self setModule:object forKey:moduleName];
+            self.modules[moduleName] = object;
         }
     }
 }
@@ -183,7 +180,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     if (self.configOptions.disableSDK) {
         return YES;
     }
-    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)[self moduleForKey:kSARemoteConfigModuleName];
+    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)self.modules[kSARemoteConfigModuleName];
     return manager.isEnable ? manager.isDisableSDK : NO;
 }
 
@@ -197,7 +194,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
             ![key isEqualToString:kSADebugModeModuleName] &&
             ![key isEqualToString:kSAEncryptModuleName]
             ) {
-            [self removeModuleForKey:key];
+            [self.modules removeObjectForKey:key];
         }
     }
 }
@@ -210,7 +207,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
-    return [self moduleForKey:name];
+    return self.modules[name];
 }
 
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
@@ -255,27 +252,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     return NO;
 }
 
-
-#pragma mark - moudules lock
-- (id<SAModuleProtocol>)moduleForKey:(NSString *)key {
-    [self.modulesLock lock];
-    id<SAModuleProtocol> module = self.modules[key];
-    [self.modulesLock unlock];
-    return module;
-}
-
-- (void)setModule:(id<SAModuleProtocol>)module forKey:(NSString *)key {
-    [self.modulesLock lock];
-    self.modules[key] = module;
-    [self.modulesLock unlock];
-}
-
-- (void)removeModuleForKey:(NSString *)key {
-    [self.modulesLock lock];
-    [self.modules removeObjectForKey:key];
-    [self.modulesLock unlock];
-}
-
 @end
 
 #pragma mark -
@@ -316,7 +292,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @implementation SAModuleManager (ChannelMatch)
 
 - (id<SAChannelMatchModuleProtocol>)channelMatchManager {
-    id<SAChannelMatchModuleProtocol, SAModuleProtocol> manager = (id<SAChannelMatchModuleProtocol, SAModuleProtocol>)[self moduleForKey:kSAChannelMatchModuleName];
+    id<SAChannelMatchModuleProtocol, SAModuleProtocol> manager = (id<SAChannelMatchModuleProtocol, SAModuleProtocol>)self.modules[kSAChannelMatchModuleName];
     return manager.isEnable ? manager : nil;
 }
 
@@ -339,7 +315,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @implementation SAModuleManager (DebugMode)
 
 - (id<SADebugModeModuleProtocol>)debugModeManager {
-    return (id<SADebugModeModuleProtocol>)[self moduleForKey:kSADebugModeModuleName];
+    return (id<SADebugModeModuleProtocol>)self.modules[kSADebugModeModuleName];
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
@@ -368,7 +344,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @implementation SAModuleManager (Encrypt)
 
 - (id<SAEncryptModuleProtocol>)encryptManager {
-    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)[self moduleForKey:kSAEncryptModuleName];
+    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)self.modules[kSAEncryptModuleName];
     return manager.isEnable ? manager : nil;
 }
 
@@ -391,7 +367,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @implementation SAModuleManager (Deeplink)
 
 - (id<SADeeplinkModuleProtocol>)deeplinkManager {
-    id<SADeeplinkModuleProtocol> manager = (id<SADeeplinkModuleProtocol>)[self moduleForKey:kSADeeplinkModuleName];
+    id<SADeeplinkModuleProtocol> manager = (id<SADeeplinkModuleProtocol>)self.modules[kSADeeplinkModuleName];
     return manager;
 }
 
@@ -422,7 +398,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @implementation SAModuleManager (AutoTrack)
 
 - (id<SAAutoTrackModuleProtocol>)autoTrackManager {
-    id<SAAutoTrackModuleProtocol, SAModuleProtocol> manager = (id<SAAutoTrackModuleProtocol, SAModuleProtocol>)[self moduleForKey:kSAAutoTrackModuleName];
+    id<SAAutoTrackModuleProtocol, SAModuleProtocol> manager = (id<SAAutoTrackModuleProtocol, SAModuleProtocol>)self.modules[kSAAutoTrackModuleName];
     return manager.isEnable ? manager : nil;
 }
 
@@ -461,7 +437,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @implementation SAModuleManager (RemoteConfig)
 
 - (id<SARemoteConfigModuleProtocol>)remoteConfigManager {
-    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)[self moduleForKey:kSARemoteConfigModuleName];
+    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)self.modules[kSARemoteConfigModuleName];
     return manager.isEnable ? manager : nil;
 }
 
