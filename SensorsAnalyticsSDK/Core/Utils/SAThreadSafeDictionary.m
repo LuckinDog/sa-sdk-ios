@@ -71,6 +71,9 @@ __VA_ARGS__; \
     INIT(_dictionary = [[NSMutableDictionary alloc] initWithDictionary:otherDictionary copyItems:flag]);
 }
 
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    INIT(_dictionary = [[NSMutableDictionary alloc] initWithCoder:coder]);
+}
 
 #pragma mark - method
 

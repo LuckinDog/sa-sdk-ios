@@ -26,6 +26,7 @@
 #import "SAModuleProtocol.h"
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAThreadSafeDictionary.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
@@ -48,7 +49,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @interface SAModuleManager ()
 
 /// 已开启的模块
-@property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
+@property (atomic, strong) SAThreadSafeDictionary<NSString *, id<SAModuleProtocol>> *modules;
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
@@ -120,7 +121,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     static SAModuleManager *manager = nil;
     dispatch_once(&onceToken, ^{
         manager = [[SAModuleManager alloc] init];
-        manager.modules = [NSMutableDictionary dictionary];
+        manager.modules = [SAThreadSafeDictionary dictionary];
     });
     return manager;
 }

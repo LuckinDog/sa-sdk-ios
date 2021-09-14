@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAThreadSafeDictionary : NSMutableDictionary
+@interface SAThreadSafeDictionary<KeyType, ObjectType> : NSMutableDictionary<KeyType, ObjectType>
 
 @end
 
