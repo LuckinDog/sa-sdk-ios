@@ -22,7 +22,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAThreadSafeDictionary<KeyType, ObjectType> : NSMutableDictionary<KeyType, ObjectType>
+@interface SAThreadSafeDictionary<KeyType, ObjectType> : NSObject
+
++ (SAThreadSafeDictionary *)dictionary;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (readonly, copy) NSArray<KeyType> *allKeys;
+@property (readonly, copy) NSArray<ObjectType> *allValues;
+
+- (nullable ObjectType)objectForKeyedSubscript:(KeyType)key;
+- (void)setObject:(nullable ObjectType)obj forKeyedSubscript:(KeyType <NSCopying>)key;
+
+- (void)removeObjectForKey:(KeyType)aKey;
+- (void)enumerateKeysAndObjectsUsingBlock:(void (NS_NOESCAPE ^)(KeyType key, ObjectType obj, BOOL *stop))block;
 
 @end
 

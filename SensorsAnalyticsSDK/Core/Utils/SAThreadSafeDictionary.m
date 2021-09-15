@@ -24,18 +24,6 @@
 
 #import "SAThreadSafeDictionary.h"
 
-#define INIT(...) self = super.init; \
-if (!self) return nil; \
-__VA_ARGS__; \
-if (!_dictionary) return nil; \
-_lock = [[NSLock alloc] init]; \
-return self;
-
-
-#define LOCK(...) [_lock lock]; \
-__VA_ARGS__; \
-[_lock unlock];
-
 @interface SAThreadSafeDictionary ()
 
 @property (nonatomic, strong) NSMutableDictionary *dictionary;
@@ -47,189 +35,56 @@ __VA_ARGS__; \
 
 #pragma mark - init
 
++ (SAThreadSafeDictionary *)dictionary {
+    return [[SAThreadSafeDictionary alloc] init];
+}
+
 - (instancetype)init {
-    INIT(_dictionary = [[NSMutableDictionary alloc] init]);
-}
-
-- (instancetype)initWithCapacity:(NSUInteger)numItems {
-    INIT(_dictionary = [[NSMutableDictionary alloc] initWithCapacity:numItems]);
-}
-
-- (instancetype)initWithObjects:(id  _Nonnull const [])objects forKeys:(id<NSCopying>  _Nonnull const [])keys count:(NSUInteger)cnt {
-    INIT(_dictionary = [[NSMutableDictionary alloc] initWithObjects:objects forKeys:keys count:cnt]);
-}
-
-- (instancetype)initWithCoder:(NSCoder *)coder {
-    INIT(_dictionary = [[NSMutableDictionary alloc] initWithCoder:coder]);
-}
-
-#pragma mark - method
-
-- (NSUInteger)count {
-    LOCK(NSUInteger c = _dictionary.count); return c;
-}
-
-- (id)objectForKey:(id)aKey {
-    LOCK(id o = [_dictionary objectForKey:aKey]); return o;
-}
-
-- (NSEnumerator *)keyEnumerator {
-    LOCK(NSEnumerator * e = [_dictionary keyEnumerator]); return e;
-}
-
-- (NSArray *)allKeys {
-    LOCK(NSArray * a = [_dictionary allKeys]); return a;
-}
-
-- (NSArray *)allKeysForObject:(id)anObject {
-    LOCK(NSArray * a = [_dictionary allKeysForObject:anObject]); return a;
-}
-
-- (NSArray *)allValues {
-    LOCK(NSArray * a = [_dictionary allValues]); return a;
-}
-
-- (NSString *)description {
-    LOCK(NSString * d = [_dictionary description]); return d;
-}
-
-- (NSString *)descriptionInStringsFileFormat {
-    LOCK(NSString * d = [_dictionary descriptionInStringsFileFormat]); return d;
-}
-
-- (NSString *)descriptionWithLocale:(id)locale {
-    LOCK(NSString * d = [_dictionary descriptionWithLocale:locale]); return d;
-}
-
-- (NSString *)descriptionWithLocale:(id)locale indent:(NSUInteger)level {
-    LOCK(NSString * d = [_dictionary descriptionWithLocale:locale indent:level]); return d;
-}
-
-- (BOOL)isEqualToDictionary:(NSDictionary *)otherDictionary {
-    if (otherDictionary == self) return YES;
-
-    if ([otherDictionary isKindOfClass:SAThreadSafeDictionary.class]) {
-        SAThreadSafeDictionary *other = (id)otherDictionary;
-        BOOL isEqual;
-        [self.lock lock];
-        [other.lock lock];
-        isEqual = [_dictionary isEqual:other.dictionary];
-        [self.lock unlock];
-        [other.lock unlock];
-        return isEqual;
+    self = [super init];
+    if (self) {
+        _dictionary = [NSMutableDictionary dictionary];
+        _lock = [[NSLock alloc] init];
     }
-    return NO;
-}
-
-- (NSEnumerator *)objectEnumerator {
-    LOCK(NSEnumerator * e = [_dictionary objectEnumerator]); return e;
-}
-
-- (NSArray *)objectsForKeys:(NSArray *)keys notFoundMarker:(id)marker {
-    LOCK(NSArray * a = [_dictionary objectsForKeys:keys notFoundMarker:marker]); return a;
-}
-
-- (NSArray *)keysSortedByValueUsingSelector:(SEL)comparator {
-    LOCK(NSArray * a = [_dictionary keysSortedByValueUsingSelector:comparator]); return a;
-}
-
-- (void)getObjects:(id  _Nonnull __unsafe_unretained [])objects andKeys:(id  _Nonnull __unsafe_unretained [])keys {
-    LOCK([_dictionary getObjects:objects andKeys:keys]);
+    return self;
 }
 
 - (id)objectForKeyedSubscript:(id)key {
-    LOCK(id o = [_dictionary objectForKeyedSubscript:key]); return o;
-}
-
-- (void)enumerateKeysAndObjectsUsingBlock:(void (NS_NOESCAPE ^)(id _Nonnull, id _Nonnull, BOOL * _Nonnull))block {
-    LOCK([_dictionary enumerateKeysAndObjectsUsingBlock:block]);
-}
-
-- (void)enumerateKeysAndObjectsWithOptions:(NSEnumerationOptions)opts usingBlock:(void (NS_NOESCAPE ^)(id _Nonnull, id _Nonnull, BOOL * _Nonnull))block {
-    LOCK([_dictionary enumerateKeysAndObjectsWithOptions:opts usingBlock:block]);
-}
-
-- (NSArray *)keysSortedByValueUsingComparator:(NSComparator NS_NOESCAPE)cmptr {
-    LOCK(NSArray * a = [_dictionary keysSortedByValueUsingComparator:cmptr]); return a;
-}
-
-- (NSArray *)keysSortedByValueWithOptions:(NSSortOptions)opts usingComparator:(NSComparator NS_NOESCAPE)cmptr {
-    LOCK(NSArray * a = [_dictionary keysSortedByValueWithOptions:opts usingComparator:cmptr]); return a;
-}
-
-- (NSSet *)keysOfEntriesPassingTest:(BOOL (NS_NOESCAPE ^)(id _Nonnull, id _Nonnull, BOOL * _Nonnull))predicate {
-    LOCK(NSSet * a = [_dictionary keysOfEntriesPassingTest:predicate]); return a;
-}
-
-- (NSSet *)keysOfEntriesWithOptions:(NSEnumerationOptions)opts passingTest:(BOOL (NS_NOESCAPE ^)(id _Nonnull, id _Nonnull, BOOL * _Nonnull))predicate {
-    LOCK(NSSet * a = [_dictionary keysOfEntriesWithOptions:opts passingTest:predicate]); return a;
-}
-
-#pragma mark - mutable
-
-- (void)removeObjectForKey:(id)aKey {
-    LOCK([_dictionary removeObjectForKey:aKey]);
-}
-
-- (void)setObject:(id)anObject forKey:(id<NSCopying>)aKey {
-    LOCK([_dictionary setObject:anObject forKey:aKey]);
-}
-
-- (void)addEntriesFromDictionary:(NSDictionary *)otherDictionary {
-    LOCK([_dictionary addEntriesFromDictionary:otherDictionary]);
-}
-
-- (void)removeAllObjects {
-    LOCK([_dictionary removeAllObjects]);
-}
-
-- (void)removeObjectsForKeys:(NSArray *)keyArray {
-    LOCK([_dictionary removeObjectsForKeys:keyArray]);
-}
-
-- (void)setDictionary:(NSDictionary *)otherDictionary {
-    LOCK([_dictionary setDictionary:otherDictionary]);
+    [_lock lock];
+    id result = [_dictionary objectForKeyedSubscript:key];
+    [_lock unlock];
+    return result;
 }
 
 - (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
-    LOCK([_dictionary setObject:obj forKeyedSubscript:key]);
+    [_lock lock];
+    [_dictionary setObject:obj forKeyedSubscript:key];
+    [_lock unlock];
 }
 
-#pragma mark - protocol
-
-- (id)copyWithZone:(NSZone *)zone {
-    return [self mutableCopyWithZone:zone];
+- (NSArray *)allKeys {
+    [_lock lock];
+    NSArray *result = [_dictionary allKeys];
+    [_lock unlock];
+    return result;
 }
 
-- (id)mutableCopyWithZone:(NSZone *)zone {
-    LOCK(id copiedDictionary = [[self.class allocWithZone:zone] initWithDictionary:_dictionary]);
-    return copiedDictionary;
+- (NSArray *)allValues {
+    [_lock lock];
+    NSArray *result = [_dictionary allValues];
+    [_lock unlock];
+    return result;
 }
 
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id  _Nullable [])buffer count:(NSUInteger)len {
-    LOCK(NSUInteger count = [_dictionary countByEnumeratingWithState:state objects:buffer count:len]);
-    return count;
+- (void)removeObjectForKey:(id)aKey {
+    [_lock lock];
+    [_dictionary removeObjectForKey:aKey];
+    [_lock unlock];
 }
 
-- (BOOL)isEqual:(id)object {
-    if (object == self) return YES;
-
-    if ([object isKindOfClass:SAThreadSafeDictionary.class]) {
-        SAThreadSafeDictionary *other = object;
-        BOOL isEqual;
-        [self.lock lock];
-        [other.lock lock];
-        isEqual = [_dictionary isEqual:other.dictionary];
-        [self.lock unlock];
-        [other.lock unlock];
-        return isEqual;
-    }
-    return NO;
-}
-
-- (NSUInteger)hash {
-    LOCK(NSUInteger hash = [_dictionary hash]);
-    return hash;
+- (void)enumerateKeysAndObjectsUsingBlock:(void (NS_NOESCAPE ^)(id _Nonnull, id _Nonnull, BOOL * _Nonnull))block {
+    [_lock lock];
+    [_dictionary enumerateKeysAndObjectsUsingBlock:block];
+    [_lock unlock];
 }
 
 @end
