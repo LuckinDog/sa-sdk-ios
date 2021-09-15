@@ -75,9 +75,9 @@
     return result;
 }
 
-- (void)removeObjectForKey:(id)aKey {
+- (void)removeObjectForKey:(id)key {
     [self.lock lock];
-    [self.dictionary removeObjectForKey:aKey];
+    [self.dictionary removeObjectForKey:key];
     [self.lock unlock];
 }
 
