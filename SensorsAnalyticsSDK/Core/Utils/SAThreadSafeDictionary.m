@@ -49,42 +49,42 @@
 }
 
 - (id)objectForKeyedSubscript:(id)key {
-    [_lock lock];
-    id result = [_dictionary objectForKeyedSubscript:key];
-    [_lock unlock];
+    [self.lock lock];
+    id result = [self.dictionary objectForKeyedSubscript:key];
+    [self.lock unlock];
     return result;
 }
 
 - (void)setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
-    [_lock lock];
-    [_dictionary setObject:obj forKeyedSubscript:key];
-    [_lock unlock];
+    [self.lock lock];
+    [self.dictionary setObject:obj forKeyedSubscript:key];
+    [self.lock unlock];
 }
 
 - (NSArray *)allKeys {
-    [_lock lock];
-    NSArray *result = [_dictionary allKeys];
-    [_lock unlock];
+    [self.lock lock];
+    NSArray *result = [self.dictionary allKeys];
+    [self.lock unlock];
     return result;
 }
 
 - (NSArray *)allValues {
-    [_lock lock];
-    NSArray *result = [_dictionary allValues];
-    [_lock unlock];
+    [self.lock lock];
+    NSArray *result = [self.dictionary allValues];
+    [self.lock unlock];
     return result;
 }
 
 - (void)removeObjectForKey:(id)aKey {
-    [_lock lock];
-    [_dictionary removeObjectForKey:aKey];
-    [_lock unlock];
+    [self.lock lock];
+    [self.dictionary removeObjectForKey:aKey];
+    [self.lock unlock];
 }
 
 - (void)enumerateKeysAndObjectsUsingBlock:(void (NS_NOESCAPE ^)(id _Nonnull, id _Nonnull, BOOL * _Nonnull))block {
-    [_lock lock];
-    [_dictionary enumerateKeysAndObjectsUsingBlock:block];
-    [_lock unlock];
+    [self.lock lock];
+    [self.dictionary enumerateKeysAndObjectsUsingBlock:block];
+    [self.lock unlock];
 }
 
 @end
