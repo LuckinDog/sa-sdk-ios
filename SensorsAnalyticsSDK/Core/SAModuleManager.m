@@ -49,7 +49,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @interface SAModuleManager ()
 
 /// 已开启的模块
-@property (atomic, strong) SAThreadSafeDictionary<NSString *, id<SAModuleProtocol>> *modules;
+@property (nonatomic, strong) SAThreadSafeDictionary<NSString *, id<SAModuleProtocol>> *modules;
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
