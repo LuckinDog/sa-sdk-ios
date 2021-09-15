@@ -51,24 +51,12 @@ __VA_ARGS__; \
     INIT(_dictionary = [[NSMutableDictionary alloc] init]);
 }
 
-- (instancetype)initWithObjects:(NSArray *)objects forKeys:(NSArray<id<NSCopying>> *)keys {
-    INIT(_dictionary =  [[NSMutableDictionary alloc] initWithObjects:objects forKeys:keys]);
-}
-
 - (instancetype)initWithCapacity:(NSUInteger)numItems {
     INIT(_dictionary = [[NSMutableDictionary alloc] initWithCapacity:numItems]);
 }
 
 - (instancetype)initWithObjects:(id  _Nonnull const [])objects forKeys:(id<NSCopying>  _Nonnull const [])keys count:(NSUInteger)cnt {
     INIT(_dictionary = [[NSMutableDictionary alloc] initWithObjects:objects forKeys:keys count:cnt]);
-}
-
-- (instancetype)initWithDictionary:(NSDictionary *)otherDictionary {
-    INIT(_dictionary = [[NSMutableDictionary alloc] initWithDictionary:otherDictionary]);
-}
-
-- (instancetype)initWithDictionary:(NSDictionary *)otherDictionary copyItems:(BOOL)flag {
-    INIT(_dictionary = [[NSMutableDictionary alloc] initWithDictionary:otherDictionary copyItems:flag]);
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
