@@ -25,8 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAThreadSafeDictionary<KeyType, ObjectType> : NSObject
 
 + (SAThreadSafeDictionary *)dictionary;
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
 
 @property (readonly, copy) NSArray<KeyType> *allKeys;
 @property (readonly, copy) NSArray<ObjectType> *allValues;
