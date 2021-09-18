@@ -299,7 +299,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
             [self checkJSSDKIntegrationWithWebView:webView];
         } else {
             // 注入 bridge 属性值，标记当前处于可视化全埋点扫码状态
-            NSString *visualizedMode = [SAJavaScriptBridgeManager.sharedInstance buildVisualBridgeWithVisualizedMode:YES];
+            NSString *visualizedMode = [SAJavaScriptBridgeBuilder buildVisualBridgeWithVisualizedMode:YES];
             [javaScriptSource appendString:visualizedMode];
         }
     }
@@ -308,7 +308,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
      1. 存在部分场景，H5 页面内元素滚动，JS SDK 无法检测，如果 App 截图变化，直接通知 JS SDK 遍历最新页面元素数据发送
      2. 可能先进入 H5，再扫码开启可视化全埋点，此时未成功注入标记，通过调用 JS 方法，手动通知 JS SDK 发送数据
      */
-    NSString *jsMethodString = [SAJavaScriptBridgeManager.sharedInstance buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeVisualized jsonObject:nil];
+    NSString *jsMethodString = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeVisualized jsonObject:nil];
     [javaScriptSource appendString:jsMethodString];
     [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable response, NSError *_Nullable error) {
         if (error) {
@@ -331,7 +331,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
             return;
         }
         // 注入了 bridge 但是未接收到数据
-        NSString *javaScript = [SAJavaScriptBridgeManager.sharedInstance buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeCheckJSSDK jsonObject:nil];
+        NSString *javaScript = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeCheckJSSDK jsonObject:nil];
         [webView evaluateJavaScript:javaScript completionHandler:^(id _Nullable response, NSError *_Nullable error) {
             if (!error) {
                 return;

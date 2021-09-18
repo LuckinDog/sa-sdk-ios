@@ -361,7 +361,7 @@
     webMessageInfo[@"sensorsdata_js_visual_properties"] = propertyConfigs;
 
     // 注入待查询的属性配置信息
-    NSString *javaScriptSource = [SAJavaScriptBridgeManager.sharedInstance buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeWebVisualProperties jsonObject:webMessageInfo];
+    NSString *javaScriptSource = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeWebVisualProperties jsonObject:webMessageInfo];
     if (!javaScriptSource) {
         completionHandler(nil);
         return;
