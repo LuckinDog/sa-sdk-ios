@@ -566,7 +566,7 @@
         return;
     }
     // 调用 JS 函数，发送配置信息
-    NSString *javaScriptSource = [SAJavaScriptBridgeManager.sharedInstance buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeUpdateVisualConfig jsonObject:configResponse];
+    NSString *javaScriptSource = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeUpdateVisualConfig jsonObject:configResponse];
     if (!javaScriptSource) {
         return;
     }

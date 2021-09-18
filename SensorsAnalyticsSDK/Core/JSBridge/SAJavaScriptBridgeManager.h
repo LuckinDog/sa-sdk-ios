@@ -64,27 +64,28 @@ extern NSString * const kSAJSBridgeVisualizedMode;
 /// js 方法调用
 extern NSString * const kSAJSBridgeCallMethod;
 
-@interface SAJavaScriptBridgeManager (BuildJSCall)
+/// 构建 js 相关 bridge 和变量
+@interface SAJavaScriptBridgeBuilder : NSObject
 
 #pragma mark 注入 js
 /// 注入打通bridge，并设置 serverURL
 /// @param serverURL 数据接收地址
-- (nullable NSString *)buildJSBridgeWithServerURL:(NSString *)serverURL;
++ (nullable NSString *)buildJSBridgeWithServerURL:(NSString *)serverURL;
 
 /// 注入可视化 bridge，并设置扫码模式
 /// @param isVisualizedMode 是否为可视化扫码模式
-- (nullable NSString *)buildVisualBridgeWithVisualizedMode:(BOOL)isVisualizedMode;
++ (nullable NSString *)buildVisualBridgeWithVisualizedMode:(BOOL)isVisualizedMode;
 
 /// 注入自定义属性 bridge，配置信息
 /// @param originalConfig 配置信息原始 json
-- (nullable NSString *)buildVisualPropertyBridgeWithVisualConfig:(NSDictionary *)originalConfig;
++ (nullable NSString *)buildVisualPropertyBridgeWithVisualConfig:(NSDictionary *)originalConfig;
 
 #pragma mark JS 调用
 
 /// js 方法调用
 /// @param type 调用类型
 /// @param object 传参
-- (nullable NSString *)buildCallJSMethodStringWithType:(SAJavaScriptCallJSType)type jsonObject:(nullable id)object;
++ (nullable NSString *)buildCallJSMethodStringWithType:(SAJavaScriptCallJSType)type jsonObject:(nullable id)object;
 
 @end
 

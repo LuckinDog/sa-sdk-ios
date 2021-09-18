@@ -59,7 +59,7 @@
         return nil;
     }
     if (self.configOptions.serverURL) {
-        return [self buildJSBridgeWithServerURL:self.configOptions.serverURL];
+        return [SAJavaScriptBridgeBuilder buildJSBridgeWithServerURL:self.configOptions.serverURL];
     }
 
     SALogError(@"%@ get network serverURL is failed!", self);
@@ -219,13 +219,13 @@ NSString * const kSAJSBridgeVisualConfig = @"window.SensorsData_APP_New_H5_Bridg
 /// js 方法调用
 NSString * const kSAJSBridgeCallMethod = @"window.sensorsdata_app_call_js";
 
-@implementation SAJavaScriptBridgeManager (BuildJSCall)
+@implementation SAJavaScriptBridgeBuilder
 
 #pragma mark 注入 js
 
 /// 注入打通bridge，并设置 serverURL
 /// @param serverURL 数据接收地址
-- (nullable NSString *)buildJSBridgeWithServerURL:(NSString *)serverURL {
++ (nullable NSString *)buildJSBridgeWithServerURL:(NSString *)serverURL {
     if (serverURL.length == 0) {
         return nil;
     }
@@ -234,13 +234,13 @@ NSString * const kSAJSBridgeCallMethod = @"window.sensorsdata_app_call_js";
 
 /// 注入可视化 bridge，并设置扫码模式
 /// @param isVisualizedMode 是否为可视化扫码模式
-- (nullable NSString *)buildVisualBridgeWithVisualizedMode:(BOOL)isVisualizedMode {
++ (nullable NSString *)buildVisualBridgeWithVisualizedMode:(BOOL)isVisualizedMode {
     return [NSString stringWithFormat:@"%@%@ = %@;", kSAVisualBridgeObject, kSAJSBridgeVisualizedMode, isVisualizedMode ? @"true" : @"false"];
 }
 
 /// 注入自定义属性 bridge，配置信息
 /// @param originalConfig 配置信息原始 json
-- (nullable NSString *)buildVisualPropertyBridgeWithVisualConfig:(NSDictionary *)originalConfig {
++ (nullable NSString *)buildVisualPropertyBridgeWithVisualConfig:(NSDictionary *)originalConfig {
     if (originalConfig.count == 0) {
         return nil;
     }
@@ -256,7 +256,7 @@ NSString * const kSAJSBridgeCallMethod = @"window.sensorsdata_app_call_js";
 }
 
 #pragma mark JS 方法调用
-- (nullable NSString *)buildCallJSMethodStringWithType:(SAJavaScriptCallJSType)type jsonObject:(nullable id)object {
++ (nullable NSString *)buildCallJSMethodStringWithType:(SAJavaScriptCallJSType)type jsonObject:(nullable id)object {
     NSString *typeString = [self callJSTypeStringWithType:type];
     if (!typeString) {
         return nil;
@@ -277,7 +277,7 @@ NSString * const kSAJSBridgeCallMethod = @"window.sensorsdata_app_call_js";
     return [javaScriptSource copy];
 }
 
-- (nullable NSString *)callJSTypeStringWithType:(SAJavaScriptCallJSType)type {
++ (nullable NSString *)callJSTypeStringWithType:(SAJavaScriptCallJSType)type {
     switch (type) {
         case SAJavaScriptCallJSTypeVisualized:
             return @"visualized";

@@ -141,7 +141,7 @@
     // App 内嵌 H5 数据交互
     NSMutableString *javaScriptSource = [NSMutableString string];
     if (self.visualizedConnection.isVisualizedConnecting) {
-        NSString *jsVisualizedMode = [SAJavaScriptBridgeManager.sharedInstance buildVisualBridgeWithVisualizedMode:YES];
+        NSString *jsVisualizedMode = [SAJavaScriptBridgeBuilder buildVisualBridgeWithVisualizedMode:YES];
         [javaScriptSource appendString:jsVisualizedMode];
     }
     
@@ -150,7 +150,7 @@
     }
 
     // 注入完整配置信息
-    NSString *webVisualConfig = [SAJavaScriptBridgeManager.sharedInstance buildVisualPropertyBridgeWithVisualConfig:self.configSources.originalResponse];
+    NSString *webVisualConfig = [SAJavaScriptBridgeBuilder buildVisualPropertyBridgeWithVisualConfig:self.configSources.originalResponse];
     if (!webVisualConfig) {
         return javaScriptSource;
     }
