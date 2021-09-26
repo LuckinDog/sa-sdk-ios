@@ -79,6 +79,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy API_UNAVAILABLE(macos);
 
 /**
+ * @abstract
+ * 设置 flush 时网络发送策略
+ *
+ * @discussion
+ * 默认 3G、4G、WI-FI 环境下都会尝试 flush
+ */
+@property (nonatomic) SensorsAnalyticsNetworkType flushNetworkPolicy;
+
+/**
  * @property
  *
  * @abstract
@@ -119,6 +128,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// 开启 log 打印
 @property (nonatomic, assign) BOOL enableLog;
 
+/// 禁用 SDK，默认为 NO
+///
+/// 禁用后，SDK 将不会触发事件，也不会发送网络请求
+@property (nonatomic, assign) BOOL disableSDK;
+
 /// 开启点击图
 @property (nonatomic, assign) BOOL enableHeatMap API_UNAVAILABLE(macos);
 
@@ -147,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否在手动埋点事件中自动添加渠道匹配信息
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent API_UNAVAILABLE(macos);
 
-/// 当 App 进入后台强杀时，是否上传数据，默认为 NO。
+/// App 进入后台时是否等待数据发送结果。默认 YES，会等待数据发送结果；设置 NO，不会等待数据发送结果
 @property (nonatomic, assign) BOOL flushBeforeEnterBackground;
 
 /// 是否开启加密
@@ -167,6 +181,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 ///开启自动采集通知
 @property (nonatomic, assign) BOOL enableTrackPush API_UNAVAILABLE(macos);
+
+///开启自动采集页面浏览时长
+@property (nonatomic, assign) BOOL enableTrackPageLeave API_UNAVAILABLE(macos);
+
 
 @end
 

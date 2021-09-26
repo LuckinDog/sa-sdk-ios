@@ -1,8 +1,8 @@
 //
-// SAEncryptor.m
+// UIViewController+PageView.m
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2021/4/23.
+// Created by 陈玉国 on 2021/7/19.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +22,24 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAAlgorithmProtocol.h"
+#import "UIViewController+SAPageView.h"
+#import "SAAutoTrackManager.h"
 
-NSString * const kSAAlgorithmTypeAES = @"AES";
-NSString * const kSAAlgorithmTypeRSA = @"RSA";
-NSString * const kSAAlgorithmTypeECC = @"EC";
+
+@implementation UIViewController (PageLeave)
+
+- (void)sensorsdata_pageLeave_viewDidAppear:(BOOL)animated {
+    SAAppPageLeaveTracker *tracker = [SAAutoTrackManager sharedInstance].appPageLeaveTracker;
+    [tracker trackPageEnter:self];
+    [self sensorsdata_pageLeave_viewDidAppear:animated];
+}
+
+- (void)sensorsdata_pageLeave_viewDidDisappear:(BOOL)animated {
+    SAAppPageLeaveTracker *tracker = [SAAutoTrackManager sharedInstance].appPageLeaveTracker;
+    [tracker trackPageLeave:self];
+    [self sensorsdata_pageLeave_viewDidDisappear:animated];
+}
+
+
+
+@end

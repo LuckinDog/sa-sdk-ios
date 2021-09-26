@@ -54,6 +54,8 @@ extern NSString * const kSAEventNameAppEnd;
 extern NSString * const kSAEventNameAppViewScreen;
 // App 元素点击
 extern NSString * const kSAEventNameAppClick;
+/// Web 元素点击
+extern NSString * const kSAEventNameWebClick;
 // 自动追踪相关事件及属性
 extern NSString * const kSAEventNameAppStartPassively;
 
@@ -91,7 +93,7 @@ extern NSString * const kSAEventPropertyAppRemoteConfig;
 extern NSString * const kSAEventCommonOptionalPropertyProject;
 extern NSString * const kSAEventCommonOptionalPropertyToken;
 extern NSString * const kSAEventCommonOptionalPropertyTime;
-extern long long const kSAEventCommonOptionalPropertyTimeInt;
+extern int64_t const kSAEventCommonOptionalPropertyTimeInt;
 
 #pragma mark--lib method
 extern NSString * const kSALibMethodAuto;
@@ -143,3 +145,10 @@ extern NSNotificationName const SA_H5_MESSAGE_NOTIFICATION;
 extern NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION;
 
 extern NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION;
+
+
+//page leave
+extern NSString * const kSAPageLeaveTimestamp;
+extern NSString * const kSAPageLeaveAutoTrackProperties;
+extern NSString * const kSAEventDurationProperty;
+extern NSString * const kSAEventNameAppPageLeave;

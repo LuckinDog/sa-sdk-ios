@@ -1,8 +1,8 @@
 //
-// SAVisualizedEventCheck.h
+// SAThreadSafeDictionary.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2021/3/22.
+// Created by yuqiang on 2021/9/14.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,22 +19,22 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAVisualPropertiesConfigSources.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// H5 可视化全埋点事件标记
-extern NSString * const kSAWebVisualEventName;
+@interface SAThreadSafeDictionary<KeyType, ObjectType> : NSObject
 
-/// 可视化全埋点埋点校验
-@interface SAVisualizedEventCheck : NSObject
-- (instancetype)initWithConfigSources:(SAVisualPropertiesConfigSources *)configSources;
++ (SAThreadSafeDictionary *)dictionary;
 
-/// 筛选事件结果
-@property (nonatomic, strong, readonly) NSArray<NSDictionary *> *eventCheckResult;
+@property (readonly, copy) NSArray<KeyType> *allKeys;
+@property (readonly, copy) NSArray<ObjectType> *allValues;
 
-/// 清除调试事件
-- (void)cleanEventCheckResult;
+- (nullable ObjectType)objectForKeyedSubscript:(KeyType)key;
+- (void)setObject:(nullable ObjectType)obj forKeyedSubscript:(KeyType <NSCopying>)key;
+
+- (void)removeObjectForKey:(KeyType)aKey;
+- (void)enumerateKeysAndObjectsUsingBlock:(void (NS_NOESCAPE ^)(KeyType key, ObjectType obj, BOOL *stop))block;
+
 @end
 
 NS_ASSUME_NONNULL_END

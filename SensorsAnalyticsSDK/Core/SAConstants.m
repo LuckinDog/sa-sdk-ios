@@ -57,6 +57,9 @@ NSString * const kSAEventNameAppEnd = @"$AppEnd";
 NSString * const kSAEventNameAppViewScreen = @"$AppViewScreen";
 // App 元素点击
 NSString * const kSAEventNameAppClick = @"$AppClick";
+// web 元素点击
+NSString * const kSAEventNameWebClick = @"$WebClick";
+
 // 自动追踪相关事件及属性
 NSString * const kSAEventNameAppStartPassively = @"$AppStartPassively";
 
@@ -95,7 +98,7 @@ NSString * const kSAEventCommonOptionalPropertyProject = @"$project";
 NSString * const kSAEventCommonOptionalPropertyToken = @"$token";
 NSString * const kSAEventCommonOptionalPropertyTime = @"$time";
 //神策成立时间，2015-05-15 10:24:00.000，某些时间戳判断（毫秒）
-long long const kSAEventCommonOptionalPropertyTimeInt = 1431656640000;
+int64_t const kSAEventCommonOptionalPropertyTimeInt = 1431656640000;
 
 #pragma mark--lib method
 NSString * const kSALibMethodAuto = @"autoTrack";
@@ -155,3 +158,9 @@ NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION = @"cn.sens
 
 // App 内嵌 H5 接收可视化相关 H5 页面元素信息
 NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION = @"SensorsAnalyticsVisualizedMessageFromH5Notification";
+
+//page leave
+NSString * const kSAPageLeaveTimestamp = @"timestamp";
+NSString * const kSAPageLeaveAutoTrackProperties = @"properties";
+NSString * const kSAEventDurationProperty = @"event_duration";
+NSString * const kSAEventNameAppPageLeave = @"$AppPageLeave";

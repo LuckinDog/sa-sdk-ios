@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
+- (void)updateServerURL:(NSString *)serverURL;
+
 @end
 
 #pragma mark -
@@ -146,6 +148,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 清除本次 DeepLink 解析到的 utm 信息
 - (void)clearUtmProperties;
 
+/// 触发 $AppDeepLinkLaunch 事件
+/// @param url 唤起 App 的 DeepLink url
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url;
+
 @end
 
 #pragma mark -
@@ -154,6 +160,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 触发 App 崩溃时的退出事件
 - (void)trackAppEndWhenCrashed;
+- (void)trackPageLeaveWhenCrashed;
+
+@end
+
+@protocol SAVisualizedModuleProtocol <NSObject>
+
+/// 元素相关属性
+/// @param view 需要采集的 view
+- (nullable NSDictionary *)propertiesWithView:(id)view;
+
+#pragma mark visualProperties
+
+/// 采集元素自定义属性
+/// @param view 触发事件的元素
+/// @param completionHandler 采集完成回调
+- (void)visualPropertiesWithView:(id)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
+
+/// 根据配置，采集属性
+/// @param propertyConfigs 自定义属性配置
+/// @param completionHandler 采集完成回调
+- (void)queryVisualPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler;
 
 @end
 
@@ -162,7 +189,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SAJavaScriptBridgeModuleProtocol <NSObject>
 
 - (nullable NSString *)javaScriptSource;
-
 @end
 
 @protocol SARemoteConfigModuleProtocol <NSObject>

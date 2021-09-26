@@ -34,9 +34,15 @@
         return NO;
     }
     NSString *filePath = [SAFileStore filePath:fileName];
+#if TARGET_OS_IOS
     /* 为filePath文件设置保护等级 */
     NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
                                                            forKey:NSFileProtectionKey];
+#elif TARGET_OS_OSX
+// macOS10.13 不包含 NSFileProtectionComplete
+    NSDictionary *protection = [NSDictionary dictionary];
+#endif
+    
     [[NSFileManager defaultManager] setAttributes:protection
                                      ofItemAtPath:filePath
                                             error:nil];
@@ -71,7 +77,13 @@
 
 #pragma mark - file path
 + (NSString *)filePath:(NSString *)key {
+#if TARGET_OS_OSX
+    // 兼容老版 mac SDK 的本地数据
+    NSString *filename = [NSString stringWithFormat:@"com.sensorsdata.analytics.mini.SensorsAnalyticsSDK.%@.plist", key];
+#else
     NSString *filename = [NSString stringWithFormat:@"sensorsanalytics-%@.plist", key];
+#endif
+
     NSString *filepath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
             stringByAppendingPathComponent:filename];
     SALogDebug(@"filepath for %@ is %@", key, filepath);

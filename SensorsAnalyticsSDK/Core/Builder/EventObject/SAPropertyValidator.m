@@ -66,8 +66,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 @implementation NSDate (SAProperty)
 
 - (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
-    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:kSAEventDateFormatter];
-    return [dateFormatter stringFromDate:self];
+    return self;
 }
 
 @end
@@ -82,7 +81,9 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
             return nil;
         }
         id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
-        [result addObject:sensorsValue];
+        if (sensorsValue) {
+            [result addObject:sensorsValue];
+        }
     }
     return [result copy];
 }
@@ -99,7 +100,9 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
             return nil;
         }
         id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
-        [result addObject:sensorsValue];
+        if (sensorsValue) {
+            [result addObject:sensorsValue];
+        }
     }
     return [result copy];
 }

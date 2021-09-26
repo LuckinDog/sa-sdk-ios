@@ -1,8 +1,8 @@
 //
-// SAVisualizedEventCheck.h
+// SAAppPageLeaveTracker.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2021/3/22.
+// Created by 陈玉国 on 2021/7/19.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,23 +18,21 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import "SAVisualPropertiesConfigSources.h"
+
+#import "SAAppTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// H5 可视化全埋点事件标记
-extern NSString * const kSAWebVisualEventName;
+@interface SAAppPageLeaveTracker : SAAppTracker
 
-/// 可视化全埋点埋点校验
-@interface SAVisualizedEventCheck : NSObject
-- (instancetype)initWithConfigSources:(SAVisualPropertiesConfigSources *)configSources;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableDictionary *> *timestamp;
 
-/// 筛选事件结果
-@property (nonatomic, strong, readonly) NSArray<NSDictionary *> *eventCheckResult;
+- (void)trackEvents;
+- (void)trackPageEnter:(UIViewController *)viewController;
+- (void)trackPageLeave:(UIViewController *)viewController;
+- (NSDictionary *)propertiesWithViewController:(UIViewController *)viewController;
+- (BOOL)shouldTrackViewController:(UIViewController *)viewController;
 
-/// 清除调试事件
-- (void)cleanEventCheckResult;
 @end
 
 NS_ASSUME_NONNULL_END

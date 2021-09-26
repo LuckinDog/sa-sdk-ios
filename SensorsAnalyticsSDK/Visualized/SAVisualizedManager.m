@@ -25,23 +25,18 @@
 #import "SAVisualizedManager.h"
 #import "SAVisualizedConnection.h"
 #import "SAAlertController.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SensorsAnalyticsSDK+Visualized.h"
 #import "UIViewController+SAElementPath.h"
-#import "SAVisualPropertiesConfigSources.h"
 #import "SAConstants+Private.h"
-#import "UIView+SAElementPath.h"
 #import "UIView+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAModuleManager.h"
+#import "SAJavaScriptBridgeManager.h"
 #import "SAReachability.h"
 #import "SAValidator.h"
 #import "SAURLUtils.h"
+#import "SAJSONUtil.h"
 #import "SASwizzle.h"
 #import "SALog.h"
-
-static void * const kSAVisualizeContext = (void*)&kSAVisualizeContext;
-static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 
 @interface SAVisualizedManager()<SAConfigChangesDelegate>
 
@@ -83,10 +78,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     return self;
 }
 
-- (void)dealloc {
-    [self.configOptions removeObserver:self forKeyPath:kSAVisualizeObserverKeyPath context:kSAVisualizeContext];
-}
-
 #pragma mark SAConfigChangesDelegate
 - (void)configChangedWithValid:(BOOL)valid {
     if (valid){
@@ -95,10 +86,13 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
             self.visualPropertiesTracker = [[SAVisualPropertiesTracker alloc] initWithConfigSources:self.configSources];
         }
 
-        // 配置动态变化，开启埋点校验
+        // 可能扫码阶段，可能尚未请求到配置，此处再次尝试开启埋点校验
         if (!self.eventCheck && self.visualizedType == SensorsAnalyticsVisualizedTypeAutoTrack) {
             self.eventCheck = [[SAVisualizedEventCheck alloc] initWithConfigSources:self.configSources];
         }
+
+        // 配置更新，发送到 WKWebView 的内嵌 H5
+        [self.visualPropertiesTracker.viewNodeTree updateConfig:self.configSources.originalResponse];
     } else {
         self.visualPropertiesTracker = nil;
         self.eventCheck = nil;
@@ -122,11 +116,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
         if (error) {
             SALogError(@"Failed to swizzle on UIViewController. Details: %@", error);
         }
-
-        // 监听 configOptions 中 serverURL 变化，更新属性配置
-        if (self.configOptions.enableVisualizedAutoTrack) {
-            [self.configOptions addObserver:self forKeyPath:kSAVisualizeObserverKeyPath options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:kSAVisualizeContext];
-        }
     });
 
     if (!self.configSources && self.configOptions.enableVisualizedAutoTrack) {
@@ -136,6 +125,14 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     }
 }
 
+-(void)updateServerURL:(NSString *)serverURL {
+    if (![SAValidator isValidString:serverURL] || ![self.configOptions.serverURL isEqualToString:serverURL]) {
+        return;
+    }
+    // 刷新自定义属性配置
+    [self.configSources loadConfig];
+}
+
 #pragma mark -
 - (NSString *)javaScriptSource {
     if (!self.enable) {
@@ -143,10 +140,21 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     }
     // App 内嵌 H5 数据交互
     NSMutableString *javaScriptSource = [NSMutableString string];
-    [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
     if (self.visualizedConnection.isVisualizedConnecting) {
-        [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+        NSString *jsVisualizedMode = [SAJavaScriptBridgeBuilder buildVisualBridgeWithVisualizedMode:YES];
+        [javaScriptSource appendString:jsVisualizedMode];
     }
+    
+    if (!self.configSources.isValid || self.configSources.originalResponse.count == 0) {
+        return javaScriptSource;
+    }
+
+    // 注入完整配置信息
+    NSString *webVisualConfig = [SAJavaScriptBridgeBuilder buildVisualPropertyBridgeWithVisualConfig:self.configSources.originalResponse];
+    if (!webVisualConfig) {
+        return javaScriptSource;
+    }
+    [javaScriptSource appendString:webVisualConfig];
     return javaScriptSource;
 }
 
@@ -262,7 +270,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     return self.visualizedType;
 }
 
-
 #pragma mark - Visualize
 
 - (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers {
@@ -286,25 +293,10 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 }
 
 #pragma mark - Property
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (context != kSAVisualizeContext) {
-        return [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
-
-    NSString *newValue = change[NSKeyValueChangeNewKey];
-    if (![SAValidator isValidString:newValue]) {
-        return;
-    }
-    if (![keyPath isEqualToString:kSAVisualizeObserverKeyPath] || [newValue isEqualToString:change[NSKeyValueChangeOldKey]]) {
-        return;
-    }
-    // 更新配置信息
-    [self.configSources reloadConfig];
-}
-
-
 - (nullable NSDictionary *)propertiesWithView:(UIView *)view {
+    if (![view isKindOfClass:UIView.class]) {
+        return nil;
+    }
     UIViewController<SAAutoTrackViewControllerProperty> *viewController = view.sensorsdata_viewController;
     if (!viewController) {
         return nil;
@@ -328,12 +320,25 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 }
 
 - (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
-    if (!self.visualPropertiesTracker) {
+    if (![view isKindOfClass:UIView.class] || !self.visualPropertiesTracker) {
         return completionHandler(nil);
     }
 
     @try {
         [self.visualPropertiesTracker visualPropertiesWithView:view completionHandler:completionHandler];
+    } @catch (NSException *exception) {
+        SALogError(@"visualPropertiesWithView error: %@", exception);
+        completionHandler(nil);
+    }
+}
+
+- (void)queryVisualPropertiesWithConfigs:(NSArray<NSDictionary *> *)propertyConfigs completionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
+    if (!self.visualPropertiesTracker) {
+        return completionHandler(nil);
+    }
+    
+    @try {
+        [self.visualPropertiesTracker queryVisualPropertiesWithConfigs:propertyConfigs completionHandler:completionHandler];
     } @catch (NSException *exception) {
         SALogError(@"visualPropertiesWithView error: %@", exception);
         completionHandler(nil);
@@ -352,6 +357,11 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     if (!self.eventCheck && self.configSources.isValid) {
         self.eventCheck = [[SAVisualizedEventCheck alloc] initWithConfigSources:self.configSources];
     }
+}
+
+- (void)dealloc {
+    // 断开连接，防止 visualizedConnection 内 timer 导致无法释放
+    [self.visualizedConnection close];
 }
 
 @end

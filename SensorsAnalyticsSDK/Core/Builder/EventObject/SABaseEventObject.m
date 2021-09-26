@@ -79,6 +79,9 @@
 - (void)addEventProperties:(NSDictionary *)properties {
 }
 
+- (void)addLatestUtmProperties:(NSDictionary *)properties {
+}
+
 - (void)addChannelProperties:(NSDictionary *)properties {
 }
 
@@ -102,11 +105,11 @@
     id originalTime = self.properties[kSAEventCommonOptionalPropertyTime];
     if ([originalTime isKindOfClass:NSDate.class]) {
         NSDate *customTime = (NSDate *)originalTime;
-        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+        int64_t customTimeInt = [customTime timeIntervalSince1970] * 1000;
         if (customTimeInt >= kSAEventCommonOptionalPropertyTimeInt) {
             self.timeStamp = customTimeInt;
         } else {
-            SALogError(@"$time error %ld, Please check the value", (long)customTimeInt);
+            SALogError(@"$time error %lld, Please check the value", customTimeInt);
         }
     } else if (originalTime) {
         SALogError(@"$time '%@' invalid, Please check the value", originalTime);
@@ -141,6 +144,7 @@
         return nil;
     }
 
+    // key 校验
     [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
     if (*error) {
         return nil;

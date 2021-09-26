@@ -26,6 +26,7 @@
 #import "SAModuleProtocol.h"
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAThreadSafeDictionary.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
@@ -48,7 +49,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @interface SAModuleManager ()
 
 /// 已开启的模块
-@property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
+@property (nonatomic, strong) SAThreadSafeDictionary<NSString *, id<SAModuleProtocol>> *modules;
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
@@ -58,6 +59,10 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
+    // 禁止 SDK 时，不开启其他模块
+    if (configOptions.disableSDK) {
+        return;
+    }
 
     // H5 打通模块
     if (configOptions.enableJavaScriptBridge) {
@@ -116,7 +121,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     static SAModuleManager *manager = nil;
     dispatch_once(&onceToken, ^{
         manager = [[SAModuleManager alloc] init];
-        manager.modules = [NSMutableDictionary dictionary];
+        manager.modules = [SAThreadSafeDictionary dictionary];
     });
     return manager;
 }
@@ -158,7 +163,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     } else {
         NSString *className = [self classNameForModule:moduleName];
         Class<SAModuleProtocol> cla = NSClassFromString(className);
-        NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
+        NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['Core', '%@']。\n", moduleName, className, moduleName, moduleName);
         if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
             id<SAModuleProtocol> object = [[(Class)cla alloc] init];
             if ([object respondsToSelector:@selector(setConfigOptions:)]) {
@@ -171,6 +176,29 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 }
 
 #pragma mark - Public
+
+- (BOOL)isDisableSDK {
+    if (self.configOptions.disableSDK) {
+        return YES;
+    }
+    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)self.modules[kSARemoteConfigModuleName];
+    return manager.isEnable ? manager.isDisableSDK : NO;
+}
+
+- (void)disableAllModules {
+    NSArray<NSString *> *allKeys = self.modules.allKeys;
+    for (NSString *key in allKeys) {
+        // 这两个模块是使用接口开启，所以在 SAConfigOptions 中不存在标记，无法重新开启
+        // 当定位弹窗出现时，如果关闭了定位模块，会导致弹窗消失
+        if (![key isEqualToString:kSALocationModuleName] &&
+            ![key isEqualToString:kSADeviceOrientationModuleName] &&
+            ![key isEqualToString:kSADebugModeModuleName] &&
+            ![key isEqualToString:kSAEncryptModuleName]
+            ) {
+            [self.modules removeObjectForKey:key];
+        }
+    }
+}
 
 - (BOOL)contains:(SAModuleType)type {
     NSString *moduleName = [self moduleNameForType:type];
@@ -186,6 +214,15 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     [self setEnable:enable forModule:name];
+}
+
+- (void)updateServerURL:(NSString *)serverURL {
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+        if (!([obj conformsToProtocol:@protocol(SAModuleProtocol)] && [obj respondsToSelector:@selector(updateServerURL:)]) || !obj.isEnable) {
+            return;
+        }
+        [obj updateServerURL:serverURL];
+    }];
 }
 
 #pragma mark - Open URL
@@ -224,10 +261,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (NSDictionary *)properties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    // 这里需要做一次 copy 操作，避免多线程中同时操作 modules 导致崩溃
-    NSDictionary *dictionary = [self.modules copy];
     // 兼容使用宏定义的方式源码集成 SDK
-    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
         if (!([obj conformsToProtocol:@protocol(SAPropertyModuleProtocol)] && [obj respondsToSelector:@selector(properties)]) || !obj.isEnable) {
             return;
         }
@@ -351,6 +386,10 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     [self.deeplinkManager clearUtmProperties];
 }
 
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
+    [self.deeplinkManager trackDeepLinkLaunchWithURL:url];
+}
+
 @end
 
 #pragma mark -
@@ -366,6 +405,42 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     [self.autoTrackManager trackAppEndWhenCrashed];
 }
 
+- (void)trackPageLeaveWhenCrashed {
+    [self.autoTrackManager trackPageLeaveWhenCrashed];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Visualized)
+
+#pragma mark properties
+// 采集元素属性
+- (nullable NSDictionary *)propertiesWithView:(id)view {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    return [manager propertiesWithView:view];
+}
+
+#pragma mark visualProperties
+// 采集元素自定义属性
+- (void)visualPropertiesWithView:(id)view completionHandler:(void (^)(NSDictionary *_Nullable))completionHandler {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    if (!manager) {
+        return completionHandler(nil);
+    }
+    [manager visualPropertiesWithView:view completionHandler:completionHandler];
+}
+
+// 根据属性配置，采集 App 属性值
+- (void)queryVisualPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    if (!manager) {
+        return completionHandler(nil);
+    }
+    [manager queryVisualPropertiesWithConfigs:propertyConfigs completionHandler:completionHandler];
+}
+
 @end
 
 #pragma mark -
@@ -374,9 +449,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (NSString *)javaScriptSource {
     NSMutableString *source = [NSMutableString string];
-    // 这里需要做一次 copy 操作，避免多线程中同时操作 modules 导致崩溃
-    NSDictionary *dictionary = [self.modules copy];
-    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
         if (!([obj conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [obj respondsToSelector:@selector(javaScriptSource)]) || !obj.isEnable) {
             return;
         }
@@ -403,10 +476,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (BOOL)isIgnoreEventObject:(SABaseEventObject *)obj {
     return [self.remoteConfigManager isIgnoreEventObject:obj];
-}
-
-- (BOOL)isDisableSDK {
-    return [self.remoteConfigManager isDisableSDK];
 }
 
 @end
