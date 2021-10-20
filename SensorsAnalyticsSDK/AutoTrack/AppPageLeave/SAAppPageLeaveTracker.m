@@ -162,7 +162,7 @@
     if ([self isViewController:viewController inBlackList:appViewScreenBlackList]) {
         return NO;
     }
-    if (SAAutoTrackManager.sharedInstance.configOptions.enableAutoTrackChildViewScreen ||
+    if (SAAutoTrackManager.defaultManager.configOptions.enableAutoTrackChildViewScreen ||
         !viewController.parentViewController ||
         [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
         [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
