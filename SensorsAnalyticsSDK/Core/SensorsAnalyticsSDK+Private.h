@@ -60,7 +60,7 @@
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SANetwork *network;
 @property (nonatomic, strong, readonly) SASuperProperty *superProperty;
-@property (nonatomic, strong) SAEventTracker *eventTracker;
+@property (nonatomic, strong, readonly) SAEventTracker *eventTracker;
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
 
 @end
