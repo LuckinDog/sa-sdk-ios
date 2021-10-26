@@ -269,6 +269,14 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     return nil;
 }
 
+- (BOOL)isTrackedInstallWithDisableCallback:(BOOL)disableCallback {
+    return [self.channelMatchManager isTrackedInstallWithDisableCallback:disableCallback];
+}
+
+- (void)setTrackedInstallWithDisableCallback:(BOOL)disableCallback {
+    [self.channelMatchManager setTrackedInstallWithDisableCallback:disableCallback];
+}
+
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties {
     [self.channelMatchManager trackAppInstall:event properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
 }

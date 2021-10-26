@@ -141,13 +141,13 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     return ([SAIdentifier idfa].length > 0 || [self CAIDInfo].allKeys > 0);
 }
 
-- (BOOL)isInstallWithDisableCallback:(BOOL)disableCallback {
+- (BOOL)isTrackedInstallWithDisableCallback:(BOOL)disableCallback {
     NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
     return [userDefault boolForKey:userDefaultsKey];
 }
 
-- (void)setInstallWithDisableCallback:(BOOL)disableCallback {
+- (void)setTrackedInstallWithDisableCallback:(BOOL)disableCallback {
     NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
 
@@ -161,18 +161,10 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 
 #pragma mark - 激活事件
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties {
-    BOOL isInstall = [self isInstallWithDisableCallback:disableCallback];
-    if (!isInstall) {
-        [self setInstallWithDisableCallback:disableCallback];
-        [self trackEvent:event properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
-    }
-}
-
-- (void)trackEvent:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties {
     // 采集激活事件
     SAPresetEventObject *eventObject = [[SAPresetEventObject alloc] initWithEventId:event];
     eventObject.dynamicSuperProperties = dynamicProperties;
-    NSDictionary *eventProps = [self  eventProperties:properties disableCallback:disableCallback];
+    NSDictionary *eventProps = [self eventProperties:properties disableCallback:disableCallback];
     [SensorsAnalyticsSDK.sharedInstance trackEventObject:eventObject properties:eventProps];
 
     // 设置用户属性
@@ -180,9 +172,6 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     profileObject.dynamicSuperProperties = dynamicProperties;
     NSDictionary *profileProps = [self profileProperties:properties];
     [SensorsAnalyticsSDK.sharedInstance trackEventObject:profileObject properties:profileProps];
-
-    // 数据上传
-    [SensorsAnalyticsSDK.sharedInstance.eventTracker flushAllEventRecords];
 }
 
 - (NSDictionary *)eventProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
@@ -428,8 +417,10 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
         dispatch_queue_t serialQueue = SensorsAnalyticsSDK.sharedInstance.serialQueue;
         NSDictionary *dynamicProperties = [SensorsAnalyticsSDK.sharedInstance.superProperty acquireDynamicSuperProperties];
         dispatch_async(serialQueue, ^{
-            [self trackEvent:kSAChannelDebugInstallEventName properties:nil disableCallback:NO dynamicProperties:dynamicProperties];
+            [self trackAppInstall:kSAChannelDebugInstallEventName properties:nil disableCallback:NO dynamicProperties:dynamicProperties];
         });
+        [SensorsAnalyticsSDK.sharedInstance flush];
+
         [self showChannelDebugInstall];
     }];
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
