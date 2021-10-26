@@ -63,8 +63,8 @@ static NSString * const kSAEventNameAppInstall = @"$AppInstall";
 - (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
     NSDictionary *dynamicProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
-        if (![SAModuleManager.sharedInstance isTrackedInstallWithDisableCallback:disableCallback]) {
-            [SAModuleManager.sharedInstance setTrackedInstallWithDisableCallback:disableCallback];
+        if (![SAModuleManager.sharedInstance isTrackedAppInstallWithDisableCallback:disableCallback]) {
+            [SAModuleManager.sharedInstance setTrackedAppInstallWithDisableCallback:disableCallback];
             [SAModuleManager.sharedInstance trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
             [self.eventTracker flushAllEventRecords];
         }
@@ -82,8 +82,8 @@ static NSString * const kSAEventNameAppInstall = @"$AppInstall";
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
     NSDictionary *dynamicProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
-        if (![SAModuleManager.sharedInstance isTrackedInstallWithDisableCallback:disableCallback]) {
-            [SAModuleManager.sharedInstance setTrackedInstallWithDisableCallback:disableCallback];
+        if (![SAModuleManager.sharedInstance isTrackedAppInstallWithDisableCallback:disableCallback]) {
+            [SAModuleManager.sharedInstance setTrackedAppInstallWithDisableCallback:disableCallback];
             [SAModuleManager.sharedInstance trackAppInstall:event properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
             [self.eventTracker flushAllEventRecords];
         }

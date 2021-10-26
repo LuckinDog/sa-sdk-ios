@@ -66,11 +66,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否采集过激活事件
 /// @param disableCallback 根据 disableCallback 获取本地标记 key 值
-- (BOOL)isTrackedInstallWithDisableCallback:(BOOL)disableCallback;
+- (BOOL)isTrackedAppInstallWithDisableCallback:(BOOL)disableCallback;
 
 /// 设置已经采集激活事件标记
 /// @param disableCallback 根据 disableCallback 获取本地标记 key 值
-- (void)setTrackedInstallWithDisableCallback:(BOOL)disableCallback;
+- (void)setTrackedAppInstallWithDisableCallback:(BOOL)disableCallback;
 
 /**
  * @abstract
