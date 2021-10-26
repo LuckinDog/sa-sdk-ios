@@ -143,20 +143,29 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 
 #pragma mark - 激活事件
 - (BOOL)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties {
+    BOOL isInstall = [self isInstallWithDisableCallback:disableCallback];
+    if (!isInstall) {
+        [self internalTrackAppInstall:event properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
+    }
+    return isInstall;
+}
+
+- (BOOL)isInstallWithDisableCallback:(BOOL)disableCallback {
     NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
-    BOOL hasTrackInstallation = [userDefault boolForKey:userDefaultsKey];
-    if (hasTrackInstallation) {
-        return NO;
+    BOOL isInstall = [userDefault boolForKey:userDefaultsKey];
+    if (!isInstall) {
+        // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
+        [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAChannelDebugFlagKey];
+
+        // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
+        [userDefault setBool:YES forKey:userDefaultsKey];
+        [userDefault synchronize];
     }
+    return isInstall;
+}
 
-    // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
-    [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAChannelDebugFlagKey];
-
-    // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
-    [userDefault setBool:YES forKey:userDefaultsKey];
-    [userDefault synchronize];
-
+- (void)internalTrackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties {
     // 采集激活事件
     SAPresetEventObject *eventObject = [[SAPresetEventObject alloc] initWithEventId:event];
     eventObject.dynamicSuperProperties = dynamicProperties;
@@ -168,23 +177,6 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     profileObject.dynamicSuperProperties = dynamicProperties;
     NSDictionary *profileProps = [self profileProperties:properties];
     [SensorsAnalyticsSDK.sharedInstance trackEventObject:profileObject properties:profileProps];
-
-    return YES;
-}
-
-- (void)trackChannelDebugInstallEvent {
-    // 采集激活事件
-    SAPresetEventObject *eventObject = [[SAPresetEventObject alloc] initWithEventId:kSAChannelDebugInstallEventName];
-    NSDictionary *eventProps = [self  eventProperties:nil disableCallback:NO];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:eventObject properties:eventProps];
-
-    // 设置用户属性
-    SAProfileEventObject *profileObject = [[SAProfileEventObject alloc] initWithType:SA_PROFILE_SET_ONCE];
-    NSDictionary *profileProps = [self profileProperties:nil];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:profileObject properties:profileProps];
-
-    // 数据上传
-    [SensorsAnalyticsSDK.sharedInstance flush];
 }
 
 - (NSDictionary *)eventProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
@@ -427,7 +419,12 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     NSString *content = @"此模式下不需要卸载 App，点击“激活”按钮可反复触发激活。";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"激活" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        [self trackChannelDebugInstallEvent];
+        dispatch_queue_t serialQueue = SensorsAnalyticsSDK.sharedInstance.serialQueue;
+        NSDictionary *dynamicProperties = [SensorsAnalyticsSDK.sharedInstance.superProperty acquireDynamicSuperProperties];
+        dispatch_async(serialQueue, ^{
+            [self internalTrackAppInstall:kSAChannelDebugInstallEventName properties:nil disableCallback:NO dynamicProperties:dynamicProperties];
+            [SensorsAnalyticsSDK.sharedInstance.eventTracker flushAllEventRecords];
+        });
         [self showChannelDebugInstall];
     }];
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
