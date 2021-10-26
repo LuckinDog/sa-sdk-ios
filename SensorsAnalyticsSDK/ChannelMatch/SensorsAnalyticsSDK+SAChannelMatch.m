@@ -27,9 +27,16 @@
 #import "SATrackEventObject.h"
 #import "SAModuleManager.h"
 #import "SASuperProperty.h"
+#import "SAEventTracker.h"
 
 // 激活事件
 static NSString * const kSAEventNameAppInstall = @"$AppInstall";
+
+@interface SensorsAnalyticsSDK ()
+
+@property (nonatomic, strong, readonly) SAEventTracker *eventTracker;
+
+@end
 
 @implementation SensorsAnalyticsSDK (SAChannelMatch)
 

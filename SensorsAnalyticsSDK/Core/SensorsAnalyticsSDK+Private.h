@@ -28,7 +28,6 @@
 #import "SATrackEventObject.h"
 #import "SAAppLifecycle.h"
 #import "SASuperProperty.h"
-#import "SAEventTracker.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -60,7 +59,6 @@
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SANetwork *network;
 @property (nonatomic, strong, readonly) SASuperProperty *superProperty;
-@property (nonatomic, strong, readonly) SAEventTracker *eventTracker;
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
 
 @end
