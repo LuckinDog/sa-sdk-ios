@@ -269,8 +269,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     return nil;
 }
 
-- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    [self.channelMatchManager trackAppInstall:event properties:properties disableCallback:disableCallback];
+- (BOOL)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties {
+    return [self.channelMatchManager trackAppInstall:event properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
 }
 
 - (void)trackChannelWithEventObject:(SABaseEventObject *)obj properties:(NSDictionary *)properties {

@@ -142,41 +142,89 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 }
 
 #pragma mark - 激活事件
-- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    dispatch_queue_t serialQueue = SensorsAnalyticsSDK.sharedInstance.serialQueue;
-    NSDictionary *dynamicProperties = [SensorsAnalyticsSDK.sharedInstance.superProperty acquireDynamicSuperProperties];
-    dispatch_async(serialQueue, ^{
-        NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
-        NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
-        BOOL hasTrackInstallation = [userDefault boolForKey:userDefaultsKey];
-        if (hasTrackInstallation) {
-            return;
-        }
+- (BOOL)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties {
+    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
+    NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
+    BOOL hasTrackInstallation = [userDefault boolForKey:userDefaultsKey];
+    if (hasTrackInstallation) {
+        return NO;
+    }
 
-        // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
-        [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAChannelDebugFlagKey];
+    // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
+    [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAChannelDebugFlagKey];
 
-        // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
-        [userDefault setBool:YES forKey:userDefaultsKey];
-        [userDefault synchronize];
+    // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
+    [userDefault setBool:YES forKey:userDefaultsKey];
+    [userDefault synchronize];
 
-        NSMutableDictionary *eventProps = [NSMutableDictionary dictionary];
-        if ([SAValidator isValidDictionary:properties]) {
-            [eventProps addEntriesFromDictionary:properties];
-        }
-        if (disableCallback) {
-            eventProps[SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK] = @YES;
-        }
-        [self trackAppInstallEvent:event properties:eventProps dynamicProperties:dynamicProperties];
-    });
+    // 采集激活事件
+    SAPresetEventObject *eventObject = [[SAPresetEventObject alloc] initWithEventId:event];
+    eventObject.dynamicSuperProperties = dynamicProperties;
+    NSDictionary *eventProps = [self  eventProperties:properties disableCallback:disableCallback];
+    [SensorsAnalyticsSDK.sharedInstance trackEventObject:eventObject properties:eventProps];
+
+    // 设置用户属性
+    SAProfileEventObject *profileObject = [[SAProfileEventObject alloc] initWithType:SA_PROFILE_SET_ONCE];
+    profileObject.dynamicSuperProperties = dynamicProperties;
+    NSDictionary *profileProps = [self profileProperties:properties];
+    [SensorsAnalyticsSDK.sharedInstance trackEventObject:profileObject properties:profileProps];
+
+    return YES;
 }
 
 - (void)trackChannelDebugInstallEvent {
-    dispatch_queue_t serialQueue = SensorsAnalyticsSDK.sharedInstance.serialQueue;
-    NSDictionary *dynamicProperties = [SensorsAnalyticsSDK.sharedInstance.superProperty acquireDynamicSuperProperties];
-    dispatch_async(serialQueue, ^{
-        [self trackAppInstallEvent:kSAChannelDebugInstallEventName properties:nil dynamicProperties:dynamicProperties];
-    });
+    // 采集激活事件
+    SAPresetEventObject *eventObject = [[SAPresetEventObject alloc] initWithEventId:kSAChannelDebugInstallEventName];
+    NSDictionary *eventProps = [self  eventProperties:nil disableCallback:NO];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:eventObject properties:eventProps];
+
+    // 设置用户属性
+    SAProfileEventObject *profileObject = [[SAProfileEventObject alloc] initWithType:SA_PROFILE_SET_ONCE];
+    NSDictionary *profileProps = [self profileProperties:nil];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:profileObject properties:profileProps];
+
+    // 数据上传
+    [SensorsAnalyticsSDK.sharedInstance flush];
+}
+
+- (NSDictionary *)eventProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    if ([SAValidator isValidDictionary:properties]) {
+        [result addEntriesFromDictionary:properties];
+    }
+
+    if (disableCallback) {
+        result[SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK] = @YES;
+    }
+
+    if ([result[kSAEventPropertyUserAgent] length] == 0) {
+        result[kSAEventPropertyUserAgent] = [self simulateUserAgent];
+    }
+
+    result[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+
+    return result;
+}
+
+- (NSDictionary *)profileProperties:(NSDictionary *)properties {
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    if ([SAValidator isValidDictionary:properties]) {
+        [result addEntriesFromDictionary:properties];
+    }
+
+    if ([result[kSAEventPropertyUserAgent] length] == 0) {
+        result[kSAEventPropertyUserAgent] = [self simulateUserAgent];
+    }
+
+    result[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+
+    // 用户属性中不需要添加 $ios_install_disable_callback，这里主动移除掉
+    // (也会移除自定义属性中的 $ios_install_disable_callback, 和原有逻辑保持一致)
+    [result removeObjectForKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
+
+    [result setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
+
+    return result;
 }
 
 - (NSString *)appInstallSource {
@@ -198,35 +246,6 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
         return ((NSDictionary * (*)(id, SEL))[cla methodForSelector:sel])(cla, sel);
     }
     return nil;
-}
-
-- (void)trackAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties dynamicProperties:(NSDictionary *)dynamicProperties {
-
-    // 添加渠道相关属性
-    NSMutableDictionary *eventProps = [NSMutableDictionary dictionaryWithDictionary:properties];
-    eventProps[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
-
-    if ([eventProps[kSAEventPropertyUserAgent] length] == 0) {
-        eventProps[kSAEventPropertyUserAgent] = [self simulateUserAgent];
-    }
-
-    // 先发送 track
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    SAPresetEventObject *eventObject = [[SAPresetEventObject alloc] initWithEventId:event];
-    eventObject.dynamicSuperProperties = dynamicProperties;
-    [sdk trackEventObject:eventObject properties:eventProps];
-
-    NSMutableDictionary *profileProps = [NSMutableDictionary dictionary];
-    [profileProps addEntriesFromDictionary:eventProps];
-    // 用户属性中不需要添加 $ios_install_disable_callback，这里主动移除掉
-    [profileProps removeObjectForKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
-    // 再发送 profile_set_once
-    [profileProps setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-    SAProfileEventObject *profileObject = [[SAProfileEventObject alloc] initWithType:SA_PROFILE_SET_ONCE];
-    profileObject.dynamicSuperProperties = dynamicProperties;
-    [sdk trackEventObject:profileObject properties:profileProps];
-
-    [sdk.eventTracker flushAllEventRecords];
 }
 
 #pragma mark - 附加渠道信息
