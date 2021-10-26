@@ -54,12 +54,9 @@ static NSString * const kSAEventNameAppInstall = @"$AppInstall";
 }
 
 - (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    NSDictionary *dynamicProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
-        NSDictionary *dynamicProperties = [self.superProperty acquireDynamicSuperProperties];
-        BOOL isInstall = [SAModuleManager.sharedInstance trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
-        if (isInstall) {
-            [self.eventTracker flushAllEventRecords];
-        }
+        [SAModuleManager.sharedInstance trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
     });
 }
 
@@ -72,12 +69,9 @@ static NSString * const kSAEventNameAppInstall = @"$AppInstall";
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    NSDictionary *dynamicProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
-        NSDictionary *dynamicProperties = [self.superProperty acquireDynamicSuperProperties];
-        BOOL isInstall = [SAModuleManager.sharedInstance trackAppInstall:event properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
-        if (isInstall) {
-            [self.eventTracker flushAllEventRecords];
-        }
+        [SAModuleManager.sharedInstance trackAppInstall:event properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
     });
 }
 

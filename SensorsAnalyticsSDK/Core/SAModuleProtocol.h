@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
  * @param dynamicProperties     动态公共属性 (需要在切换 serialQueue 前获取)
 */
-- (BOOL)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties;
+- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties;
 
 /// 调用 track 接口并附加渠道信息
 ///
