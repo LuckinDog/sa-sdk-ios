@@ -141,13 +141,13 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     return ([SAIdentifier idfa].length > 0 || [self CAIDInfo].allKeys > 0);
 }
 
-- (BOOL)isTrackedInstallWithDisableCallback:(BOOL)disableCallback {
+- (BOOL)isTrackedAppInstallWithDisableCallback:(BOOL)disableCallback {
     NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
     return [userDefault boolForKey:userDefaultsKey];
 }
 
-- (void)setTrackedInstallWithDisableCallback:(BOOL)disableCallback {
+- (void)setTrackedAppInstallWithDisableCallback:(BOOL)disableCallback {
     NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
 
